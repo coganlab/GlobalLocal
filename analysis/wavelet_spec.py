@@ -1,1 +1,0 @@
-# try to recreate aaron's wavelet_spec.py file
