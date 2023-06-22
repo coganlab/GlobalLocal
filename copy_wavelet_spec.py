@@ -52,11 +52,12 @@ for sub in subjects:
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
+    trialType = "i75s25"
     # This part will change when I fix the events
     for epoch, t, name in zip(
-            ("Stimulus", "Stimulus",  "Response"),
+            ("Stimulus"+trialType, "Stimulus"+trialType,  "Responsei75s25"+trialType),
             ((-0.5, 0), (0, 1), (-0.5, 0.5)),
-            ("base", "stim", "resp")):
+            ("baselineStimulus"+trialType, "Stimulus"+trialType, "Response"+trialType)):
         times = [None, None]
         times[0] = t[0] - 0.5
         times[1] = t[1] + 0.5
@@ -65,7 +66,7 @@ for sub in subjects:
         spec = wavelet_scaleogram(trials, n_jobs=-2, decim=int(
             good.info['sfreq'] / 100))
         crop_pad(spec, "0.5s")
-        if name == "base":
+        if name == "baselineStimulus"+trialType:
             base = spec.copy()
             continue
         spec_a = rescale(spec, base, copy=True, mode='ratio').average(
