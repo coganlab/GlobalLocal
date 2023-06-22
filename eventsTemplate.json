@@ -1,0 +1,34 @@
+//   this is just from the website, customize it
+
+{
+    "Duration": {
+      "LongName": "Image duration",
+      "Description": "Duration of the image presentations",
+      "Units": "s",
+      "HED": "Duration/# s"
+    },
+    "trial_type": {
+      "LongName": "Event category",
+      "Description": "Indicator of type of action that is expected",
+      "Levels": {
+        "go": "A red square is displayed to indicate starting",
+        "stop": "A blue square is displayed to indicate stopping"
+      },
+      "HED": {
+            "go": "Sensory-event, Visual-presentation, ((Square, Blue),(Computer-screen, Center-of))",
+            "stop": "Sensory-event, Visual-presentation, ((Square, Blue), (Computer-screen, Center-of))"
+         }
+     },
+     "response_time": {
+         "LongName": "Response time after stimulus",
+         "Description": "Time from stimulus presentation until subject presses button",
+         "Units": "ms",
+         "HED": "(Delay/# ms, Agent-action, (Experiment-participant, (Press, Mouse-button))),"
+     },
+     "stim_file": {
+         "LongName": "Stimulus filename",
+         "Description": "Relative path of the stimulus image file",
+         "HED": "Pathname/#"
+     }
+  }
+
