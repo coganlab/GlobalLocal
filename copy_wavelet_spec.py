@@ -26,8 +26,8 @@ for sub in subjects:
     # if sub != "D0022":
     #     continue
     # Load the data
-    filt = raw_from_layout(layout, subject=sub,
-                           extension='.edf', preload=False)
+    filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
+                           extension='.edf', desc='clean', preload=False) #get line-noise filtered data
     print(filt)
 
     ## Crop raw data to minimize processing time
@@ -55,7 +55,7 @@ for sub in subjects:
     trialType = "i75s25"
     # This part will change when I fix the events
     for epoch, t, name in zip(
-            ("Stimulus"+trialType, "Stimulus"+trialType,  "Responsei75s25"+trialType),
+            ("Stimulus"+trialType, "Stimulus"+trialType,  "Response"+trialType),
             ((-0.5, 0), (0, 1), (-0.5, 0.5)),
             ("baselineStimulus"+trialType, "Stimulus"+trialType, "Response"+trialType)):
         times = [None, None]
