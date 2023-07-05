@@ -776,3 +776,62 @@ INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalL
 WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-03 16:18:51,229
 WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-03 16:18:51,242
 INFO: Reading 0 ... 8237055  =      0.000 ...  4022.000 secs... - 2023-07-03 16:18:51,332
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-03 16:32:51,804
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-03 16:32:51,834
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-03 16:32:51,876
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-03 16:32:51,913
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-03 16:32:51,914
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/n75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-03 16:32:51,924
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-03 16:32:51,956
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-03 16:32:51,986
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-03 16:32:52,022
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-03 16:32:52,053
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-03 16:32:52,055
+WARNING: Converting data files to EDF format - 2023-07-03 16:32:52,081
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-03 16:40:13,645
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-03 16:40:14,622
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-03 16:40:14,622
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-03 16:40:20,255
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-03 16:40:20,292
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-03 16:40:20,336
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-03 16:40:20,374
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-03 16:40:20,374
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/n25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/n25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-03 16:40:20,377
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-03 16:40:20,409
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-03 16:40:20,438
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-03 16:40:20,465
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-03 16:40:20,499
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-03 16:40:20,501
+WARNING: Converting data files to EDF format - 2023-07-03 16:40:20,514
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-03 16:42:02,736
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-03 16:42:02,985
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-03 16:42:02,985
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-03 16:42:07,119
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-03 16:42:07,146
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-03 16:42:07,187
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-03 16:42:07,228
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-03 16:42:07,228
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n25', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/n25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-03 16:42:07,231
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-03 16:42:07,260
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-03 16:42:07,286
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-03 16:42:07,312
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-03 16:42:07,341
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-03 16:42:07,343
+WARNING: Converting data files to EDF format - 2023-07-03 16:42:07,357
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-03 16:44:03,502
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-03 16:44:03,780
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-03 16:44:03,780
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-03 16:44:09,572
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-03 16:44:09,635
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-03 16:44:09,674
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-03 16:44:09,708
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-03 16:44:09,709
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/n75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/n75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-03 16:44:09,720
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-03 16:44:09,749
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-03 16:44:09,774
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-03 16:44:09,804
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-03 16:44:09,833
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-03 16:44:09,835
+WARNING: Converting data files to EDF format - 2023-07-03 16:44:09,847
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-03 16:49:47,663
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-03 16:49:47,663
