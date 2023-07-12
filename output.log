@@ -835,3 +835,550 @@ INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_
 WARNING: Converting data files to EDF format - 2023-07-03 16:44:09,847
 INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-03 16:49:47,663
 INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-03 16:49:47,663
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 16:24:34,674
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 16:24:34,701
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 16:24:34,759
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 16:24:34,795
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 16:24:34,795
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/n75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 16:24:34,805
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 16:25:57,032
+INFO: EDF file detected - 2023-07-11 16:25:57,033
+INFO: Setting channel info structure... - 2023-07-11 16:25:57,041
+INFO: Creating raw.info structure... - 2023-07-11 16:25:57,043
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 16:25:58,862
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-11 16:25:58,889
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:25:58,894
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-11 16:25:58,910
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:25:58,917
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 16:25:58,933
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 16:25:58,949
+INFO: EDF file detected - 2023-07-11 16:25:58,949
+INFO: Setting channel info structure... - 2023-07-11 16:25:58,955
+INFO: Creating raw.info structure... - 2023-07-11 16:25:58,956
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 16:25:59,389
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-11 16:25:59,409
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:25:59,412
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-11 16:25:59,426
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:25:59,430
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 16:25:59,444
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 16:25:59,460
+INFO: EDF file detected - 2023-07-11 16:25:59,460
+INFO: Setting channel info structure... - 2023-07-11 16:25:59,468
+INFO: Creating raw.info structure... - 2023-07-11 16:25:59,469
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 16:25:59,898
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-11 16:25:59,917
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:25:59,919
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-11 16:25:59,933
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:25:59,937
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 16:25:59,951
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 16:25:59,967
+INFO: EDF file detected - 2023-07-11 16:25:59,967
+INFO: Setting channel info structure... - 2023-07-11 16:25:59,974
+INFO: Creating raw.info structure... - 2023-07-11 16:25:59,975
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 16:26:01,475
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-11 16:26:01,501
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:26:01,505
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-11 16:26:01,520
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:26:01,526
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 16:26:01,545
+INFO: Reading 0 ... 8237055  =      0.000 ...  4022.000 secs... - 2023-07-11 16:26:01,745
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 16:41:04,035
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 16:41:04,093
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 16:41:04,164
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 16:41:04,230
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 16:41:04,230
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/n75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 16:41:04,247
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-11 16:41:04,314
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 16:41:04,392
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-11 16:41:04,471
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-11 16:41:04,561
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-11 16:41:04,568
+WARNING: Converting data files to EDF format - 2023-07-11 16:41:04,693
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 16:48:28,819
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-11 16:48:29,754
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-11 16:48:29,754
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 16:48:35,023
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 16:48:35,049
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 16:48:35,093
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 16:48:35,137
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 16:48:35,137
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/n25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/n25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-11 16:48:35,140
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-11 16:48:35,171
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 16:48:35,196
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-11 16:48:35,223
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-11 16:48:35,254
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-11 16:48:35,257
+WARNING: Converting data files to EDF format - 2023-07-11 16:48:35,276
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 16:50:17,820
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-11 16:50:18,032
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-11 16:50:18,032
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 16:50:22,282
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 16:50:22,305
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 16:50:22,349
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 16:50:22,381
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 16:50:22,381
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n25', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/n25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-11 16:50:22,384
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-11 16:50:22,412
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 16:50:22,437
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-11 16:50:22,463
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-11 16:50:22,492
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-11 16:50:22,494
+WARNING: Converting data files to EDF format - 2023-07-11 16:50:22,505
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 16:52:09,851
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-11 16:52:10,061
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-11 16:52:10,061
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 16:52:15,750
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 16:52:15,775
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 16:52:15,816
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 16:52:15,848
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 16:52:15,849
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/n75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/n75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-11 16:52:15,858
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-11 16:52:15,891
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 16:52:15,915
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-11 16:52:15,946
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-11 16:52:15,977
+INFO: Copying data files to sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-11 16:52:15,979
+WARNING: Converting data files to EDF format - 2023-07-11 16:52:16,005
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv'... - 2023-07-11 16:57:53,034
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0057\sub-D0057_scans.tsv entry with ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 16:57:53,035
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 16:57:53,640
+INFO: EDF file detected - 2023-07-11 16:57:53,641
+INFO: Setting channel info structure... - 2023-07-11 16:57:53,654
+INFO: Creating raw.info structure... - 2023-07-11 16:57:53,658
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 16:57:55,987
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_channels.tsv. - 2023-07-11 16:57:56,020
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:57:56,028
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_space-ACPC_electrodes.tsv. - 2023-07-11 16:57:56,048
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:57:56,058
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 16:57:56,077
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 16:57:56,097
+INFO: EDF file detected - 2023-07-11 16:57:56,097
+INFO: Setting channel info structure... - 2023-07-11 16:57:56,105
+INFO: Creating raw.info structure... - 2023-07-11 16:57:56,106
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 16:57:56,627
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_channels.tsv. - 2023-07-11 16:57:56,652
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:57:56,658
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_space-ACPC_electrodes.tsv. - 2023-07-11 16:57:56,673
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:57:56,677
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 16:57:56,701
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 16:57:56,722
+INFO: EDF file detected - 2023-07-11 16:57:56,722
+INFO: Setting channel info structure... - 2023-07-11 16:57:56,730
+INFO: Creating raw.info structure... - 2023-07-11 16:57:56,731
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 16:57:57,245
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_channels.tsv. - 2023-07-11 16:57:57,267
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:57:57,270
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_space-ACPC_electrodes.tsv. - 2023-07-11 16:57:57,285
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:57:57,290
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 16:57:57,310
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 16:57:57,330
+INFO: EDF file detected - 2023-07-11 16:57:57,330
+INFO: Setting channel info structure... - 2023-07-11 16:57:57,337
+INFO: Creating raw.info structure... - 2023-07-11 16:57:57,339
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 16:57:59,074
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_channels.tsv. - 2023-07-11 16:57:59,101
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 16:57:59,105
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_space-ACPC_electrodes.tsv. - 2023-07-11 16:57:59,122
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 16:57:59,127
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 16:57:59,145
+INFO: Reading 0 ... 8763391  =      0.000 ...  4279.000 secs... - 2023-07-11 16:57:59,254
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:12:56,554
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:12:56,579
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:12:56,626
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:12:56,665
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:12:56,665
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/n75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/n75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 17:12:56,677
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-11 17:12:56,713
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:12:56,733
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-11 17:12:56,778
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-11 17:12:56,811
+INFO: Copying data files to sub-D0059_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-11 17:12:56,816
+WARNING: Converting data files to EDF format - 2023-07-11 17:12:56,831
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:21:43,094
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv'... - 2023-07-11 17:21:44,228
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv entry with ieeg\sub-D0059_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-11 17:21:44,228
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:21:50,545
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:21:50,569
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:21:50,612
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:21:50,652
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:21:50,652
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/n25', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/n25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-11 17:21:50,655
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-11 17:21:50,684
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:21:50,712
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-11 17:21:50,738
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-11 17:21:50,768
+INFO: Copying data files to sub-D0059_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-11 17:21:50,771
+WARNING: Converting data files to EDF format - 2023-07-11 17:21:50,785
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:23:41,489
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv'... - 2023-07-11 17:23:41,710
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv entry with ieeg\sub-D0059_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-11 17:23:41,710
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:23:46,838
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:23:46,868
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:23:46,933
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:23:46,981
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:23:46,981
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/n25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/n25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-11 17:23:46,985
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-11 17:23:47,011
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:23:47,032
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-11 17:23:47,058
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-11 17:23:47,088
+INFO: Copying data files to sub-D0059_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-11 17:23:47,090
+WARNING: Converting data files to EDF format - 2023-07-11 17:23:47,100
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:25:37,579
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv'... - 2023-07-11 17:25:37,780
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv entry with ieeg\sub-D0059_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-11 17:25:37,780
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:25:44,398
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:25:44,422
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:25:44,460
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0059/ieeg/sub-D0059_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:25:44,492
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:25:44,492
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/n75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/n75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-11 17:25:44,500
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-11 17:25:44,528
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:25:44,558
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-11 17:25:44,588
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-11 17:25:44,615
+INFO: Copying data files to sub-D0059_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-11 17:25:44,617
+WARNING: Converting data files to EDF format - 2023-07-11 17:25:44,629
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv'... - 2023-07-11 17:31:59,954
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0059\sub-D0059_scans.tsv entry with ieeg\sub-D0059_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 17:31:59,954
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 17:32:00,575
+INFO: EDF file detected - 2023-07-11 17:32:00,576
+INFO: Setting channel info structure... - 2023-07-11 17:32:00,589
+INFO: Creating raw.info structure... - 2023-07-11 17:32:00,590
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 17:32:01,851
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_channels.tsv. - 2023-07-11 17:32:01,882
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:32:01,895
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_space-ACPC_electrodes.tsv. - 2023-07-11 17:32:01,913
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:32:01,921
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 17:32:01,940
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 17:32:01,959
+INFO: EDF file detected - 2023-07-11 17:32:01,959
+INFO: Setting channel info structure... - 2023-07-11 17:32:01,966
+INFO: Creating raw.info structure... - 2023-07-11 17:32:01,968
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 17:32:02,542
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_channels.tsv. - 2023-07-11 17:32:02,562
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:32:02,567
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_space-ACPC_electrodes.tsv. - 2023-07-11 17:32:02,582
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:32:02,588
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 17:32:02,608
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 17:32:02,624
+INFO: EDF file detected - 2023-07-11 17:32:02,624
+INFO: Setting channel info structure... - 2023-07-11 17:32:02,632
+INFO: Creating raw.info structure... - 2023-07-11 17:32:02,633
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 17:32:03,205
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_channels.tsv. - 2023-07-11 17:32:03,225
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:32:03,228
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_space-ACPC_electrodes.tsv. - 2023-07-11 17:32:03,243
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:32:03,247
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 17:32:03,267
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 17:32:03,284
+INFO: EDF file detected - 2023-07-11 17:32:03,284
+INFO: Setting channel info structure... - 2023-07-11 17:32:03,292
+INFO: Creating raw.info structure... - 2023-07-11 17:32:03,294
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 17:32:04,315
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_channels.tsv. - 2023-07-11 17:32:04,337
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:32:04,343
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_space-ACPC_electrodes.tsv. - 2023-07-11 17:32:04,358
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:32:04,372
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 17:32:04,391
+INFO: Reading 0 ... 4380671  =      0.000 ...  2139.000 secs... - 2023-07-11 17:32:04,456
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:42:43,690
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:42:43,712
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:42:43,760
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:42:43,797
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:42:43,797
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n75', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/n75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 17:42:43,802
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-11 17:42:43,829
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:42:43,865
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-11 17:42:43,898
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-11 17:42:43,927
+INFO: Copying data files to sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-11 17:42:43,930
+WARNING: Converting data files to EDF format - 2023-07-11 17:42:43,941
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:46:39,702
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv'... - 2023-07-11 17:46:40,233
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv entry with ieeg\sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-11 17:46:40,233
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:46:44,299
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:46:44,322
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:46:44,370
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:46:44,409
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:46:44,409
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/n25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/n25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-11 17:46:44,412
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-11 17:46:44,443
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:46:44,470
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-11 17:46:44,497
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-11 17:46:44,527
+INFO: Copying data files to sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-11 17:46:44,530
+WARNING: Converting data files to EDF format - 2023-07-11 17:46:44,541
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:48:54,949
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv'... - 2023-07-11 17:48:55,248
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv entry with ieeg\sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-11 17:48:55,248
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:48:59,153
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:48:59,195
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:48:59,242
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:48:59,298
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:48:59,299
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/n25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/n25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-11 17:48:59,302
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-11 17:48:59,330
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:48:59,358
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-11 17:48:59,384
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-11 17:48:59,414
+INFO: Copying data files to sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-11 17:48:59,416
+WARNING: Converting data files to EDF format - 2023-07-11 17:48:59,431
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 17:51:07,325
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv'... - 2023-07-11 17:51:07,574
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv entry with ieeg\sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-11 17:51:07,574
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 17:51:11,752
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 17:51:11,781
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 17:51:11,832
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 17:51:11,873
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 17:51:11,873
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/n75', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/n75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-11 17:51:11,878
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-11 17:51:11,908
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 17:51:11,934
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-11 17:51:11,962
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-11 17:51:11,994
+INFO: Copying data files to sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-11 17:51:11,996
+WARNING: Converting data files to EDF format - 2023-07-11 17:51:12,010
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv'... - 2023-07-11 17:55:03,426
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0063\sub-D0063_scans.tsv entry with ieeg\sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 17:55:03,426
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 17:55:03,763
+INFO: EDF file detected - 2023-07-11 17:55:03,763
+INFO: Setting channel info structure... - 2023-07-11 17:55:03,771
+INFO: Creating raw.info structure... - 2023-07-11 17:55:03,773
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 17:55:05,640
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_channels.tsv. - 2023-07-11 17:55:05,669
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:55:05,675
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_space-ACPC_electrodes.tsv. - 2023-07-11 17:55:05,694
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:55:05,703
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 17:55:05,723
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 17:55:05,741
+INFO: EDF file detected - 2023-07-11 17:55:05,741
+INFO: Setting channel info structure... - 2023-07-11 17:55:05,750
+INFO: Creating raw.info structure... - 2023-07-11 17:55:05,751
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 17:55:06,400
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_channels.tsv. - 2023-07-11 17:55:06,426
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:55:06,430
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_space-ACPC_electrodes.tsv. - 2023-07-11 17:55:06,446
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:55:06,455
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 17:55:06,477
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 17:55:06,493
+INFO: EDF file detected - 2023-07-11 17:55:06,494
+INFO: Setting channel info structure... - 2023-07-11 17:55:06,502
+INFO: Creating raw.info structure... - 2023-07-11 17:55:06,503
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 17:55:07,125
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_channels.tsv. - 2023-07-11 17:55:07,146
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:55:07,150
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_space-ACPC_electrodes.tsv. - 2023-07-11 17:55:07,164
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:55:07,169
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 17:55:07,188
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 17:55:07,207
+INFO: EDF file detected - 2023-07-11 17:55:07,207
+INFO: Setting channel info structure... - 2023-07-11 17:55:07,214
+INFO: Creating raw.info structure... - 2023-07-11 17:55:07,216
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 17:55:08,184
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_channels.tsv. - 2023-07-11 17:55:08,207
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 17:55:08,212
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_space-ACPC_electrodes.tsv. - 2023-07-11 17:55:08,227
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 17:55:08,233
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 17:55:08,254
+INFO: Reading 0 ... 6344703  =      0.000 ...  3098.000 secs... - 2023-07-11 17:55:08,353
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:09:06,934
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:09:06,962
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:09:07,023
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:09:07,067
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:09:07,067
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n75', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/n75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 18:09:07,075
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-11 18:09:07,105
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:09:07,133
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-11 18:09:07,168
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-11 18:09:07,200
+INFO: Copying data files to sub-D0065_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-11 18:09:07,203
+WARNING: Converting data files to EDF format - 2023-07-11 18:09:07,214
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:16:26,746
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv'... - 2023-07-11 18:16:27,667
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv entry with ieeg\sub-D0065_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-11 18:16:27,668
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:16:33,073
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:16:33,098
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:16:33,141
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:16:33,178
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:16:33,179
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/n25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/n25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-11 18:16:33,181
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-11 18:16:33,213
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:16:33,248
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-11 18:16:33,286
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-11 18:16:33,320
+INFO: Copying data files to sub-D0065_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-11 18:16:33,323
+WARNING: Converting data files to EDF format - 2023-07-11 18:16:33,337
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:18:58,130
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv'... - 2023-07-11 18:18:58,402
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv entry with ieeg\sub-D0065_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-11 18:18:58,403
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:19:02,653
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:19:02,676
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:19:02,723
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:19:02,758
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:19:02,759
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n25', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/n25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-11 18:19:02,762
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-11 18:19:02,794
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:19:02,823
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-11 18:19:02,852
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-11 18:19:02,893
+INFO: Copying data files to sub-D0065_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-11 18:19:02,895
+WARNING: Converting data files to EDF format - 2023-07-11 18:19:02,909
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:21:28,212
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv'... - 2023-07-11 18:21:28,474
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv entry with ieeg\sub-D0065_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-11 18:21:28,474
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:21:33,591
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:21:33,616
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:21:33,662
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0065/ieeg/sub-D0065_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:21:33,706
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:21:33,706
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/n75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/n75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-11 18:21:33,710
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-11 18:21:33,742
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:21:33,772
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-11 18:21:33,802
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-11 18:21:33,832
+INFO: Copying data files to sub-D0065_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-11 18:21:33,834
+WARNING: Converting data files to EDF format - 2023-07-11 18:21:33,844
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv'... - 2023-07-11 18:24:59,439
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0065\sub-D0065_scans.tsv entry with ieeg\sub-D0065_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 18:24:59,440
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 18:24:59,762
+INFO: EDF file detected - 2023-07-11 18:24:59,762
+INFO: Setting channel info structure... - 2023-07-11 18:24:59,769
+INFO: Creating raw.info structure... - 2023-07-11 18:24:59,770
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 18:25:00,816
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_channels.tsv. - 2023-07-11 18:25:00,842
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:25:00,850
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_space-ACPC_electrodes.tsv. - 2023-07-11 18:25:00,871
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:25:00,877
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 18:25:00,897
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 18:25:00,918
+INFO: EDF file detected - 2023-07-11 18:25:00,918
+INFO: Setting channel info structure... - 2023-07-11 18:25:00,925
+INFO: Creating raw.info structure... - 2023-07-11 18:25:00,925
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 18:25:01,306
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_channels.tsv. - 2023-07-11 18:25:01,327
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:25:01,329
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_space-ACPC_electrodes.tsv. - 2023-07-11 18:25:01,345
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:25:01,349
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 18:25:01,365
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 18:25:01,381
+INFO: EDF file detected - 2023-07-11 18:25:01,381
+INFO: Setting channel info structure... - 2023-07-11 18:25:01,387
+INFO: Creating raw.info structure... - 2023-07-11 18:25:01,388
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 18:25:01,787
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_channels.tsv. - 2023-07-11 18:25:01,807
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:25:01,810
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_space-ACPC_electrodes.tsv. - 2023-07-11 18:25:01,823
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:25:01,827
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 18:25:01,843
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 18:25:01,859
+INFO: EDF file detected - 2023-07-11 18:25:01,859
+INFO: Setting channel info structure... - 2023-07-11 18:25:01,865
+INFO: Creating raw.info structure... - 2023-07-11 18:25:01,865
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 18:25:02,439
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_channels.tsv. - 2023-07-11 18:25:02,460
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:25:02,462
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_space-ACPC_electrodes.tsv. - 2023-07-11 18:25:02,476
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:25:02,479
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 18:25:02,494
+INFO: Reading 0 ... 5695487  =      0.000 ...  2781.000 secs... - 2023-07-11 18:25:02,570
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:31:56,628
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:31:56,654
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:31:56,691
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:31:56,723
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:31:56,724
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/n75', 'Response/c25/r75', 'Response/c25/s75', 'Response/i25/r75', 'Response/i25/s75', 'Stimulus/c25/n75', 'Stimulus/c25/r75', 'Stimulus/c25/s75', 'Stimulus/i25/r75', 'Stimulus/i25/s75'] - 2023-07-11 18:31:56,731
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv'... - 2023-07-11 18:31:56,768
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:31:56,795
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.json'... - 2023-07-11 18:31:56,834
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv'... - 2023-07-11 18:31:56,861
+INFO: Copying data files to sub-D0069_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf - 2023-07-11 18:31:56,863
+WARNING: Converting data files to EDF format - 2023-07-11 18:31:56,874
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:35:19,807
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv'... - 2023-07-11 18:35:20,389
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv entry with ieeg\sub-D0069_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf. - 2023-07-11 18:35:20,390
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:35:23,679
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:35:23,705
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:35:23,740
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:35:23,772
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:35:23,772
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r25', 'Response/c75/s25', 'Response/i75/n25', 'Response/i75/r25', 'Response/i75/s25', 'Stimulus/c75/r25', 'Stimulus/c75/s25', 'Stimulus/i75/n25', 'Stimulus/i75/r25', 'Stimulus/i75/s25'] - 2023-07-11 18:35:23,775
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv'... - 2023-07-11 18:35:23,803
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:35:23,830
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.json'... - 2023-07-11 18:35:23,861
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv'... - 2023-07-11 18:35:23,890
+INFO: Copying data files to sub-D0069_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf - 2023-07-11 18:35:23,892
+WARNING: Converting data files to EDF format - 2023-07-11 18:35:23,904
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:36:43,035
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv'... - 2023-07-11 18:36:43,284
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv entry with ieeg\sub-D0069_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf. - 2023-07-11 18:36:43,284
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:36:46,022
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:36:46,048
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:36:46,086
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:36:46,124
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:36:46,125
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c25/r25', 'Response/c25/s25', 'Response/i25/n25', 'Response/i25/r25', 'Response/i25/s25', 'Stimulus/c25/r25', 'Stimulus/c25/s25', 'Stimulus/i25/n25', 'Stimulus/i25/r25', 'Stimulus/i25/s25'] - 2023-07-11 18:36:46,128
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv'... - 2023-07-11 18:36:46,170
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:36:46,197
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.json'... - 2023-07-11 18:36:46,224
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv'... - 2023-07-11 18:36:46,250
+INFO: Copying data files to sub-D0069_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf - 2023-07-11 18:36:46,253
+WARNING: Converting data files to EDF format - 2023-07-11 18:36:46,263
+WARNING: EDF format requires equal-length data blocks, so 0.99951171875 seconds of zeros were appended to all channels when writing the final block. - 2023-07-11 18:38:09,941
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv'... - 2023-07-11 18:38:10,198
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv entry with ieeg\sub-D0069_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf. - 2023-07-11 18:38:10,198
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.tsv'... - 2023-07-11 18:38:12,910
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\participants.json'... - 2023-07-11 18:38:12,933
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_electrodes.tsv'... - 2023-07-11 18:38:12,967
+INFO: Writing 'C:/Users/jz421/Box/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0069/ieeg/sub-D0069_acq-01_space-ACPC_coordsystem.json'... - 2023-07-11 18:38:13,002
+INFO: The provided raw data contains annotations, but you did not pass an "event_id" mapping from annotation descriptions to event codes. We will generate arbitrary event codes. To specify custom event codes, please pass "event_id". - 2023-07-11 18:38:13,002
+INFO: Used Annotations descriptions: ['BAD boundary', 'EDGE boundary', 'Response/c75/r75', 'Response/c75/s75', 'Response/i75/n75', 'Response/i75/r75', 'Response/i75/s75', 'Stimulus/c75/r75', 'Stimulus/c75/s75', 'Stimulus/i75/n75', 'Stimulus/i75/r75', 'Stimulus/i75/s75'] - 2023-07-11 18:38:13,007
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv'... - 2023-07-11 18:38:13,043
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\dataset_description.json'... - 2023-07-11 18:38:13,070
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.json'... - 2023-07-11 18:38:13,099
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv'... - 2023-07-11 18:38:13,125
+INFO: Copying data files to sub-D0069_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf - 2023-07-11 18:38:13,127
+WARNING: Converting data files to EDF format - 2023-07-11 18:38:13,138
+INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv'... - 2023-07-11 18:40:15,551
+INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0069\sub-D0069_scans.tsv entry with ieeg\sub-D0069_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 18:40:15,551
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-11 18:40:15,785
+INFO: EDF file detected - 2023-07-11 18:40:15,785
+INFO: Setting channel info structure... - 2023-07-11 18:40:15,796
+INFO: Creating raw.info structure... - 2023-07-11 18:40:15,797
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-11 18:40:16,986
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_channels.tsv. - 2023-07-11 18:40:17,015
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:40:17,022
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_space-ACPC_electrodes.tsv. - 2023-07-11 18:40:17,044
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:40:17,064
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-11 18:40:17,093
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-11 18:40:17,116
+INFO: EDF file detected - 2023-07-11 18:40:17,117
+INFO: Setting channel info structure... - 2023-07-11 18:40:17,125
+INFO: Creating raw.info structure... - 2023-07-11 18:40:17,126
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-11 18:40:17,635
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_channels.tsv. - 2023-07-11 18:40:17,655
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:40:17,661
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_space-ACPC_electrodes.tsv. - 2023-07-11 18:40:17,677
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:40:17,681
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-11 18:40:17,699
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-11 18:40:17,718
+INFO: EDF file detected - 2023-07-11 18:40:17,718
+INFO: Setting channel info structure... - 2023-07-11 18:40:17,726
+INFO: Creating raw.info structure... - 2023-07-11 18:40:17,727
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-11 18:40:18,285
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_channels.tsv. - 2023-07-11 18:40:18,311
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:40:18,315
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_space-ACPC_electrodes.tsv. - 2023-07-11 18:40:18,331
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:40:18,335
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-11 18:40:18,354
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-11 18:40:18,374
+INFO: EDF file detected - 2023-07-11 18:40:18,374
+INFO: Setting channel info structure... - 2023-07-11 18:40:18,382
+INFO: Creating raw.info structure... - 2023-07-11 18:40:18,383
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-11 18:40:19,219
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_channels.tsv. - 2023-07-11 18:40:19,243
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-11 18:40:19,245
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_space-ACPC_electrodes.tsv. - 2023-07-11 18:40:19,260
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-11 18:40:19,261
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0071\ieeg\sub-D0071_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-11 18:40:19,282
+INFO: Reading 0 ... 6014975  =      0.000 ...  2937.000 secs... - 2023-07-11 18:40:19,375
