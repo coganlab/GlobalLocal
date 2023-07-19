@@ -1441,3 +1441,44 @@ INFO: Copying data files to sub-D0071_task-GlobalLocal_acq-01_run-04_desc-clean_
 WARNING: Converting data files to EDF format - 2023-07-11 18:57:48,311
 INFO: Writing 'C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0071\sub-D0071_scans.tsv'... - 2023-07-11 19:00:42,786
 INFO: Wrote C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\derivatives\clean\sub-D0071\sub-D0071_scans.tsv entry with ieeg\sub-D0071_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf. - 2023-07-11 19:00:42,786
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_ieeg.edf... - 2023-07-19 12:04:22,436
+INFO: EDF file detected - 2023-07-19 12:04:22,437
+INFO: Setting channel info structure... - 2023-07-19 12:04:22,445
+INFO: Creating raw.info structure... - 2023-07-19 12:04:22,446
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_events.tsv. - 2023-07-19 12:04:23,950
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-19 12:04:23,983
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-19 12:04:23,991
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-19 12:04:24,009
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-19 12:04:24,020
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-01_ieeg.edf - 2023-07-19 12:04:24,038
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_ieeg.edf... - 2023-07-19 12:04:24,057
+INFO: EDF file detected - 2023-07-19 12:04:24,057
+INFO: Setting channel info structure... - 2023-07-19 12:04:24,066
+INFO: Creating raw.info structure... - 2023-07-19 12:04:24,067
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_events.tsv. - 2023-07-19 12:04:24,426
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-19 12:04:24,451
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-19 12:04:24,454
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-19 12:04:24,469
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-19 12:04:24,473
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-02_ieeg.edf - 2023-07-19 12:04:24,492
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_ieeg.edf... - 2023-07-19 12:04:24,507
+INFO: EDF file detected - 2023-07-19 12:04:24,507
+INFO: Setting channel info structure... - 2023-07-19 12:04:24,517
+INFO: Creating raw.info structure... - 2023-07-19 12:04:24,518
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_events.tsv. - 2023-07-19 12:04:24,966
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-19 12:04:24,989
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-19 12:04:24,992
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-19 12:04:25,008
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-19 12:04:25,014
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-03_ieeg.edf - 2023-07-19 12:04:25,029
+INFO: Extracting EDF parameters from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_ieeg.edf... - 2023-07-19 12:04:25,049
+INFO: EDF file detected - 2023-07-19 12:04:25,049
+INFO: Setting channel info structure... - 2023-07-19 12:04:25,058
+INFO: Creating raw.info structure... - 2023-07-19 12:04:25,060
+INFO: Reading events from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_events.tsv. - 2023-07-19 12:04:26,241
+INFO: Reading channel info from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_channels.tsv. - 2023-07-19 12:04:26,272
+WARNING: The unit for channel(s) Trigger has changed from NA to V. - 2023-07-19 12:04:26,276
+INFO: Reading electrode coords from C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_space-ACPC_electrodes.tsv. - 2023-07-19 12:04:26,292
+WARNING: Fiducial point nasion not found, assuming identity unknown to head transformation - 2023-07-19 12:04:26,297
+WARNING: participants.tsv file not found for C:\Users\jz421\Box\CoganLab\BIDS-1.1_GlobalLocal\BIDS\sub-D0057\ieeg\sub-D0057_task-GlobalLocal_acq-01_run-04_ieeg.edf - 2023-07-19 12:04:26,314
+INFO: Reading 0 ... 8237055  =      0.000 ...  4022.000 secs... - 2023-07-19 12:04:26,438
