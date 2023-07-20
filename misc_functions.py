@@ -1,6 +1,6 @@
 import mne
 
-def calculate_reaction_times(raw):
+def calculate_RTs(raw):
     annotations = raw.annotations
     reaction_times = []
     skipped = []
