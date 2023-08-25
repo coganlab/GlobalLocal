@@ -59,3 +59,21 @@ def load_sig_chans(filename):
 def channel_names_to_indices(sig_chans, channels):
     indices = [channels.index(chan_name) for chan_name in sig_chans if chan_name in channels]
     return indices
+
+# untested code 8/21/23
+def save_channels_to_file(channels, subject, task, save_dir):
+    """
+    Save each channel name and its corresponding index to a text file.
+    
+    Parameters:
+    - channels (list): The list of channel names.
+    - subject (str): The subject identifier.
+    - task (str): The task identifier.
+    - save_dir (str): The directory where the text file should be saved.
+    """
+    channel_text_filename = os.path.join(save_dir, f'channels_{subject}_{task}.txt')
+    with open(channel_text_filename, 'w') as channel_file:
+        for i, channel_name in enumerate(channels):
+            channel_file.write(f"{i}: {channel_name}\n")
+    
+    print(f'Saved channel names and indices to {channel_text_filename}')
