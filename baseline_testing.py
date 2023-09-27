@@ -11,8 +11,8 @@ import numpy as np
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 
-from misc_functions import calculate_RTs, save_sig_chans, save_channels_to_file
-import pickle
+from misc_functions import calculate_RTs
+import matplotlib.pyplot as plt
 
 
 def get_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
@@ -136,7 +136,6 @@ avg_RT = np.median(RTs)
 print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
 print(f"Shape of HG_base._data: {HG_base._data.shape}")
 
-
 sig1 = HG_ev1._data
 sig2 = HG_base._data
 sig2 = make_data_same(sig2, sig1.shape)
@@ -144,3 +143,6 @@ print(f"Shape of sig1: {sig1.shape}")
 print(f"Shape of sig2: {sig2.shape}")
 
 mat = time_perm_cluster(sig1, sig2, 0.05, n_jobs=6, ignore_adjacency=1)
+fig = plt.figure()
+plt.imshow(mat, aspect='auto')
+fig.savefig("fig")
