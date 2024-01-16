@@ -15,7 +15,12 @@ Last edited: 01/16/2024
 2. Run all cells in plot_wavelets.ipynb to make wavelet plots, saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5'). Layout is Box/Coganlab
  
 ### High Gamma Filter and Permutation Testing
-
+1. Run first cell (working version 12/1) to do high gamma filter and permutation testing, with baseline as 1 second before stimulus onset and mirrored to break up fixation cross onset. Using these lines - ```sig1 = HG_ev1._data
+sig2 = HG_base._data
+sig3 = make_data_same(sig2, (sig2.shape[0],sig2.shape[1],sig2.shape[2]+1)) # originally we want to make the baseline the same shape as the signal. We still want to do that, but first, we'll make it bigger to reflect it once, then back to normal to randomly offset it and remove fixation cross effects.
+sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know that sig3 is bigger than sig1 by 1 in the time dimension so it will get randomly sliced.
+sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name
+2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
 **Notes for Experimenter**
 
 **Experiment Procedure**
