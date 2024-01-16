@@ -1,10 +1,20 @@
 ﻿Global Local Task 
 
-Contact: Raphael Geddert
+Contact: Jim Zhang and Raphael Geddert
 
-raphael.geddert@duke.edu
+jim.zhang@duke.edu, raphael.geddert@duke.edu
 
-Last edited: 02-18-2021
+Last edited: 01/16/2024
+
+**Analysis Steps**
+
+### Preprocessing
+1. Run first three cells of plot_clean.ipynb to do line-noise filtering
+### Wavelets
+1. Run 1st and 3rd cell of copy_wavelet_spec.ipynb to generate .h5 wavelet files, make sure to edit subject and filename in the third cell based on what subject you want and what baseline you're using.
+2. Run all cells in plot_wavelets.ipynb to make wavelet plots, saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5'). Layout is Box/Coganlab
+ 
+### High Gamma Filter and Permutation Testing
 
 **Notes for Experimenter**
 
