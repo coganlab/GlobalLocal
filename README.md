@@ -6,7 +6,17 @@ jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
 
-**Analysis Steps**
+### Windows FSL
+1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
+2. When running XLaunch, it is critical to deselect Native OpenGL and select Disable access control in the Extra Settings panel. https://superuser.com/questions/1372854/do-i-launch-the-app-xlaunch-for-every-login-to-use-gui-in-ubuntu-wsl-in-windows
+3. Need to run the line, export DISPLAY=:0 in Ubuntu first before running fsl command for gui to work.
+4. Also need to mount the Z: drive on ubuntu every time we open it. Run this command every time: ```sudo mount –t drvfs Z: /mnt/Egner```
+5. Now to get to this folder, do ```cd /mnt/Egner```. In the FSL gui, it should also be ```/mnt/Egner```
+6. To make the inputs to paste, run the makeInputsForFSL.ipynb script that's in the GlobalLocal folder right now, changing the subjects range.
+7. Then, open fsl feat in ubuntu and do emacs fslSecondLevelInputs.txt, and highlight all and do edit -> copy. Then can paste this as input into the fsl feat input window. Also change the number of cope images in the GUI.
+8. To make the EV matrix, run the next cell in makeInputsForFSL.ipynb
+
+# **Analysis Steps**
 
 ### Preprocessing
 1. Run first three cells of plot_clean.ipynb to do line-noise filtering
