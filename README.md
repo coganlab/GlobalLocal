@@ -19,7 +19,7 @@ Last edited: 01/16/2024
 	• Then, open fsl feat in ubuntu and do emacs fslSecondLevelInputs.txt, and highlight all and do edit -> copy. Then can paste this as input into the fsl feat input window. Also change the number of cope images in the GUI.
 To make the EV matrix, run the next cell in makeInputsForFSL.ipynb![image](https://github.com/coganlab/GlobalLocal/assets/46616647/9ee8ff82-e97c-4da5-84ed-0037e39fe9ba)
 
-**Analysis Steps**
+# **Analysis Steps**
 
 ### Preprocessing
 1. Run first three cells of plot_clean.ipynb to do line-noise filtering
