@@ -31,6 +31,16 @@ sig3 = make_data_same(sig2, (sig2.shape[0],sig2.shape[1],sig2.shape[2]+1)) # ori
 sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know that sig3 is bigger than sig1 by 1 in the time dimension so it will get randomly sliced.
 sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name.
 2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
+
+
+### Steps for new subjects
+1. Run plot_clean.ipynb to preprocess (line noise filtering) for new subjects
+2. Get significant electrodes by running plot_hg_and_stats with Stimulus as the event (should be top cell I think). Also run the bottom cells to plot individual electrodes for raw traces and high gamma filtered in this step.
+3. Get high gamma of main effect conditions by running plot_hg_and_stats with events as Stimulus/i25 + Stimulus/i75 (inc), and Stimulus/c25 + Stimulus/c75 (con), and Stimulus/i25/s25 + Stimulus/i25/s75 + Stimulus/i75/s25 + Stimulus/i75/s75 + Stimulus/c25/s25 + Stimulus/c25/s75 + Stimulus/c75/s25 + Stimulus/c75/s75 (switch), and Stimulus/i25/r25 + Stimulus/i25/r75 + Stimulus/i75/r25 + Stimulus/i75/r75 + Stimulus/c25/r25 + Stimulus/c25/r75 + Stimulus/c75/r25 + Stimulus/c75/r75 (repeat)
+5. Run roi_analysis.ipynb to get condition plots and stats
+6. Run plot_subjects.ipynb to get brain plots for new subjects
+7. Run copy_wavelet_spec.ipynb and then plot_wavelets.ipynb for new subjects with Stimulus and Response as the events
+
 **Notes for Experimenter**
 
 **Experiment Procedure**
