@@ -1,4 +1,696 @@
 {
+    "D0103": {
+        "default_dict": {
+            "LTAS1": "ctx_lh_S_circular_insula_inf",
+            "LTAS2": "Left-Cerebral-White-Matter",
+            "LTAS3": "Left-Cerebral-White-Matter",
+            "LTAS4": "ctx_lh_S_temporal_sup",
+            "LTAS5": "ctx_lh_G_temp_sup-Lateral",
+            "LTAS6": "ctx_lh_G_temporal_middle",
+            "LTAS7": "ctx_lh_G_temporal_middle",
+            "LTAS8": "ctx_lh_G_temporal_middle",
+            "LTMS1": "ctx_lh_S_circular_insula_inf",
+            "LTMS2": "Unknown",
+            "LTMS3": "ctx_lh_S_circular_insula_inf",
+            "LTMS4": "Left-Cerebral-White-Matter",
+            "LTMS5": "ctx_lh_S_temporal_sup",
+            "LTMS6": "ctx_lh_G_temp_sup-Lateral",
+            "LTMS7": "Left-Cerebral-White-Matter",
+            "LTMS8": "Left-Cerebral-White-Matter",
+            "LTMS9": "Left-Cerebral-White-Matter",
+            "LTMS10": "ctx_lh_G_temp_sup-Lateral",
+            "LTPS1": "Left-Thalamus-Proper",
+            "LTPS2": "Left-Thalamus-Proper",
+            "LTPS3": "Left-Thalamus-Proper",
+            "LTPS4": "Left-Thalamus-Proper",
+            "LTPS5": "Left-Thalamus-Proper",
+            "LTPS6": "Left-Cerebral-White-Matter",
+            "LTPS7": "Left-Cerebral-White-Matter",
+            "LTPS13": "Left-Cerebral-White-Matter",
+            "LTPS14": "ctx_lh_S_temporal_sup",
+            "LTPS15": "ctx_lh_S_temporal_sup",
+            "LTPS16": "ctx_lh_S_temporal_sup",
+            "LTPS17": "Unknown",
+            "LTPS18": "ctx_lh_G_temporal_middle",
+            "LTAI1": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTAI2": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTAI3": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTAI4": "Left-Cerebral-White-Matter",
+            "LTAI5": "Left-Cerebral-White-Matter",
+            "LTAI6": "ctx_lh_S_collat_transv_ant",
+            "LTAI7": "ctx_lh_S_collat_transv_ant",
+            "LTAI8": "ctx_lh_S_collat_transv_ant",
+            "LTAI9": "Left-Cerebral-White-Matter",
+            "LTAI10": "Left-Cerebral-White-Matter",
+            "LTAI11": "Left-Cerebral-White-Matter",
+            "LTAI12": "ctx_lh_S_temporal_inf",
+            "LTAI13": "ctx_lh_G_temporal_middle",
+            "LTAI14": "ctx_lh_G_temporal_middle",
+            "LTAI15": "ctx_lh_G_temporal_middle",
+            "LFAM1": "Unknown",
+            "LFAM2": "ctx_lh_G_and_S_cingul-Ant",
+            "LFAM3": "ctx_lh_G_and_S_cingul-Ant",
+            "LFAM4": "Left-Cerebral-White-Matter",
+            "LFAM5": "Left-Cerebral-White-Matter",
+            "LFAM6": "Left-Cerebral-White-Matter",
+            "LFAM7": "Left-Cerebral-White-Matter",
+            "LFAM8": "ctx_lh_S_front_middle",
+            "LFAM9": "ctx_lh_S_front_middle",
+            "LFAM10": "Left-Cerebral-White-Matter",
+            "LFAM11": "Left-Cerebral-White-Matter",
+            "LFAM12": "Left-Cerebral-White-Matter",
+            "LFAM13": "Left-Cerebral-White-Matter",
+            "LFAM14": "Left-Cerebral-White-Matter",
+            "LFAM15": "ctx_lh_G_front_middle",
+            "LAI1": "ctx_lh_G_insular_short",
+            "LAI2": "ctx_lh_G_insular_short",
+            "LAI3": "ctx_lh_G_insular_short",
+            "LAI4": "ctx_lh_S_circular_insula_ant",
+            "LAI5": "Left-Cerebral-White-Matter",
+            "LAI6": "ctx_lh_G_insular_short",
+            "LAI7": "Unknown",
+            "LAI8": "Unknown",
+            "LAI12": "Left-Cerebral-White-Matter",
+            "LAI13": "ctx_lh_S_front_middle",
+            "LAI14": "ctx_lh_S_front_middle",
+            "LAI15": "Left-Cerebral-White-Matter",
+            "LAI16": "Left-Cerebral-White-Matter",
+            "LAI17": "Left-Cerebral-White-Matter",
+            "LPI1": "Left-Putamen",
+            "LPI2": "Left-Putamen",
+            "LPI3": "Left-Cerebral-White-Matter",
+            "LPI4": "Left-Cerebral-White-Matter",
+            "LPI5": "Left-Cerebral-White-Matter",
+            "LPI6": "Left-Cerebral-White-Matter",
+            "LPI7": "Left-Cerebral-White-Matter",
+            "LPI8": "Left-Cerebral-White-Matter",
+            "LPI15": "ctx_lh_S_precentral-sup-part",
+            "LPI16": "Left-Cerebral-White-Matter",
+            "LPI17": "Left-Cerebral-White-Matter",
+            "LPI18": "Left-Cerebral-White-Matter",
+            "LTP1": "ctx_lh_Pole_temporal",
+            "LTP2": "ctx_lh_Pole_temporal",
+            "LTP3": "Left-Cerebral-White-Matter",
+            "LTP4": "Left-Cerebral-White-Matter",
+            "LTP5": "ctx_lh_Pole_temporal",
+            "LTP6": "ctx_lh_Pole_temporal",
+            "LTP7": "ctx_lh_Pole_temporal",
+            "LTP8": "Left-Cerebral-White-Matter",
+            "LTP9": "ctx_lh_S_temporal_sup",
+            "LTP10": "Left-Cerebral-White-Matter",
+            "LTP11": "Left-Cerebral-White-Matter",
+            "LTP12": "ctx_lh_G_temporal_middle",
+            "LTAM1": "Left-Hippocampus",
+            "LTAM2": "Left-Hippocampus",
+            "LTAM3": "Left-Hippocampus",
+            "LTAM4": "Left-Amygdala",
+            "LTAM5": "Left-Amygdala",
+            "LTAM6": "Left-Inf-Lat-Vent",
+            "LTAM7": "Unknown",
+            "LTAM8": "Left-Cerebral-White-Matter",
+            "LTAM9": "Left-Cerebral-White-Matter",
+            "LTAM10": "Left-Cerebral-White-Matter",
+            "LTAM11": "Left-Cerebral-White-Matter",
+            "LTAM12": "Left-Cerebral-White-Matter",
+            "LTAM13": "Left-Cerebral-White-Matter",
+            "LTAM14": "ctx_lh_G_temporal_middle",
+            "LTAM15": "ctx_lh_G_temporal_middle",
+            "LTMM2": "Left-Hippocampus",
+            "LTMM3": "Left-Hippocampus",
+            "LTMM4": "Left-Hippocampus",
+            "LTMM5": "Left-Hippocampus",
+            "LTMM6": "Left-Cerebral-White-Matter",
+            "LTMM7": "Left-Cerebral-White-Matter",
+            "LTMM8": "Left-Cerebral-White-Matter",
+            "LTMM9": "Left-Cerebral-White-Matter",
+            "LTMM10": "Left-Cerebral-White-Matter",
+            "LTMM11": "Left-Cerebral-White-Matter",
+            "LTMM12": "Left-Cerebral-White-Matter",
+            "LTMM13": "Left-Cerebral-White-Matter",
+            "LTMM14": "Left-Cerebral-White-Matter",
+            "LTMM15": "Left-Cerebral-White-Matter",
+            "LTPM1": "Left-Cerebral-White-Matter",
+            "LTPM2": "Left-Cerebral-White-Matter",
+            "LTPM3": "Left-Cerebral-White-Matter",
+            "LTPM4": "Left-Cerebral-White-Matter",
+            "LTPM6": "Left-Cerebral-White-Matter",
+            "LTPM7": "Left-Cerebral-White-Matter",
+            "LTPM8": "Left-Cerebral-White-Matter",
+            "LTPM9": "ctx_lh_S_temporal_inf",
+            "LTPM10": "ctx_lh_S_temporal_inf",
+            "LTPM11": "ctx_lh_G_temporal_middle",
+            "LTPM12": "Left-Cerebral-White-Matter",
+            "LTPM13": "ctx_lh_G_temporal_middle",
+            "LTPM14": "Unknown",
+            "LTMI1": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTMI2": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTMI3": "Left-Cerebral-White-Matter",
+            "LTMI4": "Left-Cerebral-White-Matter",
+            "LTMI5": "Left-Cerebral-White-Matter",
+            "LTMI6": "ctx_lh_S_collat_transv_ant",
+            "LTMI7": "Unknown",
+            "LTMI9": "Left-Cerebral-White-Matter",
+            "LTMI10": "Left-Cerebral-White-Matter",
+            "LTMI11": "ctx_lh_S_temporal_inf",
+            "LTMI12": "ctx_lh_S_temporal_inf",
+            "LTMI13": "Left-Cerebral-White-Matter",
+            "LTMI14": "ctx_lh_S_temporal_inf",
+            "LPPI1": "Left-Cerebral-White-Matter",
+            "LPPI2": "Left-Cerebral-White-Matter",
+            "LPPI3": "Left-Cerebral-White-Matter",
+            "LPPI4": "Left-Cerebral-White-Matter",
+            "LPPI5": "Left-Cerebral-White-Matter",
+            "LPPI6": "Left-Cerebral-White-Matter",
+            "LPPI7": "Left-Cerebral-White-Matter",
+            "LPPI8": "Left-Cerebral-White-Matter",
+            "LPPI9": "Left-Cerebral-White-Matter",
+            "LPPI10": "Left-Cerebral-White-Matter",
+            "LPPI11": "Left-Cerebral-White-Matter",
+            "LPPI12": "Left-Cerebral-White-Matter",
+            "LPPI13": "Left-Cerebral-White-Matter",
+            "LPPI14": "Left-Cerebral-White-Matter",
+            "LPPI15": "Left-Cerebral-White-Matter",
+            "LPPI16": "Left-Cerebral-White-Matter",
+            "LPPI17": "Left-Cerebral-White-Matter",
+            "LPPI18": "ctx_lh_G_and_S_subcentral",
+            "LTLI1": "ctx_lh_G_oc-temp_med-Parahip",
+            "LTLI2": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTLI3": "Unknown",
+            "LTLI4": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTLI5": "Left-Cerebral-White-Matter",
+            "LTLI6": "ctx_lh_S_collat_transv_ant",
+            "LTLI7": "Unknown",
+            "LTLI8": "ctx_lh_S_collat_transv_ant",
+            "LTLI9": "Left-Cerebral-White-Matter",
+            "LTLI10": "ctx_lh_S_temporal_inf",
+            "LTLI11": "ctx_lh_S_temporal_inf",
+            "LTLI12": "ctx_lh_S_temporal_inf",
+            "LTLI13": "ctx_lh_S_temporal_inf",
+            "LTPI2": "ctx_lh_G_oc-temp_lat-fusifor",
+            "LTPI3": "ctx_lh_G_oc-temp_lat-fusifor",
+            "LTPI4": "ctx_lh_G_oc-temp_lat-fusifor",
+            "LTPI5": "Left-Cerebral-White-Matter",
+            "LTPI6": "ctx_lh_S_oc-temp_lat",
+            "LTPI7": "ctx_lh_S_oc-temp_lat",
+            "LTPI8": "Left-Cerebral-White-Matter",
+            "LTPI9": "ctx_lh_S_oc-temp_lat",
+            "LTPI10": "Left-Cerebral-White-Matter",
+            "LTPI11": "ctx_lh_S_oc-temp_lat",
+            "LTPI12": "Left-Cerebral-White-Matter",
+            "LTPI13": "Left-Cerebral-White-Matter",
+            "LTPI14": "ctx_lh_G_temporal_inf",
+            "LTPI15": "ctx_lh_G_temporal_inf",
+            "LFO1": "ctx_lh_G_rectus",
+            "LFO2": "Left-Cerebral-White-Matter",
+            "LFO3": "ctx_lh_S_orbital_med-olfact",
+            "LFO4": "ctx_lh_S_orbital_med-olfact",
+            "LFO5": "ctx_lh_S_orbital-H_Shaped",
+            "LFO6": "ctx_lh_S_orbital-H_Shaped",
+            "LFO7": "ctx_lh_S_orbital-H_Shaped",
+            "LFO8": "ctx_lh_S_orbital-H_Shaped",
+            "LFO9": "ctx_lh_S_orbital-H_Shaped",
+            "LFO10": "ctx_lh_S_orbital-H_Shaped",
+            "LFO11": "ctx_lh_S_orbital-H_Shaped",
+            "LFO12": "Left-Cerebral-White-Matter",
+            "LFO14": "ctx_lh_S_orbital_lateral",
+            "LFO15": "Unknown",
+            "LFAI1": "Left-Cerebral-White-Matter",
+            "LFAI2": "ctx_lh_G_insular_short",
+            "LFAI3": "Unknown",
+            "LFAI4": "ctx_lh_G_front_inf-Triangul",
+            "LFAI5": "Left-Cerebral-White-Matter",
+            "LFAI6": "Left-Cerebral-White-Matter",
+            "LFAI7": "Left-Cerebral-White-Matter",
+            "LFAI8": "Left-Cerebral-White-Matter",
+            "LFAI9": "Left-Cerebral-White-Matter"
+        },
+        "rawROI_dict": {
+            "ctx_lh_S_circular_insula_inf": [
+                "LTAS1",
+                "LTMS1",
+                "LTMS3"
+            ],
+            "Left-Cerebral-White-Matter": [
+                "LTAS2",
+                "LTAS3",
+                "LTMS4",
+                "LTMS7",
+                "LTMS8",
+                "LTMS9",
+                "LTPS6",
+                "LTPS7",
+                "LTPS13",
+                "LTAI4",
+                "LTAI5",
+                "LTAI9",
+                "LTAI10",
+                "LTAI11",
+                "LFAM4",
+                "LFAM5",
+                "LFAM6",
+                "LFAM7",
+                "LFAM10",
+                "LFAM11",
+                "LFAM12",
+                "LFAM13",
+                "LFAM14",
+                "LAI5",
+                "LAI12",
+                "LAI15",
+                "LAI16",
+                "LAI17",
+                "LPI3",
+                "LPI4",
+                "LPI5",
+                "LPI6",
+                "LPI7",
+                "LPI8",
+                "LPI16",
+                "LPI17",
+                "LPI18",
+                "LTP3",
+                "LTP4",
+                "LTP8",
+                "LTP10",
+                "LTP11",
+                "LTAM8",
+                "LTAM9",
+                "LTAM10",
+                "LTAM11",
+                "LTAM12",
+                "LTAM13",
+                "LTMM6",
+                "LTMM7",
+                "LTMM8",
+                "LTMM9",
+                "LTMM10",
+                "LTMM11",
+                "LTMM12",
+                "LTMM13",
+                "LTMM14",
+                "LTMM15",
+                "LTPM1",
+                "LTPM2",
+                "LTPM3",
+                "LTPM4",
+                "LTPM6",
+                "LTPM7",
+                "LTPM8",
+                "LTPM12",
+                "LTMI3",
+                "LTMI4",
+                "LTMI5",
+                "LTMI9",
+                "LTMI10",
+                "LTMI13",
+                "LPPI1",
+                "LPPI2",
+                "LPPI3",
+                "LPPI4",
+                "LPPI5",
+                "LPPI6",
+                "LPPI7",
+                "LPPI8",
+                "LPPI9",
+                "LPPI10",
+                "LPPI11",
+                "LPPI12",
+                "LPPI13",
+                "LPPI14",
+                "LPPI15",
+                "LPPI16",
+                "LPPI17",
+                "LTLI5",
+                "LTLI9",
+                "LTPI5",
+                "LTPI8",
+                "LTPI10",
+                "LTPI12",
+                "LTPI13",
+                "LFO2",
+                "LFO12",
+                "LFAI1",
+                "LFAI5",
+                "LFAI6",
+                "LFAI7",
+                "LFAI8",
+                "LFAI9"
+            ],
+            "ctx_lh_S_temporal_sup": [
+                "LTAS4",
+                "LTMS5",
+                "LTPS14",
+                "LTPS15",
+                "LTPS16",
+                "LTP9"
+            ],
+            "ctx_lh_G_temp_sup-Lateral": [
+                "LTAS5",
+                "LTMS6",
+                "LTMS10"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTAS6",
+                "LTAS7",
+                "LTAS8",
+                "LTPS18",
+                "LTAI13",
+                "LTAI14",
+                "LTAI15",
+                "LTP12",
+                "LTAM14",
+                "LTAM15",
+                "LTPM11",
+                "LTPM13"
+            ],
+            "Unknown": [
+                "LTMS2",
+                "LTPS17",
+                "LFAM1",
+                "LAI7",
+                "LAI8",
+                "LTAM7",
+                "LTPM14",
+                "LTMI7",
+                "LTLI3",
+                "LTLI7",
+                "LFO15",
+                "LFAI3"
+            ],
+            "Left-Thalamus-Proper": [
+                "LTPS1",
+                "LTPS2",
+                "LTPS3",
+                "LTPS4",
+                "LTPS5"
+            ],
+            "ctx_lh_G_oc-temp_med-Parahip": [
+                "LTAI1",
+                "LTAI2",
+                "LTAI3",
+                "LTMI1",
+                "LTMI2",
+                "LTLI1"
+            ],
+            "ctx_lh_S_collat_transv_ant": [
+                "LTAI6",
+                "LTAI7",
+                "LTAI8",
+                "LTMI6",
+                "LTLI6",
+                "LTLI8"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTAI12",
+                "LTPM9",
+                "LTPM10",
+                "LTMI11",
+                "LTMI12",
+                "LTMI14",
+                "LTLI10",
+                "LTLI11",
+                "LTLI12",
+                "LTLI13"
+            ],
+            "ctx_lh_G_and_S_cingul-Ant": [
+                "LFAM2",
+                "LFAM3"
+            ],
+            "ctx_lh_S_front_middle": [
+                "LFAM8",
+                "LFAM9",
+                "LAI13",
+                "LAI14"
+            ],
+            "ctx_lh_G_front_middle": [
+                "LFAM15"
+            ],
+            "ctx_lh_G_insular_short": [
+                "LAI1",
+                "LAI2",
+                "LAI3",
+                "LAI6",
+                "LFAI2"
+            ],
+            "ctx_lh_S_circular_insula_ant": [
+                "LAI4"
+            ],
+            "Left-Putamen": [
+                "LPI1",
+                "LPI2"
+            ],
+            "ctx_lh_S_precentral-sup-part": [
+                "LPI15"
+            ],
+            "ctx_lh_Pole_temporal": [
+                "LTP1",
+                "LTP2",
+                "LTP5",
+                "LTP6",
+                "LTP7"
+            ],
+            "Left-Hippocampus": [
+                "LTAM1",
+                "LTAM2",
+                "LTAM3",
+                "LTMM2",
+                "LTMM3",
+                "LTMM4",
+                "LTMM5"
+            ],
+            "Left-Amygdala": [
+                "LTAM4",
+                "LTAM5"
+            ],
+            "Left-Inf-Lat-Vent": [
+                "LTAM6"
+            ],
+            "ctx_lh_G_and_S_subcentral": [
+                "LPPI18"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTLI2",
+                "LTLI4"
+            ],
+            "ctx_lh_G_oc-temp_lat-fusifor": [
+                "LTPI2",
+                "LTPI3",
+                "LTPI4"
+            ],
+            "ctx_lh_S_oc-temp_lat": [
+                "LTPI6",
+                "LTPI7",
+                "LTPI9",
+                "LTPI11"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPI14",
+                "LTPI15"
+            ],
+            "ctx_lh_G_rectus": [
+                "LFO1"
+            ],
+            "ctx_lh_S_orbital_med-olfact": [
+                "LFO3",
+                "LFO4"
+            ],
+            "ctx_lh_S_orbital-H_Shaped": [
+                "LFO5",
+                "LFO6",
+                "LFO7",
+                "LFO8",
+                "LFO9",
+                "LFO10",
+                "LFO11"
+            ],
+            "ctx_lh_S_orbital_lateral": [
+                "LFO14"
+            ],
+            "ctx_lh_G_front_inf-Triangul": [
+                "LFAI4"
+            ]
+        },
+        "filtROI_dict": {
+            "ctx_lh_S_circular_insula_inf": [
+                "LTAS1",
+                "LTMS1",
+                "LTMS3"
+            ],
+            "ctx_lh_S_temporal_sup": [
+                "LTAS4",
+                "LTMS5",
+                "LTPS14",
+                "LTPS15",
+                "LTPS16",
+                "LTP9"
+            ],
+            "ctx_lh_G_temp_sup-Lateral": [
+                "LTAS5",
+                "LTMS6",
+                "LTMS10"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTAS6",
+                "LTAS7",
+                "LTAS8",
+                "LTPS18",
+                "LTAI13",
+                "LTAI14",
+                "LTAI15",
+                "LTP12",
+                "LTAM14",
+                "LTAM15",
+                "LTPM11",
+                "LTPM13"
+            ],
+            "Unknown": [
+                "LTMS2",
+                "LTPS17",
+                "LFAM1",
+                "LAI7",
+                "LAI8",
+                "LTAM7",
+                "LTPM14",
+                "LTMI7",
+                "LTLI3",
+                "LTLI7",
+                "LFO15",
+                "LFAI3"
+            ],
+            "Left-Thalamus-Proper": [
+                "LTPS1",
+                "LTPS2",
+                "LTPS3",
+                "LTPS4",
+                "LTPS5"
+            ],
+            "ctx_lh_G_oc-temp_med-Parahip": [
+                "LTAI1",
+                "LTAI2",
+                "LTAI3",
+                "LTMI1",
+                "LTMI2",
+                "LTLI1"
+            ],
+            "ctx_lh_S_collat_transv_ant": [
+                "LTAI6",
+                "LTAI7",
+                "LTAI8",
+                "LTMI6",
+                "LTLI6",
+                "LTLI8"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTAI12",
+                "LTPM9",
+                "LTPM10",
+                "LTMI11",
+                "LTMI12",
+                "LTMI14",
+                "LTLI10",
+                "LTLI11",
+                "LTLI12",
+                "LTLI13"
+            ],
+            "ctx_lh_G_and_S_cingul-Ant": [
+                "LFAM2",
+                "LFAM3"
+            ],
+            "ctx_lh_S_front_middle": [
+                "LFAM8",
+                "LFAM9",
+                "LAI13",
+                "LAI14"
+            ],
+            "ctx_lh_G_front_middle": [
+                "LFAM15"
+            ],
+            "ctx_lh_G_insular_short": [
+                "LAI1",
+                "LAI2",
+                "LAI3",
+                "LAI6",
+                "LFAI2"
+            ],
+            "ctx_lh_S_circular_insula_ant": [
+                "LAI4"
+            ],
+            "Left-Putamen": [
+                "LPI1",
+                "LPI2"
+            ],
+            "ctx_lh_S_precentral-sup-part": [
+                "LPI15"
+            ],
+            "ctx_lh_Pole_temporal": [
+                "LTP1",
+                "LTP2",
+                "LTP5",
+                "LTP6",
+                "LTP7"
+            ],
+            "Left-Hippocampus": [
+                "LTAM1",
+                "LTAM2",
+                "LTAM3",
+                "LTMM2",
+                "LTMM3",
+                "LTMM4",
+                "LTMM5"
+            ],
+            "Left-Amygdala": [
+                "LTAM4",
+                "LTAM5"
+            ],
+            "Left-Inf-Lat-Vent": [
+                "LTAM6"
+            ],
+            "ctx_lh_G_and_S_subcentral": [
+                "LPPI18"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTLI2",
+                "LTLI4"
+            ],
+            "ctx_lh_G_oc-temp_lat-fusifor": [
+                "LTPI2",
+                "LTPI3",
+                "LTPI4"
+            ],
+            "ctx_lh_S_oc-temp_lat": [
+                "LTPI6",
+                "LTPI7",
+                "LTPI9",
+                "LTPI11"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPI14",
+                "LTPI15"
+            ],
+            "ctx_lh_G_rectus": [
+                "LFO1"
+            ],
+            "ctx_lh_S_orbital_med-olfact": [
+                "LFO3",
+                "LFO4"
+            ],
+            "ctx_lh_S_orbital-H_Shaped": [
+                "LFO5",
+                "LFO6",
+                "LFO7",
+                "LFO8",
+                "LFO9",
+                "LFO10",
+                "LFO11"
+            ],
+            "ctx_lh_S_orbital_lateral": [
+                "LFO14"
+            ],
+            "ctx_lh_G_front_inf-Triangul": [
+                "LFAI4"
+            ]
+        }
+    },
     "D0057": {
         "default_dict": {
             "RAI1": "ctx_rh_G_Ins_lg_and_S_cent_ins",
@@ -5058,6 +5750,1385 @@
                 "LTAI1",
                 "LTAI2",
                 "LTAI3"
+            ]
+        }
+    },
+    "D0100": {
+        "default_dict": {
+            "LTMM1": "Left-Cerebral-White-Matter",
+            "LTMM2": "Left-Hippocampus",
+            "LTMM5": "Left-Cerebral-White-Matter",
+            "LTMM6": "Left-Cerebral-White-Matter",
+            "LTMM7": "Left-Cerebral-White-Matter",
+            "LTMM8": "Left-Cerebral-White-Matter",
+            "LTMM9": "Left-Cerebral-White-Matter",
+            "LTMM10": "ctx_lh_S_temporal_sup",
+            "LTMM11": "ctx_lh_S_temporal_sup",
+            "LTMM12": "ctx_lh_S_temporal_sup",
+            "LTMM13": "ctx_lh_G_temporal_middle",
+            "LTMM14": "Left-Cerebral-White-Matter",
+            "LTMM15": "ctx_lh_G_temporal_middle",
+            "LTPM1": "Left-Hippocampus",
+            "LTPM2": "Left-Hippocampus",
+            "LTPM3": "Left-Hippocampus",
+            "LTPM4": "Left-Hippocampus",
+            "LTPM6": "Left-choroid-plexus",
+            "LTPM7": "Left-Cerebral-White-Matter",
+            "LTPM8": "Left-Cerebral-White-Matter",
+            "LTPM9": "Left-Cerebral-White-Matter",
+            "LTPM10": "Left-Cerebral-White-Matter",
+            "LTPM11": "ctx_lh_S_temporal_inf",
+            "LTPM12": "ctx_lh_S_temporal_inf",
+            "LTPM13": "ctx_lh_G_temporal_middle",
+            "LTPM14": "ctx_lh_G_temporal_middle",
+            "LTPM15": "ctx_lh_G_temporal_middle",
+            "LTOJ1": "ctx_lh_G_oc-temp_med-Lingual",
+            "LTOJ2": "Left-Cerebral-White-Matter",
+            "LTOJ3": "ctx_lh_S_calcarine",
+            "LTOJ4": "ctx_lh_S_calcarine",
+            "LTOJ5": "Left-Cerebral-White-Matter",
+            "LTOJ6": "Left-Cerebral-White-Matter",
+            "LTOJ7": "Left-Cerebral-White-Matter",
+            "LTOJ8": "Left-Cerebral-White-Matter",
+            "LTOJ9": "Left-Cerebral-White-Matter",
+            "LTOJ10": "Left-Cerebral-White-Matter",
+            "LTOJ11": "ctx_lh_S_oc-temp_lat",
+            "LTOJ12": "ctx_lh_S_temporal_inf",
+            "LTOJ13": "Unknown",
+            "LTOJ14": "Unknown",
+            "LTOJ15": "Unknown",
+            "LTPS1": "Brain-Stem",
+            "LTPS2": "Left-Thalamus-Proper",
+            "LTPS3": "Left-Thalamus-Proper",
+            "LTPS4": "Left-Thalamus-Proper",
+            "LTPS5": "Left-Thalamus-Proper",
+            "LTPS6": "Left-Thalamus-Proper",
+            "LTPS7": "Left-Thalamus-Proper",
+            "LTPS9": "Left-Cerebral-White-Matter",
+            "LTPS10": "Left-Cerebral-White-Matter",
+            "LTPS11": "Left-Cerebral-White-Matter",
+            "LTPS12": "Left-Cerebral-White-Matter",
+            "LTPS13": "Left-Cerebral-White-Matter",
+            "LTPS14": "Left-Cerebral-White-Matter",
+            "LTPS15": "ctx_lh_S_temporal_sup",
+            "LTPS16": "Left-Cerebral-White-Matter",
+            "LTPS17": "ctx_lh_S_temporal_sup",
+            "LTPS18": "ctx_lh_S_temporal_sup",
+            "LTPI1": "ctx_lh_G_oc-temp_med-Lingual",
+            "LTPI2": "Left-Cerebral-White-Matter",
+            "LTPI3": "Left-Cerebral-White-Matter",
+            "LTPI4": "Left-Cerebral-White-Matter",
+            "LTPI5": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTPI6": "Left-Cerebral-White-Matter",
+            "LTPI7": "Left-Cerebral-White-Matter",
+            "LTPI8": "Left-Cerebral-White-Matter",
+            "LTPI9": "ctx_lh_S_oc-temp_lat",
+            "LTPI10": "ctx_lh_S_oc-temp_lat",
+            "LTPI11": "Left-Cerebral-White-Matter",
+            "LTPI12": "ctx_lh_G_temporal_inf",
+            "LTPI13": "ctx_lh_G_temporal_inf",
+            "LTPI14": "ctx_lh_G_temporal_inf",
+            "LTPI15": "Unknown",
+            "LOAI1": "ctx_lh_G_oc-temp_med-Lingual",
+            "LOAI2": "Left-Cerebral-White-Matter",
+            "LOAI4": "Left-Cerebral-White-Matter",
+            "LOAI5": "Left-Cerebral-White-Matter",
+            "LOAI6": "Left-Cerebral-White-Matter",
+            "LOAI7": "Left-Cerebral-White-Matter",
+            "LOAI8": "Left-Cerebral-White-Matter",
+            "LOAI9": "Left-Cerebral-White-Matter",
+            "LOAI10": "Left-Cerebral-White-Matter",
+            "LOAI11": "Left-Cerebral-White-Matter",
+            "LOAI12": "ctx_lh_S_occipital_ant",
+            "LOAI13": "ctx_lh_S_occipital_ant",
+            "LOAI14": "ctx_lh_G_and_S_occipital_inf",
+            "LOAI15": "ctx_lh_G_and_S_occipital_inf",
+            "LOMI2": "Left-Cerebral-White-Matter",
+            "LOMI3": "Left-Cerebral-White-Matter",
+            "LOMI4": "Left-Cerebral-White-Matter",
+            "LOMI5": "Left-Cerebral-White-Matter",
+            "LOMI6": "Left-Cerebral-White-Matter",
+            "LOMI7": "ctx_lh_S_collat_transv_post",
+            "LOMI8": "Unknown",
+            "LOMI9": "ctx_lh_G_and_S_occipital_inf",
+            "LOMI10": "Left-Cerebral-White-Matter",
+            "LOMI11": "ctx_lh_G_and_S_occipital_inf",
+            "LOMI12": "Unknown",
+            "LOPI1": "ctx_lh_G_oc-temp_med-Lingual",
+            "LOPI2": "ctx_lh_G_oc-temp_med-Lingual",
+            "LOPI3": "Left-Cerebral-White-Matter",
+            "LOPI4": "ctx_lh_G_oc-temp_med-Lingual",
+            "LOPI5": "Left-Cerebral-White-Matter",
+            "LOPI6": "ctx_lh_S_collat_transv_post",
+            "LOPI7": "Left-Cerebral-White-Matter",
+            "LOPI8": "ctx_lh_G_and_S_occipital_inf",
+            "LOPI9": "ctx_lh_G_and_S_occipital_inf",
+            "LOPI10": "Unknown",
+            "LOAM1": "ctx_lh_G_precuneus",
+            "LOAM2": "ctx_lh_S_parieto_occipital",
+            "LOAM3": "ctx_lh_S_parieto_occipital",
+            "LOAM4": "Unknown",
+            "LOAM5": "Left-Cerebral-White-Matter",
+            "LOAM6": "Left-Cerebral-White-Matter",
+            "LOAM7": "Left-Cerebral-White-Matter",
+            "LOAM8": "Left-Cerebral-White-Matter",
+            "LOAM9": "Left-Cerebral-White-Matter",
+            "LOAM10": "Left-Cerebral-White-Matter",
+            "LOAM11": "Left-Cerebral-White-Matter",
+            "LOAM12": "Left-Cerebral-White-Matter",
+            "LOAM13": "Left-Cerebral-White-Matter",
+            "LOAM14": "Left-Cerebral-White-Matter",
+            "LOAM15": "ctx_lh_G_occipital_middle",
+            "LOMM1": "Left-Cerebral-White-Matter",
+            "LOMM2": "Left-Cerebral-White-Matter",
+            "LOMM3": "ctx_lh_S_calcarine",
+            "LOMM4": "ctx_lh_S_calcarine",
+            "LOMM5": "ctx_lh_S_calcarine",
+            "LOMM6": "Left-Cerebral-White-Matter",
+            "LOMM7": "Left-Cerebral-White-Matter",
+            "LOMM8": "Left-Cerebral-White-Matter",
+            "LOMM9": "Left-Cerebral-White-Matter",
+            "LOMM10": "Left-Cerebral-White-Matter",
+            "LOMM11": "Left-Cerebral-White-Matter",
+            "LOMM12": "Left-Cerebral-White-Matter",
+            "LOMM13": "ctx_lh_S_oc_middle_and_Lunatus",
+            "LOMM14": "ctx_lh_S_oc_middle_and_Lunatus",
+            "LOMM15": "Unknown",
+            "LOPM1": "ctx_lh_G_oc-temp_med-Lingual",
+            "LOPM2": "Unknown",
+            "LOPM3": "Left-Cerebral-White-Matter",
+            "LOPM4": "Left-Cerebral-White-Matter",
+            "LOPM5": "Left-Cerebral-White-Matter",
+            "LOPM6": "Left-Cerebral-White-Matter",
+            "LOPM7": "Left-Cerebral-White-Matter",
+            "LOPM8": "ctx_lh_Pole_occipital",
+            "LOPM9": "ctx_lh_Pole_occipital",
+            "LOPM10": "Unknown",
+            "LOAS1": "ctx_lh_G_cingul-Post-dorsal",
+            "LOAS2": "ctx_lh_G_cingul-Post-dorsal",
+            "LOAS3": "ctx_lh_S_subparietal",
+            "LOAS4": "Left-Cerebral-White-Matter",
+            "LOAS5": "Left-Cerebral-White-Matter",
+            "LOAS6": "Left-Cerebral-White-Matter",
+            "LOAS7": "Left-Cerebral-White-Matter",
+            "LOAS8": "Left-Cerebral-White-Matter",
+            "LOAS9": "Left-Cerebral-White-Matter",
+            "LOAS10": "Left-Cerebral-White-Matter",
+            "LOAS11": "Left-Cerebral-White-Matter",
+            "LOAS12": "Left-Cerebral-White-Matter",
+            "LOAS13": "Left-Cerebral-White-Matter",
+            "LOAS14": "ctx_lh_S_temporal_sup",
+            "LOAS15": "ctx_lh_G_pariet_inf-Angular",
+            "LOMS1": "ctx_lh_G_precuneus",
+            "LOMS2": "ctx_lh_G_precuneus",
+            "LOMS3": "Left-Cerebral-White-Matter",
+            "LOMS4": "ctx_lh_S_parieto_occipital",
+            "LOMS5": "ctx_lh_S_parieto_occipital",
+            "LOMS6": "Left-Cerebral-White-Matter",
+            "LOMS7": "Left-Cerebral-White-Matter",
+            "LOMS8": "Left-Cerebral-White-Matter",
+            "LOMS9": "Left-Cerebral-White-Matter",
+            "LOMS10": "Left-Cerebral-White-Matter",
+            "LOMS11": "ctx_lh_S_oc_middle_and_Lunatus",
+            "LOMS12": "ctx_lh_S_oc_middle_and_Lunatus",
+            "LOMS13": "ctx_lh_G_occipital_middle",
+            "LOMS14": "Unknown",
+            "LOMS15": "Unknown",
+            "LOPS1": "Left-Cerebral-White-Matter",
+            "LOPS2": "Left-Cerebral-White-Matter",
+            "LOPS3": "Left-Cerebral-White-Matter",
+            "LOPS4": "Left-Cerebral-White-Matter",
+            "LOPS5": "Left-Cerebral-White-Matter",
+            "LOPS6": "Left-Cerebral-White-Matter",
+            "LOPS7": "Left-Cerebral-White-Matter",
+            "LOPS8": "Left-Cerebral-White-Matter",
+            "LOPS9": "Unknown",
+            "LOPS10": "Left-Cerebral-White-Matter",
+            "LOPS11": "ctx_lh_G_occipital_middle",
+            "LOPS12": "Unknown",
+            "LPAI1": "ctx_lh_G_cingul-Post-dorsal",
+            "LPAI2": "ctx_lh_S_subparietal",
+            "LPAI3": "ctx_lh_S_subparietal",
+            "LPAI4": "Left-Cerebral-White-Matter",
+            "LPAI5": "Left-Cerebral-White-Matter",
+            "LPAI6": "Left-Cerebral-White-Matter",
+            "LPAI7": "Left-Cerebral-White-Matter",
+            "LPAI8": "Left-Cerebral-White-Matter",
+            "LPAI9": "Left-Cerebral-White-Matter",
+            "LPAI10": "Left-Cerebral-White-Matter",
+            "LPAI11": "Left-Cerebral-White-Matter",
+            "LPAI12": "Left-Cerebral-White-Matter",
+            "LPAI13": "ctx_lh_S_temporal_sup",
+            "LPAI14": "ctx_lh_S_temporal_sup",
+            "LPAI15": "ctx_lh_S_temporal_sup",
+            "LPAI16": "Left-Cerebral-White-Matter",
+            "LPAI17": "Left-Cerebral-White-Matter",
+            "LPAI18": "ctx_lh_G_pariet_inf-Angular",
+            "LPPI1": "ctx_lh_G_precuneus",
+            "LPPI2": "ctx_lh_S_parieto_occipital",
+            "LPPI3": "ctx_lh_S_parieto_occipital",
+            "LPPI4": "Left-Cerebral-White-Matter",
+            "LPPI5": "Left-Cerebral-White-Matter",
+            "LPPI6": "Left-Cerebral-White-Matter",
+            "LPPI7": "ctx_lh_S_oc_sup_and_transversal",
+            "LPPI8": "ctx_lh_S_oc_sup_and_transversal",
+            "LPPI9": "ctx_lh_S_oc_sup_and_transversal",
+            "LPPI10": "Left-Cerebral-White-Matter",
+            "LPPI11": "Left-Cerebral-White-Matter",
+            "LPPI12": "Left-Cerebral-White-Matter",
+            "LPPI13": "Left-Cerebral-White-Matter",
+            "LPPI14": "ctx_lh_G_occipital_middle",
+            "LPPI15": "Unknown"
+        },
+        "rawROI_dict": {
+            "Left-Cerebral-White-Matter": [
+                "LTMM1",
+                "LTMM5",
+                "LTMM6",
+                "LTMM7",
+                "LTMM8",
+                "LTMM9",
+                "LTMM14",
+                "LTPM7",
+                "LTPM8",
+                "LTPM9",
+                "LTPM10",
+                "LTOJ2",
+                "LTOJ5",
+                "LTOJ6",
+                "LTOJ7",
+                "LTOJ8",
+                "LTOJ9",
+                "LTOJ10",
+                "LTPS9",
+                "LTPS10",
+                "LTPS11",
+                "LTPS12",
+                "LTPS13",
+                "LTPS14",
+                "LTPS16",
+                "LTPI2",
+                "LTPI3",
+                "LTPI4",
+                "LTPI6",
+                "LTPI7",
+                "LTPI8",
+                "LTPI11",
+                "LOAI2",
+                "LOAI4",
+                "LOAI5",
+                "LOAI6",
+                "LOAI7",
+                "LOAI8",
+                "LOAI9",
+                "LOAI10",
+                "LOAI11",
+                "LOMI2",
+                "LOMI3",
+                "LOMI4",
+                "LOMI5",
+                "LOMI6",
+                "LOMI10",
+                "LOPI3",
+                "LOPI5",
+                "LOPI7",
+                "LOAM5",
+                "LOAM6",
+                "LOAM7",
+                "LOAM8",
+                "LOAM9",
+                "LOAM10",
+                "LOAM11",
+                "LOAM12",
+                "LOAM13",
+                "LOAM14",
+                "LOMM1",
+                "LOMM2",
+                "LOMM6",
+                "LOMM7",
+                "LOMM8",
+                "LOMM9",
+                "LOMM10",
+                "LOMM11",
+                "LOMM12",
+                "LOPM3",
+                "LOPM4",
+                "LOPM5",
+                "LOPM6",
+                "LOPM7",
+                "LOAS4",
+                "LOAS5",
+                "LOAS6",
+                "LOAS7",
+                "LOAS8",
+                "LOAS9",
+                "LOAS10",
+                "LOAS11",
+                "LOAS12",
+                "LOAS13",
+                "LOMS3",
+                "LOMS6",
+                "LOMS7",
+                "LOMS8",
+                "LOMS9",
+                "LOMS10",
+                "LOPS1",
+                "LOPS2",
+                "LOPS3",
+                "LOPS4",
+                "LOPS5",
+                "LOPS6",
+                "LOPS7",
+                "LOPS8",
+                "LOPS10",
+                "LPAI4",
+                "LPAI5",
+                "LPAI6",
+                "LPAI7",
+                "LPAI8",
+                "LPAI9",
+                "LPAI10",
+                "LPAI11",
+                "LPAI12",
+                "LPAI16",
+                "LPAI17",
+                "LPPI4",
+                "LPPI5",
+                "LPPI6",
+                "LPPI10",
+                "LPPI11",
+                "LPPI12",
+                "LPPI13"
+            ],
+            "Left-Hippocampus": [
+                "LTMM2",
+                "LTPM1",
+                "LTPM2",
+                "LTPM3",
+                "LTPM4"
+            ],
+            "ctx_lh_S_temporal_sup": [
+                "LTMM10",
+                "LTMM11",
+                "LTMM12",
+                "LTPS15",
+                "LTPS17",
+                "LTPS18",
+                "LOAS14",
+                "LPAI13",
+                "LPAI14",
+                "LPAI15"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTMM13",
+                "LTMM15",
+                "LTPM13",
+                "LTPM14",
+                "LTPM15"
+            ],
+            "Left-choroid-plexus": [
+                "LTPM6"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTPM11",
+                "LTPM12",
+                "LTOJ12"
+            ],
+            "ctx_lh_G_oc-temp_med-Lingual": [
+                "LTOJ1",
+                "LTPI1",
+                "LOAI1",
+                "LOPI1",
+                "LOPI2",
+                "LOPI4",
+                "LOPM1"
+            ],
+            "ctx_lh_S_calcarine": [
+                "LTOJ3",
+                "LTOJ4",
+                "LOMM3",
+                "LOMM4",
+                "LOMM5"
+            ],
+            "ctx_lh_S_oc-temp_lat": [
+                "LTOJ11",
+                "LTPI9",
+                "LTPI10"
+            ],
+            "Unknown": [
+                "LTOJ13",
+                "LTOJ14",
+                "LTOJ15",
+                "LTPI15",
+                "LOMI8",
+                "LOMI12",
+                "LOPI10",
+                "LOAM4",
+                "LOMM15",
+                "LOPM2",
+                "LOPM10",
+                "LOMS14",
+                "LOMS15",
+                "LOPS9",
+                "LOPS12",
+                "LPPI15"
+            ],
+            "Brain-Stem": [
+                "LTPS1"
+            ],
+            "Left-Thalamus-Proper": [
+                "LTPS2",
+                "LTPS3",
+                "LTPS4",
+                "LTPS5",
+                "LTPS6",
+                "LTPS7"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTPI5"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPI12",
+                "LTPI13",
+                "LTPI14"
+            ],
+            "ctx_lh_S_occipital_ant": [
+                "LOAI12",
+                "LOAI13"
+            ],
+            "ctx_lh_G_and_S_occipital_inf": [
+                "LOAI14",
+                "LOAI15",
+                "LOMI9",
+                "LOMI11",
+                "LOPI8",
+                "LOPI9"
+            ],
+            "ctx_lh_S_collat_transv_post": [
+                "LOMI7",
+                "LOPI6"
+            ],
+            "ctx_lh_G_precuneus": [
+                "LOAM1",
+                "LOMS1",
+                "LOMS2",
+                "LPPI1"
+            ],
+            "ctx_lh_S_parieto_occipital": [
+                "LOAM2",
+                "LOAM3",
+                "LOMS4",
+                "LOMS5",
+                "LPPI2",
+                "LPPI3"
+            ],
+            "ctx_lh_G_occipital_middle": [
+                "LOAM15",
+                "LOMS13",
+                "LOPS11",
+                "LPPI14"
+            ],
+            "ctx_lh_S_oc_middle_and_Lunatus": [
+                "LOMM13",
+                "LOMM14",
+                "LOMS11",
+                "LOMS12"
+            ],
+            "ctx_lh_Pole_occipital": [
+                "LOPM8",
+                "LOPM9"
+            ],
+            "ctx_lh_G_cingul-Post-dorsal": [
+                "LOAS1",
+                "LOAS2",
+                "LPAI1"
+            ],
+            "ctx_lh_S_subparietal": [
+                "LOAS3",
+                "LPAI2",
+                "LPAI3"
+            ],
+            "ctx_lh_G_pariet_inf-Angular": [
+                "LOAS15",
+                "LPAI18"
+            ],
+            "ctx_lh_S_oc_sup_and_transversal": [
+                "LPPI7",
+                "LPPI8",
+                "LPPI9"
+            ]
+        },
+        "filtROI_dict": {
+            "Left-Hippocampus": [
+                "LTMM2",
+                "LTPM1",
+                "LTPM2",
+                "LTPM3",
+                "LTPM4"
+            ],
+            "ctx_lh_S_temporal_sup": [
+                "LTMM10",
+                "LTMM11",
+                "LTMM12",
+                "LTPS15",
+                "LTPS17",
+                "LTPS18",
+                "LOAS14",
+                "LPAI13",
+                "LPAI14",
+                "LPAI15"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTMM13",
+                "LTMM15",
+                "LTPM13",
+                "LTPM14",
+                "LTPM15"
+            ],
+            "Left-choroid-plexus": [
+                "LTPM6"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTPM11",
+                "LTPM12",
+                "LTOJ12"
+            ],
+            "ctx_lh_G_oc-temp_med-Lingual": [
+                "LTOJ1",
+                "LTPI1",
+                "LOAI1",
+                "LOPI1",
+                "LOPI2",
+                "LOPI4",
+                "LOPM1"
+            ],
+            "ctx_lh_S_calcarine": [
+                "LTOJ3",
+                "LTOJ4",
+                "LOMM3",
+                "LOMM4",
+                "LOMM5"
+            ],
+            "ctx_lh_S_oc-temp_lat": [
+                "LTOJ11",
+                "LTPI9",
+                "LTPI10"
+            ],
+            "Unknown": [
+                "LTOJ13",
+                "LTOJ14",
+                "LTOJ15",
+                "LTPI15",
+                "LOMI8",
+                "LOMI12",
+                "LOPI10",
+                "LOAM4",
+                "LOMM15",
+                "LOPM2",
+                "LOPM10",
+                "LOMS14",
+                "LOMS15",
+                "LOPS9",
+                "LOPS12",
+                "LPPI15"
+            ],
+            "Brain-Stem": [
+                "LTPS1"
+            ],
+            "Left-Thalamus-Proper": [
+                "LTPS2",
+                "LTPS3",
+                "LTPS4",
+                "LTPS5",
+                "LTPS6",
+                "LTPS7"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTPI5"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPI12",
+                "LTPI13",
+                "LTPI14"
+            ],
+            "ctx_lh_S_occipital_ant": [
+                "LOAI12",
+                "LOAI13"
+            ],
+            "ctx_lh_G_and_S_occipital_inf": [
+                "LOAI14",
+                "LOAI15",
+                "LOMI9",
+                "LOMI11",
+                "LOPI8",
+                "LOPI9"
+            ],
+            "ctx_lh_S_collat_transv_post": [
+                "LOMI7",
+                "LOPI6"
+            ],
+            "ctx_lh_G_precuneus": [
+                "LOAM1",
+                "LOMS1",
+                "LOMS2",
+                "LPPI1"
+            ],
+            "ctx_lh_S_parieto_occipital": [
+                "LOAM2",
+                "LOAM3",
+                "LOMS4",
+                "LOMS5",
+                "LPPI2",
+                "LPPI3"
+            ],
+            "ctx_lh_G_occipital_middle": [
+                "LOAM15",
+                "LOMS13",
+                "LOPS11",
+                "LPPI14"
+            ],
+            "ctx_lh_S_oc_middle_and_Lunatus": [
+                "LOMM13",
+                "LOMM14",
+                "LOMS11",
+                "LOMS12"
+            ],
+            "ctx_lh_Pole_occipital": [
+                "LOPM8",
+                "LOPM9"
+            ],
+            "ctx_lh_G_cingul-Post-dorsal": [
+                "LOAS1",
+                "LOAS2",
+                "LPAI1"
+            ],
+            "ctx_lh_S_subparietal": [
+                "LOAS3",
+                "LPAI2",
+                "LPAI3"
+            ],
+            "ctx_lh_G_pariet_inf-Angular": [
+                "LOAS15",
+                "LPAI18"
+            ],
+            "ctx_lh_S_oc_sup_and_transversal": [
+                "LPPI7",
+                "LPPI8",
+                "LPPI9"
+            ]
+        }
+    },
+    "D0102": {
+        "default_dict": {
+            "LTAM1": "Left-Hippocampus",
+            "LTAM2": "Left-Hippocampus",
+            "LTAM3": "Left-Hippocampus",
+            "LTAM4": "Left-Inf-Lat-Vent",
+            "LTAM5": "Left-Inf-Lat-Vent",
+            "LTAM6": "Left-Cerebral-White-Matter",
+            "LTAM7": "Left-Cerebral-White-Matter",
+            "LTAM8": "Left-Cerebral-White-Matter",
+            "LTAM9": "Left-Cerebral-White-Matter",
+            "LTAM10": "Left-Cerebral-White-Matter",
+            "LTAM11": "Left-Cerebral-White-Matter",
+            "LTAM12": "Left-Cerebral-White-Matter",
+            "LTAM13": "Left-Cerebral-White-Matter",
+            "LTAM14": "Left-Cerebral-White-Matter",
+            "LTMM1": "Left-Hippocampus",
+            "LTMM4": "Left-Hippocampus",
+            "LTMM5": "Left-Cerebral-White-Matter",
+            "LTMM6": "ctx_lh_S_collat_transv_ant",
+            "LTMM7": "Left-Cerebral-White-Matter",
+            "LTMM8": "Left-Cerebral-White-Matter",
+            "LTMM9": "Left-Cerebral-White-Matter",
+            "LTMM10": "Left-Cerebral-White-Matter",
+            "LTMM11": "ctx_lh_S_temporal_inf",
+            "LTMM12": "ctx_lh_S_temporal_inf",
+            "LTMM13": "ctx_lh_S_temporal_inf",
+            "LTMM14": "ctx_lh_S_temporal_inf",
+            "LTMM15": "ctx_lh_G_temporal_middle",
+            "LTPM1": "Left-Cerebral-White-Matter",
+            "LTPM2": "Left-Cerebral-White-Matter",
+            "LTPM3": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTPM4": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTPM5": "ctx_lh_S_oc-temp_med_and_Lingual",
+            "LTPM6": "Left-Cerebral-White-Matter",
+            "LTPM7": "Left-Cerebral-White-Matter",
+            "LTPM8": "Left-Cerebral-White-Matter",
+            "LTPM9": "Left-Cerebral-White-Matter",
+            "LTPM10": "Left-Cerebral-White-Matter",
+            "LTPM11": "Left-Cerebral-White-Matter",
+            "LTPM12": "ctx_lh_G_temporal_inf",
+            "LTPM13": "ctx_lh_G_temporal_inf",
+            "LTPM14": "ctx_lh_G_temporal_middle",
+            "LTPM15": "ctx_lh_G_temporal_middle",
+            "RFO1": "ctx_rh_G_rectus",
+            "RFO2": "Unknown",
+            "RFO3": "ctx_rh_S_orbital_med-olfact",
+            "RFO4": "ctx_rh_G_orbital",
+            "RFO5": "ctx_rh_S_orbital-H_Shaped",
+            "RFO6": "Right-Cerebral-White-Matter",
+            "RFO7": "Right-Cerebral-White-Matter",
+            "RFO8": "ctx_rh_S_orbital-H_Shaped",
+            "RFO9": "Right-Cerebral-White-Matter",
+            "RFO10": "Right-Cerebral-White-Matter",
+            "RFO11": "Right-Cerebral-White-Matter",
+            "RFO12": "Right-Cerebral-White-Matter",
+            "RFO13": "ctx_rh_G_front_inf-Orbital",
+            "RFO14": "ctx_rh_G_front_inf-Triangul",
+            "RFO15": "Right-Cerebral-White-Matter",
+            "RFAM1": "Unknown",
+            "RFAM2": "ctx_rh_G_and_S_cingul-Ant",
+            "RFAM3": "Right-Cerebral-White-Matter",
+            "RFAM4": "Right-Cerebral-White-Matter",
+            "RFAM5": "Right-Cerebral-White-Matter",
+            "RFAM6": "Right-Cerebral-White-Matter",
+            "RFAM7": "Right-Cerebral-White-Matter",
+            "RFAM8": "Right-Cerebral-White-Matter",
+            "RFAM9": "Right-Cerebral-White-Matter",
+            "RFAM10": "Right-Cerebral-White-Matter",
+            "RFAM11": "Right-Cerebral-White-Matter",
+            "RFAM12": "Right-Cerebral-White-Matter",
+            "RFAM13": "Right-Cerebral-White-Matter",
+            "RFAM14": "Right-Cerebral-White-Matter",
+            "RFAM15": "ctx_rh_G_front_middle",
+            "RFMM1": "ctx_rh_G_and_S_cingul-Mid-Ant",
+            "RFMM2": "Right-Cerebral-White-Matter",
+            "RFMM3": "Right-Cerebral-White-Matter",
+            "RFMM4": "Right-Cerebral-White-Matter",
+            "RFMM5": "Right-Cerebral-White-Matter",
+            "RFMM6": "Right-Cerebral-White-Matter",
+            "RFMM7": "Right-Cerebral-White-Matter",
+            "RFMM8": "Right-Cerebral-White-Matter",
+            "RFMM9": "Right-Cerebral-White-Matter",
+            "RFMM10": "Right-Cerebral-White-Matter",
+            "RFMM11": "Right-Cerebral-White-Matter",
+            "RFMM12": "Right-Cerebral-White-Matter",
+            "RFMM13": "Right-Cerebral-White-Matter",
+            "RFMM14": "Right-Cerebral-White-Matter",
+            "RFMM15": "Right-Cerebral-White-Matter",
+            "RFAI1": "Right-Cerebral-White-Matter",
+            "RFAI2": "ctx_rh_S_circular_insula_sup",
+            "RFAI3": "ctx_rh_G_front_inf-Opercular",
+            "RFAI4": "Right-Cerebral-White-Matter",
+            "RFAI5": "Right-Cerebral-White-Matter",
+            "RFAI6": "Right-Cerebral-White-Matter",
+            "RFAI7": "Right-Cerebral-White-Matter",
+            "RFAI8": "Right-Cerebral-White-Matter",
+            "RFAI9": "ctx_rh_G_and_S_subcentral",
+            "RFAI10": "Right-Cerebral-White-Matter",
+            "RFAI11": "Right-Cerebral-White-Matter",
+            "RFAI12": "ctx_rh_G_precentral",
+            "RFPI1": "Right-Cerebral-White-Matter",
+            "RFPI2": "Right-Cerebral-White-Matter",
+            "RFPI3": "ctx_rh_G_Ins_lg_and_S_cent_ins",
+            "RFPI4": "Unknown",
+            "RFPI5": "ctx_rh_G_and_S_subcentral",
+            "RFPI6": "ctx_rh_G_and_S_subcentral",
+            "RFPI7": "Right-Cerebral-White-Matter",
+            "RFPI8": "Right-Cerebral-White-Matter",
+            "RFPI9": "Right-Cerebral-White-Matter",
+            "RFPI10": "Right-Cerebral-White-Matter",
+            "RTAS1": "Right-Putamen",
+            "RTAS2": "ctx_rh_G_Ins_lg_and_S_cent_ins",
+            "RTAS3": "Unknown",
+            "RTAS4": "ctx_rh_G_temp_sup-Plan_polar",
+            "RTAS5": "Right-Cerebral-White-Matter",
+            "RTAS6": "Right-Cerebral-White-Matter",
+            "RTAS7": "Right-Cerebral-White-Matter",
+            "RTAS8": "Right-Cerebral-White-Matter",
+            "RTAS9": "Right-Cerebral-White-Matter",
+            "RTAS10": "ctx_rh_G_temp_sup-Lateral",
+            "RTPS1": "CSF",
+            "RTPS2": "Right-Thalamus-Proper",
+            "RTPS3": "Right-Thalamus-Proper",
+            "RTPS4": "Right-Thalamus-Proper",
+            "RTPS5": "Right-Thalamus-Proper",
+            "RTPS6": "Right-Cerebral-White-Matter",
+            "RTPS7": "Right-Cerebral-White-Matter",
+            "RTPS8": "Right-Cerebral-White-Matter",
+            "RTPS9": "Right-Cerebral-White-Matter",
+            "RTPS10": "Right-Cerebral-White-Matter",
+            "RTPS11": "Right-Cerebral-White-Matter",
+            "RTPS12": "Right-Cerebral-White-Matter",
+            "RTPS13": "ctx_rh_S_temporal_transverse",
+            "RTPS14": "ctx_rh_G_temp_sup-Plan_tempo",
+            "RTPS15": "Right-Cerebral-White-Matter",
+            "RTPS16": "Right-Cerebral-White-Matter",
+            "RTPS17": "Right-Cerebral-White-Matter",
+            "RTPS18": "ctx_rh_G_temp_sup-Lateral",
+            "RTP1": "Unknown",
+            "RTP2": "Unknown",
+            "RTP5": "ctx_rh_Pole_temporal",
+            "RTP6": "ctx_rh_Pole_temporal",
+            "RTP7": "ctx_rh_Pole_temporal",
+            "RTP8": "Unknown",
+            "RTP9": "ctx_rh_G_temp_sup-Lateral",
+            "RTP10": "ctx_rh_G_temporal_middle",
+            "RTP13": "ctx_rh_G_temporal_middle",
+            "RTP14": "ctx_rh_G_temporal_middle",
+            "RTP15": "ctx_rh_G_temporal_middle",
+            "RTAM2": "Right-Hippocampus",
+            "RTAM3": "Right-Hippocampus",
+            "RTAM4": "Right-Amygdala",
+            "RTAM5": "Right-Amygdala",
+            "RTAM6": "Right-Amygdala",
+            "RTAM7": "Right-Cerebral-White-Matter",
+            "RTAM8": "Right-Cerebral-White-Matter",
+            "RTAM9": "Right-Cerebral-White-Matter",
+            "RTAM10": "Right-Cerebral-White-Matter",
+            "RTAM11": "ctx_rh_S_temporal_sup",
+            "RTAM12": "ctx_rh_S_temporal_sup",
+            "RTAM13": "Right-Cerebral-White-Matter",
+            "RTAM14": "ctx_rh_S_temporal_sup",
+            "RTAM15": "ctx_rh_G_temporal_middle",
+            "RTMM1": "Right-Hippocampus",
+            "RTMM2": "Right-Hippocampus",
+            "RTMM3": "Right-Hippocampus",
+            "RTMM4": "Right-Hippocampus",
+            "RTMM5": "Right-Hippocampus",
+            "RTMM6": "Right-Inf-Lat-Vent",
+            "RTMM7": "Right-Cerebral-White-Matter",
+            "RTMM8": "Right-Cerebral-White-Matter",
+            "RTMM9": "Right-Cerebral-White-Matter",
+            "RTMM10": "Right-Cerebral-White-Matter",
+            "RTMM11": "ctx_rh_S_temporal_sup",
+            "RTMM12": "ctx_rh_S_temporal_sup",
+            "RTMM13": "Right-Cerebral-White-Matter",
+            "RTMM14": "Right-Cerebral-White-Matter",
+            "RTMM15": "Unknown",
+            "RTPM1": "ctx_rh_G_oc-temp_med-Parahip",
+            "RTPM2": "Right-Cerebral-White-Matter",
+            "RTPM3": "ctx_rh_S_oc-temp_med_and_Lingual",
+            "RTPM4": "Right-Cerebral-White-Matter",
+            "RTPM5": "Right-Cerebral-White-Matter",
+            "RTPM6": "Right-Cerebral-White-Matter",
+            "RTPM7": "Right-Cerebral-White-Matter",
+            "RTPM8": "Right-Cerebral-White-Matter",
+            "RTPM9": "Right-Cerebral-White-Matter",
+            "RTPM10": "Right-Cerebral-White-Matter",
+            "RTPM11": "Right-Cerebral-White-Matter",
+            "RTPM12": "Right-Cerebral-White-Matter",
+            "RTPM13": "Right-Cerebral-White-Matter",
+            "RTPM14": "Right-Cerebral-White-Matter",
+            "RTPM15": "ctx_rh_G_temporal_middle",
+            "RTAI1": "ctx_rh_G_oc-temp_med-Parahip",
+            "RTAI2": "ctx_rh_G_oc-temp_med-Parahip",
+            "RTAI3": "ctx_rh_G_oc-temp_med-Parahip",
+            "RTAI4": "ctx_rh_S_oc-temp_med_and_Lingual",
+            "RTAI5": "Right-Cerebral-White-Matter",
+            "RTAI6": "ctx_rh_G_oc-temp_lat-fusifor",
+            "RTAI7": "ctx_rh_S_collat_transv_ant",
+            "RTAI8": "Right-Cerebral-White-Matter",
+            "RTAI9": "Right-Cerebral-White-Matter",
+            "RTAI10": "ctx_rh_S_temporal_inf",
+            "RTAI11": "ctx_rh_S_temporal_inf",
+            "RTAI12": "ctx_rh_S_temporal_inf",
+            "RTAI13": "Right-Cerebral-White-Matter",
+            "RTAI14": "Right-Cerebral-White-Matter",
+            "RTAI15": "Right-Cerebral-White-Matter",
+            "RTPI1": "ctx_rh_G_oc-temp_lat-fusifor",
+            "RTPI2": "Right-Cerebral-White-Matter",
+            "RTPI3": "Right-Cerebral-White-Matter",
+            "RTPI4": "Right-Cerebral-White-Matter",
+            "RTPI5": "ctx_rh_S_oc-temp_lat",
+            "RTPI6": "ctx_rh_S_oc-temp_lat",
+            "RTPI7": "Right-Cerebral-White-Matter",
+            "RTPI8": "Unknown",
+            "RTPI9": "ctx_rh_G_temporal_middle",
+            "RTPI10": "Right-Cerebral-White-Matter",
+            "RTPI11": "Right-Cerebral-White-Matter",
+            "RTPI12": "ctx_rh_G_temporal_middle"
+        },
+        "rawROI_dict": {
+            "Left-Hippocampus": [
+                "LTAM1",
+                "LTAM2",
+                "LTAM3",
+                "LTMM1",
+                "LTMM4"
+            ],
+            "Left-Inf-Lat-Vent": [
+                "LTAM4",
+                "LTAM5"
+            ],
+            "Left-Cerebral-White-Matter": [
+                "LTAM6",
+                "LTAM7",
+                "LTAM8",
+                "LTAM9",
+                "LTAM10",
+                "LTAM11",
+                "LTAM12",
+                "LTAM13",
+                "LTAM14",
+                "LTMM5",
+                "LTMM7",
+                "LTMM8",
+                "LTMM9",
+                "LTMM10",
+                "LTPM1",
+                "LTPM2",
+                "LTPM6",
+                "LTPM7",
+                "LTPM8",
+                "LTPM9",
+                "LTPM10",
+                "LTPM11"
+            ],
+            "ctx_lh_S_collat_transv_ant": [
+                "LTMM6"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTMM11",
+                "LTMM12",
+                "LTMM13",
+                "LTMM14"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTMM15",
+                "LTPM14",
+                "LTPM15"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTPM3",
+                "LTPM4",
+                "LTPM5"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPM12",
+                "LTPM13"
+            ],
+            "ctx_rh_G_rectus": [
+                "RFO1"
+            ],
+            "Unknown": [
+                "RFO2",
+                "RFAM1",
+                "RFPI4",
+                "RTAS3",
+                "RTP1",
+                "RTP2",
+                "RTP8",
+                "RTMM15",
+                "RTPI8"
+            ],
+            "ctx_rh_S_orbital_med-olfact": [
+                "RFO3"
+            ],
+            "ctx_rh_G_orbital": [
+                "RFO4"
+            ],
+            "ctx_rh_S_orbital-H_Shaped": [
+                "RFO5",
+                "RFO8"
+            ],
+            "Right-Cerebral-White-Matter": [
+                "RFO6",
+                "RFO7",
+                "RFO9",
+                "RFO10",
+                "RFO11",
+                "RFO12",
+                "RFO15",
+                "RFAM3",
+                "RFAM4",
+                "RFAM5",
+                "RFAM6",
+                "RFAM7",
+                "RFAM8",
+                "RFAM9",
+                "RFAM10",
+                "RFAM11",
+                "RFAM12",
+                "RFAM13",
+                "RFAM14",
+                "RFMM2",
+                "RFMM3",
+                "RFMM4",
+                "RFMM5",
+                "RFMM6",
+                "RFMM7",
+                "RFMM8",
+                "RFMM9",
+                "RFMM10",
+                "RFMM11",
+                "RFMM12",
+                "RFMM13",
+                "RFMM14",
+                "RFMM15",
+                "RFAI1",
+                "RFAI4",
+                "RFAI5",
+                "RFAI6",
+                "RFAI7",
+                "RFAI8",
+                "RFAI10",
+                "RFAI11",
+                "RFPI1",
+                "RFPI2",
+                "RFPI7",
+                "RFPI8",
+                "RFPI9",
+                "RFPI10",
+                "RTAS5",
+                "RTAS6",
+                "RTAS7",
+                "RTAS8",
+                "RTAS9",
+                "RTPS6",
+                "RTPS7",
+                "RTPS8",
+                "RTPS9",
+                "RTPS10",
+                "RTPS11",
+                "RTPS12",
+                "RTPS15",
+                "RTPS16",
+                "RTPS17",
+                "RTAM7",
+                "RTAM8",
+                "RTAM9",
+                "RTAM10",
+                "RTAM13",
+                "RTMM7",
+                "RTMM8",
+                "RTMM9",
+                "RTMM10",
+                "RTMM13",
+                "RTMM14",
+                "RTPM2",
+                "RTPM4",
+                "RTPM5",
+                "RTPM6",
+                "RTPM7",
+                "RTPM8",
+                "RTPM9",
+                "RTPM10",
+                "RTPM11",
+                "RTPM12",
+                "RTPM13",
+                "RTPM14",
+                "RTAI5",
+                "RTAI8",
+                "RTAI9",
+                "RTAI13",
+                "RTAI14",
+                "RTAI15",
+                "RTPI2",
+                "RTPI3",
+                "RTPI4",
+                "RTPI7",
+                "RTPI10",
+                "RTPI11"
+            ],
+            "ctx_rh_G_front_inf-Orbital": [
+                "RFO13"
+            ],
+            "ctx_rh_G_front_inf-Triangul": [
+                "RFO14"
+            ],
+            "ctx_rh_G_and_S_cingul-Ant": [
+                "RFAM2"
+            ],
+            "ctx_rh_G_front_middle": [
+                "RFAM15"
+            ],
+            "ctx_rh_G_and_S_cingul-Mid-Ant": [
+                "RFMM1"
+            ],
+            "ctx_rh_S_circular_insula_sup": [
+                "RFAI2"
+            ],
+            "ctx_rh_G_front_inf-Opercular": [
+                "RFAI3"
+            ],
+            "ctx_rh_G_and_S_subcentral": [
+                "RFAI9",
+                "RFPI5",
+                "RFPI6"
+            ],
+            "ctx_rh_G_precentral": [
+                "RFAI12"
+            ],
+            "ctx_rh_G_Ins_lg_and_S_cent_ins": [
+                "RFPI3",
+                "RTAS2"
+            ],
+            "Right-Putamen": [
+                "RTAS1"
+            ],
+            "ctx_rh_G_temp_sup-Plan_polar": [
+                "RTAS4"
+            ],
+            "ctx_rh_G_temp_sup-Lateral": [
+                "RTAS10",
+                "RTPS18",
+                "RTP9"
+            ],
+            "CSF": [
+                "RTPS1"
+            ],
+            "Right-Thalamus-Proper": [
+                "RTPS2",
+                "RTPS3",
+                "RTPS4",
+                "RTPS5"
+            ],
+            "ctx_rh_S_temporal_transverse": [
+                "RTPS13"
+            ],
+            "ctx_rh_G_temp_sup-Plan_tempo": [
+                "RTPS14"
+            ],
+            "ctx_rh_Pole_temporal": [
+                "RTP5",
+                "RTP6",
+                "RTP7"
+            ],
+            "ctx_rh_G_temporal_middle": [
+                "RTP10",
+                "RTP13",
+                "RTP14",
+                "RTP15",
+                "RTAM15",
+                "RTPM15",
+                "RTPI9",
+                "RTPI12"
+            ],
+            "Right-Hippocampus": [
+                "RTAM2",
+                "RTAM3",
+                "RTMM1",
+                "RTMM2",
+                "RTMM3",
+                "RTMM4",
+                "RTMM5"
+            ],
+            "Right-Amygdala": [
+                "RTAM4",
+                "RTAM5",
+                "RTAM6"
+            ],
+            "ctx_rh_S_temporal_sup": [
+                "RTAM11",
+                "RTAM12",
+                "RTAM14",
+                "RTMM11",
+                "RTMM12"
+            ],
+            "Right-Inf-Lat-Vent": [
+                "RTMM6"
+            ],
+            "ctx_rh_G_oc-temp_med-Parahip": [
+                "RTPM1",
+                "RTAI1",
+                "RTAI2",
+                "RTAI3"
+            ],
+            "ctx_rh_S_oc-temp_med_and_Lingual": [
+                "RTPM3",
+                "RTAI4"
+            ],
+            "ctx_rh_G_oc-temp_lat-fusifor": [
+                "RTAI6",
+                "RTPI1"
+            ],
+            "ctx_rh_S_collat_transv_ant": [
+                "RTAI7"
+            ],
+            "ctx_rh_S_temporal_inf": [
+                "RTAI10",
+                "RTAI11",
+                "RTAI12"
+            ],
+            "ctx_rh_S_oc-temp_lat": [
+                "RTPI5",
+                "RTPI6"
+            ]
+        },
+        "filtROI_dict": {
+            "Left-Hippocampus": [
+                "LTAM1",
+                "LTAM2",
+                "LTAM3",
+                "LTMM1",
+                "LTMM4"
+            ],
+            "Left-Inf-Lat-Vent": [
+                "LTAM4",
+                "LTAM5"
+            ],
+            "ctx_lh_S_collat_transv_ant": [
+                "LTMM6"
+            ],
+            "ctx_lh_S_temporal_inf": [
+                "LTMM11",
+                "LTMM12",
+                "LTMM13",
+                "LTMM14"
+            ],
+            "ctx_lh_G_temporal_middle": [
+                "LTMM15",
+                "LTPM14",
+                "LTPM15"
+            ],
+            "ctx_lh_S_oc-temp_med_and_Lingual": [
+                "LTPM3",
+                "LTPM4",
+                "LTPM5"
+            ],
+            "ctx_lh_G_temporal_inf": [
+                "LTPM12",
+                "LTPM13"
+            ],
+            "ctx_rh_G_rectus": [
+                "RFO1"
+            ],
+            "Unknown": [
+                "RFO2",
+                "RFAM1",
+                "RFPI4",
+                "RTAS3",
+                "RTP1",
+                "RTP2",
+                "RTP8",
+                "RTMM15",
+                "RTPI8"
+            ],
+            "ctx_rh_S_orbital_med-olfact": [
+                "RFO3"
+            ],
+            "ctx_rh_G_orbital": [
+                "RFO4"
+            ],
+            "ctx_rh_S_orbital-H_Shaped": [
+                "RFO5",
+                "RFO8"
+            ],
+            "ctx_rh_G_front_inf-Orbital": [
+                "RFO13"
+            ],
+            "ctx_rh_G_front_inf-Triangul": [
+                "RFO14"
+            ],
+            "ctx_rh_G_and_S_cingul-Ant": [
+                "RFAM2"
+            ],
+            "ctx_rh_G_front_middle": [
+                "RFAM15"
+            ],
+            "ctx_rh_G_and_S_cingul-Mid-Ant": [
+                "RFMM1"
+            ],
+            "ctx_rh_S_circular_insula_sup": [
+                "RFAI2"
+            ],
+            "ctx_rh_G_front_inf-Opercular": [
+                "RFAI3"
+            ],
+            "ctx_rh_G_and_S_subcentral": [
+                "RFAI9",
+                "RFPI5",
+                "RFPI6"
+            ],
+            "ctx_rh_G_precentral": [
+                "RFAI12"
+            ],
+            "ctx_rh_G_Ins_lg_and_S_cent_ins": [
+                "RFPI3",
+                "RTAS2"
+            ],
+            "Right-Putamen": [
+                "RTAS1"
+            ],
+            "ctx_rh_G_temp_sup-Plan_polar": [
+                "RTAS4"
+            ],
+            "ctx_rh_G_temp_sup-Lateral": [
+                "RTAS10",
+                "RTPS18",
+                "RTP9"
+            ],
+            "CSF": [
+                "RTPS1"
+            ],
+            "Right-Thalamus-Proper": [
+                "RTPS2",
+                "RTPS3",
+                "RTPS4",
+                "RTPS5"
+            ],
+            "ctx_rh_S_temporal_transverse": [
+                "RTPS13"
+            ],
+            "ctx_rh_G_temp_sup-Plan_tempo": [
+                "RTPS14"
+            ],
+            "ctx_rh_Pole_temporal": [
+                "RTP5",
+                "RTP6",
+                "RTP7"
+            ],
+            "ctx_rh_G_temporal_middle": [
+                "RTP10",
+                "RTP13",
+                "RTP14",
+                "RTP15",
+                "RTAM15",
+                "RTPM15",
+                "RTPI9",
+                "RTPI12"
+            ],
+            "Right-Hippocampus": [
+                "RTAM2",
+                "RTAM3",
+                "RTMM1",
+                "RTMM2",
+                "RTMM3",
+                "RTMM4",
+                "RTMM5"
+            ],
+            "Right-Amygdala": [
+                "RTAM4",
+                "RTAM5",
+                "RTAM6"
+            ],
+            "ctx_rh_S_temporal_sup": [
+                "RTAM11",
+                "RTAM12",
+                "RTAM14",
+                "RTMM11",
+                "RTMM12"
+            ],
+            "Right-Inf-Lat-Vent": [
+                "RTMM6"
+            ],
+            "ctx_rh_G_oc-temp_med-Parahip": [
+                "RTPM1",
+                "RTAI1",
+                "RTAI2",
+                "RTAI3"
+            ],
+            "ctx_rh_S_oc-temp_med_and_Lingual": [
+                "RTPM3",
+                "RTAI4"
+            ],
+            "ctx_rh_G_oc-temp_lat-fusifor": [
+                "RTAI6",
+                "RTPI1"
+            ],
+            "ctx_rh_S_collat_transv_ant": [
+                "RTAI7"
+            ],
+            "ctx_rh_S_temporal_inf": [
+                "RTAI10",
+                "RTAI11",
+                "RTAI12"
+            ],
+            "ctx_rh_S_oc-temp_lat": [
+                "RTPI5",
+                "RTPI6"
             ]
         }
     }
