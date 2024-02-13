@@ -77,3 +77,162 @@ def save_channels_to_file(channels, subject, task, save_dir):
             channel_file.write(f"{i}: {channel_name}\n")
     
     print(f'Saved channel names and indices to {channel_text_filename}')
+
+
+
+def filter_and_average_epochs(epochs, start_idx, end_idx, accuracy_column='accuracy'):
+    """
+    Calculates trial averages for accurate trials and time averages with inaccurate trials marked as NaNs.
+
+    Parameters:
+    - epochs: MNE Epochs object with accuracy metadata.
+    - start_idx: Start index for time averaging.
+    - end_idx: End index for time averaging.
+    - accuracy_column: Name of the column in the metadata that contains accuracy data.
+
+    Returns:
+    - trial_avg_data: Trial-averaged data across accurate trials.
+    - time_avg_data: Time-averaged data with inaccurate trials marked as NaNs.
+    """
+    # Separate accurate and all trials data
+    accurate_epochs_data = epochs[epochs.metadata[accuracy_column] == 1.0].get_data()
+    all_epochs_data = epochs.get_data().copy()
+
+    # Mark inaccurate trials as NaNs in the all_epochs_data
+    inaccurate_indices = epochs.metadata[accuracy_column] != 1.0
+    all_epochs_data[inaccurate_indices, :, :] = np.nan
+
+    # Calculate trial average for accurate trials
+    trial_avg_data = np.nanmean(accurate_epochs_data, axis=0)
+
+    # Calculate time average within the specified window
+    time_avg_data = np.nanmean(all_epochs_data[:, :, start_idx:end_idx], axis=2)
+
+    return trial_avg_data, time_avg_data
+
+
+
+def permutation_test(data_timeavg_output_0, data_timeavg_output_1, n_permutations=10000, one_tailed=False):
+    """
+    Perform a permutation test to compare two conditions.
+
+    Parameters:
+    - data_timeavg_output_0: Numpy array for condition 0.
+    - data_timeavg_output_1: Numpy array for condition 1.
+    - n_permutations: Number of permutations to perform.
+    - one_tailed: Boolean indicating if the test should be one-tailed. False by default.
+
+    Returns:
+    - p_value: P-value assessing the significance of the observed difference.
+    """
+    # Calculate the observed difference in means between the two conditions
+    observed_diff = np.nanmean(data_timeavg_output_0) - np.nanmean(data_timeavg_output_1)
+    
+    # Combine the data from both conditions
+    combined_data = np.hstack([data_timeavg_output_0, data_timeavg_output_1])
+    
+    # Initialize a variable to count how many times the permuted difference exceeds the observed difference
+    count_extreme_values = 0
+    
+    for _ in range(n_permutations):
+        # Shuffle the combined data
+        np.random.shuffle(combined_data)
+        
+        # Split the shuffled data back into two new groups
+        permuted_0 = combined_data[:len(data_timeavg_output_0)]
+        permuted_1 = combined_data[len(data_timeavg_output_0):]
+        
+        # Calculate the mean difference for this permutation
+        permuted_diff = np.nanmean(permuted_0) - np.nanmean(permuted_1)
+        
+        # Check if the permuted difference is as extreme as the observed difference
+        # For a one-tailed test, only count when permuted_diff is greater than observed_diff
+        if one_tailed:
+            if permuted_diff > observed_diff:
+                count_extreme_values += 1
+        else:
+            if abs(permuted_diff) >= abs(observed_diff):
+                count_extreme_values += 1
+    
+    # Calculate the p-value
+    p_value = count_extreme_values / n_permutations
+    
+    return p_value
+
+
+
+def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permutations=10000):
+    """
+    Perform a permutation test for each electrode comparing two conditions across subjects.
+    
+    Parameters:
+    - data_0_list: List of subject arrays from condition 0, each array is trials x electrodes.
+    - data_1_list: List of subject arrays from condition 1, each array is trials x electrodes.
+    - n_permutations: Number of permutations for the test.
+    
+    Returns:
+    - p_values: A list of p-values for each electrode, across all subjects.
+    """
+    p_values = []
+
+    # Ensure there is a corresponding condition 1 array for each condition 0 array
+    if len(data_0_list) != len(data_1_list):
+        raise ValueError("Mismatch in number of subjects between conditions")
+
+    # Iterate through each subject's data arrays
+    for idx, (data_0, data_1) in enumerate(zip(data_0_list, data_1_list)):
+        print(f"Subject {idx} - Condition 0 shape: {data_0.shape}, Condition 1 shape: {data_1.shape}")
+
+        # Check for matching electrode counts between conditions within a subject
+        if data_0.shape[1] != data_1.shape[1]:
+            raise ValueError(f"Electrode count mismatch in subject {idx}")
+
+        n_electrodes_this_sub = data_0.shape[1]  # Number of electrodes for this subject
+
+        # Perform the permutation test for each electrode in this subject
+        for electrode_idx in range(n_electrodes_this_sub):  # Fix: use range(n_electrodes) to iterate correctly
+            p_value = permutation_test(data_0[:, electrode_idx], data_1[:, electrode_idx], n_permutations)
+            p_values.append(p_value)
+
+    return p_values
+
+def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permutations=10000):
+    """
+    Perform a permutation test across electrodes comparing two conditions.
+    
+    Parameters:
+    - data_0_list: List of arrays from condition 0, each array is trials x electrodes.
+    - data_1_list: List of arrays from condition 1, each array is trials x electrodes.
+    - n_permutations: Number of permutations for the test.
+    
+    Returns:
+    - p_value: P-value from the permutation test.
+    """
+    # Aggregate data across electrodes
+    data_0_aggregated = np.concatenate([np.nanmean(data, axis=0) for data in data_0_list])  # Average across trials to get a single value per electrode
+    data_1_aggregated = np.concatenate([np.nanmean(data, axis=0) for data in data_1_list])  # though should I do avg across electrodes instead..?? Uhhhh. No, I think.
+    
+    # Perform the permutation test
+    p_value = permutation_test(data_0_aggregated, data_1_aggregated, n_permutations)
+    
+    return p_value
+
+def add_accuracy_to_epochs(epochs, accuracy_array):
+    """
+    Adds accuracy data from accuracy_array to the metadata of epochs.
+    Assumes the order of trials in accuracy_array matches the order in epochs.
+    """
+    if epochs.metadata is None:
+        # Create a new DataFrame if no metadata exists
+        epochs.metadata = pd.DataFrame(index=range(len(epochs)))
+    
+    # Ensure the accuracy_array length matches the number of epochs
+    assert len(accuracy_array) == len(epochs), "Mismatch in number of trials and accuracy data length."
+    
+    # Add the accuracy array as a new column in the metadata
+    epochs.metadata['accuracy'] = accuracy_array
+
+    # Reset the index to ensure it's sequential starting from 0
+    epochs.metadata.reset_index(drop=True, inplace=True)
+    
+    return epochs
