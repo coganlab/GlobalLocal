@@ -2,6 +2,7 @@ import mne
 import json
 import numpy as np
 import os
+import pandas as pd
 
 def calculate_RTs(raw):
     annotations = raw.annotations
@@ -161,7 +162,7 @@ def permutation_test(data_timeavg_output_0, data_timeavg_output_1, n_permutation
 
 
 
-def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permutations=10000):
+def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permutations=10000, one_tailed=False):
     """
     Perform a permutation test for each electrode comparing two conditions across subjects.
     
@@ -191,12 +192,12 @@ def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permu
 
         # Perform the permutation test for each electrode in this subject
         for electrode_idx in range(n_electrodes_this_sub):  # Fix: use range(n_electrodes) to iterate correctly
-            p_value = permutation_test(data_0[:, electrode_idx], data_1[:, electrode_idx], n_permutations)
+            p_value = permutation_test(data_0[:, electrode_idx], data_1[:, electrode_idx], n_permutations, one_tailed)
             p_values.append(p_value)
 
     return p_values
 
-def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permutations=10000):
+def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permutations=10000, one_tailed=False):
     """
     Perform a permutation test across electrodes comparing two conditions.
     
@@ -213,7 +214,7 @@ def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permu
     data_1_aggregated = np.concatenate([np.nanmean(data, axis=0) for data in data_1_list])  # though should I do avg across electrodes instead..?? Uhhhh. No, I think.
     
     # Perform the permutation test
-    p_value = permutation_test(data_0_aggregated, data_1_aggregated, n_permutations)
+    p_value = permutation_test(data_0_aggregated, data_1_aggregated, n_permutations, one_tailed)
     
     return p_value
 
