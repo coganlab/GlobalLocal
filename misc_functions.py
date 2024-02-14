@@ -237,3 +237,25 @@ def add_accuracy_to_epochs(epochs, accuracy_array):
     epochs.metadata.reset_index(drop=True, inplace=True)
     
     return epochs
+
+def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir):
+    # Determine which channels are significant based on the reject array
+    significant_indices = np.where(reject)[0]
+    
+    # Convert significant indices to channel names
+    sig_chans = [channels[i] for i in significant_indices]
+    
+    # Create a dictionary to store the data
+    data = {
+        "subject": subject,
+        "sig_chans": sig_chans
+    }
+    
+    # Define the filename
+    filename = os.path.join(save_dir, f'sig_chans_{subject}_{output_name}.json')
+    
+    # Save the dictionary as a JSON file
+    with open(filename, 'w') as file:
+        json.dump(data, file)
+    
+    print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
