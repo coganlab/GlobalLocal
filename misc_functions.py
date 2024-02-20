@@ -137,7 +137,7 @@ def permutation_test(data_timeavg_output_0, data_timeavg_output_1, n_permutation
     
     for _ in range(n_permutations):
         # Shuffle the combined data
-        np.random.shuffle(combined_data)
+        np.random.shuffle(combined_data) #this shuffles in the 0th dimension (trials)
         
         # Split the shuffled data back into two new groups
         permuted_0 = combined_data[:len(data_timeavg_output_0)]
