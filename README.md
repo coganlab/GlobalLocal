@@ -85,5 +85,11 @@ Trials Per Block in Main Task (trialsPerBlock) = 128
 
 Practice Accuracy Cutoff (pracAccCutoff) = 75
 
-- Minimum accuracy percent (out of 100) needed to move on from one practice task to the next. 
+- Minimum accuracy percent (out of 100) needed to move on from one practice task to the next.
+  
+blockTypes  
+A: 25% congruent, 25% switch  
+B: 25% congruent, 75% switch  
+C: 75% congruent, 25% switch  
+D: 75% congruent, 75% switch
 
