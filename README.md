@@ -20,6 +20,8 @@ Last edited: 01/16/2024
 
 ### Preprocessing
 1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning)
+2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
+3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
 ### Wavelets
 1. Run 1st and 3rd cell of copy_wavelet_spec.ipynb to generate .h5 wavelet files, make sure to edit subject and filename in the third cell based on what subject you want and what baseline you're using.
 2. Run all cells in plot_wavelets.ipynb to make wavelet plots, saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5'). Layout is Box/Coganlab
