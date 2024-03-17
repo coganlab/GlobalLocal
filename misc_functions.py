@@ -106,10 +106,13 @@ def filter_and_average_epochs(epochs, start_idx, end_idx, accuracy_column='accur
     # Calculate trial average for accurate trials
     trial_avg_data = np.nanmean(accurate_epochs_data, axis=0)
 
+    # Calculate trial standard deviation for accurate trials
+    trial_std_data = np.nanstd(accurate_epochs_data, axis=0)
+
     # Calculate time average within the specified window
     time_avg_data = np.nanmean(all_epochs_data[:, :, start_idx:end_idx], axis=2)
 
-    return trial_avg_data, time_avg_data
+    return trial_avg_data, trial_std_data, time_avg_data
 
 
 
