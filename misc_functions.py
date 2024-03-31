@@ -262,3 +262,242 @@ def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir)
         json.dump(data, file)
     
     print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
+
+
+def load_mne_objects(sub, output_name, task, LAB_root=None):
+    """
+    Load MNE objects for a given subject and output name.
+
+    Parameters:
+    - sub (str): Subject identifier.
+    - output_name (str): Output name used in the file naming.
+    - task (str): Task identifier.
+    - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
+
+    Returns:
+    A dictionary containing loaded MNE objects.
+    """
+
+    # Determine LAB_root based on the operating system
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+
+    # Get data layout
+    layout = get_data(task, root=LAB_root)
+    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
+    
+    # Ensure save directory exists
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    # Define file paths
+    HG_ev1_file = f'{save_dir}/{sub}_{output_name}_HG_ev1-epo.fif'
+    HG_base_file = f'{save_dir}/{sub}_{output_name}_HG_base-epo.fif'
+    HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
+
+    # Load the objects
+    HG_ev1 = mne.read_epochs(HG_ev1_file)
+    HG_base = mne.read_epochs(HG_base_file)
+    HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+    HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
+    HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
+
+    return {
+        'HG_ev1': HG_ev1,
+        'HG_base': HG_base,
+        'HG_ev1_rescaled': HG_ev1_rescaled,
+        'HG_ev1_evoke': HG_ev1_evoke,
+        'HG_ev1_evoke_rescaled': HG_ev1_evoke_rescaled
+    }
+
+def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, combined_data, acc_array, LAB_root=None):
+    """
+    Adjusted to handle multiple conditions per output name, with multiple condition columns.
+
+    Parameters:
+    - subjects: List of subject IDs.
+    - output_names_conditions: Dictionary where keys are output names and values are dictionaries
+        of condition column names and their required values.
+    - task: Task identifier.
+    - combined_data: DataFrame with combined behavioral and trial information.
+    - acc_array: dict of numpy arrays of 0 for incorrect and 1 for correct trials for each subject
+    - LAB_root: Root directory for data (optional).
+    """
+    subjects_mne_objects = {}
+
+    for sub in subjects:
+        print(f"Loading data for subject: {sub}")
+        sub_mne_objects = {}
+        for output_name, conditions in output_names_conditions.items():
+            print(f"  Loading output: {output_name} with conditions: {conditions}")
+            
+            # Build the filtering condition
+            sub_without_zeroes = "D" + sub[1:].lstrip('0') 
+            condition_filter = (combined_data['subject_ID'] == sub) # this previously indexed using sub_without_zeroes, but now just uses sub. 3/17.
+                    
+            for condition_column, condition_value in conditions.items():
+                if isinstance(condition_value, list):
+                    # If the condition needs to match any value in a list
+                    condition_filter &= combined_data[condition_column].isin(condition_value)
+                else:
+                    # If the condition is a single value
+                    condition_filter &= (combined_data[condition_column] == condition_value)
+            
+            # Filter combinedData for the specific subject and conditions
+            subject_condition_data = combined_data[condition_filter]
+            
+            # Load MNE objects and update with accuracy data
+            mne_objects = load_mne_objects(sub, output_name, task, LAB_root)
+            
+            if sub in acc_array:
+                trial_counts = subject_condition_data['trialCount'].values.astype(int)
+                accuracy_data = [acc_array[sub][i-1] for i in trial_counts if i-1 < len(acc_array[sub])] # Subtract 1 here for zero-based indexing in acc array.
+                # Now pass trial_counts along with accuracy_data
+                mne_objects['HG_ev1_rescaled'] = add_accuracy_to_epochs(mne_objects['HG_ev1_rescaled'], accuracy_data)
+
+            sub_mne_objects[output_name] = mne_objects
+        subjects_mne_objects[sub] = sub_mne_objects
+
+    return subjects_mne_objects
+
+def extract_significant_effects(anova_table):
+    """
+    Extract significant effects and their p-values from the ANOVA results table,
+    removing 'C(...)' from effect names and formatting them neatly.
+    """
+    significant_effects = []
+    for effect in anova_table.index:
+        p_value = anova_table.loc[effect, 'PR(>F)']
+        if p_value < 0.05:
+            # Remove 'C(' and ')' from the effect names
+            formatted_effect = effect.replace('C(', '').replace(')', '')
+            significant_effects.append((formatted_effect, p_value))
+    return significant_effects
+
+def convert_dataframe_to_serializable_format(df):
+    """
+    Convert a pandas DataFrame to a serializable format that can be used with json.dump.
+    """
+    return df.to_dict(orient='records')
+
+def perform_modular_anova(df, time_window, save_dir, save_name):
+    # Filter for a specific time window (I should probably make this not have a time_window input and just loop over all time windows like the within electrode code does)
+    df_filtered = df[df['TimeWindow'] == time_window]
+
+    # Dynamically construct the model formula based on condition keys
+    condition_keys = [key for key in output_names_conditions[next(iter(output_names_conditions))].keys()]
+    formula_terms = ' + '.join([f'C({key})' for key in condition_keys])
+    interaction_terms = ' * '.join([f'C({key})' for key in condition_keys])
+    formula = f'MeanActivity ~ {formula_terms} + {interaction_terms}'
+
+    # Define the model
+    model = ols(formula, data=df_filtered).fit()
+
+    # Perform the ANOVA
+    anova_results = anova_lm(model, typ=2)
+
+    # Define the full path for the results file
+    results_file_path = os.path.join(save_dir, save_name)
+
+    # Save the ANOVA results to a text file
+    with open(results_file_path, 'w') as file:
+        file.write(anova_results.__str__())
+
+    # Optionally, print the path to the saved file and/or return it
+    print(f"ANOVA results saved to: {results_file_path}")
+
+    # Print the results
+    print(anova_results)
+
+    return anova_results
+
+def make_plotting_parameters():
+    # add the other conditions and give them condition names and colors too
+    plotting_parameters = {
+        'Stimulus_r25and75_fixationCrossBase_1sec_mirror': {
+            'condition_name': 'repeat',
+            'color': 'red',
+            "line_style": "-"
+        },
+        'Stimulus_s25and75_fixationCrossBase_1sec_mirror': {
+            'condition_name': 'switch',
+            'color': 'green',
+            "line_style": "-"
+        },
+        'Stimulus_c25and75_fixationCrossBase_1sec_mirror': {
+            'condition_name': 'congruent',
+            'color': 'blue',
+            "line_style": "-"
+        },
+        'Stimulus_i25and75_fixationCrossBase_1sec_mirror': {
+            'condition_name': 'incongruent',
+            'color': 'orange',
+            "line_style": "-"
+        },
+        "Stimulus_ir_fixationCrossBase_1sec_mirror": {
+            "condition_name": "IR",
+            "color": "blue",
+            "line_style": "-"
+        },
+        "Stimulus_is_fixationCrossBase_1sec_mirror": {
+            "condition_name": "IS",
+            "color": "blue",
+            "line_style": "--"
+        },
+        "Stimulus_cr_fixationCrossBase_1sec_mirror": {
+            "condition_name": "CR",
+            "color": "red",
+            "line_style": "-"
+        },
+        "Stimulus_cs_fixationCrossBase_1sec_mirror": {
+            "condition_name": "CS",
+            "color": "red",
+            "line_style": "--"
+        },
+        "Stimulus_c25_fixationCrossBase_1sec_mirror": {
+            "condition_name": "c25",
+            "color": "red",
+            "line_style": "--"
+        },
+        "Stimulus_c75_fixationCrossBase_1sec_mirror": {
+            "condition_name": "c75",
+            "color": "red",
+            "line_style": "-"
+        },
+        "Stimulus_i25_fixationCrossBase_1sec_mirror": {
+            "condition_name": "i25",
+            "color": "blue",
+            "line_style": "--"
+        },
+        "Stimulus_i75_fixationCrossBase_1sec_mirror": {
+            "condition_name": "i75",
+            "color": "blue",
+            "line_style": "-"
+        },
+        "Stimulus_s25_fixationCrossBase_1sec_mirror": {
+            "condition_name": "s25",
+            "color": "green",
+            "line_style": "--"
+        },
+        "Stimulus_s75_fixationCrossBase_1sec_mirror": {
+            "condition_name": "s75",
+            "color": "green",
+            "line_style": "-"
+        },
+        "Stimulus_r25_fixationCrossBase_1sec_mirror": {
+            "condition_name": "r25",
+            "color": "pink",
+            "line_style": "--"
+        },
+        "Stimulus_r75_fixationCrossBase_1sec_mirror": {
+            "condition_name": "r75",
+            "color": "pink",
+            "line_style": "-"
+        },
+
+    }
+
+    # Save the dictionary to a file
+    with open('plotting_parameters.json', 'w') as file:
+        json.dump(plotting_parameters, file, indent=4)
