@@ -3,6 +3,24 @@ import json
 import numpy as np
 import os
 import pandas as pd
+from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
+    outliers_to_nan
+from ieeg.io import raw_from_layout, get_data
+from ieeg.timefreq.utils import crop_pad
+from ieeg.timefreq import gamma
+from ieeg.calc.scaling import rescale
+import mne
+import os
+import numpy as np
+from ieeg.calc.reshape import make_data_same
+from ieeg.calc.stats import time_perm_cluster, window_averaged_shuffle
+from ieeg.viz.mri import gen_labels
+import matplotlib.pyplot as plt
+from collections import OrderedDict, defaultdict
+from statsmodels.stats.multitest import multipletests
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
 
 def calculate_RTs(raw):
     annotations = raw.annotations
@@ -80,7 +98,6 @@ def save_channels_to_file(channels, subject, task, save_dir):
     print(f'Saved channel names and indices to {channel_text_filename}')
 
 
-
 def filter_and_average_epochs(epochs, start_idx, end_idx, accuracy_column='accuracy'):
     """
     Calculates trial averages for accurate trials and time averages with inaccurate trials marked as NaNs.
@@ -113,7 +130,6 @@ def filter_and_average_epochs(epochs, start_idx, end_idx, accuracy_column='accur
     time_avg_data = np.nanmean(all_epochs_data[:, :, start_idx:end_idx], axis=2)
 
     return trial_avg_data, trial_std_data, time_avg_data
-
 
 
 def permutation_test(data_timeavg_output_0, data_timeavg_output_1, n_permutations=10000, one_tailed=False):
@@ -164,7 +180,6 @@ def permutation_test(data_timeavg_output_0, data_timeavg_output_1, n_permutation
     return p_value
 
 
-
 def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permutations=10000, one_tailed=False):
     """
     Perform a permutation test for each electrode comparing two conditions across subjects.
@@ -200,6 +215,7 @@ def perform_permutation_test_within_electrodes(data_0_list, data_1_list, n_permu
 
     return p_values
 
+
 def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permutations=10000, one_tailed=False):
     """
     Perform a permutation test across electrodes comparing two conditions.
@@ -221,6 +237,7 @@ def perform_permutation_test_across_electrodes(data_0_list, data_1_list, n_permu
     
     return p_value
 
+
 def add_accuracy_to_epochs(epochs, accuracy_array):
     """
     Adds accuracy data from accuracy_array to the metadata of epochs.
@@ -240,6 +257,7 @@ def add_accuracy_to_epochs(epochs, accuracy_array):
     epochs.metadata.reset_index(drop=True, inplace=True)
     
     return epochs
+
 
 def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir):
     # Determine which channels are significant based on the reject array
@@ -311,6 +329,7 @@ def load_mne_objects(sub, output_name, task, LAB_root=None):
         'HG_ev1_evoke_rescaled': HG_ev1_evoke_rescaled
     }
 
+
 def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, combined_data, acc_array, LAB_root=None):
     """
     Adjusted to handle multiple conditions per output name, with multiple condition columns.
@@ -361,6 +380,7 @@ def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, co
 
     return subjects_mne_objects
 
+
 def extract_significant_effects(anova_table):
     """
     Extract significant effects and their p-values from the ANOVA results table,
@@ -375,13 +395,15 @@ def extract_significant_effects(anova_table):
             significant_effects.append((formatted_effect, p_value))
     return significant_effects
 
+
 def convert_dataframe_to_serializable_format(df):
     """
     Convert a pandas DataFrame to a serializable format that can be used with json.dump.
     """
     return df.to_dict(orient='records')
 
-def perform_modular_anova(df, time_window, save_dir, save_name):
+
+def perform_modular_anova(df, time_window, output_names_conditions, save_dir, save_name):
     # Filter for a specific time window (I should probably make this not have a time_window input and just loop over all time windows like the within electrode code does)
     df_filtered = df[df['TimeWindow'] == time_window]
 
@@ -411,6 +433,7 @@ def perform_modular_anova(df, time_window, save_dir, save_name):
     print(anova_results)
 
     return anova_results
+
 
 def make_plotting_parameters():
     # add the other conditions and give them condition names and colors too
@@ -501,3 +524,54 @@ def make_plotting_parameters():
     # Save the dictionary to a file
     with open('plotting_parameters.json', 'w') as file:
         json.dump(plotting_parameters, file, indent=4)
+
+
+def plot_significance(ax, times, sig_effects, y_offset=0.1):
+    """
+    Plot significance bars for the effects on top of the existing axes, adjusted for time windows.
+
+    Parameters:
+    - ax: The matplotlib Axes object to plot on.
+    - times: Array of time points for the x-axis.
+    - sig_effects: Dictionary with time windows as keys and lists of tuples (effect, p-value) as values.
+    - y_offset: The vertical offset between different time window significance bars.
+    """
+    y_pos_base = ax.get_ylim()[1]  # Get the top y-axis limit to place significance bars
+    
+    time_windows = {
+        'FirstHalfSecond': (0, 0.5),
+        'SecondHalfSecond': (0.5, 1),
+        'FullSecond': (0, 1)
+    }
+
+    # Sort time windows to ensure 'FullSecond' bars are plotted last (on top)
+    for time_window, effects in sorted(sig_effects.items(), key=lambda x: x[0] == 'FullSecond'):
+        y_pos = y_pos_base + y_offset * list(time_windows).index(time_window)  # Adjust y_pos based on time window
+        for effect, p_value in effects:
+            start_time, end_time = time_windows[time_window]
+            # untested new colors 3/20
+            # Determine the color based on the effect name
+            if 'congruency' in effect:
+                color = 'red'
+            elif 'congruencyProportion' in effect:
+                color = 'blue'
+            elif 'switchType' in effect:
+                color = 'green'
+            elif 'switchProportion' in effect:
+                color = 'yellow'
+            
+            else:
+                color = 'black'  # Default color
+
+            # Assign colors for interaction effects
+            if 'congruency:congruencyProportion' in effect:
+                color = 'purple'
+            elif 'switchType:switchProportion' in effect:
+                color = 'yellowgreen'
+            elif 'congruency:switchType' in effect:
+                color = 'brown'
+
+            num_asterisks = '*' * (1 if p_value < 0.05 else 2 if p_value < 0.01 else 3)
+            # actually plot
+            ax.plot([start_time, end_time], [y_pos, y_pos], color=color, lw=4)
+            ax.text((start_time + end_time) / 2, y_pos, num_asterisks, ha='center', va='bottom', color=color)
