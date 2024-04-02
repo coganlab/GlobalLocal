@@ -39,9 +39,10 @@ sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a 
 1. Run plot_clean.ipynb to preprocess (line noise filtering) for new subjects
 2. Get significant electrodes by running plot_hg_and_stats with Stimulus as the event (should be top cell I think). Also run the bottom cells to plot individual electrodes for raw traces and high gamma filtered in this step.
 3. Get high gamma of main effect conditions by running plot_hg_and_stats with events as Stimulus/i25 + Stimulus/i75 (inc), and Stimulus/c25 + Stimulus/c75 (con), and Stimulus/i25/s25 + Stimulus/i25/s75 + Stimulus/i75/s25 + Stimulus/i75/s75 + Stimulus/c25/s25 + Stimulus/c25/s75 + Stimulus/c75/s25 + Stimulus/c75/s75 (switch), and Stimulus/i25/r25 + Stimulus/i25/r75 + Stimulus/i75/r25 + Stimulus/i75/r75 + Stimulus/c25/r25 + Stimulus/c25/r75 + Stimulus/c75/r25 + Stimulus/c75/r75 (repeat)
-5. Run roi_analysis.ipynb to get condition plots and stats
-6. Run plot_subjects.ipynb to get brain plots for new subjects
-7. Run copy_wavelet_spec.ipynb and then plot_wavelets.ipynb for new subjects with Stimulus and Response as the events
+5. Run roi_analysis.ipynb to get condition plots and stats for rois of interest. Choose rois at top of script. Note that the structure used in plot_subjects currently uses all electrodes from all selected rois, so if just want to plot one roi, just select that one.
+6. run whole_brain_analysis.ipynb to get condition plots and stats for all electrodes.
+7. Run plot_subjects.ipynb to get brain plots for new subjects
+8. Run copy_wavelet_spec.ipynb and then plot_wavelets.ipynb for new subjects with Stimulus and Response as the events
 
 **Notes for Experimenter**
 
