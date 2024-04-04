@@ -434,6 +434,34 @@ def perform_modular_anova(df, time_window, output_names_conditions, save_dir, sa
 
     return anova_results
 
+def perform_modular_anova_all_time_windows(df, output_names_conditions, save_dir, save_name_prefix):
+    # Dynamically construct the model formula based on condition keys and include TimeWindow
+    condition_keys = [key for key in output_names_conditions[next(iter(output_names_conditions))].keys()]
+    formula_terms = ' + '.join([f'C({key})' for key in condition_keys] + ['C(TimeWindow)'])
+    interaction_terms = ' * '.join([f'C({key})' for key in condition_keys] + ['C(TimeWindow)'])
+    formula = f'MeanActivity ~ {formula_terms} + {interaction_terms}'
+
+    # Define the model
+    model = ols(formula, data=df).fit()
+
+    # Perform the ANOVA
+    anova_results = anova_lm(model, typ=2)
+
+    # Define the base part of the results file name
+    results_file_path = os.path.join(save_dir, f"{save_name_prefix}_ANOVAacrossElectrodes_allTimeWindows.txt")
+
+    # Save the ANOVA results to a text file
+    with open(results_file_path, 'w') as file:
+        file.write(anova_results.__str__())
+
+    # Optionally, print the path to the saved file and/or return it
+    print(f"ANOVA results for all time windows saved to: {results_file_path}")
+
+    # Print the results
+    print(anova_results)
+
+    return anova_results
+
 
 def make_plotting_parameters():
     # add the other conditions and give them condition names and colors too
