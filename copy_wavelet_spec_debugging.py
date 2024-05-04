@@ -7,7 +7,7 @@ import os
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
 
-from misc_functions import calculate_RTs
+from utils import calculate_RTs
 
 # ### 7/5 try to get wavelets for all stimulus 
 

@@ -11,7 +11,7 @@ import numpy as np
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 
-from misc_functions import calculate_RTs
+from utils import calculate_RTs
 import matplotlib.pyplot as plt
 
 

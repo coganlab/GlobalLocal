@@ -692,44 +692,211 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
     - y_offset: The vertical offset between different time window significance bars.
     """
     y_pos_base = ax.get_ylim()[1]  # Get the top y-axis limit to place significance bars
-    
+
     time_windows = {
         'FirstHalfSecond': (0, 0.5),
         'SecondHalfSecond': (0.5, 1),
         'FullSecond': (0, 1)
     }
 
+    window_offsets = {window: 0 for window in time_windows}  # Initialize offsets for each time window
+
     # Sort time windows to ensure 'FullSecond' bars are plotted last (on top)
     for time_window, effects in sorted(sig_effects.items(), key=lambda x: x[0] == 'FullSecond'):
-        y_pos = y_pos_base + y_offset * list(time_windows).index(time_window)  # Adjust y_pos based on time window
+        base_y_pos = y_pos_base + y_offset * list(time_windows).index(time_window)
         for effect, p_value in effects:
             start_time, end_time = time_windows[time_window]
-            # untested new colors 3/20
-            # Determine the color based on the effect name
+            # Adjust y_pos based on how many bars have already been plotted in this window
+            y_pos = base_y_pos + y_offset * window_offsets[time_window]
+
+            # Update the color selection logic as per your requirement
+            color = 'black'  # Default color for unmatched conditions
+                        
             if 'congruency' in effect:
                 color = 'red'
             elif 'congruencyProportion' in effect:
-                color = 'blue'
-            elif 'switchType' in effect:
                 color = 'green'
+            elif 'switchType' in effect:
+                color = 'blue'
             elif 'switchProportion' in effect:
                 color = 'yellow'
-            
-            else:
-                color = 'black'  # Default color
-
-            # Assign colors for interaction effects
-            if 'congruency:congruencyProportion' in effect:
+            elif 'congruency:congruencyProportion' in effect:
                 color = 'purple'
             elif 'switchType:switchProportion' in effect:
                 color = 'yellowgreen'
             elif 'congruency:switchType' in effect:
-                color = 'brown'
+                color = 'black'
 
             num_asterisks = '*' * (1 if p_value < 0.05 else 2 if p_value < 0.01 else 3)
-            # actually plot
             ax.plot([start_time, end_time], [y_pos, y_pos], color=color, lw=4)
             ax.text((start_time + end_time) / 2, y_pos, num_asterisks, ha='center', va='bottom', color=color)
+
+            window_offsets[time_window] += 1  # Increment the offset for this time window
+
+
+
+def map_block_type(row):
+    '''
+    maps blockType from behavioral csv to congruencyProportion and switchProportion
+    '''
+    if row['blockType'] == 'A':
+        return pd.Series(['25%', '25%'])
+    elif row['blockType'] == 'B':
+        return pd.Series(['25%', '75%'])
+    elif row['blockType'] == 'C':
+        return pd.Series(['75%', '25%'])
+    elif row['blockType'] == 'D':
+        return pd.Series(['75%', '75%'])
+    else:
+        return pd.Series([None, None])
+
+
+def get_sig_chans(sub, task, LAB_root=None):
+    """
+    Retrieves the significant channels for a given subject and task from a stored JSON file.
+    
+    Parameters:
+        sub (str): Subject ID for which significant channels are retrieved.
+        task (str): The specific task for which data is being processed.
+        LAB_root (str, optional): The root directory where the data is stored. If None, determines the path based on the OS.
+
+    Returns:
+        dict: A dictionary containing significant channels loaded from the JSON file.
+    """
+    # Determine LAB_root based on the operating system
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+
+    # Get data layout
+    layout = get_data(task, root=LAB_root)
+    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
+
+    stim_filename = os.path.join(save_dir, f'sig_chans_{sub}_Stimulus_fixationCrossBase_1sec_mirror.json')
+    stim_sig_chans = load_sig_chans(stim_filename)
+    return stim_sig_chans
+
+def get_sig_chans_per_subject(subjects, task='GlobalLocal', LAB_root=None):
+    """
+    Retrieves significant channels for a list of subjects for a specified task.
+    
+    Parameters:
+        subjects (list of str): List of subject IDs to process.
+        task (str, optional): The specific task for which data is being processed. Defaults to 'GlobalLocal'.
+        LAB_root (str, optional): The root directory where the data is stored. If None, determines the path based on the OS.
+
+    Returns:
+        dict: A dictionary where keys are subject IDs and values are dictionaries of significant channels for each subject.
+    """
+    # Initialize an empty dictionary to store significant channels per subject
+    sig_chans_per_subject = {}
+
+    # Populate the dictionary using get_sig_chans for each subject
+    for sub in subjects:
+        sig_chans_per_subject[sub] = get_sig_chans(sub, task, LAB_root)
+
+    return sig_chans_per_subject
+
+
+def filter_electrodes_by_roi(subjects_electrodes_dict, sig_chans_per_subject, roi_list):
+    """
+    Filters electrodes based on specified ROIs and returns significant electrodes for each subject.
+
+    Args:
+    subjects_electrodes_dict (dict): A dictionary with subjects as keys and electrode-to-ROI mappings as values.
+    sig_chans_per_subject (dict): A dictionary with subjects as keys and lists of significant channels as values.
+    roi_list (list): A list of ROIs to filter electrodes.
+
+    Returns:
+    dict: A dictionary with subjects as keys and lists of significant electrodes in specified ROIs as values.
+    """
+    filtered_electrodes_per_subject = {}
+
+    for sub, electrodes_dict in subjects_electrodes_dict.items():
+        filtered = {key: value for key, value in electrodes_dict['filtROI_dict'].items() 
+                    if any(roi in key for roi in roi_list)}
+
+        # Aggregate electrodes into a list for each subject
+        filtered_electrodes = []
+        for electrodes in filtered.values():
+            filtered_electrodes.extend(electrodes)
+
+        filtered_electrodes_per_subject[sub] = filtered_electrodes
+        print(f'For subject {sub}, {", ".join(roi_list)} electrodes are: {filtered_electrodes}')
+
+    # Now filter for significant electrodes
+    sig_filtered_electrodes_per_subject = {}
+
+    for sub, filtered_electrodes in filtered_electrodes_per_subject.items():
+        # Retrieve the list of significant channels for the subject
+        sig_chans = sig_chans_per_subject.get(sub, [])
+
+        # Find the intersection of filtered electrodes and significant channels for the subject
+        sig_filtered_electrodes = [elec for elec in filtered_electrodes if elec in sig_chans]
+
+        # Store the significant filtered electrodes for the subject
+        sig_filtered_electrodes_per_subject[sub] = sig_filtered_electrodes
+        print(f"Subject {sub} significant {', '.join(roi_list)} electrodes: {sig_filtered_electrodes}")
+
+    return filtered_electrodes_per_subject, sig_filtered_electrodes_per_subject
+
+
+def make_sig_electrodes_per_subject_and_roi_dict(rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject):
+    """
+    Processes electrodes by ROI and filters significant electrodes.
+
+    Parameters:
+    - rois_dict: A dictionary mapping each region of interest (ROI) to a list of brain regions.
+    - subjects_electrodestoROIs_dict: A dictionary mapping subjects to their electrode-to-ROI assignments.
+    - sig_chans_per_subject: A dictionary indicating significant channels per subject.
+
+    Returns:
+    - A tuple of two dictionaries:
+      1. electrodes_per_subject_roi: Electrodes per subject for each ROI.
+      2. sig_electrodes_per_subject_roi: Significant electrodes per subject for each ROI.
+    """
+    electrodes_per_subject_roi = {}
+    sig_electrodes_per_subject_roi = {}
+
+    for roi_name, roi_regions in rois_dict.items():
+        # Apply the filter_electrodes_by_roi function for each set of ROI regions
+        electrodes_per_subject, sig_electrodes_per_subject = filter_electrodes_by_roi(
+            subjects_electrodestoROIs_dict, sig_chans_per_subject, roi_regions)
+        
+        # Store the results in the respective dictionaries
+        electrodes_per_subject_roi[roi_name] = electrodes_per_subject
+        sig_electrodes_per_subject_roi[roi_name] = sig_electrodes_per_subject
+
+    return electrodes_per_subject_roi, sig_electrodes_per_subject_roi
+
+
+
+def calculate_total_electrodes(sig_electrodes_per_subject_roi, electrodes_per_subject_roi):
+    """
+    Calculates the total number of significant and total electrodes for each ROI across all subjects.
+
+    Parameters:
+    - sig_electrodes_per_subject_roi: A dictionary containing significant electrodes per subject for each ROI.
+    - electrodes_per_subject_roi: A dictionary containfing all electrodes per subject for each ROI.
+
+    Returns:
+    - A dictionary containing the counts of significant and total electrodes for each ROI.
+    """
+    total_electrodes_info = {}
+
+    for roi in sig_electrodes_per_subject_roi:
+        # Calculate total significant electrodes for the current ROI
+        total_sig_entries = sum(len(sig_electrodes_per_subject_roi[roi][sub]) for sub in sig_electrodes_per_subject_roi[roi])
+        # Calculate total electrodes for the current ROI
+        total_entries = sum(len(electrodes_per_subject_roi[roi][sub]) for sub in electrodes_per_subject_roi[roi])
+
+        # Store the results in the dictionary
+        total_electrodes_info[roi] = {
+            'total_significant_electrodes': total_sig_entries,
+            'total_electrodes': total_entries
+        }
+
+    return total_electrodes_info
 
 
 def plot_HG_and_stats(sub, task, output_name, events=None, times=(-1, 1.5),
