@@ -22,6 +22,133 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 
+
+def make_subjects_electrodestoROIs_dict(subjects):
+    '''
+    makes mappings for each electrode to its roi
+    subjects: list of strings of subject numbers
+    '''
+    
+    # Initialize the outer dictionary.
+    subjects_electrodestoROIs_dict = {}
+
+    for sub in subjects:
+        task = 'GlobalLocal'
+        LAB_root = None
+        channels = None
+
+        if LAB_root is None:
+            HOME = os.path.expanduser("~")
+            if os.name == 'nt':  # windows
+                LAB_root = os.path.join(HOME, "Box", "CoganLab")
+            else:  # mac
+                LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
+                                        "CoganLab")
+
+        layout = get_data(task, root=LAB_root)
+        filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
+                            extension='.edf', desc='clean', preload=False)
+        save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        good = crop_empty_data(filt)
+
+        good.info['bads'] = channel_outlier_marker(good, 3, 2)
+
+        filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
+        good.drop_channels(good.info['bads'])
+
+        good.load_data()
+
+        # If channels is None, use all channels
+        if channels is None:
+            channels = good.ch_names
+        else:
+            # Validate the provided channels
+            invalid_channels = [ch for ch in channels if ch not in good.ch_names]
+            if invalid_channels:
+                raise ValueError(
+                    f"The following channels are not valid: {invalid_channels}")
+
+            # Use only the specified channels
+            good.pick_channels(channels)
+
+        ch_type = filt.get_channel_types(only_data_chs=True)[0]
+        good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
+
+        default_dict = gen_labels(good.info)
+        
+        # Create rawROI_dict for the subject
+        rawROI_dict = defaultdict(list)
+        for key, value in default_dict.items():
+            rawROI_dict[value].append(key)
+        rawROI_dict = dict(rawROI_dict)
+
+        # Filter out keys containing "White-Matter"
+        filtROI_dict = {key: value for key, value in rawROI_dict.items() if "White-Matter" not in key}
+
+        # Store the dictionaries in the subjects dictionary
+        subjects_electrodestoROIs_dict[sub] = {
+            'default_dict': dict(default_dict),
+            'rawROI_dict': dict(rawROI_dict),
+            'filtROI_dict': dict(filtROI_dict)
+        }
+
+
+    # # Save to a JSON file. Uncomment when actually running.
+    filename = 'subjects_electrodestoROIs_dict.json'
+    with open(filename, 'w') as file:
+        json.dump(subjects_electrodestoROIs_dict, file, indent=4)
+
+    print(f"Saved subjects_dict to {filename}")
+
+
+def load_subjects_electrodestoROIs_dict(filename='subjects_electrodestoROIs_dict.json'):
+    """
+    Attempts to load the subjects' electrode to ROI dictionary from a JSON file.
+    Returns the dictionary if successful, None otherwise.
+    """
+    try:
+        with open(filename, 'r') as file:
+            data = json.load(file)
+        print(f"Loaded data from {filename}")
+        return data
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"Failed to load {filename}: {e}")
+        return None
+    
+
+def load_acc_arrays(npy_directory, skip_subjects=None):
+    """
+    Loads accuracy arrays from .npy files for each subject within a specified directory, 
+    skipping specified subjects.
+
+    Parameters:
+        npy_directory (str): The path to the directory containing the .npy files.
+        skip_subjects (list): A list of subject IDs to skip when loading arrays.
+
+    Returns:
+        dict: A dictionary where keys are subject IDs and values are numpy arrays loaded from .npy files.
+    """
+    acc_array = {}
+
+    try:
+        # Iterate over each file in the directory
+        for file in os.listdir(npy_directory):
+            if file.endswith('.npy'):
+                subject_id = file.split('_')[0]  # Extract subject ID from the file name
+                if subject_id not in skip_subjects:
+                    # Construct the full file path
+                    file_path = os.path.join(npy_directory, file)
+                    # Load the numpy array from the file
+                    acc_array[subject_id] = np.load(file_path)
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+    return acc_array
+
+
 def calculate_RTs(raw):
     annotations = raw.annotations
     reaction_times = []
@@ -603,3 +730,181 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
             # actually plot
             ax.plot([start_time, end_time], [y_pos, y_pos], color=color, lw=4)
             ax.text((start_time + end_time) / 2, y_pos, num_asterisks, ha='center', va='bottom', color=color)
+
+
+def plot_HG_and_stats(sub, task, output_name, events=None, times=(-1, 1.5),
+                      base_times=(-0.5, 0), LAB_root=None, channels=None):
+    """
+    Plot high gamma (HG) and statistics for a given subject and task using specified event.
+
+    Parameters:
+    - sub (str): The subject identifier.
+    - task (str): The task identifier.
+    - output_name (str): The name for the output files.
+    - events (list of strings, optional): Event names to process. Defaults to None.
+    - times (tuple, optional): A tuple indicating the start and end times for processing. Defaults to (-1, 1.5).
+    - base_times (tuple, optional): A tuple indicating the start and end base times for processing. Defaults to (-0.5, 0).
+    - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
+    - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
+    This function will process the provided event for a given subject and task.
+    High gamma (HG) will be computed, and statistics will be calculated and plotted.
+    The results will be saved to output files.
+    """
+
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        if os.name == 'nt':  # windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        else:  # mac
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
+                                    "CoganLab")
+
+    layout = get_data(task, root=LAB_root)
+    filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
+                        extension='.edf', desc='clean', preload=False)
+    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    good = crop_empty_data(filt)
+
+    print(f"good channels before dropping bads: {len(good.ch_names)}")
+    print(f"filt channels before dropping bads: {len(filt.ch_names)}")
+
+    good.info['bads'] = channel_outlier_marker(good, 3, 2)
+    print("Bad channels in 'good':", good.info['bads'])
+
+    filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
+    good.drop_channels(good.info['bads'])
+
+    print("Bad channels in 'good' after dropping once:", good.info['bads'])
+
+    print(f"good channels after dropping bads: {len(good.ch_names)}")
+    print(f"filt channels after dropping bads: {len(filt.ch_names)}")
+
+    good.load_data()
+
+    # If channels is None, use all channels
+    if channels is None:
+        channels = good.ch_names
+    else:
+        # Validate the provided channels
+        invalid_channels = [ch for ch in channels if ch not in good.ch_names]
+        if invalid_channels:
+            raise ValueError(
+                f"The following channels are not valid: {invalid_channels}")
+
+        # Use only the specified channels
+        good.pick_channels(channels)
+
+    ch_type = filt.get_channel_types(only_data_chs=True)[0]
+    good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
+
+    # Create a baseline EpochsTFR using the stimulus event
+
+    adjusted_base_times = [base_times[0] - 0.5, base_times[1] + 0.5]
+    trials = trial_ieeg(good, "Stimulus", adjusted_base_times, preload=True)
+    outliers_to_nan(trials, outliers=10)
+    HG_base = gamma.extract(trials, copy=False, n_jobs=1)
+    crop_pad(HG_base, "0.5s")
+
+    all_epochs_list = []
+
+    for event in events:
+    # Epoching and HG extraction for each specified event. Then concatenate all trials epochs objects together (do Stimulus/c25 and Stimulus/c75 for example, and combine to get all congruent trials)
+        times_adj = [times[0] - 0.5, times[1] + 0.5]
+        trials = trial_ieeg(good, event, times_adj, preload=True,
+                            reject_by_annotation=False)
+        all_epochs_list.append(trials)
+
+    # Concatenate all trials
+    all_trials = mne.concatenate_epochs(all_epochs_list)
+
+    outliers_to_nan(all_trials, outliers=10)
+    HG_ev1 = gamma.extract(all_trials, copy=True, n_jobs=1)
+    print("HG_ev1 before crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
+    crop_pad(HG_ev1, "0.5s")
+    print("HG_ev1 after crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
+
+    HG_ev1_rescaled = rescale(HG_ev1, HG_base, copy=True, mode='zscore')
+
+    HG_base.decimate(2)
+    HG_ev1.decimate(2)
+
+    HG_ev1_avgOverTime = np.nanmean(HG_ev1.get_data(), axis=2)
+    HG_ev1_rescaled_avgOverTime = np.nanmean(HG_ev1_rescaled.get_data(), axis=2)
+
+    HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0)) #axis=0 should be set for actually running this, the axis=2 is just for drift testing.
+    HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
+
+    HG_ev1_evoke_stderr = HG_ev1.standard_error()
+    HG_ev1_evoke_rescaled_stderr = HG_ev1_rescaled.standard_error()
+
+    # if event == "Stimulus":
+    #     print('plotting stimulus')
+    #     fig = HG_ev1_evoke_rescaled.plot(unit=False, scalings=dict(sEEG=1)) #this line is not finishing...
+    #     print('plotted')
+    #     # for ax in fig.axes:
+    #     #     ax.axvline(x=avg_RT, color='r', linestyle='--')
+    #     print('about to save')
+    #     fig.savefig(save_dir + '_HG_ev1_Stimulus_zscore.png')
+    #     print('saved')
+    # else:
+    #     print('about to plot if not stimulus')
+    #     fig = HG_ev1_evoke_rescaled.plot(unit=False, scalings=dict(sEEG=1))
+    #     print('plotted non stimulus')
+    #     fig.savefig(save_dir + f'_HG_ev1_{output_name}_zscore.png')
+
+    # Save HG_ev1
+    HG_ev1.save(f'{save_dir}/{sub}_{output_name}_HG_ev1-epo.fif', overwrite=True)
+
+    # Save HG_base
+    HG_base.save(f'{save_dir}/{sub}_{output_name}_HG_base-epo.fif', overwrite=True)
+
+    # Save HG_ev1_rescaled
+    HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif', overwrite=True)
+
+    # Save HG_ev1_evoke
+    HG_ev1_evoke.save(f'{save_dir}/{sub}_{output_name}_HG_ev1_evoke-epo.fif', overwrite=True)
+
+    # Save HG_ev1_evoke_rescaled
+    HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name}_HG_ev1_evoke_rescaled-epo.fif', overwrite=True)
+
+    ###
+    print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
+    print(f"Shape of HG_base._data: {HG_base._data.shape}")
+
+    sig1 = HG_ev1._data
+    sig2 = HG_base._data
+    sig3 = make_data_same(sig2, (sig2.shape[0],sig2.shape[1],sig2.shape[2]+1)) # originally we want to make the baseline the same shape as the signal. We still want to do that, but first, we'll make it bigger to reflect it once, then back to normal to randomly offset it and remove fixation cross effects.
+    sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know that sig3 is bigger than sig1 by 1 in the time dimension so it will get randomly sliced.
+    sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.
+    print(f"Shape of sig1: {sig1.shape}")
+    print(f"Shape of sig2: {sig2.shape}")
+    print(f"Shape of sig3: {sig3.shape}")
+    print(f"Shape of sig4: {sig4.shape}")
+    print(f"Shape of sig5: {sig5.shape}")
+
+    sig2 = sig5
+
+    mat = time_perm_cluster(sig1, sig2, 0.05, n_jobs=6, ignore_adjacency=1)
+    fig = plt.figure()
+    plt.imshow(mat, aspect='auto')
+    fig.savefig(save_dir + f'_{output_name}_stats.png', dpi=300)
+
+    channels = good.ch_names
+
+    #save channels with their indices 
+    save_channels_to_file(channels, sub, task, save_dir)
+
+    # save significant channels to a json
+    save_sig_chans(f'{output_name}', mat, channels, sub, save_dir)
+
+    # sig_chans_filename = os.path.join(save_dir, f'sig_chans_{sub}_{output_name}.json')
+    # sig_chans = load_sig_chans(sig_chans_filename)
+
+    # Assuming `mat` is your array and `save_dir` is the directory where you want to save it
+    mat_save_path = os.path.join(save_dir, f'{output_name}_mat.npy')
+
+    # Save the mat array
+    np.save(mat_save_path, mat)
