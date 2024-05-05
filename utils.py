@@ -131,12 +131,12 @@ def make_or_load_subjects_electrodes_to_rois_dict(filename, subjects):
     A dictionary mapping subjects to their electrodes and associated ROIs.
     """
     print("Attempting to load the subjects' electrodes-to-ROIs dictionary...")
-    subjects_electrodestoROIs_dict = utils.load_subjects_electrodestoROIs_dict(filename)
+    subjects_electrodestoROIs_dict = load_subjects_electrodestoROIs_dict(filename)
 
     if subjects_electrodestoROIs_dict is None:
         print("No dictionary found. Looks like it's our lucky day to create one!")
-        utils.make_subjects_electrodestoROIs_dict(subjects)
-        subjects_electrodestoROIs_dict = utils.load_subjects_electrodestoROIs_dict(filename)
+        make_subjects_electrodestoROIs_dict(subjects)
+        subjects_electrodestoROIs_dict = load_subjects_electrodestoROIs_dict(filename)
         print("Dictionary created and loaded successfully. Let's roll!")
 
     else:
@@ -533,6 +533,86 @@ def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, co
 
     return subjects_mne_objects
 
+def initialize_output_data(rois, output_names):
+    """
+    Initialize dictionaries for storing data across different outputs and ROIs.
+    """
+    return {output_name: {roi: [] for roi in rois} for output_name in output_names}
+
+def process_data_for_roi(subjects_mne_objects, output_names, rois, subjects, sig_electrodes_per_subject_roi, time_indices):
+    """
+    Process data by ROI, calculating averages for different time windows for either the first two outputs or all outputs, depending on the analysis purpose.
+    """
+
+    # Initialize data structures for trial averages, trial standard deviations, and time averages
+    data_trialAvg_lists = initialize_output_data(rois, output_names)
+    data_trialStd_lists = initialize_output_data(rois, output_names)
+    data_timeAvg_lists = {suffix: initialize_output_data(rois, output_names) for suffix in ['firstHalfSecond', 'secondHalfSecond', 'fullSecond']}
+    overall_electrode_mapping = []
+    electrode_mapping_per_roi = {roi: [] for roi in rois}  # Reinitialize for each processing run
+
+    for sub in subjects:
+        for roi in rois:
+            sig_electrodes = sig_electrodes_per_subject_roi[roi].get(sub, [])
+            print(f"Subject: {sub}, ROI: {roi}, Num of Sig Electrodes: {len(sig_electrodes)}")  # Debug print
+
+            if not sig_electrodes:
+                continue
+
+            for output_name in output_names:
+                epochs = subjects_mne_objects[sub][output_name]['HG_ev1_rescaled'].copy().pick_channels(sig_electrodes)
+
+                # Append mapping information for use in ANOVA.
+                for electrode in sig_electrodes:
+                    index = len(overall_electrode_mapping)
+                    overall_electrode_mapping.append((sub, roi, electrode, index))
+                    index_roi = len(electrode_mapping_per_roi[roi])
+                    electrode_mapping_per_roi[roi].append((sub, electrode, index_roi))
+
+                # Compute trial averages and standard deviations once per output per subject per ROI
+                trial_avg, trial_std, _ = filter_and_average_epochs(epochs, start_idx=None, end_idx=None)
+                data_trialAvg_lists[output_name][roi].append(trial_avg)
+                data_trialStd_lists[output_name][roi].append(trial_std)
+
+                # compute time average for each output per subject per roi for each time window. But why don't we look at standard deviation? 4/30
+                for suffix, (start_idx, end_idx) in time_indices.items():
+                    _, _, time_avg = filter_and_average_epochs(epochs, start_idx, end_idx)
+                    data_timeAvg_lists[suffix][output_name][roi].append(time_avg)
+
+    return data_trialAvg_lists, data_trialStd_lists, data_timeAvg_lists, overall_electrode_mapping, electrode_mapping_per_roi
+
+def concatenate_data(data_lists, rois, output_names):
+    """
+    Concatenate data across subjects for each ROI and condition.
+    """
+    concatenated_data = {output_name: {roi: np.concatenate(data_lists[output_name][roi], axis=0) for roi in rois} for output_name in output_names}
+    return concatenated_data
+
+def calculate_mean_and_sem(concatenated_data, rois, output_names):
+    """
+    Calculate mean and SEM across electrodes for all time windows and rois
+    """
+    mean_and_sem = {roi: {output_name: {} for output_name in output_names} for roi in rois}
+    for roi in rois:
+        for output_name in output_names:
+            trial_data = concatenated_data[output_name][roi]
+            mean = np.nanmean(trial_data, axis=0)
+            sem = np.std(trial_data, axis=0, ddof=1) / np.sqrt(trial_data.shape[0])
+            mean_and_sem[roi][output_name] = {'mean': mean, 'sem': sem}
+    return mean_and_sem
+
+def calculate_time_perm_cluster_for_each_roi(concatenated_data, rois, output_names, alpha=0.05, n_jobs=6):
+    """
+    Perform time permutation cluster tests between the first two outputs for each ROI.
+    Assumes that there are at least two output conditions to compare.
+    """
+    time_perm_cluster_results = {}
+    for roi in rois:
+        time_perm_cluster_results[roi] = time_perm_cluster(
+            concatenated_data[output_names[0]][roi],
+            concatenated_data[output_names[1]][roi], alpha, n_jobs=n_jobs
+        )
+    return time_perm_cluster_results
 
 def extract_significant_effects(anova_table):
     """
