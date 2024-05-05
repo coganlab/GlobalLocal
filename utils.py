@@ -118,6 +118,32 @@ def load_subjects_electrodestoROIs_dict(filename='subjects_electrodestoROIs_dict
         print(f"Failed to load {filename}: {e}")
         return None
     
+def make_or_load_subjects_electrodes_to_rois_dict(filename, subjects):
+    """
+    Ensure the subjects' electrodes to ROIs dictionary is available.
+    If the dictionary doesn't exist, it is created and then loaded.
+
+    Parameters:
+    filename: The name of the file where the dictionary is stored.
+    subjects: List of subjects, required if the dictionary needs to be created.
+
+    Returns:
+    A dictionary mapping subjects to their electrodes and associated ROIs.
+    """
+    print("Attempting to load the subjects' electrodes-to-ROIs dictionary...")
+    subjects_electrodestoROIs_dict = utils.load_subjects_electrodestoROIs_dict(filename)
+
+    if subjects_electrodestoROIs_dict is None:
+        print("No dictionary found. Looks like it's our lucky day to create one!")
+        utils.make_subjects_electrodestoROIs_dict(subjects)
+        subjects_electrodestoROIs_dict = utils.load_subjects_electrodestoROIs_dict(filename)
+        print("Dictionary created and loaded successfully. Let's roll!")
+
+    else:
+        print("Dictionary loaded successfully. Ready to proceed!")
+
+    return subjects_electrodestoROIs_dict
+
 
 def load_acc_arrays(npy_directory, skip_subjects=None):
     """
