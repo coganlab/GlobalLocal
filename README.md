@@ -9,9 +9,10 @@ Last edited: 01/16/2024
 ### BIDS Coding (makes BIDS files)
 1. Run makeTrials_GL_Jim.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL_Jim.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch)  
-   2a. To install dependencies, need to ```conda create env environment.yml``` if not already created, and give it an environment name
-   2b. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment.
+   2a. To install dependencies, need to ```conda create env environment.yml``` if not already created, and give it an environment name  
+   2b. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment.  
    2c. Now cd into the BIDS_converter subfolder within BIDS_coding repository, and do `./BIDS_convert_wsl.sh' after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18).
+   
 ### Windows FSL
 1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
 2. When running XLaunch, it is critical to deselect Native OpenGL and select Disable access control in the Extra Settings panel. https://superuser.com/questions/1372854/do-i-launch-the-app-xlaunch-for-every-login-to-use-gui-in-ubuntu-wsl-in-windows
