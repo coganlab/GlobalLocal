@@ -435,14 +435,15 @@ def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir)
     print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
 
 
-def load_mne_objects(sub, output_name, task, LAB_root=None):
+def load_mne_objects(sub, output_name, task, just_HG_ev1_rescaled=False, LAB_root=None):
     """
-    Load MNE objects for a given subject and output name.
+    Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
 
     Parameters:
     - sub (str): Subject identifier.
     - output_name (str): Output name used in the file naming.
     - task (str): Task identifier.
+    - just_HG_ev1_rescaled (bool): If True, only the rescaled high gamma epochs are loaded.
     - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
 
     Returns:
@@ -457,33 +458,42 @@ def load_mne_objects(sub, output_name, task, LAB_root=None):
     # Get data layout
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
-    
+
     # Ensure save directory exists
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
-    # Define file paths
-    HG_ev1_file = f'{save_dir}/{sub}_{output_name}_HG_ev1-epo.fif'
-    HG_base_file = f'{save_dir}/{sub}_{output_name}_HG_base-epo.fif'
-    HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
+    # Initialize the return dictionary
+    mne_objects = {}
 
-    # Load the objects
-    HG_ev1 = mne.read_epochs(HG_ev1_file)
-    HG_base = mne.read_epochs(HG_base_file)
-    HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-    HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
-    HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
+    if just_HG_ev1_rescaled:
+        # Define path and load only the rescaled high gamma epochs
+        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
+        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+    else:
+        # Define file paths
+        HG_ev1_file = f'{save_dir}/{sub}_{output_name}_HG_ev1-epo.fif'
+        HG_base_file = f'{save_dir}/{sub}_{output_name}_HG_base-epo.fif'
+        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
+        
+        # Load the objects
+        HG_ev1 = mne.read_epochs(HG_ev1_file)
+        HG_base = mne.read_epochs(HG_base_file)
+        HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
+        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+        HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
 
-    return {
-        'HG_ev1': HG_ev1,
-        'HG_base': HG_base,
-        'HG_ev1_rescaled': HG_ev1_rescaled,
-        'HG_ev1_evoke': HG_ev1_evoke,
-        'HG_ev1_evoke_rescaled': HG_ev1_evoke_rescaled
-    }
+        mne_objects['HG_ev1'] = HG_ev1
+        mne_objects['HG_base'] = HG_base
+        mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
+        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+        mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
+
+    return mne_objects
 
 
-def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, combined_data, acc_array, LAB_root=None):
+def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, combined_data, acc_array, just_HG_ev1_rescaled=False, LAB_root=None):
     """
     Adjusted to handle multiple conditions per output name, with multiple condition columns.
 
@@ -520,7 +530,7 @@ def create_subjects_mne_objects_dict(subjects, output_names_conditions, task, co
             subject_condition_data = combined_data[condition_filter]
             
             # Load MNE objects and update with accuracy data
-            mne_objects = load_mne_objects(sub, output_name, task, LAB_root)
+            mne_objects = load_mne_objects(sub, output_name, task, just_HG_ev1_rescaled=just_HG_ev1_rescaled, LAB_root=None)
             
             if sub in acc_array:
                 trial_counts = subject_condition_data['trialCount'].values.astype(int)
