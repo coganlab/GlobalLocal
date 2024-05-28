@@ -7,7 +7,7 @@ jim.zhang@duke.edu, raphael.geddert@duke.edu
 Last edited: 01/16/2024
 
 ### BIDS Coding (makes BIDS files)
-1. Run makeTrials_GL_Jim.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL_Jim.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject
+1. Run makeTrials_GL_Jim.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL_Jim.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject. Need to add makeTrials_GL_Jim.m to path as well as MATLAB-env folder (/Users/jinjiang-macair/Documents/MATLAB/MATLAB-env). If MATLAB-env isn't there, you can clone it from https://github.com/coganlab/MATLAB-env
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch)  
    2a. To install dependencies, need to ```conda create env environment.yml``` if not already created, and give it an environment name  
    2b. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment.  
