@@ -11,7 +11,7 @@ Last edited: 01/16/2024
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch)  
    2a. To install dependencies, need to ```conda create env environment.yml``` if not already created, and give it an environment name  
    2b. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment.  
-   2c. Now cd into the BIDS_converter subfolder within BIDS_coding repository, and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18).
+   2c. Now cd into the BIDS_converter subfolder within BIDS_coding repository, and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18). Or, BIDS_convert_mac or whichever script fits your OS.
    
 ### Windows FSL
 1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
