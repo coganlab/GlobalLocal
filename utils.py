@@ -193,7 +193,7 @@ def calculate_RTs(raw):
     return reaction_times, skipped
 
 
-def save_sig_chans(mask_name, mask, channels, subject, save_path):
+def save_sig_chans(epochs_root_file, mask, channels, subject, save_path):
     # Get the indices of the channels that are significant at any time point
     significant_indices = np.any(mask, axis=1)
     
@@ -207,13 +207,13 @@ def save_sig_chans(mask_name, mask, channels, subject, save_path):
     }
     
     # Define the filename
-    filename = os.path.join(save_path, f'sig_chans_{subject}_{mask_name}.json')
+    filename = os.path.join(save_path, f'sig_chans_{subject}_{epochs_root_file}.json')
     
     # Save the dictionary as a JSON file
     with open(filename, 'w') as file:
         json.dump(data, file)
     
-    print(f'Saved significant channels for subject {subject} and mask {mask_name} to {filename}')
+    print(f'Saved significant channels for subject {subject} and epochs root file {epochs_root_file} to {filename}')
 
 
 def load_sig_chans(filename):
@@ -867,13 +867,14 @@ def map_block_type(row):
         return pd.Series([None, None])
 
 
-def get_sig_chans(sub, task, LAB_root=None):
+def get_sig_chans(sub, task, epochs_root_file, LAB_root=None):
     """
     Retrieves the significant channels for a given subject and task from a stored JSON file.
     
     Parameters:
         sub (str): Subject ID for which significant channels are retrieved.
         task (str): The specific task for which data is being processed.
+        epochs_root_file (str): The root name for the epochs that the sig chans were defined from.
         LAB_root (str, optional): The root directory where the data is stored. If None, determines the path based on the OS.
 
     Returns:
@@ -888,11 +889,11 @@ def get_sig_chans(sub, task, LAB_root=None):
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
 
-    stim_filename = os.path.join(save_dir, f'sig_chans_{sub}_Stimulus_fixationCrossBase_1sec_mirror.json')
+    stim_filename = os.path.join(save_dir, f'sig_chans_{sub}_{epochs_root_file}.json')
     stim_sig_chans = load_sig_chans(stim_filename)
     return stim_sig_chans
 
-def get_sig_chans_per_subject(subjects, task='GlobalLocal', LAB_root=None):
+def get_sig_chans_per_subject(subjects, epochs_root_file, task='GlobalLocal', LAB_root=None):
     """
     Retrieves significant channels for a list of subjects for a specified task.
     
@@ -909,7 +910,7 @@ def get_sig_chans_per_subject(subjects, task='GlobalLocal', LAB_root=None):
 
     # Populate the dictionary using get_sig_chans for each subject
     for sub in subjects:
-        sig_chans_per_subject[sub] = get_sig_chans(sub, task, LAB_root)
+        sig_chans_per_subject[sub] = get_sig_chans(sub, task, epochs_root_file, LAB_root)
 
     return sig_chans_per_subject
 
