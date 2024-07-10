@@ -1255,3 +1255,10 @@ def check_sampling_rates(subjects_mne_objects, sampling_rate=204.8000030517578):
                 different_sampling_rates[subject] = sampling_rate
     
     return different_sampling_rates
+
+# Function to read and print the trial outlier counts from a pickle file
+def read_trial_outlier_counts(subject, root_dir):
+    pickle_filepath = os.path.join(root_dir, subject, f'{subject}_trial_outlier_counts.pkl')
+    with open(pickle_filepath, 'rb') as pickle_file:
+        outlier_counts = pickle.load(pickle_file)
+    return outlier_counts
