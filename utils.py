@@ -637,7 +637,6 @@ def initialize_output_data(rois, condition_names):
     Initialize dictionaries for storing data across different conditions and ROIs.
     """
     return {condition_name: {roi: [] for roi in rois} for condition_name in condition_names}
-
 def process_data_for_roi(subjects_mne_objects, condition_names, rois, subjects, sig_electrodes_per_subject_roi, time_indices):
     """
     Process data by ROI, calculating averages for different time windows for either the first two outputs or all outputs, depending on the analysis purpose.
@@ -685,7 +684,6 @@ def concatenate_data(data_lists, rois, condition_names):
     """
     concatenated_data = {condition_name: {roi: np.concatenate(data_lists[condition_name][roi], axis=0) for roi in rois} for condition_name in condition_names}
     return concatenated_data
-
 def calculate_mean_and_sem(concatenated_data, rois, condition_names):
     """
     Calculate mean and SEM across electrodes for all time windows and rois
@@ -1282,10 +1280,10 @@ def plot_HG_and_stats(sub, task, output_name, events=None, times=(-1, 1.5),
     np.save(mat_save_path, mat)
 
 
-def check_sampling_rates(subjects_mne_objects, sampling_rate=204.8000030517578):
-    # This dictionary will store subjects with different sampling rates
-    different_sampling_rates = {}
-    
+def check_sampling_rates(subjects_mne_objects, expected_sampling_rate=256):
+    # This dictionary will store subjects with their sampling rates
+    subject_sampling_rates = {}
+
     # Iterate through each subject and their corresponding data
     for subject, data in subjects_mne_objects.items():
         # Get the first epochs object from the dictionary
@@ -1294,13 +1292,19 @@ def check_sampling_rates(subjects_mne_objects, sampling_rate=204.8000030517578):
             mne_objects = data[first_condition]
             first_object = list(mne_objects.keys())[0]
             first_epochs = data[first_condition][first_object]
-            sampling_rate = first_epochs.info['sfreq']
+            actual_sampling_rate = first_epochs.info['sfreq']
             
-            # Check if the sampling rate is not 204.8 Hz
-            if sampling_rate != sampling_rate:
-                different_sampling_rates[subject] = sampling_rate
+            # Store the sampling rate in the dictionary
+            subject_sampling_rates[subject] = actual_sampling_rate
     
-    return different_sampling_rates
+    # Print the results
+    for subject, rate in subject_sampling_rates.items():
+        if rate != expected_sampling_rate:
+            print(f"Subject {subject} has a different sampling rate: {rate} Hz.")
+        else:
+            print(f"Subject {subject} has the expected sampling rate: {rate} Hz.")
+    
+    return subject_sampling_rates
 
 # Function to read and print the trial outlier counts from a pickle file
 def read_trial_outlier_counts(subject, root_dir):
