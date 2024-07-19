@@ -144,7 +144,109 @@ def make_or_load_subjects_electrodes_to_rois_dict(filename, subjects):
 
     return subjects_electrodestoROIs_dict
 
+def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
+    """
+    Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
 
+    Parameters:
+    - sub (str): Subject identifier.
+    - epochs_root_file (str): Name of the original epochs object that we will be indexing using our conditions. Use Stimulus_1sec_preStimulusBase_decFactor_10 for now.
+    - task (str): Task identifier.
+    - just_HG_ev1_rescaled (bool): If True, only the rescaled high gamma epochs are loaded.
+    - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
+
+    Returns:
+    A dictionary containing loaded MNE objects.
+    """
+
+    # Determine LAB_root based on the operating system
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+
+    # Get data layout
+    layout = get_data(task, root=LAB_root)
+    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
+
+    # Ensure save directory exists
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+
+    # Initialize the return dictionary
+    mne_objects = {}
+
+    if just_HG_ev1_rescaled:
+        # Define path and load only the rescaled high gamma epochs
+        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
+        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+    else:
+        # Define file paths
+        HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
+        HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
+        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
+        
+        # Load the objects
+        HG_ev1 = mne.read_epochs(HG_ev1_file)
+        HG_base = mne.read_epochs(HG_base_file)
+        HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
+        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+        HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
+
+        mne_objects['HG_ev1'] = HG_ev1
+        mne_objects['HG_base'] = HG_base
+        mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
+        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+        mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
+
+    return mne_objects
+
+def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True):
+    """
+    Adjusted to handle multiple conditions per output name, with multiple condition columns.
+
+    Parameters:
+    - subjects: List of subject IDs.
+    - output_names_conditions: Dictionary where keys are output names and values are dictionaries
+        of condition column names and their required values.
+    - task: Task identifier.
+    - combined_data: DataFrame with combined behavioral and trial information.
+    - acc_array: dict of numpy arrays of 0 for incorrect and 1 for correct trials for each subject
+    - LAB_root: Root directory for data (optional).
+    """
+    subjects_mne_objects = {}
+
+    for sub in subjects:
+        print(f"Loading data for subject: {sub}")
+        sub_mne_objects = {}
+
+        mne_objects = load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=just_HG_ev1_rescaled, LAB_root=LAB_root)
+        for mne_object in mne_objects.keys():
+            if acc_trials_only == True:
+                mne_objects[mne_object] = mne_objects[mne_object]["Accuracy1.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
+
+            for condition_name, condition_parameters in conditions.items():
+                print(f"  Loading condition: {condition_name} with parameters: {condition_parameters}")
+                # Get BIDS events from the conditions, and remove it so it doesn't complicate future analyses.
+                bids_events = condition_parameters.get("BIDS_events")
+                if bids_events is None:
+                    print(f"Warning: condition {condition_name} is missing 'BIDS_events'. Fix this!")
+                # if multiple bids events are part of this condition, concatenate their epochs. Otherwise just grab epochs.
+                if isinstance(bids_events, list):
+                    combined_epochs = []
+                    for event in bids_events:
+                        partial_event_epochs = mne_objects[mne_object][event]
+                        combined_epochs.append(partial_event_epochs)
+                    event_epochs = mne.concatenate_epochs(combined_epochs)
+                else:
+                    event_epochs = mne_objects[mne_object][bids_events]
+
+                sub_mne_objects[condition_name] = {}
+                sub_mne_objects[condition_name][mne_object] = event_epochs
+            subjects_mne_objects[sub] = sub_mne_objects
+
+    return subjects_mne_objects
+    
 def load_acc_arrays(npy_directory, skip_subjects=None):
     """
     Loads accuracy arrays from .npy files for each subject within a specified directory, 
@@ -427,7 +529,6 @@ def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir)
         json.dump(data, file)
     
     print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
-
 def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
     """
     Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
@@ -469,61 +570,6 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
         HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
         HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
         HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        
-        # Load the objects
-        HG_ev1 = mne.read_epochs(HG_ev1_file)
-        HG_base = mne.read_epochs(HG_base_file)
-        HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
-
-        mne_objects['HG_ev1'] = HG_ev1
-        mne_objects['HG_base'] = HG_base
-        mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-        mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
-
-    return mne_objects
-    """
-    Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
-
-    Parameters:
-    - sub (str): Subject identifier.
-    - output_name (str): Output name used in the file naming.
-    - task (str): Task identifier.
-    - just_HG_ev1_rescaled (bool): If True, only the rescaled high gamma epochs are loaded.
-    - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
-
-    Returns:
-    A dictionary containing loaded MNE objects.
-    """
-
-    # Determine LAB_root based on the operating system
-    if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-
-    # Get data layout
-    layout = get_data(task, root=LAB_root)
-    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
-
-    # Ensure save directory exists
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-
-    # Initialize the return dictionary
-    mne_objects = {}
-
-    if just_HG_ev1_rescaled:
-        # Define path and load only the rescaled high gamma epochs
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-    else:
-        # Define file paths
-        HG_ev1_file = f'{save_dir}/{sub}_{output_name}_HG_ev1-epo.fif'
-        HG_base_file = f'{save_dir}/{sub}_{output_name}_HG_base-epo.fif'
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{output_name}_HG_ev1_rescaled-epo.fif'
         
         # Load the objects
         HG_ev1 = mne.read_epochs(HG_ev1_file)
