@@ -43,6 +43,8 @@ sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know t
 sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name.
 2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
 
+### RSA
+1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
 
 ### Steps for new subjects
 1. Run plot_clean.ipynb to preprocess (line noise filtering) for new subjects
