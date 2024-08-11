@@ -161,5 +161,48 @@
             "LTPI3",
             "LTPI4"
         ]
+    },
+    "occ_filtered": {
+        "D0057": [],
+        "D0059": [],
+        "D0063": [
+            "RPIT1",
+            "RPIT2"
+        ],
+        "D0071": [
+            "RO1",
+            "RO10"
+        ],
+        "D0077": [
+            "ROPM1",
+            "ROPM8"
+        ],
+        "D0090": [
+            "RTPO1",
+            "RTPI1"
+        ],
+        "D0100": [
+            "LOAI12",
+            "LOAI13",
+            "LOAI14",
+            "LOAI15",
+            "LOMI9",
+            "LOMI11",
+            "LOPI8",
+            "LOPI9",
+            "LOPM8",
+            "LOPM9",
+            "LPPI7",
+            "LPPI8",
+            "LPPI9"
+        ],
+        "D0102": [
+            "RTPI1"
+        ],
+        "D0103": [
+            "LTPI2",
+            "LTPI3",
+            "LTPI4"
+        ]
     }
 }
