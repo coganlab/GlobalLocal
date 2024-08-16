@@ -1,6 +1,6 @@
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
-from analysis.grouping import GroupData
+from grouping import GroupData
 from ieeg.decoding.decoders import PcaLdaClassification
 from ieeg.calc.mat import LabeledArray
 from ieeg.calc.oversample import MinimumNaNSplit, mixup

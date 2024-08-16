@@ -4,10 +4,10 @@
 import numpy as np
 import os
 
-from analysis.grouping import GroupData
+from aaron_grouping import GroupData
 from analysis.utils.plotting import plot_horizontal_bars
 from ieeg.calc.stats import time_perm_cluster
-from analysis.decoding import (Decoder, get_scores, plot_all_scores, plot_dist_bound)
+from aaron_decoding_init import (Decoder, get_scores, plot_all_scores, plot_dist_bound)
 
 
 def dict_to_structured_array(dict_matrices, filename='structured_array.npy'):
