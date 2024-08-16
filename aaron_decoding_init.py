@@ -216,11 +216,12 @@ def decode_and_score(decoder, data, labels, scorer='acc', **decoder_kwargs):
 
 
 def get_scores(subjects, decoder, idxs: list[list[int]], conds: list[str],
-               names: list[str], **decoder_kwargs) -> dict[str, np.ndarray]:
+               names: list[str], weights: list[list[int]] = None, **decoder_kwargs) -> dict[str, np.ndarray]:
     for i, idx in enumerate(idxs):
         all_conds = flatten_list(conds)
         x_data = extract(subjects, all_conds, idx, decoder.n_splits, 'zscore',
                          False)
+
         for cond in conds:
             if isinstance(cond, list):
                 X = concatenate_conditions(x_data, cond)
@@ -231,8 +232,13 @@ def get_scores(subjects, decoder, idxs: list[list[int]], conds: list[str],
             cats, labels = classes_from_labels(X.labels[1], crop=slice(0, 4))
 
             # Decoding
-            score = decoder.cv_cm(X.__array__(), labels, **decoder_kwargs)
-            yield "-".join([names[i], cond]), score
+            if weights is None:
+                score = decoder.cv_cm(X.__array__(), labels, **decoder_kwargs)
+                yield "-".join([names[i], cond]), score
+            else:
+                for j, weight in enumerate(weights):
+                    score = decoder.cv_cm(X.__array__() * weight[X.labels[0], None, None].__array__(), labels, **decoder_kwargs)
+                    yield "-".join([names[i], cond, str(j)]), score
 
 
 def plot_all_scores(all_scores: dict[str, np.ndarray],
