@@ -33,6 +33,7 @@ def make_subjects_electrodestoROIs_dict(subjects):
     subjects_electrodestoROIs_dict = {}
 
     for sub in subjects:
+        print(sub)
         task = 'GlobalLocal'
         LAB_root = None
         channels = None
@@ -1312,3 +1313,85 @@ def read_trial_outlier_counts(subject, root_dir):
     with open(pickle_filepath, 'rb') as pickle_file:
         outlier_counts = pickle.load(pickle_file)
     return outlier_counts
+
+
+def prepare_data_for_temporal_dataset(subjects_mne_objects, condition_names, rois, subjects, sig_electrodes_per_subject_roi):
+    # returns dat
+    dat = {}
+    overall_electrode_mapping = []
+    electrode_mapping_per_roi = {roi: [] for roi in rois}  # Reinitialize for each processing run
+    print('subjects: ', subjects)
+    for roi in rois:
+        dat[roi] = {}  # make a dict for each roi
+        dat[roi]['channel_names'] = []  # initialize a list to hold channel names
+        dat[roi]['channel_rois'] = [] # initialize a list to hold what roi each channel is a part of
+        dat[roi]['condition_names'] = {}  # initialize dict where keys are condition names and values are integer indices
+        dat[roi]['cond_idx'] = np.array([], dtype=int)  # initialize an empty 1D array for condition indices for each trial
+        dat[roi]['sub_idx'] = np.array([], dtype=int) # initialize an empty 1D array for subject for each trial
+        dat[roi]['times'] = np.array([])  # initialize an empty 1D array for time points
+
+        # Determine all unique channels across subjects for this ROI, maintaining order
+        all_channels = []
+        for sub in subjects:
+            sig_electrodes = sig_electrodes_per_subject_roi[roi].get(sub, [])
+            sub_channel_names = [sub + '-' + sig_electrode for sig_electrode in sig_electrodes]
+            for chan in sub_channel_names:
+                if chan not in all_channels:
+                    all_channels.append(chan)
+                    dat[roi]['channel_rois'].append(roi) # append roi for each channel
+        dat[roi]['channel_names'] = all_channels
+        num_channels = len(all_channels)
+        print('num channels: ', num_channels)
+
+        # Initialize the data array with the number of trials and total channels
+        dat[roi]['data'] = np.empty((0, num_channels, 0))  # initialize an empty 3D array for trials x channels x time points
+        total_roi_trials = 0
+        for sub in subjects:
+            total_sub_trials = 0  # Initialize counter for total trials across all conditions
+            sig_electrodes = sig_electrodes_per_subject_roi[roi].get(sub, [])
+            sub_channel_names = [sub + '-' + sig_electrode for sig_electrode in sig_electrodes]
+            if not sig_electrodes:
+                continue
+
+            cond_idx = 0  # the example uses indexing from 1, but let's start from 0 because python
+            for condition_name in condition_names:
+                print(f'Processing {sub} for {condition_name} in {roi}')
+                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_rescaled'].copy().pick(sig_electrodes)
+                dat[roi]['condition_names'][condition_name] = cond_idx
+
+                epochs_data = epochs.get_data(copy=True)
+                num_trials, num_sub_channels, num_timepoints = epochs_data.shape
+
+                print(f'Number of trials for {sub} in {condition_name}: {num_trials}')
+                total_sub_trials += num_trials
+                total_roi_trials += num_trials
+
+                # Initialize data array time dimension if it is empty
+                if dat[roi]['data'].shape[2] == 0:
+                    dat[roi]['data'] = np.empty((0, num_channels, num_timepoints))
+                    dat[roi]['times'] = epochs.times
+
+                # Create an array filled with NaNs for the current subject's data
+                sub_data = np.full((num_trials, num_channels, num_timepoints), np.nan)
+
+                # Find the indices for the subject's channels in the total list of channels
+                channel_indices = [all_channels.index(chan) for chan in sub_channel_names]
+                print('sub: ', sub)
+                print("channel indices: ", channel_indices)
+                
+                # Place the subject's data in the correct indices
+                sub_data[:, channel_indices, :] = epochs_data
+
+                # Concatenate the new data along the first axis (trials)
+                dat[roi]['data'] = np.concatenate((dat[roi]['data'], sub_data), axis=0)
+
+                # Extend the cond_idx array
+                dat[roi]['cond_idx'] = np.concatenate((dat[roi]['cond_idx'], np.full(num_trials, cond_idx)))
+
+                # extend the sub_idx array by this number of trials with this subject
+                dat[roi]['sub_idx'] = np.concatenate((dat[roi]['sub_idx'], np.full(num_trials, sub)))
+                cond_idx += 1  # increment cond_idx
+
+            print(f'Total number of trials for {sub} across all conditions: {total_sub_trials}')
+        print(f'total number of trials in {roi} is {total_roi_trials}')
+    return dat
