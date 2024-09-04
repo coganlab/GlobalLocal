@@ -70,28 +70,3 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
     else:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
-
-def group_conditions_by_keywords(cond_names: dict, group_keywords: dict) -> tuple[dict, np.ndarray]:
-    """
-    Groups condition indices based on keywords provided in `group_keywords`.
-    
-    Args:
-        cond_names (dict): Dictionary of condition names mapped to their indices.
-        group_keywords (dict): Dictionary where keys are group names, and values are lists of keywords.
-    
-    Returns:
-        tuple:
-            - grouped_conditions (dict): Group names mapped to their condition indices.
-            - labels (np.ndarray): Array of labels (group IDs) corresponding to each condition index.
-    """
-    grouped_conditions = {group: [] for group in group_keywords}
-    labels = np.full(len(cond_names), -1)  # Initialize labels array
-    
-    # For each condition name and its index, check for matching keywords and assign to groups
-    for cond_name, idx in cond_names.items():
-        for group, keywords in group_keywords.items():
-            if any(keyword in cond_name for keyword in keywords):
-                grouped_conditions[group].append(idx)
-                labels[idx] = list(grouped_conditions.keys()).index(group)  # Assign group ID as label
-    
-    return grouped_conditions, labels
