@@ -1325,7 +1325,7 @@ def prepare_data_for_temporal_dataset(subjects_mne_objects, condition_names, roi
         dat[roi] = {}  # make a dict for each roi
         dat[roi]['channel_names'] = []  # initialize a list to hold channel names
         dat[roi]['channel_rois'] = [] # initialize a list to hold what roi each channel is a part of
-        dat[roi]['condition_names'] = {}  # initialize dict where keys are condition names and values are integer indices
+        dat[roi]['cond_names'] = {}  # initialize dict where keys are condition names and values are integer indices
         dat[roi]['cond_idx'] = np.array([], dtype=int)  # initialize an empty 1D array for condition indices for each trial
         dat[roi]['sub_idx'] = np.array([], dtype=int) # initialize an empty 1D array for subject for each trial
         dat[roi]['times'] = np.array([])  # initialize an empty 1D array for time points
@@ -1357,7 +1357,7 @@ def prepare_data_for_temporal_dataset(subjects_mne_objects, condition_names, roi
             for condition_name in condition_names:
                 print(f'Processing {sub} for {condition_name} in {roi}')
                 epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_rescaled'].copy().pick(sig_electrodes)
-                dat[roi]['condition_names'][condition_name] = cond_idx
+                dat[roi]['cond_names'][condition_name] = cond_idx
 
                 epochs_data = epochs.get_data(copy=True)
                 num_trials, num_sub_channels, num_timepoints = epochs_data.shape
