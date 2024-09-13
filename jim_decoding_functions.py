@@ -81,7 +81,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         Calculate the individual decoding scores from the confusion matrix.
 
         Parameters:
-        - cm: The confusion matrix (average over folds).
+        - cm: The confusion matrix (averaged over folds).
 
         Returns:
         - scores: A dictionary containing the scores (accuracy, precision, recall, f1, d-prime) for each class.
