@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from ieeg.decoding.decoders import PcaLdaClassification
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
+from scipy.stats import norm
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
