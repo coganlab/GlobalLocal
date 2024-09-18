@@ -14,6 +14,20 @@ Last edited: 01/16/2024
    2c. Now cd into the BIDS_converter subfolder within BIDS_coding repository, and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18). Or, BIDS_convert_mac or whichever script fits your OS.
 3. Copy the BIDS folder into Box (run it locally because it's faster)
    
+### Duke Health VPN
+1. Get a Duke Health Enterprise Account (send e-mail to dibs-it@duke.edu asking for them to set this up)
+2. Set up multi-factor authentication: https://idms-mfa.oit.duke.edu/mfa/help
+3. Follow the instructions to set up a Duke VPN: https://oit.duke.edu/service/vpn/
+4. You can test your VPN access and download necessary antivirus by going to this site: portal.duke.edu
+5. Open Cisco AnyConnect, and connect to the Duke Health VPN using this address: vpn.duhs.duke.edu
+6. Wait a minute or so for the VPN connection to let you through the firewall.
+
+### Microsoft Remote Desktop
+1. Download Microsoft Remote Desktop on your local machine
+2. On the remote machine that you want to connect to, get your full PC device name by going to Settings -> System -> About -> Full device name (i.e., NEU-7BTXKH2.dhe.duke.edu)
+3. On your local machine, open Microsoft Remote Desktop, click Add PC, and put in your full device name as the PC name. Put in your netid and netid password as your User account.
+4. On your local machine, connect to Duke Health VPN. Wait a bit for it to let you through the firewall.
+5. Now try connecting to your remote machine through Microsoft Remote Desktop by double-clicking the icon for it.
    
 ### Windows FSL
 1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
