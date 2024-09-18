@@ -26,9 +26,10 @@ Last edited: 01/16/2024
 ### Microsoft Remote Desktop
 1. Download Microsoft Remote Desktop on your local machine
 2. On the remote machine that you want to connect to, get your full PC device name by going to Settings -> System -> About -> Full device name (i.e., NEU-7BTXKH2.dhe.duke.edu)
-3. On your local machine, open Microsoft Remote Desktop, click Add PC, and put in your full device name as the PC name. Put in your netid and netid password as your User account.
-4. On your local machine, connect to Duke Health VPN. Wait a bit for it to let you through the firewall.
-5. Now try connecting to your remote machine through Microsoft Remote Desktop by double-clicking the icon for it.
+3. On your local machine, follow these instructions to set up the Duke OIT RDS Gateway on Microsoft Remote Desktop: https://oit.duke.edu/help/articles/kb0032645/
+4. On your local machine, open Microsoft Remote Desktop, click Add PC, and put in your full device name as the PC name. Put in your netid and netid password as your User account.
+5. On your local machine, connect to Duke Health VPN. Wait a bit for it to let you through the firewall.
+6. Now try connecting to your remote machine through Microsoft Remote Desktop by double-clicking the icon for it.
    
 ### Windows FSL
 1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
