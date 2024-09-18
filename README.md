@@ -20,7 +20,8 @@ Last edited: 01/16/2024
 3. Follow the instructions to set up a Duke VPN: https://oit.duke.edu/service/vpn/
 4. You can test your VPN access and download necessary antivirus by going to this site: portal.duke.edu
 5. Open Cisco AnyConnect, and connect to the Duke Health VPN using this address: vpn.duhs.duke.edu
-6. Wait a minute or so for the VPN connection to let you through the firewall.
+6. Enter your netid and netid password, and type 'push' as the Second Password to send a push notification to your MFA app for authentication.
+7. Wait a minute or so for the VPN connection to let you through the firewall.
 
 ### Microsoft Remote Desktop
 1. Download Microsoft Remote Desktop on your local machine
