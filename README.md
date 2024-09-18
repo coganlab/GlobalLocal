@@ -18,7 +18,7 @@ Last edited: 01/16/2024
 1. Get a Duke Health Enterprise Account (send e-mail to dibs-it@duke.edu asking for them to set this up)
 2. Set up multi-factor authentication: https://idms-mfa.oit.duke.edu/mfa/help
 3. Follow the instructions to set up a Duke VPN: https://oit.duke.edu/service/vpn/
-4. You can test your VPN access and download necessary antivirus by going to this site: portal.duke.edu
+4. You can test your VPN access and download necessary antivirus by going to this site: https://portal.duke.edu
 5. Open Cisco AnyConnect, and connect to the Duke Health VPN using this address: vpn.duhs.duke.edu
 6. Wait a minute or so for the VPN connection to let you through the firewall.
 
