@@ -57,6 +57,10 @@ def make_subjects_electrodestoROIs_dict(subjects):
 
         good.info['bads'] = channel_outlier_marker(good, 3, 2)
 
+        # Drop the trigger channel if it exists 9/30
+        if 'Trigger' in good.ch_names:
+            good.drop_channels('Trigger')
+            
         filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
         good.drop_channels(good.info['bads'])
 
