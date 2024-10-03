@@ -60,7 +60,7 @@ def make_subjects_electrodestoROIs_dict(subjects):
         # Drop the trigger channel if it exists 9/30
         if 'Trigger' in good.ch_names:
             good.drop_channels('Trigger')
-            
+
         filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
         good.drop_channels(good.info['bads'])
 
@@ -185,23 +185,31 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
         HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
         HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
         mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+
+        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
+        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
+        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
+
     else:
         # Define file paths
         HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
         HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
         HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        
+        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
+
         # Load the objects
         HG_ev1 = mne.read_epochs(HG_ev1_file)
         HG_base = mne.read_epochs(HG_base_file)
         HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
         HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
+        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
         HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
 
         mne_objects['HG_ev1'] = HG_ev1
         mne_objects['HG_base'] = HG_base
         mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
         mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
+        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
         mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
 
     return mne_objects
@@ -534,62 +542,6 @@ def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir)
         json.dump(data, file)
     
     print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
-def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
-    """
-    Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
-
-    Parameters:
-    - sub (str): Subject identifier.
-    - epochs_root_file (str): Name of the original epochs object that we will be indexing using our conditions. Use Stimulus_1sec_preStimulusBase_decFactor_10 for now.
-    - task (str): Task identifier.
-    - just_HG_ev1_rescaled (bool): If True, only the rescaled high gamma epochs are loaded.
-    - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
-
-    Returns:
-    A dictionary containing loaded MNE objects.
-    """
-
-    # Determine LAB_root based on the operating system
-    if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-
-    # Get data layout
-    layout = get_data(task, root=LAB_root)
-    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
-
-    # Ensure save directory exists
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
-
-    # Initialize the return dictionary
-    mne_objects = {}
-
-    if just_HG_ev1_rescaled:
-        # Define path and load only the rescaled high gamma epochs
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-    else:
-        # Define file paths
-        HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
-        HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        
-        # Load the objects
-        HG_ev1 = mne.read_epochs(HG_ev1_file)
-        HG_base = mne.read_epochs(HG_base_file)
-        HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
-
-        mne_objects['HG_ev1'] = HG_ev1
-        mne_objects['HG_base'] = HG_base
-        mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-        mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
-
-    return mne_objects
 
 def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True):
     """
@@ -663,7 +615,7 @@ def process_data_for_roi(subjects_mne_objects, condition_names, rois, subjects, 
                 continue
 
             for condition_name in condition_names:
-                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_rescaled'].copy().pick_channels(sig_electrodes)
+                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick_channels(sig_electrodes)
                 # Append mapping information for use in ANOVA.
                 for electrode in sig_electrodes:
                     index = len(overall_electrode_mapping)
