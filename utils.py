@@ -1312,7 +1312,7 @@ def prepare_data_for_temporal_dataset(subjects_mne_objects, condition_names, roi
             cond_idx = 0  # the example uses indexing from 1, but let's start from 0 because python
             for condition_name in condition_names:
                 print(f'Processing {sub} for {condition_name} in {roi}')
-                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_rescaled'].copy().pick(sig_electrodes)
+                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(sig_electrodes)
                 dat[roi]['cond_names'][condition_name] = cond_idx
 
                 epochs_data = epochs.get_data(copy=True)
