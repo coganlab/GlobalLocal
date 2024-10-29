@@ -41,9 +41,10 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
         if shuffle:
             # shuffled label pool
-            label_stack = [labels.copy() for _ in range(self.n_repeats)]
+            label_stack = []
             for i in range(self.n_repeats):
-                self.shuffle_labels(data, label_stack[i], 0)
+                label_stack.append(labels.copy())
+                self.shuffle_labels(data, label_stack[-1], 0)
 
             # build the test/train indices from the shuffled labels for each
             # repetition, then chain together the repetitions

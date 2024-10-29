@@ -18,7 +18,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         self.categories = categories
         self.max_features = max_features
 
-    def cv_cm(self, x_data: np.ndarray, labels: np.ndarray,
+    def cv_cm_old(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
         n_cats = len(set(labels))
         mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats))
@@ -64,9 +64,86 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         else:
             divisor = 1
         return matk / divisor
+    
+    def cv_cm_aaron(self, x_data: np.ndarray, labels: np.ndarray,
+              normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
+              average_repetitions: bool = True, window: int = None,
+              shuffle: bool = False, oversample: bool = True) -> np.ndarray:
+        """Cross-validated confusion matrix"""
+        n_cats = len(set(labels))
+        out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
+        if window is not None:
+            out_shape = (x_data.shape[-1] - window + 1,) + out_shape
+        mats = np.zeros(out_shape, dtype=np.uint8)
+        data = x_data.swapaxes(0, obs_axs)
 
+        if shuffle:
+            # shuffled label pool
+            label_stack = []
+            for i in range(self.n_repeats):
+                label_stack.append(labels.copy())
+                self.shuffle_labels(data, label_stack[-1], 0)
+
+            # build the test/train indices from the shuffled labels for each
+            # repetition, then chain together the repetitions
+            # splits = (train, test)
+            idxs = ((self.split(data, l), l) for l in label_stack)
+            idxs = ((itertools.islice(s, self.n_splits),
+                     itertools.repeat(l, self.n_splits))
+                    for s, l in idxs)
+            splits, label = zip(*idxs)
+            splits = itertools.chain.from_iterable(splits)
+            label = itertools.chain.from_iterable(label)
+            idxs = zip(splits, label)
+
+        else:
+            idxs = ((splits, labels) for splits in self.split(data, labels))
+
+        def proc(train_idx, test_idx, l):
+            x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
+            windowed = windower(x_stacked, window, axis=-1)
+            out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
+            for i, x_window in enumerate(windowed):
+                x_flat = x_window.reshape(x_window.shape[0], -1)
+                x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
+                out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
+            return out
+
+        # loop over folds and repetitions
+        if n_jobs == 1:
+            idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
+            results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
+        else:
+            results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
+                delayed(proc)(train_idx, test_idx, l)
+                for (train_idx, test_idx), l in idxs)
+
+        # Collect the results
+        for i, result in enumerate(results):
+            rep, fold = divmod(i, self.n_splits)
+            mats[:, rep, fold] = result
+
+        # average the repetitions
+        if average_repetitions:
+            mats = np.mean(mats, axis=1)
+
+        # normalize, sum the folds
+        mats = np.sum(mats, axis=-3)
+        if normalize == 'true':
+            divisor = np.sum(mats, axis=-1, keepdims=True)
+        elif normalize == 'pred':
+            divisor = np.sum(mats, axis=-2, keepdims=True)
+        elif normalize == 'all':
+            divisor = self.n_repeats
+        else:
+            divisor = 1
+        return mats / divisor
+    
     def cv_cm_return_scores(self, x_data: np.ndarray, labels: np.ndarray,
                             normalize: str = None, obs_axs: int = -2):
+        '''
+        trying to get the scores manually from cv cm but i realize that in decoders.py, PcaLdaClassification already has a get_scores function. Try get_scores with shuffle=True to get fake, permuted scores.
+        '''
         # Get the confusion matrix by calling `cv_cm`
         cm = self.cv_cm(x_data, labels, normalize, obs_axs)
 
@@ -80,7 +157,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
     def calculate_scores(self, cm):
         """
-        Calculate the individual decoding scores from the confusion matrix.
+        Calculate the individual decoding scores from the confusion matrix. 10/27 Ugh Aaron already does this directly in the PcaLdaClassification class... 
 
         Parameters:
         - cm: The confusion matrix (averaged over folds).
