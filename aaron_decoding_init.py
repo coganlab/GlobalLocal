@@ -1,6 +1,6 @@
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
-from grouping import GroupData
+# from grouping import GroupData
 from ieeg.decoding.decoders import PcaLdaClassification
 from ieeg.calc.mat import LabeledArray
 from ieeg.calc.oversample import MinimumNaNSplit, mixup
@@ -16,16 +16,26 @@ from tqdm import tqdm
 
 class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
-    def __init__(self, categories: dict, *args,
-                 n_splits: int = 5,
-                 n_repeats: int = 1,
-                 min_samples: int = 1,
-                 which: str = 'test',
-                 **kwargs):
+    # commented this out to use jim decoding functions init.py instead 11/1. Because it has oversample in it.
+    # def __init__(self, categories: dict, *args,
+    #              n_splits: int = 5,
+    #              n_repeats: int = 1,
+    #              min_samples: int = 1,
+    #              which: str = 'test',
+    #              **kwargs):
+    #     PcaLdaClassification.__init__(self, *args, **kwargs)
+    #     MinimumNaNSplit.__init__(self, n_splits, n_repeats,
+    #                              None, min_samples, which)
+    #     self.categories = categories
+
+    def __init__(self, categories: dict, *args, n_splits: int = 5, n_repeats: int = 10,
+                 oversample: bool = True, max_features: int = float("inf"), **kwargs):
         PcaLdaClassification.__init__(self, *args, **kwargs)
-        MinimumNaNSplit.__init__(self, n_splits, n_repeats,
-                                 None, min_samples, which)
+        MinimumNaNSplit.__init__(self, n_splits, n_repeats)
+        if not oversample:
+            self.oversample = lambda x, func, axis: x
         self.categories = categories
+        self.max_features = max_features
 
     def cv_cm(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
@@ -173,15 +183,15 @@ def classes_from_labels(labels: np.ndarray, delim: str = '-', which: int = 0,
     return classes, np.array([classes[k] for k in class_ids])
 
 
-def extract(sub: GroupData, conds: list[str], idx: list[int] = slice(None), common: int = 5,
-            datatype: str = 'zscore', crop_nan: bool = False) -> LabeledArray:
-    """Extract data from GroupData object"""
-    reduced = sub[:, conds][:, :, :, idx]
-    reduced.array = reduced.array.dropna()
-    # also sorts the trials by nan or not
-    reduced = reduced.nan_common_denom(True, common, crop_nan)
-    comb = reduced.combine(('epoch', 'trial'))[datatype]
-    return (comb.array.dropna()).combine((0, 2))
+# def extract(sub: GroupData, conds: list[str], idx: list[int] = slice(None), common: int = 5,
+#             datatype: str = 'zscore', crop_nan: bool = False) -> LabeledArray:
+#     """Extract data from GroupData object"""
+#     reduced = sub[:, conds][:, :, :, idx]
+#     reduced.array = reduced.array.dropna()
+#     # also sorts the trials by nan or not
+#     reduced = reduced.nan_common_denom(True, common, crop_nan)
+#     comb = reduced.combine(('epoch', 'trial'))[datatype]
+#     return (comb.array.dropna()).combine((0, 2))
 
 
 def scale(X, xmax: float, xmin: float):
