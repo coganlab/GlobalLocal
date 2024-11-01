@@ -9,30 +9,55 @@ from tqdm import tqdm
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
-def mixup2(arr: np.ndarray, obs_axis: int, alpha: float = 1.,
-          seed: int = None, labels: np.ndarray) -> None:
-    arr = arr.swapaxes(obs_axis, -2)
+def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
+          seed: int = None) -> None:
+    """Mixup the data using the labels
+
+    Parameters
+    ----------
+    arr : array
+        The data to mixup.
+    labels : array
+        The labels to use for mixing.
+    obs_axs : int
+        The axis along which to apply func.
+    alpha : float
+        The alpha value for the beta distribution.
+    seed : int
+        The seed for the random number generator.
+
+    Examples
+    --------
+    >>> np.random.seed(0)
+    >>> arr = np.array([[1, 2], [4, 5], [7, 8],
+    ... [float("nan"), float("nan")]])
+    >>> labels = np.array([0, 0, 1, 1])
+    >>> mixup2(arr, labels, 0)
+    >>> arr
+    array([[1.        , 2.        ],
+           [4.        , 5.        ],
+           [7.        , 8.        ],
+           [6.03943491, 7.03943491]])
+           """
     if arr.ndim > 2:
+        arr = arr.swapaxes(obs_axs, -2)
         for i in range(arr.shape[0]):
-            mixup2(arr[i], obs_axis, alpha, seed)
+            mixup2(arr=arr[i], labels=labels, obs_axs=obs_axs, alpha=alpha, seed=seed)
     else:
-        if seed is None:
-            seed = np.random.randint(0, 2 ** 16 - 1)
-        if obs_axis == 0:
-            arr = arr.swapaxes(1, obs_axis)
+        if seed is not None:
+            np.random.seed(seed)
+        if obs_axs == 1:
+            arr = arr.T
 
-        n_nan = np.where(np.isnan(arr).any(axis=1))
-        n_non_nan = np.where(~np.isnan(arr).any(axis=1))
-        if alpha > 0:
-            lam = np.random.beta(alpha, alpha, size=n_nan)
-        else:
-            lam = np.ones(n_nan)
+        n_nan = np.where(np.isnan(arr).any(axis=1))[0]
+        n_non_nan = np.where(~np.isnan(arr).any(axis=1))[0]
 
-        for i, l in zip(n_nan, lam):
+        for i in n_nan:
             l_class = labels[i]
-            possible_choices = np.where(np.logical_and(~np.isnan(arr).any(axis=1), labels == l_class))
-            choice1 = np.choice(possible_choices)
-            choice2 = np.choice(n_non_nan)
+            possible_choices = np.nonzero(np.logical_and(~np.isnan(arr).any(axis=1), labels == l_class))[0]
+            choice1 = np.random.choice(possible_choices)
+            choice2 = np.random.choice(n_non_nan)
+            l = np.random.beta(alpha, alpha)
             if l < .5:
                 l = 1 - l
             arr[i] = l * arr[choice1] + (1 - l) * arr[choice2]
@@ -58,7 +83,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
             x_test = np.take(x_data, test_idx, obs_axs)
             
             y_train = labels[train_idx]
-            mixup2(x_train, obs_axs, 1., None, y_train)
+            mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None)
             y_test = labels[test_idx]
             # for i in set(labels):
             #     # fill in train data nans with random combinations of existing train data trials (mixup)
