@@ -72,7 +72,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         self.categories = categories
         self.max_features = max_features
 
-    def cv_cm_old(self, x_data: np.ndarray, labels: np.ndarray,
+    def cv_cm_jim(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
         n_cats = len(set(labels))
         mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats))
