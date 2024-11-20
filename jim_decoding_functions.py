@@ -204,7 +204,8 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         # else:
         #     divisor = 1
         # return mats / divisor
-    
+        
+
     def cv_cm_return_scores(self, x_data: np.ndarray, labels: np.ndarray,
                             normalize: str = None, obs_axs: int = -2):
         '''
@@ -269,6 +270,73 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
         return scores
 
+    def windower(x_data: np.ndarray, window_size: int, axis: int = -1, step_size: int = 1):
+        """Create a sliding window view of the array with the given window size and step size."""
+        shape = x_data.shape[:axis] + ((x_data.shape[axis] - window_size) // step_size + 1, window_size) + x_data.shape[axis+1:]
+        strides = x_data.strides[:axis] + (x_data.strides[axis] * step_size, x_data.strides[axis]) + x_data.strides[axis+1:]
+        return np.lib.stride_tricks.as_strided(x_data, shape=shape, strides=strides)
+        
+    def cv_cm_with_windows_jim(self, x_data: np.ndarray, labels: np.ndarray,
+                normalize: str = None, obs_axs: int = -2, window_size: int = None, step_size: int = 1):
+        n_cats = len(set(labels))
+        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs
+        time_axs = -1  # Assuming time is the last axis
+        if window_size is None:
+            # Use the entire time dimension
+            window_size = x_data.shape[time_axs]
+            n_windows = 1
+        else:
+            n_windows = (x_data.shape[time_axs] - window_size) // step_size + 1
+
+        # Initialize an array to store confusion matrices for each time window
+        mats = np.zeros((n_windows, self.n_repeats, self.n_splits, n_cats, n_cats))
+
+        idx = [slice(None) for _ in range(x_data.ndim)]
+        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)):
+            # Loop over time windows
+            for w in range(n_windows):
+                # Get the time window
+                idx[time_axs] = slice(w * step_size, w * step_size + window_size)
+                x_train = np.take(x_data[tuple(idx)], train_idx, obs_axs)
+                x_test = np.take(x_data[tuple(idx)], test_idx, obs_axs)
+                
+                y_train = labels[train_idx]
+                mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None)
+                y_test = labels[test_idx]
+
+                # Fill in test data nans with noise from distribution
+                is_nan = np.isnan(x_test)
+                x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
+
+                # Feature selection
+                train_in = flatten_features(x_train, obs_axs)
+                test_in = flatten_features(x_test, obs_axs)
+                if train_in.shape[1] > self.max_features:
+                    tidx = np.random.choice(train_in.shape[1], self.max_features, replace=False)
+                    train_in = train_in[:, tidx]
+                    test_in = test_in[:, tidx]
+
+                # Fit model and score results
+                self.fit(train_in, y_train)
+                pred = self.predict(test_in)
+                rep, fold = divmod(f, self.n_splits)
+                mats[w, rep, fold] = confusion_matrix(y_test, pred)
+
+        # Average the repetitions and folds
+        mats_mean = np.mean(mats, axis=(1, 2))
+
+        # Normalize if needed
+        if normalize == 'true':
+            mats_normalized = np.array([m / m.sum(axis=1, keepdims=True) for m in mats_mean])
+        elif normalize == 'pred':
+            mats_normalized = np.array([m / m.sum(axis=0, keepdims=True) for m in mats_mean])
+        elif normalize == 'all':
+            mats_normalized = mats_mean / mats_mean.sum()
+        else:
+            mats_normalized = mats_mean
+
+        return mats_normalized
+
 def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
     obs_axs = arr.ndim + obs_axs if obs_axs < 0 else obs_axs
     if obs_axs != 0:
@@ -276,3 +344,5 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
     else:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
+
+
