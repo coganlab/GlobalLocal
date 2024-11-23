@@ -16,26 +16,27 @@ from tqdm import tqdm
 
 class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
-    # commented this out to use jim decoding functions init.py instead 11/1. Because it has oversample in it.
-    # def __init__(self, categories: dict, *args,
-    #              n_splits: int = 5,
-    #              n_repeats: int = 1,
-    #              min_samples: int = 1,
-    #              which: str = 'test',
-    #              **kwargs):
-    #     PcaLdaClassification.__init__(self, *args, **kwargs)
-    #     MinimumNaNSplit.__init__(self, n_splits, n_repeats,
-    #                              None, min_samples, which)
-    #     self.categories = categories
 
-    def __init__(self, categories: dict, *args, n_splits: int = 5, n_repeats: int = 10,
-                 oversample: bool = True, max_features: int = float("inf"), **kwargs):
+    # jim decoding init that has oversample in it
+    # def __init__(self, categories: dict, *args, n_splits: int = 5, n_repeats: int = 10,
+    #              oversample: bool = True, max_features: int = float("inf"), **kwargs):
+    #     PcaLdaClassification.__init__(self, *args, **kwargs)
+    #     MinimumNaNSplit.__init__(self, n_splits, n_repeats)
+    #     if not oversample:
+    #         self.oversample = lambda x, func, axis: x
+    #     self.categories = categories
+    #     self.max_features = max_features
+
+    def __init__(self, categories: dict, *args,
+                 n_splits: int = 5,
+                 n_repeats: int = 1,
+                 min_samples: int = 1,
+                 which: str = 'test',
+                 **kwargs):
         PcaLdaClassification.__init__(self, *args, **kwargs)
-        MinimumNaNSplit.__init__(self, n_splits, n_repeats)
-        if not oversample:
-            self.oversample = lambda x, func, axis: x
+        MinimumNaNSplit.__init__(self, n_splits, n_repeats,
+                                 None, min_samples, which)
         self.categories = categories
-        self.max_features = max_features
 
     def cv_cm(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,

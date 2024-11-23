@@ -6,6 +6,7 @@ from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
 from scipy.stats import norm
 from tqdm import tqdm
+from numpy.lib.stride_tricks import as_strided
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
@@ -120,7 +121,8 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
             divisor = 1
         return matk / divisor
     
-    def cv_cm_aaron(self, x_data: np.ndarray, labels: np.ndarray,
+    # untested 11/23
+    def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
               average_repetitions: bool = True, window: int = None,
               shuffle: bool = False, oversample: bool = True) -> np.ndarray:
@@ -162,48 +164,49 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
         else:
             idxs = ((splits, labels) for splits in self.split(data, labels))
+
         # 11/1 put in the actual cv cm logic from the cv cm old here. Note this uses idxs instead of idx, so will be a little different since idxs includes splits and labels already
 
         # 11/1 below is aaron's code for windowing. 
-        # def proc(train_idx, test_idx, l):
-        #     x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
-        #     windowed = windower(x_stacked, window, axis=-1)
-        #     out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
-        #     for i, x_window in enumerate(windowed):
-        #         x_flat = x_window.reshape(x_window.shape[0], -1)
-        #         x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
-        #         out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
-        #     return out
+        def proc(train_idx, test_idx, l):
+            x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
+            windowed = windower(x_stacked, window, axis=-1)
+            out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
+            for i, x_window in enumerate(windowed):
+                x_flat = x_window.reshape(x_window.shape[0], -1)
+                x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
+                out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
+            return out
 
         # # loop over folds and repetitions
-        # if n_jobs == 1:
-        #     idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
-        #     results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
-        # else:
-        #     results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
-        #         delayed(proc)(train_idx, test_idx, l)
-        #         for (train_idx, test_idx), l in idxs)
+        if n_jobs == 1:
+            idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
+            results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
+        else:
+            results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
+                delayed(proc)(train_idx, test_idx, l)
+                for (train_idx, test_idx), l in idxs)
 
         # # Collect the results
-        # for i, result in enumerate(results):
-        #     rep, fold = divmod(i, self.n_splits)
-        #     mats[:, rep, fold] = result
+        for i, result in enumerate(results):
+            rep, fold = divmod(i, self.n_splits)
+            mats[:, rep, fold] = result
 
-        # # average the repetitions
-        # if average_repetitions:
-        #     mats = np.mean(mats, axis=1)
+        # average the repetitions
+        if average_repetitions:
+            mats = np.mean(mats, axis=1)
 
-        # # normalize, sum the folds
-        # mats = np.sum(mats, axis=-3)
-        # if normalize == 'true':
-        #     divisor = np.sum(mats, axis=-1, keepdims=True)
-        # elif normalize == 'pred':
-        #     divisor = np.sum(mats, axis=-2, keepdims=True)
-        # elif normalize == 'all':
-        #     divisor = self.n_repeats
-        # else:
-        #     divisor = 1
-        # return mats / divisor
+        # normalize, sum the folds
+        mats = np.sum(mats, axis=-3)
+        if normalize == 'true':
+            divisor = np.sum(mats, axis=-1, keepdims=True)
+        elif normalize == 'pred':
+            divisor = np.sum(mats, axis=-2, keepdims=True)
+        elif normalize == 'all':
+            divisor = self.n_repeats
+        else:
+            divisor = 1
+        return mats / divisor
         
 
     def cv_cm_return_scores(self, x_data: np.ndarray, labels: np.ndarray,
@@ -270,73 +273,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
         return scores
 
-    def windower(x_data: np.ndarray, window_size: int, axis: int = -1, step_size: int = 1):
-        """Create a sliding window view of the array with the given window size and step size."""
-        shape = x_data.shape[:axis] + ((x_data.shape[axis] - window_size) // step_size + 1, window_size) + x_data.shape[axis+1:]
-        strides = x_data.strides[:axis] + (x_data.strides[axis] * step_size, x_data.strides[axis]) + x_data.strides[axis+1:]
-        return np.lib.stride_tricks.as_strided(x_data, shape=shape, strides=strides)
-        
-    def cv_cm_with_windows_jim(self, x_data: np.ndarray, labels: np.ndarray,
-                normalize: str = None, obs_axs: int = -2, window_size: int = None, step_size: int = 1):
-        n_cats = len(set(labels))
-        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs
-        time_axs = -1  # Assuming time is the last axis
-        if window_size is None:
-            # Use the entire time dimension
-            window_size = x_data.shape[time_axs]
-            n_windows = 1
-        else:
-            n_windows = (x_data.shape[time_axs] - window_size) // step_size + 1
-
-        # Initialize an array to store confusion matrices for each time window
-        mats = np.zeros((n_windows, self.n_repeats, self.n_splits, n_cats, n_cats))
-
-        idx = [slice(None) for _ in range(x_data.ndim)]
-        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)):
-            # Loop over time windows
-            for w in range(n_windows):
-                # Get the time window
-                idx[time_axs] = slice(w * step_size, w * step_size + window_size)
-                x_train = np.take(x_data[tuple(idx)], train_idx, obs_axs)
-                x_test = np.take(x_data[tuple(idx)], test_idx, obs_axs)
-                
-                y_train = labels[train_idx]
-                mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None)
-                y_test = labels[test_idx]
-
-                # Fill in test data nans with noise from distribution
-                is_nan = np.isnan(x_test)
-                x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
-
-                # Feature selection
-                train_in = flatten_features(x_train, obs_axs)
-                test_in = flatten_features(x_test, obs_axs)
-                if train_in.shape[1] > self.max_features:
-                    tidx = np.random.choice(train_in.shape[1], self.max_features, replace=False)
-                    train_in = train_in[:, tidx]
-                    test_in = test_in[:, tidx]
-
-                # Fit model and score results
-                self.fit(train_in, y_train)
-                pred = self.predict(test_in)
-                rep, fold = divmod(f, self.n_splits)
-                mats[w, rep, fold] = confusion_matrix(y_test, pred)
-
-        # Average the repetitions and folds
-        mats_mean = np.mean(mats, axis=(1, 2))
-
-        # Normalize if needed
-        if normalize == 'true':
-            mats_normalized = np.array([m / m.sum(axis=1, keepdims=True) for m in mats_mean])
-        elif normalize == 'pred':
-            mats_normalized = np.array([m / m.sum(axis=0, keepdims=True) for m in mats_mean])
-        elif normalize == 'all':
-            mats_normalized = mats_mean / mats_mean.sum()
-        else:
-            mats_normalized = mats_mean
-
-        return mats_normalized
-
+    
 def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
     obs_axs = arr.ndim + obs_axs if obs_axs < 0 else obs_axs
     if obs_axs != 0:
@@ -345,4 +282,47 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
 
+def windower(x_data: np.ndarray, window_size: int, axis: int = -1, insert_at: int = 0):
+    """Create a sliding window view of the array with the given window size."""
+    # Compute the shape and strides for the sliding window view
+    shape = list(x_data.shape)
+    shape[axis] = x_data.shape[axis] - window_size + 1
+    shape.insert(axis, window_size)
+    strides = list(x_data.strides)
+    strides.insert(axis, x_data.strides[axis])
 
+    # Create the sliding window view
+    out = as_strided(x_data, shape=shape, strides=strides)
+
+    # Move the window size dimension to the front
+    out = np.moveaxis(out, axis, insert_at)
+
+    return out
+
+# modified by jim 11/23, check aaron_decoding_init.py for original.
+def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
+                x_data: np.ndarray, labels: np.ndarray,
+                axis: int, oversample: bool = True):
+
+    # Combine train and test indices
+    idx_stacked = np.concatenate((train_idx, test_idx))
+    x_stacked = np.take(x_data, idx_stacked, axis)
+    y_stacked = labels[idx_stacked]
+
+    # Split into training and testing sets
+    sep = train_idx.shape[0]
+    y_train, y_test = np.split(y_stacked, [sep])
+    x_train, x_test = np.split(x_stacked, [sep], axis=axis)
+
+    if oversample:
+        # Apply mixup2 to x_train
+        mixup2(arr=x_train, labels=y_train, obs_axs=axis, alpha=1., seed=None)
+
+    # Fill in test data nans with noise from distribution
+    is_nan = np.isnan(x_test)
+    x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
+
+    # Recombine x_train and x_test
+    x_stacked = np.concatenate((x_train, x_test), axis=axis)
+
+    return x_stacked, y_train, y_test
