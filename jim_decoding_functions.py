@@ -215,7 +215,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         trying to get the scores manually from cv cm but i realize that in decoders.py, PcaLdaClassification already has a get_scores function. Try get_scores with shuffle=True to get fake, permuted scores.
         '''
         # Get the confusion matrix by calling `cv_cm`
-        cm = self.cv_cm_old(x_data, labels, normalize, obs_axs)
+        cm = self.cv_cm_jim(x_data, labels, normalize, obs_axs)
 
         # Average the confusion matrices across the repetitions
         cm_avg = np.mean(cm, axis=0)  # Now cm_avg will be of shape (2, 2)
