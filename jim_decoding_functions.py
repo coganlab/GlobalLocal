@@ -208,7 +208,12 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
             divisor = 1
         return mats / divisor
         
-
+    def fit_predict(self, x_train, x_test, y_train, y_test):
+        # fit model and score results
+        self.model.fit(x_train, y_train)
+        pred = self.model.predict(x_test)
+        return confusion_matrix(y_test, pred)
+    
     def cv_cm_return_scores(self, x_data: np.ndarray, labels: np.ndarray,
                             normalize: str = None, obs_axs: int = -2):
         '''
