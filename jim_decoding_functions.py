@@ -123,8 +123,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
     
     # untested 11/23
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
-              normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
-              average_repetitions: bool = True, window: int = None,
+              normalize: str = None, obs_axs: int = -2, n_jobs: int = 1, window: int = None,
               shuffle: bool = False, oversample: bool = True) -> np.ndarray:
         """Cross-validated confusion matrix"""
         n_cats = len(set(labels))
@@ -191,10 +190,6 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         for i, result in enumerate(results):
             rep, fold = divmod(i, self.n_splits)
             mats[:, rep, fold] = result
-
-        # average the repetitions
-        if average_repetitions:
-            mats = np.mean(mats, axis=1)
 
         # normalize, sum the folds
         mats = np.sum(mats, axis=-3)
