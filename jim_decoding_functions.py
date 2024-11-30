@@ -125,7 +125,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
     
     # untested 11/30
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
-                normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
+                normalize: str = None, obs_axs: int = -2, time_axs: int = -1, n_jobs: int = 1,
                 window: int = None, step_size: int = 1,
                     shuffle: bool = False, oversample: bool = True) -> np.ndarray:
         """Cross-validated confusion matrix with windowing and optional shuffling."""
@@ -133,9 +133,9 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
 
         if window is not None:
-                # Include the step size in the windowed output shape
-                steps = (x_data.shape[-1] - window) // step_size + 1
-                out_shape = (steps,) + out_shape
+            # Include the step size in the windowed output shape
+            steps = (x_data.shape[time_axs] - window) // step_size + 1
+            out_shape = (steps,) + out_shape
                 
         mats = np.zeros(out_shape, dtype=np.uint8)
         data = x_data.swapaxes(0, obs_axs)
@@ -174,9 +174,11 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         # 11/1 below is aaron's code for windowing. 
         def proc(train_idx, test_idx, l):
             x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
+            print(f"x_stacked shape: {x_stacked.shape}")
 
             # Use the updated windower function with step_size
-            windowed = windower(x_stacked, window, axis=-1, step_size=step_size)
+            windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
+            print(f"windowed shape: {windowed.shape}")
 
             out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
             for i, x_window in enumerate(windowed):
@@ -295,6 +297,8 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1, step_s
     if window_size is None:
         # If no window size is provided, return the full array wrapped in a single window
         return x_data[np.newaxis, ...]  # Add a new axis for compatibility with downstream processing
+    
+    axis = axis % x_data.ndim  # Normalize negative axes
 
     shape = list(x_data.shape)
     strides = list(x_data.strides)
@@ -316,17 +320,25 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1, step_s
     # Handle leftover data if remainder exists
     if remainder > 0:
         leftover_start = steps * step_size
-        leftover_window = x_data.take(
-            indices=range(leftover_start, x_data.shape[axis]),
-            axis=axis
+        indices = [slice(None)] * x_data.ndim
+        indices[axis] = slice(leftover_start, x_data.shape[axis])
+        leftover_window = x_data[tuple(indices)]
+        # Pad the leftover window to match the window size
+        pad_width = [(0, 0)] * leftover_window.ndim
+        pad_width[axis] = (0, window_size - leftover_window.shape[axis])
+        leftover_window = np.pad(
+            leftover_window,
+            pad_width=pad_width,
+            mode='constant',
+            constant_values=np.nan
         )
-        leftover_window = np.pad(leftover_window, (0, window_size - leftover_window.size), constant_values=np.nan)
+        # Add the new window
         out = np.concatenate((out, leftover_window[np.newaxis, ...]), axis=axis)
 
     # Move the window dimension to the desired location
     out = np.moveaxis(out, axis + 1, insert_at)
-
     return out
+
 
 
 # this is aaron's windower function. Replace with my windower that accounts for step size.
