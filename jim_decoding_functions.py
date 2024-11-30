@@ -7,6 +7,8 @@ from ieeg.calc.fast import mixup
 from scipy.stats import norm
 from tqdm import tqdm
 from numpy.lib.stride_tricks import as_strided
+import itertools
+from joblib import Parallel, delayed
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
@@ -121,15 +123,20 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
             divisor = 1
         return matk / divisor
     
-    # untested 11/23
+    # untested 11/30
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
-              normalize: str = None, obs_axs: int = -2, n_jobs: int = 1, window: int = None,
-              shuffle: bool = False, oversample: bool = True) -> np.ndarray:
-        """Cross-validated confusion matrix"""
+                normalize: str = None, obs_axs: int = -2, n_jobs: int = 1,
+                window: int = None, step_size: int = 1,
+                    shuffle: bool = False, oversample: bool = True) -> np.ndarray:
+        """Cross-validated confusion matrix with windowing and optional shuffling."""
         n_cats = len(set(labels))
         out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
+
         if window is not None:
-            out_shape = (x_data.shape[-1] - window + 1,) + out_shape
+                # Include the step size in the windowed output shape
+                steps = (x_data.shape[-1] - window) // step_size + 1
+                out_shape = (steps,) + out_shape
+                
         mats = np.zeros(out_shape, dtype=np.uint8)
         data = x_data.swapaxes(0, obs_axs)
 
@@ -164,12 +171,13 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         else:
             idxs = ((splits, labels) for splits in self.split(data, labels))
 
-        # 11/1 put in the actual cv cm logic from the cv cm old here. Note this uses idxs instead of idx, so will be a little different since idxs includes splits and labels already
-
         # 11/1 below is aaron's code for windowing. 
         def proc(train_idx, test_idx, l):
             x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
-            windowed = windower(x_stacked, window, axis=-1)
+
+            # Use the updated windower function with step_size
+            windowed = windower(x_stacked, window, axis=-1, step_size=step_size)
+
             out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
             for i, x_window in enumerate(windowed):
                 x_flat = x_window.reshape(x_window.shape[0], -1)
@@ -282,22 +290,62 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
 
-def windower(x_data: np.ndarray, window_size: int, axis: int = -1, insert_at: int = 0):
-    """Create a sliding window view of the array with the given window size."""
-    # Compute the shape and strides for the sliding window view
-    shape = list(x_data.shape)
-    shape[axis] = x_data.shape[axis] - window_size + 1
-    shape.insert(axis, window_size)
-    strides = list(x_data.strides)
-    strides.insert(axis, x_data.strides[axis])
+def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1, step_size: int = 1, insert_at: int = 0):
+    """Create a sliding window view of the array with a given window size and step size."""
+    if window_size is None:
+        # If no window size is provided, return the full array wrapped in a single window
+        return x_data[np.newaxis, ...]  # Add a new axis for compatibility with downstream processing
 
-    # Create the sliding window view
+    shape = list(x_data.shape)
+    strides = list(x_data.strides)
+
+    # Compute the number of full steps
+    steps = (x_data.shape[axis] - window_size) // step_size + 1
+    remainder = (x_data.shape[axis] - window_size) % step_size
+
+    # Adjust shape to include window size
+    shape[axis] = steps
+    shape.insert(axis + 1, window_size)
+
+    strides[axis] *= step_size
+    strides.insert(axis + 1, x_data.strides[axis])
+
+    # Create sliding window view
     out = as_strided(x_data, shape=shape, strides=strides)
 
-    # Move the window size dimension to the front
-    out = np.moveaxis(out, axis, insert_at)
+    # Handle leftover data if remainder exists
+    if remainder > 0:
+        leftover_start = steps * step_size
+        leftover_window = x_data.take(
+            indices=range(leftover_start, x_data.shape[axis]),
+            axis=axis
+        )
+        leftover_window = np.pad(leftover_window, (0, window_size - leftover_window.size), constant_values=np.nan)
+        out = np.concatenate((out, leftover_window[np.newaxis, ...]), axis=axis)
+
+    # Move the window dimension to the desired location
+    out = np.moveaxis(out, axis + 1, insert_at)
 
     return out
+
+
+# this is aaron's windower function. Replace with my windower that accounts for step size.
+# def windower(x_data: np.ndarray, window_size: int, axis: int = -1, insert_at: int = 0):
+#     """Create a sliding window view of the array with a given window size."""
+#     # Compute the shape and strides for the sliding window view
+#     shape = list(x_data.shape)
+#     shape[axis] = x_data.shape[axis] - window_size + 1
+#     shape.insert(axis, window_size)
+#     strides = list(x_data.strides)
+#     strides.insert(axis, x_data.strides[axis])
+
+#     # Create the sliding window view
+#     out = as_strided(x_data, shape=shape, strides=strides)
+
+#     # Move the window size dimension to the front
+#     out = np.moveaxis(out, axis, insert_at)
+
+#     return out
 
 # modified by jim 11/23, check aaron_decoding_init.py for original.
 def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
