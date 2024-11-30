@@ -9,6 +9,7 @@ from tqdm import tqdm
 from numpy.lib.stride_tricks import as_strided
 import itertools
 from joblib import Parallel, delayed
+from numpy.lib.stride_tricks import sliding_window_view
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
@@ -130,11 +131,12 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
                     shuffle: bool = False, oversample: bool = True) -> np.ndarray:
         """Cross-validated confusion matrix with windowing and optional shuffling."""
         n_cats = len(set(labels))
+        time_axs_positive = time_axs % x_data.ndim
         out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
 
         if window is not None:
             # Include the step size in the windowed output shape
-            steps = (x_data.shape[time_axs] - window) // step_size + 1
+            steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
             out_shape = (steps,) + out_shape
                 
         mats = np.zeros(out_shape, dtype=np.uint8)
@@ -292,52 +294,60 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
 
-def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1, step_size: int = 1, insert_at: int = 0):
-    """Create a sliding window view of the array with a given window size and step size."""
+def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
+             step_size: int = 1, insert_at: int = 0):
     if window_size is None:
-        # If no window size is provided, return the full array wrapped in a single window
-        return x_data[np.newaxis, ...]  # Add a new axis for compatibility with downstream processing
+        return x_data[np.newaxis, ...]  # Add a new axis for compatibility
+
+    axis = axis % x_data.ndim
+    data_length = x_data.shape[axis]
     
-    axis = axis % x_data.ndim  # Normalize negative axes
-
-    shape = list(x_data.shape)
-    strides = list(x_data.strides)
-
-    # Compute the number of full steps
-    steps = (x_data.shape[axis] - window_size) // step_size + 1
-    remainder = (x_data.shape[axis] - window_size) % step_size
-
-    # Adjust shape to include window size
-    shape[axis] = steps
-    shape.insert(axis + 1, window_size)
-
-    strides[axis] *= step_size
-    strides.insert(axis + 1, x_data.strides[axis])
-
-    # Create sliding window view
-    out = as_strided(x_data, shape=shape, strides=strides)
-
-    # Handle leftover data if remainder exists
+    # Compute the number of full steps and remainder
+    full_steps = (data_length - window_size) // step_size + 1
+    total_steps = full_steps
+    remainder = (data_length - window_size) % step_size
+    
+    # Create the sliding window view for full windows
+    windowed = sliding_window_view(x_data, window_shape=window_size, axis=axis)
+    
+    # Apply step_size by slicing
+    if step_size > 1:
+        slicing = [slice(None)] * windowed.ndim
+        slicing[axis] = slice(0, None, step_size)
+        windowed = windowed[tuple(slicing)]
+        total_steps = windowed.shape[axis]
+    
+    # Move the window dimension to the desired location
+    if insert_at != axis:
+        windowed = np.moveaxis(windowed, axis, insert_at)
+    
+    # Handle the remainder if it exists
     if remainder > 0:
-        leftover_start = steps * step_size
+        # Extract the remainder data
+        start_idx = full_steps * step_size
+        end_idx = data_length
         indices = [slice(None)] * x_data.ndim
-        indices[axis] = slice(leftover_start, x_data.shape[axis])
-        leftover_window = x_data[tuple(indices)]
-        # Pad the leftover window to match the window size
-        pad_width = [(0, 0)] * leftover_window.ndim
-        pad_width[axis] = (0, window_size - leftover_window.shape[axis])
-        leftover_window = np.pad(
-            leftover_window,
+        indices[axis] = slice(start_idx, end_idx)
+        remainder_window = x_data[tuple(indices)]
+        
+        # Pad the remainder window to match window_size
+        pad_width = [(0, 0)] * remainder_window.ndim
+        pad_width[axis] = (0, window_size - remainder_window.shape[axis])
+        remainder_window = np.pad(
+            remainder_window,
             pad_width=pad_width,
             mode='constant',
             constant_values=np.nan
         )
-        # Add the new window
-        out = np.concatenate((out, leftover_window[np.newaxis, ...]), axis=axis)
+        
+        # Add a new axis for the window dimension
+        remainder_window = np.expand_dims(remainder_window, axis=insert_at)
+        
+        # Concatenate the remainder window to the windowed array
+        windowed = np.concatenate((windowed, remainder_window), axis=insert_at)
+    
+    return windowed
 
-    # Move the window dimension to the desired location
-    out = np.moveaxis(out, axis + 1, insert_at)
-    return out
 
 
 
