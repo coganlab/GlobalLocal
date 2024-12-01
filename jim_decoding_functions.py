@@ -302,49 +302,21 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
     axis = axis % x_data.ndim
     data_length = x_data.shape[axis]
     
-    # Compute the number of full steps and remainder
+    # Compute the number of full steps (exclude remainder)
     full_steps = (data_length - window_size) // step_size + 1
-    total_steps = full_steps
-    remainder = (data_length - window_size) % step_size
-    
+
     # Create the sliding window view for full windows
     windowed = sliding_window_view(x_data, window_shape=window_size, axis=axis)
     
     # Apply step_size by slicing
     if step_size > 1:
         slicing = [slice(None)] * windowed.ndim
-        slicing[axis] = slice(0, None, step_size)
+        slicing[axis] = slice(0, full_steps, 1)
         windowed = windowed[tuple(slicing)]
-        total_steps = windowed.shape[axis]
     
     # Move the window dimension to the desired location
     if insert_at != axis:
         windowed = np.moveaxis(windowed, axis, insert_at)
-    
-    # Handle the remainder if it exists
-    if remainder > 0:
-        # Extract the remainder data
-        start_idx = full_steps * step_size
-        end_idx = data_length
-        indices = [slice(None)] * x_data.ndim
-        indices[axis] = slice(start_idx, end_idx)
-        remainder_window = x_data[tuple(indices)]
-        
-        # Pad the remainder window to match window_size
-        pad_width = [(0, 0)] * remainder_window.ndim
-        pad_width[axis] = (0, window_size - remainder_window.shape[axis])
-        remainder_window = np.pad(
-            remainder_window,
-            pad_width=pad_width,
-            mode='constant',
-            constant_values=np.nan
-        )
-        
-        # Add a new axis for the window dimension
-        remainder_window = np.expand_dims(remainder_window, axis=insert_at)
-        
-        # Concatenate the remainder window to the windowed array
-        windowed = np.concatenate((windowed, remainder_window), axis=insert_at)
     
     return windowed
 
