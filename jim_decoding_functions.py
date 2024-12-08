@@ -1,3 +1,4 @@
+# copy this back into jim_decoding_functions.py once it's working! 12/6
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
@@ -155,11 +156,9 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
             print("Shuffle validation:")
             for i, labels in enumerate(label_stack):
-                print(f"Shuffle {i+1}: Labels preview - {labels[:10]}")
                 # Compare with the first repetition to ensure variety in shuffles
                 if i > 0:
                     diff = np.sum(label_stack[0] != labels)
-                    print(f"Difference with first shuffle: {diff} labels differ")
 
             idxs = ((self.split(data, l), l) for l in label_stack)
             idxs = ((itertools.islice(s, self.n_splits),
@@ -311,7 +310,7 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
     # Apply step_size by slicing
     if step_size > 1:
         slicing = [slice(None)] * windowed.ndim
-        slicing[axis] = slice(0, full_steps, 1)
+        slicing[axis] = slice(0, None, step_size) # try 0, None, step_size for now, I think this should exclude the remainder..? Keep debugging with the bottom cell.
         windowed = windowed[tuple(slicing)]
     
     # Move the window dimension to the desired location
