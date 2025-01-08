@@ -11,7 +11,7 @@ Last edited: 01/16/2024
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch). Steps 3-5 go into detail on how to do this.
 3. To install dependencies, need to ```conda create env environment.yml``` on Mac if not already created, and give it an environment name. Or do ```conda env create -f environment.yml``` from the envs folder if on Windows.
 4. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment. 
-5. Now cd into the BIDS_converter subfolder within BIDS_coding repository (open WSL, cd /git/BIDS_coding/BIDS_converter), and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18). Or, BIDS_convert_mac or whichever script fits your OS. NOTE: To open the WSL script, do explorer.exe. to open the file explorer in that location.
+5. Now cd into the BIDS_converter subfolder within BIDS_coding repository (open WSL, cd /git/BIDS_coding/BIDS_converter), and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18). Or, BIDS_convert_mac or whichever script fits your OS. NOTE: To open the WSL script, do ```explorer.exe .``` to open the file explorer in that location.
 6. Copy the BIDS folder into Box (run it locally because it's faster)
    
 ### Duke Health VPN
