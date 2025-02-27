@@ -1351,3 +1351,49 @@ def prepare_data_for_temporal_dataset(subjects_mne_objects, condition_names, roi
             print(f'Total number of trials for {sub} across all conditions: {total_sub_trials}')
         print(f'total number of trials in {roi} is {total_roi_trials}')
     return dat
+
+def get_good_data(sub, layout):
+    '''
+    Load and further preprocess the line-noise filtered EEG data for a given subject. 
+    AKA drop bad channels, set re-referencing scheme
+
+    Parameters:
+    -----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+
+    Returns:
+    --------
+    good : mne.io.Raw
+        The preprocessed raw EEG data.
+
+    Examples:
+    ---------
+    >>> sub = 'sub-01'
+    >>> good = get_good_data(sub, layout)
+    >>> isinstance(good, mne.io.Raw)
+    True
+    '''
+    # Load the data
+    filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
+                           extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
+    print(filt)
+
+    # Crop raw data to minimize processing time
+    good = crop_empty_data(filt)
+
+    # Mark and drop bad channels
+    good.info['bads'] = channel_outlier_marker(good, 3, 2)
+    good.drop_channels(good.info['bads'])
+    good.load_data()
+
+    # Set EEG reference
+    ch_type = filt.get_channel_types(only_data_chs=True)[0]
+    good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
+
+    # Plot the data for inspection
+    good.plot()
+
+    return good
