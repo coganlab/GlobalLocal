@@ -10,8 +10,9 @@ from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
 from utils import calculate_RTs, get_good_data
 
-from typing import List, Tuple, Callable
+import matplotlib.pyplot as plt
 
+from typing import List, Tuple, Callable, Optional
 
 def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     """
@@ -427,3 +428,82 @@ def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
 
     spec = load_tfrs(filename)
     return spec
+
+
+def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
+                    times: Optional[np.ndarray] = None,
+                    freqs: Optional[np.ndarray] = None,
+                    channels_per_page: int = 60,
+                    grid_shape: Optional[Tuple[int, int]] = None,
+                    cmap: str = 'gray', title_prefix: str = "",
+                    log_freq: bool = False,
+                    show: bool = False,
+                    colorbar_range: Optional[Tuple[float, float]] = None) -> List[plt.Figure]:
+    n_channels = mask.shape[0]
+    pages = []
+    
+    if grid_shape is not None:
+        n_rows, n_cols = grid_shape
+        channels_per_page = n_rows * n_cols
+
+    if times is not None:
+        x_min, x_max = times[0], times[-1]
+        xlabel = "Time (s)"
+    else:
+        x_min, x_max = 0, mask.shape[-1]
+        xlabel = "Time (samples)"
+    if freqs is not None:
+        y_min, y_max = freqs[0], freqs[-1]
+        ylabel = "Frequency (Hz)"
+    else:
+        y_min, y_max = 0, mask.shape[1]
+        ylabel = "Frequency (bins)"
+
+    for start in range(0, n_channels, channels_per_page):
+        end = min(start + channels_per_page, n_channels)
+        page_mask = mask[start:end]
+        page_ch_names = ch_names[start:end]
+        n_page_ch = page_mask.shape[0]
+        
+        if grid_shape is None:
+            n_rows = int(np.floor(np.sqrt(n_page_ch)))
+            n_rows = max(n_rows, 1)
+            n_cols = int(np.ceil(n_page_ch / n_rows))
+        
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(3 * n_cols, 3 * n_rows))
+        if not isinstance(axes, np.ndarray):
+            axes = np.array([axes])
+        axes = axes.flatten()
+        
+        for i, (chan_mask, chan_name) in enumerate(zip(page_mask, page_ch_names)):
+            ax = axes[i]
+            extent = [x_min, x_max, y_min, y_max]
+            # If a colorbar_range is provided, unpack vmin and vmax
+            if colorbar_range is not None:
+                vmin, vmax = colorbar_range
+            else:
+                vmin, vmax = None, None
+            im = ax.imshow(chan_mask, aspect='auto', origin='lower', cmap=cmap,
+                           extent=extent, vmin=vmin, vmax=vmax)
+            # Add a colorbar next to each subplot
+            fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+            ax.set_title(f"{title_prefix}{chan_name}", fontsize=8)
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.tick_params(axis='both', which='major', labelsize=7, direction="in")
+            if log_freq and (freqs is not None):
+                ax.set_yscale('log')
+                n_ticks = 12
+                tick_positions = np.logspace(np.log10(freqs[0]), np.log10(freqs[-1]), n_ticks)
+                ax.set_yticks(tick_positions)
+                ax.set_yticklabels([f"{tick:.1f}" for tick in tick_positions])
+        
+        # Turn off any unused subplots.
+        for j in range(i + 1, len(axes)):
+            axes[j].axis("off")
+        fig.tight_layout()
+        pages.append(fig)
+        if show:
+            plt.show()
+    return pages
+
