@@ -10,7 +10,37 @@ from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
 from utils import calculate_RTs, get_good_data
 
+from typing import List, Tuple, Callable
+
+
 def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
+    """
+    Compute a wavelet scaleogram baseline from an EEG recording.
+
+    This function creates a copy of the raw EEG data, loads it, and sets an average reference.
+    It then extracts a baseline segment (with an extra 0.5-second padding before and after the
+    specified baseline times) around the "Stimulus" event, marks outlier data as NaN, computes the
+    wavelet scaleogram, and applies cropping/padding to the resulting time-frequency representation.
+
+    Parameters
+    ----------
+    inst : mne.io.BaseRaw
+        The raw EEG data instance.
+    base_times : tuple of float
+        A tuple (start, end) in seconds defining the baseline window.
+
+    Returns
+    -------
+    base : mne.time_frequency.EpochsTFR
+        The wavelet scaleogram of the baseline segment.
+
+    Example
+    -------
+    >>> # Assume 'raw' is a preloaded mne.io.Raw instance with EEG data.
+    >>> baseline = get_wavelet_baseline(raw, (0, 1))
+    >>> hasattr(baseline, 'data')
+    True
+    """
     inst = inst.copy()
     inst.load_data()
     ch_type = inst.get_channel_types(only_data_chs=True)[0]
@@ -24,36 +54,43 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     del inst
     return base
 
-def get_trials_for_wavelets(data, events, times):
-    '''
+
+def get_trials_for_wavelets(data: mne.io.Raw, events: list[str], times: tuple[float, float]) -> mne.Epochs:
+    """
     Extract and concatenate non-outlier trials for wavelet analysis.
 
-    Parameters:
-    -----------
+    This function extracts epochs for each event specified in `events` from the raw EEG data
+    over a time window defined by `times` (with an extra 0.5-second padding on both sides).
+    The resulting epochs are concatenated into a single Epochs object, and outlier data points
+    are marked as NaN.
+
+    Parameters
+    ----------
     data : mne.io.Raw
         The preprocessed raw EEG data.
     events : list of str
-        List of event names to extract trials for.
-    times : list of float
-        Time window relative to the events to extract data from.
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
 
-    Returns:
-    --------
+    Returns
+    -------
     all_trials : mne.Epochs
-        The concatenated epochs for all specified events.
+        The concatenated epochs for all specified events with outliers marked as NaN.
 
-    Examples:
-    ---------
+    Examples
+    --------
+    >>> # Assume 'raw_data' is a preprocessed mne.io.Raw object containing event annotations.
     >>> events = ['Stimulus/c25', 'Stimulus/c75']
-    >>> times = [-0.5, 1.5]
-    >>> all_trials = get_trials_for_wavelets(good, events, times)
-    >>> isinstance(all_trials, mne.Epochs)
+    >>> times = (-0.5, 1.5)
+    >>> epochs = get_trials_for_wavelets(raw_data, events, times)
+    >>> isinstance(epochs, mne.Epochs)
     True
-    '''
+    """
     all_trials_list = []
 
     for event in events:
-        # Adjust times for padding
+        # Adjust times for 0.5s padding before and after the epoch
         times_adj = [times[0] - 0.5, times[1] + 0.5]
         trials = trial_ieeg(data, event, times_adj, preload=True,
                             reject_by_annotation=False)
@@ -67,104 +104,326 @@ def get_trials_for_wavelets(data, events, times):
 
     return all_trials
 
-def get_uncorrected_wavelets(sub, layout, events, times):
-    '''
-    Get non-baseline-corrected wavelets for trials corresponding to those in events.
 
-    Parameters:
-    -----------
+def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float]) -> mne.time_frequency.EpochsTFR:
+    """
+    Compute non-baseline-corrected wavelets for specified trials.
+
+    This function retrieves preprocessed EEG data for a subject using `get_good_data`, extracts epochs
+    for the specified events (with additional padding), computes the wavelet scaleogram for the epochs,
+    and then applies cropping/padding to the resulting time-frequency representation.
+
+    Parameters
+    ----------
     sub : str
         The subject identifier.
     layout : BIDSLayout
         The BIDS layout object containing the data.
     events : list of str
-        List of event names to extract trials for.
-    times : list of float
-        Time window relative to the events to extract data from.
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
 
-    Returns:
-    --------
+    Returns
+    -------
     spec : mne.time_frequency.EpochsTFR
-        The time-frequency representation of the wavelet-transformed data.
+        The time-frequency representation (wavelet scaleogram) of the extracted epochs.
 
-    Examples:
-    ---------
-    >>> sub = 'sub-01'
+    Examples
+    --------
+    >>> # Assume 'layout' is a valid BIDSLayout and subject 'sub-01' has corresponding data.
     >>> events = ['Stimulus/c25', 'Stimulus/c75']
-    >>> times = [-0.5, 1.5]
-    >>> spec = get_uncorrected_wavelets(sub, layout, events, times)
-    >>> isinstance(spec, mne.time_frequency.EpochsTFR)
+    >>> times = (-0.5, 1.5)
+    >>> tfr = get_uncorrected_wavelets('sub-01', layout, events, times)
+    >>> isinstance(tfr, mne.time_frequency.EpochsTFR)
     True
-    '''
-    # Preprocess data and extract trials
+    """
+    # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
     all_trials = get_trials_for_wavelets(good, events, times)
 
-    # Compute wavelets
+    # Compute wavelets for the extracted trials
     spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
     crop_pad(spec, "0.5s")
 
     return spec
 
-def get_wavelet_differences(sub, layout, events_condition_1, events_condition_2, times, stat_func: callable = mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1, make_wavelets=False):
-    '''
-    Compares two signals, loading their wavelets and computing the significantly different clusters in their wavelets. 
 
-    Parameters:
-    -----------
+def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: List[str],
+                                     events_condition_2: List[str], times: Tuple[float, float],
+                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                     ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute wavelet TFRs from raw EEG data for two conditions and then compute their differences.
+
+    This function extracts epochs for two sets of events from the raw data for a given subject,
+    computes their wavelet representations using `get_uncorrected_wavelets`, and then applies a
+    permutation cluster test to identify significant differences between the two conditions.
+
+    Parameters
+    ----------
     sub : str
         The subject identifier.
     layout : BIDSLayout
         The BIDS layout object containing the data.
     events_condition_1 : list of str
-        List of event names for the first condition.
+        List of event names corresponding to condition 1.
     events_condition_2 : list of str
-        List of event names for the second condition.
-    times : list of float
-        Time window relative to the events to extract data from.
-    make_wavelets : boolean
-        Whether to make or load the wavelets. If True, it will make the wavelets. If False, it will attempt to load the wavelets using the output name.
+        List of event names corresponding to condition 2.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
     stat_func : callable, optional
-            The statistical function to use to compare populations. Requires an
-            axis keyword input to denote observations (trials, for example).
-            Default function is `mean_diff`, but may be substituted with other test
-            functions found here:
-            https://scipy.github.io/devdocs/reference/stats.html#independent
-            -sample-tests    
-
+        The statistical function for comparing the two datasets (default: mean_diff).
     p_thresh : float, optional
-        The p-value threshold for significance (default is 0.05).
+        The p-value threshold for significance (default: 0.05).
     ignore_adjacency : int, optional
-        The number of adjacent time points to ignore when forming clusters (default is 1).
+        The number of adjacent time points to ignore when forming clusters (default: 1).
     n_perm : int, optional
-        The number of permutations to perform (default is 100).
+        The number of permutations to perform (default: 100).
     n_jobs : int, optional
-        The number of jobs to run in parallel (default is 1).
-    Returns:
-    --------
-    mask : numpy.ndarray
-        A boolean mask indicating significant clusters.
-    pvals : numpy.ndarray
-        The p-values for each cluster.
+        The number of parallel jobs (default: 1).
 
-    Examples:
-    ---------
-    >>> sub = 'sub-01'
-    >>> events_condition_1 = ['Stimulus/c25']
-    >>> events_condition_2 = ['Stimulus/c75']
-    >>> times = [-0.5, 1.5]
-    >>> mask, pvals = get_wavelet_differences(sub, layout, events_condition_1, events_condition_2, times)
+    Returns
+    -------
+    mask : np.ndarray
+        A boolean array indicating significant clusters.
+    pvals : np.ndarray
+        An array of p-values corresponding to each identified cluster.
+
+    Example
+    -------
+    >>> # Assuming valid values for sub, layout, events, and times:
+    >>> mask, pvals = make_and_get_wavelet_differences('sub-01', layout, ['Stimulus/c25'], ['Stimulus/c75'], (-0.5, 1.5))
     >>> isinstance(mask, np.ndarray)
     True
-    >>> isinstance(pvals, np.ndarray)
-    True
-    '''
-    if make_wavelets:
-        spec_condition_1 = get_uncorrected_wavelets(sub, layout, events_condition_1, times)
-        spec_condition_2 = get_uncorrected_wavelets(sub, layout, events_condition_2, times)
-    else:
-        # TODO: load wavelets based on output_name (make a load_wavelets function that loads in wavelets based on their output_name)
-        pass
+    """
+    spec_condition_1 = get_uncorrected_wavelets(sub, layout, events_condition_1, times)
+    spec_condition_2 = get_uncorrected_wavelets(sub, layout, events_condition_2, times)
 
-    mask, pvals = time_perm_cluster(spec_condition_1._data, spec_condition_2._data, stat_func=stat_func, p_thresh=p_thresh, ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
+    mask, pvals = get_sig_wavelet_differences(spec_condition_1, spec_condition_2,
+                                        stat_func=stat_func, p_thresh=p_thresh,
+                                        ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
+    
     return mask, pvals
+
+def get_sig_wavelet_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
+                                spec_condition_2: mne.time_frequency.EpochsTFR,
+                                stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute permutation cluster differences between two wavelet TFR objects.
+
+    This function takes two wavelet time-frequency representations (TFRs) and applies a
+    permutation cluster test to determine statistically significant differences between them.
+
+    Parameters
+    ----------
+    spec_condition_1 : mne.time_frequency.EpochsTFR
+        The wavelet TFR for condition 1.
+    spec_condition_2 : mne.time_frequency.EpochsTFR
+        The wavelet TFR for condition 2.
+    stat_func : callable, optional
+        The statistical function used to compare the two datasets (default: mean_diff).
+    p_thresh : float, optional
+        The p-value threshold for significance (default: 0.05).
+    ignore_adjacency : int, optional
+        The number of adjacent time points to ignore when forming clusters (default: 1).
+    n_perm : int, optional
+        The number of permutations to perform (default: 100).
+    n_jobs : int, optional
+        The number of parallel jobs to use (default: 1).
+
+    Returns
+    -------
+    mask : np.ndarray
+        A boolean array indicating significant clusters.
+    pvals : np.ndarray
+        An array of p-values corresponding to each identified cluster.
+
+    Example
+    -------
+    >>> # Assuming spec1 and spec2 are valid mne.time_frequency.EpochsTFR objects with a _data attribute:
+    >>> mask, pvals = compute_wavelet_differences(spec1, spec2)
+    >>> isinstance(mask, np.ndarray)
+    True
+    """
+    mask, pvals = time_perm_cluster(spec_condition_1._data, spec_condition_2._data,
+                                      stat_func=stat_func,
+                                      p_thresh=p_thresh,
+                                      ignore_adjacency=ignore_adjacency,
+                                      n_perm=n_perm,
+                                      n_jobs=n_jobs)
+    return mask, pvals
+
+def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition_1: str,
+                                     output_name_condition_2: str, rescaled: bool,
+                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                     ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load precomputed wavelet TFRs for two conditions and compute their sig differences.
+
+    This function loads precomputed wavelet time-frequency representations for two conditions using the provided
+    output names and a rescaling flag. It then performs a permutation cluster test to determine statistically
+    significant differences between the conditions.
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    output_name_cond1 : str
+        Base name for the TFR file corresponding to condition 1 (without suffix).
+    output_name_cond2 : str
+        Base name for the TFR file corresponding to condition 2 (without suffix).
+    rescaled : bool
+        If True, load the rescaled (baseline-corrected) TFR; if False, load the uncorrected TFR.
+    stat_func : callable, optional
+        The statistical function for comparing the two datasets (default: mean_diff).
+    p_thresh : float, optional
+        The p-value threshold for significance (default: 0.05).
+    ignore_adjacency : int, optional
+        The number of adjacent time points to ignore when forming clusters (default: 1).
+    n_perm : int, optional
+        The number of permutations to perform (default: 100).
+    n_jobs : int, optional
+        The number of parallel jobs (default: 1).
+
+    Returns
+    -------
+    mask : np.ndarray
+        A boolean array indicating significant clusters.
+    pvals : np.ndarray
+        An array of p-values corresponding to each identified cluster.
+
+    Example
+    -------
+    >>> # Assuming layout is set and the appropriate precomputed TFR files exist:
+    >>> mask, pvals = load_and_get_wavelet_differences('sub-01', layout,
+    ...                      'Stimulus_c25and75_fixationCrossBase_0.5sec',
+    ...                      'Stimulus_c25and75_fixationCrossBase_0.5sec', False)
+    >>> isinstance(mask, np.ndarray)
+    True
+    """
+    spec_condition_1 = load_wavelets(sub, layout, output_name_condition_1, rescaled)
+    spec_condition_2 = load_wavelets(sub, layout, output_name_condition_2, rescaled)
+
+    mask, pvals = get_sig_wavelet_differences(spec_condition_1, spec_condition_2,
+                    stat_func=stat_func, p_thresh=p_thresh,
+                    ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
+    
+    return mask, pvals
+
+def load_tfrs(filename: str):
+    """
+    Load a time-frequency representation (TFR) object from an HDF5 file.
+
+    This function uses mne.time_frequency.read_tfrs to read a TFR instance from the
+    specified file. Since the reader may return a list of TFR objects, this function
+    checks the output and returns the first TFR object if a list is provided, or the
+    TFR object directly if not.
+
+    Parameters
+    ----------
+    filename : str
+        The full path to the TFR HDF5 file.
+
+    Returns
+    -------
+    tfr : instance of mne.time_frequency.EpochsTFR or mne.average.Evoked
+        The loaded time-frequency representation object.
+
+    Examples
+    --------
+    >>> # For testing purposes, suppose we have a file 'dummy-tfr.h5' that contains a TFR.
+    >>> # Since we cannot actually read a file in this doctest, we'll simulate the behavior:
+    >>> class DummyTFR:
+    ...     pass
+    >>> def dummy_read_tfrs(fname):
+    ...     if fname == "dummy-tfr.h5":
+    ...         return [DummyTFR()]  # simulate list return
+    ...     return DummyTFR()
+    >>> mne.time_frequency.read_tfrs = dummy_read_tfrs  # monkey patch for testing
+    >>> tfr_obj = load_tfrs("dummy-tfr.h5")
+    >>> isinstance(tfr_obj, DummyTFR)
+    True
+    """
+    # read in the tfr instance
+    tfr_result = mne.time_frequency.read_tfrs(filename)
+    if isinstance(tfr_result, list):
+        # If it's a list, pick the first TFR object
+        tfr = tfr_result[0]
+    else:
+        # Otherwise it's already just a single TFR object
+        tfr = tfr_result
+
+    return tfr
+
+
+def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
+    """
+    Load precomputed wavelet time-frequency representations for a subject.
+
+    This function constructs the file path for a wavelet TFR stored in a BIDS-style derivatives
+    directory and loads it using the `load_tfrs` function. If `rescaled` is True, the function loads
+    the rescaled, baseline corrected TFR file (with suffix "_rescaled-tfr.h5"). Otherwise, it loads the
+    uncorrected TFR file (with suffix "_uncorrected-tfr.h5").
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier (e.g., 'sub-01').
+    layout : object
+        An object with a 'root' attribute pointing to the BIDS dataset root directory.
+    output_name : str
+        The base name for the output file (without the suffix).
+    rescaled : bool, optional
+        If True, load the rescaled, baseline corrected TFR object.
+        If False, load the uncorrected TFR object. Default is False.
+
+    Returns
+    -------
+    spec : instance of mne.time_frequency.EpochsTFR or similar
+        The loaded wavelet time-frequency representation.
+
+    Examples
+    --------
+    >>> # Create a dummy layout object with a 'root' attribute
+    >>> class DummyLayout:
+    ...     def __init__(self, root):
+    ...         self.root = root
+    >>> layout = DummyLayout('/tmp/bids')
+    >>> import os
+    >>> # For an uncorrected object, the expected filename:
+    >>> expected_uncorrected = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_uncorrected-tfr.h5')
+    >>> # For a rescaled object, the expected filename:
+    >>> expected_rescaled = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_rescaled-tfr.h5')
+    >>> # Dummy TFR class for testing
+    >>> class DummyTFR:
+    ...     pass
+    >>> # Dummy function to simulate mne.time_frequency.read_tfrs
+    >>> def dummy_read_tfrs(fname):
+    ...     if fname == expected_uncorrected or fname == expected_rescaled:
+    ...         return DummyTFR()
+    ...     return None
+    >>> import mne.time_frequency
+    >>> mne.time_frequency.read_tfrs = dummy_read_tfrs  # Monkey-patch for testing
+    >>> # Test uncorrected loading
+    >>> spec_uncorrected = load_wavelets('sub-01', layout, 'example', rescaled=False)
+    >>> isinstance(spec_uncorrected, DummyTFR)
+    True
+    >>> # Test rescaled loading
+    >>> spec_rescaled = load_wavelets('sub-01', layout, 'example', rescaled=True)
+    >>> isinstance(spec_rescaled, DummyTFR)
+    True
+    """
+    if rescaled:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{output_name}_rescaled-tfr.h5')
+    else:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{output_name}_uncorrected-tfr.h5')
+
+    spec = load_tfrs(filename)
+    return spec
