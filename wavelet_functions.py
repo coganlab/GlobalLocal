@@ -507,3 +507,50 @@ def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
             plt.show()
     return pages
 
+def load_and_get_sig_wavelet_ratio_differences(sub: str, layout, 
+                                                 output_name_condition_1: str,
+                                                 output_name_condition_2: str,
+                                                 rescaled: bool,
+                                                 stat_func: Callable = mean_diff, 
+                                                 p_thresh: float = 0.05,
+                                                 ignore_adjacency: int = 1, 
+                                                 n_perm: int = 100, 
+                                                 n_jobs: int = 1
+                                                 ) -> Tuple[np.ndarray, np.ndarray, mne.time_frequency.EpochsTFR]:
+    """
+    Load precomputed wavelet TFRs for two conditions from file, compute their ratio,
+    convert that ratio to decibels, and perform a one-sample permutation cluster test 
+    comparing the ratio (in dB) against 0.
+
+    The ratio is computed as:
+        ratio_dB = 20 * log10( condition1 / condition2 )
+    so that a value of 0 dB indicates no difference between conditions.
+    """
+    # Load precomputed TFRs for each condition using the load_wavelets function.
+    spec_condition_1 = load_wavelets(sub, layout, output_name_condition_1, rescaled)
+    spec_condition_2 = load_wavelets(sub, layout, output_name_condition_2, rescaled)
+    
+    # Ensure both TFRs have the same number of trials by trimming the one with more trials.
+    n_trials = min(spec_condition_1._data.shape[0], spec_condition_2._data.shape[0])
+    data1 = spec_condition_1._data[:n_trials]
+    data2 = spec_condition_2._data[:n_trials]
+    
+    # Compute the element-wise ratio and convert to decibels:
+    #   ratio_dB = 20 * log10( condition1 / condition2 )
+    ratio_data = 20 * np.log10(data1 / data2)
+    
+    # Create a new TFR object to hold the ratio, preserving metadata from one of the conditions.
+    ratio_spec = spec_condition_1.copy()
+    ratio_spec._data = ratio_data
+    
+    # To test if the ratio is significantly different from 0, create a zero array.
+    zeros = np.zeros_like(ratio_data)
+    
+    # Run a permutation cluster test comparing the ratio (in dB) to 0.
+    mask, pvals = time_perm_cluster(ratio_data, zeros,
+                                    stat_func=stat_func,
+                                    p_thresh=p_thresh,
+                                    ignore_adjacency=ignore_adjacency,
+                                    n_perm=n_perm,
+                                    n_jobs=n_jobs)
+    return mask, pvals, ratio_spec
