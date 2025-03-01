@@ -48,9 +48,11 @@ Last edited: 01/16/2024
 2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
 ### Wavelets
-1. Run 1st and 3rd cell of copy_wavelet_spec.ipynb to generate .h5 wavelet files, make sure to edit subject and filename in the third cell based on what subject you want and what baseline you're using.
-2. Run all cells in plot_wavelets.ipynb to make wavelet plots, saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5'). Layout is Box/Coganlab
- 
+1. Run make_wavelets.ipynb to make wavelet tfr files (mne.TimeFrequency.EpochsTFR), saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5')
+2. Run plot_wavelets.ipynb to make wavelet plots for each electrode
+3. Run wavelet_differences.ipynb to make wavelet_difference plots for different conditions.
+4. All wavelet functions live in wavelet_functions.py (also, copy_wavelet_spec.ipynb is deprecated, that was a copy of Aaron's old code)
+    
 ### High Gamma Filter and Permutation Testing
 1. Run first cell (working version 12/1) to do high gamma filter and permutation testing, with baseline as 1 second before stimulus onset and mirrored to break up fixation cross onset. Using these lines - ```sig1 = HG_ev1._data
 sig2 = HG_base._data
