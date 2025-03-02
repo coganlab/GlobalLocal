@@ -178,8 +178,10 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
         The statistical function for comparing the two datasets (default: mean_diff).
     p_thresh : float, optional
         The p-value threshold for significance (default: 0.05).
-    ignore_adjacency : int, optional
-        The number of adjacent time points to ignore when forming clusters (default: 1).
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
     n_perm : int, optional
         The number of permutations to perform (default: 100).
     n_jobs : int, optional
@@ -229,8 +231,10 @@ def get_sig_wavelet_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
         The statistical function used to compare the two datasets (default: mean_diff).
     p_thresh : float, optional
         The p-value threshold for significance (default: 0.05).
-    ignore_adjacency : int, optional
-        The number of adjacent time points to ignore when forming clusters (default: 1).
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
     n_perm : int, optional
         The number of permutations to perform (default: 100).
     n_jobs : int, optional
@@ -286,8 +290,10 @@ def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition
         The statistical function for comparing the two datasets (default: mean_diff).
     p_thresh : float, optional
         The p-value threshold for significance (default: 0.05).
-    ignore_adjacency : int, optional
-        The number of adjacent time points to ignore when forming clusters (default: 1).
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
     n_perm : int, optional
         The number of permutations to perform (default: 100).
     n_jobs : int, optional
@@ -429,7 +435,6 @@ def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
     spec = load_tfrs(filename)
     return spec
 
-
 def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
                     times: Optional[np.ndarray] = None,
                     freqs: Optional[np.ndarray] = None,
@@ -439,6 +444,54 @@ def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
                     log_freq: bool = False,
                     show: bool = False,
                     colorbar_range: Optional[Tuple[float, float]] = None) -> List[plt.Figure]:
+    """
+    Create multiple figures to visualize a 3D mask array (channels × frequencies × times) divided into pages.
+    
+    This function is useful for visualizing channel-specific time-frequency data or masks from
+    statistical tests, especially when there are many channels that cannot fit on a single figure.
+    
+    Parameters
+    ----------
+    mask : np.ndarray
+        3D array of shape (n_channels, n_freqs, n_times) containing the data to plot.
+    ch_names : List[str]
+        List of channel names corresponding to the first dimension of the mask.
+    times : Optional[np.ndarray], default=None
+        Array of time points in seconds. If None, uses sample indices.
+    freqs : Optional[np.ndarray], default=None
+        Array of frequency values in Hz. If None, uses frequency bin indices.
+    channels_per_page : int, default=60
+        Maximum number of channels to display on each page.
+    grid_shape : Optional[Tuple[int, int]], default=None
+        Tuple specifying the (rows, columns) grid layout for each page.
+        If None, an approximately square grid is computed automatically.
+    cmap : str, default='gray'
+        Colormap to use for the plots.
+    title_prefix : str, default=""
+        Optional prefix to add before each channel name in subplot titles.
+    log_freq : bool, default=False
+        Whether to use logarithmic scaling for the frequency axis.
+    show : bool, default=False
+        Whether to display each figure immediately after creation.
+    colorbar_range : Optional[Tuple[float, float]], default=None
+        Tuple specifying (vmin, vmax) range for the colorbar. If None, 
+        the range is determined automatically based on the data.
+    
+    Returns
+    -------
+    List[plt.Figure]
+        List of matplotlib Figure objects, one for each page.
+    
+    Notes
+    -----
+    - Each page contains a grid of subplots, with each subplot showing the 
+      time-frequency data for a single channel.
+    - If both times and freqs are provided, the x and y axes will be labeled with
+      the appropriate units (seconds and Hz).
+    - For log-scaled frequency plots, custom tick positions are generated on a 
+      logarithmic scale.
+    - Each subplot includes its own colorbar for intensity reference.
+    """
     n_channels = mask.shape[0]
     pages = []
     
