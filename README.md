@@ -1,4 +1,4 @@
-﻿Global Local Task 
+Global Local Task 
 
 Contact: Jim Zhang and Raphael Geddert
 
@@ -6,6 +6,31 @@ jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
 
+### BIDS Coding (makes BIDS files)
+1. Run makeTrials_GL.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject. Need to add makeTrials_GL.m to path as well as MATLAB-env folder (/Users/jinjiang-macair/Documents/MATLAB/MATLAB-env). If MATLAB-env isn't there, you can clone it from https://github.com/coganlab/MATLAB-env
+2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch). Steps 3-5 go into detail on how to do this.
+3. To install dependencies, need to ```conda create env environment.yml``` on Mac if not already created, and give it an environment name. Or do ```conda env create -f environment.yml``` from the envs folder if on Windows.
+4. Need to ```conda activate BIDS_coding``` or whatever you named the conda environment. 
+5. Now cd into the BIDS_converter subfolder within BIDS_coding repository (open WSL, cd /git/BIDS_coding/BIDS_converter), and do ```./BIDS_convert_wsl.sh``` after modifying BIDS_convert_wsl.sh with your chosen SUB_IDS (line 18). Or, BIDS_convert_mac or whichever script fits your OS. NOTE: To open the WSL script, do ```explorer.exe .``` to open the file explorer in that location.
+6. Copy the BIDS folder into Box (run it locally because it's faster)
+   
+### Duke Health VPN
+1. Get a Duke Health Enterprise Account (send e-mail to dibs-it@duke.edu asking for them to set this up)
+2. Set up multi-factor authentication: https://idms-mfa.oit.duke.edu/mfa/help
+3. Follow the instructions to set up a Duke VPN: https://oit.duke.edu/service/vpn/
+4. You can test your VPN access and download FortiNAC and necessary antivirus: portal.duke.edu, https://duke.service-now.com/kb_view.do?sysparm_article=KB0034098
+5. Open Cisco AnyConnect, and connect to the Duke Health VPN using this address: vpn.duhs.duke.edu
+6. Enter your netid and netid password, and type 'push' as the Second Password to send a push notification to your MFA app for authentication.
+7. Wait a minute or so for the VPN connection to let you through the firewall.
+
+### Microsoft Remote Desktop
+1. Download Microsoft Remote Desktop on your local machine
+2. On the remote machine that you want to connect to, get your full PC device name by going to Settings -> System -> About -> Full device name (i.e., NEU-7BTXKH2.dhe.duke.edu)
+3. On your local machine, follow these instructions to set up the Duke OIT RDS Gateway on Microsoft Remote Desktop: https://oit.duke.edu/help/articles/kb0032645/. NOTE: On Mac, you need to **check** the 'Bypass for local addresses' option, not uncheck it as the instructions say.
+4. On your local machine, open Microsoft Remote Desktop, click Add PC, and put in your full device name as the PC name. Put in your netid and netid password as your User account.
+5. On your local machine, connect to Duke Health VPN. Wait a bit for it to let you through the firewall.
+6. Now try connecting to your remote machine through Microsoft Remote Desktop by double-clicking the icon for it.
+   
 ### Windows FSL
 1. Need to open xquartz on windows before running fsl in the ubuntu app. https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FslInstallation/Windows
 2. When running XLaunch, it is critical to deselect Native OpenGL and select Disable access control in the Extra Settings panel. https://superuser.com/questions/1372854/do-i-launch-the-app-xlaunch-for-every-login-to-use-gui-in-ubuntu-wsl-in-windows
@@ -23,9 +48,11 @@ Last edited: 01/16/2024
 2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
 ### Wavelets
-1. Run 1st and 3rd cell of copy_wavelet_spec.ipynb to generate .h5 wavelet files, make sure to edit subject and filename in the third cell based on what subject you want and what baseline you're using.
-2. Run all cells in plot_wavelets.ipynb to make wavelet plots, saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5'). Layout is Box/Coganlab
- 
+1. Run make_wavelets.ipynb to make wavelet tfr files (mne.TimeFrequency.EpochsTFR), saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5')
+2. Run plot_wavelets.ipynb to make wavelet plots for each electrode
+3. Run wavelet_differences.ipynb to make wavelet_difference plots for different conditions.
+4. All wavelet functions live in wavelet_functions.py (also, copy_wavelet_spec.ipynb is deprecated, that was a copy of Aaron's old code)
+    
 ### High Gamma Filter and Permutation Testing
 1. Run first cell (working version 12/1) to do high gamma filter and permutation testing, with baseline as 1 second before stimulus onset and mirrored to break up fixation cross onset. Using these lines - ```sig1 = HG_ev1._data
 sig2 = HG_base._data
@@ -34,6 +61,8 @@ sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know t
 sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name.
 2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
 
+### RSA
+1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
 
 ### Steps for new subjects
 1. Run plot_clean.ipynb to preprocess (line noise filtering) for new subjects
