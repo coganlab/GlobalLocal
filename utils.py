@@ -555,6 +555,21 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
     - combined_data: DataFrame with combined behavioral and trial information.
     - acc_array: dict of numpy arrays of 0 for incorrect and 1 for correct trials for each subject
     - LAB_root: Root directory for data (optional).
+
+    
+        Structure of subjects_mne_objects_dict:
+        {
+            'subject_id': {                    # e.g., 'D0057'
+                'condition_name': {            # e.g., 'Stimulus_cr'
+                    'data_type': epochs_object # e.g., 'HG_ev1_power_rescaled'
+                }
+            }
+        }
+
+        Example access:
+        - Get epochs: subjects_mne_objects_dict['D0057']['Stimulus_cr']['HG_ev1_power_rescaled']
+        - Get all conditions for a subject: subjects_mne_objects_dict['D0057']
+
     """
     subjects_mne_objects = {}
 
