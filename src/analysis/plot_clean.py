@@ -9,6 +9,7 @@
 # %%
 import sys
 import os
+import numpy as np
 
 # Add parent directory to path to access modules in project root
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
@@ -55,6 +56,19 @@ def main(subjects_list):
         # Make a copy for processing and comparison
         raw = actual_raw.copy()
         
+        # Filter out negative durations from annotations (aka negative RTs)
+        if raw.annotations is not None and len(raw.annotations) > 0:
+            # Find indices of annotations with non-negative durations
+            valid_indices = np.where(raw.annotations.duration >= 0)[0]
+            
+            # Create a new annotations object with only valid durations
+            raw.annotations = mne.Annotations(
+                onset=raw.annotations.onset[valid_indices],
+                duration=raw.annotations.duration[valid_indices],
+                description=raw.annotations.description[valid_indices],
+                orig_time=raw.annotations.orig_time
+            )
+    
         # this is to exclude the eeg channels if needed
         # List of channels you want to exclude. Uncomment if needed.
         # channels_to_exclude = ['T5', 'T6', 'FZ', 'CZ', 'PZ', 'FP1', 'FP2', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'O1', '02', 'F7', 'F8', 'T3', 'T4']
@@ -96,7 +110,7 @@ def main(subjects_list):
                     freqs=[60],
                     notch_widths=20,
                     copy=False)
-
+        
         # Plot the comparison between raw and filtered data
         fig_compare = figure_compare([actual_raw, raw],
                              labels=["Raw", "Filtered"],
