@@ -1,5 +1,6 @@
 # %% [markdown]
-# this is an attempt at turning plot_clean.ipynb into a script
+# plot_clean but dcc version - takes in different file paths (dcc file paths) and saves to different output dir (dcc output dir) than the original script
+
 # # Example line noise filtering script
 # 
 # Filters the 60Hz line noise from the data, as well as the harmonics. Includes
