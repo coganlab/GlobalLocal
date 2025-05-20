@@ -7,6 +7,6 @@
 
 subject=$1
 
-conda activate example_env
+conda activate ieeg # make sure this works
 
 python plot_clean.py --subject ${subject}
