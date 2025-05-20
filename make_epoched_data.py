@@ -150,10 +150,10 @@ def shuffle_array(arr):
     arr = np.random.shuffle(arr)
     return arr
 
-def plot_HG_and_stats(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=10, outliers=10, passband=(70,150)):
+def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
+                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
     """
-    Plot high gamma (HG) and statistics for a given subject and task using specified event.
+    Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
     Parameters:
     - sub (str): The subject identifier.
@@ -170,7 +170,7 @@ def plot_HG_and_stats(sub, task='GlobalLocal', times=(-1, 1.5),
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
 
     This function will process the provided event for a given subject and task.
-    High gamma (HG) will be computed, and statistics will be calculated and plotted.
+    Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
     The results will be saved to output files.
     """
 
@@ -311,6 +311,20 @@ def plot_HG_and_stats(sub, task='GlobalLocal', times=(-1, 1.5),
         np.save(mat_save_path, mat)
 
 # %%
+
+def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
+    """
+    Main function to process subjects and plot high gamma and statistics.
+    """
+    if subjects is None:
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103']
+
+    for sub in subjects:
+        plot_HG_and_stats(sub=sub, task=task, times=times,
+                          within_base_times=within_base_times, base_times_length=base_times_length,
+                          pad_length=pad_length, LAB_root=LAB_root, channels=channels,
+                          dec_factor=dec_factor, outliers=outliers, passband=passband)
 times = (-1,1.5)
 within_base_times = (-1,0)
 base_times_length = 0.5
