@@ -32,9 +32,6 @@ from utils import make_subjects_electrodestoROIs_dict, load_subjects_electrodest
       add_accuracy_to_epochs, load_mne_objects, create_subjects_mne_objects_dict, extract_significant_effects, convert_dataframe_to_serializable_format, \
       perform_modular_anova, make_plotting_parameters, plot_significance
 
-# # Also import the entire utils module for any other functions
-# import utils
-
 import matplotlib.pyplot as plt
 from collections import OrderedDict, defaultdict
 import json

@@ -1,4 +1,4 @@
-# this is for plotting hg results. Need to go through these functions and see which ones are good.
+# this is for plotting hg results. Need to go through these functions and see which ones are good. Not actually functional yet, just use plot_HG_and_stats for now for plotting. 5/26/25. 
 # %%
 import sys
 print(sys.path)

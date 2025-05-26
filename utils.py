@@ -656,6 +656,7 @@ def concatenate_data(data_lists, rois, condition_names):
     """
     concatenated_data = {condition_name: {roi: np.concatenate(data_lists[condition_name][roi], axis=0) for roi in rois} for condition_name in condition_names}
     return concatenated_data
+
 def calculate_mean_and_sem(concatenated_data, rois, condition_names):
     """
     Calculate mean and SEM across electrodes for all time windows and rois
