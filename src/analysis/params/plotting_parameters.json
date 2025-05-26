@@ -1,3 +1,5 @@
+// This file contains the plotting parameters for different conditions in the experiment.
+
 {
     "Stimulus_r25and75_fixationCrossBase_1sec_mirror": {
         "condition_name": "repeat",

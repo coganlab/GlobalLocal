@@ -1,3 +1,9 @@
+'''
+this is an attempt at replacing the subjects_mne_objects dictionary with a proper class...
+In progress, dunno if this will ever be used tbh. 
+Would require factoring roi_analysis.py, decoding.ipynb, rsa.ipynb, etc. 
+'''
+
 class GroupData:
     data = LabeledArray([])
 
