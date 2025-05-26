@@ -23,35 +23,77 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 
 
-def make_subjects_electrodestoROIs_dict(subjects):
-    '''
-    makes mappings for each electrode to its roi
-    subjects: list of strings of subject numbers
-    '''
+def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, channels=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
+    """
+    Creates mappings for each electrode to its corresponding Region of Interest (ROI)
+    for a list of subjects and saves these mappings to a JSON file.
+
+    The function processes electrophysiological data for each subject to determine
+    electrode-ROI relationships. It generates three types of dictionaries for each subject:
+    1.  `default_dict`: A direct mapping from each processed electrode name (str) to its ROI name (str).
+    2.  `rawROI_dict`: A mapping from each ROI name (str) to a list of electrode names (list of str)
+        belonging to that ROI. This includes all ROIs found.
+    3.  `filtROI_dict`: Similar to `rawROI_dict`, but ROIs containing "White-Matter" in their name
+        are excluded.
+
+    Parameters:
+    ----------
+    subjects : list of str
+        A list of subject identifiers (e.g., ['D0057', 'D0059']).
+    task : str
+        The task identifier string (e.g., 'GlobalLocal') used to locate data.
+    LAB_root : str
+        The absolute path to the root directory where lab data is stored.
+    channels : list of str, optional
+        A specific list of channel names to process. If None (default), all available
+        non-bad channels for each subject will be processed.
+    save_dir : str
+        The absolute path to the directory where the output JSON file
+        ('subjects_electrodes_to_ROIs_dict.json') will be saved.
+    filename : str, optional
+        The name of the JSON file (default is 'subjects_electrodes_to_ROIs_dict.json').
+
+    Returns:
+    -------
+    dict
+        A dictionary where keys are subject identifiers (str). Each subject key maps
+        to another dictionary containing three keys:
+        - 'default_dict': dict, maps electrode name (str) to ROI name (str).
+        - 'rawROI_dict': dict, maps ROI name (str) to a list of electrode names (list of str).
+        - 'filtROI_dict': dict, maps ROI name (str, excluding "White-Matter") to a list of
+                          electrode names (list of str).
+        Example:
+        {
+            'D0057': {
+                'default_dict': {'LAH1': 'Left_Amygdala', ...},
+                'rawROI_dict': {'Left_Amygdala': ['LAH1', 'LAH2'], ...},
+                'filtROI_dict': {'Left_Amygdala': ['LAH1', 'LAH2'], ...}
+            },
+            ...
+        }
+    """
     
     # Initialize the outer dictionary.
-    subjects_electrodestoROIs_dict = {}
+    subjects_electrodes_to_ROIs_dict = {}
+
+    if save_dir is None:
+        raise ValueError("save_dir must be specified to save the dictionary.")
+    
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        if os.name == 'nt':  # windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        else:  # mac
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
+                                    "CoganLab")
+            
+    layout = get_data(task, root=LAB_root)
 
     for sub in subjects:
         print(sub)
-        task = 'GlobalLocal'
-        LAB_root = None
-        channels = None
 
-        if LAB_root is None:
-            HOME = os.path.expanduser("~")
-            if os.name == 'nt':  # windows
-                LAB_root = os.path.join(HOME, "Box", "CoganLab")
-            else:  # mac
-                LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
-                                        "CoganLab")
-
-        layout = get_data(task, root=LAB_root)
         filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                             extension='.edf', desc='clean', preload=False)
-        save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
 
         good = crop_empty_data(filt)
 
@@ -94,60 +136,128 @@ def make_subjects_electrodestoROIs_dict(subjects):
         filtROI_dict = {key: value for key, value in rawROI_dict.items() if "White-Matter" not in key}
 
         # Store the dictionaries in the subjects dictionary
-        subjects_electrodestoROIs_dict[sub] = {
+        subjects_electrodes_to_ROIs_dict[sub] = {
             'default_dict': dict(default_dict),
             'rawROI_dict': dict(rawROI_dict),
             'filtROI_dict': dict(filtROI_dict)
         }
 
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+        print(f"Created save directory: {save_dir}")
 
     # # Save to a JSON file. Uncomment when actually running.
-    filename = 'subjects_electrodestoROIs_dict.json'
-    with open(filename, 'w') as file:
-        json.dump(subjects_electrodestoROIs_dict, file, indent=4)
+    save_filepath = os.path.join(save_dir, filename)
 
-    print(f"Saved subjects_dict to {filename}")
+    with open(save_filepath, 'w') as file:
+        json.dump(subjects_electrodes_to_ROIs_dict, file, indent=4)
+
+    print(f"Saved subjects_dict to {save_filepath}")
+
+    return subjects_electrodes_to_ROIs_dict
 
 
-def load_subjects_electrodestoROIs_dict(filename='subjects_electrodestoROIs_dict.json'):
+def load_subjects_electrodes_to_ROIs_dict(save_dir, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
-    Attempts to load the subjects' electrode to ROI dictionary from a JSON file.
-    Returns the dictionary if successful, None otherwise.
-    """
-    try:
-        with open(filename, 'r') as file:
-            data = json.load(file)
-        print(f"Loaded data from {filename}")
-        return data
-    except (FileNotFoundError, json.JSONDecodeError) as e:
-        print(f"Failed to load {filename}: {e}")
-        return None
-    
-def make_or_load_subjects_electrodes_to_rois_dict(filename, subjects):
-    """
-    Ensure the subjects' electrodes to ROIs dictionary is available.
-    If the dictionary doesn't exist, it is created and then loaded.
+    Attempts to load the subjects' electrode-to-ROI dictionary from a specified
+    JSON file located in the given output directory.
 
     Parameters:
-    filename: The name of the file where the dictionary is stored.
-    subjects: List of subjects, required if the dictionary needs to be created.
+    ----------
+    save_dir : str
+        The absolute path to the directory where the JSON file is expected to be.
+    filename : str, optional
+        The name of the JSON file (default is 'subjects_electrodes_to_ROIs_dict.json').
 
     Returns:
-    A dictionary mapping subjects to their electrodes and associated ROIs.
+    -------
+    dict or None
+        A dictionary containing the loaded electrode-to-ROI mappings if the file
+        is found and successfully parsed. The structure is expected to be:
+        {
+            'D0057': {
+                'default_dict': {'RAI7': 'dlPFC', ...},
+                'rawROI_dict': {'dlPFC': ['RAI7'], ...},
+                'filtROI_dict': {'dlPFC': ['RAI7'], ...}
+            },
+            ...
+        }
+        Returns None if the file is not found or if a JSON decoding error occurs.
     """
-    print("Attempting to load the subjects' electrodes-to-ROIs dictionary...")
-    subjects_electrodestoROIs_dict = load_subjects_electrodestoROIs_dict(filename)
+    filepath = os.path.join(save_dir, filename)
+    try:
+        with open(filepath, 'r') as file:
+            data = json.load(file)
+        print(f"Loaded data from {filepath}")
+        return data
+    except FileNotFoundError:
+        print(f"File not found: {filepath}")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Failed to decode JSON from {filepath}: {e}")
+        return None
+    except IOError as e:
+        print(f"Failed to read file {filepath}: {e}")
+        return None
+    
+def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, channels=None, save_dir=None, 
+                                                filename='subjects_electrodes_to_ROIs_dict.json', 
+                                                ):
+    """
+    Ensures the subjects' electrodes-to-ROIs dictionary is available.
+    It first attempts to load the dictionary from a JSON file in the specified
+    `output_dir`. If the file doesn't exist or cannot be loaded, this function
+    calls `make_subjects_electrodes_to_ROIs_dict` to create it, save it, and then
+    attempts to load it again.
 
-    if subjects_electrodestoROIs_dict is None:
+    Parameters:
+    ----------
+    subjects : list of str
+        A list of subject identifiers. Required if the dictionary needs to be created.
+    task : str
+        The task identifier string. Required if the dictionary needs to be created.
+    LAB_root : str
+        The absolute path to the root directory for lab data. Required if the
+        dictionary needs to be created.
+    channels : list of str, optional
+        A specific list of channel names to process if the dictionary needs to be
+        created. If None (default), all available non-bad channels will be processed.
+    save_dir : str
+        The absolute path to the directory where the dictionary JSON file is
+        (or will be) stored.
+    filename : str, optional
+        The name of the JSON file (default is 'subjects_electrodes_to_ROIs_dict.json').
+
+    Returns:
+    -------
+    dict or None
+        A dictionary mapping subject identifiers to their respective electrode and ROI
+        information. The structure is as described in `make_subjects_electrodes_to_ROIs_dict`.
+        Returns None if the dictionary cannot be loaded and also fails to be created
+        or loaded after attempting creation.
+    
+    Raises:
+    ------
+    ValueError
+        If essential parameters (`subjects`, `task`, `LAB_root`, `output_dir`)
+        are missing when the dictionary needs to be created.
+    """
+    if save_dir is None:
+        raise ValueError("save_dir must be specified to save or load the dictionary.")
+    
+    print("Attempting to load the subjects' electrodes-to-ROIs dictionary...")
+    subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
+
+    if subjects_electrodes_to_ROIs_dict is None:
         print("No dictionary found. Looks like it's our lucky day to create one!")
-        make_subjects_electrodestoROIs_dict(subjects)
-        subjects_electrodestoROIs_dict = load_subjects_electrodestoROIs_dict(filename)
+        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, channels, save_dir, filename)
+        subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
         print("Dictionary created and loaded successfully. Let's roll!")
 
     else:
         print("Dictionary loaded successfully. Ready to proceed!")
 
-    return subjects_electrodestoROIs_dict
+    return subjects_electrodes_to_ROIs_dict
 
 def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
     """
@@ -1017,13 +1127,13 @@ def filter_electrodes_by_roi(subjects_electrodes_dict, sig_chans_per_subject, ro
     return filtered_electrodes_per_subject, sig_filtered_electrodes_per_subject
 
 
-def make_sig_electrodes_per_subject_and_roi_dict(rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject):
+def make_sig_electrodes_per_subject_and_roi_dict(rois_dict, subjects_electrodes_to_ROIs_dict, sig_chans_per_subject):
     """
     Processes electrodes by ROI and filters significant electrodes.
 
     Parameters:
     - rois_dict: A dictionary mapping each region of interest (ROI) to a list of brain regions.
-    - subjects_electrodestoROIs_dict: A dictionary mapping subjects to their electrode-to-ROI assignments.
+    - subjects_electrodes_to_ROIs_dict: A dictionary mapping subjects to their electrode-to-ROI assignments.
     - sig_chans_per_subject: A dictionary indicating significant channels per subject.
 
     Returns:
@@ -1037,7 +1147,7 @@ def make_sig_electrodes_per_subject_and_roi_dict(rois_dict, subjects_electrodest
     for roi_name, roi_regions in rois_dict.items():
         # Apply the filter_electrodes_by_roi function for each set of ROI regions
         electrodes_per_subject, sig_electrodes_per_subject = filter_electrodes_by_roi(
-            subjects_electrodestoROIs_dict, sig_chans_per_subject, roi_regions)
+            subjects_electrodes_to_ROIs_dict, sig_chans_per_subject, roi_regions)
         
         # Store the results in the respective dictionaries
         electrodes_per_subject_roi[roi_name] = electrodes_per_subject
