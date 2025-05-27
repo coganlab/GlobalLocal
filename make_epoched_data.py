@@ -148,7 +148,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
+                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func='ttest_ind'):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -165,7 +165,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
-
+    - stat_func (str, optional): The statistical function to use for significance testing. Default is 'ttest_ind'.
+    
     This function will process the provided event for a given subject and task.
     Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
     The results will be saved to output files.
@@ -234,7 +235,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     HG_base_power = HG_base.copy()
     HG_base_power._data = HG_base._data ** 2  # Square amplitude to get power
 
-    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s"
+    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -293,7 +294,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         print(f"Shape of HG_base._data: {HG_base._data.shape}")
         
         # oh this changed and returns both the significant clusters matrix and the p values now
-        mat = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1)[0]
+        mat = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func)[0]
 
         #save channels with their indices 
         save_channels_to_file(channels, sub, task, save_dir)
@@ -310,7 +311,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func='ttest_ind'):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -321,7 +322,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
                           pad_length=pad_length, LAB_root=LAB_root, channels=channels,
-                          dec_factor=dec_factor, outliers=outliers, passband=passband)
+                          dec_factor=dec_factor, outliers=outliers, passband=passband, stat_func=stat_func)
         
 if __name__ == "__main__":
     import argparse
@@ -337,6 +338,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
+    parser.add_argument('--stat_func', type=str, default='ttest_ind', help='Statistical function to use for significance testing. Default is ttest_ind.')
     args=parser.parse_args()
 
     print("--------- PARSED ARGUMENTS ---------")
@@ -353,4 +355,5 @@ if __name__ == "__main__":
         channels=args.channels, 
         dec_factor=args.dec_factor, 
         outliers=args.outliers, 
-        passband=args.passband)
+        passband=args.passband,
+        stat_func=args.stat_func)
