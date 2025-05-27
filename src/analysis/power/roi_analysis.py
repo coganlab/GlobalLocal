@@ -1,9 +1,55 @@
 # ongoing refactoring of roi_analysis.ipynb. This will be the main function that imports all of the stats functions and plotting functions.
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+import sys
+print(sys.path)
+sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/power/roi_analysis_functions.py, this is GlobalLocal/src/analysis/power
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate up three levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root) # insert at the beginning to prioritize it
+
+from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
+    outliers_to_nan
+from ieeg.io import raw_from_layout, get_data
+from ieeg.timefreq.utils import crop_pad
+from ieeg.timefreq import gamma
+from ieeg.calc.scaling import rescale
+import mne
+import os
+import numpy as np
+from ieeg.calc.reshape import make_data_same
+from ieeg.calc.stats import time_perm_cluster, window_averaged_shuffle
+from ieeg.viz.mri import gen_labels
+
+from utils import make_subjects_electrodestoROIs_dict, load_subjects_electrodestoROIs_dict, load_acc_arrays, calculate_RTs, save_channels_to_file, save_sig_chans, \
+      load_sig_chans, channel_names_to_indices, filter_and_average_epochs, permutation_test, perform_permutation_test_across_electrodes, perform_permutation_test_within_electrodes, \
+      add_accuracy_to_epochs, load_mne_objects, create_subjects_mne_objects_dict, extract_significant_effects, convert_dataframe_to_serializable_format, \
+      perform_modular_anova, make_plotting_parameters, plot_significance
+import matplotlib.pyplot as plt
+from collections import OrderedDict, defaultdict
+import json
+# still need to test if the permutation test functions load in properly.
+import pandas as pd
+from statsmodels.stats.multitest import multipletests
+import statsmodels.api as sm
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
 
 
 
 
-# i copied this main function from make_epoched_data.py, need to modify this for roi_analysis.py.
+
+
+# i copied this main function from make_epoched_data.py, need to modify this for roi_analysis.py. CURRENTLY BROKEN 5/26/25.
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
          within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
     """

@@ -23,7 +23,7 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 
 
-def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, channels=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
+def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
     for a list of subjects and saves these mappings to a JSON file.
@@ -44,9 +44,6 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         The task identifier string (e.g., 'GlobalLocal') used to locate data.
     LAB_root : str
         The absolute path to the root directory where lab data is stored.
-    channels : list of str, optional
-        A specific list of channel names to process. If None (default), all available
-        non-bad channels for each subject will be processed.
     save_dir : str
         The absolute path to the directory where the output JSON file
         ('subjects_electrodes_to_ROIs_dict.json') will be saved.
@@ -86,12 +83,10 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         else:  # mac
             LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
                                     "CoganLab")
-            
-    layout = get_data(task, root=LAB_root)
 
     for sub in subjects:
         print(sub)
-
+        layout = get_data(task, root=LAB_root)
         filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                             extension='.edf', desc='clean', preload=False)
 
@@ -107,25 +102,16 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         good.drop_channels(good.info['bads'])
 
         good.load_data()
-
-        # If channels is None, use all channels
-        if channels is None:
-            channels = good.ch_names
-        else:
-            # Validate the provided channels
-            invalid_channels = [ch for ch in channels if ch not in good.ch_names]
-            if invalid_channels:
-                raise ValueError(
-                    f"The following channels are not valid: {invalid_channels}")
-
-            # Use only the specified channels
-            good.pick_channels(channels)
+        channels = good.ch_names
 
         ch_type = filt.get_channel_types(only_data_chs=True)[0]
         good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
 
-        default_dict = gen_labels(good.info)
-        
+        if sub == 'D0107A':
+            default_dict = gen_labels(good.info, sub='D107A')
+        else:
+            default_dict = gen_labels(good.info)
+
         # Create rawROI_dict for the subject
         rawROI_dict = defaultdict(list)
         for key, value in default_dict.items():
@@ -155,7 +141,6 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
     print(f"Saved subjects_dict to {save_filepath}")
 
     return subjects_electrodes_to_ROIs_dict
-
 
 def load_subjects_electrodes_to_ROIs_dict(save_dir, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
@@ -200,7 +185,7 @@ def load_subjects_electrodes_to_ROIs_dict(save_dir, filename='subjects_electrode
         print(f"Failed to read file {filepath}: {e}")
         return None
     
-def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, channels=None, save_dir=None, 
+def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, 
                                                 filename='subjects_electrodes_to_ROIs_dict.json', 
                                                 ):
     """
@@ -219,9 +204,6 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
     LAB_root : str
         The absolute path to the root directory for lab data. Required if the
         dictionary needs to be created.
-    channels : list of str, optional
-        A specific list of channel names to process if the dictionary needs to be
-        created. If None (default), all available non-bad channels will be processed.
     save_dir : str
         The absolute path to the directory where the dictionary JSON file is
         (or will be) stored.
@@ -250,7 +232,7 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     if subjects_electrodes_to_ROIs_dict is None:
         print("No dictionary found. Looks like it's our lucky day to create one!")
-        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, channels, save_dir, filename)
+        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename)
         subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
         print("Dictionary created and loaded successfully. Let's roll!")
 
@@ -271,7 +253,13 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
     - LAB_root (str, optional): Root directory for the lab. If None, it will be determined based on the OS.
 
     Returns:
-    A dictionary containing loaded MNE objects.
+    -------
+    dict
+        A dictionary where keys are descriptive strings of the MNE Epochs objects
+        (e.g., 'HG_ev1', 'HG_ev1_rescaled', 'HG_base', 'HG_ev1_power_rescaled')
+        and values are the corresponding loaded MNE Epochs objects. The specific
+        keys present depend on the `just_HG_ev1_rescaled` flag.
+
     """
 
     # Determine LAB_root based on the operating system
@@ -310,32 +298,77 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
         # Load the objects
         HG_ev1 = mne.read_epochs(HG_ev1_file)
         HG_base = mne.read_epochs(HG_base_file)
-        HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0))
         HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
         HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
-        HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
 
         mne_objects['HG_ev1'] = HG_ev1
         mne_objects['HG_base'] = HG_base
-        mne_objects['HG_ev1_evoke'] = HG_ev1_evoke
         mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
         mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
-        mne_objects['HG_ev1_evoke_rescaled'] = HG_ev1_evoke_rescaled
 
     return mne_objects
 
 def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True):
     """
-    Adjusted to handle multiple conditions per output name, with multiple condition columns.
+    Create a nested dictionary of MNE Epochs objects for multiple subjects,
+    organized by experimental conditions and MNE object types.
+
+    This function iterates through a list of subjects, loads their relevant
+    MNE Epochs objects using `load_mne_objects`, and then further processes
+    these epochs based on specified experimental conditions. It can optionally
+    filter epochs to include only accurate trials.
 
     Parameters:
-    - subjects: List of subject IDs.
-    - output_names_conditions: Dictionary where keys are output names and values are dictionaries
-        of condition column names and their required values.
-    - task: Task identifier.
-    - combined_data: DataFrame with combined behavioral and trial information.
-    - acc_array: dict of numpy arrays of 0 for incorrect and 1 for correct trials for each subject
-    - LAB_root: Root directory for data (optional).
+    ----------
+    subjects : list of str
+        A list of subject identifiers (e.g., ['D0057', 'D0059']).
+    epochs_root_file : str
+        The base name of the original epochs file, passed to `load_mne_objects`.
+        Example: 'Stimulus_1sec_preStimulusBase_decFactor_10'.
+    conditions : dict
+        A dictionary defining the experimental conditions to extract.
+        - Keys (str): User-defined names for each condition (e.g., 'TargetAuditory', 'StandardVisual').
+        - Values (dict): Parameters for each condition. Each condition's dictionary
+          *must* contain a 'BIDS_events' key.
+          The value for 'BIDS_events' can be:
+            - A string: representing a single BIDS event type (e.g., 'auditory/target').
+            - A list of strings: representing multiple BIDS event types to be
+              concatenated for this condition (e.g., ['visual/target', 'visual/nontarget']).
+        Example:
+        ```python
+        conditions = {
+            'AuditoryTarget': {'BIDS_events': 'auditory/target', 'other_param': 'value'},
+            'VisualCombined': {'BIDS_events': ['visual/target', 'visual/nontarget']}
+        }
+        ```
+    task : str
+        The name of the experimental task (i.e., GlobalLocal), passed to `load_mne_objects` 
+    just_HG_ev1_rescaled : bool, optional
+        Flag passed to `load_mne_objects`. If True, only a subset of MNE objects
+        (baseline rescaled high-gamma for event 1) will be loaded and available for
+        conditioning. Defaults to False.
+    LAB_root : str, optional
+        The root directory of the laboratory's data storage, passed to
+        `load_mne_objects`. Defaults to None (auto-detection).
+    acc_trials_only : bool, optional
+        If True, filters the loaded MNE Epochs objects to include only trials
+        marked as accurate. This is done by selecting epochs where the metadata
+        field 'Accuracy1.0' (or a similar field indicating accuracy) is equal to 1.0.
+        Defaults to True.
+
+    Returns:
+    -------
+    dict
+        A nested dictionary with the following structure:
+        `subjects_mne_objects[subject_id][condition_name][mne_object_type] = MNE Epochs Object`
+        Where:
+        - `subject_id` (str): The subject identifier.
+        - `condition_name` (str): The user-defined name of the experimental condition.
+        - `mne_object_type` (str): The type of MNE data (e.g., 'HG_ev1_rescaled',
+          'HG_ev1', 'HG_ev1_power_rescaled'). The specific types available depend
+          on `just_HG_ev1_rescaled` and the files loaded by `load_mne_objects`.
+          Each value is an MNE Epochs object corresponding to the specified
+          subject, condition, and data type.
     """
     subjects_mne_objects = {}
 
