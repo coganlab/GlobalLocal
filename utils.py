@@ -754,7 +754,66 @@ def initialize_output_data(rois, condition_names):
     return {condition_name: {roi: [] for roi in rois} for condition_name in condition_names}
 def process_data_for_roi(subjects_mne_objects, condition_names, rois, subjects, sig_electrodes_per_subject_roi, time_indices):
     """
-    Process data by ROI, calculating averages for different time windows for either the first two outputs or all outputs, depending on the analysis purpose.
+    Processes and aggregates electrophysiological data for specified regions of interest (ROIs)
+    across multiple subjects and conditions.
+
+    This function iterates through subjects, ROIs, and conditions to extract and
+    process MNE Epochs data. For each subject and ROI, it selects significant
+    electrodes and computes trial averages, trial standard deviations, and
+    time-windowed averages of power data (specifically 'HG_ev1_power_rescaled').
+    It also generates mappings of electrodes to subjects and ROIs.
+
+    Parameters:
+    ----------
+    subjects_mne_objects : dict
+        A nested dictionary containing MNE Epochs objects.
+        Structure: `subjects_mne_objects[subject_id][condition_name][mne_object_type]`
+        where `mne_object_type` is typically 'HG_ev1_power_rescaled'.
+    condition_names : list of str
+        A list of condition names (e.g., ['ConditionA', 'ConditionB']) to process.
+    rois : list of str
+        A list of ROI names (e.g., ['dlPFC', 'ACC']) to analyze.
+    subjects : list of str
+        A list of subject identifiers (e.g., ['D0057', 'D0059']).
+    sig_electrodes_per_subject_roi : dict
+        A nested dictionary mapping ROIs to subjects and their significant electrodes.
+        Structure: `sig_electrodes_per_subject_roi[roi_name][subject_id] = list_of_significant_electrode_names`.
+    time_indices : dict
+        A dictionary defining time windows for averaging.
+        Keys are descriptive names (e.g., 'firstHalfSecond', 'fullSecond').
+        Values are tuples of (start_index, end_index) for slicing the time axis of epochs data.
+        Example: `{'firstHalfSecond': (0, 50), 'secondHalfSecond': (50, 100)}`.
+
+    Returns:
+    -------
+    tuple
+        A tuple containing five elements:
+        1. data_trialAvg_lists (dict):
+           Nested dictionary storing trial-averaged data.
+           Structure: `data_trialAvg_lists[condition_name][roi_name] = list_of_trial_avg_arrays`.
+           Each array in the list corresponds to a subject's trial-averaged data for the
+           significant electrodes in that ROI and condition.
+        2. data_trialStd_lists (dict):
+           Nested dictionary storing trial standard deviation data.
+           Structure: `data_trialStd_lists[condition_name][roi_name] = list_of_trial_std_arrays`.
+        3. data_timeAvg_lists (dict):
+           Nested dictionary storing time-windowed averaged data.
+           Structure: `data_timeAvg_lists[time_window_suffix][condition_name][roi_name] = list_of_time_avg_arrays`.
+        4. overall_electrode_mapping (list of tuples):
+           A list where each tuple contains `(subject_id, roi_name, electrode_name, overall_index)`.
+           This provides a flat mapping of all processed significant electrodes.
+        5. electrode_mapping_per_roi (dict):
+           A dictionary where keys are ROI names. Each value is a list of tuples:
+           `(subject_id, electrode_name, roi_specific_index)`.
+           This maps significant electrodes within each ROI.
+
+    Notes:
+    -----
+    - The function expects 'HG_ev1_power_rescaled' data within `subjects_mne_objects`.
+    - If a subject has no significant electrodes for a given ROI, they are skipped for that ROI.
+    - `filter_and_average_epochs` is used internally for calculations.
+    - Trial averages and standard deviations are computed across all time points for the selected epochs.
+    - Time averages are computed for the specified `time_indices`.
     """
 
     # Initialize data structures for trial averages, trial standard deviations, and time averages
@@ -795,14 +854,107 @@ def process_data_for_roi(subjects_mne_objects, condition_names, rois, subjects, 
 
 def concatenate_data(data_lists, rois, condition_names):
     """
-    Concatenate data across subjects for each ROI and condition.
+    Concatenates lists of NumPy arrays (typically representing data from multiple
+    subjects) for each Region of Interest (ROI) and experimental condition.
+
+    This function is often used after `process_data_for_roi` to combine
+    subject-specific data arrays (e.g., trial averages, time-windowed averages)
+    into single arrays per ROI and condition for group-level analysis or plotting.
+
+    Parameters:
+    ----------
+    data_lists : dict
+        A nested dictionary containing lists of NumPy arrays to be concatenated.
+        Expected structure: `data_lists[condition_name][roi_name] = list_of_numpy_arrays`.
+        Each array in the list typically corresponds to data from one subject.
+        The concatenation is performed along `axis=0`.
+    rois : list of str
+        A list of ROI names (e.g., ['dlPFC', 'ACC']) for which data should be concatenated.
+        These ROI names must be keys in the inner dictionaries of `data_lists`.
+    condition_names : list of str
+        A list of condition names (e.g., ['ConditionA', 'ConditionB']) for which data
+        should be concatenated. These condition names must be keys in the outer
+        dictionary of `data_lists`.
+
+    Returns:
+    -------
+    dict
+        A nested dictionary with the same structure as `data_lists`, but where
+        each list of NumPy arrays has been concatenated into a single NumPy array.
+        Structure: `concatenated_data[condition_name][roi_name] = concatenated_numpy_array`.
+        The shape of the `concatenated_numpy_array` will be (total_entities_across_subjects, ...),
+        where `total_entities_across_subjects` is the sum of the 0-th dimension of
+        the input arrays.
+
+    Example:
+    -------
+    >>> data_lists = {
+    ...     'ConditionA': {
+    ...         'dlPFC': [np.random.rand(10, 5), np.random.rand(12, 5)], # Data for 2 subjects
+    ...         'ACC': [np.random.rand(8, 5), np.random.rand(11, 5)]
+    ...     }
+    ... }
+    >>> rois = ['dlPFC', 'ACC']
+    >>> condition_names = ['ConditionA']
+    >>> concatenated = concatenate_data(data_lists, rois, condition_names)
+    >>> concatenated['ConditionA']['dlPFC'].shape
+    (22, 5)
+    >>> concatenated['ConditionA']['ACC'].shape
+    (19, 5)
     """
     concatenated_data = {condition_name: {roi: np.concatenate(data_lists[condition_name][roi], axis=0) for roi in rois} for condition_name in condition_names}
     return concatenated_data
 
 def calculate_mean_and_sem(concatenated_data, rois, condition_names):
     """
-    Calculate mean and SEM across electrodes for all time windows and rois
+    Calculates the mean and Standard Error of the Mean (SEM) across the first
+    axis (typically electrodes or trials from concatenated subject data) for
+    each Region of Interest (ROI) and experimental condition.
+
+    This function is typically used after `concatenate_data`, where subject-level
+    data has been combined into a single array per ROI and condition. The mean and
+    SEM are then computed over the aggregated data (e.g., across all significant
+    electrodes from all subjects within an ROI).
+
+    Parameters:
+    ----------
+    concatenated_data : dict
+        A nested dictionary containing concatenated NumPy arrays.
+        Expected structure: `concatenated_data[condition_name][roi_name] = concatenated_numpy_array`.
+        The `concatenated_numpy_array` usually has dimensions like (n_electrodes_or_trials, n_timepoints).
+    rois : list of str
+        A list of ROI names (e.g., ['dlPFC', 'ACC']) for which mean and SEM should be calculated.
+        These ROI names must be keys in the inner dictionaries of `concatenated_data`.
+    condition_names : list of str
+        A list of condition names (e.g., ['ConditionA', 'ConditionB']) for which
+        mean and SEM should be calculated. These condition names must be keys in the
+        outer dictionary of `concatenated_data`.
+
+    Returns:
+    -------
+    dict
+        A nested dictionary storing the calculated mean and SEM.
+        Structure: `mean_and_sem[roi_name][condition_name] = {'mean': mean_array, 'sem': sem_array}`.
+        - `mean_array`: NumPy array representing the mean across the 0-th axis of the input data.
+        - `sem_array`: NumPy array representing the SEM across the 0-th axis of the input data.
+        If the input data for a specific ROI/condition is empty or unsuitable for calculation (e.g., too few samples),
+        the 'mean' and 'sem' might be NaNs or empty arrays, depending on `np.nanmean` and `np.std` behavior.
+
+    Example:
+    -------
+    >>> concatenated_data = {
+    ...     'ConditionA': {
+    ...         'dlPFC': np.array([[1, 2, 3], [2, 3, 4], [3, 4, 5]]), # 3 electrodes, 3 timepoints
+    ...         'ACC': np.array([[5, 6], [6, 7]])
+    ...     }
+    ... }
+    >>> rois = ['dlPFC', 'ACC']
+    >>> condition_names = ['ConditionA']
+    >>> results = calculate_mean_and_sem(concatenated_data, rois, condition_names)
+    >>> results['dlPFC']['ConditionA']['mean']
+    array([2., 3., 4.])
+    >>> results['dlPFC']['ConditionA']['sem'] # Example SEM values
+    array([0.57735027, 0.57735027, 0.57735027])
     """
     mean_and_sem = {roi: {condition_name: {} for condition_name in condition_names} for roi in rois}
     for roi in rois:
