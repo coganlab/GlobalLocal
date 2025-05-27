@@ -1001,6 +1001,51 @@ def convert_dataframe_to_serializable_format(df):
 
 
 def perform_modular_anova(df, time_window, output_names_conditions, save_dir, save_name):
+    """
+    Performs an ANOVA test on a filtered subset of the provided DataFrame
+    for a specific time window and saves the results to a text file.
+
+    The ANOVA model formula is dynamically constructed based on the keys
+    found in the `output_names_conditions` dictionary. It includes main effects
+    and interaction terms for these conditions. The dependent variable is
+    assumed to be 'MeanActivity'.
+
+    Parameters:
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing the data for ANOVA. Must include
+        a 'TimeWindow' column to filter by `time_window` and a 'MeanActivity'
+        column as the dependent variable. It should also contain columns
+        corresponding to the condition keys derived from `output_names_conditions`.
+    time_window : str
+        The specific value in the 'TimeWindow' column of `df` to filter the
+        DataFrame for this ANOVA (e.g., 'FirstHalfSecond').
+    output_names_conditions : dict
+        A nested dictionary defining the experimental conditions. The keys of
+        the inner dictionary (for any given output name) are used to
+        construct the formula terms.
+        Example: `{'output_name1': {'condition_A': ..., 'condition_B': ...}}`
+        would lead to terms like `C(condition_A)` and `C(condition_B)`.
+    save_dir : str
+        The absolute path to the directory where the ANOVA results file
+        will be saved.
+    save_name : str
+        The name of the text file (e.g., 'anova_results_time_window_X.txt')
+        to save the ANOVA results.
+
+    Returns:
+    -------
+    statsmodels.iolib.table.SimpleTable or anova_lm object
+        The ANOVA results table object from `statsmodels.stats.anova.anova_lm`.
+
+    Notes:
+    -----
+    - The function uses a Type II ANOVA (`typ=2`).
+    - The formula is constructed as:
+      `MeanActivity ~ C(key1) + C(key2) + ... + C(key1)*C(key2)*...`
+    - Ensure that `df` contains all necessary columns specified by the
+      dynamically generated formula and the 'MeanActivity' and 'TimeWindow' columns.
+    """
     # Filter for a specific time window (I should probably make this not have a time_window input and just loop over all time windows like the within electrode code does)
     df_filtered = df[df['TimeWindow'] == time_window]
 
@@ -1032,6 +1077,52 @@ def perform_modular_anova(df, time_window, output_names_conditions, save_dir, sa
     return anova_results
 
 def perform_modular_anova_all_time_windows(df, output_names_conditions, save_dir, save_name_prefix):
+    """
+    Performs an ANOVA test on the provided DataFrame, including 'TimeWindow'
+    as a factor, and saves the results to a text file.
+
+    The ANOVA model formula is dynamically constructed based on the keys
+    found in the `output_names_conditions` dictionary and explicitly includes
+    'TimeWindow' as a categorical variable. It models main effects for all
+    conditions and 'TimeWindow', as well as all their interaction terms.
+    The dependent variable is assumed to be 'MeanActivity'.
+
+    Parameters:
+    ----------
+    df : pd.DataFrame
+        The input DataFrame containing the data for ANOVA. Must include
+        a 'TimeWindow' column (which will be treated as a categorical factor)
+        and a 'MeanActivity' column as the dependent variable. It should also
+        contain columns corresponding to the condition keys derived from
+        `output_names_conditions`.
+    output_names_conditions : dict
+        A nested dictionary defining the experimental conditions. The keys of
+        the inner dictionary (for any given output name) are used to
+        construct the formula terms related to experimental conditions.
+        Example: `{'output_name1': {'condition_A': ..., 'condition_B': ...}}`
+    save_dir : str
+        The absolute path to the directory where the ANOVA results file
+        will be saved.
+    save_name_prefix : str
+        A prefix for the output filename. The final filename will be
+        `{save_name_prefix}_ANOVAacrossElectrodes_allTimeWindows.txt`.
+
+    Returns:
+    -------
+    statsmodels.iolib.table.SimpleTable or anova_lm object
+        The ANOVA results table object from `statsmodels.stats.anova.anova_lm`.
+
+    Notes:
+    -----
+    - The function uses a Type II ANOVA (`typ=2`).
+    - The formula includes main effects for each condition key, 'TimeWindow',
+      and all possible interactions between them.
+      Example formula structure:
+      `MeanActivity ~ C(key1) + ... + C(TimeWindow) + C(key1)*...*C(TimeWindow)`
+    - Ensure that `df` contains all necessary columns specified by the
+      dynamically generated formula and the 'MeanActivity' and 'TimeWindow' columns.
+      'TimeWindow' should contain discrete categories.
+    """
     # Dynamically construct the model formula based on condition keys and include TimeWindow
     condition_keys = [key for key in output_names_conditions[next(iter(output_names_conditions))].keys()]
     formula_terms = ' + '.join([f'C({key})' for key in condition_keys] + ['C(TimeWindow)'])
@@ -1202,8 +1293,6 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
             ax.text((start_time + end_time) / 2, y_pos, num_asterisks, ha='center', va='bottom', color=color)
 
             window_offsets[time_window] += 1  # Increment the offset for this time window
-
-
 
 def map_block_type(row):
     '''
