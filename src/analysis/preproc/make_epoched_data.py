@@ -16,8 +16,20 @@
 
 # %%
 import sys
+import os
 print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate up three levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root) # insert at the beginning to prioritize it
 
 import pandas as pd
 import json
@@ -29,7 +41,6 @@ from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
 import mne
-import os
 import numpy as np
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
