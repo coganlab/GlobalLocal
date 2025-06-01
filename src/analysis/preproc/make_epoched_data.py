@@ -54,6 +54,7 @@ import sys
 print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
+from scipy.stats import ttest_ind
 
 # Directory where your .npy files are saved
 npy_directory = r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
@@ -159,7 +160,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func='ttest_ind'):
+                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=ttest_ind):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -176,7 +177,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
-    - stat_func (str, optional): The statistical function to use for significance testing. Default is 'ttest_ind'.
+    - stat_func (str, optional): The statistical function to use for significance testing. Default is ttest_ind.
     
     This function will process the provided event for a given subject and task.
     Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
@@ -245,8 +246,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     # Square the data to get power from amplitude
     HG_base_power = HG_base.copy()
     HG_base_power._data = HG_base._data ** 2  # Square amplitude to get power
-
-    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func}"
+    stat_func_name = stat_func.__name__
+    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_name}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -322,12 +323,12 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func='ttest_ind'):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=ttest_ind):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
@@ -349,7 +350,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
-    parser.add_argument('--stat_func', type=str, default='ttest_ind', help='Statistical function to use for significance testing. Default is ttest_ind.')
+    parser.add_argument('--stat_func', type=str, default=ttest_ind, help='Statistical function to use for significance testing. Default is ttest_ind.')
     args=parser.parse_args()
 
     print("--------- PARSED ARGUMENTS ---------")

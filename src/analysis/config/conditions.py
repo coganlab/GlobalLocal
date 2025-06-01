@@ -1,6 +1,6 @@
-// This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
+# This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
 
-//  congruency
+#  congruency
 stimulus_congruency_conditions = {
     "Stimulus_c": {
         "BIDS_events": ["Stimulus/c25.0", "Stimulus/c75.0"],
@@ -12,7 +12,7 @@ stimulus_congruency_conditions = {
     }
 }
 
-// switch type
+# switch type
 stimulus_switch_type_conditions = {
     "Stimulus_r": {
         "BIDS_events": ["Stimulus/r25.0", "Stimulus/r75.0"],
@@ -24,59 +24,59 @@ stimulus_switch_type_conditions = {
     }
 }
 
-// ir vs is
-// # output_names = ["Stimulus_ir_fixationCrossBase_1sec_mirror", "Stimulus_is_fixationCrossBase_1sec_mirror"]
-// # output_names_conditions = {
-// #     "Stimulus_ir_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "i",
-// #         "switchType": "r"
-// #     },
-// #     "Stimulus_is_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "i",
-// #         "switchType": "s"
-// #     }
-// # }
+# ir vs is
+# output_names = ["Stimulus_ir_fixationCrossBase_1sec_mirror", "Stimulus_is_fixationCrossBase_1sec_mirror"]
+# output_names_conditions = {
+#     "Stimulus_ir_fixationCrossBase_1sec_mirror": {
+#         "congruency": "i",
+#         "switchType": "r"
+#     },
+#     "Stimulus_is_fixationCrossBase_1sec_mirror": {
+#         "congruency": "i",
+#         "switchType": "s"
+#     }
+# }
 
-// cr vs cs
-// # output_names = ["Stimulus_cr_fixationCrossBase_1sec_mirror", "Stimulus_cs_fixationCrossBase_1sec_mirror"]
-// # output_names_conditions = {
-// #     "Stimulus_cr_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "c",
-// #         "switchType": "r"
-// #     },
-// #     "Stimulus_cs_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "c",
-// #         "switchType": "s"
-// #     }
-// # }
+# cr vs cs
+# output_names = ["Stimulus_cr_fixationCrossBase_1sec_mirror", "Stimulus_cs_fixationCrossBase_1sec_mirror"]
+# output_names_conditions = {
+#     "Stimulus_cr_fixationCrossBase_1sec_mirror": {
+#         "congruency": "c",
+#         "switchType": "r"
+#     },
+#     "Stimulus_cs_fixationCrossBase_1sec_mirror": {
+#         "congruency": "c",
+#         "switchType": "s"
+#     }
+# }
 
-// is vs cs
-// # output_names = ["Stimulus_cs_fixationCrossBase_1sec_mirror", "Stimulus_is_fixationCrossBase_1sec_mirror"]
-// # output_names_conditions = {
-// #     "Stimulus_cs_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "c",
-// #         "switchType": "s"
-// #     },
-// #     "Stimulus_is_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "i",
-// #         "switchType": "s"
-// #     }
-// # }
+# is vs cs
+# output_names = ["Stimulus_cs_fixationCrossBase_1sec_mirror", "Stimulus_is_fixationCrossBase_1sec_mirror"]
+# output_names_conditions = {
+#     "Stimulus_cs_fixationCrossBase_1sec_mirror": {
+#         "congruency": "c",
+#         "switchType": "s"
+#     },
+#     "Stimulus_is_fixationCrossBase_1sec_mirror": {
+#         "congruency": "i",
+#         "switchType": "s"
+#     }
+# }
 
-// ir vs cr
-// # output_names = ["Stimulus_cr_fixationCrossBase_1sec_mirror", "Stimulus_ir_fixationCrossBase_1sec_mirror"]
-// # output_names_conditions = {
-// #     "Stimulus_cr_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "c",
-// #         "switchType": "r"
-// #     },
-// #     "Stimulus_ir_fixationCrossBase_1sec_mirror": {
-// #         "congruency": "i",
-// #         "switchType": "r"
-// #     }
-// # }
+# ir vs cr
+# output_names = ["Stimulus_cr_fixationCrossBase_1sec_mirror", "Stimulus_ir_fixationCrossBase_1sec_mirror"]
+# output_names_conditions = {
+#     "Stimulus_cr_fixationCrossBase_1sec_mirror": {
+#         "congruency": "c",
+#         "switchType": "r"
+#     },
+#     "Stimulus_ir_fixationCrossBase_1sec_mirror": {
+#         "congruency": "i",
+#         "switchType": "r"
+#     }
+# }
 
-// main effect interaction effects (run this with the anova code. Ugh make everything more modular later.)
+# main effect interaction effects (run this with the anova code. Ugh make everything more modular later.)
 
 stimulus_main_effect_conditions = {
     "Stimulus_ir": {
@@ -101,7 +101,7 @@ stimulus_main_effect_conditions = {
     }
 }
 
-// block interaction contrasts for lwpc
+# block interaction contrasts for lwpc
 
 stimulus_lwpc_conditions = {
     "Stimulus_c25": {
@@ -126,7 +126,7 @@ stimulus_lwpc_conditions = {
     }
 }
 
-// block interaction contrasts for lwps
+# block interaction contrasts for lwps
 
 stimulus_lwps_conditions = {
     "Stimulus_s25": {
@@ -151,7 +151,7 @@ stimulus_lwps_conditions = {
     }
 }
 
-// all 16 trial types
+# all 16 trial types
 stimulus_experiment_conditions = {
     "Stimulus_i25s25": {
         "BIDS_events": "Stimulus/i25.0/s25.0",
@@ -267,7 +267,7 @@ stimulus_experiment_conditions = {
     }
 }
 
-// stimulus details
+# stimulus details
 stimulus_conditions = {
     "Stimulus_bigSsmallHtaskG": {
         "BIDS_events": "Stimulus/BigLetters/SmallLetterh/Taskg",
@@ -320,7 +320,7 @@ stimulus_conditions = {
 }
 
 
-// big letter details
+# big letter details
 stimulus_big_letter_conditions = {
     "Stimulus_bigS": {
         "BIDS_events": "Stimulus/BigLetters",
@@ -332,7 +332,7 @@ stimulus_big_letter_conditions = {
     }
 }
 
-// small letter details
+# small letter details
 stimulus_small_letter_conditions = {
     "Stimulus_smallS": {
         "BIDS_events": "Stimulus/SmallLetters",
@@ -344,7 +344,7 @@ stimulus_small_letter_conditions = {
     }
 }
 
-// task details
+# task details
 stimulus_task_conditions = {
     "Stimulus_taskG": {
         "BIDS_events": "Stimulus/Taskg",
@@ -356,7 +356,7 @@ stimulus_task_conditions = {
     }
 }
 
-// congruency
+# congruency
 response_congruency_conditions = {
     "Response_c": {
         "BIDS_events": ["Response/c25.0", "Response/c75.0"],
@@ -368,7 +368,7 @@ response_congruency_conditions = {
     }
 }
 
-// switch type
+# switch type
 response_switch_type_conditions = {
     "Response_r": {
         "BIDS_events": ["Response/r25.0", "Response/r75.0"],
@@ -547,7 +547,7 @@ response_conditions = {
 }
 
 
-// big letter details
+# big letter details
 response_big_letter_conditions = {
     "Response_bigS": {
         "BIDS_events": "Response/BigLetters",
@@ -559,7 +559,7 @@ response_big_letter_conditions = {
     }
 }
 
-// small letter details
+# small letter details
 response_small_letter_conditions = {
     "Response_smallS": {
         "BIDS_events": "Response/SmallLetters",
@@ -571,7 +571,7 @@ response_small_letter_conditions = {
     }
 }
 
-// task details
+# task details
 response_task_conditions = {
     "Response_taskG": {
         "BIDS_events": "Response/Taskg",
