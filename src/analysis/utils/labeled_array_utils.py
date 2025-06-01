@@ -348,7 +348,7 @@ def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans
             conditions_with_no_valid_trials_per_roi[roi] = conditions_with_no_valid_trials
 
     return roi_labeled_arrays_no_nans, conditions_with_no_valid_trials_per_roi
-    
+
 def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, obs_axs=0):
     """
     Concatenate trials across condition names that contain specific strings.
@@ -413,3 +413,28 @@ def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, o
     concatenated_data = np.concatenate(concatenated_data, axis=obs_axs)
     
     return concatenated_data, np.array(labels), cats
+
+def get_data_in_time_range(labeled_array, time_range, time_axs=-1):
+    """
+    Extract data from a LabeledArray where the time points fall within a given range, using the LabeledArray `take` function.
+    
+    Parameters:
+    - labeled_array: The LabeledArray containing time points as labels.
+    - time_range: A tuple (start_time, end_time) representing the range of time.
+    - time_axs: The time dimension.
+    
+    Returns:
+    - filtered_data: A LabeledArray containing only the data where the timepoints are within the specified range.
+    """
+    start_time, end_time = time_range
+
+    # Assume that the time labels are stored in the last dimension, but can change this.
+    time_points = np.array(labeled_array.labels[time_axs], dtype=float)  # convert to floats, ensure conversion to float numpy array
+
+    # Find the indices of time points within the specified range
+    time_indices = np.where((time_points >= start_time) & (time_points <= end_time))[0]
+
+    # Use the take function to select the time indices along the time axis (axis=3)
+    filtered_data = labeled_array.take(time_indices, axis=3)
+
+    return filtered_data

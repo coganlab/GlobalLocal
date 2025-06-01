@@ -1,3 +1,4 @@
+# these funcs have been moved to src/analysis/decoding/decoding.py, this file is now deprecated as of 6/1/25
 # copy this back into jim_decoding_functions.py once it's working! 12/6
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
