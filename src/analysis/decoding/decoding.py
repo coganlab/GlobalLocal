@@ -585,9 +585,13 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 
     return confusion_matrices
 
+# TODO: Clean this up.   
+# Make subfunctions to break this down. Everything before defining the Decoder objects can be a function, that can be shared between this and the whole time window version.   
+# The decoder true and decoder shuffle can be done with a function maybe.   
+# And maybe return just accuracies, which I can then call this entire function separately for true and shuffled.
+# ALSO STORE THE SHUFFLED OUTPUT IN A NUMPY ARRAY SO I DON'T HAVE TO MAKE IT EVERY TIME
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
-    roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
+    roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', random_state=42, window_size=None,
     step_size=1, n_permutations=100, sampling_rate=256, first_time_point=-1
 ):
@@ -614,12 +618,6 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         A list defining the groups of conditions to compare. Each inner list (or string
         if only one condition per group) contains condition names (or parts of names)
         that will be used to select and label data for each class in the decoding.
-    save_dir : str
-        Directory path where results or plots might be saved (not directly used for saving
-        in this function but often a parameter in analysis pipelines).
-    time_interval_name : str, optional
-        A descriptive name for the time interval being analyzed, if applicable.
-        Default is None.
     n_splits : int, optional
         Number of splits for the cross-validation. Default is 5.
     n_repeats : int, optional
