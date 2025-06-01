@@ -440,7 +440,6 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
         return scores
 
-    
 def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
     obs_axs = arr.ndim + obs_axs if obs_axs < 0 else obs_axs
     if obs_axs != 0:
@@ -746,3 +745,230 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         }
 
     return cm_true_per_roi, cm_shuffle_per_roi
+
+def compute_accuracies(cm_true, cm_shuffle):
+    """
+    Compute accuracies from true and shuffled confusion matrices.
+
+    This function calculates the accuracy for each window and repetition/permutation
+    by taking the trace of the confusion matrix (sum of true positives) and
+    dividing by the total sum of the matrix (total number of instances).
+
+    Parameters
+    ----------
+    cm_true : numpy.ndarray
+        Confusion matrices for true labels.
+        Expected shape: (n_windows, n_repeats, n_classes, n_classes).
+    cm_shuffle : numpy.ndarray
+        Confusion matrices for shuffled labels.
+        Expected shape: (n_windows, n_permutations, n_classes, n_classes).
+
+    Returns
+    -------
+    tuple of (numpy.ndarray, numpy.ndarray)
+        - accuracies_true : numpy.ndarray
+            Accuracies for true labels. Shape: (n_windows, n_repeats).
+        - accuracies_shuffle : numpy.ndarray
+            Accuracies for shuffled labels. Shape: (n_windows, n_permutations).
+    """
+    n_windows = cm_true.shape[0]
+    n_repeats = cm_true.shape[1]
+    n_permutations = cm_shuffle.shape[1]
+
+    accuracies_true = np.zeros((n_windows, n_repeats))
+    accuracies_shuffle = np.zeros((n_windows, n_permutations))
+
+    for win_idx in range(n_windows):
+        # True accuracies
+        for rep_idx in range(n_repeats):
+            cm = cm_true[win_idx, rep_idx]
+            accuracies_true[win_idx, rep_idx] = np.trace(cm) / np.sum(cm)
+        # Shuffled accuracies
+        for perm_idx in range(n_permutations):
+            cm = cm_shuffle[win_idx, perm_idx]
+            accuracies_shuffle[win_idx, perm_idx] = np.trace(cm) / np.sum(cm)
+
+    return accuracies_true, accuracies_shuffle
+
+def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_shuffle, p_thresh=0.05, n_perm=50, seed=42):
+    """
+    Perform a time permutation cluster test on true vs. shuffled accuracies.
+
+    This function transposes the accuracy arrays to have time as the last dimension
+    (as typically expected by `time_perm_cluster`) and then runs the cluster-based
+    permutation test to find significant time clusters where true accuracy
+    is greater than shuffled accuracy.
+
+    Parameters
+    ----------
+    accuracies_true : numpy.ndarray
+        Accuracies for true labels. Expected shape: (n_windows, n_repeats).
+    accuracies_shuffle : numpy.ndarray
+        Accuracies for shuffled labels. Expected shape: (n_windows, n_permutations).
+    p_thresh : float, optional
+        P-value threshold for cluster formation. Default is 0.05.
+    n_perm : int, optional
+        Number of permutations for the cluster test. Default is 50.
+    seed : int, optional
+        Random seed for reproducibility of the permutation test. Default is 42.
+
+    Returns
+    -------
+    tuple of (numpy.ndarray, numpy.ndarray)
+        - significant_clusters : numpy.ndarray
+            A boolean array indicating significant time windows (clusters).
+            Shape: (n_windows,).
+        - p_values : numpy.ndarray
+            P-values for each identified cluster.
+    """
+    accuracies_true_T = accuracies_true.T
+    accuracies_shuffle_T = accuracies_shuffle.T
+
+    significant_clusters, p_values = time_perm_cluster(
+        accuracies_true_T,
+        accuracies_shuffle_T,
+        p_thresh=p_thresh,
+        n_perm=n_perm,
+        tails=1,
+        axis=0,
+        stat_func=lambda x, y, axis: np.mean(x, axis=axis),
+        n_jobs=1,
+        seed=seed
+    )
+    return significant_clusters, p_values
+
+def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
+                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir):
+    """
+    Plot mean true and shuffled accuracies over time with significance.
+
+    This function visualizes the average decoding accuracy from true labels and
+    shuffled labels across different time windows. It highlights significant
+    time clusters (where true accuracy is significantly higher than shuffled)
+    with horizontal bars and asterisks. The plot is saved to a file.
+
+    Parameters
+    ----------
+    time_points : array-like
+        The center time points (in seconds) for each window.
+    accuracies_true : numpy.ndarray
+        Accuracies for true labels. Shape: (n_windows, n_repeats).
+    accuracies_shuffle : numpy.ndarray
+        Accuracies for shuffled labels. Shape: (n_windows, n_permutations).
+    significant_clusters : array-like of bool
+        A boolean array indicating which time windows are part of a
+        statistically significant cluster. Shape: (n_windows,).
+    window_size_samples : int
+        The size of the decoding window in samples.
+    step_size_samples : int
+        The step size of the decoding window in samples. (Not directly used in plot rendering logic beyond filename).
+    sampling_rate : float
+        The sampling rate of the data in Hz.
+    condition_comparison : str
+        A string describing the condition comparison (e.g., "TaskA_vs_TaskB").
+        Used in the plot title and filename.
+    roi : str
+        The Region of Interest (ROI) being plotted. Used in the plot title
+        and filename.
+    save_dir : str
+        The directory where the plot image will be saved.
+    first_time_point_s : float, optional
+        The time in seconds of the first sample of the epoch, used for x-axis limits
+        if needed, though current xlim are fixed. Default is 0.
+    """
+    n_repeats = accuracies_true.shape[1]
+    n_permutations = accuracies_shuffle.shape[1]
+
+    # Compute mean and standard error
+    mean_true_accuracy = np.mean(accuracies_true, axis=1)
+    std_true_accuracy = np.std(accuracies_true, axis=1)
+    se_true_accuracy = std_true_accuracy / np.sqrt(n_repeats)
+
+    mean_shuffle_accuracy = np.mean(accuracies_shuffle, axis=1)
+    std_shuffle_accuracy = np.std(accuracies_shuffle, axis=1)
+    se_shuffle_accuracy = std_shuffle_accuracy / np.sqrt(n_permutations)
+
+    # Plotting
+    plt.figure(figsize=(12, 6))
+    plt.plot(time_points, mean_true_accuracy, label='True Accuracy', color='blue')
+    plt.fill_between(
+        time_points,
+        mean_true_accuracy - std_true_accuracy,
+        mean_true_accuracy + std_true_accuracy,
+        alpha=0.2,
+        color='blue'
+    )
+
+    plt.plot(time_points, mean_shuffle_accuracy, label='Shuffled Accuracy', color='red')
+    plt.fill_between(
+        time_points,
+        mean_shuffle_accuracy - std_shuffle_accuracy,
+        mean_shuffle_accuracy + std_shuffle_accuracy,
+        alpha=0.2,
+        color='red'
+    )
+
+    # Compute window duration
+    window_duration = window_size / sampling_rate
+
+    # Find contiguous significant clusters
+    def find_clusters(significant_clusters: Union[np.ndarray, List[bool], Sequence[bool]]):
+        """Helper to find start and end indices of contiguous True blocks."""
+        clusters = []
+        in_cluster = False
+        for idx, val in enumerate(list(significant_clusters)):
+            if val and not in_cluster:
+                # Start of a new cluster
+                start_idx = idx
+                in_cluster = True
+            elif not val and in_cluster:
+                # End of the cluster
+                end_idx = idx - 1
+                clusters.append((start_idx, end_idx))
+                in_cluster = False
+        # Handle the case where the last value is in a cluster
+        if in_cluster:
+            end_idx = len(list(significant_clusters)) - 1
+            clusters.append((start_idx, end_idx))
+        return clusters
+
+    clusters = find_clusters(significant_clusters)
+
+    # # Determine y position for the bars
+    # max_y = np.max(mean_true_accuracy + se_true_accuracy)
+    # min_y = np.min(mean_shuffle_accuracy - se_shuffle_accuracy)
+    # y_bar = max_y + 0.02  # Adjust as needed
+    # plt.ylim([min_y, y_bar + 0.05])  # Adjust ylim to accommodate the bars
+
+    # Set y_bar to a fixed value within the y-axis limits
+    y_bar = 0.95  # Fixed value near the top of the y-axis
+
+    # Plot horizontal bars and asterisks for significant clusters
+    for cluster in clusters:
+        start_idx, end_idx = cluster
+        start_time = time_points[start_idx] - (window_duration / 2)
+        end_time = time_points[end_idx] + (window_duration / 2)
+        plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)
+        # Place an asterisk at the center of the bar
+        center_time = (start_time + end_time) / 2
+        plt.text(center_time, y_bar + 0.01, '*', ha='center', va='bottom', fontsize=14)
+
+    # Set axis limits
+    plt.ylim(0, 1)  # Y-axis limits
+    plt.xlim(-1, 1.5)  # X-axis limits
+
+    plt.xlabel('Time from Stim Onset (s)')
+    plt.ylabel('Accuracy')
+    plt.title(f'Decoding Accuracy over Time for {condition_comparison} in ROI {roi}')
+    plt.legend()
+
+    # Construct the filename
+    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}.png"
+    filepath = os.path.join(save_dir, filename)
+
+    # Ensure save_dir exists
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Save and close the plot
+    plt.savefig(filepath)
+    plt.close()
