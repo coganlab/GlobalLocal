@@ -1,4 +1,4 @@
-Global Local Task 
+﻿Global Local Task 
 
 Contact: Jim Zhang and Raphael Geddert
 
@@ -44,7 +44,7 @@ Last edited: 01/16/2024
 # **Analysis Steps**
 
 ### Preprocessing
-1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning)
+1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
 2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
 ### Wavelets
@@ -60,6 +60,8 @@ sig3 = make_data_same(sig2, (sig2.shape[0],sig2.shape[1],sig2.shape[2]+1)) # ori
 sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know that sig3 is bigger than sig1 by 1 in the time dimension so it will get randomly sliced.
 sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name.
 2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
+3. Alternatively, run make_epoched_data to do the stats without plotting. Run make_epoched_data.py like this: (ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
+
 
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
