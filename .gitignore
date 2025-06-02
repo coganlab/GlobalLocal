@@ -1,6 +1,6 @@
 *.egg-info
 data
-IEEG_Pipelines
-subjects_mne_objects.joblib
+
 *.pickle
 *.pkl
+*.pyc
