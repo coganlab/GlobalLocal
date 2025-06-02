@@ -3,3 +3,5 @@ data
 IEEG_Pipelines
 
 *.pickle
+*.pkl
+*.pyc
