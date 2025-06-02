@@ -79,8 +79,8 @@ from src.analysis.utils.labeled_array_utils import (
 
 # utils imports
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
-from utils import * # This is generally discouraged.
-from utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
+from src.analysis.utils.general_utils import * # This is generally discouraged.
+from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
 
 # ---- Potentially Unused or Redundant ----
 # from pandas import read_csv # pandas is already imported as pd, use pd.read_csv

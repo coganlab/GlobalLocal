@@ -54,7 +54,7 @@ print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
 from scipy.stats import ttest_ind
-from src.analysis.utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
+from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
 
 # Directory where your .npy files are saved
 npy_directory = r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
