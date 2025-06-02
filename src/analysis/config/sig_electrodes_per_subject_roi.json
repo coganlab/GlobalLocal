@@ -1,0 +1,252 @@
+{
+    "lpfc": {
+        "D0057": [
+            "RAI6",
+            "RPI15",
+            "RPI14",
+            "RAMF13",
+            "RAMF14"
+        ],
+        "D0059": [
+            "LMMF9",
+            "LMMF11",
+            "LMMF10",
+            "LMMF12",
+            "LPSF16"
+        ],
+        "D0063": [
+            "LMSF5",
+            "RAMF12",
+            "RAMF13",
+            "RMMF13",
+            "RMMF14",
+            "RAI4",
+            "RAI6",
+            "RAI11",
+            "RMMF10"
+        ],
+        "D0065": [
+            "RASF14",
+            "RASF15",
+            "RI7"
+        ],
+        "D0069": [],
+        "D0071": [
+            "RFO14",
+            "RFO16",
+            "RIA4",
+            "RIP6",
+            "RIA5",
+            "RIA11",
+            "RIA12",
+            "RIA13",
+            "RIA14",
+            "RIA16",
+            "RIP16"
+        ],
+        "D0077": [],
+        "D0090": [
+            "RIA6",
+            "RIA11",
+            "RIA12"
+        ],
+        "D0094": [
+            "LFAM8",
+            "LFAM9",
+            "LFAM10",
+            "LFPM10",
+            "LFPM11",
+            "LFPM12",
+            "LFPI10",
+            "LPAI10",
+            "LFAI9",
+            "LFAI10",
+            "LIA11"
+        ],
+        "D0100": [],
+        "D0102": [
+            "RFO13",
+            "RFO14",
+            "RFAM15",
+            "RFAI3"
+        ],
+        "D0103": [
+            "LFAM8",
+            "LFAM9",
+            "LAI13",
+            "LAI14",
+            "LAI4",
+            "LAI7",
+            "LAI8",
+            "LFAI4"
+        ],
+        "D0107A": [],
+        "D0110": []
+    },
+    "v1": {
+        "D0057": [],
+        "D0059": [],
+        "D0063": [],
+        "D0065": [],
+        "D0069": [],
+        "D0071": [
+            "RO1",
+            "RO2"
+        ],
+        "D0077": [
+            "ROPM1"
+        ],
+        "D0090": [],
+        "D0094": [],
+        "D0100": [
+            "LTOJ1",
+            "LTPI1",
+            "LOPI2",
+            "LOPM1",
+            "LTOJ4",
+            "LOMM3",
+            "LOMM4",
+            "LOMM5"
+        ],
+        "D0102": [],
+        "D0103": [],
+        "D0107A": [],
+        "D0110": []
+    },
+    "occ": {
+        "D0057": [],
+        "D0059": [],
+        "D0063": [],
+        "D0065": [
+            "RPIT1",
+            "RPIT2"
+        ],
+        "D0069": [],
+        "D0071": [
+            "RO1",
+            "RO2",
+            "RO10"
+        ],
+        "D0077": [
+            "ROPI5",
+            "ROPI6",
+            "ROPI8",
+            "ROPM9",
+            "ROPM1",
+            "ROPM8"
+        ],
+        "D0090": [
+            "RTPO1",
+            "RTPI1",
+            "RTPI2"
+        ],
+        "D0094": [],
+        "D0100": [
+            "LTOJ1",
+            "LTPI1",
+            "LOPI2",
+            "LOPM1",
+            "LTOJ4",
+            "LOMM3",
+            "LOMM4",
+            "LOMM5",
+            "LTOJ13",
+            "LOAI12",
+            "LOAI13",
+            "LOAI14",
+            "LOAI15",
+            "LOMI8",
+            "LOMI9",
+            "LOMI11",
+            "LOMI12",
+            "LOPI8",
+            "LOPI9",
+            "LOPI10",
+            "LOAM15",
+            "LOPM10",
+            "LOMS13",
+            "LOPS11",
+            "LOPS12",
+            "LOMM13",
+            "LOMM14",
+            "LOPM8",
+            "LOPM9",
+            "LPPI7",
+            "LPPI8",
+            "LPPI9"
+        ],
+        "D0102": [
+            "RTPI1"
+        ],
+        "D0103": [
+            "LTLI3",
+            "LTPI2",
+            "LTPI3",
+            "LTPI4"
+        ],
+        "D0107A": [],
+        "D0110": []
+    },
+    "occ_filtered": {
+        "D0057": [],
+        "D0059": [],
+        "D0071": [
+            "RO1",
+            "RO10"
+        ],
+        "D0077": [
+            "ROPM1",
+            "ROPM8"
+        ],
+        "D0090": [
+            "RTPO1",
+            "RTPI1"
+        ],
+        "D0100": [
+            "LOAI12",
+            "LOAI13",
+            "LOAI14",
+            "LOAI15",
+            "LOMI9",
+            "LOMI11",
+            "LOPI8",
+            "LOPI9",
+            "LOPM8",
+            "LOPM9",
+            "LPPI7",
+            "LPPI8",
+            "LPPI9"
+        ],
+        "D0102": [
+            "RTPI1"
+        ],
+        "D0103": [
+            "LTPI2",
+            "LTPI3",
+            "LTPI4"
+        ]
+    },
+    "occ_best_filtered": {
+        "D0057": [],
+        "D0059": [],
+        "D0071": [],
+        "D0077": [],
+        "D0090": [],
+        "D0100": [
+            "LOAI12",
+            "LOMI9",
+            "LOPI8",
+            "LOPI9",
+            "LOPM8",
+            "LOPM9"
+        ],
+        "D0102": [
+            "RTPI1"
+        ],
+        "D0103": [
+            "LTPI2",
+            "LTPI3",
+            "LTPI4"
+        ]
+    }
+}

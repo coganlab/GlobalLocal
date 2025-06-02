@@ -44,7 +44,7 @@ Last edited: 01/16/2024
 # **Analysis Steps**
 
 ### Preprocessing
-1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning)
+1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
 2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
 ### Wavelets

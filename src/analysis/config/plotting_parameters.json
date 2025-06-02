@@ -1,0 +1,84 @@
+// This file contains the plotting parameters for different conditions in the experiment.
+
+{
+    "Stimulus_r25and75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "repeat",
+        "color": "red",
+        "line_style": "-"
+    },
+    "Stimulus_s25and75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "switch",
+        "color": "green",
+        "line_style": "-"
+    },
+    "Stimulus_c25and75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "congruent",
+        "color": "blue",
+        "line_style": "-"
+    },
+    "Stimulus_i25and75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "incongruent",
+        "color": "orange",
+        "line_style": "-"
+    },
+    "Stimulus_ir_fixationCrossBase_1sec_mirror": {
+        "condition_name": "IR",
+        "color": "blue",
+        "line_style": "-"
+    },
+    "Stimulus_is_fixationCrossBase_1sec_mirror": {
+        "condition_name": "IS",
+        "color": "blue",
+        "line_style": "--"
+    },
+    "Stimulus_cr_fixationCrossBase_1sec_mirror": {
+        "condition_name": "CR",
+        "color": "red",
+        "line_style": "-"
+    },
+    "Stimulus_cs_fixationCrossBase_1sec_mirror": {
+        "condition_name": "CS",
+        "color": "red",
+        "line_style": "--"
+    },
+    "Stimulus_c25_fixationCrossBase_1sec_mirror": {
+        "condition_name": "c25",
+        "color": "red",
+        "line_style": "--"
+    },
+    "Stimulus_c75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "c75",
+        "color": "red",
+        "line_style": "-"
+    },
+    "Stimulus_i25_fixationCrossBase_1sec_mirror": {
+        "condition_name": "i25",
+        "color": "blue",
+        "line_style": "--"
+    },
+    "Stimulus_i75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "i75",
+        "color": "blue",
+        "line_style": "-"
+    },
+    "Stimulus_s25_fixationCrossBase_1sec_mirror": {
+        "condition_name": "s25",
+        "color": "green",
+        "line_style": "--"
+    },
+    "Stimulus_s75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "s75",
+        "color": "green",
+        "line_style": "-"
+    },
+    "Stimulus_r25_fixationCrossBase_1sec_mirror": {
+        "condition_name": "r25",
+        "color": "pink",
+        "line_style": "--"
+    },
+    "Stimulus_r75_fixationCrossBase_1sec_mirror": {
+        "condition_name": "r75",
+        "color": "pink",
+        "line_style": "-"
+    }
+}

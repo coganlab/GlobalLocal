@@ -1,0 +1,1 @@
+# loop over subjects and submit the sbatch script for plot clean
