@@ -62,7 +62,9 @@ sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a 
 2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
 3. Alternatively, run make_epoched_data to do the stats without plotting. Run make_epoched_data.py like this: (ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
-
+### Decoding
+1. Run decoding.ipynb to do decoding. TODO: Make a main function in decoding.py to run decoding all from decoding.py.
+2
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
 
