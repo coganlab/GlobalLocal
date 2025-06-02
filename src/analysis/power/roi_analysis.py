@@ -44,11 +44,6 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 
-
-
-
-
-
 # i copied this main function from make_epoched_data.py, need to modify this for roi_analysis.py. CURRENTLY BROKEN 5/26/25.
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
          within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):

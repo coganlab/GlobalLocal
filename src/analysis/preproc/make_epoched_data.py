@@ -45,7 +45,6 @@ import numpy as np
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.viz.mri import gen_labels
-from utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
 import matplotlib.pyplot as plt
 from mne.utils import fill_doc, verbose
 import random
@@ -55,6 +54,7 @@ print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
 from scipy.stats import ttest_ind
+from src.analysis.utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
 
 # Directory where your .npy files are saved
 npy_directory = r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
@@ -122,7 +122,6 @@ def trial_ieeg_rand_offset(raw: mne.io.Raw, event: str | list[str, ...], within_
     """
 
     sfreq = raw.info['sfreq'] #raw.info in function
-
 
     # get padded within times and times_length
     within_times_padded = [within_times[0] - pad_length, within_times[1] + pad_length]
@@ -328,7 +327,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
