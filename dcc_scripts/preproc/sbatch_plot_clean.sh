@@ -9,6 +9,6 @@ subject=$1
 
 conda activate ieeg # make sure this works
 
-python /hpc/home/jz421/coganlab/GlobalLocal/src/analysis/preproc/plot_clean.py --subject ${subject}
+python /hpc/home/$USER/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py --subject ${subject}
 
 
