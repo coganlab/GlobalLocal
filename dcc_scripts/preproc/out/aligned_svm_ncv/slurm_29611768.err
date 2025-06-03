@@ -1,0 +1,7 @@
+
+CondaError: Run 'conda init' before 'conda activate'
+
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py", line 13, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
