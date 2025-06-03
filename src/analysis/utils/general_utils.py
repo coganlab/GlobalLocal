@@ -664,7 +664,7 @@ def add_accuracy_to_epochs(epochs, accuracy_array):
     return epochs
 
 
-def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir):
+def save_sig_chans_with_reject(condition_name, reject, channels, subject, save_dir):
     # Determine which channels are significant based on the reject array
     significant_indices = np.where(reject)[0]
     
@@ -678,74 +678,13 @@ def save_sig_chans_with_reject(output_name, reject, channels, subject, save_dir)
     }
     
     # Define the filename
-    filename = os.path.join(save_dir, f'sig_chans_{subject}_{output_name}.json')
+    filename = os.path.join(save_dir, f'sig_chans_{subject}_{condition_name}.json')
     
     # Save the dictionary as a JSON file
     with open(filename, 'w') as file:
         json.dump(data, file)
     
-    print(f'Saved significant channels for subject {subject} and {output_name} to {filename}')
-
-def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True):
-    """
-    Adjusted to handle multiple conditions per output name, with multiple condition columns.
-
-    Parameters:
-    - subjects: List of subject IDs.
-    - output_names_conditions: Dictionary where keys are output names and values are dictionaries
-        of condition column names and their required values.
-    - task: Task identifier.
-    - combined_data: DataFrame with combined behavioral and trial information.
-    - acc_array: dict of numpy arrays of 0 for incorrect and 1 for correct trials for each subject
-    - LAB_root: Root directory for data (optional).
-
-    
-        Structure of subjects_mne_objects_dict:
-        {
-            'subject_id': {                    # e.g., 'D0057'
-                'condition_name': {            # e.g., 'Stimulus_cr'
-                    'data_type': epochs_object # e.g., 'HG_ev1_power_rescaled'
-                }
-            }
-        }
-
-        Example access:
-        - Get epochs: subjects_mne_objects_dict['D0057']['Stimulus_cr']['HG_ev1_power_rescaled']
-        - Get all conditions for a subject: subjects_mne_objects_dict['D0057']
-
-    """
-    subjects_mne_objects = {}
-
-    for sub in subjects:
-        print(f"Loading data for subject: {sub}")
-        sub_mne_objects = {}
-
-        mne_objects = load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=just_HG_ev1_rescaled, LAB_root=LAB_root)
-        for mne_object in mne_objects.keys():
-            if acc_trials_only == True:
-                mne_objects[mne_object] = mne_objects[mne_object]["Accuracy1.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
-
-            for condition_name, condition_parameters in conditions.items():
-                print(f"  Loading condition: {condition_name} with parameters: {condition_parameters}")
-                # Get BIDS events from the conditions, and remove it so it doesn't complicate future analyses.
-                bids_events = condition_parameters.get("BIDS_events")
-                if bids_events is None:
-                    print(f"Warning: condition {condition_name} is missing 'BIDS_events'. Fix this!")
-                # if multiple bids events are part of this condition, concatenate their epochs. Otherwise just grab epochs.
-                if isinstance(bids_events, list):
-                    combined_epochs = []
-                    for event in bids_events:
-                        partial_event_epochs = mne_objects[mne_object][event]
-                        combined_epochs.append(partial_event_epochs)
-                    event_epochs = mne.concatenate_epochs(combined_epochs)
-                else:
-                    event_epochs = mne_objects[mne_object][bids_events]
-
-                sub_mne_objects[condition_name] = {}
-                sub_mne_objects[condition_name][mne_object] = event_epochs
-            subjects_mne_objects[sub] = sub_mne_objects
-
-    return subjects_mne_objects
+    print(f'Saved significant channels for subject {subject} and {condition_name} to {filename}')
 
 def initialize_output_data(rois, condition_names):
     """
@@ -965,7 +904,7 @@ def calculate_mean_and_sem(concatenated_data, rois, condition_names):
             mean_and_sem[roi][condition_name] = {'mean': mean, 'sem': sem}
     return mean_and_sem
 
-def calculate_time_perm_cluster_for_each_roi(concatenated_data, rois, output_names, alpha=0.05, n_jobs=6):
+def calculate_time_perm_cluster_for_each_roi(concatenated_data, rois, condition_names, alpha=0.05, n_jobs=6):
     """
     Perform time permutation cluster tests between the first two outputs for each ROI.
     Assumes that there are at least two output conditions to compare.
@@ -973,8 +912,8 @@ def calculate_time_perm_cluster_for_each_roi(concatenated_data, rois, output_nam
     time_perm_cluster_results = {}
     for roi in rois:
         time_perm_cluster_results[roi] = time_perm_cluster(
-            concatenated_data[output_names[0]][roi],
-            concatenated_data[output_names[1]][roi], alpha, n_jobs=n_jobs
+            concatenated_data[condition_names[0]][roi],
+            concatenated_data[condition_names[1]][roi], alpha, n_jobs=n_jobs
         )
     return time_perm_cluster_results
 
@@ -1000,13 +939,13 @@ def convert_dataframe_to_serializable_format(df):
     return df.to_dict(orient='records')
 
 
-def perform_modular_anova(df, time_window, output_names_conditions, save_dir, save_name):
+def perform_modular_anova(df, time_window, conditions, save_dir, save_name):
     """
     Performs an ANOVA test on a filtered subset of the provided DataFrame
     for a specific time window and saves the results to a text file.
 
     The ANOVA model formula is dynamically constructed based on the keys
-    found in the `output_names_conditions` dictionary. It includes main effects
+    found in the conditions dictionary. It includes main effects
     and interaction terms for these conditions. The dependent variable is
     assumed to be 'MeanActivity'.
 
@@ -1016,16 +955,15 @@ def perform_modular_anova(df, time_window, output_names_conditions, save_dir, sa
         The input DataFrame containing the data for ANOVA. Must include
         a 'TimeWindow' column to filter by `time_window` and a 'MeanActivity'
         column as the dependent variable. It should also contain columns
-        corresponding to the condition keys derived from `output_names_conditions`.
+        corresponding to the condition keys derived from `condition_names_conditions`.
     time_window : str
         The specific value in the 'TimeWindow' column of `df` to filter the
         DataFrame for this ANOVA (e.g., 'FirstHalfSecond').
-    output_names_conditions : dict
-        A nested dictionary defining the experimental conditions. The keys of
-        the inner dictionary (for any given output name) are used to
-        construct the formula terms.
-        Example: `{'output_name1': {'condition_A': ..., 'condition_B': ...}}`
-        would lead to terms like `C(condition_A)` and `C(condition_B)`.
+    conditions : dict
+        A dictionary defining the experimental conditions. The keys of
+        the inner dictionary (for any given condition name) are used to
+        construct the formula terms related to experimental conditions.
+        Example: `{'Stimulus_cr': {'congruency': 'c', 'switchType': 'r'}}`
     save_dir : str
         The absolute path to the directory where the ANOVA results file
         will be saved.
@@ -1050,7 +988,7 @@ def perform_modular_anova(df, time_window, output_names_conditions, save_dir, sa
     df_filtered = df[df['TimeWindow'] == time_window]
 
     # Dynamically construct the model formula based on condition keys
-    condition_keys = [key for key in output_names_conditions[next(iter(output_names_conditions))].keys()]
+    condition_keys = [key for key in conditions[next(iter(conditions))].keys()]
     formula_terms = ' + '.join([f'C({key})' for key in condition_keys])
     interaction_terms = ' * '.join([f'C({key})' for key in condition_keys])
     formula = f'MeanActivity ~ {formula_terms} + {interaction_terms}'
@@ -1282,7 +1220,6 @@ def get_sig_chans_per_subject(subjects, epochs_root_file, task='GlobalLocal', LA
         sig_chans_per_subject[sub] = get_sig_chans(sub, task, epochs_root_file, LAB_root)
 
     return sig_chans_per_subject
-
 
 def filter_electrodes_by_roi(subjects_electrodes_dict, sig_chans_per_subject, roi_list):
     """

@@ -1,3 +1,36 @@
+import sys
+import os
+
+print(sys.path)
+sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    # os.getcwd() often gives the directory of the notebook,
+    # or the directory from which the Jupyter server was started.
+    current_script_dir = os.getcwd()
+
+# Navigate up three levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root) # insert at the beginning to prioritize it
+
+import mne
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+from joblib import Parallel, delayed
+import matplotlib.pyplot as plt
+from ieeg.calc.mat import LabeledArray
+
 def get_max_trials_per_condition(
     subjects_mne_objects, condition_names, subjects,
     sig_electrodes_per_subject_roi, roi, obs_axs
