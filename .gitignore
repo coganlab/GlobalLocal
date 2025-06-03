@@ -4,3 +4,5 @@ data
 *.pickle
 *.pkl
 *.pyc
+*.json
+*.png

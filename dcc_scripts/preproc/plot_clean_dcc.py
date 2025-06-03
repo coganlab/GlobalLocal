@@ -16,8 +16,6 @@ import pandas as pd
 # Add parent directory to path to access modules in project root
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
-sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
-
 import mne
 import matplotlib.pyplot as plt
 from ieeg.mt_filter import line_filter
@@ -78,12 +76,9 @@ def main(subjects_list):
     # Set up paths
     HOME = os.path.expanduser("~")
     task = 'GlobalLocal'
-    
+
     # get box directory depending on OS
-    if os.name == 'nt': # windows
-        LAB_root = os.path.join(HOME, "Box", "CoganLab")
-    else: # mac
-        LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+    LAB_root = os.path.join(HOME, "coganlab", "Data")
     
     # Load Data
     layout = get_data(task, root=LAB_root)
