@@ -7,6 +7,8 @@
 
 subject=$1
 
+source $(conda info --base)/etc/profile.d/conda.sh
+
 conda activate ieeg # make sure this works
 
 python /hpc/home/$USER/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py --subject ${subject}
