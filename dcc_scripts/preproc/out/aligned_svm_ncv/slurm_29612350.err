@@ -1,0 +1,18 @@
+/hpc/home/jz421/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py:14: DeprecationWarning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py", line 211, in <module>
+    main(args.subjects)
+  File "/hpc/home/jz421/coganlab/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py", line 84, in main
+    layout = get_data(task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 194, in get_data
+    scan = scandir(root)
+           ^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/jz421/coganlab/Data'
