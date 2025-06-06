@@ -25,7 +25,7 @@ from bids import BIDSLayout
 from ieeg.navigate import trial_ieeg, channel_outlier_marker, crop_empty_data, outliers_to_nan
 from ieeg.viz.ensemble import figure_compare
 from mne_bids import read_raw_bids
-
+#
 def fix_events_file(events_file):
     """Fix events file by removing events with negative durations
     
