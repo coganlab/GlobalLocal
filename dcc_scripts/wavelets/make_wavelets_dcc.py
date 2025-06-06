@@ -19,14 +19,14 @@ from utils import get_good_data
 from wavelet_functions import get_uncorrected_wavelets
 
 # Set up paths
-    HOME = os.path.expanduser("~")
-    task = 'GlobalLocal'
+HOME = os.path.expanduser("~")
+task = 'GlobalLocal'
 
-    # get box directory depending on OS
-    LAB_root = os.path.join(HOME, "coganlab", "Data")
+# get box directory depending on OS
+LAB_root = os.path.join(HOME, "coganlab", "Data")
     
-    # Load Data
-    layout = get_data(task, root=LAB_root)
+# Load Data
+layout = get_data(task, root=LAB_root)
 
 # let's make a dictionary where the keys are output names and the values are lists of corresponding events
 output_names_and_events_dict = {}
@@ -36,7 +36,7 @@ output_names_and_events_dict['CorrectTrials'] = ["Accuracy/1.0"]
 baseline_times = [-0.5, 0]
 signal_times = [-0.5, 1.5]
 
-subjects = ["D0110", "D0117"]
+subjects = ["D0116"]
 
 for sub in subjects:
     # load in good data so we can use it for gettin bad channels and getting filenames
@@ -44,7 +44,7 @@ for sub in subjects:
 
     ## epoching and trial outlier removal
 
-    save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub)
+    save_dir = os.path.join(layout.root, 'derivatives', 'clean', sub)
     if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
