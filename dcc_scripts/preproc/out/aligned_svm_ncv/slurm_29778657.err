@@ -1,0 +1,18 @@
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py:14: DeprecationWarning: 
+Pyarrow will become a required dependency of pandas in the next major release of pandas (pandas 3.0),
+(to allow more performant data types, such as the Arrow string type, and better interoperability with other libraries)
+but was not found to be installed on your system.
+If this would cause problems for you,
+please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
+        
+  import pandas as pd
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: participants.tsv file not found for /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/sub-D0116/ieeg/sub-D0116_task-GlobalLocal_acq-01_run-01_ieeg.edf
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: participants.tsv file not found for /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/sub-D0116/ieeg/sub-D0116_task-GlobalLocal_acq-01_run-02_ieeg.edf
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: participants.tsv file not found for /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/sub-D0116/ieeg/sub-D0116_task-GlobalLocal_acq-01_run-03_ieeg.edf
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: participants.tsv file not found for /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/sub-D0116/ieeg/sub-D0116_task-GlobalLocal_acq-01_run-04_ieeg.edf
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/var/spool/slurmd/job29778657/slurm_script: line 14: 3482605 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py --subject ${subject}
+slurmstepd: error: Detected 1 oom_kill event in StepId=29778657.batch. Some of the step tasks have been OOM Killed.
