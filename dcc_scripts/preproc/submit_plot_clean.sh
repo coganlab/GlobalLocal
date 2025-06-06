@@ -8,5 +8,5 @@ subjects=("D0116")
 
 for subject in "${subjects[@]}"
 do
-    sbatch /hpc/home/$USER/coganlab/GlobalLocal/dcc_scripts/preproc/sbatch_plot_clean.sh $subject
+    sbatch /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/preproc/sbatch_plot_clean.sh $subject
 done

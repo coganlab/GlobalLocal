@@ -12,6 +12,7 @@ import sys
 import os
 import numpy as np
 import pandas as pd
+import getpass
 
 # Add parent directory to path to access modules in project root
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
@@ -25,7 +26,7 @@ from bids import BIDSLayout
 from ieeg.navigate import trial_ieeg, channel_outlier_marker, crop_empty_data, outliers_to_nan
 from ieeg.viz.ensemble import figure_compare
 from mne_bids import read_raw_bids
-
+#
 def fix_events_file(events_file):
     """Fix events file by removing events with negative durations
     
@@ -75,10 +76,12 @@ def main(subjects_list):
     """
     # Set up paths
     HOME = os.path.expanduser("~")
+    USER = os.path.basename(HOME)
+    
     task = 'GlobalLocal'
 
     # get box directory depending on OS
-    LAB_root = os.path.join(HOME, "coganlab", "Data")
+    LAB_root = os.path.join("cwork", USER)
     
     # Load Data
     layout = get_data(task, root=LAB_root)
@@ -209,5 +212,7 @@ if __name__ == "__main__":
     
     # Run the main function with provided subjects
     main(args.subjects)
+    
+    # TODO: need to put in some logic to move any outputs from cwork into the Box BIDS folder instead.
     
     print("Processing complete!")
