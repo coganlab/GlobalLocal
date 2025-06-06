@@ -54,6 +54,7 @@ print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
 from scipy.stats import ttest_ind
+from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
 
 # Directory where your .npy files are saved
@@ -159,7 +160,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=ttest_ind):
+                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -176,7 +177,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
-    - stat_func (str, optional): The statistical function to use for significance testing. Default is ttest_ind.
+    - stat_func (function, optional): The statistical function to use for significance testing. Default is ttest_ind(equal_var=False).
     
     This function will process the provided event for a given subject and task.
     Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
@@ -245,8 +246,25 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     # Square the data to get power from amplitude
     HG_base_power = HG_base.copy()
     HG_base_power._data = HG_base._data ** 2  # Square amplitude to get power
-    stat_func_name = stat_func.__name__
-    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_name}"
+    
+    if isinstance(stat_func, partial):
+        base_func_name = stat_func.func.__name__
+        # Create a descriptive name like "ttest_ind_equal_var_False"
+        keywords_str = "_".join(f"{k}_{v}" for k, v in sorted(stat_func.keywords.items()))
+        if keywords_str: # If there are keywords like equal_var
+            stat_func_for_filename = f"{base_func_name}_{keywords_str}"
+        else: # If partial was used without keywords (less likely here)
+            stat_func_for_filename = base_func_name
+    elif hasattr(stat_func, '__name__'): # For regular functions
+        stat_func_for_filename = stat_func.__name__
+    elif isinstance(stat_func, str): # If a string was somehow passed (e.g., from a less robust CLI)
+        # Sanitize or use the string directly if it's simple.
+        # For safety, you might want to ensure it's a valid filename component.
+        stat_func_for_filename = stat_func.replace(" ", "_").replace("(", "").replace(")", "").replace("=", "")
+    else:
+        stat_func_for_filename = "custom_stat_func" # Fallback
+    
+    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -293,12 +311,12 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
 
         # Save HG_ev1_evoke
-        HG_ev1_evoke.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke-epo.fif', overwrite=True)
-        HG_ev1_evoke_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power-epo.fif', overwrite=True)
+        HG_ev1_evoke.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke-ave.fif', overwrite=True)
+        HG_ev1_evoke_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power-ave.fif', overwrite=True)
         
         # Save HG_ev1_evoke_rescaled
-        HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_rescaled-epo.fif', overwrite=True)
-        HG_ev1_evoke_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power_rescaled-epo.fif', overwrite=True)
+        HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_rescaled-ave.fif', overwrite=True)
+        HG_ev1_evoke_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power_rescaled-ave.fif', overwrite=True)
 
         ###
         print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
@@ -322,7 +340,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=ttest_ind):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -349,7 +367,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
-    parser.add_argument('--stat_func', type=str, default=ttest_ind, help='Statistical function to use for significance testing. Default is ttest_ind.')
+    parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
 
     print("--------- PARSED ARGUMENTS ---------")
