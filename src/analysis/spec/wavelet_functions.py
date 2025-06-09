@@ -1,3 +1,23 @@
+import os
+import sys
+print(sys.path)
+sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    # os.getcwd() often gives the directory of the notebook,
+    # or the directory from which the Jupyter server was started.
+    current_script_dir = os.getcwd()
+
+# Navigate up three levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+
 import mne.time_frequency
 import mne
 from ieeg.io import get_data, raw_from_layout
@@ -8,7 +28,7 @@ from ieeg.calc.stats import time_perm_cluster
 import os
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
-from utils import calculate_RTs, get_good_data
+from src.analysis.utils.general_utils import calculate_RTs, get_good_data
 
 import matplotlib.pyplot as plt
 
