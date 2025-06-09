@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 92, in <module>
+    parser = argparse.ArgumentParser(description="Make wavelets for a given subject.")
+             ^^^^^^^^
+NameError: name 'argparse' is not defined
