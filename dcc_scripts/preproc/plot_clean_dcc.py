@@ -81,7 +81,7 @@ def main(subjects_list):
     task = 'GlobalLocal'
 
     # get box directory depending on OS
-    LAB_root = os.path.join("cwork", USER)
+    LAB_root = os.path.join("/cwork", USER)
     
     # Load Data
     layout = get_data(task, root=LAB_root)
