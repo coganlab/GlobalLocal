@@ -16,7 +16,7 @@ from ieeg.calc.scaling import rescale
 import os
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
-from utils import get_good_data
+from utils import get_data
 from wavelet_functions import get_uncorrected_wavelets
 
 # Set up paths

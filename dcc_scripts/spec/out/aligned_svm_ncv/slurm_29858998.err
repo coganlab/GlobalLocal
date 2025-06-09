@@ -1,0 +1,9 @@
+
+EnvironmentNameNotFound: Could not find conda environment: ieeg
+You can list all discoverable environments with `conda info --envs`.
+
+
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 6, in <module>
+    import numpy as np
+ModuleNotFoundError: No module named 'numpy'
