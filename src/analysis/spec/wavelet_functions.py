@@ -25,7 +25,6 @@ from ieeg.navigate import trial_ieeg, channel_outlier_marker, crop_empty_data, o
 from ieeg.calc.scaling import rescale
 from ieeg.calc.fast import mean_diff
 from ieeg.calc.stats import time_perm_cluster
-import os
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
 from src.analysis.utils.general_utils import calculate_RTs, get_good_data
