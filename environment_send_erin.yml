@@ -1,5 +1,6 @@
 name: ieeg
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - anyio=4.2.0
@@ -44,7 +45,6 @@ dependencies:
   - freetype=2.12.1
   - fsspec=2023.10.0
   - giflib=5.2.1
-  - icc_rt=2022.1.0
   - icu=73.1
   - idna=3.4
   - imagecodecs=2023.1.23

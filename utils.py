@@ -9,7 +9,6 @@ from ieeg.io import raw_from_layout, get_data
 from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
-import mne
 import os
 import numpy as np
 from ieeg.calc.reshape import make_data_same

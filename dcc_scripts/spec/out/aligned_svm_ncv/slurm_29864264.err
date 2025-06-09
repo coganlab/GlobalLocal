@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 97, in <module>
+    main(args.subject)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 63, in main
+    good = get_good_data(subject_id, layout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py", line 1464, in get_good_data
+    filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 117, in raw_from_layout
+    BIDS_path = bidspath_from_layout(layout, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 66, in bidspath_from_layout
+    raise FileNotFoundError("No files match your search terms")
+FileNotFoundError: No files match your search terms
