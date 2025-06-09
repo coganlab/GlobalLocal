@@ -1,8 +1,17 @@
 import os
 import sys
 
-# print(sys.path)
-# sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+# Conditionally append a path for a specific user on a specific OS
+# This is useful for developers who have local dependencies on their machine.
+if sys.platform == 'win32' and os.getlogin() == 'jz421':
+    # sys.platform returns 'win32' for both 32-bit and 64-bit Windows
+    # os.getlogin() returns the name of the user logged in to the terminal
+    custom_path = "C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/"
+    
+    # Check if the path is not already in sys.path to avoid duplicates
+    if custom_path not in sys.path:
+        sys.path.append(custom_path)
+        print(f"Appended custom path for user 'jz421' on Windows: {custom_path}")
 
 # Get the absolute path to the directory containing the current script
 # For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
