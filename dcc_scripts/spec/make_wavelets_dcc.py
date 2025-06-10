@@ -4,6 +4,7 @@
 import os
 import sys
 import argparse
+
 print(sys.path)
 
 # Get the absolute path to the directory containing the current script
@@ -50,10 +51,9 @@ def main(subject_id):
     # Load Data using the first 'get_data' function
     layout = get_data(task, root=LAB_root)
 
-    output_names_and_events_dict = {
-        'ErrorTrials': ["Accuracy/0.0"],
-        'CorrectTrials': ["Accuracy/1.0"]
-    }
+    output_names_and_events_dict = {}
+    output_names_and_events_dict = ['ErrorTrials'] = ["Accuracy/0.0"] 
+    output_names_and_events_dict = ['CorrectTrials'] = ["Accuracy/1.0"]
 
     baseline_times = [-0.5, 0]
     signal_times = [-0.5, 1.5]
@@ -92,6 +92,6 @@ def main(subject_id):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Make wavelets for a given subject.")
     parser.add_argument('--subject', type=str, required=True, 
-                        help='The subject ID to process (e.g., D0116)')
+                        help='The subject ID to processsqueue')
     args = parser.parse_args()
     main(args.subject)
