@@ -4,3 +4,11 @@
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
 /hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/var/spool/slurmd/job29976498/slurm_script: line 17: 1683238 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py --subject ${subject}
+slurmstepd: error: Detected 1 oom_kill event in StepId=29976498.batch. Some of the step tasks have been OOM Killed.
