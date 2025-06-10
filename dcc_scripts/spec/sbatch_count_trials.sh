@@ -2,8 +2,8 @@
 #SBATCH --output=out/aligned_svm_ncv/slurm_%j.out
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger
-#SBATCH -c 5
-#SBATCH --mem=20G
+#SBATCH -c 2
+#SBATCH --mem=8G
 
 subject=$1
 
