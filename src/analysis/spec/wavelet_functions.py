@@ -399,7 +399,7 @@ def load_tfrs(filename: str):
     return tfr
 
 
-def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
+def load_wavelets(sub: str, layout, epochs_root_file: str, rescaled: bool = False):
     """
     Load precomputed wavelet time-frequency representations for a subject.
 
@@ -414,8 +414,8 @@ def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
         The subject identifier (e.g., 'sub-01').
     layout : object
         An object with a 'root' attribute pointing to the BIDS dataset root directory.
-    output_name : str
-        The base name for the output file (without the suffix).
+    epochs_root_file : str
+        The base name for the epochs root file (without the suffix).
     rescaled : bool, optional
         If True, load the rescaled, baseline corrected TFR object.
         If False, load the uncorrected TFR object. Default is False.
@@ -457,11 +457,11 @@ def load_wavelets(sub: str, layout, output_name: str, rescaled: bool = False):
     True
     """
     if rescaled:
-        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{output_name}_rescaled-tfr.h5')
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_rescaled-tfr.h5')
     else:
-        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{output_name}_uncorrected-tfr.h5')
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
 
-    spec = load_tfrs(filename)
+    spec = load_tfrs(filensame)
     return spec
 
 def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
