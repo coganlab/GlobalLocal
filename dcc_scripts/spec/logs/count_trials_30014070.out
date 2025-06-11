@@ -1,0 +1,8 @@
+--- Job Started for subject D0094 on host: dcc-comp-04 ---
+--- Environment set up. Starting Python script. ---
+['/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/spec', '/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+--- Processing subject: D0094 ---
+A critical error occurred for subject D0094: [Errno 2] No such file or directory: '/cwork/etb28/coganlab/Data/BIDS-1.1_GlobalLocal'
+--- Python script finished. Job complete. ---

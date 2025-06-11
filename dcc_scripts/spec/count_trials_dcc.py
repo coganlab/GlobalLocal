@@ -45,15 +45,13 @@ def main(subject_id: str):
     try:
         print(f"--- Processing subject: {subject_id} ---")
         
-        # --- 1. Set up paths and load data ---
         task = 'GlobalLocal'
         current_user = os.path.basename(os.path.expanduser("~"))
-        LAB_root = os.path.join("/cwork", current_user, "BIDS-1.1_GlobalLocal")
+        LAB_root = os.path.join("/cwork", current_user, "coganlab", "Data", "BIDS-1.1_GlobalLocal")
         layout = get_data(task, root=LAB_root)
         raw_data = raw_from_layout(layout, subject=subject_id, preload=True)
         print("Data loaded successfully.")
 
-        # --- 2. Loop through annotations, parse them, and count ---
         print("Parsing annotations and counting trials...")
         correct_count = 0
         error_count = 0
@@ -67,7 +65,7 @@ def main(subject_id: str):
                 elif entities['Accuracy'] == '0.0':
                     error_count += 1
         
-        # --- 3. Store and print the final counts ---
+        #store + print
         trial_counts = {
             'CorrectTrials': correct_count,
             'ErrorTrials': error_count
