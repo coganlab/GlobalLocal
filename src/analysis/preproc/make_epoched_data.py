@@ -44,12 +44,13 @@ import mne
 import numpy as np
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
+from ieeg.calc.fast import mean_diff
 from ieeg.viz.mri import gen_labels
 import matplotlib.pyplot as plt
 from mne.utils import fill_doc, verbose
 import random
 from contextlib import redirect_stdout
-import sys
+
 print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
