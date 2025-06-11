@@ -1292,8 +1292,6 @@ def make_sig_electrodes_per_subject_and_roi_dict(rois_dict, subjects_electrodes_
 
     return electrodes_per_subject_roi, sig_electrodes_per_subject_roi
 
-
-
 def calculate_total_electrodes(sig_electrodes_per_subject_roi, electrodes_per_subject_roi):
     """
     Calculates the total number of significant and total electrodes for each ROI across all subjects.
@@ -1306,7 +1304,7 @@ def calculate_total_electrodes(sig_electrodes_per_subject_roi, electrodes_per_su
     - A dictionary containing the counts of significant and total electrodes for each ROI.
     """
     total_electrodes_info = {}
-    
+
     for roi in sig_electrodes_per_subject_roi:
         # Calculate total significant electrodes for the current ROI
         total_sig_entries = sum(len(sig_electrodes_per_subject_roi[roi][sub]) for sub in sig_electrodes_per_subject_roi[roi])

@@ -522,7 +522,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
 
 def get_and_plot_confusion_matrix_for_rois_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', random_state=42
+    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', random_state=42,
 ):
     """
     Compute the confusion matrix for each ROI and return it. This function allows for balancing trial counts
@@ -535,6 +535,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     - strings_to_find: List of strings or string groups to identify condition labels.
     - save_dir: Directory to save the confusion matrix plots.
     - time_interval_name: Optional string to add to the filename for the time interval.
+    - other_string_to_add: Optional string to add to the filename for other purposes.
     - n_splits: Number of splits for cross-validation.
     - n_repeats: Number of repeats for cross-validation.
     - obs_axs: The trials axis.
@@ -576,8 +577,9 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 
         # Save the figure with the time interval in the filename
         time_str = f"_{time_interval_name}" if time_interval_name else ""
+        other_str = f"_{other_string_to_add}" if other_string_to_add else ""
         file_name = (
-            f'{roi}_{condition_comparison}{time_str}_time_averaged_confusion_matrix_'
+            f'{roi}_{condition_comparison}{time_str}{other_str}_time_averaged_confusion_matrix_'
             f'{n_splits}splits_{n_repeats}repeats_{balance_method}.png'
         )
         plt.savefig(os.path.join(save_dir, file_name))
