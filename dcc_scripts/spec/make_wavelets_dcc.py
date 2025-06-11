@@ -52,8 +52,8 @@ def main(subject_id):
     layout = get_data(task, root=LAB_root)
 
     output_names_and_events_dict = {}
-    output_names_and_events_dict['ErrorTrials'] = ["Accuracy/0.0"] 
-    output_names_and_events_dict['CorrectTrials'] = ["Accuracy/1.0"]
+    output_names_and_events_dict['ErrorTrials'] = ["Accuracy0.0"] 
+    output_names_and_events_dict['CorrectTrials'] = ["Accuracy1.0"]
 
     baseline_times = [-0.5, 0]
     signal_times = [-0.5, 1.5]

@@ -46,8 +46,9 @@ def main(subject_id: str):
         print(f"--- Processing subject: {subject_id} ---")
         
         task = 'GlobalLocal'
-        current_user = os.path.basename(os.path.expanduser("~"))
-        LAB_root = os.path.join("/cwork", current_user, "coganlab", "Data", "BIDS-1.1_GlobalLocal")
+        HOME = os.path.expanduser("~")
+        USER = os.path.basename(HOME)
+        LAB_root = os.path.join("/cwork",USER,"BIDS-1.1_GlobalLocal")
         layout = get_data(task, root=LAB_root)
         raw_data = raw_from_layout(layout, subject=subject_id, preload=True)
         print("Data loaded successfully.")
