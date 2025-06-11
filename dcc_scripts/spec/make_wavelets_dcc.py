@@ -73,6 +73,7 @@ def main(subject_id):
     # make signal wavelets
     for output_name, events in output_names_and_events_dict.items():
         spec = get_uncorrected_wavelets(subject_id, layout, events, signal_times)
+
         spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
             lambda x: np.nanmean(x, axis=0), copy=True)
         spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
