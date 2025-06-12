@@ -4,7 +4,8 @@ from ieeg.viz.parula import parula_map
 from ieeg.io import get_data, update, get_bad_chans
 import os
 import matplotlib.pyplot as plt
-from wavelet_functions import load_wavelets
+import argparse
+from src.analysis.spec.wavelet_functions import load_wavelets
 
 def main(subject_id):
     # Set up paths
