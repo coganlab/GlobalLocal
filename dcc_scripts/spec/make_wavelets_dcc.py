@@ -63,7 +63,7 @@ def main(subject_id):
     good = get_good_data(subject_id, layout)
 
     ## epoching and trial outlier removal
-    save_dir = os.path.join(layout.root, 'derivatives', 'clean', subject_id)
+    save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -93,6 +93,6 @@ def main(subject_id):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Make wavelets for a given subject.")
     parser.add_argument('--subject', type=str, required=True, 
-                        help='The subject ID to processsqueue')
+                        help='The subject ID to processs')
     args = parser.parse_args()
     main(args.subject)

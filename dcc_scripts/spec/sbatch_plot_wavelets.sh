@@ -11,4 +11,7 @@ source $(conda info --base)/etc/profile.d/conda.sh
 
 conda activate ieeg # make sure this works
 
+#to be able to search for src file
+export PYTHONPATH=/hpc/home/$USER/coganlab/$USER/GlobalLocal
+
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py --subject ${subject}
