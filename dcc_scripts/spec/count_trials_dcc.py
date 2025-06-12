@@ -53,18 +53,9 @@ def main(subject_id: str):
         raw_data = raw_from_layout(layout, subject=subject_id, preload=True)
         print("Data loaded successfully.")
 
-        print("Parsing annotations and counting trials...")
-        correct_count = 0
-        error_count = 0
-
-        for description in raw_data.annotations.description:
-            entities = get_entities_from_path(description)
-            
-            if 'Accuracy' in entities:
-                if entities['Accuracy'] == '1.0':
-                    correct_count += 1
-                elif entities['Accuracy'] == '0.0':
-                    error_count += 1
+        output_names_and_events_dict = {}
+        output_names_and_events_dict['ErrorTrials'] = ["Accuracy0.0"] 
+        output_names_and_events_dict['CorrectTrials'] = ["Accuracy1.0"]
         
         #store + print
         trial_counts = {
@@ -74,7 +65,6 @@ def main(subject_id: str):
         print("\n--- Final Counts ---")
         print(trial_counts)
 
-        # --- 4. Save the results to a CSV file ---
         save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'trial_counts')
         os.makedirs(save_dir, exist_ok=True)
         counts_filename = os.path.join(save_dir, f'{subject_id}_trial_counts.csv')
@@ -89,7 +79,7 @@ def main(subject_id: str):
         print(f"A critical error occurred for subject {subject_id}: {e}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Count trials by parsing BIDS event descriptions.")
+    parser = argparse.ArgumentParser(description="Count trials.")
     parser.add_argument('--subject', type=str, required=True, help='The subject ID to process')
     args = parser.parse_args()
     main(args.subject)

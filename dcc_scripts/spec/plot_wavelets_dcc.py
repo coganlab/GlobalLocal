@@ -5,13 +5,17 @@ from ieeg.io import get_data, update, get_bad_chans
 import os
 import matplotlib.pyplot as plt
 import argparse
-from src.analysis.spec.wavelet_functions import load_wavelets
+from wavelet_functions_dcc import load_wavelets
 
 def main(subject_id):
     # Set up paths
     HOME = os.path.expanduser("~")
     USER = os.path.basename(HOME)
     task = 'GlobalLocal'
+
+    current_user = os.path.basename(os.path.expanduser("~"))
+    bids_root_path = os.path.join("/cwork", current_user, "BIDS-1.1_GlobalLocal")
+    print(f"Using BIDS Root: {bids_root_path}")
 
     # get box directory depending on OS
     LAB_root = os.path.join("/cwork", USER)
@@ -28,7 +32,7 @@ def main(subject_id):
 
     fig_path = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', 'figs')
     for output_name in output_names:
-        spec = load_wavelets(subject_id, layout, output_name, rescaled)
+        spec = load_wavelets(subject_id, bids_root_path, output_name, rescaled)
             
         info_file = os.path.join(layout.root, spec.info['subject_info']['files'][0])
 
