@@ -1,4 +1,0 @@
-  File "/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/spec/count_trials.py", line 68
-    save_dir = os.path.join(os.path.dirname(os.path.abspath(__file__))
-                           ^
-SyntaxError: '(' was never closed

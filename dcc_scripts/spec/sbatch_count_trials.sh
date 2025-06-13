@@ -3,7 +3,7 @@
 #SBATCH --error=logs/count_trials_%j.err
 #SBATCH -p common,scavenger
 #SBATCH -c 2
-#SBATCH --mem=8G
+#SBATCH --mem=25G
 #SBATCH --time=15:00
 
 subject=$1
