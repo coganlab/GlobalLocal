@@ -305,3 +305,196 @@ please provide us feedback at https://github.com/pandas-dev/pandas/issues/54466
 [Parallel(n_jobs=6)]: Done  64 tasks      | elapsed: 50.3min
 [Parallel(n_jobs=6)]: Done  65 tasks      | elapsed: 50.6min
 [Parallel(n_jobs=6)]: Done  66 tasks      | elapsed: 50.8min
+[Parallel(n_jobs=6)]: Done  67 tasks      | elapsed: 54.4min
+[Parallel(n_jobs=6)]: Done  68 tasks      | elapsed: 54.4min
+[Parallel(n_jobs=6)]: Done  69 tasks      | elapsed: 54.8min
+[Parallel(n_jobs=6)]: Done  70 tasks      | elapsed: 55.0min
+[Parallel(n_jobs=6)]: Done  71 tasks      | elapsed: 55.2min
+[Parallel(n_jobs=6)]: Done  72 tasks      | elapsed: 55.3min
+[Parallel(n_jobs=6)]: Done  73 tasks      | elapsed: 58.6min
+[Parallel(n_jobs=6)]: Done  74 tasks      | elapsed: 58.8min
+[Parallel(n_jobs=6)]: Done  75 tasks      | elapsed: 59.1min
+[Parallel(n_jobs=6)]: Done  76 tasks      | elapsed: 59.3min
+[Parallel(n_jobs=6)]: Done  77 tasks      | elapsed: 59.3min
+[Parallel(n_jobs=6)]: Done  78 tasks      | elapsed: 59.4min
+[Parallel(n_jobs=6)]: Done  79 tasks      | elapsed: 63.1min
+[Parallel(n_jobs=6)]: Done  80 tasks      | elapsed: 63.2min
+[Parallel(n_jobs=6)]: Done  81 tasks      | elapsed: 63.6min
+[Parallel(n_jobs=6)]: Done  82 tasks      | elapsed: 63.8min
+[Parallel(n_jobs=6)]: Done  83 tasks      | elapsed: 63.8min
+[Parallel(n_jobs=6)]: Done  84 tasks      | elapsed: 63.9min
+[Parallel(n_jobs=6)]: Done  85 tasks      | elapsed: 67.2min
+[Parallel(n_jobs=6)]: Done  86 tasks      | elapsed: 67.3min
+[Parallel(n_jobs=6)]: Done  87 tasks      | elapsed: 67.9min
+[Parallel(n_jobs=6)]: Done  88 tasks      | elapsed: 67.9min
+[Parallel(n_jobs=6)]: Done  89 tasks      | elapsed: 67.9min
+[Parallel(n_jobs=6)]: Done  90 tasks      | elapsed: 67.9min
+[Parallel(n_jobs=6)]: Done  91 tasks      | elapsed: 71.5min
+[Parallel(n_jobs=6)]: Done  92 tasks      | elapsed: 71.6min
+[Parallel(n_jobs=6)]: Done  93 tasks      | elapsed: 72.2min
+[Parallel(n_jobs=6)]: Done  94 tasks      | elapsed: 72.3min
+[Parallel(n_jobs=6)]: Done  95 tasks      | elapsed: 72.3min
+[Parallel(n_jobs=6)]: Done  96 tasks      | elapsed: 72.4min
+[Parallel(n_jobs=6)]: Done  97 tasks      | elapsed: 75.5min
+[Parallel(n_jobs=6)]: Done  98 tasks      | elapsed: 75.6min
+[Parallel(n_jobs=6)]: Done  99 tasks      | elapsed: 76.3min
+[Parallel(n_jobs=6)]: Done 100 tasks      | elapsed: 76.3min
+[Parallel(n_jobs=6)]: Done 101 tasks      | elapsed: 76.4min
+[Parallel(n_jobs=6)]: Done 102 tasks      | elapsed: 76.5min
+[Parallel(n_jobs=6)]: Done 103 tasks      | elapsed: 79.6min
+[Parallel(n_jobs=6)]: Done 104 tasks      | elapsed: 79.7min
+[Parallel(n_jobs=6)]: Done 105 tasks      | elapsed: 80.5min
+[Parallel(n_jobs=6)]: Done 106 tasks      | elapsed: 80.6min
+[Parallel(n_jobs=6)]: Done 107 tasks      | elapsed: 80.6min
+[Parallel(n_jobs=6)]: Done 108 tasks      | elapsed: 80.7min
+[Parallel(n_jobs=6)]: Done 109 tasks      | elapsed: 83.6min
+[Parallel(n_jobs=6)]: Done 110 tasks      | elapsed: 83.7min
+[Parallel(n_jobs=6)]: Done 111 tasks      | elapsed: 84.4min
+[Parallel(n_jobs=6)]: Done 112 tasks      | elapsed: 84.6min
+[Parallel(n_jobs=6)]: Done 113 tasks      | elapsed: 84.6min
+[Parallel(n_jobs=6)]: Done 114 tasks      | elapsed: 84.7min
+[Parallel(n_jobs=6)]: Done 115 tasks      | elapsed: 87.7min
+[Parallel(n_jobs=6)]: Done 116 tasks      | elapsed: 87.8min
+[Parallel(n_jobs=6)]: Done 117 tasks      | elapsed: 88.5min
+[Parallel(n_jobs=6)]: Done 118 tasks      | elapsed: 88.9min
+[Parallel(n_jobs=6)]: Done 119 tasks      | elapsed: 88.9min
+[Parallel(n_jobs=6)]: Done 120 tasks      | elapsed: 88.9min
+[Parallel(n_jobs=6)]: Done 121 tasks      | elapsed: 91.7min
+[Parallel(n_jobs=6)]: Done 122 tasks      | elapsed: 91.8min
+[Parallel(n_jobs=6)]: Done 123 tasks      | elapsed: 92.6min
+[Parallel(n_jobs=6)]: Done 124 tasks      | elapsed: 92.9min
+[Parallel(n_jobs=6)]: Done 125 tasks      | elapsed: 92.9min
+[Parallel(n_jobs=6)]: Done 126 tasks      | elapsed: 92.9min
+[Parallel(n_jobs=6)]: Done 127 tasks      | elapsed: 96.0min
+[Parallel(n_jobs=6)]: Done 128 tasks      | elapsed: 96.1min
+[Parallel(n_jobs=6)]: Done 129 tasks      | elapsed: 96.8min
+[Parallel(n_jobs=6)]: Done 130 tasks      | elapsed: 97.0min
+[Parallel(n_jobs=6)]: Done 131 tasks      | elapsed: 97.3min
+[Parallel(n_jobs=6)]: Done 132 tasks      | elapsed: 97.3min
+[Parallel(n_jobs=6)]: Done 133 tasks      | elapsed: 100.0min
+[Parallel(n_jobs=6)]: Done 134 tasks      | elapsed: 100.1min
+[Parallel(n_jobs=6)]: Done 135 tasks      | elapsed: 100.9min
+[Parallel(n_jobs=6)]: Done 136 tasks      | elapsed: 101.0min
+[Parallel(n_jobs=6)]: Done 137 tasks      | elapsed: 101.3min
+[Parallel(n_jobs=6)]: Done 138 tasks      | elapsed: 101.3min
+[Parallel(n_jobs=6)]: Done 139 tasks      | elapsed: 104.2min
+[Parallel(n_jobs=6)]: Done 140 tasks      | elapsed: 104.2min
+[Parallel(n_jobs=6)]: Done 141 tasks      | elapsed: 105.1min
+[Parallel(n_jobs=6)]: Done 142 tasks      | elapsed: 105.2min
+[Parallel(n_jobs=6)]: Done 143 tasks      | elapsed: 105.4min
+[Parallel(n_jobs=6)]: Done 144 tasks      | elapsed: 105.6min
+[Parallel(n_jobs=6)]: Done 145 tasks      | elapsed: 108.1min
+[Parallel(n_jobs=6)]: Done 146 tasks      | elapsed: 108.2min
+[Parallel(n_jobs=6)]: Done 147 tasks      | elapsed: 109.1min
+[Parallel(n_jobs=6)]: Done 148 tasks      | elapsed: 109.1min
+[Parallel(n_jobs=6)]: Done 149 tasks      | elapsed: 109.3min
+[Parallel(n_jobs=6)]: Done 150 tasks      | elapsed: 109.5min
+[Parallel(n_jobs=6)]: Done 151 tasks      | elapsed: 112.4min
+[Parallel(n_jobs=6)]: Done 152 tasks      | elapsed: 112.4min
+[Parallel(n_jobs=6)]: Done 153 tasks      | elapsed: 113.3min
+[Parallel(n_jobs=6)]: Done 154 tasks      | elapsed: 113.3min
+[Parallel(n_jobs=6)]: Done 155 tasks      | elapsed: 113.5min
+[Parallel(n_jobs=6)]: Done 156 tasks      | elapsed: 113.5min
+[Parallel(n_jobs=6)]: Done 157 tasks      | elapsed: 116.4min
+[Parallel(n_jobs=6)]: Done 158 tasks      | elapsed: 116.4min
+[Parallel(n_jobs=6)]: Done 159 tasks      | elapsed: 117.3min
+[Parallel(n_jobs=6)]: Done 160 tasks      | elapsed: 117.3min
+[Parallel(n_jobs=6)]: Done 161 tasks      | elapsed: 117.4min
+[Parallel(n_jobs=6)]: Done 162 tasks      | elapsed: 117.5min
+[Parallel(n_jobs=6)]: Done 163 tasks      | elapsed: 120.5min
+[Parallel(n_jobs=6)]: Done 164 tasks      | elapsed: 120.6min
+[Parallel(n_jobs=6)]: Done 165 tasks      | elapsed: 121.4min
+[Parallel(n_jobs=6)]: Done 166 tasks      | elapsed: 121.5min
+[Parallel(n_jobs=6)]: Done 167 tasks      | elapsed: 121.5min
+[Parallel(n_jobs=6)]: Done 168 tasks      | elapsed: 121.6min
+[Parallel(n_jobs=6)]: Done 169 tasks      | elapsed: 124.6min
+[Parallel(n_jobs=6)]: Done 170 tasks      | elapsed: 124.7min
+[Parallel(n_jobs=6)]: Done 171 tasks      | elapsed: 125.4min
+[Parallel(n_jobs=6)]: Done 172 tasks      | elapsed: 125.5min
+[Parallel(n_jobs=6)]: Done 173 tasks      | elapsed: 125.6min
+[Parallel(n_jobs=6)]: Done 174 tasks      | elapsed: 125.7min
+[Parallel(n_jobs=6)]: Done 175 tasks      | elapsed: 128.8min
+[Parallel(n_jobs=6)]: Done 176 tasks      | elapsed: 128.8min
+[Parallel(n_jobs=6)]: Done 177 tasks      | elapsed: 129.5min
+[Parallel(n_jobs=6)]: Done 178 tasks      | elapsed: 129.6min
+[Parallel(n_jobs=6)]: Done 179 tasks      | elapsed: 129.7min
+[Parallel(n_jobs=6)]: Done 180 tasks      | elapsed: 129.8min
+[Parallel(n_jobs=6)]: Done 181 tasks      | elapsed: 132.9min
+[Parallel(n_jobs=6)]: Done 182 tasks      | elapsed: 132.9min
+[Parallel(n_jobs=6)]: Done 183 tasks      | elapsed: 133.5min
+[Parallel(n_jobs=6)]: Done 184 tasks      | elapsed: 133.8min
+[Parallel(n_jobs=6)]: Done 185 tasks      | elapsed: 133.8min
+[Parallel(n_jobs=6)]: Done 186 tasks      | elapsed: 133.8min
+[Parallel(n_jobs=6)]: Done 187 tasks      | elapsed: 137.1min
+[Parallel(n_jobs=6)]: Done 188 tasks      | elapsed: 137.1min
+[Parallel(n_jobs=6)]: Done 189 tasks      | elapsed: 137.7min
+[Parallel(n_jobs=6)]: Done 190 tasks      | elapsed: 138.1min
+[Parallel(n_jobs=6)]: Done 191 tasks      | elapsed: 138.1min
+[Parallel(n_jobs=6)]: Done 192 tasks      | elapsed: 138.1min
+[Parallel(n_jobs=6)]: Done 193 tasks      | elapsed: 141.1min
+[Parallel(n_jobs=6)]: Done 194 tasks      | elapsed: 141.2min
+[Parallel(n_jobs=6)]: Done 195 tasks      | elapsed: 141.8min
+[Parallel(n_jobs=6)]: Done 196 tasks      | elapsed: 142.0min
+[Parallel(n_jobs=6)]: Done 197 tasks      | elapsed: 142.2min
+[Parallel(n_jobs=6)]: Done 198 tasks      | elapsed: 142.2min
+[Parallel(n_jobs=6)]: Done 199 tasks      | elapsed: 145.4min
+[Parallel(n_jobs=6)]: Done 200 tasks      | elapsed: 145.4min
+[Parallel(n_jobs=6)]: Done 201 tasks      | elapsed: 146.0min
+[Parallel(n_jobs=6)]: Done 202 tasks      | elapsed: 146.1min
+[Parallel(n_jobs=6)]: Done 203 tasks      | elapsed: 146.3min
+[Parallel(n_jobs=6)]: Done 204 tasks      | elapsed: 146.4min
+[Parallel(n_jobs=6)]: Done 205 tasks      | elapsed: 149.4min
+[Parallel(n_jobs=6)]: Done 206 tasks      | elapsed: 149.5min
+[Parallel(n_jobs=6)]: Done 207 tasks      | elapsed: 150.1min
+[Parallel(n_jobs=6)]: Done 208 tasks      | elapsed: 150.1min
+[Parallel(n_jobs=6)]: Done 209 tasks      | elapsed: 150.3min
+[Parallel(n_jobs=6)]: Done 210 tasks      | elapsed: 150.3min
+[Parallel(n_jobs=6)]: Done 211 tasks      | elapsed: 153.5min
+[Parallel(n_jobs=6)]: Done 212 tasks      | elapsed: 153.6min
+[Parallel(n_jobs=6)]: Done 213 tasks      | elapsed: 154.1min
+[Parallel(n_jobs=6)]: Done 214 tasks      | elapsed: 154.3min
+[Parallel(n_jobs=6)]: Done 220 out of 225 | elapsed: 158.2min remaining:  3.6min
+[Parallel(n_jobs=6)]: Done 225 out of 225 | elapsed: 162.1min finished
+[Parallel(n_jobs=6)]: Using backend LokyBackend with 6 concurrent workers.
+[Parallel(n_jobs=6)]: Done   3 out of   6 | elapsed:   35.0s remaining:   35.0s
+[Parallel(n_jobs=6)]: Done   6 out of   6 | elapsed:   51.2s finished
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/viz/ensemble.py:48: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
+  fig.subplots_adjust(top=0.85)
+[Parallel(n_jobs=6)]: Using backend LokyBackend with 6 concurrent workers.
+[Parallel(n_jobs=6)]: Done   3 out of   6 | elapsed:   28.1s remaining:   28.1s
+[Parallel(n_jobs=6)]: Done   6 out of   6 | elapsed:   44.4s finished
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/viz/ensemble.py:48: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
+  fig.subplots_adjust(top=0.85)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: Converting data files to EDF format
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: EDF format requires equal-length data blocks, so 1 seconds of edge values were appended to all channels when writing the final block.
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: Converting data files to EDF format
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: EDF format requires equal-length data blocks, so 1 seconds of edge values were appended to all channels when writing the final block.
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: Converting data files to EDF format
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: EDF format requires equal-length data blocks, so 1 seconds of edge values were appended to all channels when writing the final block.
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:267: RuntimeWarning: Converting data files to EDF format
+  write_raw_bids(run, bids_path, allow_preload=True, format=format,
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py", line 214, in <module>
+    main(args.subjects)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/preproc/plot_clean_dcc.py", line 202, in main
+    channel_outlier_marker(raw, 3, 2, save=True)
+  File "<decorator-gen-467>", line 10, in channel_outlier_marker
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/navigate.py", line 154, in channel_outlier_marker
+    update(file, bads, desc)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/functools.py", line 909, in wrapper
+    return dispatch(args[0].__class__)(*args, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-466>", line 12, in update
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 312, in update
+    mark_channels(bids_path, ch_names=channels, status=status,
+  File "<decorator-gen-457>", line 12, in mark_channels
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne_bids/write.py", line 2680, in mark_channels
+    if "status_description" not in tsv_data and write_descriptions:
+                                                ^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'write_descriptions' where it is not associated with a value

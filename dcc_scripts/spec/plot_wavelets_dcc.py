@@ -15,7 +15,6 @@ def main(subject_id):
 
     current_user = os.path.basename(os.path.expanduser("~"))
     bids_root_path = os.path.join("/cwork", current_user, "BIDS-1.1_GlobalLocal")
-    print(f"Using BIDS Root: {bids_root_path}")
 
     # get box directory depending on OS
     LAB_root = os.path.join("/cwork", USER)
@@ -26,7 +25,7 @@ def main(subject_id):
     rescaled=True
 
     # define output_names that you want to plot wavelets for
-    output_names = ['ErrorTrials', 'CorrectTrials']
+    output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
 
     layout = get_data("GlobalLocal", root=LAB_root)
 
