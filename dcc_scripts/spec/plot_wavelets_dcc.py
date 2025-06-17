@@ -5,52 +5,57 @@ from ieeg.io import get_data, update, get_bad_chans
 import os
 import matplotlib.pyplot as plt
 import argparse
-from wavelet_functions_dcc import load_wavelets
+from src.analysis.spec.wavelet_functions import load_wavelets
 
 def main(subject_id):
-    # Set up paths
-    HOME = os.path.expanduser("~")
-    USER = os.path.basename(HOME)
-    task = 'GlobalLocal'
 
-    current_user = os.path.basename(os.path.expanduser("~"))
-    bids_root_path = os.path.join("/cwork", current_user, "BIDS-1.1_GlobalLocal")
+    try:
+        # Set up paths
+        HOME = os.path.expanduser("~")
+        USER = os.path.basename(HOME)
+        task = 'GlobalLocal'
+        LAB_root = os.path.join("/cwork", USER)
+        layout = get_data(task, root=LAB_root)
 
-    # get box directory depending on OS
-    LAB_root = os.path.join("/cwork", USER)
-    
-    # Load Data
-    layout = get_data(task, root=LAB_root)
+        # define output_names that you want to plot wavelets for
+        output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
+        rescaled=True
 
-    rescaled=True
+        #making path for figures
+        ##fig_path = os.path.join('/cwork', USER, 'coganlab','Data', 'BIDS-1.1_GlobalLocal', 'BIDS','derivatives', 'spec', 'wavelet', 'figs')
+        #previous figure path
+        fig_path = os.path.join(layout.root,'derivatives', 'spec', 'wavelet', 'figs')
 
-    # define output_names that you want to plot wavelets for
-    output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
+        for output_name in output_names:
+            rescaled = True
+            error_file_path = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id, f"{output_name}_rescaled-tfr.h5")
 
-    layout = get_data("GlobalLocal", root=LAB_root)
+            if os.path.exists(error_file_path):
 
-    fig_path = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', 'figs')
-    for output_name in output_names:
-        spec = load_wavelets(subject_id, bids_root_path, output_name, rescaled)
-            
-        info_file = os.path.join(layout.root, spec.info['subject_info']['files'][0])
+                spec = load_wavelets(subject_id, layout, output_name, rescaled)
+                info_file = os.path.join(layout.root, spec.info['subject_info']['files'][0])
 
-        # Check channels for outliers and remove them
-        all_bad = get_bad_chans(info_file)
-        spec.info.update(bads=[b for b in all_bad if b in spec.ch_names])
+                # Check channels for outliers and remove them
+                all_bad = get_bad_chans(info_file)
+                spec.info.update(bads=[b for b in all_bad if b in spec.ch_names])
 
-        # Plotting
-        figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2, cmap=parula_map, show=False)
+                # Plotting
+                figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2, cmap=parula_map, show=False)
 
-        for i, f in enumerate(figs):
-            if rescaled:
-                fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.jpg'
+                for i, f in enumerate(figs):
+                    if rescaled:
+                        fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.jpg'
+                    else:
+                        fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.jpg'
+
+                    fig_pathname = os.path.join(fig_path, fig_name)
+                    f.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_name)
             else:
-                fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.jpg'
-
-            fig_pathname = os.path.join(fig_path, fig_name)
-            f.savefig(fig_pathname, bbox_inches='tight')
-            print("Saved figure:", fig_name)
+                print(f"File not found for {output_name}")
+        
+    except Exception as e:
+        print(f"A critical error occurred for subject {subject_id}: {e}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Plot wavelets for a given subject.")
