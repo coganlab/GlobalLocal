@@ -5,7 +5,7 @@ from ieeg.io import get_data, update, get_bad_chans
 import os
 import matplotlib.pyplot as plt
 import argparse
-from wavelet_functions_dcc import load_wavelets
+from src.analysis.spec.wavelet_functions import load_wavelets
 
 def main(subject_id):
 
@@ -14,28 +14,25 @@ def main(subject_id):
         HOME = os.path.expanduser("~")
         USER = os.path.basename(HOME)
         task = 'GlobalLocal'
-
-        current_user = os.path.basename(os.path.expanduser("~"))
-        bids_root_path = os.path.join("/cwork", current_user, "BIDS-1.1_GlobalLocal")
-
-        # get box directory depending on OS
         LAB_root = os.path.join("/cwork", USER)
-    
-        # Load Data
         layout = get_data(task, root=LAB_root)
-
-        rescaled=True
 
         # define output_names that you want to plot wavelets for
         output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
+        rescaled=True
 
-        layout = get_data("GlobalLocal", root=LAB_root)
+        #making path for figures
+        ##fig_path = os.path.join('/cwork', USER, 'coganlab','Data', 'BIDS-1.1_GlobalLocal', 'BIDS','derivatives', 'spec', 'wavelet', 'figs')
+        #previous figure path
+        fig_path = os.path.join(layout.root,'derivatives', 'spec', 'wavelet', 'figs')
 
-        fig_path = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', 'figs')
         for output_name in output_names:
-            if events: 
-                spec = load_wavelets(subject_id, bids_root_path, output_name, rescaled)
-            
+            rescaled = True
+            error_file_path = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id, f"{output_name}_rescaled-tfr.h5")
+
+            if os.path.exists(error_file_path):
+
+                spec = load_wavelets(subject_id, layout, output_name, rescaled)
                 info_file = os.path.join(layout.root, spec.info['subject_info']['files'][0])
 
                 # Check channels for outliers and remove them
@@ -55,8 +52,8 @@ def main(subject_id):
                     f.savefig(fig_pathname, bbox_inches='tight')
                     print("Saved figure:", fig_name)
             else:
-                print(f"No trials found")
-
+                print(f"File not found for {output_name}")
+        
     except Exception as e:
         print(f"A critical error occurred for subject {subject_id}: {e}")
 
