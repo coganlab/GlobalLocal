@@ -2,6 +2,7 @@
 
 # Create directories for logs and results
 mkdir -p trial_counts
+mkdir -p logs
 
 # Get a list of all subjects from the BIDS directory
 BIDS_DIR="/cwork/etb28/BIDS-1.1_GlobalLocal"
