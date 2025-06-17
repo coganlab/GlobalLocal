@@ -161,7 +161,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -172,6 +172,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - times (tuple [float, float]): The time window to epoch around the event.
     - within_base_times (tuple [float, float]): The time window within which to randomly select intervals for each event, for baseline.
     - base_times_length (float): The length of the time intervals to randomly select within `within_base_times`. 
+    - baseline_event (str): The event to use for baseline. Use "experimentStart" for beginning of experiment, or use "Stimulus" for pre-stimulus. 
     - pad_length (float): The length to pad each time interval. Will be removed later.
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
@@ -234,10 +235,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
-    within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
+    # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
-    # Create a baseline EpochsTFR using the stimulus event. For each trial, will randomly grab a segment of duration base_times_length from the within_base_times range. This offsets the fix cross. 6/15.
-    trials = trial_ieeg_rand_offset(good, "Stimulus", within_base_times, base_times_length, pad_length, preload=True)
+    # Create a baseline EpochsTFR using the baseline event. For each trial, will randomly grab a segment of duration base_times_length from the within_base_times range.
+    trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
     outliers_to_nan(trials, outliers=outliers)
     HG_base = gamma.extract(trials, passband=passband, copy=False, n_jobs=1)
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
@@ -265,7 +266,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
     
-    output_name_base = f"{base_times_length}sec_within{within_times_duration}sec_randoffset_preStimulusBase_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
