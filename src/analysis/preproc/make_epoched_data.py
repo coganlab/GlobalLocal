@@ -172,7 +172,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - times (tuple [float, float]): The time window to epoch around the event.
     - within_base_times (tuple [float, float]): The time window within which to randomly select intervals for each event, for baseline.
     - base_times_length (float): The length of the time intervals to randomly select within `within_base_times`. 
-    - baseline_event (str): The event to use for baseline. Use "experimentStart" for beginning of experiment, or use "Stimulus" for pre-stimulus. 
+    - baseline_event (str): The event to use for baseline. Use "experimentStart" for beginning of experiment, or use "Stimulus" for pre-stimulus. Not sure if "experimentStart" actually exists, check how to make this. 
     - pad_length (float): The length to pad each time interval. Will be removed later.
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
@@ -362,6 +362,7 @@ if __name__ == "__main__":
     parser.add_argument('--task', type=str, default='GlobalLocal', help='Task to process. Default is GlobalLocal.')
     parser.add_argument('--times', type=float, nargs=2, default=(-1, 1.5), help='Time window for event processing. Default is (-1, 1.5).')
     parser.add_argument('--within_base_times', type=float, nargs=2, default=(-1, 0), help='Time window for baseline processing. Default is (-1, 0).')
+    parser.add_argument('--baseline_event', type=str, default='Stimulus', help='Event to use for baseline. Default is Stimulus.')
     parser.add_argument('--base_times_length', type=float, default=0.5, help='Length of the time intervals to randomly select within `within_base_times`. Default is 0.5.')
     parser.add_argument('--pad_length', type=float, default=0.5, help='Length to pad each time interval. Will be removed later. Default is 0.5.')
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
