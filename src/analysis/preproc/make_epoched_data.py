@@ -238,7 +238,13 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
     # Create a baseline EpochsTFR using the baseline event. For each trial, will randomly grab a segment of duration base_times_length from the within_base_times range.
-    trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
+    if baseline_event == "experimentStart":
+        within_base_times_adj = [within_base_times[0] - pad_length, within_base_times[1] + pad_length]
+        trials = trial_ieeg(good, baseline_event, within_base_times_adj, preload=True,
+                            reject_by_annotation=False)
+    else:
+        trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
+
     outliers_to_nan(trials, outliers=outliers)
     HG_base = gamma.extract(trials, passband=passband, copy=False, n_jobs=1)
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
@@ -266,7 +272,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
     
-    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    if baseline_event == "experimentStart":
+        output_name_base = f"{base_times_length}sec_within{within_base_times_adj[0]}-{within_base_times_adj[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    else:
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
