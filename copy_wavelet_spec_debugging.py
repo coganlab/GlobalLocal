@@ -1,4 +1,4 @@
-import mne.time_frequency
+ls import mne.time_frequency
 import mne
 from ieeg.io import get_data, raw_from_layout
 from ieeg.navigate import trial_ieeg, channel_outlier_marker, crop_empty_data, outliers_to_nan

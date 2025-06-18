@@ -461,7 +461,7 @@ def load_wavelets(sub: str, layout, epochs_root_file: str, rescaled: bool = Fals
     else:
         filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
 
-    spec = load_tfrs(filensame)
+    spec = load_tfrs(filename)
     return spec
 
 def plot_mask_pages(mask: np.ndarray, ch_names: List[str],
