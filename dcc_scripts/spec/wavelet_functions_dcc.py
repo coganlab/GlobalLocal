@@ -122,7 +122,7 @@ def get_trials_for_wavelets(data: mne.io.Raw, events: list[str], times: tuple[fl
     for event in events:
         # Adjust times for 0.5s padding before and after the epoch
         times_adj = [times[0] - 0.5, times[1] + 0.5]
-        trials = trial_ieeg(data, event, times_adj, preload=True,
+        trials = trial_ieeg(data, event, times_adj, preload=False,
                             reject_by_annotation=False)
         all_trials_list.append(trials)
 
