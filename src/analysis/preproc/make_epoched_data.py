@@ -237,14 +237,15 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
-    # Create a baseline EpochsTFR using the baseline event. For each trial, will randomly grab a segment of duration base_times_length from the within_base_times range.
-    if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
+    # debugging 6/17/25
+    # Create a baseline EpochsTFR using the baseline event
+    if baseline_event == "experimentStart":
+        # Adjust the time window
         within_base_times_adj = [within_base_times[0] - pad_length, within_base_times[1] + pad_length]
-        trials = trial_ieeg(good, baseline_event, within_base_times_adj, preload=True,
-                            reject_by_annotation=False)
+        trials = trial_ieeg(good, baseline_event, within_base_times_adj, preload=True)
     else:
         trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
-
+    
     outliers_to_nan(trials, outliers=outliers)
     HG_base = gamma.extract(trials, passband=passband, copy=False, n_jobs=1)
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
