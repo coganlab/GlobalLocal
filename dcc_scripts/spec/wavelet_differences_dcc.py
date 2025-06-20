@@ -59,8 +59,8 @@ else: # mac
 
 layout = get_data('GlobalLocal', root=LAB_root)
 
-# subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110']
-subjects = ['D0094']
+subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110']
+#subjects = ['D0094']
 
 # this is a toggle for which version to run - the one that makes the wavelets in this notebook directly, or the one that loads them
 make_wavelets=False
