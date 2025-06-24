@@ -1,3 +1,8 @@
+import sys
+import os
+print(sys.path)
+sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+
 import numpy as np
 from scipy import ndimage
 import matplotlib.pyplot as plt
