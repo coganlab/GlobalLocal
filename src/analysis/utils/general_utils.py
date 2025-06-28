@@ -407,13 +407,55 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
                 sub_mne_objects[condition_name] = {}
                 sub_mne_objects[condition_name][mne_object] = event_epochs
 
-                # create evoked objects for each condition (mean and standard error)
-                # Compute the mean across trials
-                evoked_avg = event_epochs.average()
+                # create evoked objects for each condition (mean and standard error) using nanmean and nanstd
+                # Get the epochs data
+                epochs_data = event_epochs.get_data()
+                print(f"    Original shape: {epochs_data.shape}")
+
+                # DEBUGGING: Check NaN statistics
+                nan_count_per_trial = np.sum(np.isnan(epochs_data), axis=(1, 2))
+                fully_nan_trials = np.all(np.isnan(epochs_data), axis=(1, 2))
+
+                print(f"    Trials with all NaN values: {np.sum(fully_nan_trials)}")
+                print(f"    Average NaN count per trial: {np.mean(nan_count_per_trial):.1f}")
+                print(f"    Max NaN count in a trial: {np.max(nan_count_per_trial)}")
+
+                # Check if specific channels have many NaNs
+                nan_per_channel = np.sum(np.isnan(epochs_data), axis=(0, 2))
+                high_nan_channels = np.where(nan_per_channel > 0.5 * epochs_data.shape[0] * epochs_data.shape[2])[0]
+                if len(high_nan_channels) > 0:
+                    print(f"    Channels with >50% NaN: {[event_epochs.ch_names[i] for i in high_nan_channels]}")
+
+                # Check how many trials have valid data (not all NaN)
+                # A trial is valid if at least one channel has non-NaN data
+                valid_trials_mask = ~np.all(np.isnan(epochs_data), axis=(1, 2))
+                n_valid_trials = np.sum(valid_trials_mask)
+
+                print(f"    {condition_name}: {n_valid_trials} valid trials out of {len(event_epochs)}")
+
+                # Compute the nanmean across trials
+                data_nanmean = np.nanmean(epochs_data, axis=0)
+                evoked_avg = event_epochs.average()  # Create template
+                evoked_avg.data = data_nanmean
+                evoked_avg.nave = n_valid_trials
                 sub_mne_objects[condition_name][mne_object + '_avg'] = evoked_avg
-                
-                # Compute the standard error across trials
-                evoked_std_err = event_epochs.average().standard_error()
+
+                # Compute the standard error across trials using nanstd
+                # Calculate valid trials per channel-timepoint
+                n_valid_per_channel_time = np.sum(~np.isnan(epochs_data), axis=0)
+
+                # Avoid division by zero or sqrt of negative numbers
+                n_valid_per_channel_time = np.maximum(n_valid_per_channel_time, 1)
+
+                # Calculate standard error
+                std_err_data = np.nanstd(epochs_data, axis=0, ddof=1) / np.sqrt(n_valid_per_channel_time)
+
+                # Handle cases where all values are NaN
+                std_err_data = np.nan_to_num(std_err_data, nan=0.0)
+
+                evoked_std_err = event_epochs.average()  # Create template
+                evoked_std_err.data = std_err_data
+                evoked_std_err.nave = int(np.mean(n_valid_per_channel_time))
                 sub_mne_objects[condition_name][mne_object + '_std_err'] = evoked_std_err
                  
             subjects_mne_objects[sub] = sub_mne_objects
