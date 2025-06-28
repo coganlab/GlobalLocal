@@ -308,7 +308,7 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
 
     return mne_objects
 
-def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True):
+def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled=False, LAB_root=None, acc_trials_only=True, error_trials_only=False):
     """
     Create a nested dictionary of MNE Epochs objects for multiple subjects,
     organized by experimental conditions and MNE object types.
@@ -355,19 +355,24 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         marked as accurate. This is done by selecting epochs where the metadata
         field 'Accuracy1.0' (or a similar field indicating accuracy) is equal to 1.0.
         Defaults to True.
+    error_trials_only : bool, optional
+        If True, filters the loaded MNE Epochs objects to include only trials
+        marked as inaccurate. This is done by selecting epochs where the metadata
+        field 'Accuracy1.0' (or a similar field indicating accuracy) is equal to 0.0.
+        Defaults to False.
 
     Returns:
     -------
     dict
         A nested dictionary with the following structure:
-        `subjects_mne_objects[subject_id][condition_name][mne_object_type] = MNE Epochs Object`
+        `subjects_mne_objects[subject_id][condition_name][mne_object_type] = MNE Epochs or Evoked Object`
         Where:
         - `subject_id` (str): The subject identifier.
         - `condition_name` (str): The user-defined name of the experimental condition.
         - `mne_object_type` (str): The type of MNE data (e.g., 'HG_ev1_rescaled',
-          'HG_ev1', 'HG_ev1_power_rescaled'). The specific types available depend
+          'HG_ev1', 'HG_ev1_power_rescaled', 'HG_ev1_avg', 'HG_ev1_rescaled_avg', 'HG_ev1_power_rescaled_avg', 'HG_ev1_std_err', 'HG_ev1_rescaled_std_err', 'HG_ev1_power_rescaled_std_err'). The specific types available depend
           on `just_HG_ev1_rescaled` and the files loaded by `load_mne_objects`.
-          Each value is an MNE Epochs object corresponding to the specified
+          Each value is an MNE Epochs or Evoked object corresponding to the specified
           subject, condition, and data type.
     """
     subjects_mne_objects = {}
@@ -380,7 +385,9 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         for mne_object in mne_objects.keys():
             if acc_trials_only == True:
                 mne_objects[mne_object] = mne_objects[mne_object]["Accuracy1.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
-
+            elif error_trials_only == True:
+                mne_objects[mne_object] = mne_objects[mne_object]["Accuracy0.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
+            
             for condition_name, condition_parameters in conditions.items():
                 print(f"  Loading condition: {condition_name} with parameters: {condition_parameters}")
                 # Get BIDS events from the conditions, and remove it so it doesn't complicate future analyses.
@@ -399,6 +406,16 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
 
                 sub_mne_objects[condition_name] = {}
                 sub_mne_objects[condition_name][mne_object] = event_epochs
+
+                # create evoked objects for each condition (mean and standard error)
+                # Compute the mean across trials
+                evoked_avg = event_epochs.average()
+                sub_mne_objects[condition_name][mne_object + '_avg'] = evoked_avg
+                
+                # Compute the standard error across trials
+                evoked_std_err = event_epochs.average().standard_error()
+                sub_mne_objects[condition_name][mne_object + '_std_err'] = evoked_std_err
+                 
             subjects_mne_objects[sub] = sub_mne_objects
 
     return subjects_mne_objects
@@ -691,6 +708,7 @@ def initialize_output_data(rois, condition_names):
     Initialize dictionaries for storing data across different conditions and ROIs.
     """
     return {condition_name: {roi: [] for roi in rois} for condition_name in condition_names}
+
 def process_data_for_roi(subjects_mne_objects, condition_names, rois, subjects, sig_electrodes_per_subject_roi, time_indices):
     """
     Processes and aggregates electrophysiological data for specified regions of interest (ROIs)
@@ -1479,3 +1497,10 @@ def get_good_data(sub, layout):
     # good.plot()
 
     return good
+
+def count_electrodes_across_subjects(data, subjects):
+    total_electrodes = 0
+    for subject, details in data.items():
+        if subject in subjects:
+            total_electrodes += len(details['default_dict'])
+    return total_electrodes

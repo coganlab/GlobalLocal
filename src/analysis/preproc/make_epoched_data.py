@@ -272,7 +272,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         stat_func_for_filename = stat_func.replace(" ", "_").replace("(", "").replace(")", "").replace("=", "")
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
-    
+    # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
     if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
         output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     else:
