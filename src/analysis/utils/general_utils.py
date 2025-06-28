@@ -420,7 +420,7 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
                 print(f"    Average NaN count per trial: {np.mean(nan_count_per_trial):.1f}")
                 print(f"    Max NaN count in a trial: {np.max(nan_count_per_trial)}")
 
-                # Check if specific channels have many NaNs
+                # DEBUGGING: Check if specific channels have many NaNs
                 nan_per_channel = np.sum(np.isnan(epochs_data), axis=(0, 2))
                 high_nan_channels = np.where(nan_per_channel > 0.5 * epochs_data.shape[0] * epochs_data.shape[2])[0]
                 if len(high_nan_channels) > 0:
