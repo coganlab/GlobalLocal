@@ -1,4 +1,0 @@
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 55
-    output_names_and_events_dict = ['ErrorTrials'] = ["Accuracy/0.0"] 
-                                    ^^^^^^^^^^^^^
-SyntaxError: cannot assign to literal

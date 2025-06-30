@@ -1,4 +1,0 @@
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py", line 25
-    fig_path = os.path.join('c/work', USER, 'coganlab', "Data, 'BIDS-1.1_GlobalLocal', 'BIDS','derivatives', 'spec', 'wavelet', 'figs')
-                                                        ^
-SyntaxError: unterminated string literal (detected at line 25)
