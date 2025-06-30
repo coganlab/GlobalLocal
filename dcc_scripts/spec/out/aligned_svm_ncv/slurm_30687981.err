@@ -2970,3 +2970,23 @@ The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub
 
 The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 132, in <module>
+    accuracy_mask, accuracy_pvals = load_and_get_sig_wavelet_differences(
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 347, in load_and_get_sig_wavelet_differences
+    spec_condition_1 = load_wavelets(sub, layout, output_name_condition_1, rescaled)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 464, in load_wavelets
+    spec = load_tfrs(filename)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 391, in load_tfrs
+    tfr_result = mne.time_frequency.read_tfrs(filename)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-177>", line 12, in read_tfrs
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/time_frequency/tfr.py", line 4163, in read_tfrs
+    hdf5_dict = read_hdf5(fname, title="mnepython", slash="replace")
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/h5io/_h5io.py", line 464, in read_hdf5
+    raise IOError('file "%s" not found' % fname)
+OSError: file "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/wavelet/D0117/ErrorTrials_Stimulus_Locked_uncorrected-tfr.h5" not found

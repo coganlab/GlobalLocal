@@ -18,7 +18,7 @@ def main(subject_id):
         layout = get_data(task, root=LAB_root)
 
         # define output_names that you want to plot wavelets for
-        output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
+        output_names = ['ErrorTrials_Response_Locked', 'CorrectTrials_Response_Locked']
         rescaled=True
 
         #making path for figures

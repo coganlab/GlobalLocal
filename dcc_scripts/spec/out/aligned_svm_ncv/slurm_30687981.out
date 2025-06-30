@@ -786,3 +786,20 @@ Creating raw.info structure...
 Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/ieeg/sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
 Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/ieeg/sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
 Not fully anonymizing info - keeping his_id, sex, and hand info
+<RawEDF | sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf, 208 x 7878656 (3847.0 s), ~163 kB, data not loaded>
+outlier round 1 channels: ['RMOF12']
+outlier round 1 channels: ['RMOF12', 'RLOF1']
+outlier round 1 channels: ['RMOF12', 'RLOF1', 'RINSA1']
+outlier round 1 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1']
+outlier round 1 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3']
+outlier round 1 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1']
+outlier round 1 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1', 'LMT1']
+outlier round 2 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1', 'LMT1', 'RAMY12']
+outlier round 2 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1', 'LMT1', 'RAMY12', 'LAMY1']
+outlier round 2 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1', 'LMT1', 'RAMY12', 'LAMY1', 'LSAT3']
+outlier round 2 channels: ['RMOF12', 'RLOF1', 'RINSA1', 'LAT1', 'LAT3', 'LSAT1', 'LMT1', 'RAMY12', 'LAMY1', 'LSAT3', 'LSAT9']
+Reading 0 ... 3107796  =      0.000 ...  1517.479 secs...
+Applying average reference.
+Applying a custom ('sEEG',) reference.
+Subject D0117 average RT: 0.7998045000000502
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/wavelet/D0117/ErrorTrials_Stimulus_Locked_uncorrected-tfr.h5 ...
