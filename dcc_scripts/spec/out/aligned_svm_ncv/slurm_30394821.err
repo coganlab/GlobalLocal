@@ -1,3 +1,0 @@
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py", line 44
-    for i, f in enumerate(figs):
-IndentationError: unexpected indent

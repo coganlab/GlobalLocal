@@ -1,7 +1,0 @@
-Traceback (most recent call last):
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py", line 57, in <module>
-    main(args.subject)
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py", line 31, in main
-    spec = load_wavelets(subject_id, bids_root_path, output_name, rescaled)
-                                     ^^^^^^^^^^^^^^
-NameError: name 'bids_root_path' is not defined

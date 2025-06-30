@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py", line 58, in <module>
-    good = get_good_data(subject, layout)
-                         ^^^^^^^
-NameError: name 'subject' is not defined. Did you mean: 'object'?

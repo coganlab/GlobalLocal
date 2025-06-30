@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/plot_wavelets_dcc.py", line 7, in <module>
-    from wavelet_functions import load_wavelets
-ModuleNotFoundError: No module named 'wavelet_functions'
