@@ -87,6 +87,8 @@ def main(subject_id):
 
                 rescaled_filename = os.path.join(save_dir, f'{output_name}_rescaled-tfr.h5')
                 uncorrected_filename = os.path.join(save_dir, f'{output_name}_uncorrected-tfr.h5')
+                print(f"--- MAKE_WAVELETS: SAVING FILE TO: {os.path.abspath(rescaled_filename)} ---")
+                print(f"--- MAKE_WAVELETS: SAVING FILE TO: {os.path.abspath(uncorrected_filename)} ---")
 
                 mne.time_frequency.write_tfrs(rescaled_filename, spec_rescaled, overwrite=True)
                 mne.time_frequency.write_tfrs(uncorrected_filename, spec, overwrite=True)
