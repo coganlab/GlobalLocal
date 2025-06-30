@@ -37,7 +37,7 @@ import numpy as np
 from src.analysis.utils.general_utils import get_good_data
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets
 
-def main(subject_id):
+def main(subject_id, conditions_to_run):
     """Main function to run wavelet analysis for a single subject."""
 
     try:
@@ -52,9 +52,18 @@ def main(subject_id):
         # Load Data using the first 'get_data' function
         layout = get_data(task, root=LAB_root)
 
-        output_names_and_events_dict = {}
-        output_names_and_events_dict['ErrorTrials_Response_Locked'] = ["Response1.0/Response/Accuracy0.0"] 
-        output_names_and_events_dict['CorrectTrials_Response_Locked'] = ["Response1.0/Response/Accuracy1.0"]
+        all_conditions_dict = {
+            'ErrorTrials_Response_Locked': ["Response/Accuracy/0.0"],
+            'CorrectTrials_Response_Locked': ["Response/Accuracy/1.0"],
+            'ErrorTrials_Stimulus_Locked': ["Stimulus/Accuracy/0.0"],
+            'CorrectTrials_Stimulus_Locked': ["Stimulus/Accuracy/1.0"]
+        }
+
+        output_names_and_events_dict = {
+            name : all_conditions_dict[name]
+            for name in conditions_to_run
+            if name in all_conditions_dict
+        }
 
         baseline_times = [-0.5, 0]
         signal_times = [-0.5, 1.5]
@@ -87,8 +96,6 @@ def main(subject_id):
 
                 rescaled_filename = os.path.join(save_dir, f'{output_name}_rescaled-tfr.h5')
                 uncorrected_filename = os.path.join(save_dir, f'{output_name}_uncorrected-tfr.h5')
-                print(f"--- MAKE_WAVELETS: SAVING FILE TO: {os.path.abspath(rescaled_filename)} ---")
-                print(f"--- MAKE_WAVELETS: SAVING FILE TO: {os.path.abspath(uncorrected_filename)} ---")
 
                 mne.time_frequency.write_tfrs(rescaled_filename, spec_rescaled, overwrite=True)
                 mne.time_frequency.write_tfrs(uncorrected_filename, spec, overwrite=True)
@@ -105,5 +112,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Make wavelets for a given subject.")
     parser.add_argument('--subject', type=str, required=True, 
                         help='The subject ID to processs')
+    parser.add_argument('--conditions', nargs='+', required=True, help='A list of condition names to run')
     args = parser.parse_args()
-    main(args.subject)
+    main(args.subject, args.conditions)

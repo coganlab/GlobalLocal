@@ -1,0 +1,3 @@
+usage: make_wavelets_dcc.py [-h] --subject SUBJECT --conditions CONDITIONS
+                            [CONDITIONS ...]
+make_wavelets_dcc.py: error: the following arguments are required: --conditions
