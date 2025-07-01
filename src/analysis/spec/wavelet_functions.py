@@ -85,7 +85,7 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     return base
 
 
-def get_trials_for_wavelets(data: mne.io.Raw, events: list[str], times: tuple[float, float]) -> mne.Epochs:
+def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float]) -> mne.Epochs:
     """
     Extract and concatenate non-outlier trials for wavelet analysis.
 
@@ -113,7 +113,7 @@ def get_trials_for_wavelets(data: mne.io.Raw, events: list[str], times: tuple[fl
     >>> # Assume 'raw_data' is a preprocessed mne.io.Raw object containing event annotations.
     >>> events = ['Stimulus/c25', 'Stimulus/c75']
     >>> times = (-0.5, 1.5)
-    >>> epochs = get_trials_for_wavelets(raw_data, events, times)
+    >>> epochs = get_trials(raw_data, events, times)
     >>> isinstance(epochs, mne.Epochs)
     True
     """
@@ -170,7 +170,51 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
     """
     # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
-    all_trials = get_trials_for_wavelets(good, events, times)
+    all_trials = get_trials(good, events, times)
+
+    # Compute wavelets for the extracted trials
+    spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
+    crop_pad(spec, "0.5s")
+
+    return spec
+
+
+def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float]) -> mne.time_frequency.EpochsTFR:
+    """
+    Compute non-baseline-corrected multitaper spectrogram for specified trials.
+
+    This function retrieves preprocessed EEG data for a subject using `get_good_data`, extracts epochs
+    for the specified events (with additional padding), computes the multitaper spectrogram for the epochs,
+    and then applies cropping/padding to the resulting time-frequency representation.
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    events : list of str
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
+
+    Returns
+    -------
+    spec : mne.time_frequency.EpochsTFR
+        The time-frequency representation (wavelet scaleogram) of the extracted epochs.
+
+    Examples
+    --------
+    >>> # Assume 'layout' is a valid BIDSLayout and subject 'sub-01' has corresponding data.
+    >>> events = ['Stimulus/c25', 'Stimulus/c75']
+    >>> times = (-0.5, 1.5)
+    >>> tfr = get_uncorrected_wavelets('sub-01', layout, events, times)
+    >>> isinstance(tfr, mne.time_frequency.EpochsTFR)
+    True
+    """
+    # Retrieve preprocessed data for the subject
+    good = get_good_data(sub, layout)
+    all_trials = get_trials(good, events, times)
 
     # Compute wavelets for the extracted trials
     spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
