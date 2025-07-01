@@ -270,7 +270,7 @@ def shuffle_array(arr):
     return arr
 
 def epoch_and_get_amplitude_and_phase_and_freqs(sub, task='GlobalLocal', times=(-1, 1.5), within_base_times=(-1, 0), base_times_length=0.5, 
-baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
     '''
     return amplitude and phase for Stimulus and Response events
     '''
@@ -346,27 +346,11 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
     HG_base_power = HG_base_env.copy()
     HG_base_power._data = HG_base_env._data ** 2  # Square amplitude to get power
     
-    if isinstance(stat_func, partial):
-        base_func_name = stat_func.func.__name__
-        # Create a descriptive name like "ttest_ind_equal_var_False"
-        keywords_str = "_".join(f"{k}_{v}" for k, v in sorted(stat_func.keywords.items()))
-        if keywords_str: # If there are keywords like equal_var
-            stat_func_for_filename = f"{base_func_name}_{keywords_str}"
-        else: # If partial was used without keywords (less likely here)
-            stat_func_for_filename = base_func_name
-    elif hasattr(stat_func, '__name__'): # For regular functions
-        stat_func_for_filename = stat_func.__name__
-    elif isinstance(stat_func, str): # If a string was somehow passed (e.g., from a less robust CLI)
-        # Sanitize or use the string directly if it's simple.
-        # For safety, you might want to ensure it's a valid filename component.
-        stat_func_for_filename = stat_func.replace(" ", "_").replace("(", "").replace(")", "").replace("=", "")
-    else:
-        stat_func_for_filename = "custom_stat_func" # Fallback
     # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
     if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s"
     else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -406,7 +390,7 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
 
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -417,7 +401,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
         epoch_and_get_amplitude_and_phase_and_freqs(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
                           pad_length=pad_length, LAB_root=LAB_root, channels=channels,
-                          dec_factor=dec_factor, outliers=outliers, passband=passband, stat_func=stat_func)
+                          dec_factor=dec_factor, outliers=outliers, passband=passband)
         
 if __name__ == "__main__":
     import argparse
@@ -434,7 +418,6 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
-    parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
 
     print("--------- PARSED ARGUMENTS ---------")
@@ -451,5 +434,4 @@ if __name__ == "__main__":
         channels=args.channels, 
         dec_factor=args.dec_factor, 
         outliers=args.outliers, 
-        passband=args.passband,
-        stat_func=args.stat_func)
+        passband=args.passband)
