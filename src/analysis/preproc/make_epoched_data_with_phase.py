@@ -388,7 +388,7 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
         HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
 
-        # Save HG_ev1_phase (temporarily saving phase)
+        # Save HG_ev1_phase
         HG_ev1_phase.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_phase-epo.fif', overwrite=True)
         
         # Save the center frequencies
