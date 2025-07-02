@@ -37,7 +37,7 @@ from ieeg.calc.fast import mean_diff
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
-from src.analysis.utils.general_utils import calculate_RTs, get_good_data
+from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_trials
 
 import matplotlib.pyplot as plt
 
@@ -84,57 +84,6 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     del inst
     return base
 
-
-def get_trials_for_wavelets(data: mne.io.Raw, events: list[str], times: tuple[float, float]) -> mne.Epochs:
-    """
-    Extract and concatenate non-outlier trials for wavelet analysis.
-
-    This function extracts epochs for each event specified in `events` from the raw EEG data
-    over a time window defined by `times` (with an extra 0.5-second padding on both sides).
-    The resulting epochs are concatenated into a single Epochs object, and outlier data points
-    are marked as NaN.
-
-    Parameters
-    ----------
-    data : mne.io.Raw
-        The preprocessed raw EEG data.
-    events : list of str
-        A list of event names to extract trials for.
-    times : tuple of float
-        A tuple (start, end) in seconds relative to each event defining the extraction window.
-
-    Returns
-    -------
-    all_trials : mne.Epochs
-        The concatenated epochs for all specified events with outliers marked as NaN.
-
-    Examples
-    --------
-    >>> # Assume 'raw_data' is a preprocessed mne.io.Raw object containing event annotations.
-    >>> events = ['Stimulus/c25', 'Stimulus/c75']
-    >>> times = (-0.5, 1.5)
-    >>> epochs = get_trials_for_wavelets(raw_data, events, times)
-    >>> isinstance(epochs, mne.Epochs)
-    True
-    """
-    all_trials_list = []
-
-    for event in events:
-        # Adjust times for 0.5s padding before and after the epoch
-        times_adj = [times[0] - 0.5, times[1] + 0.5]
-        trials = trial_ieeg(data, event, times_adj, preload=True,
-                            reject_by_annotation=False)
-        all_trials_list.append(trials)
-
-    # Concatenate all trials
-    all_trials = mne.concatenate_epochs(all_trials_list)
-
-    # Mark outliers as NaN
-    outliers_to_nan(all_trials, outliers=10)
-
-    return all_trials
-
-
 def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float]) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected wavelets for specified trials.
@@ -170,10 +119,66 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
     """
     # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
-    all_trials = get_trials_for_wavelets(good, events, times)
+    all_trials = get_trials(good, events, times)
 
     # Compute wavelets for the extracted trials
     spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
+    crop_pad(spec, "0.5s")
+
+    return spec
+
+def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, n_jobs=1) -> mne.time_frequency.EpochsTFR:
+    """
+    Compute non-baseline-corrected multitaper spectrogram for specified trials.
+
+    This function retrieves preprocessed EEG data for a subject using `get_good_data`, extracts epochs
+    for the specified events (with additional padding), computes the multitaper spectrogram for the epochs,
+    and then applies cropping/padding to the resulting time-frequency representation.
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    events : list of str
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
+    freqs : np.ndarray
+        The frequencies to compute the multitaper spectrogram for.
+    n_cycles : int | array of int, shape (n_freqs)
+        The number of cycles to use for each frequency.
+    time_bandwidth : int
+        The time-bandwidth product to use for the multitaper spectrogram.
+    return_itc : bool
+        Whether to return the intertrial coherence (ITC) as well as the multitaper spectrogram.
+    n_jobs : int
+        The number of parallel jobs to use for the multitaper spectrogram.
+    Returns
+    -------
+    spec : mne.time_frequency.EpochsTFR
+        The time-frequency representation (multitaper spectrogram) of the extracted epochs.
+
+    Examples
+    --------
+    >>> # Assume 'layout' is a valid BIDSLayout and subject 'sub-01' has corresponding data.
+    >>> events = ['Stimulus/c25', 'Stimulus/c75']
+    >>> times = (-0.5, 1.5)
+    >>> freqs = np.arange(10, 200, 2)
+    >>> n_cycles = freqs / 2    
+    >>> time_bandwidth = 10
+    >>> return_itc = False
+    >>> tfr = get_uncorrected_multitaper('sub-01', layout, events, times, freqs, n_cycles, time_bandwidth, return_itc)
+    >>> isinstance(tfr, mne.time_frequency.EpochsTFR)
+    True
+    """
+    # Retrieve preprocessed data for the subject
+    good = get_good_data(sub, layout)
+    all_trials = get_trials(good, events, times)
+
+    # Compute multitaper for the extracted trials (this can be replaced by epochs.compute_tfr): https://mne.tools/stable/auto_examples/time_frequency/time_frequency_simulated.html#sphx-glr-auto-examples-time-frequency-time-frequency-simulated-py
+    spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     crop_pad(spec, "0.5s")
 
     return spec
@@ -233,29 +238,29 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
     spec_condition_1 = get_uncorrected_wavelets(sub, layout, events_condition_1, times)
     spec_condition_2 = get_uncorrected_wavelets(sub, layout, events_condition_2, times)
 
-    mask, pvals = get_sig_wavelet_differences(spec_condition_1, spec_condition_2,
+    mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
                                         stat_func=stat_func, p_thresh=p_thresh,
                                         ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
     
     return mask, pvals
 
-def get_sig_wavelet_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
+def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
                                 spec_condition_2: mne.time_frequency.EpochsTFR,
                                 stat_func: Callable = mean_diff, p_thresh: float = 0.05,
                                 ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
                                 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute permutation cluster differences between two wavelet TFR objects.
+    Compute permutation cluster differences between two TFR objects.
 
-    This function takes two wavelet time-frequency representations (TFRs) and applies a
+    This function takes two time-frequency representations (TFRs) and applies a
     permutation cluster test to determine statistically significant differences between them.
 
     Parameters
     ----------
     spec_condition_1 : mne.time_frequency.EpochsTFR
-        The wavelet TFR for condition 1.
+        The TFR for condition 1.
     spec_condition_2 : mne.time_frequency.EpochsTFR
-        The wavelet TFR for condition 2.
+        The TFR for condition 2.
     stat_func : callable, optional
         The statistical function used to compare the two datasets (default: mean_diff).
     p_thresh : float, optional
@@ -279,7 +284,7 @@ def get_sig_wavelet_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
     Example
     -------
     >>> # Assuming spec1 and spec2 are valid mne.time_frequency.EpochsTFR objects with a _data attribute:
-    >>> mask, pvals = compute_wavelet_differences(spec1, spec2)
+    >>> mask, pvals = get_sig_tfr_differences(spec1, spec2)
     >>> isinstance(mask, np.ndarray)
     True
     """
@@ -347,7 +352,7 @@ def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition
     spec_condition_1 = load_wavelets(sub, layout, output_name_condition_1, rescaled)
     spec_condition_2 = load_wavelets(sub, layout, output_name_condition_2, rescaled)
 
-    mask, pvals = get_sig_wavelet_differences(spec_condition_1, spec_condition_2,
+    mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
                     stat_func=stat_func, p_thresh=p_thresh,
                     ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
     
@@ -460,6 +465,71 @@ def load_wavelets(sub: str, layout, epochs_root_file: str, rescaled: bool = Fals
         filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_rescaled-tfr.h5')
     else:
         filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
+
+    spec = load_tfrs(filename)
+    return spec
+
+def load_multitaper(sub: str, layout, epochs_root_file: str, rescaled: bool = False):
+    """
+    Load precomputed multitaper time-frequency representations for a subject.
+
+    This function constructs the file path for a multitaper TFR stored in a BIDS-style derivatives
+    directory and loads it using the `load_tfrs` function. If `rescaled` is True, the function loads
+    the rescaled, baseline corrected TFR file (with suffix "_rescaled-tfr.h5"). Otherwise, it loads the
+    uncorrected TFR file (with suffix "_uncorrected-tfr.h5").
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier (e.g., 'sub-01').
+    layout : object
+        An object with a 'root' attribute pointing to the BIDS dataset root directory.
+    epochs_root_file : str
+        The base name for the epochs root file (without the suffix).
+    rescaled : bool, optional
+        If True, load the rescaled, baseline corrected TFR object.
+        If False, load the uncorrected TFR object. Default is False.
+
+    Returns
+    -------
+    spec : instance of mne.time_frequency.EpochsTFR or similar
+        The loaded multitaper time-frequency representation.
+
+    Examples
+    --------
+    >>> # Create a dummy layout object with a 'root' attribute
+    >>> class DummyLayout:
+    ...     def __init__(self, root):
+    ...         self.root = root
+    >>> layout = DummyLayout('/tmp/bids')
+    >>> import os
+    >>> # For an uncorrected object, the expected filename:
+    >>> expected_uncorrected = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_uncorrected-tfr.h5')
+    >>> # For a rescaled object, the expected filename:
+    >>> expected_rescaled = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_rescaled-tfr.h5')
+    >>> # Dummy TFR class for testing
+    >>> class DummyTFR:
+    ...     pass
+    >>> # Dummy function to simulate mne.time_frequency.read_tfrs
+    >>> def dummy_read_tfrs(fname):
+    ...     if fname == expected_uncorrected or fname == expected_rescaled:
+    ...         return DummyTFR()
+    ...     return None
+    >>> import mne.time_frequency
+    >>> mne.time_frequency.read_tfrs = dummy_read_tfrs  # Monkey-patch for testing
+    >>> # Test uncorrected loading
+    >>> spec_uncorrected = load_multitaper('sub-01', layout, 'example', rescaled=False)
+    >>> isinstance(spec_uncorrected, DummyTFR)
+    True
+    >>> # Test rescaled loading
+    >>> spec_rescaled = load_multitaper('sub-01', layout, 'example', rescaled=True)
+    >>> isinstance(spec_rescaled, DummyTFR)
+    True
+    """
+    if rescaled:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', sub, f'{epochs_root_file}_rescaled-tfr.h5')
+    else:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
 
     spec = load_tfrs(filename)
     return spec

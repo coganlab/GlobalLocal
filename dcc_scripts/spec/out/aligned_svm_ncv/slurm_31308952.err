@@ -1,0 +1,87 @@
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+[Parallel(n_jobs=1)]: Done   1 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=1)]: Done   2 tasks      | elapsed:    0.0s
+[Parallel(n_jobs=1)]: Done   3 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=1)]: Done   4 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=1)]: Done   5 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=1)]: Done   6 tasks      | elapsed:    0.1s
+[Parallel(n_jobs=1)]: Done   7 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=1)]: Done   8 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=1)]: Done   9 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=1)]: Done  10 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=1)]: Done  11 tasks      | elapsed:    0.2s
+[Parallel(n_jobs=1)]: Done  12 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=1)]: Done  13 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=1)]: Done  14 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=1)]: Done  15 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=1)]: Done  16 tasks      | elapsed:    0.3s
+[Parallel(n_jobs=1)]: Done  17 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=1)]: Done  18 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=1)]: Done  19 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=1)]: Done  20 tasks      | elapsed:    0.4s
+[Parallel(n_jobs=1)]: Done  21 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=1)]: Done  22 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=1)]: Done  23 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=1)]: Done  24 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=1)]: Done  25 tasks      | elapsed:    0.5s
+[Parallel(n_jobs=1)]: Done  26 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=1)]: Done  27 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=1)]: Done  28 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=1)]: Done  29 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=1)]: Done  30 tasks      | elapsed:    0.6s
+[Parallel(n_jobs=1)]: Done  31 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=1)]: Done  32 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=1)]: Done  33 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=1)]: Done  34 tasks      | elapsed:    0.7s
+[Parallel(n_jobs=1)]: Done  35 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=1)]: Done  36 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=1)]: Done  37 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=1)]: Done  38 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=1)]: Done  39 tasks      | elapsed:    0.8s
+[Parallel(n_jobs=1)]: Done  40 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=1)]: Done  41 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=1)]: Done  42 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=1)]: Done  43 tasks      | elapsed:    0.9s
+[Parallel(n_jobs=1)]: Done  44 tasks      | elapsed:    1.0s
+[Parallel(n_jobs=1)]: Done  45 tasks      | elapsed:    1.0s
+[Parallel(n_jobs=1)]: Done  46 tasks      | elapsed:    1.0s
+[Parallel(n_jobs=1)]: Done  46 tasks      | elapsed:    1.0s
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 160, in <module>
+    accuracy_mask_pages = plot_mask_pages(accuracy_mask,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 568, in plot_mask_pages
+    im = ax.imshow(chan_mask, aspect='auto', origin='lower', cmap=cmap,
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/__init__.py", line 1465, in inner
+    return func(ax, *map(sanitize_sequence, args), **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/axes/_axes.py", line 5756, in imshow
+    im.set_data(X)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/image.py", line 723, in set_data
+    self._A = self._normalize_image_array(A)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/image.py", line 693, in _normalize_image_array
+    raise TypeError(f"Invalid shape {A.shape} for image data")
+TypeError: Invalid shape (204,) for image data
