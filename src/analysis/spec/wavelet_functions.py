@@ -216,8 +216,8 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     good = get_good_data(sub, layout)
     all_trials = get_trials(good, events, times)
 
-    # Compute wavelets for the extracted trials
-    spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
+    # Compute multitaper for the extracted trials
+    spec = mne.time_frequency.tfr_multitaper(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
     crop_pad(spec, "0.5s")
 
     return spec
@@ -504,6 +504,71 @@ def load_wavelets(sub: str, layout, epochs_root_file: str, rescaled: bool = Fals
         filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_rescaled-tfr.h5')
     else:
         filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
+
+    spec = load_tfrs(filename)
+    return spec
+
+def load_multitaper(sub: str, layout, epochs_root_file: str, rescaled: bool = False):
+    """
+    Load precomputed multitaper time-frequency representations for a subject.
+
+    This function constructs the file path for a multitaper TFR stored in a BIDS-style derivatives
+    directory and loads it using the `load_tfrs` function. If `rescaled` is True, the function loads
+    the rescaled, baseline corrected TFR file (with suffix "_rescaled-tfr.h5"). Otherwise, it loads the
+    uncorrected TFR file (with suffix "_uncorrected-tfr.h5").
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier (e.g., 'sub-01').
+    layout : object
+        An object with a 'root' attribute pointing to the BIDS dataset root directory.
+    epochs_root_file : str
+        The base name for the epochs root file (without the suffix).
+    rescaled : bool, optional
+        If True, load the rescaled, baseline corrected TFR object.
+        If False, load the uncorrected TFR object. Default is False.
+
+    Returns
+    -------
+    spec : instance of mne.time_frequency.EpochsTFR or similar
+        The loaded multitaper time-frequency representation.
+
+    Examples
+    --------
+    >>> # Create a dummy layout object with a 'root' attribute
+    >>> class DummyLayout:
+    ...     def __init__(self, root):
+    ...         self.root = root
+    >>> layout = DummyLayout('/tmp/bids')
+    >>> import os
+    >>> # For an uncorrected object, the expected filename:
+    >>> expected_uncorrected = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_uncorrected-tfr.h5')
+    >>> # For a rescaled object, the expected filename:
+    >>> expected_rescaled = os.path.join('/tmp/bids', 'derivatives', 'spec', 'wavelet', 'D0057', 'example_rescaled-tfr.h5')
+    >>> # Dummy TFR class for testing
+    >>> class DummyTFR:
+    ...     pass
+    >>> # Dummy function to simulate mne.time_frequency.read_tfrs
+    >>> def dummy_read_tfrs(fname):
+    ...     if fname == expected_uncorrected or fname == expected_rescaled:
+    ...         return DummyTFR()
+    ...     return None
+    >>> import mne.time_frequency
+    >>> mne.time_frequency.read_tfrs = dummy_read_tfrs  # Monkey-patch for testing
+    >>> # Test uncorrected loading
+    >>> spec_uncorrected = load_multitaper('sub-01', layout, 'example', rescaled=False)
+    >>> isinstance(spec_uncorrected, DummyTFR)
+    True
+    >>> # Test rescaled loading
+    >>> spec_rescaled = load_multitaper('sub-01', layout, 'example', rescaled=True)
+    >>> isinstance(spec_rescaled, DummyTFR)
+    True
+    """
+    if rescaled:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', sub, f'{epochs_root_file}_rescaled-tfr.h5')
+    else:
+        filename = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', sub, f'{epochs_root_file}_uncorrected-tfr.h5')
 
     spec = load_tfrs(filename)
     return spec
