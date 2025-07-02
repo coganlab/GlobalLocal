@@ -1,3 +1,4 @@
+
 # This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
 
 #  congruency

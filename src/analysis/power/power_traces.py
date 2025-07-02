@@ -1,3 +1,8 @@
+import numpy as np
+import mne
+import matplotlib.pyplot as plt
+import os
+
 def combine_single_channel_evokeds(single_channel_evokeds, ch_type='seeg'):
     """
     Combine a list of single-channel evoked objects into one multi-channel evoked object.
@@ -355,10 +360,20 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             
         # Get plotting parameters
         param_key = None
-        for key in plotting_parameters.keys():
-            if condition_name in key or key in condition_name:
-                param_key = key
-                break
+        
+        # First try exact match
+        if condition_name in plotting_parameters:
+            param_key = condition_name
+        else:
+            # Then try to find the best match by looking for the longest matching key
+            best_match_length = 0
+            for key in plotting_parameters.keys():
+                # Check if the key is a substring of condition_name or vice versa
+                if (key in condition_name or condition_name in key):
+                    # Prefer longer matches to avoid "Stimulus_c" matching when "Stimulus_c25" exists
+                    if len(key) > best_match_length:
+                        best_match_length = len(key)
+                        param_key = key
         
         if param_key and param_key in plotting_parameters:
             params = plotting_parameters[param_key]
@@ -366,6 +381,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             linestyle = params.get('line_style', '-')
             label = params.get('condition_parameter', condition_name)
         else:
+            # Default parameters if no match found
             color = 'black'
             linestyle = '-'
             label = condition_name
