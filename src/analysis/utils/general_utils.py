@@ -1546,3 +1546,52 @@ def count_electrodes_across_subjects(data, subjects):
         if subject in subjects:
             total_electrodes += len(details['default_dict'])
     return total_electrodes
+
+def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float]) -> mne.Epochs:
+    """
+    Extract and concatenate non-outlier trials for specified events.
+
+    This function extracts epochs for each event specified in `events` from the raw EEG data
+    over a time window defined by `times` (with an extra 0.5-second padding on both sides).
+    The resulting epochs are concatenated into a single Epochs object, and outlier data points
+    are marked as NaN.
+
+    Parameters
+    ----------
+    data : mne.io.Raw
+        The preprocessed raw EEG data.
+    events : list of str
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
+
+    Returns
+    -------
+    all_trials : mne.Epochs
+        The concatenated epochs for all specified events with outliers marked as NaN.
+
+    Examples
+    --------
+    >>> # Assume 'raw_data' is a preprocessed mne.io.Raw object containing event annotations.
+    >>> events = ['Stimulus/c25', 'Stimulus/c75']
+    >>> times = (-0.5, 1.5)
+    >>> epochs = get_trials(raw_data, events, times)
+    >>> isinstance(epochs, mne.Epochs)
+    True
+    """
+    all_trials_list = []
+
+    for event in events:
+        # Adjust times for 0.5s padding before and after the epoch
+        times_adj = [times[0] - 0.5, times[1] + 0.5]
+        trials = trial_ieeg(data, event, times_adj, preload=True,
+                            reject_by_annotation=False)
+        all_trials_list.append(trials)
+
+    # Concatenate all trials
+    all_trials = mne.concatenate_epochs(all_trials_list)
+
+    # Mark outliers as NaN
+    outliers_to_nan(all_trials, outliers=10)
+
+    return all_trials
