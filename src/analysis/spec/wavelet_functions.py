@@ -244,6 +244,76 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
     
     return mask, pvals
 
+def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1: List[str],
+                                     events_condition_2: List[str], times: Tuple[float, float],
+                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int | np.ndarray = freqs / 2, 
+                                     time_bandwidth: int = 10, return_itc: bool = False,
+                                     ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                     ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compute multitaper TFRs from raw EEG data for two conditions and then compute their differences.
+
+    This function extracts epochs for two sets of events from the raw data for a given subject,
+    computes their multitaper representations using `get_uncorrected_multitaper`, and then applies a
+    permutation cluster test to identify significant differences between the two conditions.
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    events_condition_1 : list of str
+        List of event names corresponding to condition 1.
+    events_condition_2 : list of str
+        List of event names corresponding to condition 2.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
+    freqs : np.ndarray
+        The frequencies to compute the multitaper spectrogram
+    n_cycles : int | array of int, shape (n_freqs)
+        The number of cycles to use for each frequency
+    time_bandwidth : int
+        The time-bandwidth product to use for the multitaper spectrogram
+    return_itc : bool
+        Whether to return the intertrial coherence (ITC) as well as the multitaper spectrogram
+    stat_func : callable, optional
+        The statistical function for comparing the two datasets (default: mean_diff).
+    p_thresh : float, optional
+        The p-value threshold for significance (default: 0.05).
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
+    n_perm : int, optional
+        The number of permutations to perform (default: 100).
+    n_jobs : int, optional
+        The number of parallel jobs (default: 1).
+
+    Returns
+    -------
+    mask : np.ndarray
+        A boolean array indicating significant clusters.
+    pvals : np.ndarray
+        An array of p-values corresponding to each identified cluster.
+
+    Example
+    -------
+    >>> # Assuming valid values for sub, layout, events, and times:
+    >>> mask, pvals = make_and_get_wavelet_differences('sub-01', layout, ['Stimulus/c25'], ['Stimulus/c75'], (-0.5, 1.5))
+    >>> isinstance(mask, np.ndarray)
+    True
+    """
+    spec_condition_1 = get_uncorrected_multitaper(sub, layout, events_condition_1, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs)
+    spec_condition_2 = get_uncorrected_multitaper(sub, layout, events_condition_2, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs)
+
+    mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
+                                        stat_func=stat_func, p_thresh=p_thresh,
+                                        ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
+    
+    return mask, pvals
+
 def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
                                 spec_condition_2: mne.time_frequency.EpochsTFR,
                                 stat_func: Callable = mean_diff, p_thresh: float = 0.05,
@@ -351,6 +421,68 @@ def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition
     """
     spec_condition_1 = load_wavelets(sub, layout, output_name_condition_1, rescaled)
     spec_condition_2 = load_wavelets(sub, layout, output_name_condition_2, rescaled)
+
+    mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
+                    stat_func=stat_func, p_thresh=p_thresh,
+                    ignore_adjacency=ignore_adjacency, n_perm=n_perm, n_jobs=n_jobs)
+    
+    return mask, pvals
+
+def load_and_get_sig_multitaper_differences(sub: str, layout, output_name_condition_1: str,
+                                     output_name_condition_2: str, rescaled: bool,
+                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                     ) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Load precomputed multitaper TFRs for two conditions and compute their sig differences.
+
+    This function loads precomputed multitaper time-frequency representations for two conditions using the provided
+    output names and a rescaling flag. It then performs a permutation cluster test to determine statistically
+    significant differences between the conditions.
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    output_name_cond1 : str
+        Base name for the TFR file corresponding to condition 1 (without suffix).
+    output_name_cond2 : str
+        Base name for the TFR file corresponding to condition 2 (without suffix).
+    rescaled : bool
+        If True, load the rescaled (baseline-corrected) TFR; if False, load the uncorrected TFR.
+    stat_func : callable, optional
+        The statistical function for comparing the two datasets (default: mean_diff).
+    p_thresh : float, optional
+        The p-value threshold for significance (default: 0.05).
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
+    n_perm : int, optional
+        The number of permutations to perform (default: 100).
+    n_jobs : int, optional
+        The number of parallel jobs (default: 1).
+
+    Returns
+    -------
+    mask : np.ndarray
+        A boolean array indicating significant clusters.
+    pvals : np.ndarray
+        An array of p-values corresponding to each identified cluster.
+
+    Example
+    -------
+    >>> # Assuming layout is set and the appropriate precomputed TFR files exist:
+    >>> mask, pvals = load_and_get_multitaper_differences('sub-01', layout,
+    ...                      'Stimulus_c25and75_fixationCrossBase_0.5sec',
+    ...                      'Stimulus_c25and75_fixationCrossBase_0.5sec', False)
+    >>> isinstance(mask, np.ndarray)
+    True
+    """
+    spec_condition_1 = load_multitaper(sub, layout, output_name_condition_1, rescaled)
+    spec_condition_2 = load_multitaper(sub, layout, output_name_condition_2, rescaled)
 
     mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
                     stat_func=stat_func, p_thresh=p_thresh,
