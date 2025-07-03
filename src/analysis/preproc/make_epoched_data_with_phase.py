@@ -360,9 +360,11 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         HG_ev1_env, HG_ev1_phase, HG_ev1_freqs = extract_amplitude_and_phase_and_freqs(trials, passband=passband, copy=True, n_jobs=1)
         print("HG_ev1 before crop_pad: ", HG_ev1_env.tmin, HG_ev1_env.tmax)
         crop_pad(HG_ev1_env, pad_length_string) #change this if pad length changes
+        crop_pad(HG_ev1_phase, pad_length_string) #change this if pad length changes
         print("HG_ev1 after crop_pad: ", HG_ev1_env.tmin, HG_ev1_env.tmax)
 
         HG_ev1_env.decimate(dec_factor)
+        HG_ev1_phase.decimate(dec_factor)
 
         # Square the data to get power from amplitude
         HG_ev1_power = HG_ev1_env.copy()
@@ -385,6 +387,12 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         # Save HG_ev1_rescaled
         HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
         HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
+
+        # Save HG_ev1_phase
+        HG_ev1_phase.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_phase-epo.fif', overwrite=True)
+        
+        # Save the center frequencies
+        HG_ev1_freqs.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_freqs-epo.fif', overwrite=True)
 
     # TODO: Add signal, figure out baseline correction for phase, save phase and center freqs 
 

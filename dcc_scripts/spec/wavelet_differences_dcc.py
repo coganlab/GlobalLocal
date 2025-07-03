@@ -45,6 +45,9 @@ from src.analysis.spec.wavelet_functions import (
     make_and_get_sig_wavelet_differences,
     load_and_get_sig_wavelet_differences,
     load_and_get_sig_wavelet_ratio_differences,
+    load_multitaper,
+    make_and_get_sig_multitaper_differences,
+    load_and_get_sig_multitaper_differences,
     plot_mask_pages
 )
 
@@ -81,83 +84,87 @@ conditions_and_output_names_and_events = {
     }   
 }
 
-times = [-0.5, 1.5]
-make_wavelets=False
+def run_wavelet_diff(type):
 
-if make_wavelets:
-    # For making wavelets, extract events directly from the configuration dictionary.
-    incongruent_events = conditions_and_output_names_and_events['incongruent']['events']
-    congruent_events   = conditions_and_output_names_and_events['congruent']['events']
-    switch_events      = conditions_and_output_names_and_events['switch']['events']
-    repeat_events      = conditions_and_output_names_and_events['repeat']['events']
+    if type == 'wavelet':
 
-    sig_wavelet_differences_per_subject = {}
+        times = [-0.5, 1.5]
+        make_wavelets=False
 
-    for sub in subjects:
+        if make_wavelets:
+            # For making wavelets, extract events directly from the configuration dictionary.
+            incongruent_events = conditions_and_output_names_and_events['incongruent']['events']
+            congruent_events   = conditions_and_output_names_and_events['congruent']['events']
+            switch_events      = conditions_and_output_names_and_events['switch']['events']
+            repeat_events      = conditions_and_output_names_and_events['repeat']['events']
 
-        sig_wavelet_differences_per_subject[sub] = {}
-        # Preprocess and compute average reaction time (if desired)
-        good = get_good_data(sub, layout)
-        RTs, skipped = calculate_RTs(good)
-        avg_RT = np.median(RTs)
-        print(f"Subject {sub} average RT: {avg_RT}")
+            sig_wavelet_differences_per_subject = {}
 
-        # do inc-con, and also switch-repeat
-        congruency_mask, congruency_pvals = make_and_get_sig_wavelet_differences(
-            sub, layout, incongruent_events, congruent_events, times,
-            stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
-        switch_type_mask, switch_type_pvals = make_and_get_sig_wavelet_differences(
-            sub, layout, switch_events, repeat_events, times,
-            stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+            for sub in subjects:
 
-        sig_wavelet_differences_per_subject[sub]['congruency'] = (congruency_mask, congruency_pvals)
-        sig_wavelet_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
+                sig_wavelet_differences_per_subject[sub] = {}
+                # Preprocess and compute average reaction time (if desired)
+                good = get_good_data(sub, layout)
+                RTs, skipped = calculate_RTs(good)
+                avg_RT = np.median(RTs)
+                print(f"Subject {sub} average RT: {avg_RT}")
 
-else:
-    # For loading precomputed wavelets, use output names from the configuration.
-    # Here, 'rescaled' toggles whether to load baseline-corrected (rescaled) TFRs.
-    rescaled = False  # Set to True if you wish to use baseline-corrected (dB scaled) wavelets
+                # do inc-con, and also switch-repeat
+                congruency_mask, congruency_pvals = make_and_get_sig_wavelet_differences(
+                    sub, layout, incongruent_events, congruent_events, times,
+                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                switch_type_mask, switch_type_pvals = make_and_get_sig_wavelet_differences(
+                    sub, layout, switch_events, repeat_events, times,
+                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
 
-    sig_wavelet_differences_per_subject = {}
+                sig_wavelet_differences_per_subject[sub]['congruency'] = (congruency_mask, congruency_pvals)
+                sig_wavelet_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
 
-    for sub in subjects:
+        else:
+            # For loading precomputed wavelets, use output names from the configuration.
+            # Here, 'rescaled' toggles whether to load baseline-corrected (rescaled) TFRs.
+            rescaled = False  # Set to True if you wish to use baseline-corrected (dB scaled) wavelets
 
-        sig_wavelet_differences_per_subject[sub] = {}
-        good = get_good_data(sub, layout)
-        RTs, skipped = calculate_RTs(good)
-        avg_RT = np.median(RTs)
-        print(f"Subject {sub} average RT: {avg_RT}")
+            sig_wavelet_differences_per_subject = {}
 
-        # do inc-con, and also switch-repeat
-        accuracy_mask, accuracy_pvals = load_and_get_sig_wavelet_differences(
-            sub, layout,
-            conditions_and_output_names_and_events['error']['output_name'],
-            conditions_and_output_names_and_events['correct']['output_name'],
-            rescaled,
-            stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
-        ##switch_type_mask, switch_type_pvals = load_and_get_sig_wavelet_differences(
-            ##sub, layout,
-            ##conditions_and_output_names_and_events['switch']['output_name'],
-            ##conditions_and_output_names_and_events['repeat']['output_name'],
-            ##rescaled,
-            ##stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+            for sub in subjects:
 
-        sig_wavelet_differences_per_subject[sub]['accuracy'] = (accuracy_mask, accuracy_pvals)
-        #sig_wavelet_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
+                sig_wavelet_differences_per_subject[sub] = {}
+                good = get_good_data(sub, layout)
+                RTs, skipped = calculate_RTs(good)
+                avg_RT = np.median(RTs)
+                print(f"Subject {sub} average RT: {avg_RT}")
 
-        # plot the sig cluster masks
-        # Assume mask has shape (n_channels, ...) and you have channel names:
-        # For example, you can get channel names from one of your TFR objects.
-        # (Here we load one TFR to extract channel names.)
-        error_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['error']['output_name'], rescaled)
-        correct_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['correct']['output_name'], rescaled)
-        #switch_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['switch']['output_name'], rescaled)
-        #repeat_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['repeat']['output_name'], rescaled)
+                # do inc-con, and also switch-repeat
+                accuracy_mask, accuracy_pvals = load_and_get_sig_wavelet_differences(
+                    sub, layout,
+                    conditions_and_output_names_and_events['error']['output_name'],
+                    conditions_and_output_names_and_events['correct']['output_name'],
+                    rescaled,
+                    stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                ##switch_type_mask, switch_type_pvals = load_and_get_sig_wavelet_differences(
+                ##sub, layout,
+                ##conditions_and_output_names_and_events['switch']['output_name'],
+                ##conditions_and_output_names_and_events['repeat']['output_name'],
+                ##rescaled,
+                ##stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
 
-        ch_names = error_spec.ch_names  # list of channel names
+                sig_wavelet_differences_per_subject[sub]['accuracy'] = (accuracy_mask, accuracy_pvals)
+                #sig_wavelet_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
 
-        # Now plot the mask pages:
-        accuracy_mask_pages = plot_mask_pages(accuracy_mask,
+                # plot the sig cluster masks
+                # Assume mask has shape (n_channels, ...) and you have channel names:
+                # For example, you can get channel names from one of your TFR objects.
+                # (Here we load one TFR to extract channel names.)
+                error_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['error']['output_name'], rescaled)
+                correct_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['correct']['output_name'], rescaled)
+                #switch_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['switch']['output_name'], rescaled)
+                #repeat_spec = load_wavelets(sub, layout, conditions_and_output_names_and_events['repeat']['output_name'], rescaled)
+
+                ch_names = error_spec.ch_names  # list of channel names
+
+                # Now plot the mask pages:
+                accuracy_mask_pages = plot_mask_pages(accuracy_mask,
                             error_spec.ch_names,
                             times=error_spec.times,
                             freqs=error_spec.freqs,
@@ -168,83 +175,271 @@ else:
                             log_freq=True,
                             show=False)
         
-    ##
-    #   switch_type_mask_pages = plot_mask_pages(switch_type_mask,
-    #                      switch_spec.ch_names,
-    #                       times=switch_spec.times,
-    #                       freqs=switch_spec.freqs,
-    #                        channels_per_page=60,
-    #                       grid_shape=(6, 10),
-    #                        cmap=parula_map,
-    #                        title_prefix=f"{sub} ",
-    #                        log_freq=True,
-    #                        show=False)
-        
+            ##
+            #   switch_type_mask_pages = plot_mask_pages(switch_type_mask,
+            #                      switch_spec.ch_names,
+            #                       times=switch_spec.times,
+            #                       freqs=switch_spec.freqs,
+            #                        channels_per_page=60,
+            #                       grid_shape=(6, 10),
+            #                        cmap=parula_map,
+            #                        title_prefix=f"{sub} ",
+            #                        log_freq=True,
+            #                        show=False)
+                
 
-        # Save each page as a separate figure file:
-        for i, fig in enumerate(accuracy_mask_pages):
-            if rescaled:
-                fig_name = f"{sub}_err-corr_sig_wavelet_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
-            else:
-                fig_name = f"{sub}_err-corr_sig_wavelet_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
-            fig_pathname = os.path.join(save_dir, fig_name)
-            fig.savefig(fig_pathname, bbox_inches='tight')
-            print("Saved figure:", fig_name)
+                # Save each page as a separate figure file:
+                for i, fig in enumerate(accuracy_mask_pages):
+                    if rescaled:
+                        fig_name = f"{sub}_err-corr_sig_wavelet_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
+                    else:
+                        fig_name = f"{sub}_err-corr_sig_wavelet_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    fig_pathname = os.path.join(save_dir, fig_name)
+                    fig.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_name)
 
-        #for i, fig in enumerate(switch_type_mask_pages):
-        #   if rescaled:
-        #        fig_name = f"{sub}_switch-repeat_sig_wavelet_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
-        #    else:
-        #        fig_name = f"{sub}_switch-repeat_sig_wavelet_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
-        #    fig_pathname = os.path.join(save_dir, fig_name)
-        #    fig.savefig(fig_pathname, bbox_inches='tight')
-        #   print("Saved figure:", fig_name)
+                #for i, fig in enumerate(switch_type_mask_pages):
+                #   if rescaled:
+                #        fig_name = f"{sub}_switch-repeat_sig_wavelet_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
+                #    else:
+                #        fig_name = f"{sub}_switch-repeat_sig_wavelet_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
+                #    fig_pathname = os.path.join(save_dir, fig_name)
+                #    fig.savefig(fig_pathname, bbox_inches='tight')
+                #   print("Saved figure:", fig_name)
 
-        # get the mean differences themselves and plot them
-        mean_diff_err_vs_corr = mean_diff(error_spec._data, correct_spec._data, axis=0)
-        #mean_diff_switch_vs_repeat = mean_diff(switch_spec._data, repeat_spec._data, axis=0)
+                # get the mean differences themselves and plot them
+                mean_diff_err_vs_corr = mean_diff(error_spec._data, correct_spec._data, axis=0)
+                #mean_diff_switch_vs_repeat = mean_diff(switch_spec._data, repeat_spec._data, axis=0)
 
-        # Now, plot the mean differences directly:
-        accuracy_mean_diff_pages = plot_mask_pages(
-            mean_diff_err_vs_corr,
-            error_spec.ch_names,
-            times=error_spec.times,
-            freqs=error_spec.freqs,
-            grid_shape=(6, 10),
-            cmap=parula_map,  # play with color maps
-            title_prefix=f"{sub} Mean Err_Corr Diff: ",
-            log_freq=True,
-            show=False
-        )
+                # Now, plot the mean differences directly:
+                accuracy_mean_diff_pages = plot_mask_pages(
+                    mean_diff_err_vs_corr,
+                    error_spec.ch_names,
+                    times=error_spec.times,
+                    freqs=error_spec.freqs,
+                    grid_shape=(6, 10),
+                    cmap=parula_map,  # play with color maps
+                    title_prefix=f"{sub} Mean Err_Corr Diff: ",
+                    log_freq=True,
+                    show=False
+                )
 
-        #switch_type_mean_diff_pages = plot_mask_pages(
-        #    mean_diff_switch_vs_repeat,
-        #    switch_spec.ch_names,
-        #   times=switch_spec.times,
-        #   freqs=switch_spec.freqs,
-        #   grid_shape=(6, 10),
-        #   cmap=parula_map,  # play with color maps
-        #   title_prefix=f"{sub} Mean switch-repeat Diff: ",
-        #   log_freq=True,
-        #   show=False
-        #)
+                #switch_type_mean_diff_pages = plot_mask_pages(
+                #    mean_diff_switch_vs_repeat,
+                #    switch_spec.ch_names,
+                #   times=switch_spec.times,
+                #   freqs=switch_spec.freqs,
+                #   grid_shape=(6, 10),
+                #   cmap=parula_map,  # play with color maps
+                #   title_prefix=f"{sub} Mean switch-repeat Diff: ",
+                #   log_freq=True,
+                #   show=False
+                #)
 
-        # Save each page as a separate figure file:
-        for i, fig in enumerate(accuracy_mean_diff_pages):
-            if rescaled:
-                fig_name = f"{sub}_err-corr_mean_diff_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
-            else:
-                fig_name = f"{sub}_err-corr_mean_diff_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
-            fig_pathname = os.path.join(save_dir, fig_name)
-            fig.savefig(fig_pathname, bbox_inches='tight')
-            print("Saved figure:", fig_name)
+                # Save each page as a separate figure file:
+                for i, fig in enumerate(accuracy_mean_diff_pages):
+                    if rescaled:
+                        fig_name = f"{sub}_err-corr_mean_diff_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
+                    else:
+                        fig_name = f"{sub}_err-corr_mean_diff_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    fig_pathname = os.path.join(save_dir, fig_name)
+                    fig.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_name)
 
-        # Save each page as a separate figure file:
-        #for i, fig in enumerate(switch_type_mean_diff_pages):
-        #    if rescaled:
-        #        fig_name = f"{sub}_switch-repeat_mean_diff_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
-        #    else:
-        #        fig_name = f"{sub}_switch-repeat_mean_diff_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
-        #    fig_pathname = os.path.join(save_dir, fig_name)
-        #    fig.savefig(fig_pathname, bbox_inches='tight')
-        #    print("Saved figure:", fig_name)
+                # Save each page as a separate figure file:
+                #for i, fig in enumerate(switch_type_mean_diff_pages):
+                #    if rescaled:
+                #        fig_name = f"{sub}_switch-repeat_mean_diff_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
+                #    else:
+                #        fig_name = f"{sub}_switch-repeat_mean_diff_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
+                #    fig_pathname = os.path.join(save_dir, fig_name)
+                #    fig.savefig(fig_pathname, bbox_inches='tight')
+                #    print("Saved figure:", fig_name)
+
+    elif type == 'multitaper':
+        times = [-0.5, 1.5]
+        freqs = np.arange(2, 200., 2.)
+        n_cycles = freqs / 2
+        return_itc = False
+        time_bandwidth = 10 
+        make_multitaper = False
+
+        save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', 'figs')
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        if make_multitaper:
+            # For making wavelets, extract events directly from the configuration dictionary.
+            incongruent_events = conditions_and_output_names_and_events['incongruent']['events']
+            congruent_events   = conditions_and_output_names_and_events['congruent']['events']
+            switch_events      = conditions_and_output_names_and_events['switch']['events']
+            repeat_events      = conditions_and_output_names_and_events['repeat']['events']
+
+            sig_multitaper_differences_per_subject = {}
+
+            for sub in subjects:
+
+                sig_multitaper_differences_per_subject[sub] = {}
+                # Preprocess and compute average reaction time (if desired)
+                good = get_good_data(sub, layout)
+                RTs, skipped = calculate_RTs(good)
+                avg_RT = np.median(RTs)
+                print(f"Subject {sub} average RT: {avg_RT}")
+
+                # do inc-con, and also switch-repeat
+                congruency_mask, congruency_pvals = make_and_get_sig_multitaper_differences(
+                    sub, layout, incongruent_events, congruent_events, times,
+                    stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    
+                switch_type_mask, switch_type_pvals = make_and_get_sig_multitaper_differences(
+                    sub, layout, switch_events, repeat_events, times,
+                    stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+
+                sig_multitaper_differences_per_subject[sub]['congruency'] = (congruency_mask, congruency_pvals)
+                sig_multitaper_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
+
+        else:
+            # For loading precomputed wavelets, use output names from the configuration.
+            # Here, 'rescaled' toggles whether to load baseline-corrected (rescaled) TFRs.
+            rescaled = False  # Set to True if you wish to use baseline-corrected (dB scaled) wavelets
+
+            sig_multitaper_differences_per_subject = {}
+
+            for sub in subjects:
+
+                sig_multitaper_differences_per_subject[sub] = {}
+                good = get_good_data(sub, layout)
+                RTs, skipped = calculate_RTs(good)
+                avg_RT = np.median(RTs)
+                print(f"Subject {sub} average RT: {avg_RT}")
+
+                # do inc-con, and also switch-repeat
+                accuracy_mask, accuracy_pvals = load_and_get_sig_multitaper_differences(
+                    sub, layout,
+                    conditions_and_output_names_and_events['error']['output_name'],
+                    conditions_and_output_names_and_events['correct']['output_name'],
+                    rescaled,
+                    stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                #switch_type_mask, switch_type_pvals = load_and_get_sig_multitaper_differences(
+                    #sub, layout,
+                    #conditions_and_output_names_and_events['switch']['output_name'],
+                    #conditions_and_output_names_and_events['repeat']['output_name'],
+                    #rescaled,
+                    #stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+
+                sig_multitaper_differences_per_subject[sub]['accuracy'] = (accuracy_mask, accuracy_pvals)
+                #sig_multitaper_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
+
+                # plot the sig cluster masks
+                # Assume mask has shape (n_channels, ...) and you have channel names:
+                # For example, you can get channel names from one of your TFR objects.
+                # (Here we load one TFR to extract channel names.)
+                error_spec = load_multitaper(sub, layout, conditions_and_output_names_and_events['error']['output_name'], rescaled)
+                correct_spec = load_multitaper(sub, layout, conditions_and_output_names_and_events['correct']['output_name'], rescaled)
+                #switch_spec = load_multitaper(sub, layout, conditions_and_output_names_and_events['switch']['output_name'], rescaled)
+                #repeat_spec = load_multitaper(sub, layout, conditions_and_output_names_and_events['repeat']['output_name'], rescaled)
+
+                ch_names = error_spec.ch_names  # list of channel names
+
+                # Now plot the mask pages:
+                accuracy_mask_pages = plot_mask_pages(accuracy_mask,
+                                    error_spec.ch_names,
+                                    times=error_spec.times,
+                                    freqs=error_spec.freqs,
+                                    channels_per_page=60,
+                                    grid_shape=(6, 10),
+                                    cmap=parula_map,
+                                    title_prefix=f"{sub} ",
+                                    log_freq=True,
+                                    show=False)
+                
+                #switch_type_mask_pages = plot_mask_pages(switch_type_mask,
+                                    #switch_spec.ch_names,
+                                    #times=switch_spec.times,
+                                    #freqs=switch_spec.freqs,
+                                    #channels_per_page=60,
+                                    #grid_shape=(6, 10),
+                                    #cmap=parula_map,
+                                    #title_prefix=f"{sub} ",
+                                    #log_freq=True,
+                                    #show=False)
+
+                # Save each page as a separate figure file:
+                for i, fig in enumerate(accuracy_mask_pages):
+                    if rescaled:
+                        fig_name = f"{sub}_err-corr_sig_multitaper_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
+                    else:
+                        fig_name = f"{sub}_err-corr_sig_multitaper_clusters_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    fig_pathname = os.path.join(save_dir, fig_name)
+                    fig.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_name)
+
+                #for i, fig in enumerate(switch_type_mask_pages):
+                    #if rescaled:
+                        #fig_name = f"{sub}_switch-repeat_sig_multitaper_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
+                    #else:
+                        #fig_name = f"{sub}_switch-repeat_sig_multitaper_clusters_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    #fig_pathname = os.path.join(save_dir, fig_name)
+                    #fig.savefig(fig_pathname, bbox_inches='tight')
+                    #print("Saved figure:", fig_name)
+
+                # get the mean differences themselves and plot them
+                mean_diff_err_vs_corr = mean_diff(error_spec._data, correct_spec._data, axis=0)
+                #mean_diff_switch_vs_repeat = mean_diff(switch_spec._data, repeat_spec._data, axis=0)
+
+                # Now, plot the mean differences directly:
+                accuracy_mean_diff_pages = plot_mask_pages(
+                    mean_diff_inc_vs_con,
+                    error_spec.ch_names,
+                    times=error_spec.times,
+                    freqs=error_spec.freqs,
+                    grid_shape=(6, 10),
+                    cmap=parula_map,  # play with color maps
+                    title_prefix=f"{sub} Mean Err-Corr Diff: ",
+                    log_freq=True,
+                    show=False
+                )
+
+                #switch_type_mean_diff_pages = plot_mask_pages(
+                    #mean_diff_switch_vs_repeat,
+                    #switch_spec.ch_names,
+                    #times=switch_spec.times,
+                    #freqs=switch_spec.freqs,
+                    #grid_shape=(6, 10),
+                    #cmap=parula_map,  # play with color maps
+                    #title_prefix=f"{sub} Mean switch-repeat Diff: ",
+                    #log_freq=True,
+                    #show=False
+                #)
+
+                # Save each page as a separate figure file:
+                for i, fig in enumerate(accuracy_mean_diff_pages):
+                    if rescaled:
+                        fig_name = f"{sub}_err-corr_mean_diff_multitaper_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_rescaled_page_{i+1}.jpg"
+                    else:
+                        fig_name = f"{sub}_err-corr_mean_diff_multitaper_{conditions_and_output_names_and_events['error']['output_name']}-{conditions_and_output_names_and_events['correct']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    fig_pathname = os.path.join(save_dir, fig_name)
+                    fig.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_name)
+
+                # Save each page as a separate figure file:
+                #for i, fig in enumerate(switch_type_mean_diff_pages):
+                    #if rescaled:
+                        #fig_name = f"{sub}_switch-repeat_mean_diff_multitaper_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_rescaled_page_{i+1}.jpg"
+                    #else:
+                        #fig_name = f"{sub}_switch-repeat_mean_diff_multitaper_{conditions_and_output_names_and_events['switch']['output_name']}-{conditions_and_output_names_and_events['repeat']['output_name']}_uncorrected_page_{i+1}.jpg"
+                    #fig_pathname = os.path.join(save_dir, fig_name)
+                    #fig.savefig(fig_pathname, bbox_inches='tight')
+                    #print("Saved figure:", fig_name)
+    
+    else: 
+        print(f"Error: unknown type '{type}' ")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run spectral analysis.")
+    parser.add_argument('--subject', type=str, required=True, 
+                        help="The subject ID to process")
+    parser.add_argument('--type', type=str, required=True, 
+                        help='The type of analysis to run - wavelet or multitaper')
+    args = parser.parse_args()
+    run_wavelet_diff(args.type)
