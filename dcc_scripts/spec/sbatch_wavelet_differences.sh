@@ -17,3 +17,4 @@ conda activate ieeg # make sure this works
 export PYTHONPATH=/hpc/home/$USER/coganlab/$USER/GlobalLocal
 
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py --subject ${subject} --type ${analysis_type}
+

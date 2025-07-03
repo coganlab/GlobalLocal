@@ -262,7 +262,7 @@ def run_wavelet_diff(type):
         n_cycles = freqs / 2
         return_itc = False
         time_bandwidth = 10 
-        make_multitaper = False
+        make_multitaper = True
 
         save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', 'figs')
         if not os.path.exists(save_dir):
@@ -270,10 +270,10 @@ def run_wavelet_diff(type):
 
         if make_multitaper:
             # For making wavelets, extract events directly from the configuration dictionary.
-            incongruent_events = conditions_and_output_names_and_events['incongruent']['events']
-            congruent_events   = conditions_and_output_names_and_events['congruent']['events']
-            switch_events      = conditions_and_output_names_and_events['switch']['events']
-            repeat_events      = conditions_and_output_names_and_events['repeat']['events']
+            error_events = conditions_and_output_names_and_events['error']['events']
+            correct_events   = conditions_and_output_names_and_events['correct']['events']
+            #switch_events      = conditions_and_output_names_and_events['switch']['events']
+            #repeat_events      = conditions_and_output_names_and_events['repeat']['events']
 
             sig_multitaper_differences_per_subject = {}
 
@@ -287,16 +287,16 @@ def run_wavelet_diff(type):
                 print(f"Subject {sub} average RT: {avg_RT}")
 
                 # do inc-con, and also switch-repeat
-                congruency_mask, congruency_pvals = make_and_get_sig_multitaper_differences(
+                accuracy_mask, accuracy_pvals = make_and_get_sig_multitaper_differences(
                     sub, layout, incongruent_events, congruent_events, times,
                     stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                     
-                switch_type_mask, switch_type_pvals = make_and_get_sig_multitaper_differences(
-                    sub, layout, switch_events, repeat_events, times,
-                    stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                #switch_type_mask, switch_type_pvals = make_and_get_sig_multitaper_differences(
+                    #sub, layout, switch_events, repeat_events, times,
+                    #stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
 
-                sig_multitaper_differences_per_subject[sub]['congruency'] = (congruency_mask, congruency_pvals)
-                sig_multitaper_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
+                sig_multitaper_differences_per_subject[sub]['correct'] = (accuracy_mask, accuracy_pvals)
+                #sig_multitaper_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
 
         else:
             # For loading precomputed wavelets, use output names from the configuration.
