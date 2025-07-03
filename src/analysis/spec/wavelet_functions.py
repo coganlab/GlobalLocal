@@ -247,7 +247,7 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
 def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1: List[str],
                                      events_condition_2: List[str], times: Tuple[float, float],
                                      stat_func: Callable = mean_diff, p_thresh: float = 0.05,
-                                     freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int | np.ndarray = freqs / 2, 
+                                     freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int = 50, 
                                      time_bandwidth: int = 10, return_itc: bool = False,
                                      ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
                                      ) -> Tuple[np.ndarray, np.ndarray]:

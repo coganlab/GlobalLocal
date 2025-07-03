@@ -1,14 +1,14 @@
-
+# TODO: Add /Accuracy1.0 to all of these if I want to exclude error trials. I think that's good, right..?
 # This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
 
 #  congruency
 stimulus_congruency_conditions = {
     "Stimulus_c": {
-        "BIDS_events": ["Stimulus/c25.0", "Stimulus/c75.0"],
+        "BIDS_events": ["Stimulus/c25.0/Accuracy1.0", "Stimulus/c75.0/Accuracy1.0"],
         "congruency": "c"
     },
     "Stimulus_i": {
-        "BIDS_events": ["Stimulus/i25.0", "Stimulus/i75.0"],
+        "BIDS_events": ["Stimulus/i25.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
         "congruency": "i"
     }
 }
@@ -16,11 +16,11 @@ stimulus_congruency_conditions = {
 # switch type
 stimulus_switch_type_conditions = {
     "Stimulus_r": {
-        "BIDS_events": ["Stimulus/r25.0", "Stimulus/r75.0"],
+        "BIDS_events": ["Stimulus/r25.0/Accuracy1.0", "Stimulus/r75.0/Accuracy1.0"],
         "switchType": "r"
     },
     "Stimulus_s": {        
-        "BIDS_events": ["Stimulus/s25.0", "Stimulus/s75.0"],
+        "BIDS_events": ["Stimulus/s25.0/Accuracy1.0", "Stimulus/s75.0/Accuracy1.0"],
         "switchType": "s"
     }
 }
