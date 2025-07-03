@@ -389,7 +389,7 @@ def run_wavelet_diff(type):
 
                 # Now, plot the mean differences directly:
                 accuracy_mean_diff_pages = plot_mask_pages(
-                    mean_diff_inc_vs_con,
+                    mean_diff_err_vs_corr,
                     error_spec.ch_names,
                     times=error_spec.times,
                     freqs=error_spec.freqs,

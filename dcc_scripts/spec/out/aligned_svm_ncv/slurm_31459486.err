@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 43, in <module>
+    from src.analysis.spec.wavelet_functions import (
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 250, in <module>
+    freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int | np.ndarray = freqs / 2, 
+                                                                            ^^^^^
+NameError: name 'freqs' is not defined
