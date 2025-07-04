@@ -183,7 +183,6 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
 
     return spec
 
-
 def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: List[str],
                                      events_condition_2: List[str], times: Tuple[float, float],
                                      stat_func: Callable = mean_diff, p_thresh: float = 0.05,
