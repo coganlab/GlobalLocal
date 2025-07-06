@@ -1,0 +1,2 @@
+usage: wavelet_differences_dcc.py [-h] --subject SUBJECT --type TYPE
+wavelet_differences_dcc.py: error: the following arguments are required: --type
