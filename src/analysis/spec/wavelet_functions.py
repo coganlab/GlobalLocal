@@ -127,7 +127,7 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
 
     return spec
 
-def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, n_jobs=1) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected multitaper spectrogram for specified trials.
 
@@ -153,6 +153,8 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
         The time-bandwidth product to use for the multitaper spectrogram.
     return_itc : bool
         Whether to return the intertrial coherence (ITC) as well as the multitaper spectrogram.
+    average : bool
+        Whether to average the multitaper spectrogram across trials.
     n_jobs : int
         The number of parallel jobs to use for the multitaper spectrogram.
     Returns
@@ -178,7 +180,7 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     all_trials = get_trials(good, events, times)
 
     # Compute multitaper for the extracted trials (this can be replaced by epochs.compute_tfr): https://mne.tools/stable/auto_examples/time_frequency/time_frequency_simulated.html#sphx-glr-auto-examples-time-frequency-time-frequency-simulated-py
-    spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
+    spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     crop_pad(spec, "0.5s")
 
     return spec
@@ -248,7 +250,7 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
                                      stat_func: Callable = mean_diff, p_thresh: float = 0.05,
                                      freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int = 50, 
                                      time_bandwidth: int = 10, return_itc: bool = False,
-                                     ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                     ignore_adjacency: int = 1, average: bool = True, n_perm: int = 100, n_jobs: int = 1
                                      ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute multitaper TFRs from raw EEG data for two conditions and then compute their differences.
@@ -285,6 +287,8 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
         The axis or axes to ignore when finding clusters. For example, if
         sig1.shape = (trials, channels, time), and you want to find clusters
         across time, but not channels, you would set ignore_adjacency = 1.
+    average : bool
+        Whether to average the multitaper spectrogram across trials.
     n_perm : int, optional
         The number of permutations to perform (default: 100).
     n_jobs : int, optional
@@ -304,8 +308,8 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
     >>> isinstance(mask, np.ndarray)
     True
     """
-    spec_condition_1 = get_uncorrected_multitaper(sub, layout, events_condition_1, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs)
-    spec_condition_2 = get_uncorrected_multitaper(sub, layout, events_condition_2, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs)
+    spec_condition_1 = get_uncorrected_multitaper(sub, layout, events_condition_1, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs)
+    spec_condition_2 = get_uncorrected_multitaper(sub, layout, events_condition_2, times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs)
 
     mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
                                         stat_func=stat_func, p_thresh=p_thresh,
@@ -315,8 +319,12 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
 
 def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
                                 spec_condition_2: mne.time_frequency.EpochsTFR,
-                                stat_func: Callable = mean_diff, p_thresh: float = 0.05,
-                                ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
+                                p_cluster: float = None, n_perm: int = 1000,
+                                tails: int = 1, axis: int = 0,
+                                stat_func: callable = mean_diff,
+                                ignore_adjacency: tuple[int] | int = None,
+                                n_jobs: int = -1, seed: int = None,
+                                p_thresh: float = 0.05, 
                                 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute permutation cluster differences between two TFR objects.
@@ -327,21 +335,36 @@ def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
     Parameters
     ----------
     spec_condition_1 : mne.time_frequency.EpochsTFR
-        The TFR for condition 1.
+        The TFR for condition 1. The first dimension is assumed to be the trials
     spec_condition_2 : mne.time_frequency.EpochsTFR
-        The TFR for condition 2.
+        The TFR for condition 2. The first dimension is assumed to be the trials
+    p_thresh : float
+        The p-value threshold to use for determining significant time points.
+    p_cluster : float, optional
+        The p-value threshold to use for determining significant clusters.
+    n_perm : int, optional
+        The number of permutations to perform.
+    tails : int, optional
+        The number of tails to use. 1 for one-tailed, 2 for two-tailed.
+    axis : int, optional
+        The axis to perform the permutation test across. Also known as the
+        observations axis
     stat_func : callable, optional
-        The statistical function used to compare the two datasets (default: mean_diff).
-    p_thresh : float, optional
-        The p-value threshold for significance (default: 0.05).
+        The statistical function to use to compare populations. Requires an
+        axis keyword input to denote observations (trials, for example).
+        Default function is `mean_diff`, but may be substituted with other test
+        functions found here:
+        https://scipy.github.io/devdocs/reference/stats.html#independent
+        -sample-tests
     ignore_adjacency : int or tuple of ints, optional
         The axis or axes to ignore when finding clusters. For example, if
         sig1.shape = (trials, channels, time), and you want to find clusters
         across time, but not channels, you would set ignore_adjacency = 1.
-    n_perm : int, optional
-        The number of permutations to perform (default: 100).
     n_jobs : int, optional
-        The number of parallel jobs to use (default: 1).
+        The number of jobs to run in parallel. -1 for all processors. Default
+        is -1.
+    seed : int, optional
+        The random seed to use for the permutation test. Default is None.
 
     Returns
     -------
@@ -358,11 +381,14 @@ def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
     True
     """
     mask, pvals = time_perm_cluster(spec_condition_1._data, spec_condition_2._data,
-                                      stat_func=stat_func,
-                                      p_thresh=p_thresh,
-                                      ignore_adjacency=ignore_adjacency,
-                                      n_perm=n_perm,
-                                      n_jobs=n_jobs)
+                                    p_thresh=p_thresh,
+                                    p_cluster=p_cluster,
+                                    n_perm=n_perm,
+                                    tails=tails,
+                                    axis=axis,
+                                    stat_func=stat_func,
+                                    ignore_adjacency=ignore_adjacency,
+                                    n_jobs=n_jobs)
     return mask, pvals
 
 def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition_1: str,
