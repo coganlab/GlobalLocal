@@ -317,15 +317,20 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
     
     return mask, pvals
 
-def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
-                                spec_condition_2: mne.time_frequency.EpochsTFR,
-                                p_cluster: float = None, n_perm: int = 1000,
-                                tails: int = 1, axis: int = 0,
-                                stat_func: callable = mean_diff,
-                                ignore_adjacency: tuple[int] | int = None,
-                                n_jobs: int = -1, seed: int = None,
-                                p_thresh: float = 0.05, 
-                                ) -> Tuple[np.ndarray, np.ndarray]:
+def get_sig_tfr_differences(
+    tfr_data_cond1: mne.time_frequency.TFR,
+    tfr_data_cond2: mne.time_frequency.TFR,
+    stat_func: Callable,
+    elecs_to_pick: list = None,
+    p_thresh: float = 0.05,
+    p_cluster: Optional[float] = None,
+    n_perm: int = 1000,
+    tails: int = 0,
+    axis: int = 0,
+    ignore_adjacency: Optional[Union[int, Tuple[int, ...]]] = None,
+    n_jobs: int = 1,
+    seed: Optional[int] = None
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compute permutation cluster differences between two TFR objects.
 
@@ -334,21 +339,10 @@ def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
 
     Parameters
     ----------
-    spec_condition_1 : mne.time_frequency.EpochsTFR
-        The TFR for condition 1. The first dimension is assumed to be the trials
-    spec_condition_2 : mne.time_frequency.EpochsTFR
-        The TFR for condition 2. The first dimension is assumed to be the trials
-    p_thresh : float
-        The p-value threshold to use for determining significant time points.
-    p_cluster : float, optional
-        The p-value threshold to use for determining significant clusters.
-    n_perm : int, optional
-        The number of permutations to perform.
-    tails : int, optional
-        The number of tails to use. 1 for one-tailed, 2 for two-tailed.
-    axis : int, optional
-        The axis to perform the permutation test across. Also known as the
-        observations axis
+    tfr_data_cond1 : mne.time_frequency.TFR
+        The TFR data for the first condition.
+    tfr_data_cond2 : mne.time_frequency.TFR
+        The TFR data for the second condition.
     stat_func : callable, optional
         The statistical function to use to compare populations. Requires an
         axis keyword input to denote observations (trials, for example).
@@ -356,15 +350,26 @@ def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
         functions found here:
         https://scipy.github.io/devdocs/reference/stats.html#independent
         -sample-tests
+    elecs_to_pick : list, optional
+        A list of electrode names to include in the analysis. Defaults to None.
+    p_thresh : float, optional
+        P-value threshold for forming clusters. Default is 0.05.
+    p_cluster : float, optional
+        P-value threshold for significant clusters. If None, uses `p_thresh`. Default is None.
+    n_perm : int, optional
+        Number of permutations. Default is 1000.
+    tails : int, optional
+        Number of tails for the test (0 for two-tailed, 1 for one-tailed). Default is 0.
+    axis : int, optional
+        The axis for permutation (e.g., trials axis). Default is 0.
     ignore_adjacency : int or tuple of ints, optional
         The axis or axes to ignore when finding clusters. For example, if
         sig1.shape = (trials, channels, time), and you want to find clusters
         across time, but not channels, you would set ignore_adjacency = 1.
     n_jobs : int, optional
-        The number of jobs to run in parallel. -1 for all processors. Default
-        is -1.
+        Number of parallel jobs. Default is 1.
     seed : int, optional
-        The random seed to use for the permutation test. Default is None.
+        Random seed for permutations. Default is None.
 
     Returns
     -------
@@ -380,15 +385,27 @@ def get_sig_tfr_differences(spec_condition_1: mne.time_frequency.EpochsTFR,
     >>> isinstance(mask, np.ndarray)
     True
     """
-    mask, pvals = time_perm_cluster(spec_condition_1._data, spec_condition_2._data,
-                                    p_thresh=p_thresh,
-                                    p_cluster=p_cluster,
-                                    n_perm=n_perm,
-                                    tails=tails,
-                                    axis=axis,
-                                    stat_func=stat_func,
-                                    ignore_adjacency=ignore_adjacency,
-                                    n_jobs=n_jobs)
+    tfr1 = tfr_data_cond1.copy()
+    tfr2 = tfr_data_cond2.copy()
+
+    if elecs_to_pick:
+        tfr1.pick(elecs_to_pick)
+        tfr2.pick(elecs_to_pick)
+
+    # Pass all statistical parameters to the underlying test function
+    mask, pvals = time_perm_cluster(
+        tfr1._data, tfr2._data,
+        stat_func=stat_func,
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=tails,
+        axis=axis,
+        ignore_adjacency=ignore_adjacency,
+        n_jobs=n_jobs,
+        seed=seed
+    )
+
     return mask, pvals
 
 def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition_1: str,
