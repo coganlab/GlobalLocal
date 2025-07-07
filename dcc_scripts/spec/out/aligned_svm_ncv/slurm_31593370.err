@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 43, in <module>
+    from src.analysis.spec.wavelet_functions import (
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 330, in <module>
+    ignore_adjacency: Optional[Union[int, Tuple[int, ...]]] = None,
+                               ^^^^^
+NameError: name 'Union' is not defined
