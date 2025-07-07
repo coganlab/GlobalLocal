@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 43, in <module>
+    from src.analysis.spec.wavelet_functions import (
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/spec/wavelet_functions.py", line 321, in <module>
+    tfr_data_cond1: mne.time_frequency.TFR,
+                    ^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/lazy_loader/__init__.py", line 89, in __getattr__
+    raise AttributeError(f"No {package_name} attribute {name}")
+AttributeError: No mne.time_frequency attribute TFR
