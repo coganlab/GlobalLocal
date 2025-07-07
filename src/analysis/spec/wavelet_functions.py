@@ -325,7 +325,7 @@ def get_sig_tfr_differences(
     p_thresh: float = 0.05,
     p_cluster: Optional[float] = None,
     n_perm: int = 1000,
-    tails: int = 0,
+    tails: int = 1,
     axis: int = 0,
     ignore_adjacency: Optional[Union[int, Tuple[int, ...]]] = None,
     n_jobs: int = 1,
@@ -359,7 +359,7 @@ def get_sig_tfr_differences(
     n_perm : int, optional
         Number of permutations. Default is 1000.
     tails : int, optional
-        Number of tails for the test (0 for two-tailed, 1 for one-tailed). Default is 0.
+        Number of tails for the test (1 for one-tailed, 2 for two-tailed). Default is 1.
     axis : int, optional
         The axis for permutation (e.g., trials axis). Default is 0.
     ignore_adjacency : int or tuple of ints, optional
