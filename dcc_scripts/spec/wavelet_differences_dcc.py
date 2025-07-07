@@ -288,7 +288,7 @@ def run_wavelet_diff(type):
 
                 # do inc-con, and also switch-repeat
                 accuracy_mask, accuracy_pvals = make_and_get_sig_multitaper_differences(
-                    sub, layout, incongruent_events, congruent_events, times,
+                    sub, layout, error_events, correct_events, times,
                     stat_func=mean_diff, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                     
                 #switch_type_mask, switch_type_pvals = make_and_get_sig_multitaper_differences(
