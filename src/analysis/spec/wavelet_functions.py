@@ -318,8 +318,8 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
     return mask, pvals
 
 def get_sig_tfr_differences(
-    tfr_data_cond1: mne.time_frequency.TFR,
-    tfr_data_cond2: mne.time_frequency.TFR,
+    tfr_data_cond1,
+    tfr_data_cond2,
     stat_func: Callable,
     elecs_to_pick: list = None,
     p_thresh: float = 0.05,
@@ -339,9 +339,9 @@ def get_sig_tfr_differences(
 
     Parameters
     ----------
-    tfr_data_cond1 : mne.time_frequency.TFR
+    tfr_data_cond1 : mne.time_frequency.EpochsTFR
         The TFR data for the first condition.
-    tfr_data_cond2 : mne.time_frequency.TFR
+    tfr_data_cond2 : mne.time_frequency.EpochsTFR
         The TFR data for the second condition.
     stat_func : callable, optional
         The statistical function to use to compare populations. Requires an
