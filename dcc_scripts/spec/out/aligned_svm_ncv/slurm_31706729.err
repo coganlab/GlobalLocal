@@ -68,3 +68,4 @@
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
 /hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:1592: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
   all_trials = mne.concatenate_epochs(all_trials_list)
+slurmstepd: error: *** JOB 31706729 ON dcc-comp-04 CANCELLED AT 2025-07-08T13:59:21 ***
