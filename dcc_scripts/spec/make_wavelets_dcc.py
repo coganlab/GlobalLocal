@@ -113,7 +113,7 @@ def main(subject_id,type):
             base = get_uncorrected_multitaper(
                 subject_id, layout, events=["Response"], times=baseline_times,
                 freqs=freqs, n_cycles=n_cycles,
-                time_bandwidth=time_bandwidth, return_itc=return_itc
+                time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
             )
 
             # Generate and save multitaper spectrogram for each condition
@@ -126,7 +126,7 @@ def main(subject_id,type):
                     spec = get_uncorrected_multitaper(
                         subject_id, layout, events, signal_times, 
                         freqs=freqs, n_cycles=n_cycles, 
-                        time_bandwidth=time_bandwidth, return_itc=return_itc
+                        time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
                     )
                     spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
                         lambda x: np.nanmean(x, axis=0), copy=True)
