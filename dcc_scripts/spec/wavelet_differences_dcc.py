@@ -354,7 +354,7 @@ def run_wavelet_diff(type):
                                     grid_shape=(6, 10),
                                     cmap=parula_map,
                                     title_prefix=f"{sub} ",
-                                    log_freq=True,
+                                    log_freq=False,
                                     show=False)
                 
                 #switch_type_mask_pages = plot_mask_pages(switch_type_mask,
@@ -400,7 +400,7 @@ def run_wavelet_diff(type):
                     grid_shape=(6, 10),
                     cmap=parula_map,  # play with color maps
                     title_prefix=f"{sub} Mean Err-Corr Diff: ",
-                    log_freq=True,
+                    log_freq=False,
                     show=False
                 )
 
