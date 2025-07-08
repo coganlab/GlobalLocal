@@ -84,7 +84,7 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     del inst
     return base
 
-def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float]) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float], n_jobs: int=1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected wavelets for specified trials.
 
@@ -102,7 +102,8 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
         A list of event names to extract trials for.
     times : tuple of float
         A tuple (start, end) in seconds relative to each event defining the extraction window.
-
+    n_jobs : int
+        The number of parallel jobs to use for the wavelet scaleogram.
     Returns
     -------
     spec : mne.time_frequency.EpochsTFR
@@ -123,7 +124,7 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
     all_trials = get_trials(good, events, padded_times)
 
     # Compute wavelets for the extracted trials
-    spec = wavelet_scaleogram(all_trials, n_jobs=1, decim=int(good.info['sfreq'] / 100))
+    spec = wavelet_scaleogram(all_trials, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     crop_pad(spec, "0.5s")
 
     return spec
