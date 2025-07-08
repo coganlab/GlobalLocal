@@ -1,0 +1,3 @@
+usage: make_wavelets_dcc.py [-h] --subject SUBJECT --type TYPE
+make_wavelets_dcc.py: error: the following arguments are required: --type
+slurmstepd: error: *** JOB 31716429 ON dcc-comp-02 CANCELLED AT 2025-07-08T15:21:46 ***

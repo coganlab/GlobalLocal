@@ -266,7 +266,7 @@ def run_wavelet_diff(type):
         n_cycles = freqs / 2
         return_itc = False
         time_bandwidth = 10 
-        make_multitaper = True
+        make_multitaper = False
 
         save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', 'figs')
         if not os.path.exists(save_dir):
