@@ -1,0 +1,2 @@
+usage: make_wavelets_dcc.py [-h] --subject SUBJECT --type TYPE
+make_wavelets_dcc.py: error: the following arguments are required: --type
