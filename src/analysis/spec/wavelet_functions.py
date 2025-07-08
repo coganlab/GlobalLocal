@@ -41,7 +41,7 @@ from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_t
 
 import matplotlib.pyplot as plt
 
-from typing import List, Tuple, Callable, Optional
+from typing import Union, List, Tuple, Callable, Optional
 
 def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     """
