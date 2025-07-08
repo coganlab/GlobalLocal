@@ -38,6 +38,7 @@ from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 from ieeg.viz.ensemble import chan_grid
 from ieeg.viz.parula import parula_map
 from scipy.stats import ttest_ind
+from functools import partial
 
 from src.analysis.utils.general_utils import calculate_RTs, get_good_data
 from src.analysis.spec.wavelet_functions import (
@@ -67,6 +68,9 @@ subjects = ['D0063']
 
 # this is a toggle for which version to run - the one that makes the wavelets in this notebook directly, or the one that loads them
 make_wavelets=False
+
+#set equal variance
+welchs_ttest = partial(ttest_ind, equal_var=False)
 
 save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', 'figs')
 if not os.path.exists(save_dir):
@@ -112,10 +116,10 @@ def run_wavelet_diff(type):
                 # do inc-con, and also switch-repeat
                 congruency_mask, congruency_pvals = make_and_get_sig_wavelet_differences(
                     sub, layout, incongruent_events, congruent_events, times,
-                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    stat_func=welchs_ttest, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                 switch_type_mask, switch_type_pvals = make_and_get_sig_wavelet_differences(
                     sub, layout, switch_events, repeat_events, times,
-                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    stat_func=welchs_ttest, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
 
                 sig_wavelet_differences_per_subject[sub]['congruency'] = (congruency_mask, congruency_pvals)
                 sig_wavelet_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
@@ -141,7 +145,7 @@ def run_wavelet_diff(type):
                     conditions_and_output_names_and_events['error']['output_name'],
                     conditions_and_output_names_and_events['correct']['output_name'],
                     rescaled,
-                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    stat_func=welchs_ttest, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                 ##switch_type_mask, switch_type_pvals = load_and_get_sig_wavelet_differences(
                 ##sub, layout,
                 ##conditions_and_output_names_and_events['switch']['output_name'],
@@ -289,7 +293,7 @@ def run_wavelet_diff(type):
                 # do inc-con, and also switch-repeat
                 accuracy_mask, accuracy_pvals = make_and_get_sig_multitaper_differences(
                     sub, layout, error_events, correct_events, times,
-                    stat_func=ttest_ind, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    stat_func=welchs_ttest, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                     
                 #switch_type_mask, switch_type_pvals = make_and_get_sig_multitaper_differences(
                     #sub, layout, switch_events, repeat_events, times,
@@ -319,7 +323,7 @@ def run_wavelet_diff(type):
                     conditions_and_output_names_and_events['error']['output_name'],
                     conditions_and_output_names_and_events['correct']['output_name'],
                     rescaled,
-                    stat_func=ttest_ind, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                    stat_func=welchs_ttest, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
                 #switch_type_mask, switch_type_pvals = load_and_get_sig_multitaper_differences(
                     #sub, layout,
                     #conditions_and_output_names_and_events['switch']['output_name'],
@@ -350,7 +354,7 @@ def run_wavelet_diff(type):
                                     grid_shape=(6, 10),
                                     cmap=parula_map,
                                     title_prefix=f"{sub} ",
-                                    log_freq=True,
+                                    log_freq=False,
                                     show=False)
                 
                 #switch_type_mask_pages = plot_mask_pages(switch_type_mask,
@@ -396,7 +400,7 @@ def run_wavelet_diff(type):
                     grid_shape=(6, 10),
                     cmap=parula_map,  # play with color maps
                     title_prefix=f"{sub} Mean Err-Corr Diff: ",
-                    log_freq=True,
+                    log_freq=False,
                     show=False
                 )
 
