@@ -39,6 +39,7 @@ from ieeg.viz.ensemble import chan_grid
 from ieeg.viz.parula import parula_map
 from scipy.stats import ttest_ind
 from functools import partial
+from matplotlib.colors import ListedColormap
 
 from src.analysis.utils.general_utils import calculate_RTs, get_good_data
 from src.analysis.spec.wavelet_functions import (
@@ -87,6 +88,10 @@ conditions_and_output_names_and_events = {
         'events': ['Responded1.0/Stimulus/Accuracy1.0']
     }   
 }
+
+blue_color = parula_map(0)
+yellow_color = parula_map(1.0)
+binary_parula_cmap = ListedColormap([blue_color, yellow_color])
 
 def run_wavelet_diff(type):
 
@@ -174,7 +179,7 @@ def run_wavelet_diff(type):
                             freqs=error_spec.freqs,
                             channels_per_page=60,
                             grid_shape=(6, 10),
-                            cmap=parula_map,
+                            cmap=binary_parula_cmap,
                             title_prefix=f"{sub} ",
                             log_freq=True,
                             show=False)
@@ -330,6 +335,10 @@ def run_wavelet_diff(type):
                     #conditions_and_output_names_and_events['repeat']['output_name'],
                     #rescaled,
                     #stat_func=mean_diff, p_thresh=0.05, ignore_adjacency=1, n_perm=100, n_jobs=1)
+                
+                #inspecting values for non-binary
+                unique_values = np.unique(accuracy_mask)
+                print(f"The unique values in this mask are: {unique_values}")
 
                 sig_multitaper_differences_per_subject[sub]['accuracy'] = (accuracy_mask, accuracy_pvals)
                 #sig_multitaper_differences_per_subject[sub]['switch_type'] = (switch_type_mask, switch_type_pvals)
@@ -352,7 +361,7 @@ def run_wavelet_diff(type):
                                     freqs=error_spec.freqs,
                                     channels_per_page=60,
                                     grid_shape=(6, 10),
-                                    cmap=parula_map,
+                                    cmap=binary_parula_cmap,
                                     title_prefix=f"{sub} ",
                                     log_freq=False,
                                     show=False)
