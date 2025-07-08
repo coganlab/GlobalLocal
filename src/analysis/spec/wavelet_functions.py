@@ -239,8 +239,8 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
     >>> isinstance(mask, np.ndarray)
     True
     """
-    spec_condition_1 = get_uncorrected_wavelets(sub, layout, events_condition_1, times)
-    spec_condition_2 = get_uncorrected_wavelets(sub, layout, events_condition_2, times)
+    spec_condition_1 = get_uncorrected_wavelets(sub, layout, events_condition_1, times, n_jobs=n_jobs)
+    spec_condition_2 = get_uncorrected_wavelets(sub, layout, events_condition_2, times, n_jobs=n_jobs)
 
     mask, pvals = get_sig_tfr_differences(spec_condition_1, spec_condition_2,
                                         stat_func=stat_func, p_thresh=p_thresh,
