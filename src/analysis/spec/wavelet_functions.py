@@ -187,7 +187,7 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
 
 def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: List[str],
                                      events_condition_2: List[str], times: Tuple[float, float],
-                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     stat_func: callable = mean_diff, p_thresh: float = 0.05,
                                      ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
                                      ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -247,7 +247,7 @@ def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: L
 
 def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1: List[str],
                                      events_condition_2: List[str], times: Tuple[float, float],
-                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     stat_func: callable = mean_diff, p_thresh: float = 0.05,
                                      freqs: np.ndarray = np.arange(10, 200, 2), n_cycles: int = 50, 
                                      time_bandwidth: int = 10, return_itc: bool = False,
                                      ignore_adjacency: int = 1, average: bool = True, n_perm: int = 100, n_jobs: int = 1
@@ -320,17 +320,16 @@ def make_and_get_sig_multitaper_differences(sub: str, layout, events_condition_1
 def get_sig_tfr_differences(
     tfr_data_cond1,
     tfr_data_cond2,
-    stat_func: Callable,
+    stat_func: callable,
     elecs_to_pick: list = None,
     p_thresh: float = 0.05,
-    p_cluster: Optional[float] = None,
+    p_cluster: float = None,
     n_perm: int = 1000,
     tails: int = 1,
     axis: int = 0,
-    ignore_adjacency: Optional[Union[int, Tuple[int, ...]]] = None,
+    ignore_adjacency: int = None,
     n_jobs: int = 1,
-    seed: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+    seed: int = None):
     """
     Compute permutation cluster differences between two TFR objects.
 
@@ -410,7 +409,7 @@ def get_sig_tfr_differences(
 
 def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition_1: str,
                                      output_name_condition_2: str, rescaled: bool,
-                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     stat_func: callable = mean_diff, p_thresh: float = 0.05,
                                      ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
                                      ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -472,7 +471,7 @@ def load_and_get_sig_wavelet_differences(sub: str, layout, output_name_condition
 
 def load_and_get_sig_multitaper_differences(sub: str, layout, output_name_condition_1: str,
                                      output_name_condition_2: str, rescaled: bool,
-                                     stat_func: Callable = mean_diff, p_thresh: float = 0.05,
+                                     stat_func: callable = mean_diff, p_thresh: float = 0.05,
                                      ignore_adjacency: int = 1, n_perm: int = 100, n_jobs: int = 1
                                      ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -837,7 +836,7 @@ def load_and_get_sig_wavelet_ratio_differences(sub: str, layout,
                                                  output_name_condition_1: str,
                                                  output_name_condition_2: str,
                                                  rescaled: bool,
-                                                 stat_func: Callable = mean_diff, 
+                                                 stat_func: callable = mean_diff, 
                                                  p_thresh: float = 0.05,
                                                  ignore_adjacency: int = 1, 
                                                  n_perm: int = 100, 
