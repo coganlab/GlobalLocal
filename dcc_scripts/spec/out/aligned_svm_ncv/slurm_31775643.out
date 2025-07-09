@@ -1,0 +1,46 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0063/ieeg/sub-D0063_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+<RawEDF | sub-D0063_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf, 240 x 4386816 (2142.0 s), ~270 kB, data not loaded>
+outlier round 1 channels: ['RMMT14']
+outlier round 2 channels: ['RMMT14', 'LOF10']
+outlier round 2 channels: ['RMMT14', 'LOF10', 'LOF14']
+outlier round 2 channels: ['RMMT14', 'LOF10', 'LOF14', 'ROF2']
+outlier round 2 channels: ['RMMT14', 'LOF10', 'LOF14', 'ROF2', 'RAMF4']
+Reading 0 ... 3280722  =      0.000 ...  1601.915 secs...
+Applying average reference.
+Applying a custom ('sEEG',) reference.
+Subject D0063 average RT: 1.0659180000000106
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0063/ErrorTrials_Stimulus_Locked_uncorrected-tfr.h5 ...
