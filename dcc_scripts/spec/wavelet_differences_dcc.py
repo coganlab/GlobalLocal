@@ -71,7 +71,7 @@ subjects = ['D0063']
 make_wavelets=False
 
 #set equal variance
-welchs_ttest = partial(ttest_ind, equal_var=False)
+welchs_ttest = partial(ttest_ind, equal_var=False, nan_policy='omit')
 
 save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', 'figs')
 if not os.path.exists(save_dir):
