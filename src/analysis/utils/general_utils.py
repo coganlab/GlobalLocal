@@ -1535,9 +1535,6 @@ def get_good_data(sub, layout):
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
 
-    # # Plot the data for inspection
-    # good.plot()
-
     return good
 
 def count_electrodes_across_subjects(data, subjects):
