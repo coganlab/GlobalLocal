@@ -80,12 +80,12 @@ if not os.path.exists(save_dir):
 # Mapping condition names to their corresponding output names and event lists
 conditions_and_output_names_and_events = {
     'error': {
-        'output_name': 'ErrorTrials_Stimulus_Locked',
-        'events': ['Responded1.0/Stimulus/Accuracy0.0']
+        'output_name': 'ErrorTrials_Response_Locked',
+        'events': ['Responded1.0/Response/Accuracy0.0']
     },
     'correct': {
-        'output_name': 'CorrectTrials_Stimulus_Locked',
-        'events': ['Responded1.0/Stimulus/Accuracy1.0']
+        'output_name': 'CorrectTrials_Response_Locked',
+        'events': ['Responded1.0/Response/Accuracy1.0']
     }   
 }
 
