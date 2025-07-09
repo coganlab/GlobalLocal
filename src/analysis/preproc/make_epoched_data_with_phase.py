@@ -42,7 +42,7 @@ from ieeg.timefreq import gamma # replace with naplib filterbank hilbert
 from ieeg.calc.scaling import rescale
 import mne
 import numpy as np
-from ieeg.calc.reshape import make_data_same
+#from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.calc.fast import mean_diff
 from ieeg.viz.mri import gen_labels
@@ -56,12 +56,13 @@ sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to d
 import pickle
 from scipy.stats import ttest_ind
 from functools import partial
-from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
+#from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans
 
 from naplib.preprocessing import filterbank_hilbert as fb_hilb
+from tqdm import tqdm
 
 # Directory where your .npy files are saved
-npy_directory = r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
+npy_directory = r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
 
 # Dictionary to hold the data
 acc_array = {}
@@ -76,8 +77,8 @@ for file in os.listdir(npy_directory):
 
 # Now you have a dictionary where each key is the subject ID
 # and the value is the numpy array of accuracies for that subject.
-        
-combined_data = pd.read_csv(r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\combinedData.csv')
+
+combined_data = pd.read_csv(r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\combinedData.csv')
 
 # %% [markdown]
 # define subjects
@@ -90,110 +91,38 @@ combined_data = pd.read_csv(r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\com
 # updated this one 2/29, once it's tested and works, then turn into a function and delete other cells below
 # %%
 
-def extract_amplitude_and_phase_and_freqs(data: np.ndarray, fs: float = None,
+def extract_amplitude_and_phase_and_freqs(data, fs=None,
             passband: tuple[int, int] = (70, 150), copy: bool = True,
-            n_jobs=-1, verbose: bool = True) -> np.ndarray:
-    """Extract gamma band envelope, phase, and center frequencies from data.
-
-    Parameters
-    ----------
-    data : (np.ndarray, shape ((epochs) ,channels, samples)) | Signal
-        Data to extract gamma envelope from. If Signal, will use the _data
-        attribute.
-    fs : int, optional
-        Sampling frequency of data. If Signal, will use the data.info['sfreq'].
-        Otherwise, must be provided.
-    passband : tuple[int, int], optional
-        Passband in Hz, high gamma band by default (70, 150)
-    copy : bool, optional
-        Whether to copy data or operate in place if False, by default True
-    n_jobs : int, optional
-        Number of jobs to run in parallel, by default all available cores
-
-    Returns
-    -------
-    np.ndarray
-        Gamma envelope.
-    np.ndarray
-        Gamma phase.
-    np.ndarray
-        Center frequencies.
-
-    Notes
-    -----
-    This function is a wrapper for
-    `filterbank_hilbert <https://naplib-python.readthedocs.io/en/latest/referen
-    ces/preprocessing.html#naplib.preprocessing.filterbank_hilbert>`_. It is a
-    convenience function for extracting the gamma envelope from data. It is
-    optimized for speed, but not memory. If you have a lot of data, you may
-    want to epoch your data first and then extract the envelope.
-
-    Examples
-    --------
-    >>> import mne
-    >>> import numpy as np
-    >>> from bids import BIDSLayout
-    >>> from ieeg.navigate import trial_ieeg
-    >>> from ieeg.io import raw_from_layout
-    >>> from ieeg.timefreq.utils import crop_pad
-    >>> bids_root = mne.datasets.epilepsy_ecog.data_path(verbose=50)
-    >>> layout = BIDSLayout(bids_root)
-    >>> raw = raw_from_layout(layout, subject="pt1",
-    ... preload=True, extension=".vhdr", verbose=False) # doctest: +ELLIPSIS
-    Reading 0 ... 269079  =      0.000 ...   269.079 secs...
-    >>> trials = trial_ieeg(raw, "AD1-4, ATT1,2", (-0.5, 1),
-    ... preload=True, verbose=False, picks=['AD2'])
-    >>> gamma = extract(trials, n_jobs=1)
-    >>> crop_pad(gamma, "0.5s") # doctest: +ELLIPSIS
-    <Epochs | 1 events (all good), 0 – 0.5 s (baseline off), ...
-     'AD1-4, ATT1,2': 1>
-    >>> gamma.resample(100, verbose=50) # doctest: +ELLIPSIS
-    <Epochs | 1 events (all good), 0 – 0.49 s (baseline off), ...
-     'AD1-4, ATT1,2': 1>
-    >>> expected = np.array([
-    ... 3.5729, 3.8323, 4.0820, 5.4100, 8.0623, 12.579, 20.280, 31.027, 43.918,
-    ... 56.523, 65.739, 68.678, 64.378, 54.357, 42.245, 32.177, 26.568, 23.578,
-    ... 20.584, 17.003, 13.105, 9.6693, 6.9391, 4.8671, 3.6392, 3.0246, 2.8268,
-    ... 2.9109, 3.2376, 3.6906, 4.1659, 4.5842, 4.9949, 5.3240, 6.0321, 7.1968,
-    ... 8.0531, 8.4710, 8.3094, 7.8219, 7.3717, 7.1496, 7.0281, 7.0632, 7.0525,
-    ... 7.2997, 7.7566, 7.7874, 7.3208, 6.4729]) * 1e-05
-    >>> np.abs(np.sum(gamma._data - expected)) < 1e-6
-    True
+            n_jobs=-1, verbose: bool = True):
     """
-
-    if fs is None:
-        raise ValueError("fs must be provided if data is not a Signal")
-
-    if copy:
-        in_data = data.copy()
+    Extract gamma band envelope, phase, and center frequencies from data.
+    Supports both numpy arrays and MNE Epochs/Raw.
+    """
+    if hasattr(data, 'get_data'):
+        if fs is None:
+            fs = data.info['sfreq']
+        in_data = data.get_data()
     else:
-        in_data = data
+        if fs is None:
+            raise ValueError("fs must be provided if data is not a Signal")
+        in_data = data.copy() if copy else data
 
     passband = list(passband)
     env = np.zeros(in_data.shape)
+    phase = np.zeros(in_data.shape)
 
-    if len(in_data.shape) == 3:  # Assume shape is (trials, channels, time)
-        trials = range(in_data.shape[0])
-        if n_jobs != 1:
-            ins = (in_data[trial].T for trial in trials)
-            par_out = parallelize(fb_hilb, ins, fs=fs, Wn=passband,
-                                  n_jobs=n_jobs)
-            env[:, :, :] = np.array([np.sum(out, axis=-1).T for
-                                     out in par_out])
-        else:
-            if verbose:
-                trials = tqdm(trials)
-            for trial in trials:
-                out = fb_hilb(in_data[trial, :, :].T, fs,
-                                         passband, 1)
-                env[trial, :, :] = np.sum(out, axis=-1).T
-    elif len(in_data.shape) == 2:  # Assume shape is (channels, time)
+    if in_data.ndim == 3:
+        for idx in range(in_data.shape[0]):
+            trial_data = in_data[idx]  # shape: (channels, times)
+            x_phase, x_envelope, freqs = fb_hilb(trial_data.T, fs, passband, n_jobs)
+            phase[idx] = np.sum(x_phase, axis=-1).T
+            env[idx]   = np.sum(x_envelope, axis=-1).T
+    elif in_data.ndim == 2:
         x_phase, x_envelope, freqs = fb_hilb(in_data.T, fs, passband, n_jobs)
-        env = np.sum(x_envelope, axis=-1).T
         phase = np.sum(x_phase, axis=-1).T
+        env   = np.sum(x_envelope, axis=-1).T
     else:
-        raise ValueError("number of dims should be either 2 or 3, not {}"
-                         "".format(len(in_data.shape)))
+        raise ValueError(f"Unsupported data dimensions: {in_data.ndim}")
 
     return env, phase, freqs
 
@@ -284,8 +213,20 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
                                     "CoganLab")
 
     layout = get_data(task, root=LAB_root)
-    filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
-                        extension='.edf', desc='clean', preload=False)
+    print(f"Using raw_from_layout to load subject: {sub}")
+    try:
+        filt = raw_from_layout(
+            layout.derivatives['derivatives/clean'],
+            subject=sub,
+            extension='.edf',
+            desc='clean',
+            preload=False
+        )
+        print(f"Successfully loaded subject {sub} using raw_from_layout")
+    except Exception as e:
+        print(f"Failed to load subject {sub} with raw_from_layout")
+        print(f"Error: {e}")
+        raise
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -326,73 +267,113 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
-    # debugging 6/17/25
-    # Create a baseline EpochsTFR using the baseline event
+    pad_length_string = f"{pad_length}s"
     if baseline_event == "experimentStart":
-        # Adjust the time window
-        within_base_times_adj = [within_base_times[0] - pad_length, within_base_times[1] + pad_length]
-        trials = trial_ieeg(good, baseline_event, within_base_times_adj, preload=True)
+        output_name_base = (
+            f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_"
+            f"{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_pad{pad_length}s"
+        )
     else:
-        trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
-    
-    outliers_to_nan(trials, outliers=outliers)
-    HG_base_env, HG_base_phase, HG_base_freqs = extract_amplitude_and_phase_and_freqs(trials, passband=passband, copy=False, n_jobs=1) # replace this with a naplib function
-    
-    pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
-    crop_pad(HG_base_env, pad_length_string) # need to change this if pad length changes
-    HG_base_env.decimate(dec_factor)
-    
-    # Square the data to get power from amplitude
-    HG_base_power = HG_base_env.copy()
-    HG_base_power._data = HG_base_env._data ** 2  # Square amplitude to get power
-    
-    # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
-    if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s"
-    else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s"
+        output_name_base = (
+            f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_"
+            f"decFactor_{dec_factor}_outliers_{outliers}_pad{pad_length}s"
+        )
 
-    for event in ["Stimulus", "Response"]:
-        output_name_event = f'{event}_{output_name_base}'
-        times_adj = [times[0] - pad_length, times[1] + pad_length]
-        trials = trial_ieeg(good, event, times_adj, preload=True,
-                            reject_by_annotation=False)
-        HG_ev1_env, HG_ev1_phase, HG_ev1_freqs = extract_amplitude_and_phase_and_freqs(trials, passband=passband, copy=True, n_jobs=1)
-        print("HG_ev1 before crop_pad: ", HG_ev1_env.tmin, HG_ev1_env.tmax)
-        crop_pad(HG_ev1_env, pad_length_string) #change this if pad length changes
-        crop_pad(HG_ev1_phase, pad_length_string) #change this if pad length changes
-        print("HG_ev1 after crop_pad: ", HG_ev1_env.tmin, HG_ev1_env.tmax)
+    bands = {
+        'theta':     (4, 8),
+        'alpha':     (8, 12),
+        'beta':      (13, 30),
+        'low_gamma': (30, 50),
+        'high_gamma':(70, 150)
+    }
 
-        HG_ev1_env.decimate(dec_factor)
-        HG_ev1_phase.decimate(dec_factor)
+    for band_name, band_pass in bands.items():
+        # debugging 6/17/25
+        # Create a baseline EpochsTFR using the baseline event
+        if baseline_event == "experimentStart":
+            within_base_adj = [within_base_times[0] - pad_length, within_base_times[1] + pad_length]
+            base_trials = trial_ieeg(good, baseline_event,
+                                     within_base_adj, preload=True)
+        else:
+            base_trials = trial_ieeg_rand_offset(
+                good, baseline_event, within_base_times,
+                base_times_length, pad_length, preload=True
+            )
+
+        outliers_to_nan(base_trials, outliers)
+        data_base = base_trials.get_data()
+        sf_base = base_trials.info['sfreq']
+
+        env_base, phase_base, freqs_base = extract_amplitude_and_phase_and_freqs(
+            data_base, fs=sf_base, passband=band_pass,
+            copy=False, n_jobs=1
+        )
+
+        info_base = mne.create_info(
+            ch_names=base_trials.ch_names,
+            sfreq=sf_base,
+            ch_types=['ecog'] * len(base_trials.ch_names)
+        )
+        epo_env_base = mne.EpochsArray(env_base, info_base, tmin=base_trials.tmin)
+        epo_phase_base = mne.EpochsArray(phase_base, info_base, tmin=base_trials.tmin)
+        crop_pad(epo_env_base, pad_length_string); epo_env_base.decimate(dec_factor)
+        crop_pad(epo_phase_base, pad_length_string); epo_phase_base.decimate(dec_factor)
 
         # Square the data to get power from amplitude
-        HG_ev1_power = HG_ev1_env.copy()
-        HG_ev1_power._data = HG_ev1_env._data ** 2 # Square amplitude to get power
+        power_base = epo_env_base.copy()
+        power_base._data = epo_env_base._data ** 2  # Square amplitude to get power
 
-        # get the rescaled amplitude
-        HG_ev1_rescaled = rescale(HG_ev1_env, HG_base_env, copy=True, mode='zscore')
+        # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
+        #if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
+            #output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{band_pass[0]}-{band_pass[1]}_padLength_{pad_length}s"
+        #else:
+            #output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{band_pass[0]}-{band_pass[1]}_padLength_{pad_length}s"
+        base_prefix = f"{sub}_base_{output_name_base}_{band_name}"
+        epo_env_base.save(f"{save_dir}/{base_prefix}_env-epo.fif", overwrite=True)
+        power_base.save(f"{save_dir}/{base_prefix}_power-epo.fif", overwrite=True)
+        epo_phase_base.save(f"{save_dir}/{base_prefix}_phase-epo.fif", overwrite=True)
+        np.save(f"{save_dir}/{base_prefix}_freqs.npy", freqs_base)
 
-        # get the rescaled power
-        HG_ev1_power_rescaled = rescale(HG_ev1_power, HG_base_power, copy=True, mode='zscore')
+        for event in ["Stimulus", "Response"]:
+            #output_name_event = f'{event}_{output_name_base}'
+            trials_ev = trial_ieeg(
+                good, event,
+                [times[0] - pad_length, times[1] + pad_length],
+                preload=True, reject_by_annotation=False
+            )
+            data_ev = trials_ev.get_data()
+            sf_ev = trials_ev.info['sfreq'] # get the sampling frequency from the trials
+            env_ev, phase_ev, freqs_ev = extract_amplitude_and_phase_and_freqs(
+                data_ev, fs=sf_ev, passband=band_pass, copy=True, n_jobs=1
+            )
+            info_ev = mne.create_info(
+                ch_names=trials_ev.ch_names,
+                sfreq=sf_ev,
+                ch_types=['ecog'] * len(trials_ev.ch_names)
+            )
+            epo_env = mne.EpochsArray(env_ev, info_ev, tmin=trials_ev.tmin)
+            epo_phase = mne.EpochsArray(phase_ev, info_ev, tmin=trials_ev.tmin)
+            print("HG_ev1 before crop_pad: ", epo_env.tmin, epo_env.tmax)
+            crop_pad(epo_env, pad_length_string);   epo_env.decimate(dec_factor)
+            crop_pad(epo_phase, pad_length_string); epo_phase.decimate(dec_factor)
+            print("HG_ev1 after crop_pad: ", epo_env.tmin, epo_env.tmax)
 
-        # Save HG_ev1
-        HG_ev1.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1-epo.fif', overwrite=True)
-        HG_ev1_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power-epo.fif', overwrite=True)
+            # Square the data to get power from amplitude
+            power_ev = epo_env.copy()
+            power_ev._data **= 2
 
-        # Save HG_base (the shuffled version)
-        HG_base.save(f'{save_dir}/{sub}_{output_name_event}_HG_base-epo.fif', overwrite=True)
-        HG_base_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_base_power-epo.fif', overwrite=True)
+            # get the rescaled data 
+            res_env = rescale(epo_env, epo_env_base, copy=True, mode='zscore')
+            res_power = rescale(power_ev, power_base, copy=True, mode='zscore')
 
-        # Save HG_ev1_rescaled
-        HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
-        HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
-
-        # Save HG_ev1_phase
-        HG_ev1_phase.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_phase-epo.fif', overwrite=True)
-        
-        # Save the center frequencies
-        HG_ev1_freqs.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_freqs-epo.fif', overwrite=True)
+            # Save
+            prefix = f"{sub}_{event}_{output_name_base}_{band_name}"
+            epo_env.save(f"{save_dir}/{prefix}_env-epo.fif", overwrite=True)
+            power_ev.save(f"{save_dir}/{prefix}_power-epo.fif", overwrite=True)
+            res_env.save(f"{save_dir}/{prefix}_env_zscore-epo.fif", overwrite=True)
+            res_power.save(f"{save_dir}/{prefix}_power_zscore-epo.fif", overwrite=True)
+            epo_phase.save(f"{save_dir}/{prefix}_phase-epo.fif", overwrite=True)
+            np.save(f"{save_dir}/{prefix}_freqs.npy", freqs_ev)
 
     # TODO: Add signal, figure out baseline correction for phase, save phase and center freqs 
 
@@ -403,8 +384,8 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
-
+        #subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
+        subjects = ['D0065']# use one subject at a time to avoid the permission error
     for sub in subjects:
         epoch_and_get_amplitude_and_phase_and_freqs(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
