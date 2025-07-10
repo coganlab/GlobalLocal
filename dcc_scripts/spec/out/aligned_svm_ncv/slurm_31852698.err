@@ -1,0 +1,209 @@
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
+[Parallel(n_jobs=1)]: Done   1 tasks      | elapsed:  1.0min
+[Parallel(n_jobs=1)]: Done   2 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=1)]: Done   3 tasks      | elapsed:  1.9min
+[Parallel(n_jobs=1)]: Done   4 tasks      | elapsed:  2.3min
+[Parallel(n_jobs=1)]: Done   5 tasks      | elapsed:  2.7min
+[Parallel(n_jobs=1)]: Done   6 tasks      | elapsed:  3.1min
+[Parallel(n_jobs=1)]: Done   7 tasks      | elapsed: 12.7min
+[Parallel(n_jobs=1)]: Done   8 tasks      | elapsed: 14.3min
+[Parallel(n_jobs=1)]: Done   9 tasks      | elapsed: 14.7min
+[Parallel(n_jobs=1)]: Done  10 tasks      | elapsed: 15.1min
+[Parallel(n_jobs=1)]: Done  11 tasks      | elapsed: 24.6min
+[Parallel(n_jobs=1)]: Done  12 tasks      | elapsed: 25.1min
+[Parallel(n_jobs=1)]: Done  13 tasks      | elapsed: 25.5min
+[Parallel(n_jobs=1)]: Done  14 tasks      | elapsed: 25.9min
+[Parallel(n_jobs=1)]: Done  15 tasks      | elapsed: 35.4min
+[Parallel(n_jobs=1)]: Done  16 tasks      | elapsed: 45.0min
+[Parallel(n_jobs=1)]: Done  17 tasks      | elapsed: 45.4min
+[Parallel(n_jobs=1)]: Done  18 tasks      | elapsed: 45.8min
+[Parallel(n_jobs=1)]: Done  19 tasks      | elapsed: 46.2min
+[Parallel(n_jobs=1)]: Done  20 tasks      | elapsed: 46.6min
+[Parallel(n_jobs=1)]: Done  21 tasks      | elapsed: 47.0min
+[Parallel(n_jobs=1)]: Done  22 tasks      | elapsed: 47.4min
+[Parallel(n_jobs=1)]: Done  23 tasks      | elapsed: 47.8min
+[Parallel(n_jobs=1)]: Done  24 tasks      | elapsed: 48.3min
+[Parallel(n_jobs=1)]: Done  25 tasks      | elapsed: 57.8min
+[Parallel(n_jobs=1)]: Done  26 tasks      | elapsed: 58.2min
+[Parallel(n_jobs=1)]: Done  27 tasks      | elapsed: 58.6min
+[Parallel(n_jobs=1)]: Done  28 tasks      | elapsed: 68.1min
+[Parallel(n_jobs=1)]: Done  29 tasks      | elapsed: 77.7min
+[Parallel(n_jobs=1)]: Done  30 tasks      | elapsed: 87.2min
+[Parallel(n_jobs=1)]: Done  31 tasks      | elapsed: 96.8min
+[Parallel(n_jobs=1)]: Done  32 tasks      | elapsed: 97.3min
+[Parallel(n_jobs=1)]: Done  33 tasks      | elapsed: 97.7min
+[Parallel(n_jobs=1)]: Done  34 tasks      | elapsed: 98.1min
+[Parallel(n_jobs=1)]: Done  35 tasks      | elapsed: 98.5min
+[Parallel(n_jobs=1)]: Done  36 tasks      | elapsed: 98.9min
+[Parallel(n_jobs=1)]: Done  37 tasks      | elapsed: 99.3min
+[Parallel(n_jobs=1)]: Done  38 tasks      | elapsed: 99.7min
+[Parallel(n_jobs=1)]: Done  39 tasks      | elapsed: 100.1min
+[Parallel(n_jobs=1)]: Done  40 tasks      | elapsed: 100.6min
+[Parallel(n_jobs=1)]: Done  41 tasks      | elapsed: 110.1min
+[Parallel(n_jobs=1)]: Done  42 tasks      | elapsed: 110.5min
+[Parallel(n_jobs=1)]: Done  43 tasks      | elapsed: 110.9min
+[Parallel(n_jobs=1)]: Done  44 tasks      | elapsed: 111.3min
+[Parallel(n_jobs=1)]: Done  45 tasks      | elapsed: 111.7min
+[Parallel(n_jobs=1)]: Done  46 tasks      | elapsed: 112.1min
+[Parallel(n_jobs=1)]: Done  47 tasks      | elapsed: 112.5min
+[Parallel(n_jobs=1)]: Done  48 tasks      | elapsed: 112.9min
+[Parallel(n_jobs=1)]: Done  49 tasks      | elapsed: 113.3min
+[Parallel(n_jobs=1)]: Done  50 tasks      | elapsed: 113.8min
+[Parallel(n_jobs=1)]: Done  51 tasks      | elapsed: 114.2min
+[Parallel(n_jobs=1)]: Done  52 tasks      | elapsed: 114.6min
+[Parallel(n_jobs=1)]: Done  53 tasks      | elapsed: 115.0min
+[Parallel(n_jobs=1)]: Done  54 tasks      | elapsed: 124.6min
+[Parallel(n_jobs=1)]: Done  55 tasks      | elapsed: 125.0min
+[Parallel(n_jobs=1)]: Done  56 tasks      | elapsed: 125.4min
+[Parallel(n_jobs=1)]: Done  57 tasks      | elapsed: 125.8min
+[Parallel(n_jobs=1)]: Done  58 tasks      | elapsed: 135.9min
+[Parallel(n_jobs=1)]: Done  59 tasks      | elapsed: 136.6min
+[Parallel(n_jobs=1)]: Done  60 tasks      | elapsed: 137.0min
+[Parallel(n_jobs=1)]: Done  61 tasks      | elapsed: 137.4min
+[Parallel(n_jobs=1)]: Done  62 tasks      | elapsed: 137.8min
+[Parallel(n_jobs=1)]: Done  63 tasks      | elapsed: 138.2min
+[Parallel(n_jobs=1)]: Done  64 tasks      | elapsed: 138.6min
+[Parallel(n_jobs=1)]: Done  65 tasks      | elapsed: 139.0min
+[Parallel(n_jobs=1)]: Done  66 tasks      | elapsed: 139.4min
+[Parallel(n_jobs=1)]: Done  67 tasks      | elapsed: 139.8min
+[Parallel(n_jobs=1)]: Done  68 tasks      | elapsed: 140.2min
+[Parallel(n_jobs=1)]: Done  69 tasks      | elapsed: 140.6min
+[Parallel(n_jobs=1)]: Done  70 tasks      | elapsed: 141.0min
+[Parallel(n_jobs=1)]: Done  71 tasks      | elapsed: 141.4min
+[Parallel(n_jobs=1)]: Done  72 tasks      | elapsed: 141.8min
+[Parallel(n_jobs=1)]: Done  73 tasks      | elapsed: 151.6min
+[Parallel(n_jobs=1)]: Done  74 tasks      | elapsed: 161.4min
+[Parallel(n_jobs=1)]: Done  75 tasks      | elapsed: 171.0min
+[Parallel(n_jobs=1)]: Done  76 tasks      | elapsed: 171.4min
+[Parallel(n_jobs=1)]: Done  77 tasks      | elapsed: 171.8min
+[Parallel(n_jobs=1)]: Done  78 tasks      | elapsed: 172.2min
+[Parallel(n_jobs=1)]: Done  79 tasks      | elapsed: 172.6min
+[Parallel(n_jobs=1)]: Done  80 tasks      | elapsed: 173.0min
+[Parallel(n_jobs=1)]: Done  81 tasks      | elapsed: 173.4min
+[Parallel(n_jobs=1)]: Done  82 tasks      | elapsed: 173.8min
+[Parallel(n_jobs=1)]: Done  83 tasks      | elapsed: 174.2min
+[Parallel(n_jobs=1)]: Done  84 tasks      | elapsed: 174.6min
+[Parallel(n_jobs=1)]: Done  85 tasks      | elapsed: 184.1min
+[Parallel(n_jobs=1)]: Done  86 tasks      | elapsed: 184.4min
+[Parallel(n_jobs=1)]: Done  87 tasks      | elapsed: 193.9min
+[Parallel(n_jobs=1)]: Done  88 tasks      | elapsed: 194.3min
+[Parallel(n_jobs=1)]: Done  89 tasks      | elapsed: 203.7min
+[Parallel(n_jobs=1)]: Done  90 tasks      | elapsed: 204.1min
+[Parallel(n_jobs=1)]: Done  91 tasks      | elapsed: 204.5min
+[Parallel(n_jobs=1)]: Done  92 tasks      | elapsed: 204.9min
+[Parallel(n_jobs=1)]: Done  93 tasks      | elapsed: 205.3min
+[Parallel(n_jobs=1)]: Done  94 tasks      | elapsed: 214.8min
+[Parallel(n_jobs=1)]: Done  95 tasks      | elapsed: 224.3min
+[Parallel(n_jobs=1)]: Done  96 tasks      | elapsed: 224.7min
+[Parallel(n_jobs=1)]: Done  97 tasks      | elapsed: 234.1min
+[Parallel(n_jobs=1)]: Done  98 tasks      | elapsed: 234.5min
+[Parallel(n_jobs=1)]: Done  99 tasks      | elapsed: 234.9min
+[Parallel(n_jobs=1)]: Done 100 tasks      | elapsed: 235.5min
+[Parallel(n_jobs=1)]: Done 101 tasks      | elapsed: 235.8min
+[Parallel(n_jobs=1)]: Done 102 tasks      | elapsed: 236.2min
+[Parallel(n_jobs=1)]: Done 103 tasks      | elapsed: 236.6min
+[Parallel(n_jobs=1)]: Done 104 tasks      | elapsed: 237.0min
+[Parallel(n_jobs=1)]: Done 105 tasks      | elapsed: 237.4min
+[Parallel(n_jobs=1)]: Done 106 tasks      | elapsed: 237.8min
+[Parallel(n_jobs=1)]: Done 107 tasks      | elapsed: 248.5min
+[Parallel(n_jobs=1)]: Done 108 tasks      | elapsed: 248.9min
+[Parallel(n_jobs=1)]: Done 109 tasks      | elapsed: 249.4min
+[Parallel(n_jobs=1)]: Done 110 tasks      | elapsed: 249.8min
+[Parallel(n_jobs=1)]: Done 111 tasks      | elapsed: 250.2min
+[Parallel(n_jobs=1)]: Done 112 tasks      | elapsed: 260.8min
+[Parallel(n_jobs=1)]: Done 113 tasks      | elapsed: 261.3min
+[Parallel(n_jobs=1)]: Done 114 tasks      | elapsed: 261.7min
+[Parallel(n_jobs=1)]: Done 115 tasks      | elapsed: 262.1min
+[Parallel(n_jobs=1)]: Done 116 tasks      | elapsed: 262.5min
+[Parallel(n_jobs=1)]: Done 117 tasks      | elapsed: 262.9min
+[Parallel(n_jobs=1)]: Done 118 tasks      | elapsed: 263.3min
+[Parallel(n_jobs=1)]: Done 119 tasks      | elapsed: 263.7min
+[Parallel(n_jobs=1)]: Done 120 tasks      | elapsed: 274.4min
+[Parallel(n_jobs=1)]: Done 121 tasks      | elapsed: 274.8min
+[Parallel(n_jobs=1)]: Done 122 tasks      | elapsed: 275.2min
+[Parallel(n_jobs=1)]: Done 123 tasks      | elapsed: 275.6min
+[Parallel(n_jobs=1)]: Done 124 tasks      | elapsed: 276.0min
+[Parallel(n_jobs=1)]: Done 125 tasks      | elapsed: 276.4min
+[Parallel(n_jobs=1)]: Done 126 tasks      | elapsed: 276.8min
+[Parallel(n_jobs=1)]: Done 127 tasks      | elapsed: 277.3min
+[Parallel(n_jobs=1)]: Done 128 tasks      | elapsed: 277.7min
+[Parallel(n_jobs=1)]: Done 129 tasks      | elapsed: 278.1min
+[Parallel(n_jobs=1)]: Done 130 tasks      | elapsed: 278.5min
+[Parallel(n_jobs=1)]: Done 131 tasks      | elapsed: 278.9min
+[Parallel(n_jobs=1)]: Done 132 tasks      | elapsed: 279.3min
+[Parallel(n_jobs=1)]: Done 133 tasks      | elapsed: 279.7min
+[Parallel(n_jobs=1)]: Done 134 tasks      | elapsed: 280.1min
+[Parallel(n_jobs=1)]: Done 135 tasks      | elapsed: 280.5min
+[Parallel(n_jobs=1)]: Done 136 tasks      | elapsed: 280.9min
+[Parallel(n_jobs=1)]: Done 137 tasks      | elapsed: 281.3min
+[Parallel(n_jobs=1)]: Done 138 tasks      | elapsed: 281.7min
+[Parallel(n_jobs=1)]: Done 139 tasks      | elapsed: 282.1min
+[Parallel(n_jobs=1)]: Done 140 tasks      | elapsed: 282.5min
+[Parallel(n_jobs=1)]: Done 141 tasks      | elapsed: 282.9min
+[Parallel(n_jobs=1)]: Done 142 tasks      | elapsed: 283.3min
+[Parallel(n_jobs=1)]: Done 143 tasks      | elapsed: 283.7min
+[Parallel(n_jobs=1)]: Done 144 tasks      | elapsed: 284.1min
+[Parallel(n_jobs=1)]: Done 145 tasks      | elapsed: 294.8min
+[Parallel(n_jobs=1)]: Done 146 tasks      | elapsed: 295.2min
+[Parallel(n_jobs=1)]: Done 147 tasks      | elapsed: 295.6min
+[Parallel(n_jobs=1)]: Done 148 tasks      | elapsed: 296.1min
+[Parallel(n_jobs=1)]: Done 149 tasks      | elapsed: 296.5min
+[Parallel(n_jobs=1)]: Done 150 tasks      | elapsed: 307.1min
+[Parallel(n_jobs=1)]: Done 151 tasks      | elapsed: 307.5min
+[Parallel(n_jobs=1)]: Done 152 tasks      | elapsed: 317.0min
+[Parallel(n_jobs=1)]: Done 153 tasks      | elapsed: 326.7min
+[Parallel(n_jobs=1)]: Done 154 tasks      | elapsed: 327.1min
+[Parallel(n_jobs=1)]: Done 155 tasks      | elapsed: 327.5min
+[Parallel(n_jobs=1)]: Done 156 tasks      | elapsed: 327.9min
+[Parallel(n_jobs=1)]: Done 157 tasks      | elapsed: 328.3min
+[Parallel(n_jobs=1)]: Done 158 tasks      | elapsed: 328.7min
+[Parallel(n_jobs=1)]: Done 159 tasks      | elapsed: 329.1min
+[Parallel(n_jobs=1)]: Done 160 tasks      | elapsed: 329.5min
+[Parallel(n_jobs=1)]: Done 161 tasks      | elapsed: 329.9min
+[Parallel(n_jobs=1)]: Done 162 tasks      | elapsed: 330.3min
+[Parallel(n_jobs=1)]: Done 163 tasks      | elapsed: 330.7min
+[Parallel(n_jobs=1)]: Done 164 tasks      | elapsed: 331.1min
+[Parallel(n_jobs=1)]: Done 165 tasks      | elapsed: 331.5min
+[Parallel(n_jobs=1)]: Done 166 tasks      | elapsed: 331.9min
+[Parallel(n_jobs=1)]: Done 167 tasks      | elapsed: 332.3min
+[Parallel(n_jobs=1)]: Done 168 tasks      | elapsed: 332.7min
+[Parallel(n_jobs=1)]: Done 169 tasks      | elapsed: 333.1min
+[Parallel(n_jobs=1)]: Done 170 tasks      | elapsed: 333.5min
+[Parallel(n_jobs=1)]: Done 171 tasks      | elapsed: 333.9min
+[Parallel(n_jobs=1)]: Done 172 tasks      | elapsed: 343.5min
+[Parallel(n_jobs=1)]: Done 173 tasks      | elapsed: 343.9min
+[Parallel(n_jobs=1)]: Done 174 tasks      | elapsed: 353.5min
+[Parallel(n_jobs=1)]: Done 175 tasks      | elapsed: 363.1min
+[Parallel(n_jobs=1)]: Done 175 tasks      | elapsed: 363.1min
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 458, in <module>
+    run_wavelet_diff(args.type)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/spec/wavelet_differences_dcc.py", line 364, in run_wavelet_diff
+    cmap=parula_cmap,
+         ^^^^^^^^^^^
+NameError: name 'parula_cmap' is not defined. Did you mean: 'parula_map'?

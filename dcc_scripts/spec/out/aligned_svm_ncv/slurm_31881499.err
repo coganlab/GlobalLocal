@@ -1,0 +1,50 @@
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
+[Parallel(n_jobs=1)]: Done   1 tasks      | elapsed:   38.2s
+[Parallel(n_jobs=1)]: Done   2 tasks      | elapsed:  1.1min
+[Parallel(n_jobs=1)]: Done   3 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=1)]: Done   4 tasks      | elapsed:  1.9min
+[Parallel(n_jobs=1)]: Done   5 tasks      | elapsed:  2.3min
+[Parallel(n_jobs=1)]: Done   6 tasks      | elapsed:  2.7min
+[Parallel(n_jobs=1)]: Done   7 tasks      | elapsed: 16.0min
+[Parallel(n_jobs=1)]: Done   8 tasks      | elapsed: 16.4min
+[Parallel(n_jobs=1)]: Done   9 tasks      | elapsed: 16.8min
+[Parallel(n_jobs=1)]: Done  10 tasks      | elapsed: 17.3min
+[Parallel(n_jobs=1)]: Done  11 tasks      | elapsed: 30.4min
+[Parallel(n_jobs=1)]: Done  12 tasks      | elapsed: 30.8min
+[Parallel(n_jobs=1)]: Done  13 tasks      | elapsed: 31.2min
+[Parallel(n_jobs=1)]: Done  14 tasks      | elapsed: 31.6min
+[Parallel(n_jobs=1)]: Done  15 tasks      | elapsed: 44.8min
+[Parallel(n_jobs=1)]: Done  16 tasks      | elapsed: 57.9min
+[Parallel(n_jobs=1)]: Done  17 tasks      | elapsed: 58.3min
+[Parallel(n_jobs=1)]: Done  18 tasks      | elapsed: 58.7min
+[Parallel(n_jobs=1)]: Done  19 tasks      | elapsed: 59.1min
+[Parallel(n_jobs=1)]: Done  20 tasks      | elapsed: 59.5min
+[Parallel(n_jobs=1)]: Done  21 tasks      | elapsed: 59.9min
+[Parallel(n_jobs=1)]: Done  22 tasks      | elapsed: 60.4min
+[Parallel(n_jobs=1)]: Done  23 tasks      | elapsed: 60.8min
+[Parallel(n_jobs=1)]: Done  24 tasks      | elapsed: 61.2min

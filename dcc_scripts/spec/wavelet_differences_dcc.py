@@ -64,8 +64,8 @@ else: # mac
 
 layout = get_data('GlobalLocal', root=LAB_root)
 
-#subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0117']
-subjects = ['D0063']
+subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0117']
+#subjects = ['D0063']
 
 # this is a toggle for which version to run - the one that makes the wavelets in this notebook directly, or the one that loads them
 make_wavelets=False
@@ -179,7 +179,7 @@ def run_wavelet_diff(type):
                             freqs=error_spec.freqs,
                             channels_per_page=60,
                             grid_shape=(6, 10),
-                            cmap=parula_cmap,
+                            cmap=parula_map,
                             title_prefix=f"{sub} ",
                             log_freq=True,
                             show=False)
@@ -361,7 +361,7 @@ def run_wavelet_diff(type):
                                     freqs=error_spec.freqs,
                                     channels_per_page=60,
                                     grid_shape=(6, 10),
-                                    cmap=parula_cmap,
+                                    cmap=parula_map,
                                     title_prefix=f"{sub} ",
                                     log_freq=False,
                                     show=False)

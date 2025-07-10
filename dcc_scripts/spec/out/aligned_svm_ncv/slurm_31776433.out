@@ -212,3 +212,6 @@ Not setting metadata
 283 matching events found
 No baseline correction applied
 NOTE: tfr_multitaper() is a legacy function. New code should use .compute_tfr(method="multitaper").
+Applying baseline correction (mode: ratio)
+Saved multitaper spectrogram to: /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0117/CorrectTrials_Response_Locked_rescaled-tfr.h5
+Saved multitaper spectrogram to: /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0117/CorrectTrials_Response_Locked_uncorrected-tfr.h5
