@@ -3,7 +3,7 @@
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 25
-#SBATCH --mem=150G
+#SBATCH --mem=300G
 #SBATCH --time=2-00:00:00
 
 subject=$1

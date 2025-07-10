@@ -1,0 +1,158 @@
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:1589: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:1589: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0117_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0117/**/ieeg/sub-D0117*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:1589: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)

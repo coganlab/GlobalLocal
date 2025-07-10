@@ -46,3 +46,14 @@ Subject D0063 average RT: 1.0659180000000106
 Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0063/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
 Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0063/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
 stat_func returns a tuple. Taking the first element
+The unique values in this mask are: [0 1]
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0063/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0063/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
+Saved figure: D0063_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0063_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0063_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg
+Saved figure: D0063_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_4.jpg
+Saved figure: D0063_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0063_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0063_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg
+Saved figure: D0063_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_4.jpg

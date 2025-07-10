@@ -179,7 +179,7 @@ def run_wavelet_diff(type):
                             freqs=error_spec.freqs,
                             channels_per_page=60,
                             grid_shape=(6, 10),
-                            cmap=binary_parula_cmap,
+                            cmap=parula_cmap,
                             title_prefix=f"{sub} ",
                             log_freq=True,
                             show=False)
@@ -361,7 +361,7 @@ def run_wavelet_diff(type):
                                     freqs=error_spec.freqs,
                                     channels_per_page=60,
                                     grid_shape=(6, 10),
-                                    cmap=binary_parula_cmap,
+                                    cmap=parula_cmap,
                                     title_prefix=f"{sub} ",
                                     log_freq=False,
                                     show=False)
