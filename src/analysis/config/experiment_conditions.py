@@ -13,6 +13,32 @@ stimulus_congruency_conditions = {
     }
 }
 
+# err-corr
+stimulus_err_corr_conditions = {
+    "Stimulus_err": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0"],
+        "responseType" : "err"
+
+    },
+    "Stimulus_corr": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy1.0"],
+        "responseType" : "corr"
+    }
+}
+
+response_err_corr_conditions = {
+    "Response_err": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0"],
+        "responseType" : "err"
+
+    },
+    "Response_corr": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy1.0"],
+        "responseType" : "corr"
+
+    }
+}
+
 # switch type
 stimulus_switch_type_conditions = {
     "Stimulus_r": {
