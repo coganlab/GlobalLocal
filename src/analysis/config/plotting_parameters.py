@@ -109,4 +109,14 @@ plotting_parameters = {
     "color": "gray",
     "line_style": "--"
 },
-"
+"Stimulus_err": {
+    "condition_parameter": "error",
+    "color": "firebrick",
+    "line_style": "gray",
+},
+"Stimulus_corr": {
+    "condition_parameter": "correct",
+    "color": "cornflowerblue",
+    "line_style": "gray", 
+}
+}
