@@ -108,5 +108,5 @@ plotting_parameters = {
     "condition_parameter": "taskL",
     "color": "gray",
     "line_style": "--"
-}
-}
+},
+"
