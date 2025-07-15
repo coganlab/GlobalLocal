@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/preproc/make_epoched_data_saved.py", line 71, in <module>
+    for file in os.listdir(npy_directory):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\luoruoxi\\Box\\CoganLab\\D_Data\\GlobalLocal\\accArrays'

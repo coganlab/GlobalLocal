@@ -62,7 +62,7 @@ from naplib.preprocessing import filterbank_hilbert as fb_hilb
 from tqdm import tqdm
 
 # Directory where your .npy files are saved
-npy_directory = r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
+npy_directory = r'cwork/rl330/D_Data/GlobalLocal/accArrays'  # Replace with your directory path
 
 # Dictionary to hold the data
 acc_array = {}
@@ -78,7 +78,7 @@ for file in os.listdir(npy_directory):
 # Now you have a dictionary where each key is the subject ID
 # and the value is the numpy array of accuracies for that subject.
 
-combined_data = pd.read_csv(r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\combinedData.csv')
+combined_data = pd.read_csv(r'cwork/rl330/D_Data/GlobalLocal/combinedData.csv')
 
 # %% [markdown]
 # define subjects

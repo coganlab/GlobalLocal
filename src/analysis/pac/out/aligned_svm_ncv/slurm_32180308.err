@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 3, in <module>
+    from bids import BIDSLayout
+ModuleNotFoundError: No module named 'bids'
