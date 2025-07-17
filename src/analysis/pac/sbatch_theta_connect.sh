@@ -11,4 +11,4 @@ source $(conda info --base)/etc/profile.d/conda.sh
 
 conda activate ieeg # make sure this works
 
-python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/theta_connect.py --subject ${subject} --bids_root /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS --deriv_dir freqFilt/figs
+python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/theta_connect.py --subject ${subject} --bids_root /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS --deriv_dir freqFilt/figs --channels RAI1 RAI2 --event Stimulus

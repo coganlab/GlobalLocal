@@ -1,0 +1,3 @@
+subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
+D0057,Stimulus,449,2048.0,175,-1.0,1.5,"RAI1,RAI2,RAI3"
+D0057,Response,436,2048.0,175,-1.0,1.5,"RAI1,RAI2,RAI3"
