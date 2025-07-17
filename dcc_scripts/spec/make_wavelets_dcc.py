@@ -63,7 +63,7 @@ def main(subject_id,type):
         good = get_good_data(subject_id, layout)
 
         if type == 'wavelet':
-            freqs = np.arrange(2, 200, 2)
+            freqs = np.arange(2, 200, 2)
 
             ## epoching and trial outlier removal
             save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id)
