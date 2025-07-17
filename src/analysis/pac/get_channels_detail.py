@@ -127,10 +127,10 @@ def make_subjects_electrodes_to_ROIs_dict(subjects,
 
 
 if __name__ == '__main__':
-    subjects = ['D0057']  
+    subjects = ['D0057','D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']  
     task = 'GlobalLocal'
-    LAB_root = '/cwork/rl330' 
-    save_dir = '/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac'
+    LAB_root = r'C:\Users\LuoRuoxi\Box\CoganLab'
+    save_dir = r'E:\Egnerlab-Coganlab\GlobalLocal\src\analysis\pac'
 
     all_subjects = make_subjects_electrodes_to_ROIs_dict(
         subjects=subjects,
