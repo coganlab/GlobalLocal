@@ -1,0 +1,59 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0090/ieeg/sub-D0090_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+<RawEDF | sub-D0090_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf, 164 x 6801408 (3321.0 s), ~186 kB, data not loaded>
+outlier round 1 channels: ['RFO16']
+outlier round 1 channels: ['RFO16', 'RTMM3']
+outlier round 1 channels: ['RFO16', 'RTMM3', 'RTMM4']
+outlier round 2 channels: ['RFO16', 'RTMM3', 'RTMM4', 'RIP13']
+outlier round 2 channels: ['RFO16', 'RTMM3', 'RTMM4', 'RIP13', 'RIP14']
+outlier round 2 channels: ['RFO16', 'RTMM3', 'RTMM4', 'RIP13', 'RIP14', 'RTMS6']
+outlier round 2 channels: ['RFO16', 'RTMM3', 'RTMM4', 'RIP13', 'RIP14', 'RTMS6', 'RTMM12']
+Reading 0 ... 3383065  =      0.000 ...  1651.887 secs...
+Applying average reference.
+Applying a custom ('sEEG',) reference.
+Subject D0090 average RT: 1.232910999999831
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0090/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0090/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
+stat_func returns a tuple. Taking the first element
+The unique values in this mask are: [0 1]
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0090/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0090/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
+Saved figure: D0090_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0090_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0090_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg
+Saved figure: D0090_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0090_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0090_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg

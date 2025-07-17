@@ -18,7 +18,7 @@ def main(subject_id):
         layout = get_data(task, root=LAB_root)
 
         # define output_names that you want to plot wavelets for
-        output_names = ['ErrorTrials_Response_Locked', 'CorrectTrials_Response_Locked']
+        output_names = ['ErrorTrials_Stimulus_Locked', 'CorrectTrials_Stimulus_Locked']
         rescaled=True
 
         #making path for figures
@@ -40,13 +40,13 @@ def main(subject_id):
                 spec.info.update(bads=[b for b in all_bad if b in spec.ch_names])
 
                 # Plotting
-                figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2, cmap=parula_map, show=False)
+                figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2, cmap=parula_map, show=False, yscale='linear')
 
                 for i, f in enumerate(figs):
                     if rescaled:
-                        fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.jpg'
+                        fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.svg'
                     else:
-                        fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.jpg'
+                        fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.svg'
 
                     fig_pathname = os.path.join(fig_path, fig_name)
                     f.savefig(fig_pathname, bbox_inches='tight')

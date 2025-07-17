@@ -52,8 +52,8 @@ def main(subject_id,type):
         layout = get_data(task, root=LAB_root)
 
         output_names_and_events_dict = {}
-        output_names_and_events_dict['ErrorTrials_Response_Locked'] = ["Responded1.0/Response/Accuracy0.0"]
-        output_names_and_events_dict['CorrectTrials_Response_Locked'] = ["Responded1.0/Response/Accuracy1.0"]
+        output_names_and_events_dict['ErrorTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy0.0"]
+        output_names_and_events_dict['CorrectTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy1.0"]
 
         baseline_times = [-0.5, 0]
         signal_times = [-0.5, 1.5]
@@ -63,6 +63,7 @@ def main(subject_id,type):
         good = get_good_data(subject_id, layout)
 
         if type == 'wavelet':
+            freqs = np.arrange(2, 200, 2)
 
             ## epoching and trial outlier removal
             save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id)
@@ -70,7 +71,7 @@ def main(subject_id,type):
                 os.makedirs(save_dir)
 
             # Use the 'subject_id' variable 
-            base = get_uncorrected_wavelets(subject_id, layout, events=["Response"], times=baseline_times)
+            base = get_uncorrected_wavelets(subject_id, layout, events=["Response"], times=baseline_times, freqs=freqs)
 
             # make signal wavelets
             for output_name, events in output_names_and_events_dict.items():

@@ -1,0 +1,70 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0110/ieeg/sub-D0110_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+<RawEDF | sub-D0110_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf, 243 x 7071744 (3453.0 s), ~273 kB, data not loaded>
+outlier round 1 channels: ['LASF2']
+outlier round 1 channels: ['LASF2', 'LASF4']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5']
+outlier round 1 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1', 'LPSF7']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1', 'LPSF7', 'LAIP3']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1', 'LPSF7', 'LAIP3', 'LANT4']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1', 'LPSF7', 'LAIP3', 'LANT4', 'LCM4']
+outlier round 2 channels: ['LASF2', 'LASF4', 'LASF5', 'LASF6', 'LASF7', 'LMSF5', 'LAMP15', 'LANT5', 'LCM8', 'LASF3', 'LPSF1', 'LPSF7', 'LAIP3', 'LANT4', 'LCM4', 'LCM7']
+Reading 0 ... 3273483  =      0.000 ...  1598.380 secs...
+Applying average reference.
+Applying a custom ('sEEG',) reference.
+Subject D0110 average RT: 1.0161130000000753
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0110/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0110/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
+stat_func returns a tuple. Taking the first element
+The unique values in this mask are: [0 1]
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0110/ErrorTrials_Response_Locked_uncorrected-tfr.h5 ...
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/D0110/CorrectTrials_Response_Locked_uncorrected-tfr.h5 ...
+Saved figure: D0110_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0110_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0110_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg
+Saved figure: D0110_err-corr_sig_multitaper_clusters_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_4.jpg
+Saved figure: D0110_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_1.jpg
+Saved figure: D0110_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_2.jpg
+Saved figure: D0110_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_3.jpg
+Saved figure: D0110_err-corr_mean_diff_multitaper_ErrorTrials_Response_Locked-CorrectTrials_Response_Locked_uncorrected_page_4.jpg
