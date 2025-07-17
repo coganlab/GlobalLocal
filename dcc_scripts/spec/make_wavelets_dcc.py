@@ -63,7 +63,6 @@ def main(subject_id,type):
         good = get_good_data(subject_id, layout)
 
         if type == 'wavelet':
-            freqs = np.arange(2, 200, 2)
 
             ## epoching and trial outlier removal
             save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id)
@@ -71,7 +70,7 @@ def main(subject_id,type):
                 os.makedirs(save_dir)
 
             # Use the 'subject_id' variable 
-            base = get_uncorrected_wavelets(subject_id, layout, events=["Response"], times=baseline_times, freqs=freqs)
+            base = get_uncorrected_wavelets(subject_id, layout, events=["Stimulus"], times=baseline_times, freqs=freqs)
 
             # make signal wavelets
             for output_name, events in output_names_and_events_dict.items():
@@ -112,7 +111,7 @@ def main(subject_id,type):
                 os.makedirs(save_dir)
             
             base = get_uncorrected_multitaper(
-                subject_id, layout, events=["Response"], times=baseline_times,
+                subject_id, layout, events=["Stimulus"], times=baseline_times,
                 freqs=freqs, n_cycles=n_cycles,
                 time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
             )

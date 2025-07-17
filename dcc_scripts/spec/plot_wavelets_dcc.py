@@ -46,15 +46,16 @@ def main(subject_id, type):
 
                     for i, f in enumerate(figs):
                         if rescaled:
-                            fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.svg'
+                            fig_name = f'{subject_id}_{output_name}_rescaled__nonlinear{i+1}.svg'
                         else:
-                            fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.svg'
+                            fig_name = f'{subject_id}_{output_name}_uncorrected__nonlinear{i+1}.svg'
 
-                    fig_pathname = os.path.join(fig_path, fig_name)
-                    f.savefig(fig_pathname, bbox_inches='tight')
-                    print("Saved figure:", fig_name)
+                        fig_pathname = os.path.join(fig_path, fig_name)
+                        f.savefig(fig_pathname, bbox_inches='tight')
+                        print("Saved figure:", fig_name)
                 else:
                     print(f"File not found for {output_name}")
+
         elif(type=='multitaper'):
             #making path for figures
             ##fig_path = os.path.join('/cwork', USER, 'coganlab','Data', 'BIDS-1.1_GlobalLocal', 'BIDS','derivatives', 'spec', 'wavelet', 'figs')
