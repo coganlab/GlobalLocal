@@ -1,0 +1,30 @@
+Subject D0057: loading epochs...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 449 epochs for Stimulus (RAI1,RAI2,RAI3...)
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Response_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+436 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 436 epochs for Response (RAI1,RAI2,RAI3...)
+Finished loading epochs. Summary:
+  subject     event  n_epochs   sfreq  n_channels  tmin  tmax channel_examples
+0   D0057  Stimulus       449  2048.0         175  -1.0   1.5   RAI1,RAI2,RAI3
+1   D0057  Response       436  2048.0         175  -1.0   1.5   RAI1,RAI2,RAI3
+Summary saved to epoch_summary.csv
+Parameters: 
+ Subjects: ['D0057']
+ Event: Stimulus
+ Channels: ['TOL1', 'TOL2']
+ Frequency band: 8.0-12.0 Hz
+Proceed with connectivity computation? (y/n): 

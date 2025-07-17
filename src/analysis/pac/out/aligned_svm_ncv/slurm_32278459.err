@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 102, in compute_and_plot_connectivity
+    times = con.times
+            ^^^^^^^^^
+AttributeError: 'EpochSpectralConnectivity' object has no attribute 'times'. Did you mean: 'dims'?
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/xarray/core/dataarray.py", line 875, in _getitem_coord
+    var = self._coords[key]
+          ~~~~~~~~~~~~^^^^^
+KeyError: 'times'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 151, in <module>
+    compute_and_plot_connectivity(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 104, in compute_and_plot_connectivity
+    times = con.coords['times'].values
+            ~~~~~~~~~~^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/xarray/core/coordinates.py", line 964, in __getitem__
+    return self._data._getitem_coord(key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/xarray/core/dataarray.py", line 878, in _getitem_coord
+    _, key, var = _get_virtual_variable(self._coords, key, dim_sizes)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/xarray/core/dataset_utils.py", line 79, in _get_virtual_variable
+    raise KeyError(key)
+KeyError: 'times'

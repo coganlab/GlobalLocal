@@ -1,0 +1,7 @@
+usage: theta_connect.py [-h] --bids_root BIDS_ROOT --subjects SUBJECTS
+                        [SUBJECTS ...] --channels CHANNELS CHANNELS --event
+                        EVENT [--deriv_dir DERIV_DIR]
+                        [--epoch_suffix EPOCH_SUFFIX]
+                        [--nch_example NCH_EXAMPLE] [--fmin FMIN]
+                        [--fmax FMAX] [--mode MODE] [--output OUTPUT]
+theta_connect.py: error: the following arguments are required: --channels, --event

@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 159, in <module>
+    compute_and_plot_connectivity(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 85, in compute_and_plot_connectivity
+    con = spectral_connectivity_time(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-303>", line 12, in spectral_connectivity_time
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne_connectivity/spectral/time.py", line 486, in spectral_connectivity_time
+    indices_use = check_indices(indices)
+                  ^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne_connectivity/utils/utils.py", line 72, in check_indices
+    raise ValueError("indices must be a tuple of length 2")
+ValueError: indices must be a tuple of length 2
