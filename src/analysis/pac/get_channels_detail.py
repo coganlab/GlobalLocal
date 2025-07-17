@@ -34,79 +34,103 @@ def make_subjects_electrodes_to_ROIs_dict(subjects,
     """
     subjects_electrodes_to_ROIs_dict = {}
 
+    # 检查 save_dir
     if save_dir is None:
         raise ValueError("save_dir must be specified to save the dictionary.")
 
+    
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        else:  # macOS/Linux
-            LAB_root = os.path.join(HOME,
-                                     "Library",
-                                     "CloudStorage",
-                                     "Box-Box",
-                                     "CoganLab")
+        raise ValueError("LAB_root must be specified and point to a BIDS dataset root.")
+    print(f"Using LAB_root: {LAB_root}")
 
+   
     for sub in subjects:
-        print(f"Processing subject: {sub}")
-        layout = get_data(task, root=LAB_root)
-        filt = raw_from_layout(
-            layout.derivatives['derivatives/clean'],
-            subject=sub,
-            extension='.edf',
-            desc='clean',
-            preload=False
-        )
+        print(f"\n---\nStarting subject: {sub}")
+       
+        try:
+            layout = get_data(task, root=LAB_root)
+            print(f"Loaded BIDS layout for task '{task}' successfully.")
+        except Exception as e:
+            print(f"Error loading BIDS layout: {e}")
+            continue
 
+        try:
+            filt = raw_from_layout(
+                layout.derivatives['derivatives/clean'],
+                subject=sub,
+                extension='.edf',
+                desc='clean',
+                preload=False
+            )
+            print("Loaded raw clean data successfully.")
+        except Exception as e:
+            print(f"Error loading raw clean data for subject {sub}: {e}")
+            continue
+
+    
         good = crop_empty_data(filt)
-        good.info['bads'] = channel_outlier_marker(good, 3, 2)
+        bads = channel_outlier_marker(good, 3, 2)
+        good.info['bads'] = bads
+        print(f"Identified bad channels: {bads}")
 
+    
         if 'Trigger' in good.ch_names:
             good.drop_channels(['Trigger'])
+            print("Dropped 'Trigger' channel.")
 
-        filt.drop_channels(good.info['bads'])
-        good.drop_channels(good.info['bads'])
+     
+        filt.drop_channels(bads)
+        good.drop_channels(bads)
+        print("Dropped bad channels from both filt and good objects.")
 
+        
         good.load_data()
         ch_type = filt.get_channel_types(only_data_chs=True)[0]
         good.set_eeg_reference(ref_channels='average', ch_type=ch_type)
+        print("Data loaded and EEG average reference set.")
 
-        if sub == 'D0107A':
-            default_dict = gen_labels(good.info, sub='D107A')
-        else:
-            default_dict = gen_labels(good.info)
+        
+        try:
+            if sub == 'D0107A':
+                default_dict = gen_labels(good.info, sub='D107A')
+            else:
+                default_dict = gen_labels(good.info)
+            print(f"Generated electrode-to-ROI labels, total electrodes: {len(default_dict)}")
+        except Exception as e:
+            print(f"Error generating labels for subject {sub}: {e}")
+            continue
 
+        
         rawROI_dict = defaultdict(list)
         for elec, roi in default_dict.items():
             rawROI_dict[roi].append(elec)
+        print(f"Built raw ROI dictionary with {len(rawROI_dict)} regions.")
 
-        filtROI_dict = {
-            roi: eles
-            for roi, eles in rawROI_dict.items()
-            if 'White-Matter' not in roi
-        }
+        
+        filtROI_dict = {roi: eles for roi, eles in rawROI_dict.items() if 'White-Matter' not in roi}
+        print(f"Filtered ROI dictionary to {len(filtROI_dict)} regions (excluding 'White-Matter').")
 
         subjects_electrodes_to_ROIs_dict[sub] = {
             'default_dict': dict(default_dict),
-            'rawROI_dict'    : dict(rawROI_dict),
-            'filtROI_dict'   : filtROI_dict
+            'rawROI_dict': dict(rawROI_dict),
+            'filtROI_dict': filtROI_dict
         }
+
 
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, filename)
     with open(save_path, 'w') as f:
         json.dump(subjects_electrodes_to_ROIs_dict, f, indent=4, ensure_ascii=False)
-    print(f"Saved combined mapping to {save_path}")
+    print(f"\nSaved combined mapping to {save_path}")
 
     return subjects_electrodes_to_ROIs_dict
 
 
 if __name__ == '__main__':
-    subjects = ['D0057','D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+    subjects = ['D0057']  
     task = 'GlobalLocal'
-    LAB_root = None
-    save_dir = './output'
+    LAB_root = '/cwork/rl330' 
+    save_dir = '/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac'
 
     all_subjects = make_subjects_electrodes_to_ROIs_dict(
         subjects=subjects,
@@ -114,6 +138,7 @@ if __name__ == '__main__':
         LAB_root=LAB_root,
         save_dir=save_dir
     )
+
     per_sub_dir = os.path.join(save_dir, 'per_subject')
     os.makedirs(per_sub_dir, exist_ok=True)
 
@@ -123,4 +148,4 @@ if __name__ == '__main__':
             json.dump({sub: mapping}, f, indent=4, ensure_ascii=False)
         print(f"Saved {sub} mapping to {filepath}")
 
-    print("All subject-specific files generated.")
+    print("\nAll subject-specific files generated.")
