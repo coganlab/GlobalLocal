@@ -742,7 +742,8 @@ def subject_to_info(subject: str, subjects_dir: PathLike = None,
     """
     subjects_dir = get_sub_dir(subjects_dir)
     elec_file = op.join(subjects_dir, subject, 'elec_recon',
-                        subject + '_elec_locations_RAS_brainshifted.txt')
+                        #subject + '_elec_locations_RAS_brainshifted.txt')
+                        subject + 'PostimpLoc')
     elecs = dict()
     print(f"Attempting to read electrode file: {elec_file}")
 
