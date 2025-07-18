@@ -12,7 +12,7 @@ from ieeg.calc.scaling import rescale
 import mne
 import os
 import numpy as np
-from ieeg.calc.reshape import make_data_same
+#from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster, window_averaged_shuffle
 from ieeg.viz.mri import gen_labels
 import matplotlib.pyplot as plt
