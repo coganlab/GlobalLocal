@@ -443,7 +443,10 @@ def get_sub(inst: Signal | mne.Info | str) -> str:
     if isinstance(inst, Signal):
         inst = inst.info
     elif isinstance(inst, str):
-        return f"{inst[0]}{int(inst[1:])}"
+        try: 
+            return f"{inst[0]}{int(inst[1:])}"
+        except ValueError:
+            return inst
     out_str = inst['subject_info']['his_id'][4:]
     if len(out_str) == 1:
         return out_str
@@ -740,10 +743,9 @@ def subject_to_info(subject: str, subjects_dir: PathLike = None,
     mne.Info
         The info for the subject
     """
-    #subject + '_elec_locations_RAS_brainshifted.txt')
     subjects_dir = get_sub_dir(subjects_dir)
     elec_file = op.join(subjects_dir, subject, 'elec_recon',
-                        subject + 'PostimpLoc')
+                        subject + '_elec_locations_RAS_brainshifted.txt')
     elecs = dict()
     print(f"Attempting to read electrode file: {elec_file}")
 

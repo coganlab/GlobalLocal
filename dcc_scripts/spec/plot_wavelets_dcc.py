@@ -5,7 +5,7 @@ from ieeg.io import get_data, update, get_bad_chans
 import os
 import matplotlib.pyplot as plt
 import argparse
-from src.analysis.spec.wavelet_functions import load_wavelets
+from src.analysis.spec.wavelet_functions import load_wavelets, load_multitaper
 
 def main(subject_id, type):
 
@@ -68,25 +68,31 @@ def main(subject_id, type):
 
                 if os.path.exists(error_file_path):
 
-                    spec = load_wavelets(subject_id, layout, output_name, rescaled)
+                    spec = load_multitaper(subject_id, layout, output_name, rescaled)
                     info_file = os.path.join(layout.root, spec.info['subject_info']['files'][0])
 
                     # Check channels for outliers and remove them
                     all_bad = get_bad_chans(info_file)
                     spec.info.update(bads=[b for b in all_bad if b in spec.ch_names])
 
+                    print("-" * 50)
+                    print("DEBUG: Inspecting data just before plotting...")
+                    print(f"The 'spec' object has this frequency range:")
+                    print(spec.freqs)
+                    print("-" * 50)
+
                     # Plotting
                     figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2, cmap=parula_map, show=False, yscale='linear')
 
                     for i, f in enumerate(figs):
                         if rescaled:
-                            fig_name = f'{subject_id}_{output_name}_rescaled_{i+1}.svg'
+                            fig_name = f'{subject_id}_{output_name}_rescaled_multitaper_{i+1}.svg'
                         else:
-                            fig_name = f'{subject_id}_{output_name}_uncorrected_{i+1}.svg'
+                            fig_name = f'{subject_id}_{output_name}_uncorrected_multitaper_{i+1}.svg'
 
-                    fig_pathname = os.path.join(fig_path, fig_name)
-                    f.savefig(fig_pathname, bbox_inches='tight')
-                    print("Saved figure:", fig_name)
+                        fig_pathname = os.path.join(fig_path, fig_name)
+                        f.savefig(fig_pathname, bbox_inches='tight')
+                        print("Saved figure:", fig_name)
 
         
     except Exception as e:
