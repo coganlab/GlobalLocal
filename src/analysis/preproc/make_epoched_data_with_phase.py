@@ -385,7 +385,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     """
     if subjects is None:
         #subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
-        subjects = ['D0065']# use one subject at a time to avoid the permission error
+        subjects = ['D121']# use one subject at a time to avoid the permission error
     for sub in subjects:
         epoch_and_get_amplitude_and_phase_and_freqs(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,

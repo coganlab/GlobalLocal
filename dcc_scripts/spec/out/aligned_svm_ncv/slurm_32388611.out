@@ -1,0 +1,387 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/wavelet/D0059/ErrorTrials_Stimulus_Locked_rescaled-tfr.h5 ...
+--------------------------------------------------
+DEBUG: Inspecting data just before plotting...
+The 'spec' object has this frequency range:
+[   2.07971609    2.38896646    2.74420184    3.15226014    3.62099603
+    4.15943219    4.77793291    5.48840368    6.30452027    7.24199207
+    8.31886438    9.55586582   10.97680735   12.60904055   14.48398414
+   16.63772875   19.11173165   21.95361471   25.2180811    28.96796827
+   33.2754575    38.2234633    43.90722941   50.4361622    57.93593655
+   66.55091501   76.44692659   87.81445882  100.87232439  115.87187309
+  133.10183001  152.89385318  175.62891764  201.74464879  231.74374619
+  266.20366003  305.78770637  351.25783528  403.48929757  463.48749238
+  532.40732006  611.57541274  702.51567057  806.97859514  926.97498476
+ 1064.81464011]
+--------------------------------------------------
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+Saved figure: D0059_ErrorTrials_Stimulus_Locked_rescaled_multitaper_1.svg
+Saved figure: D0059_ErrorTrials_Stimulus_Locked_rescaled_multitaper_2.svg
+Saved figure: D0059_ErrorTrials_Stimulus_Locked_rescaled_multitaper_3.svg
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/wavelet/D0059/CorrectTrials_Stimulus_Locked_rescaled-tfr.h5 ...
+--------------------------------------------------
+DEBUG: Inspecting data just before plotting...
+The 'spec' object has this frequency range:
+[   2.07971609    2.38896646    2.74420184    3.15226014    3.62099603
+    4.15943219    4.77793291    5.48840368    6.30452027    7.24199207
+    8.31886438    9.55586582   10.97680735   12.60904055   14.48398414
+   16.63772875   19.11173165   21.95361471   25.2180811    28.96796827
+   33.2754575    38.2234633    43.90722941   50.4361622    57.93593655
+   66.55091501   76.44692659   87.81445882  100.87232439  115.87187309
+  133.10183001  152.89385318  175.62891764  201.74464879  231.74374619
+  266.20366003  305.78770637  351.25783528  403.48929757  463.48749238
+  532.40732006  611.57541274  702.51567057  806.97859514  926.97498476
+ 1064.81464011]
+--------------------------------------------------
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+No baseline correction applied
+Saved figure: D0059_CorrectTrials_Stimulus_Locked_rescaled_multitaper_1.svg
+Saved figure: D0059_CorrectTrials_Stimulus_Locked_rescaled_multitaper_2.svg
+Saved figure: D0059_CorrectTrials_Stimulus_Locked_rescaled_multitaper_3.svg

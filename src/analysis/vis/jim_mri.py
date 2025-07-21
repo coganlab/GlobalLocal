@@ -443,7 +443,10 @@ def get_sub(inst: Signal | mne.Info | str) -> str:
     if isinstance(inst, Signal):
         inst = inst.info
     elif isinstance(inst, str):
-        return f"{inst[0]}{int(inst[1:])}"
+        try: 
+            return f"{inst[0]}{int(inst[1:])}"
+        except ValueError:
+            return inst
     out_str = inst['subject_info']['his_id'][4:]
     if len(out_str) == 1:
         return out_str

@@ -52,8 +52,8 @@ def main(subject_id,type):
         layout = get_data(task, root=LAB_root)
 
         output_names_and_events_dict = {}
-        output_names_and_events_dict['ErrorTrials_Response_Locked'] = ["Responded1.0/Response/Accuracy0.0"]
-        output_names_and_events_dict['CorrectTrials_Response_Locked'] = ["Responded1.0/Response/Accuracy1.0"]
+        output_names_and_events_dict['ErrorTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy0.0"]
+        output_names_and_events_dict['CorrectTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy1.0"]
 
         baseline_times = [-0.5, 0]
         signal_times = [-0.5, 1.5]
@@ -70,7 +70,7 @@ def main(subject_id,type):
                 os.makedirs(save_dir)
 
             # Use the 'subject_id' variable 
-            base = get_uncorrected_wavelets(subject_id, layout, events=["Response"], times=baseline_times)
+            base = get_uncorrected_wavelets(subject_id, layout, events=["Stimulus"], times=baseline_times, freqs=freqs)
 
             # make signal wavelets
             for output_name, events in output_names_and_events_dict.items():
@@ -111,7 +111,7 @@ def main(subject_id,type):
                 os.makedirs(save_dir)
             
             base = get_uncorrected_multitaper(
-                subject_id, layout, events=["Response"], times=baseline_times,
+                subject_id, layout, events=["Stimulus"], times=baseline_times,
                 freqs=freqs, n_cycles=n_cycles,
                 time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
             )

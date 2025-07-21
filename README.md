@@ -1,4 +1,4 @@
-﻿Global Local Task 
+Global Local Task 
 
 Contact: Jim Zhang and Raphael Geddert
 

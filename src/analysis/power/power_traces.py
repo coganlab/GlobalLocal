@@ -418,6 +418,8 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     ax.set_ylabel(y_label, fontsize=font_size)
     ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     
     # Set title
     title = f'{roi.upper()}'
@@ -435,7 +437,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         ax.set_ylim(ylim)
     
     ax.legend(loc='best', framealpha=0.95)
-    ax.grid(True, alpha=0.3, linestyle='--')
+    ax.grid(False, alpha=0.3, linestyle='--')
     
     plt.tight_layout()
     

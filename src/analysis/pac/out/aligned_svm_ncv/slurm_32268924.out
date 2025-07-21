@@ -1,0 +1,26 @@
+Subject D0057: loading epochs...
+  Found epoch file for event 'Stimulus': /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_ev1-epo.fif
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 449 epochs for Stimulus
+  Found epoch file for event 'Response': /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Response_ev1-epo.fif
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Response_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+436 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 436 epochs for Response
+Finished loading epochs. Summary:
+  subject     event  n_epochs   sfreq  n_channels  tmin  tmax        data_shape
+0   D0057  Stimulus       449  2048.0         175  -1.0   1.5  (449, 175, 5121)
+1   D0057  Response       436  2048.0         175  -1.0   1.5  (436, 175, 5121)
+Summary saved to epoch_summary.csv

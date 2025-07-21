@@ -1,0 +1,2 @@
+usage: plot_wavelets_dcc.py [-h] --subject SUBJECT --type TYPE
+plot_wavelets_dcc.py: error: the following arguments are required: --type

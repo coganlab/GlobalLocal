@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 162, in <module>
+    compute_and_plot_connectivity(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 108, in compute_and_plot_connectivity
+    con = spectral_connectivity_time(
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: spectral_connectivity_time() missing 1 required positional argument: 'freqs'

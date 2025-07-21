@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/preproc/make_epoched_data_saved.py", line 37, in <module>
+    from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
+ModuleNotFoundError: No module named 'ieeg'

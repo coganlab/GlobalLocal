@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 166, in <module>
+    compute_and_plot_connectivity(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 120, in compute_and_plot_connectivity
+    line_ij, = ax.plot(times, data_ij, label=f"{ch_names[0]}→{ch_names[1]}")
+    ^^^^^^^^
+ValueError: too many values to unpack (expected 1)

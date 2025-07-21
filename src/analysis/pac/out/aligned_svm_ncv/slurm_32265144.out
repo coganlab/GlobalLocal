@@ -1,0 +1,4 @@
+Subject D0057: loading epochs...
+  Epoch file not found: /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqfilt/figs/D0057/D0057_Stimulus_ev1-epo.fif
+  Epoch file not found: /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqfilt/figs/D0057/D0057_Response_ev1-epo.fif
+Finished loading epochs for all subjects and default events.

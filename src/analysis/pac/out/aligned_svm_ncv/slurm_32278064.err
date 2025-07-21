@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 145, in <module>
+    compute_and_plot_connectivity(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 101, in compute_and_plot_connectivity
+    times = con.times
+            ^^^^^^^^^
+AttributeError: 'EpochSpectralConnectivity' object has no attribute 'times'. Did you mean: 'dims'?
