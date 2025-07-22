@@ -1,0 +1,3 @@
+subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples,roi_1,roi_2,ch_roi_1,ch_roi_2
+D0057,Stimulus,449,2048.0,175,-1.0,1.5,"RAI1,RAI2,RAI3",ctx_rh_G_front_sup,ctx_rh_G_front_middle,RAI15,RPI14
+D0057,Response,436,2048.0,175,-1.0,1.5,"RAI1,RAI2,RAI3",ctx_rh_G_front_sup,ctx_rh_G_front_middle,RAI15,RPI14
