@@ -52,38 +52,36 @@ def load_epochs(subjects,
     return epoch_dicts, df_summary
 
 
-def compute_and_plot_connectivity(epoch_dicts,
-                                  subject,
-                                  event,
-                                  ch_names,
-                                  fmin=3.0,
-                                  fmax=8.0,
-                                  n_freqs=25,
-                                  mode='cwt_morlet',
-                                  sfreq=None,
-                                  n_cycles=None,
-                                  output='connectivity_spectrum.png'):
+def compute_and_plot_granger(epoch_dicts,
+                              subject,
+                              event,
+                              ch_names,
+                              fmin=3.0,
+                              fmax=8.0,
+                              n_freqs=25,
+                              sfreq=None,
+                              n_cycles=None,
+                              output='granger_spectrum.png'):
     """
-    Compute and plot connectivity spectrum (frequency vs connectivity) between two channels.
-    Detect if the two directions are identical and handle overlapping.
+    Compute and plot Granger causality spectrum between two channels.
     """
     epochs = epoch_dicts.get(event, {}).get(subject)
     if epochs is None:
         raise KeyError(f"No epochs for {subject}, event {event}")
-    # Channel indices
-    i, j = [epochs.ch_names.index(ch) for ch in ch_names]
 
-    # Frequency grid and cycles
+    # Get indices and data
+    i, j = [epochs.ch_names.index(ch) for ch in ch_names]
     freqs = np.linspace(fmin, fmax, n_freqs)
     sf = sfreq or epochs.info['sfreq']
     if n_cycles is None:
         n_cycles = freqs / 2
 
-    # Compute connectivity spectrum for both directions
+    # Compute Granger causality spectrum
     con_ij = spectral_connectivity_time(
         epochs,
-        mode=mode,
-        indices=([i], [j]),
+        mode='multitaper',
+        method='gc',
+        indices=([np.array([i])], [np.array([j])]),
         freqs=freqs,
         sfreq=sf,
         n_cycles=n_cycles,
@@ -91,35 +89,26 @@ def compute_and_plot_connectivity(epoch_dicts,
     )
     con_ji = spectral_connectivity_time(
         epochs,
-        mode=mode,
-        indices=([j], [i]),
+        mode='multitaper',
+        method='gc',
+        indices=([np.array([j])], [np.array([i])]),
         freqs=freqs,
         sfreq=sf,
         n_cycles=n_cycles,
         average=False
     )
 
-    # Get data: (n_epochs, n_cons, n_freqs)
-    data_ij = con_ij.get_data()
-    data_ji = con_ji.get_data()
+    # Extract and average (n_epochs, n_cons, n_freqs)
+    spec_ij = con_ij.get_data().mean(axis=(0,1)).squeeze()
+    spec_ji = con_ji.get_data().mean(axis=(0,1)).squeeze()
 
-    # Average over epochs and connection pairs -> (n_freqs,)
-    spec_ij = data_ij.mean(axis=(0, 1)).squeeze()
-    spec_ji = data_ji.mean(axis=(0, 1)).squeeze()
-
-    # Check for identical series
-    identical = np.allclose(spec_ij, spec_ji)
-    if identical:
-        print(f"Spec identical for {ch_names[0]}→{ch_names[1]} and {ch_names[1]}→{ch_names[0]}, plotting one line.")
-
-    # Plot connectivity spectrum
+    # Plot Granger spectrum
     plt.figure(figsize=(8, 4))
-    plt.plot(freqs, spec_ij, label=f"{ch_names[0]} → {ch_names[1]}", linestyle='-')
-    if not identical:
-        plt.plot(freqs, spec_ji, label=f"{ch_names[1]} → {ch_names[0]}", linestyle='--')
+    plt.plot(freqs, spec_ij, label=f"{ch_names[0]}→{ch_names[1]}")
+    plt.plot(freqs, spec_ji, label=f"{ch_names[1]}→{ch_names[0]}")
     plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Connectivity')
-    plt.title(f'Connectivity Spectrum: {subject}, {event} ({ch_names[0]}–{ch_names[1]})')
+    plt.ylabel('Granger Causality')
+    plt.title(f'Granger Causality Spectrum: {subject}, {event} ({ch_names[0]}–{ch_names[1]})')
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
@@ -128,7 +117,7 @@ def compute_and_plot_connectivity(epoch_dicts,
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Compute connectivity spectrum for ROI pairs')
+    parser = argparse.ArgumentParser(description='Compute Granger causality spectrum for ROI pairs')
     parser.add_argument('--bids_root', type=str, required=True, help='Path to BIDS root')
     parser.add_argument('--subjects', nargs='+', required=True, help='Subject IDs')
     parser.add_argument('--roi_json', type=str, required=True, help='JSON mapping subjects to ROI channels')
@@ -137,7 +126,6 @@ if __name__ == '__main__':
     parser.add_argument('--fmin', type=float, default=3.0, help='Low freq bound')
     parser.add_argument('--fmax', type=float, default=8.0, help='High freq bound')
     parser.add_argument('--n_freqs', type=int, default=25, help='Number of frequency points')
-    parser.add_argument('--mode', type=str, default='cwt_morlet', help='Connectivity mode')
     parser.add_argument('--output_dir', type=str, default='.', help='Directory to save plots')
     args = parser.parse_args()
 
@@ -156,14 +144,14 @@ if __name__ == '__main__':
     df_summary.to_csv('epoch_summary.csv', index=False)
     print('Epoch summary saved to epoch_summary.csv')
 
-    # Determine channels for each subject
+    # Iterate subjects
     roi1, roi2 = args.rois
     for subj in args.subjects:
         ch1 = roi_data[subj]['filtROI_dict'][roi1][0]
         ch2 = roi_data[subj]['filtROI_dict'][roi2][0]
-        out_fname = os.path.join(args.output_dir, f"{subj}_{args.event}_connectivity_spectrum.png")
-        print(f"Computing connectivity spectrum for {subj}: {ch1}→{ch2}")
-        compute_and_plot_connectivity(
+        out = os.path.join(args.output_dir, f"{subj}_{args.event}_granger_spectrum.png")
+        print(f"Computing Granger causality for {subj}: {ch1}→{ch2}")
+        compute_and_plot_granger(
             epoch_dicts,
             subj,
             args.event,
@@ -171,11 +159,10 @@ if __name__ == '__main__':
             fmin=args.fmin,
             fmax=args.fmax,
             n_freqs=args.n_freqs,
-            mode=args.mode,
             sfreq=None,
             n_cycles=None,
-            output=out_fname
+            output=out
         )
-        print(f"Saved plot to {out_fname}")
+        print(f"Saved plot to {out}")
 
-    print('All connectivity computations done.')
+    print('All Granger causality computations done.')
