@@ -116,7 +116,7 @@ plotting_parameters = {
 },
 "Stimulus_corr": {
     "condition_parameter": "correct",
-    "color": "cornflowerblue",
+    "color": "seagreen",
     "line_style": "-", 
 }
 }

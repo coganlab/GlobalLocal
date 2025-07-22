@@ -1,0 +1,898 @@
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]  4%|▍         | frequency blocks : 1/25 [00:00<00:03,    6.91it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00,  162.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4096.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3363.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4102.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4287.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4380.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3975.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4159.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3905.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4307.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4157.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4311.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4346.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4305.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4106.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4031.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4065.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4334.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4038.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4371.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4244.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4228.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4282.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4282.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4199.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4176.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4312.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3991.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4086.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4132.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4118.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4014.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4275.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4073.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3939.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4411.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4408.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4464.50it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4214.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4078.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4432.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4311.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4283.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4102.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4000.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4232.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4255.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4356.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4282.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4425.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4233.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4092.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3917.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4285.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4312.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3804.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4394.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4396.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3960.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4136.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4339.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4061.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4317.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3867.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4234.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4078.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4390.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4068.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4289.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4336.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4223.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4130.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4153.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3929.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3701.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4608.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4324.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4260.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4119.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3873.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3938.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4632.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3745.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4032.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4202.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4311.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4072.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4142.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4092.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4058.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4295.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4319.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3589.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4077.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4142.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4217.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4422.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4536.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4403.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4736.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4324.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4295.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3915.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3099.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4430.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4136.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3669.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4161.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4181.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3720.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4183.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3757.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3387.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4372.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4183.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4011.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4748.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3942.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4069.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4040.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4197.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4461.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3498.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4154.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4121.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4010.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3654.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4061.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4257.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3951.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4312.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4213.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3788.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3334.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3804.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3978.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4055.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3727.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4148.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4548.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4029.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4033.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3502.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4191.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4199.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3372.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3324.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3947.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4203.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4101.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4394.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4023.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3890.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4238.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4282.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4137.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4345.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3548.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3928.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3968.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3737.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4369.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4099.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4188.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4167.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4240.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4057.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3519.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3672.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4237.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3827.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3808.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4166.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3969.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4394.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4117.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4255.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3843.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4098.72it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4204.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4235.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3913.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4378.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3783.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3300.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4115.78it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4052.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4330.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4183.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3657.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3153.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3770.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4062.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3700.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3915.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4039.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3705.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4215.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4117.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4048.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4240.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4500.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4400.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3924.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4067.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4224.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4241.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4130.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4357.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4305.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3729.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4038.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3766.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4361.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4130.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4158.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4441.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4148.50it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4206.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4243.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4237.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4106.59it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3348.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4490.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4400.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4092.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4138.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4223.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4240.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4178.59it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4191.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3910.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4104.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4197.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4450.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4279.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4340.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4391.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4380.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4119.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4107.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4368.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4249.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4320.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4175.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4205.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3377.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3771.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3441.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3808.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4413.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4281.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4301.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4147.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4167.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4111.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4245.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3986.83it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4338.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4432.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3652.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3344.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4216.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4343.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4366.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4267.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3907.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4360.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4073.72it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4139.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4222.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4471.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4373.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4460.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4071.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4327.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4647.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4263.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4097.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4097.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3906.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4114.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4206.59it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4006.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4327.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4097.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4273.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3827.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4164.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4209.63it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4351.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4135.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4295.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4482.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4343.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3966.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4389.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3663.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3938.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4199.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4139.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4282.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4365.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4284.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4341.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3778.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4260.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4032.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4210.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4229.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3993.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4444.63it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4053.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4161.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4388.63it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4262.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4351.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4075.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4237.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4576.94it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4441.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4356.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3743.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4112.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4343.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3918.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3973.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4375.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4273.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4364.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3958.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3645.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3946.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3834.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4124.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4388.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4412.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4457.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4426.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4385.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4231.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4207.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3509.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3700.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4191.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4124.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4036.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4225.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4261.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4258.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4028.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4205.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4420.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4351.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4254.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4503.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4460.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4572.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3839.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4158.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4013.07it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4012.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3758.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3827.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3940.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3857.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3773.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3912.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3108.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3547.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3791.63it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3986.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3844.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3830.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3889.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3738.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3668.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4026.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3845.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3844.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3283.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4001.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3857.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3832.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3643.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3899.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3890.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3798.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3825.80it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3839.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3978.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3807.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4002.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3740.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3839.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3839.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3892.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3646.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3841.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3786.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3772.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3639.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3781.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3851.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3780.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4032.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3600.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3835.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3931.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3678.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3827.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3922.40it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3536.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4003.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3791.50it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3930.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3500.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3796.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4021.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3726.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3809.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3994.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3872.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3966.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3879.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3835.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3623.78it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3881.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3881.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3756.72it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3770.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3845.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3819.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3675.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3858.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4073.72it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3874.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4103.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4237.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4068.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4229.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4124.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4449.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4150.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4225.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4435.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4277.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4164.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3971.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4234.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4067.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4199.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4171.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4056.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4345.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4283.40it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4461.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4312.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4077.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4314.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3848.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3779.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4531.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4179.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4365.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4099.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4069.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4590.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4164.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4102.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4483.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4897.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4402.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4081.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4445.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4357.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4251.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4672.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4419.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4317.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4355.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4350.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4400.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4368.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4406.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4202.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4382.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4261.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4460.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4248.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4391.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4055.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4248.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4207.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3448.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4357.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4125.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4135.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4415.80it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4556.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4076.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4056.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3931.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4422.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4396.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4376.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4446.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4531.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3518.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3126.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4174.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3809.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3974.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4063.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4014.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3943.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3571.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3824.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 2944.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3980.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3142.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3408.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3326.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3436.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3278.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3290.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3831.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4075.78it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3697.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3455.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3527.83it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3869.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3969.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3840.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3768.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4018.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4063.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3972.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3913.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3954.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4034.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3992.90it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3803.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3710.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4397.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3440.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3970.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3893.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3606.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3912.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3532.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3706.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3835.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4202.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4139.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4061.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4287.78it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3656.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4005.71it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4107.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4065.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3640.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4217.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3813.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3466.60it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3402.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3971.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3750.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3739.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3911.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3198.63it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3300.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3085.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3122.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3657.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3413.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3885.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3814.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3854.78it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3674.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3900.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3946.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3362.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3257.36it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3496.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4233.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4235.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3313.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4034.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3910.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3816.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4065.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3420.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3843.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3516.94it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4106.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3942.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3505.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3954.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3719.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3859.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3966.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3796.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3800.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3988.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4091.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3153.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3785.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3929.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3552.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3422.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3528.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3946.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3427.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4052.31it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4021.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4049.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3963.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3971.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3822.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4065.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3767.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4092.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4160.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3986.83it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4405.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3534.37it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3600.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3991.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3912.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4048.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3732.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4003.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4023.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3513.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3605.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3708.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3892.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3991.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3596.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3947.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3242.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3597.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4227.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3773.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3549.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3785.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3764.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3890.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3925.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3780.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3656.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3968.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3540.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4131.99it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3356.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3501.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4094.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3728.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3846.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4310.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3933.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3969.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3712.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3568.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3838.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4077.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3903.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3681.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3553.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3918.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3925.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3960.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3355.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4002.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3386.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3423.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4204.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3390.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4018.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3849.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3890.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4139.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3924.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3752.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3938.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3675.09it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3284.81it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3340.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3595.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4059.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3925.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3406.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3853.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4033.61it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3644.94it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3809.26it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4003.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4370.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3962.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3880.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3627.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3679.73it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3954.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3726.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3459.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4022.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3621.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4002.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3940.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4039.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3422.47it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3920.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4029.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3904.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3555.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3793.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3869.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3974.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3337.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3877.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4361.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3735.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3884.33it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3636.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3788.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3910.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3693.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3695.94it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3769.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3848.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3507.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3802.49it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3953.16it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3530.80it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3517.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4108.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4043.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3866.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3778.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3897.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3900.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3804.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3985.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3748.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3788.34it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3722.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3888.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3885.92it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3021.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3360.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3474.64it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4476.31it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3874.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4025.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3700.12it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3586.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4023.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4156.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3317.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3548.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3964.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3782.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4013.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3846.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3933.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3681.80it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3921.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3685.29it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3910.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3988.50it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3596.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3176.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4172.77it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3929.31it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3967.07it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3640.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3968.27it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3947.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3686.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4073.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3565.01it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3857.04it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3848.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3287.59it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3873.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3707.84it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3863.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3571.32it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4258.70it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3598.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3387.53it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3975.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3602.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4119.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3365.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3988.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3871.43it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3160.74it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3977.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3370.65it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3320.91it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3634.83it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3771.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3041.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3761.44it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3609.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3848.13it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3929.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3321.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3090.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3358.56it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3900.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3514.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3967.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3140.86it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3758.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3991.23it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4000.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3632.69it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3226.39it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3430.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3971.28it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3600.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3950.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3339.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4014.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3907.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3528.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3857.19it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3747.06it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3808.85it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3840.66it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3728.67it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4055.76it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3814.11it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3540.45it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3392.46it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3881.17it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4052.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3856.48it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4265.97it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3992.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4198.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4143.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3881.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3325.75it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3696.20it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4066.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3454.83it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3605.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3882.03it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3986.98it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3779.88it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4168.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3901.68it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4165.15it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3955.25it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3926.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3376.95it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3250.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4114.00it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4096.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3773.89it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4049.02it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3987.59it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3838.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4061.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3339.52it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3360.93it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3717.96it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3711.38it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3815.50it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3978.51it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3594.58it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3940.24it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3735.18it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3681.54it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3668.40it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3813.42it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3976.10it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3901.82it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4123.22it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3774.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4128.41it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4384.05it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3988.80it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 2951.08it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3460.30it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4141.62it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3872.14it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3983.35it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4032.21it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3887.79it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4201.87it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3870.57it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 3927.55it/s]
+  0%|          | frequency blocks : 0/25 [00:00<?,       ?it/s]100%|██████████| frequency blocks : 25/25 [00:00<00:00, 4267.36it/s]

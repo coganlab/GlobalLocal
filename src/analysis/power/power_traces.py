@@ -413,13 +413,15 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
                            alpha=0.3, color=color, linewidth=0)
 
     # Customize plot
+    text_color = "#002060"
 
-    ax.set_xlabel(x_label, fontsize=font_size)
-    ax.set_ylabel(y_label, fontsize=font_size)
+    ax.set_xlabel(x_label, fontsize=font_size, labelcolor=text_color)
+    ax.set_ylabel(y_label, fontsize=font_size, labelcolor=text_color)
     ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', colors=text_color)
     
     # Set title
     title = f'{roi.upper()}'
@@ -431,13 +433,13 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     elif show_ci:
         title += f' ({ci*100}% CI)'
 
-    ax.set_title(title, fontsize=title_font_size, fontweight='bold')
+    ax.set_title(title, fontsize=title_font_size, fontweight='bold', color=text_color)
     
     if ylim:
         ax.set_ylim(ylim)
     
     ax.legend(loc='best', framealpha=0.95)
-    ax.grid(False, alpha=0.3, linestyle='--')
+    #ax.grid(False, alpha=0.3, linestyle='--')
     
     plt.tight_layout()
     

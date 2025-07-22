@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 154, in <module>
+    compute_and_plot_granger(
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 80, in compute_and_plot_granger
+    con_ij = spectral_connectivity_time(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-306>", line 12, in spectral_connectivity_time
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne_connectivity/spectral/time.py", line 471, in spectral_connectivity_time
+    indices_use = _check_multivariate_indices(indices, n_signals)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne_connectivity/utils/utils.py", line 162, in _check_multivariate_indices
+    raise TypeError(
+TypeError: multivariate indices must contain array-likes of channel indices for each seed and target

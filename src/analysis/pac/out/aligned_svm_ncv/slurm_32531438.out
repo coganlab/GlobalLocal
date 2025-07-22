@@ -1,0 +1,24 @@
+Subject D0057: loading epochs...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 449 epochs for Stimulus (RAI1,RAI2,RAI3...)
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Response_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+436 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 436 epochs for Response (RAI1,RAI2,RAI3...)
+Epoch summary saved to epoch_summary.csv
+Computing Granger causality for D0057: RAI15→RPI14
+Adding metadata with 3 columns
+Fmin was not specified. Using fmin=min(freqs)
+Fmax was not specified. Using fmax=max(freqs).

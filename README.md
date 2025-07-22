@@ -110,7 +110,7 @@ If the participant was already completed all 4 blocks previously, you will be as
 
 Stimulus Timing/Trial Count Details can be specified in Master\_Script.m, starting at line 71. Defaults are as follows:
 
-Stimulus Interval (stimInterval) = 1.5 seconds.
+Stimulus Interval (stimInterval) = 2.5 seconds.
 
 - How long stimulus is on the screen and participant is able to respond. Increasing this time (to 2, or 2.5s at most) will (probably) make the task easier, though this hasn’t been confirmed. The task will automatically proceed to the next screen (feedback) as soon as the participant responds.
 
@@ -122,7 +122,7 @@ Number of Blocks (numBlocks) = 4
 
 - This should never be changed due to study design.
 
-Trials Per Block in Main Task (trialsPerBlock) = 128
+Trials Per Block in Main Task (trialsPerBlock) = 112
 
 - This can be changed by increments of 16 trials. With a stiminterval of 1.5s, fixInterval of 0.5 seconds, trials run at longest for  3.4 seconds, so 128 trials x 4 blocks x 3.4 seconds = 29 minutes time spent performing main task (not including block breaks or instructions). This can be considerably shorter however, since trials proceed automatically when the participant responds. Assuming an average RT of ~1000 ms, experiment run time (not including breaks and instructions) = ~25 minutes.
 
