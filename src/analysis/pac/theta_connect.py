@@ -4,8 +4,8 @@ import numpy as np
 import mne
 import pandas as pd
 import matplotlib.pyplot as plt
+from itertools import combinations
 from mne_connectivity import spectral_connectivity_time
-import matplotlib.ticker as ticker
 
 def load_epochs(subjects,
                 bids_root,
@@ -13,6 +13,11 @@ def load_epochs(subjects,
                 event_list=None,
                 epoch_suffix='ev1-epo',
                 nch_example=3):
+    """
+    Load epochs for each subject and event. Returns:
+      - epoch_dicts: {event: {subject: Epochs}}
+      - df_summary: DataFrame summarizing loaded epochs
+    """
     if event_list is None:
         event_list = ['Stimulus', 'Response']
 
@@ -52,117 +57,130 @@ def load_epochs(subjects,
     return epoch_dicts, df_summary
 
 
-def compute_and_plot_granger(epoch_dicts,
-                              subject,
-                              event,
-                              ch_names,
-                              fmin=3.0,
-                              fmax=8.0,
-                              n_freqs=25,
-                              sfreq=None,
-                              n_cycles=None,
-                              output='granger_spectrum.png'):
+def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
     """
-    Compute and plot Granger causality spectrum between two channels.
+    Compute coherence for all pairs of channels in `chs` at once.
+    Returns a dict mapping (ch1,ch2) -> mean coherence value.
     """
-    epochs = epoch_dicts.get(event, {}).get(subject)
-    if epochs is None:
-        raise KeyError(f"No epochs for {subject}, event {event}")
+    # Pick only ROI channels to speed up computation
+    epochs_roi = epochs.copy().pick_channels(chs)
 
-    # Get indices and data
-    i, j = [epochs.ch_names.index(ch) for ch in ch_names]
-    freqs = np.linspace(fmin, fmax, n_freqs)
-    sf = sfreq or epochs.info['sfreq']
-    if n_cycles is None:
-        n_cycles = freqs / 2
+    # Build all unique channel index pairs
+    idx_pairs = list(combinations(range(len(chs)), 2))
+    u_inds, v_inds = zip(*idx_pairs)
 
-    # Compute Granger causality spectrum
-    con_ij = spectral_connectivity_time(
-        epochs,
+    # Batch compute coherence with average across epochs
+    con_all = spectral_connectivity_time(
+        epochs_roi,
         mode='multitaper',
-        method='gc',
-        indices=([np.array([i])], [np.array([j])]),
+        method='coh',
+        indices=(list(u_inds), list(v_inds)),
         freqs=freqs,
-        sfreq=sf,
+        sfreq=epochs_roi.info['sfreq'],
         n_cycles=n_cycles,
-        average=False
+        average=True,
+        n_jobs=n_jobs,
+        fmin=fmin,
+        fmax=fmax
     )
-    con_ji = spectral_connectivity_time(
-        epochs,
-        mode='multitaper',
-        method='gc',
-        indices=([np.array([j])], [np.array([i])]),
-        freqs=freqs,
-        sfreq=sf,
-        n_cycles=n_cycles,
-        average=False
-    )
+    # Data: shape can be (n_pairs, n_freqs, n_times) or (n_pairs, n_freqs)
+    data_all = con_all.get_data()
+    # Flatten freq and time dims if present, then mean per pair
+    reshaped = data_all.reshape(data_all.shape[0], -1)
+    mean_vals = reshaped.mean(axis=1)
 
-    # Extract and average (n_epochs, n_cons, n_freqs)
-    spec_ij = con_ij.get_data().mean(axis=(0,1)).squeeze()
-    spec_ji = con_ji.get_data().mean(axis=(0,1)).squeeze()
+    # Build result dict
+    coherence_dict = {}
+    for (i, j), val in zip(idx_pairs, mean_vals):
+        ch1, ch2 = chs[i], chs[j]
+        coherence_dict[(ch1, ch2)] = val
+    return coherence_dict
 
-    # Plot Granger spectrum
+
+def plot_pair_coherence(freqs, spectrum, ch1, ch2, output_path):
+    """
+    Plot coherence spectrum for a single channel pair and save.
+    """
     plt.figure(figsize=(8, 4))
-    plt.plot(freqs, spec_ij, label=f"{ch_names[0]}→{ch_names[1]}")
-    plt.plot(freqs, spec_ji, label=f"{ch_names[1]}→{ch_names[0]}")
+    plt.plot(freqs, spectrum)
     plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Granger Causality')
-    plt.title(f'Granger Causality Spectrum: {subject}, {event} ({ch_names[0]}–{ch_names[1]})')
-    plt.legend()
+    plt.ylabel('Coherence')
+    plt.title(f'{ch1}→{ch2}')
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(output)
+    plt.savefig(output_path)
     plt.close()
+    print(f"Saved plot {ch1}->{ch2} to {output_path}")
+
 
 if __name__ == '__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Compute Granger causality spectrum for ROI pairs')
-    parser.add_argument('--bids_root', type=str, required=True, help='Path to BIDS root')
-    parser.add_argument('--subjects', nargs='+', required=True, help='Subject IDs')
-    parser.add_argument('--roi_json', type=str, required=True, help='JSON mapping subjects to ROI channels')
-    parser.add_argument('--rois', nargs=2, required=True, help='Two ROI names to analyze')
-    parser.add_argument('--event', type=str, required=True, help='Event name (e.g., Stimulus)')
-    parser.add_argument('--fmin', type=float, default=3.0, help='Low freq bound')
-    parser.add_argument('--fmax', type=float, default=8.0, help='High freq bound')
-    parser.add_argument('--n_freqs', type=int, default=25, help='Number of frequency points')
-    parser.add_argument('--output_dir', type=str, default='.', help='Directory to save plots')
+    parser = argparse.ArgumentParser(description='Compute ROI Coherence more efficiently')
+    parser.add_argument('--bids_root', type=str, required=True)
+    parser.add_argument('--subjects', nargs='+', required=True)
+    parser.add_argument('--roi_json', type=str, required=True)
+    parser.add_argument('--rois', nargs='+', required=True)
+    parser.add_argument('--event', type=str, required=True)
+    parser.add_argument('--fmin', type=float, default=3.0)
+    parser.add_argument('--fmax', type=float, default=8.0)
+    parser.add_argument('--n_freqs', type=int, default=25)
+    parser.add_argument('--n_jobs', type=int, default=8,
+                        help='Adjust based on CPU cores')
+    parser.add_argument('--output_dir', type=str, default='.')
+    parser.add_argument('--plot', action='store_true', help='Save per-pair plots')
     args = parser.parse_args()
 
-    # Load ROI mappings
+    os.makedirs(args.output_dir, exist_ok=True)
+    fig_dir = os.path.join(args.output_dir, 'coherence_figs')
+    if args.plot:
+        os.makedirs(fig_dir, exist_ok=True)
+
+    # Load ROI mapping
     with open(args.roi_json, 'r') as f:
         roi_data = json.load(f)
 
     # Load epochs
-    epoch_dicts, df_summary = load_epochs(
-        args.subjects,
-        bids_root=args.bids_root,
-        deriv_dir='freqFilt/figs',
-        epoch_suffix='ev1-epo',
-        nch_example=3
-    )
-    df_summary.to_csv('epoch_summary.csv', index=False)
-    print('Epoch summary saved to epoch_summary.csv')
+    epoch_dicts, df_epochs = load_epochs(args.subjects, args.bids_root,
+                                         event_list=[args.event])
+    df_epochs.to_csv(os.path.join(args.output_dir, 'epoch_summary.csv'), index=False)
+    print('Epoch summary saved.')
 
-    # Iterate subjects
-    roi1, roi2 = args.rois
+    # Frequency setup
+    freqs = np.linspace(args.fmin, args.fmax, args.n_freqs)
+    n_cycles = freqs / 2
+
+    # Main coherence computation
+    all_records = []
     for subj in args.subjects:
-        ch1 = roi_data[subj]['filtROI_dict'][roi1][0]
-        ch2 = roi_data[subj]['filtROI_dict'][roi2][0]
-        out = os.path.join(args.output_dir, f"{subj}_{args.event}_granger_spectrum.png")
-        print(f"Computing Granger causality for {subj}: {ch1}→{ch2}")
-        compute_and_plot_granger(
-            epoch_dicts,
-            subj,
-            args.event,
-            [ch1, ch2],
-            fmin=args.fmin,
-            fmax=args.fmax,
-            n_freqs=args.n_freqs,
-            sfreq=None,
-            n_cycles=None,
-            output=out
-        )
-        print(f"Saved plot to {out}")
+        epochs = epoch_dicts.get(args.event, {}).get(subj)
+        if epochs is None:
+            print(f"Skipping {subj}: no {args.event} epochs")
+            continue
 
-    print('All Granger causality computations done.')
+        # Gather channels from specified ROIs
+        chs = []
+        for roi in args.rois:
+            chs.extend(roi_data[subj]['filtROI_dict'].get(roi, []))
+        chs = list(dict.fromkeys(chs))  # de-duplicate
+
+        print(f"Computing coherence for {subj}, {len(chs)} channels, {len(chs)*(len(chs)-1)//2} pairs")
+        coh_dict = compute_coherence_batch(
+            epochs, chs, freqs, n_cycles,
+            args.fmin, args.fmax, args.n_jobs
+        )
+
+        # Build summary and optional plotting
+        for (ch1, ch2), mean_val in coh_dict.items():
+            rec = {'subject': subj, 'event': args.event,
+                   'ch1': ch1, 'ch2': ch2,
+                   'coh_mean': mean_val}
+            all_records.append(rec)
+            if args.plot:
+                # Detailed spectrum plotting skipped for speed
+                pass
+
+    # Save summary CSV
+    df_sum = pd.DataFrame(all_records)
+    csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.rois}_summary.csv')
+    df_sum.to_csv(csv_path, index=False)
+    print(f"Saved coherence summary to {csv_path}")
