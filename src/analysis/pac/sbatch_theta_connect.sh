@@ -14,6 +14,6 @@ conda activate ieeg # make sure this works
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/theta_connect.py \
     --subject ${subject} \
     --bids_root /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS \
-    --event Stimulus \
-    --rois ctx_rh_G_front_sup ctx_rh_G_front_middle \
+    --event Response \
+    --rois ctx_rh_G_front_middle ctx_rh_G_front_sup ctx_rh_S_front_sup \
     --roi_json /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/subjects_electrodestoROIs_dict.json
