@@ -40,6 +40,7 @@ def test_minimal():
     
     # Create minimal test arguments
     test_args = SimpleNamespace(
+        LAB_root=None,
         subjects=['D0103'],
         signal_times=[-0.2, 0.2],  # 400ms window
         acc_trials_only=True,

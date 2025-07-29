@@ -34,6 +34,7 @@ from src.analysis.config import experiment_conditions
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
+LAB_ROOT = None
 
 # Subject configuration
 SUBJECTS = ['D0103']  # Add more subjects as needed: ['D0101', 'D0102', 'D0103']
@@ -135,6 +136,7 @@ def run_analysis():
     
     # Create argument namespace
     args = SimpleNamespace(
+        LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         signal_times=SIGNAL_TIMES,
         acc_trials_only=ACC_TRIALS_ONLY,

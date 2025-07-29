@@ -313,6 +313,8 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Make subject and ROI level tfr difference masks.")
+    parser.add_argument('--LAB_root', type=str, required=True, 
+                        help="The cogan lab root directory")
     parser.add_argument('--subjects', type=list, required=True, 
                         help="List of subject ID to process")
     parser.add_argument('--signal_times', type=list, required=True, default=[-1.0, 1.5], 
