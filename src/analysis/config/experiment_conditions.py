@@ -132,22 +132,22 @@ stimulus_main_effect_conditions = {
 
 stimulus_lwpc_conditions = {
     "Stimulus_c25": {
-        "BIDS_events": "Stimulus/c25.0",
+        "BIDS_events": ["Stimulus/c25.0"],
         "congruency": "c",
         "congruencyProportion": "75%" #this is flipped because the BIDS events are saved in terms of incongruency proportion
     },
     "Stimulus_c75": {
-        "BIDS_events": "Stimulus/c75.0",
+        "BIDS_events": ["Stimulus/c75.0"],
         "congruency": "c",
         "congruencyProportion": "25%" #this is flipped because the BIDS events are saved in terms of incongruency proportion
     },
     "Stimulus_i25": {
-        "BIDS_events": "Stimulus/i25.0",
+        "BIDS_events": ["Stimulus/i25.0"],
         "congruency": "i",
         "congruencyProportion": "75%" #this is flipped because the BIDS events are saved in terms of incongruency proportion
     },
     "Stimulus_i75": {
-        "BIDS_events": "Stimulus/i75.0",
+        "BIDS_events": ["Stimulus/i75.0"],
         "congruency": "i",
         "congruencyProportion": "25%" #this is flipped because the BIDS events are saved in terms of incongruency proportion
     }
@@ -157,22 +157,22 @@ stimulus_lwpc_conditions = {
 
 stimulus_lwps_conditions = {
     "Stimulus_s25": {
-        "BIDS_events": "Stimulus/s25.0",
+        "BIDS_events": ["Stimulus/s25.0"],
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Stimulus_s75": {
-        "BIDS_events": "Stimulus/s75.0",
+        "BIDS_events": ["Stimulus/s75.0"],
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Stimulus_r25": {
-        "BIDS_events": "Stimulus/r25.0",
+        "BIDS_events": ["Stimulus/r25.0"],
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Stimulus_r75": {
-        "BIDS_events": "Stimulus/r75.0",
+        "BIDS_events": ["Stimulus/r75.0"],
         "switchType": "r",
         "switchProportion": "75%"
     }
@@ -181,112 +181,112 @@ stimulus_lwps_conditions = {
 # all 16 trial types
 stimulus_experiment_conditions = {
     "Stimulus_i25s25": {
-        "BIDS_events": "Stimulus/i25.0/s25.0",
+        "BIDS_events": ["Stimulus/i25.0/s25.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Stimulus_i25s75": {
-        "BIDS_events": "Stimulus/i25.0/s75.0",
+        "BIDS_events": ["Stimulus/i25.0/s75.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Stimulus_i75s25": {
-        "BIDS_events": "Stimulus/i75.0/s25.0",
+        "BIDS_events": ["Stimulus/i75.0/s25.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Stimulus_i75s75": {
-        "BIDS_events": "Stimulus/i75.0/s75.0",
+        "BIDS_events": ["Stimulus/i75.0/s75.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Stimulus_i25r25": {
-        "BIDS_events": "Stimulus/i25.0/r25.0",
+        "BIDS_events": ["Stimulus/i25.0/r25.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Stimulus_i25r75": {
-        "BIDS_events": "Stimulus/i25.0/r75.0",
+        "BIDS_events": ["Stimulus/i25.0/r75.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Stimulus_i75r25": {
-        "BIDS_events": "Stimulus/i75.0/r25.0",
+        "BIDS_events": ["Stimulus/i75.0/r25.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Stimulus_i75r75": {
-        "BIDS_events": "Stimulus/i75.0/r75.0",
+        "BIDS_events": ["Stimulus/i75.0/r75.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Stimulus_c25s25": {
-        "BIDS_events": "Stimulus/c25.0/s25.0",
+        "BIDS_events": ["Stimulus/c25.0/s25.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Stimulus_c25s75": {
-        "BIDS_events": "Stimulus/c25.0/s75.0",
+        "BIDS_events": ["Stimulus/c25.0/s75.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Stimulus_c75s25": {
-        "BIDS_events": "Stimulus/c75.0/s25.0",
+        "BIDS_events": ["Stimulus/c75.0/s25.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Stimulus_c75s75": {
-        "BIDS_events": "Stimulus/c75.0/s75.0",
+        "BIDS_events": ["Stimulus/c75.0/s75.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Stimulus_c25r25": {
-        "BIDS_events": "Stimulus/c25.0/r25.0",
+        "BIDS_events": ["Stimulus/c25.0/r25.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Stimulus_c25r75": {
-        "BIDS_events": "Stimulus/c25.0/r75.0",
+        "BIDS_events": ["Stimulus/c25.0/r75.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Stimulus_c75r25": {
-        "BIDS_events": "Stimulus/c75.0/r25.0",
+        "BIDS_events": ["Stimulus/c75.0/r25.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Stimulus_c75r75": {
-        "BIDS_events": "Stimulus/c75.0/r75.0",
+        "BIDS_events": ["Stimulus/c75.0/r75.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "r",
@@ -297,49 +297,49 @@ stimulus_experiment_conditions = {
 # stimulus details
 stimulus_conditions = {
     "Stimulus_bigSsmallHtaskG": {
-        "BIDS_events": "Stimulus/BigLetters/SmallLetterh/Taskg",
+        "BIDS_events": ["Stimulus/BigLetters/SmallLetterh/Taskg"],
         "bigLetter": "s",
         "smallLetter": "h",
         "task": "g"
     },
     "Stimulus_bigSsmallHtaskL": {
-        "BIDS_events": "Stimulus/BigLetters/SmallLetterh/Taskl",
+        "BIDS_events": ["Stimulus/BigLetters/SmallLetterh/Taskl"],
         "bigLetter": "s",
         "smallLetter": "h",
         "task": "l"
     },
     "Stimulus_bigSsmallStaskG": {
-        "BIDS_events": "Stimulus/BigLetters/SmallLetters/Taskg",
+        "BIDS_events": ["Stimulus/BigLetters/SmallLetters/Taskg"],
         "bigLetter": "s",
         "smallLetter": "s",
         "task": "g"
     },
     "Stimulus_bigSsmallStaskL": {
-        "BIDS_events": "Stimulus/BigLetters/SmallLetters/Taskl",
+        "BIDS_events": ["Stimulus/BigLetters/SmallLetters/Taskl"],
         "bigLetter": "s",
         "smallLetter": "s",
         "task": "l"
     },
     "Stimulus_bigHsmallHtaskG": {
-        "BIDS_events": "Stimulus/BigLetterh/SmallLetterh/Taskg",
+        "BIDS_events": ["Stimulus/BigLetterh/SmallLetterh/Taskg"],
         "bigLetter": "h",
         "smallLetter": "h",
         "task": "g"
     },
     "Stimulus_bigHsmallHtaskL": {
-        "BIDS_events": "Stimulus/BigLetterh/SmallLetterh/Taskl",
+        "BIDS_events": ["Stimulus/BigLetterh/SmallLetterh/Taskl"],
         "bigLetter": "h",
         "smallLetter": "h",
         "task": "l"
     },
     "Stimulus_bigHsmallStaskG": {
-        "BIDS_events": "Stimulus/BigLetterh/SmallLetters/Taskg",
+        "BIDS_events": ["Stimulus/BigLetterh/SmallLetters/Taskg"],
         "bigLetter": "h",
         "smallLetter": "s",
         "task": "g"
     },
     "Stimulus_bigHsmallStaskL": {
-        "BIDS_events": "Stimulus/BigLetterh/SmallLetters/Taskl",
+        "BIDS_events": ["Stimulus/BigLetterh/SmallLetters/Taskl"],
         "bigLetter": "h",
         "smallLetter": "s",
         "task": "l"
@@ -350,11 +350,11 @@ stimulus_conditions = {
 # big letter details
 stimulus_big_letter_conditions = {
     "Stimulus_bigS": {
-        "BIDS_events": "Stimulus/BigLetters",
+        "BIDS_events": ["Stimulus/BigLetters"],
         "bigLetter": "s",
     },
     "Stimulus_bigH": {
-        "BIDS_events": "Stimulus/BigLetterh",
+        "BIDS_events": ["Stimulus/BigLetterh"],
         "bigLetter": "h",
     }
 }
@@ -362,11 +362,11 @@ stimulus_big_letter_conditions = {
 # small letter details
 stimulus_small_letter_conditions = {
     "Stimulus_smallS": {
-        "BIDS_events": "Stimulus/SmallLetters",
+        "BIDS_events": ["Stimulus/SmallLetters"],
         "smallLetter": "s",
     },
     "Stimulus_smallH": {
-        "BIDS_events": "Stimulus/SmallLetterh",
+        "BIDS_events": ["Stimulus/SmallLetterh"],
         "smallLetter": "h",
     }
 }
@@ -374,11 +374,11 @@ stimulus_small_letter_conditions = {
 # task details
 stimulus_task_conditions = {
     "Stimulus_taskG": {
-        "BIDS_events": "Stimulus/Taskg",
+        "BIDS_events": ["Stimulus/Taskg"],
         "task": "g",
     },
     "Stimulus_taskL": {
-        "BIDS_events": "Stimulus/Taskl",
+        "BIDS_events": ["Stimulus/Taskl"],
         "task": "l",
     }
 }
@@ -409,112 +409,112 @@ response_switch_type_conditions = {
 
 response_experiment_conditions = {
     "Response_i25s25": {
-        "BIDS_events": "Response/i25.0/s25.0",
+        "BIDS_events": ["Response/i25.0/s25.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Response_i25s75": {
-        "BIDS_events": "Response/i25.0/s75.0",
+        "BIDS_events": ["Response/i25.0/s75.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Response_i75s25": {
-        "BIDS_events": "Response/i75.0/s25.0",
+        "BIDS_events": ["Response/i75.0/s25.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Response_i75s75": {
-        "BIDS_events": "Response/i75.0/s75.0",
+        "BIDS_events": ["Response/i75.0/s75.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Response_i25r25": {
-        "BIDS_events": "Response/i25.0/r25.0",
+        "BIDS_events": ["Response/i25.0/r25.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Response_i25r75": {
-        "BIDS_events": "Response/i25.0/r75.0",
+        "BIDS_events": ["Response/i25.0/r75.0"],
         "congruency": "i",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Response_i75r25": {
-        "BIDS_events": "Response/i75.0/r25.0",
+        "BIDS_events": ["Response/i75.0/r25.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Response_i75r75": {
-        "BIDS_events": "Response/i75.0/r75.0",
+        "BIDS_events": ["Response/i75.0/r75.0"],
         "congruency": "i",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Response_c25s25": {
-        "BIDS_events": "Response/c25.0/s25.0",
+        "BIDS_events": ["Response/c25.0/s25.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Response_c25s75": {
-        "BIDS_events": "Response/c25.0/s75.0",
+        "BIDS_events": ["Response/c25.0/s75.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Response_c75s25": {
-        "BIDS_events": "Response/c75.0/s25.0",
+        "BIDS_events": ["Response/c75.0/s25.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "25%"
     },
     "Response_c75s75": {
-        "BIDS_events": "Response/c75.0/s75.0",
+        "BIDS_events": ["Response/c75.0/s75.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "s",
         "switchProportion": "75%"
     },
     "Response_c25r25": {
-        "BIDS_events": "Response/c25.0/r25.0",
+        "BIDS_events": ["Response/c25.0/r25.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Response_c25r75": {
-        "BIDS_events": "Response/c25.0/r75.0",
+        "BIDS_events": ["Response/c25.0/r75.0"],
         "congruency": "c",
         "congruencyProportion": "75%",
         "switchType": "r",
         "switchProportion": "75%"
     },
     "Response_c75r25": {
-        "BIDS_events": "Response/c75.0/r25.0",
+        "BIDS_events": ["Response/c75.0/r25.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "r",
         "switchProportion": "25%"
     },
     "Response_c75r75": {
-        "BIDS_events": "Response/c75.0/r75.0",
+        "BIDS_events": ["Response/c75.0/r75.0"],
         "congruency": "c",
         "congruencyProportion": "25%",
         "switchType": "r",
@@ -524,49 +524,49 @@ response_experiment_conditions = {
 
 response_conditions = {
     "Response_bigSsmallHtaskG": {
-        "BIDS_events": "Response/BigLetters/SmallLetterh/Taskg",
+        "BIDS_events": ["Response/BigLetters/SmallLetterh/Taskg"],
         "bigLetter": "s",
         "smallLetter": "h",
         "task": "g"
     },
     "Response_bigSsmallHtaskL": {
-        "BIDS_events": "Response/BigLetters/SmallLetterh/Taskl",
+        "BIDS_events": ["Response/BigLetters/SmallLetterh/Taskl"],
         "bigLetter": "s",
         "smallLetter": "h",
         "task": "l"
     },
     "Response_bigSsmallStaskG": {
-        "BIDS_events": "Response/BigLetters/SmallLetters/Taskg",
+        "BIDS_events": ["Response/BigLetters/SmallLetters/Taskg"],
         "bigLetter": "s",
         "smallLetter": "s",
         "task": "g"
     },
     "Response_bigSsmallStaskL": {
-        "BIDS_events": "Response/BigLetters/SmallLetters/Taskl",
+        "BIDS_events": ["Response/BigLetters/SmallLetters/Taskl"],
         "bigLetter": "s",
         "smallLetter": "s",
         "task": "l"
     },
     "Response_bigHsmallHtaskG": {
-        "BIDS_events": "Response/BigLetterh/SmallLetterh/Taskg",
+        "BIDS_events": ["Response/BigLetterh/SmallLetterh/Taskg"],
         "bigLetter": "h",
         "smallLetter": "h",
         "task": "g"
     },
     "Response_bigHsmallHtaskL": {
-        "BIDS_events": "Response/BigLetterh/SmallLetterh/Taskl",
+        "BIDS_events": ["Response/BigLetterh/SmallLetterh/Taskl"],
         "bigLetter": "h",
         "smallLetter": "h",
         "task": "l"
     },
     "Response_bigHsmallStaskG": {
-        "BIDS_events": "Response/BigLetterh/SmallLetters/Taskg",
+        "BIDS_events": ["Response/BigLetterh/SmallLetters/Taskg"],
         "bigLetter": "h",
         "smallLetter": "s",
         "task": "g"
     },
     "Response_bigHsmallStaskL": {
-        "BIDS_events": "Response/BigLetterh/SmallLetters/Taskl",
+        "BIDS_events": ["Response/BigLetterh/SmallLetters/Taskl"],
         "bigLetter": "h",
         "smallLetter": "s",
         "task": "l"
@@ -577,11 +577,11 @@ response_conditions = {
 # big letter details
 response_big_letter_conditions = {
     "Response_bigS": {
-        "BIDS_events": "Response/BigLetters",
+        "BIDS_events": ["Response/BigLetters"],
         "bigLetter": "s",
     },
     "Response_bigH": {
-        "BIDS_events": "Response/BigLetterh",
+        "BIDS_events": ["Response/BigLetterh"],
         "bigLetter": "h",
     }
 }
@@ -589,11 +589,11 @@ response_big_letter_conditions = {
 # small letter details
 response_small_letter_conditions = {
     "Response_smallS": {
-        "BIDS_events": "Response/SmallLetters",
+        "BIDS_events": ["Response/SmallLetters"],
         "smallLetter": "s",
     },
     "Response_smallH": {
-        "BIDS_events": "Response/SmallLetterh",
+        "BIDS_events": ["Response/SmallLetterh"],
         "smallLetter": "h",
     }
 }
@@ -601,11 +601,11 @@ response_small_letter_conditions = {
 # task details
 response_task_conditions = {
     "Response_taskG": {
-        "BIDS_events": "Response/Taskg",
+        "BIDS_events": ["Response/Taskg"],
         "task": "g",
     },
     "Response_taskL": {
-        "BIDS_events": "Response/Taskl",
+        "BIDS_events": ["Response/Taskl"],
         "task": "l",
     }
 }

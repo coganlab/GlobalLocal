@@ -15,7 +15,8 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root) # insert at the beginning to prioritize it
 
 import joblib
-from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper
+from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_sig_tfr_differences
+from src.analysis.utils.general_utils import get_good_data
 
 def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, epochs_root_file, acc_trials_only=False, error_trials_only=False):
     '''
@@ -153,8 +154,8 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
     Returns
     -------
     subjects_tfr_objects : dict
-        A dictionary where keys are subject identifiers (str) and
-        values are dicts containing TFR objects for each condition.
+        A nested dictionary where outer keys are subjects (str) and
+        inner keys are condition names, with values containing the corresponding TFR object for that subject and condition.
     '''
     subjects_tfr_objects_save_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, 'subjects_tfr_objects')
     if not os.path.exists(subjects_tfr_objects_save_dir):
@@ -286,3 +287,190 @@ def load_or_make_subjects_tfr_objects(
         )
 
     return subjects_tfr_objects
+
+def get_sig_tfr_differences_per_subject(
+    subjects_tfr_objects: dict,
+    condition_names: list[str],
+    stat_func: callable,
+    p_thresh: float = 0.05,
+    p_cluster: float = None,
+    n_perm: int = 1000,
+    tails: int = 1,
+    axis: int = 0,
+    ignore_adjacency: int | tuple[int, ...] = 1,
+    n_jobs: int = 1,
+    seed: int = None):
+    """
+    Performs TFR statistical analysis for each subject individually.
+
+    Parameters
+    ----------
+    subjects_tfr_objects : dict
+        A dictionary structured as {subject_id: {condition_name: tfr_object}}.
+    condition_names : list[str]
+        A list of two condition names to be compared.
+    stat_func: callable, optional
+        The statistical function to use for significance testing. You should probably use partial(ttest_ind, equal_var=False).
+    p_thresh : float
+        The p-value threshold to use for determining significant time points.
+    p_cluster : float, optional
+        The p-value threshold to use for determining significant clusters.
+    n_perm : int, optional
+        The number of permutations to perform.
+    tails : int, optional
+        The number of tails to use. 1 for one-tailed, 2 for two-tailed.
+    axis : int, optional
+        The axis to perform the permutation test across. Also known as the
+        observations axis
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
+    n_jobs : int, optional
+        The number of jobs to run in parallel. -1 for all processors. Default
+        is -1.
+    seed : int, optional
+        The random seed to use for the permutation test. Default is None.
+
+    Returns
+    -------
+    sub_masks : dict
+        Dictionary mapping subject IDs to binary mask arrays indicating 
+        significant differences between conditions.
+    sub_pvals : dict
+        Dictionary mapping subject IDs to p-values for each cluster found
+        in the statistical comparison.
+    """
+    if len(condition_names) != 2:
+        raise ValueError("This function requires exactly two conditions for comparison.")
+
+    sub_masks = {}
+    sub_pvals = {}
+    cond1, cond2 = condition_names[0], condition_names[1]
+
+    for sub, tfrs in subjects_tfr_objects.items():
+        print(f"Processing statistics for subject: {sub}")
+        
+        mask, pvals = get_sig_tfr_differences(
+            tfr_data_cond1=tfrs[cond1],
+            tfr_data_cond2=tfrs[cond2],
+            stat_func=stat_func,
+            p_thresh=p_thresh,
+            p_cluster=p_cluster,
+            n_perm=n_perm,
+            tails=tails,
+            axis=axis,
+            ignore_adjacency=ignore_adjacency,
+            n_jobs=n_jobs,
+            seed=seed
+        )
+        
+        sub_masks[sub] = mask
+        sub_pvals[sub] = pvals
+
+    return sub_masks, sub_pvals
+
+def get_sig_tfr_differences_per_roi(
+    subjects_tfr_objects: dict,
+    electrodes_per_subject_roi: dict,
+    condition_names: list[str],
+    stat_func: callable,
+    p_thresh: float = 0.05,
+    p_cluster: float = None,
+    n_perm: int = 1000,
+    tails: int = 1,
+    axis: int = 0,
+    ignore_adjacency: int | tuple[int, ...] = 1,
+    n_jobs: int = 1,
+    seed: int = None):
+    """
+    Performs TFR statistical analysis for each ROI by combining subjects.
+
+    Parameters
+    ----------
+    subjects_tfr_objects : dict
+        Dictionary of TFR data: {subject_id: {condition_name: tfr_object}}.
+    electrodes_per_roi : dict
+        Dictionary mapping ROIs to rois and electrodes: {roi_name: {subject_id: [elecs]}}.
+    condition_names : list[str]
+        A list of two condition names to compare.
+    stat_func: callable, optional
+        The statistical function to use for significance testing. You should probably use partial(ttest_ind, equal_var=False).
+    p_thresh : float
+        The p-value threshold to use for determining significant time points.
+    p_cluster : float, optional
+        The p-value threshold to use for determining significant clusters.
+    n_perm : int, optional
+        The number of permutations to perform.
+    tails : int, optional
+        The number of tails to use. 1 for one-tailed, 2 for two-tailed.
+    axis : int, optional
+        The axis to perform the permutation test across. Also known as the
+        observations axis
+    ignore_adjacency : int or tuple of ints, optional
+        The axis or axes to ignore when finding clusters. For example, if
+        sig1.shape = (trials, channels, time), and you want to find clusters
+        across time, but not channels, you would set ignore_adjacency = 1.
+    n_jobs : int, optional
+        The number of jobs to run in parallel. -1 for all processors. Default
+        is -1.
+    seed : int, optional
+        The random seed to use for the permutation test. Default is None.
+
+    Returns
+    -------
+    roi_masks : dict
+        Dictionary mapping ROI names to concatenated binary mask arrays.
+        For each ROI, masks from all subjects with electrodes in that ROI
+        are concatenated along axis 0 (subjects dimension), resulting in
+        a combined mask array with shape (n_subjects_in_roi, *original_dims).
+    roi_pvals : dict
+        Dictionary mapping ROI names to concatenated p-value arrays.
+        For each ROI, p-values from all subjects with electrodes in that ROI
+        are concatenated along axis 0, matching the structure of roi_masks.
+        Empty arrays are returned for ROIs with no subject data.
+    """
+    if len(condition_names) != 2:
+        raise ValueError("This function requires exactly two conditions for comparison.")
+
+    roi_masks = {}
+    roi_pvals = {}
+    cond1, cond2 = condition_names[0], condition_names[1]
+
+    for roi, subjects_in_roi in electrodes_per_subject_roi.items():
+        print(f"Processing statistics for ROI: {roi}")
+        
+        subject_masks_for_roi = []
+        subject_pvals_for_roi = []
+
+        for sub, tfrs in subjects_tfr_objects.items():
+            elecs = subjects_in_roi.get(sub, [])
+            if not elecs:
+                continue
+
+            mask, pvals = get_sig_tfr_differences(
+                tfr_data_cond1=tfrs[cond1],
+                tfr_data_cond2=tfrs[cond2],
+                stat_func=stat_func,
+                elecs_to_pick=elecs,
+                p_thresh=p_thresh,
+                p_cluster=p_cluster,
+                n_perm=n_perm,
+                tails=tails,
+                axis=axis,
+                ignore_adjacency=ignore_adjacency,
+                n_jobs=n_jobs,
+                seed=seed
+            )
+
+            subject_masks_for_roi.append(mask)
+            subject_pvals_for_roi.append(pvals)
+
+        if subject_masks_for_roi:
+            roi_masks[roi] = np.concatenate(subject_masks_for_roi, axis=0)
+            roi_pvals[roi] = np.concatenate(subject_pvals_for_roi, axis=0)
+        else:
+            roi_masks[roi] = np.array([])
+            roi_pvals[roi] = np.array([])
+
+    return roi_masks, roi_pvals
