@@ -129,12 +129,8 @@ import argparse
 
 
 def main(args):
-    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=None, save_dir=config_dir, 
-                                                    filename='subjects_electrodestoROIs_dict.json')
-
     # Determine LAB_root based on the operating system and environment
-    if LAB_root is None:
+    if args.LAB_root is None:
         HOME = os.path.expanduser("~")
         USER = os.path.basename(HOME)
         
@@ -149,6 +145,10 @@ def main(args):
             else:
                 # Fallback for other Linux systems
                 LAB_root = os.path.join(HOME, "CoganLab")
+
+    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
+    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=LAB_root, save_dir=config_dir, 
+                                                    filename='subjects_electrodestoROIs_dict.json')
 
     layout = get_data(args.task, root=LAB_root)
 
@@ -190,7 +190,7 @@ def main(args):
     elif args.conditions == experiment_conditions.response_switch_type_conditions:
         conditions_save_name = 'response_switch_type_conditions' + '_' + args.epochs_root_file + '_' + str(len(args.subjects)) + '_' + 'subjects'
 
-    sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=None)
+    sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
 
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
