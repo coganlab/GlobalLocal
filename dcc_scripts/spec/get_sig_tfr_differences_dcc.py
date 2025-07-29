@@ -133,14 +133,22 @@ def main(args):
     subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=None, save_dir=config_dir, 
                                                     filename='subjects_electrodestoROIs_dict.json')
 
-    HOME = os.path.expanduser("~")
-    USER = os.path.basename(HOME)
-
-    # get box directory depending on OS
-    if os.name == 'nt': # windows
-        LAB_root = os.path.join(HOME, "Box", "CoganLab")
-    else: # mac
-        LAB_root = os.path.join("/cwork", USER)
+    # Determine LAB_root based on the operating system and environment
+    if LAB_root is None:
+        HOME = os.path.expanduser("~")
+        USER = os.path.basename(HOME)
+        
+        if os.name == 'nt':  # Windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            # Check if we're on the cluster by looking for /cwork directory
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                # Fallback for other Linux systems
+                LAB_root = os.path.join(HOME, "CoganLab")
 
     layout = get_data(args.task, root=LAB_root)
 

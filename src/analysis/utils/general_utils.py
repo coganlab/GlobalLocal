@@ -76,13 +76,22 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
     if save_dir is None:
         raise ValueError("save_dir must be specified to save the dictionary.")
     
+    # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
         HOME = os.path.expanduser("~")
-        if os.name == 'nt':  # windows
+        USER = os.path.basename(HOME)
+        
+        if os.name == 'nt':  # Windows
             LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        else:  # mac
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
-                                    "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            # Check if we're on the cluster by looking for /cwork directory
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                # Fallback for other Linux systems
+                LAB_root = os.path.join(HOME, "CoganLab")
 
     for sub in subjects:
         print(sub)
@@ -262,11 +271,23 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
 
     """
 
-    # Determine LAB_root based on the operating system
+    # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
         HOME = os.path.expanduser("~")
-        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-
+        USER = os.path.basename(HOME)
+        
+        if os.name == 'nt':  # Windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            # Check if we're on the cluster by looking for /cwork directory
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                # Fallback for other Linux systems
+                LAB_root = os.path.join(HOME, "CoganLab")
+                
     # Get data layout
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
@@ -1247,11 +1268,22 @@ def get_sig_chans(sub, task, epochs_root_file, LAB_root=None):
     Returns:
         dict: A dictionary containing significant channels loaded from the JSON file.
     """
-    # Determine LAB_root based on the operating system
+    # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
         HOME = os.path.expanduser("~")
-        LAB_root = os.path.join(HOME, "Box", "CoganLab") if os.name == 'nt' else os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-
+        USER = os.path.basename(HOME)
+        
+        if os.name == 'nt':  # Windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            # Check if we're on the cluster by looking for /cwork directory
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                # Fallback for other Linux systems
+                LAB_root = os.path.join(HOME, "CoganLab")
     # Get data layout
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
