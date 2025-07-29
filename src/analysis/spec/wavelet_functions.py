@@ -125,6 +125,11 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
 
     # Compute wavelets for the extracted trials
     spec = wavelet_scaleogram(all_trials, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
+    
+    # add fnames to spec.info
+    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
+    spec.info['subject_info']['files'] = tuple(fnames)
+    
     crop_pad(spec, "0.5s")
 
     return spec
@@ -184,6 +189,11 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
 
     # Compute multitaper for the extracted trials (this can be replaced by epochs.compute_tfr): https://mne.tools/stable/auto_examples/time_frequency/time_frequency_simulated.html#sphx-glr-auto-examples-time-frequency-time-frequency-simulated-py
     spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
+    
+    # add fnames to spec.info
+    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
+    spec.info['subject_info']['files'] = tuple(fnames)
+
     crop_pad(spec, "0.5s")
 
     return spec

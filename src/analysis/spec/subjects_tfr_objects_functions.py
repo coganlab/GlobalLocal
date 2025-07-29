@@ -17,9 +17,11 @@ if project_root not in sys.path:
 import joblib
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_sig_tfr_differences
 from src.analysis.utils.general_utils import get_good_data
+import numpy as np
+import mne
 
-def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, epochs_root_file, acc_trials_only=False, error_trials_only=False):
-    '''
+def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False):
+    """
     Calculates, saves, and returns a TFR object for a single subject and condition.
 
     This function computes the time-frequency representation from epochs data
@@ -32,9 +34,6 @@ def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, s
         The subject identifier (e.g., '01').
     layout : bids.layout.BIDSLayout
         A BIDSLayout object pointing to the dataset root.
-    good : mne.Epochs
-        The cleaned epochs data for the subject. Used for referencing
-        bad channels and file paths.
     condition_name : str
         A descriptive name for the experimental condition (e.g., 'CorrectGo').
     condition_dict : dict
@@ -56,8 +55,6 @@ def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, s
         The number of parallel jobs to run for the calculation.
     average : bool
         Whether to average the TFR across trials.
-    epochs_root_file : str
-        The base name for the epochs root file (without the suffix).
     acc_trials_only : bool, optional
         If True, appends "/Accuracy1.0" to BIDS event names to select
         only accurate trials. Defaults to False.
@@ -69,7 +66,7 @@ def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, s
     -------
     spec : mne.time_frequency.TFR
         The computed TFR object for the subject and condition.
-    '''
+    """
     sub_spec_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, sub)
     if not os.path.exists(sub_spec_dir):
         os.makedirs(sub_spec_dir)
@@ -88,17 +85,14 @@ def make_subject_tfr_object(sub, layout, good, condition_name, condition_dict, s
         if average:
             spec = spec.average(
                 lambda x: np.nanmean(x, axis=0), copy=True)
-    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-    spec.info['subject_info']['files'] = tuple(fnames)
-    spec.info['bads'] = good.info['bads']
 
     # save the spec object
-    save_path = os.path.join(sub_spec_dir, condition_name + '_' + spec_method + '_' + epochs_root_file)
+    save_path = os.path.join(sub_spec_dir, condition_name + '_' + spec_method)
     joblib.dump(spec, save_path)
 
     return spec
 
-def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, epochs_root_file="_epo.fif", acc_trials_only=False, error_trials_only=False, conditions_save_name="tfr_data"):
+def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False, conditions_save_name="tfr_data"):
     '''
     Calculates and saves time-frequency representations (TFRs) for subjects.
 
@@ -140,8 +134,6 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
         The number of parallel jobs to run.
     average : bool
         Whether to average the multitaper spectrogram across trials.
-    epochs_root_file : str
-        The base name for the epochs root file (without the suffix).
     acc_trials_only : bool, optional
         If True, appends "/Accuracy1.0" to BIDS
         event names to select only accurate trials. Defaults to False.
@@ -165,12 +157,11 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
 
     for sub in subjects:
         subjects_tfr_objects[sub] = {}
-        good = get_good_data(sub, layout)
         sub_spec_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, sub)
 
         for condition_name, condition_dict in conditions.items():
             # Define the path where the individual TFR object is or will be saved
-            spec_save_path = os.path.join(sub_spec_dir, condition_name + '_' + spec_method + '_' + epochs_root_file)
+            spec_save_path = os.path.join(sub_spec_dir, condition_name + '_' + spec_method)
 
             # Check if the TFR object already exists
             if os.path.exists(spec_save_path):
@@ -178,7 +169,7 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
                 spec = joblib.load(spec_save_path)
             else:
                 print(f"Creating TFR object for sub-{sub}, condition: {condition_name}")
-                spec = make_subject_tfr_object(sub=sub, layout=layout, good=good, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, epochs_root_file=epochs_root_file, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only)
+                spec = make_subject_tfr_object(sub=sub, layout=layout, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only)
 
             subjects_tfr_objects[sub][condition_name] = spec
 
@@ -201,7 +192,6 @@ def load_or_make_subjects_tfr_objects(
     return_itc=None, 
     n_jobs=1, 
     average=False, 
-    epochs_root_file="_epo.fif", 
     acc_trials_only=False, 
     error_trials_only=False
 ):
@@ -241,8 +231,6 @@ def load_or_make_subjects_tfr_objects(
         The number of parallel jobs to run. Defaults to 1.
     average : bool, optional
         Whether to average the TFR across trials. Defaults to False.
-    epochs_root_file : str
-        The base name for the epochs root file (without the suffix).
     acc_trials_only : bool, optional
         If True, select only accurate trials. Defaults to False.
     error_trials_only : bool, optional
@@ -280,7 +268,6 @@ def load_or_make_subjects_tfr_objects(
             return_itc=return_itc,
             n_jobs=n_jobs,
             average=average,
-            epochs_root_file=epochs_root_file,
             acc_trials_only=acc_trials_only,
             error_trials_only=error_trials_only,
             conditions_save_name=conditions_save_name
