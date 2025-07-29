@@ -28,7 +28,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import after path is set up
-from dcc_scripts.spec.get_sig_tfr_differences import main
+from dcc_scripts.spec.get_sig_tfr_differences_dcc import main
 from src.analysis.config import experiment_conditions
 
 # ============================================================================

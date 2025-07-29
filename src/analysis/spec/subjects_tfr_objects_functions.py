@@ -242,7 +242,7 @@ def load_or_make_subjects_tfr_objects(
         A dictionary of TFR objects, structured as {subject: {condition: tfr_object}}.
     """
     subjects_tfr_objects_save_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, 'subjects_tfr_objects')
-    file_path = os.path.join(subjects_tfr_objects_save_dir, conditions_save_name + '_' + spec_method) # ugh it's not letting me rename the file to include an underscore so might have to remake it
+    file_path = os.path.join(subjects_tfr_objects_save_dir, conditions_save_name + '_' + spec_method) 
 
     # 1. Check if the subjects_tfr_objects for this condition exists.
     if os.path.exists(file_path):
