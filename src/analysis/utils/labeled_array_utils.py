@@ -33,7 +33,7 @@ from ieeg.calc.mat import LabeledArray
 
 def get_max_trials_per_condition(
     subjects_mne_objects, condition_names, subjects,
-    sig_electrodes_per_subject_roi, roi, obs_axs
+    electrodes_per_subject_roi, roi, obs_axs
 ):
     """
     Find the maximum number of trials per condition across all subjects for a given ROI,
@@ -44,7 +44,7 @@ def get_max_trials_per_condition(
                                      {subject_id: {condition_name: mne.Epochs}}.
         condition_names (list): List of strings representing the condition names.
         subjects (list): List of subject identifiers.
-        sig_electrodes_per_subject_roi (dict): Dictionary mapping ROIs to subjects
+        electrodes_per_subject_roi (dict): Dictionary mapping ROIs to subjects
                                                and their corresponding significant electrodes.
                                                Structure: {roi_name: {subject_id: [electrode_list]}}.
         roi (str): The Region of Interest (ROI) name to process.
@@ -59,14 +59,14 @@ def get_max_trials_per_condition(
     max_trials_subject_per_condition = {condition: [] for condition in condition_names}
 
     for sub in subjects:
-        sig_electrodes = sig_electrodes_per_subject_roi.get(roi, {}).get(sub, [])
-        if not sig_electrodes:
+        electrodes = electrodes_per_subject_roi.get(roi, {}).get(sub, [])
+        if not electrodes:
             continue
         for condition_name in condition_names:
             # Check if the subject has data for this condition
             if condition_name not in subjects_mne_objects[sub]:
                 continue
-            epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(sig_electrodes)
+            epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
             epochs_data = epochs.get_data(copy=True)
             n_trials = epochs_data.shape[obs_axs]
             if n_trials > max_trials_per_condition[condition_name]:
@@ -77,52 +77,53 @@ def get_max_trials_per_condition(
     return max_trials_per_condition, max_trials_subject_per_condition
 
 def make_subject_labeled_array(
-    sub, subjects_mne_objects, condition_names, sig_electrodes_per_subject_roi,
-    roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, rng
+    sub, subjects_mne_objects, condition_names, electrodes_per_subject_roi,
+    roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, frequency_axs=None, rng=None
 ):
     """
     Process data for a single subject in a given ROI to create a LabeledArray.
 
     This function performs the following steps:
-    1. Retrieves significant electrodes in the specified ROI for the subject.
+    1. Retrieves specified electrodes in the specified ROI for the subject.
     2. For each condition:
-        a. Extracts epoch data for significant electrodes.
+        a. Extracts epoch data for specified electrodes.
         b. Randomizes trial order.
         c. Pads data with NaNs to match the `max_trials_per_condition` for that condition.
     3. Collects processed data for all conditions into a dictionary.
-    4. Creates a LabeledArray from this dictionary, assigning channel and time labels.
+    4. Creates a LabeledArray from this dictionary, assigning channel and time labels, and potentially frequency if there is a frequency dimension (for tfr objects).
        The LabeledArray will have a new leading dimension for conditions.
 
     Args:
         sub (str): Subject identifier.
         subjects_mne_objects (dict): {subject_id: {condition_name: mne.Epochs}}.
         condition_names (list): List of condition names.
-        sig_electrodes_per_subject_roi (dict): {roi_name: {subject_id: [electrode_list]}}.
+        electrodes_per_subject_roi (dict): {roi_name: {subject_id: [electrode_list]}}.
         roi (str): The ROI name to process.
         max_trials_per_condition (dict): {condition_name: max_trial_count} for padding.
         obs_axs (int): Original trials axis index in epoch data (e.g., 0 for (trials, chans, time)).
         chans_axs (int): Original channels axis index in epoch data (e.g., 1 for (trials, chans, time)).
         time_axs (int): Original time axis index in epoch data (e.g., 2 for (trials, chans, time)).
+        frequency_axs (int): Original frequency axis index in epoch data (e.g., 3 for (trials, chans, time, frequency)). Use for tfr objects.
         rng (np.random.RandomState): NumPy random number generator instance for shuffling.
 
     Returns:
         LabeledArray or None: A LabeledArray for the subject with dimensions
-                              (Conditions, Trials, Channels, Timepoints).
+                              (Conditions, Trials, Channels, Timepoints) OR (Conditions, Trials, Channels, Timepoints, Frequencies)
                               Returns None if the subject has no significant electrodes for the ROI.
     """
-    sig_electrodes = sig_electrodes_per_subject_roi.get(roi, {}).get(sub, [])
-    if not sig_electrodes:
+    electrodes = electrodes_per_subject_roi.get(roi, {}).get(sub, [])
+    if not electrodes:
         return None
 
     subject_nested_dict = {}
 
     # Get channel names for this subject's ROI
-    sub_channel_names = [f"{sub}-{sig_electrode}" for sig_electrode in sig_electrodes]
+    sub_channel_names = [f"{sub}-{electrode}" for electrode in electrodes]
 
     # Loop through each condition
     for condition_name in condition_names:
         # Extract the epoch data for the current condition and subject
-        epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(sig_electrodes)
+        epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
         epochs_data = epochs.get_data(copy=True)
 
         # Randomize the trial order
@@ -154,13 +155,14 @@ def make_subject_labeled_array(
     np_array_str_times = np.array(str_times)
 
     # Create a LabeledArray for the subject
+    # TODO: add freqs axs as optional input here
     subject_labeled_array = create_subject_labeled_array_from_dict(
         subject_nested_dict, sub_channel_names, np_array_str_times, chans_axs, time_axs
     )
 
     # Print the shape and time axis labels
     print(f"Subject {sub}, ROI {roi}, LabeledArray shape: {subject_labeled_array.shape}")
-    time_axis_size = subject_labeled_array.shape[time_axs+1] # Adjusted time axis index
+    time_axis_size = subject_labeled_array.shape[time_axs+1] # Adjusted time axis index - uhhh what is this for..?
 
     return subject_labeled_array
 
@@ -171,37 +173,42 @@ def create_subject_labeled_array_from_dict(
     Create a LabeledArray for a subject from a dictionary of condition data.
 
     The input dictionary `subject_nested_dict` is expected to have condition names
-    as keys and NumPy arrays (trials, channels, timepoints) as values.
+    as keys and NumPy arrays (trials, channels, timepoints) OR (trials, channels, timepoints, frequencies) as values.
     This function creates a LabeledArray where the first dimension is 'conditions'.
     Labels for channel and time axes are assigned by adjusting their original
-    axis indices (`chans_axs`, `time_axs`) by +1 to account for the new 'conditions' axis.
+    axis indices (`chans_axs`, `time_axs`) by +1 to account for the new 'conditions' axis. 
+    If the data has a frequency dimension, the frequency axis is also adjusted by +1.
 
     Args:
-        subject_nested_dict (dict): {condition_name: np.ndarray(trials, channels, timepoints)}.
+        subject_nested_dict (dict): {condition_name: np.ndarray(trials, channels, timepoints) OR (trials, channels, timepoints, frequencies)}.
         sub_channel_names (list): List of strings for channel labels.
         np_array_str_times (np.ndarray): Array of strings for time labels.
         chans_axs (int): Original channels axis index in the per-condition data arrays
                          (e.g., 1 if data is trials, channels, time).
         time_axs (int): Original time axis index in the per-condition data arrays
                         (e.g., 2 if data is trials, channels, time).
+        frequency_axs (int): Original frequency axis index in the per-condition data arrays
+                             (e.g., 3 if data is trials, channels, time, frequency).
 
     Returns:
-        LabeledArray: A LabeledArray object with dimensions (Conditions, Trials, Channels, Timepoints)
+        LabeledArray: A LabeledArray object with dimensions (Conditions, Trials, Channels, Timepoints) OR (Conditions, Trials, Channels, Timepoints, Frequencies)
                       and corresponding labels.
     """
     subject_labeled_array = LabeledArray.from_dict(subject_nested_dict)
     # Adjust axes indices due to the added conditions axis
     subject_labeled_array.labels[chans_axs + 1].values = sub_channel_names  # Channels axis
     subject_labeled_array.labels[time_axs + 1].values = np_array_str_times  # Time axis
+    if frequency_axs is not None:
+        subject_labeled_array.labels[frequency_axs + 1].values = np_array_str_freqs  # Frequency axis
     return subject_labeled_array
 
 def concatenate_subject_labeled_arrays(
-    roi_labeled_array, subject_labeled_array, chans_axs
+    roi_labeled_array, subject_labeled_array, concatenation_axis
 ):
     """
-    Concatenate a subject's LabeledArray to an ROI's LabeledArray along the channels axis.
+    Concatenate a subject's LabeledArray to an ROI's LabeledArray along the specified axis.
 
-    The channels axis index (`chans_axs`) is adjusted by +1 to account for the
+    The concatenation axis index is adjusted by +1 to account for the
     leading 'conditions' dimension in the LabeledArrays. If `roi_labeled_array`
     is None (i.e., this is the first subject for the ROI), the `subject_labeled_array`
     is returned directly.
@@ -210,15 +217,15 @@ def concatenate_subject_labeled_arrays(
         roi_labeled_array (LabeledArray or None): The LabeledArray for the ROI accumulated so far.
                                                   Can be None if this is the first subject.
         subject_labeled_array (LabeledArray): The LabeledArray for the current subject.
-        chans_axs (int): Original channels axis index (e.g., 1 for (trials, chans, time)
-                         data before becoming part of LabeledArray). This will be
-                         adjusted to `chans_axs + 1` for concatenation.
+        concatenation_axis (int): The axis along which to concatenate the subject's LabeledArray
+                                  to the ROI's LabeledArray. This will be adjusted to `concatenation_axis + 1`
+                                  for concatenation.
 
     Returns:
         LabeledArray: The updated LabeledArray for the ROI, with the new subject's
-                      data concatenated along the (adjusted) channels axis.
+                      data concatenated along the (adjusted) concatenation axis.
     """
-    concatenation_axis = chans_axs + 1  # Adjusted channels axis index
+    concatenation_axis += 1  # Adjusted concatenation axis index
     if roi_labeled_array is None:
         return subject_labeled_array
     else:
@@ -226,7 +233,8 @@ def concatenate_subject_labeled_arrays(
 
 def put_data_in_labeled_array_per_roi_subject(
     subjects_mne_objects, condition_names, rois, subjects,
-    sig_electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2,
+    electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2,
+    concatenation_axis=1, frequency_axs=None,
     random_state=None
 ):
     """
@@ -239,10 +247,14 @@ def put_data_in_labeled_array_per_roi_subject(
     - condition_names: List of condition names.
     - rois: List of region of interest (ROI) names.
     - subjects: List of subjects.
-    - sig_electrodes_per_subject_roi: Dictionary mapping ROIs to subjects and their corresponding electrodes.
+    - electrodes_per_subject_roi: Dictionary mapping ROIs to subjects and their corresponding electrodes.
     - obs_axs: The trials dimension (ignoring the conditions dimension for now)
     - chans_axs: The channels dimension
     - time_axs: The time dimension
+    - concatenation_axis: The axis along which to concatenate the subject's LabeledArray
+                          to the ROI's LabeledArray. This will be adjusted to `concatenation_axis + 1`
+                          for concatenation.
+    - frequency_axs: The frequency dimension
     - random_state: Optional; an integer seed, NumPy RandomState, or None for random shuffling.
 
     Returns:
@@ -258,7 +270,7 @@ def put_data_in_labeled_array_per_roi_subject(
         # First pass: Find the max number of trials per condition across all subjects
         max_trials_per_condition, max_trials_subject_per_condition = get_max_trials_per_condition(
             subjects_mne_objects, condition_names, subjects,
-            sig_electrodes_per_subject_roi, roi, obs_axs
+            electrodes_per_subject_roi, roi, obs_axs
         )
 
         # Print out the subjects with maximum trials
@@ -274,8 +286,8 @@ def put_data_in_labeled_array_per_roi_subject(
         # Second pass: Process each subject's data
         for sub in subjects:
             subject_labeled_array = make_subject_labeled_array(
-                sub, subjects_mne_objects, condition_names, sig_electrodes_per_subject_roi,
-                roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, rng
+                sub, subjects_mne_objects, condition_names, electrodes_per_subject_roi,
+                roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, rng, frequency_axs
             )
             if subject_labeled_array is None:
                 continue  # Skip if subject has no data for this ROI
@@ -291,7 +303,7 @@ def put_data_in_labeled_array_per_roi_subject(
 
     return roi_labeled_arrays
 
-def remove_nans_from_labeled_array(labeled_array, obs_axs=0, chans_axs=1, time_axs=2):
+def remove_nans_from_labeled_array(labeled_array, obs_axs=0, chans_axs=1, time_axs=2, frequency_axs=None):
     """
     Remove trials that have NaN values from a LabeledArray and identify conditions with no valid trials.
 
@@ -300,6 +312,7 @@ def remove_nans_from_labeled_array(labeled_array, obs_axs=0, chans_axs=1, time_a
     - obs_axs: The trials dimension 
     - chans_axs: The channels dimension
     - time_axs: The time dimension
+    - frequency_axs: The frequency dimension
 
     Returns:
     - labeled_array_no_nans: A LabeledArray with only trials that have no NaN values.
@@ -320,12 +333,15 @@ def remove_nans_from_labeled_array(labeled_array, obs_axs=0, chans_axs=1, time_a
         condition_data = labeled_array[condition_name]  # Shape: (Trials, Channels, Timepoints)
 
         # Find the indices of trials that do not contain NaNs
-        # Reduce over channels and time axes to check if any NaN exists in a trial
-        valid_trial_indices = ~np.isnan(condition_data).any(axis=(chans_axs, time_axs))
-
-        # valid_trial_indices is a boolean array of shape (Trials,)
-        # Select only the valid trials
-        condition_data_clean = condition_data[valid_trial_indices, :, :]
+        # Reduce over channel, time, and frequency (if it exists) axes to check if any NaN exists in a trial
+        if frequency_axs is not None:
+            valid_trial_indices = ~np.isnan(condition_data).any(axis=(chans_axs, time_axs, frequency_axs))
+            # valid_trial_indices is a boolean array of shape (Trials,)
+            # Select only the valid trials
+            condition_data_clean = condition_data[valid_trial_indices, :, :, :]
+        else:
+            valid_trial_indices = ~np.isnan(condition_data).any(axis=(chans_axs, time_axs))
+            condition_data_clean = condition_data[valid_trial_indices, :, :]
 
         # Check if there are valid trials
         if condition_data_clean.shape[obs_axs] > 0:
@@ -349,7 +365,7 @@ def remove_nans_from_labeled_array(labeled_array, obs_axs=0, chans_axs=1, time_a
     return labeled_array_no_nans, conditions_with_no_valid_trials
 
 
-def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans_axs=1, time_axs=2):
+def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans_axs=1, time_axs=2, frequency_axs=None):
     """
     Loop through all ROIs and apply the NaN removal function to each LabeledArray.
 
@@ -358,6 +374,7 @@ def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans
     - obs_axs: The trials dimension.
     - chans_axs: The channels dimension.
     - time_axs: The time dimension.
+    - frequency_axs: The frequency dimension
 
     Returns:
     - roi_labeled_arrays_no_nans: Dictionary where keys are ROIs and values are LabeledArrays with NaNs removed.
@@ -370,7 +387,7 @@ def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans
     for roi, labeled_array in roi_labeled_arrays.items():
         # Apply the NaN removal function to the current labeled array
         labeled_array_no_nans, conditions_with_no_valid_trials = remove_nans_from_labeled_array(
-            labeled_array, obs_axs=obs_axs, chans_axs=chans_axs, time_axs=time_axs
+            labeled_array, obs_axs=obs_axs, chans_axs=chans_axs, time_axs=time_axs, frequency_axs=frequency_axs
         )
 
         # Store the reshaped data for this ROI
