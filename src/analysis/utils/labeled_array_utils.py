@@ -101,7 +101,7 @@ def get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_
     
     Args:
         subjects_tfr_objects (dict): Dictionary of MNE epochs tfr objects, structured as
-                                     {subject_id: {condition_name: {'HG_ev1_power_rescaled': mne.EpochsTFR}}}.
+                                     {subject_id: {condition_name: mne.EpochsTFR}}.
         condition_name (str): The condition name to process.
         sub (str): The subject identifier.
         electrodes (list): List of electrode names to include.
@@ -109,7 +109,7 @@ def get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_
     Returns:
         mne.EpochsTFR: The epochs tfr data for the specified subject, condition, and ROI.
     """
-    return subjects_tfr_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
+    return subjects_tfr_objects[sub][condition_name].copy().pick(electrodes)
 
 def get_max_trials_per_condition(
     subjects_data_objects, condition_names, subjects,
@@ -266,6 +266,8 @@ def make_subject_labeled_array(
         str_freqs = [str(freq) for freq in freqs]
         np_array_str_freqs = np.array(str_freqs)
     else:
+        # if not epochs tfr, then there are no frequencies
+        freq_axs = None
         np_array_str_freqs = None
     
     # Create a LabeledArray for the subject
@@ -347,7 +349,7 @@ def concatenate_subject_labeled_arrays(
         return roi_labeled_array.concatenate(subject_labeled_array, axis=concatenation_axis)
 
 def put_data_in_labeled_array_per_roi_subject(
-    subjects_mne_objects, condition_names, rois, subjects,
+    subjects_data_objects, condition_names, rois, subjects,
     electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2, freq_axs=None, concatenation_axis=1,
     random_state=None
 ):
@@ -357,33 +359,37 @@ def put_data_in_labeled_array_per_roi_subject(
     Concatenates subject data along the channels axis.
 
     Parameters:
-    - subjects_mne_objects: Dictionary of MNE objects, structured as {subject: {condition: MNE epoch objects}}
-    - condition_names: List of condition names.
-    - rois: List of region of interest (ROI) names.
-    - subjects: List of subjects.
-    - electrodes_per_subject_roi: Dictionary mapping ROIs to subjects and their corresponding electrodes.
-    - obs_axs: The trials dimension (ignoring the conditions dimension for now)
-    - chans_axs: The channels dimension
-    - time_axs: The time dimension
-    - freq_axs: The frequency dimension
-    - concatenation_axis: The axis along which to concatenate the subject's LabeledArray
-                          to the ROI's LabeledArray. This will be adjusted to `concatenation_axis + 1`
-                          for concatenation. By default, do channels.
-    - random_state: Optional; an integer seed, NumPy RandomState, or None for random shuffling.
+    - subjects_data_objects (dict): EITHER a dictionary of MNE epoch objects, structured as
+                                    {subject_id: {condition_name: {'HG_ev1_power_rescaled': mne.Epochs}}} OR 
+                                    a dictionary of MNE epochs tfr objects, structured as
+                                    {subject_id: {condition_name: mne.EpochsTFR}}.
+    - condition_names (list): List of condition names.
+    - rois (list): List of region of interest (ROI) names.
+    - subjects (list): List of subjects.
+    - electrodes_per_subject_roi (dict): Dictionary mapping ROIs to subjects and their corresponding electrodes.
+    - obs_axs (int): The trials dimension (ignoring the conditions dimension for now)
+    - chans_axs (int): The channels dimension
+    - time_axs (int): The time dimension
+    - freq_axs (int): The frequency dimension
+    - concatenation_axis (int): The axis along which to concatenate the subject's LabeledArray
+                                to the ROI's LabeledArray. This will be adjusted to `concatenation_axis + 1`
+                                for concatenation. By default, do channels.
+    - random_state (int, RandomState, or None): Optional; an integer seed, NumPy RandomState, or None for random shuffling.
 
     Returns:
-    - roi_labeled_arrays: Dictionary of LabeledArrays for each ROI.
-                          Each LabeledArray has dimensions: [Conditions, Trials, Channels, Timepoints]
+    - roi_labeled_arrays (dict): Dictionary of LabeledArrays for each ROI.
+                                Each LabeledArray has dimensions: [Conditions, Trials, Channels, Timepoints]
     """
     # Set up the random state
     rng = np.random.RandomState(random_state)
     roi_labeled_arrays = {}
-
+    data_type = detect_data_type(subjects_data_objects)
+    
     # Loop through each ROI
     for roi in rois:
         # First pass: Find the max number of trials per condition across all subjects
         max_trials_per_condition, max_trials_subject_per_condition = get_max_trials_per_condition(
-            subjects_mne_objects, condition_names, subjects,
+            subjects_data_objects, condition_names, subjects,
             electrodes_per_subject_roi, roi, obs_axs
         )
 
@@ -400,8 +406,8 @@ def put_data_in_labeled_array_per_roi_subject(
         # Second pass: Process each subject's data
         for sub in subjects:
             subject_labeled_array = make_subject_labeled_array(
-                sub, subjects_mne_objects, condition_names, electrodes_per_subject_roi,
-                roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, rng, freq_axs
+                sub, subjects_data_objects, condition_names, electrodes_per_subject_roi,
+                roi, max_trials_per_condition, obs_axs, chans_axs, time_axs, freq_axs, rng
             )
             if subject_labeled_array is None:
                 continue  # Skip if subject has no data for this ROI

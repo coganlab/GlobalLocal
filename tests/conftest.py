@@ -18,7 +18,7 @@ def test_data_dir(tmp_path_factory):
 @pytest.fixture
 def sample_info():
     """Create a sample MNE Info object."""
-    ch_names = ['CH0', 'CH1', 'CH2', 'CH3', 'CH4']
+    ch_names = ['CH0', 'CH1', 'CH2', 'CH3', 'CH4', 'CH6']
     ch_types = ['eeg'] * 5
     info = mne.create_info(ch_names=ch_names, sfreq=1000, ch_types=ch_types)
     return info

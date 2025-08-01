@@ -29,7 +29,7 @@ def mock_epochs():
     """Create a mock MNE Epochs object."""
     # Create fake data
     n_epochs = 10
-    n_channels = 5
+    n_channels = 10
     n_times = 100
     sfreq = 1000
     
@@ -47,7 +47,7 @@ def mock_epochs():
 def mock_epochs_tfr():
     """Create a mock MNE EpochsTFR object."""
     mock_tfr = Mock(spec=mne.time_frequency.EpochsTFR)
-    mock_tfr.get_data.return_value = np.random.randn(10, 5, 100, 20)  # 4D data
+    mock_tfr.get_data.return_value = np.random.randn(10, 10, 100, 20)  # 4D data
     mock_tfr.times = np.linspace(-0.5, 0.5, 100)
     mock_tfr.freqs = np.linspace(1, 40, 20)
     mock_tfr.copy.return_value = mock_tfr
@@ -88,11 +88,11 @@ def electrodes_per_subject_roi():
     return {
         'roi1': {
             'sub1': ['CH1', 'CH2', 'CH3'],
-            'sub2': ['CH4', 'CH5', 'CH6']
+            'sub2': ['CH1', 'CH2', 'CH3']
         },
         'roi2': {
-            'sub1': ['CH7', 'CH8', 'CH9'],
-            'sub2': ['CH10', 'CH11', 'CH12']
+            'sub1': ['CH4', 'CH5', 'CH6'],
+            'sub2': ['CH4', 'CH5', 'CH6']
         }
     }
 
@@ -118,7 +118,7 @@ class TestDetectDataType:
 class TestGetEpochsData:
     def test_get_epochs_data_for_sub_and_condition(self, subjects_mne_objects):
         """Test getting epochs data for specific subject and condition."""
-        electrodes = ['CH0', 'CH1']
+        electrodes = ['CH1', 'CH2']
         result = get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_objects(
             subjects_mne_objects, 'condition1', 'sub1', electrodes
         )
@@ -127,7 +127,7 @@ class TestGetEpochsData:
     
     def test_get_epochs_tfr_data_for_sub_and_condition(self, subjects_tfr_objects):
         """Test getting epochs TFR data for specific subject and condition."""
-        electrodes = ['CH0', 'CH1']
+        electrodes = ['CH1', 'CH2']
         result = get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_tfr_objects(
             subjects_tfr_objects, 'condition1', 'sub1', electrodes
         )
@@ -145,7 +145,8 @@ class TestGetMaxTrialsPerCondition:
             subjects_mne_objects, condition_names, subjects,
             electrodes_per_subject_roi, roi, obs_axs=0
         )
-        
+        print(max_trials)
+        print(max_subjects)
         assert isinstance(max_trials, dict)
         assert all(cond in max_trials for cond in condition_names)
         assert all(isinstance(val, int) for val in max_trials.values())
@@ -153,28 +154,43 @@ class TestGetMaxTrialsPerCondition:
 
 # Test LabeledArray creation
 class TestLabeledArrayCreation:
-    @patch('src.analysis.preproc.make_epoched_data.LabeledArray')
+    @patch('src.analysis.utils.labeled_array_utils.LabeledArray')
     def test_create_subject_labeled_array_from_dict(self, mock_labeled_array):
         """Test creating LabeledArray from dictionary."""
         # Setup mock
-        mock_instance = Mock()
+        mock_instance = MagicMock() # Use MagicMock for more flexibility
         mock_labeled_array.from_dict.return_value = mock_instance
-        mock_instance.labels = [Mock(), Mock(), Mock()]
-        
+    
+        # FIX: Create a list of mocks for the labels attribute.
+        # The length should match the number of dimensions of the expected LabeledArray (e.g., 4 for Cond, Trial, Chan, Time).
+        mock_instance.labels = [MagicMock() for _ in range(4)]
+    
         # Test data
         subject_dict = {
             'cond1': np.random.randn(10, 5, 100),
             'cond2': np.random.randn(10, 5, 100)
         }
-        channel_names = ['CH0', 'CH1', 'CH2', 'CH3', 'CH4']
+        channel_names = ['CH1', 'CH2', 'CH3', 'CH4', 'CH5']
         times = np.array([str(t) for t in np.linspace(-0.5, 0.5, 100)])
-        
+    
+        # Call the function under test
         result = create_subject_labeled_array_from_dict(
             subject_dict, channel_names, times, None, 
             chans_axs=1, time_axs=2, freq_axs=None
         )
+    
+        # Assertions
+        mock_labeled_array.from_dict.assert_called_once_with(subject_dict)
+    
+        # Assert that the correct labels were assigned to the correct axes
+        # The axes are shifted by +1 because LabeledArray.from_dict adds a 'conditions' axis at the beginning.
+        # Assert that the 'values' attribute of the correct label object was set correctly.
+        # The axes are shifted by +1 because LabeledArray.from_dict adds a 'conditions' axis at the beginning.
+        assert mock_instance.labels[1 + 1].values == channel_names
         
-        assert mock_labeled_array.from_dict.called
+        # Use np.array_equal for robust comparison of numpy arrays
+        assert np.array_equal(mock_instance.labels[2 + 1].values, times)
+    
         assert result == mock_instance
 
 # Test NaN removal
@@ -247,7 +263,7 @@ class TestIntegration:
         subjects = ['sub1', 'sub2']
         
         # This would need mocking of LabeledArray to work properly
-        with patch('src.analysis.preproc.make_epoched_data.LabeledArray'):
+        with patch('src.analysis.utils.labeled_array_utils.LabeledArray'):
             result = put_data_in_labeled_array_per_roi_subject(
                 subjects_mne_objects, condition_names, rois, subjects,
                 electrodes_per_subject_roi, random_state=42
