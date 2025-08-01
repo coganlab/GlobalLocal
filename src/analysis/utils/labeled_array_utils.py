@@ -31,17 +31,99 @@ from joblib import Parallel, delayed
 import matplotlib.pyplot as plt
 from ieeg.calc.mat import LabeledArray
 
+def detect_data_type(subjects_data_objects):
+    """
+    Detect whether the input contains MNE Epochs or EpochsTFR objects.
+    
+    Returns:
+        str: 'EpochsTFR' or 'Epochs' indicating the data type
+    """
+    
+    # Try to find any data object to inspect
+    for sub_data in subjects_data_objects.values():
+        for cond_data in sub_data.values():
+            # Handle the nested dictionary structure if present
+            if isinstance(cond_data, dict) and 'HG_ev1_power_rescaled' in cond_data:
+                test_obj = cond_data['HG_ev1_power_rescaled']
+            else:
+                test_obj = cond_data
+            
+            # Check using isinstance for the most reliable detection
+            try:
+                if isinstance(test_obj, mne.time_frequency.EpochsTFR):
+                    return 'EpochsTFR'
+                elif isinstance(test_obj, (mne.Epochs, mne.EpochsArray)):
+                    return 'Epochs'
+            except AttributeError:
+                # In case mne.time_frequency doesn't have EpochsTFR in this version
+                pass
+            
+            # Fallback method: check class name as string
+            class_name = str(type(test_obj))
+            if 'EpochsTFR' in class_name:
+                return 'EpochsTFR'
+            elif 'Epochs' in class_name and 'TFR' not in class_name:
+                return 'Epochs'
+            
+            # Last resort: check data dimensions
+            if hasattr(test_obj, 'get_data'):
+                data = test_obj.get_data()
+                if data.ndim == 4:  # TFR has 4D data
+                    return 'EpochsTFR'
+                elif data.ndim == 3:  # Epochs has 3D data
+                    return 'Epochs'
+    
+    raise ValueError("Could not determine data type from input")
+
+def get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_objects(
+    subjects_mne_objects, condition_name, sub, electrodes
+):
+    """
+    Get epochs data for a specific subject, condition name, and electrodes from subjects mne objects dict
+    
+    Args:
+        subjects_mne_objects (dict): Dictionary of MNE epoch objects, structured as
+                                     {subject_id: {condition_name: {'HG_ev1_power_rescaled': mne.Epochs}}}.
+        condition_name (str): The condition name to process.
+        sub (str): The subject identifier.
+        electrodes (list): List of electrode names to include.
+
+    Returns:
+        mne.Epochs: The epochs data for the specified subject, condition, and ROI.
+    """
+    return subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
+
+def get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_tfr_objects(
+    subjects_tfr_objects, condition_name, sub, electrodes
+):
+    """
+    Get epochs data for a specific subject, condition name, and electrodes from subjects tfr objects dict
+    
+    Args:
+        subjects_tfr_objects (dict): Dictionary of MNE epochs tfr objects, structured as
+                                     {subject_id: {condition_name: {'HG_ev1_power_rescaled': mne.EpochsTFR}}}.
+        condition_name (str): The condition name to process.
+        sub (str): The subject identifier.
+        electrodes (list): List of electrode names to include.
+
+    Returns:
+        mne.EpochsTFR: The epochs tfr data for the specified subject, condition, and ROI.
+    """
+    return subjects_tfr_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
+
 def get_max_trials_per_condition(
-    subjects_mne_objects, condition_names, subjects,
+    subjects_data_objects, condition_names, subjects,
     electrodes_per_subject_roi, roi, obs_axs
 ):
     """
     Find the maximum number of trials per condition across all subjects for a given ROI,
-    and identify which subject(s) have that maximum number of trials.
+    and identify which subject(s) have that maximum number of trials. Run this if input data is subjects_mne_objects
 
     Args:
-        subjects_mne_objects (dict): Dictionary of MNE epoch objects, structured as
-                                     {subject_id: {condition_name: mne.Epochs}}.
+        subjects_data_objects (dict): EITHER a dictionary of MNE epoch objects, structured as
+                                     {subject_id: {condition_name: {'HG_ev1_power_rescaled': mne.Epochs}}} OR 
+                                     a dictionary of MNE epochs tfr objects, structured as
+                                     {subject_id: {condition_name: mne.EpochsTFR}}.
         condition_names (list): List of strings representing the condition names.
         subjects (list): List of subject identifiers.
         electrodes_per_subject_roi (dict): Dictionary mapping ROIs to subjects
@@ -57,16 +139,26 @@ def get_max_trials_per_condition(
     """
     max_trials_per_condition = {condition: 0 for condition in condition_names}
     max_trials_subject_per_condition = {condition: [] for condition in condition_names}
-
+    
+    data_type = detect_data_type(subjects_data_objects)
     for sub in subjects:
         electrodes = electrodes_per_subject_roi.get(roi, {}).get(sub, [])
         if not electrodes:
             continue
         for condition_name in condition_names:
             # Check if the subject has data for this condition
-            if condition_name not in subjects_mne_objects[sub]:
+            if condition_name not in subjects_data_objects[sub]:
                 continue
-            epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
+            if data_type == 'Epochs':
+                epochs = get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_objects(
+                    subjects_data_objects, condition_name, sub, electrodes
+                )
+            elif data_type == 'EpochsTFR':
+                epochs = get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_tfr_objects(
+                    subjects_data_objects, condition_name, sub, electrodes
+                )
+            else:
+                raise ValueError("subjects_data_objects must be either Epochs or EpochsTFR from subjects_mne_objects or subjects_tfr_objects")
             epochs_data = epochs.get_data(copy=True)
             n_trials = epochs_data.shape[obs_axs]
             if n_trials > max_trials_per_condition[condition_name]:
@@ -233,8 +325,7 @@ def concatenate_subject_labeled_arrays(
 
 def put_data_in_labeled_array_per_roi_subject(
     subjects_mne_objects, condition_names, rois, subjects,
-    electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2,
-    concatenation_axis=1, frequency_axs=None,
+    electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2, frequency_axs=None, concatenation_axis=1,
     random_state=None
 ):
     """
@@ -251,10 +342,10 @@ def put_data_in_labeled_array_per_roi_subject(
     - obs_axs: The trials dimension (ignoring the conditions dimension for now)
     - chans_axs: The channels dimension
     - time_axs: The time dimension
+    - frequency_axs: The frequency dimension
     - concatenation_axis: The axis along which to concatenate the subject's LabeledArray
                           to the ROI's LabeledArray. This will be adjusted to `concatenation_axis + 1`
-                          for concatenation.
-    - frequency_axs: The frequency dimension
+                          for concatenation. By default, do channels.
     - random_state: Optional; an integer seed, NumPy RandomState, or None for random shuffling.
 
     Returns:
@@ -294,7 +385,7 @@ def put_data_in_labeled_array_per_roi_subject(
 
             # Concatenate subject's data into the ROI LabeledArray
             roi_labeled_array = concatenate_subject_labeled_arrays(
-                roi_labeled_array, subject_labeled_array, chans_axs
+                roi_labeled_array, subject_labeled_array, concatenation_axis
             )
 
         # Add the concatenated LabeledArray to the ROI dictionary
