@@ -87,7 +87,7 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
 # from os.path import join, expanduser, basename # os.path is available via 'import os'
 # from joblib import Parallel, delayed # joblib is already imported
 
-def process_and_balance_data_for_decoding(
+def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
 ):
     """
@@ -102,7 +102,7 @@ def process_and_balance_data_for_decoding(
     - random_state: Random seed for reproducibility.
 
     Returns:
-    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format.
+    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
     - labels: The processed labels array.
     - cats: Dictionary of condition categories.
     """
@@ -550,7 +550,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 
     for roi in rois:
         print(f"Processing ROI: {roi}")
-        concatenated_data, labels, cats = process_and_balance_data_for_decoding(
+        concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
             roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
         )
 
@@ -679,7 +679,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
     for roi in rois:
         print(f"Processing ROI: {roi}")
 
-        concatenated_data, labels, cats = process_and_balance_data_for_decoding(
+        concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
             roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
         )
 

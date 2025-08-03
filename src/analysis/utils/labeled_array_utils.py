@@ -159,7 +159,8 @@ def get_max_trials_per_condition(
                 )
             else:
                 raise ValueError("subjects_data_objects must be either Epochs or EpochsTFR from subjects_mne_objects or subjects_tfr_objects")
-            epochs_data = epochs.get_data(copy=True)
+
+            epochs_data = epochs.get_data().copy()
             n_trials = epochs_data.shape[obs_axs]
             if n_trials > max_trials_per_condition[condition_name]:
                 max_trials_per_condition[condition_name] = n_trials
@@ -230,7 +231,7 @@ def make_subject_labeled_array(
             )
         else:
             raise ValueError("subjects_data_objects must be either Epochs or EpochsTFR from subjects_mne_objects or subjects_tfr_objects")
-        epochs_data = epochs.get_data(copy=True)
+        epochs_data = epochs.get_data().copy()
 
         # Randomize the trial order
         n_trials = epochs_data.shape[obs_axs]
@@ -561,7 +562,7 @@ def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, o
         data_to_concatenate = []
         for cond in matching_conditions:
             # Extract data for the current condition
-            data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints)
+            data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints) or (trials, channels, frequencies, timepoints)
             data_to_concatenate.append(data)
             
             # Update labels for the current condition group
