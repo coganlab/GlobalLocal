@@ -1,0 +1,17 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 183, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/get_sig_tfr_differences_dcc.py", line 185, in main
+    sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=None)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1280, in get_sig_chans_per_subject
+    sig_chans_per_subject[sub] = get_sig_chans(sub, task, epochs_root_file, LAB_root)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1256, in get_sig_chans
+    layout = get_data(task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 194, in get_data
+    scan = scandir(root)
+           ^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/jz421/Library/CloudStorage/Box-Box/CoganLab'

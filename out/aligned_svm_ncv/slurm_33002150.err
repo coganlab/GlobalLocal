@@ -1,0 +1,8 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 185, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/get_sig_tfr_differences_dcc.py", line 137, in main
+    if LAB_root is None:
+       ^^^^^^^^
+UnboundLocalError: cannot access local variable 'LAB_root' where it is not associated with a value

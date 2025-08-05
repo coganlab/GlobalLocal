@@ -1,0 +1,17 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 185, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/get_sig_tfr_differences_dcc.py", line 193, in main
+    sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1312, in get_sig_chans_per_subject
+    sig_chans_per_subject[sub] = get_sig_chans(sub, task, epochs_root_file, LAB_root)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1292, in get_sig_chans
+    stim_sig_chans = load_sig_chans(stim_filename)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 558, in load_sig_chans
+    with open(filename, 'r') as file:
+         ^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/sig_chans_D0103_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False.json'

@@ -96,7 +96,7 @@ from src.analysis.utils.labeled_array_utils import (
 )
 
 from src.analysis.decoding.decoding import (
-    process_and_balance_data_for_decoding, 
+    concatenate_and_balance_data_for_decoding, 
     get_and_plot_confusion_matrix_for_rois_jim,
     Decoder, 
     windower,
