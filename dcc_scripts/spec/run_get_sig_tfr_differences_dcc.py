@@ -37,7 +37,7 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None
 
 # Subject configuration
-SUBJECTS = ['D0103']  # Add more subjects as needed: ['D0101', 'D0102', 'D0103']
+SUBJECTS = ['D0057']  # Add more subjects as needed: ['D0101', 'D0102', 'D0103']
 
 # Time and task parameters
 SIGNAL_TIMES = [-1.0, 1.5]
@@ -67,7 +67,7 @@ AVERAGE = False
 # Statistical parameters
 STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
 P_THRESH = 0.05
-N_PERM = 100  # Increase to 1000 for publication-quality results
+N_PERM = 200  # Increase to 1000 for publication-quality results
 IGNORE_ADJACENCY = 1  # Ignore channels dimension for clusters
 TAILS = 2 # one tailed or two tailed t-test, currently doing a single two-tailed but i think should do two separate one-tailed - do that later..
 SEED = None  # Set to integer for reproducibility
