@@ -107,7 +107,7 @@ from src.analysis.decoding.decoding import (
 )
 
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_sig_tfr_differences, plot_mask_pages
-from src.analysis.spec.subjects_tfr_objects_functions import load_or_make_subjects_tfr_objects, get_sig_tfr_differences_per_subject, get_sig_tfr_differences_per_roi
+from src.analysis.spec.subjects_tfr_objects_functions import make_subjects_tfr_objects, get_sig_tfr_differences_per_subject, get_sig_tfr_differences_per_roi
 
 from src.analysis.utils.general_utils import (
     make_or_load_subjects_electrodes_to_ROIs_dict,
@@ -195,7 +195,7 @@ def main(args):
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
 
-    subjects_tfr_objects = load_or_make_subjects_tfr_objects(
+    subjects_tfr_objects = make_subjects_tfr_objects(
     layout=layout,
     spec_method=args.spec_method,
     conditions_save_name=conditions_save_name,

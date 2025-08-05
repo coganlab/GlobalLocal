@@ -1,0 +1,8 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 195, in <module>
+    run_analysis()
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 141, in run_analysis
+    subjects=subject,
+             ^^^^^^^
+NameError: name 'subject' is not defined. Did you mean: 'object'?
