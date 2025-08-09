@@ -47,6 +47,9 @@ Last edited: 01/16/2024
 1. To be able to access data from scripts on the DCC using ```LAB_root = os.path.join("cwork", "your_net_id")``` -> Move data from /hpc/home/your_net_id/coganlab/Data/BIDS-1.1_GlobalLocal/ to /cwork/your_net_id/BIDS-1.1_GlobalLocal/ using the Duke Compute Cluster (DCC) Data Transfer Node as the collection on Globus (https://app.globus.org/file-manager?destination_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&destination_path=%2Fcwork%2Fjz421%2FBIDS-1.1_GlobalLocal%2F&origin_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&origin_path=%2Fhpc%2Fhome%2Fjz421%2Fcoganlab%2FData%2FBIDS-1.1_GlobalLocal%2F&two_pane=true).<img width="1273" alt="Screenshot 2025-06-06 at 1 07 21 PM" src="https://github.com/user-attachments/assets/dd0204bd-3536-4fb2-9333-ba289f02ec4a" />
 
 2. Use git repositories on the DCC to sync code with local computer code. Use the dcc_scripts folder for scripts that will live on the DCC. Make sure to set up an SSH key for permissions, and pull before making any changes (refer to step 4 here: https://github.com/dward2/BME547/blob/main/Assignments/01_tool_setup_git_intro.md). First, git clone this repository to your netid folder under coganlab on the DCC. Then, do git config --global user.email "your_email@email.com" and do git config --global user.name "your_github_username".
+
+3. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
+
   
 # **Analysis Steps**
 
