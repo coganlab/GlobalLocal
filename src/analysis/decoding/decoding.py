@@ -114,8 +114,10 @@ def concatenate_and_balance_data_for_decoding(
     )
 
     print(f"Concatenated data shape for {roi}: {concatenated_data.shape}")
-
-    if balance_method == 'subsample':
+    # TODO: implement bootstrapping - across subjects first and then across conditions, or just across conditions and drop to min number of trials per condition across subjects?
+    if balance_method == 'bootstrap':
+        pass # bootstrap and take the number of trials from the subject with the fewest trials. Or just do this across the two conditions. I'm not sure.
+    elif balance_method == 'subsample':
         # Remove NaN trials from concatenated_data and labels
         nan_trials = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
         valid_trials = ~nan_trials
@@ -159,7 +161,7 @@ def concatenate_and_balance_data_for_decoding(
                 selected_indices = indices
             subsampled_indices.extend(selected_indices)
 
-        subsampled_indices = np.array(subsampled_indices)
+        subsampled_indices = np.array(subsampled_indices, dtype=int)
         concatenated_data = concatenated_data[subsampled_indices]
         labels = labels[subsampled_indices]
     else:
@@ -1288,7 +1290,10 @@ def apply_tfr_masks_and_flatten_to_make_decoding_matrix(data, obs_axs, chans_axs
     # Move trials to first axis if needed
     if obs_axs != 0:
         data = np.moveaxis(data, obs_axs, 0)
-        chans_axs = chans_axs - 1 if chans_axs > obs_axs else chans_axs
+        if chans_axs > obs_axs:
+            chans_axs = chans_axs - 1
+        else:
+            chans_axs = chans_axs + 1
 
     # Iterate through each channel
     for ch_idx in range(n_channels):
@@ -1300,26 +1305,31 @@ def apply_tfr_masks_and_flatten_to_make_decoding_matrix(data, obs_axs, chans_axs
             # Get the boolean mask (n_freqs, n_times)
             mask = channel_masks[ch_idx]
             
-            # Apply mask to each trial's data
-            # Flatten the freq-time dimensions first, then apply mask
-            n_freqs, n_times = channel_data.shape[1], channel_data.shape[2]
-            channel_data_flat = channel_data.reshape(n_trials, n_freqs * n_times)
+            # flatten all dimensions except trials (axis 0)
+            n_trials_ch = channel_data.shape[0]
+            remaining_shape = channel_data.shape[1:]
+            channel_data = channel_data.reshape(n_trials_ch, -1)
+            
+            # flatten mask
             mask_flat = mask.flatten()
-            masked_features = channel_data_flat[:, mask_flat]
-        else:
-            # No mask for this channel - use all time-frequency points
-            masked_features = channel_data.reshape(n_trials, -1)
+
+            # make sure the mask size matches the flattened features
+            if mask_flat.shape[0] != channel_data.shape[1]:
+                raise ValueError("Mask size does not match flattened features size")
+            else:
+                # apply the mask
+                masked_features = channel_data[:, mask_flat]
         
-        # Add this channel's features to our list
-        feature_vectors.append(masked_features)
+            # Add this channel's features to our list
+            feature_vectors.append(masked_features)
     
     # Concatenate all channels' features horizontally
     if feature_vectors:
         decoding_matrix = np.concatenate(feature_vectors, axis=1)
     else:
         # Return empty matrix if no features
-        decoding_matrix = np.zeros((n_trials, 0))
-        
+        raise ValueError("No features found for any channels.")
+
     return decoding_matrix
 
 def get_confusion_matrix_for_rois_tfr_cluster(
