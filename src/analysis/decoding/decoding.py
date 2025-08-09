@@ -976,9 +976,6 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.close()
 
 # james sun cluster decoding functions 8/4/25, update as needed
-# move all this into decoding.py once i get it working
-
-# move all this into decoding.py once i get it working
 
 def decode_on_sig_tfr_clusters(
     X_train_raw, y_train, X_test_raw,
@@ -990,7 +987,7 @@ def decode_on_sig_tfr_clusters(
     ignore_adjacency=1, seed=42, tails=2, alpha=1.
 ):
     """
-    Balance data and decode with TFR cluster masking.
+    Balance data and decode with TFR cluster masking. Returns the sig tfr cluster masks for later plotting.
     
     Parameters
     ----------
@@ -1039,6 +1036,8 @@ def decode_on_sig_tfr_clusters(
     -------
     preds : np.ndarray
         Predicted labels for test data
+    channel_masks : dict
+        Dictionary of channel masks for significant clusters
     """
     # Get condition names from cats dictionary
     condition_names = [k[0] if isinstance(k, tuple) else k for k in cats.keys()]
@@ -1073,7 +1072,7 @@ def decode_on_sig_tfr_clusters(
     decoder.fit(X_train_masked, y_train)
     preds = decoder.predict(X_test_masked)
     
-    return preds
+    return preds, channel_masks
 
 def compute_sig_tfr_masks_from_roi_labeled_array(
     roi_labeled_array, train_indices, condition_names,
@@ -1338,10 +1337,10 @@ def get_confusion_matrix_for_rois_tfr_cluster(
     p_thresh=0.05, n_perm=100, 
     n_splits=5, n_repeats=5, obs_axs=0, chans_axs=1,
     balance_method='subsample', oversample=False,
-    random_state=42, alpha=0.2, ignore_adjacency=1, seed=42, tails=2, normalize: str = None
+    random_state=42, alpha=0.2, ignore_adjacency=1, seed=42, tails=2, normalize: str = None,
 ):
     """
-    Compute confusion matrices using TFR cluster masking for multiple ROIs.
+    Compute confusion matrices using TFR cluster masking for multiple ROIs. Also returns the sig tfr cluster masks for later plotting.
     
     Parameters
     ----------
@@ -1389,11 +1388,17 @@ def get_confusion_matrix_for_rois_tfr_cluster(
     -------
     confusion_matrices : dict
         Dictionary of confusion matrices by ROI
+    cats_dict : dict
+        Dictionary of condition labels by ROI
+    channel_masks : dict
+        Dictionary of channel masks for significant clusters. Nested dictionary: {roi: {repeat: {fold: channel_masks}}}
     """
     confusion_matrices = {}
     cats_dict = {}
-
+    channel_masks = {}
+    
     for roi in rois:
+        channel_masks[roi] = {}
         print(f"Processing ROI: {roi}")
         
         # Get data and labels
@@ -1421,7 +1426,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                 y_test = labels[test_indices]
                 
                 # Balance and decode with TFR masking
-                preds = decode_on_sig_tfr_clusters(
+                preds, fold_channel_masks = decode_on_sig_tfr_clusters(
                     X_train_raw, y_train, X_test_raw,
                     train_indices, test_indices,
                     concatenated_data, labels, cats,
@@ -1433,6 +1438,8 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                     tails=tails, 
                     alpha=alpha
                 )
+                
+                channel_masks[roi][repeat][fold_idx] = fold_channel_masks
                 
                 cm = confusion_matrix(y_test, preds)
                 fold_cms.append(cm)
@@ -1463,7 +1470,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         final_cm = np.mean(all_cms, axis=0)
         confusion_matrices[roi] = final_cm
     
-    return confusion_matrices, cats_dict
+    return confusion_matrices, cats_dict, channel_masks
 
 def get_display_labels_from_cats(cats):
     """Extracts clean labels for plotting from the 'cats' dictionary."""
@@ -1485,3 +1492,59 @@ def plot_and_save_confusion_matrix(cm, display_labels, file_name, save_dir):
     plt.savefig(os.path.join(save_dir, file_name))
     print(f"Saved figure to: {save_dir}")
     plt.close(fig)
+
+def plot_and_save_tfr_masks(masks_dict, mask_type, subjects_or_rois, ch_names, times, freqs, 
+                            spec_method, conditions_save_name, save_dir, 
+                            channels_per_page=60, grid_shape=(6, 10)):
+    """
+    Plot and save TFR masks for subjects or ROIs.
+    
+    Parameters
+    ----------
+    masks_dict : dict
+        Dictionary of masks (subjects or ROIs as keys)
+    mask_type : str
+        Type of mask ('sig_elecs' or 'all_elecs')
+    subjects_or_rois : list
+        List of subjects or ROIs to plot
+    ch_names : list
+        Channel names
+    times : array
+        Time points
+    freqs : array
+        Frequencies
+    spec_method : str
+        Spectral method used
+    conditions_save_name : str
+        Name for saving
+    save_dir : str
+        Directory to save figures
+    """
+    if not os.path.exists(save_dir):
+        os.makedirs(save_dir)
+    
+    for key in subjects_or_rois:
+        if key not in masks_dict:
+            continue
+            
+        mask = masks_dict[key]
+        mask_pages = plot_mask_pages(
+            mask,
+            ch_names,
+            times=times,
+            freqs=freqs,
+            channels_per_page=channels_per_page,
+            grid_shape=grid_shape,
+            cmap=parula_map,
+            title_prefix=f"{key} ",
+            log_freq=True,
+            show=False
+        )
+        
+        # Save each page
+        for i, fig in enumerate(mask_pages):
+            fig_name = f"{key}_{mask_type}_{spec_method}_clusters_{conditions_save_name}_page_{i+1}.png"
+            fig_pathname = os.path.join(save_dir, fig_name)
+            fig.savefig(fig_pathname, bbox_inches='tight')
+            plt.close(fig)  # Close to free memory
+            print(f"Saved figure: {fig_name}")

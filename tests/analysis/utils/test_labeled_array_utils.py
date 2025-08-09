@@ -195,11 +195,11 @@ class TestLabeledArrayCreation:
 
 # Test NaN removal
 class TestNaNRemoval:
-    @patch('src.analysis.preproc.make_epoched_data.LabeledArray')
+    @patch('src.analysis.utils.labeled_array_utils.LabeledArray')
     def test_remove_nans_from_labeled_array(self, mock_labeled_array):
         """Test removing NaN trials from LabeledArray."""
         # Create mock labeled array with some NaN values
-        mock_instance = Mock()
+        mock_instance = MagicMock()
         mock_instance.labels = [['cond1', 'cond2']]
         
         # Create data with some NaN trials
@@ -210,7 +210,7 @@ class TestNaNRemoval:
         mock_instance.__getitem__.side_effect = lambda x: data_cond1 if x == 'cond1' else data_cond2
         mock_instance.keys.return_value = ['cond1', 'cond2']
         
-        mock_labeled_array.from_dict.return_value = Mock()
+        mock_labeled_array.from_dict.return_value = MagicMock()
         
         result, no_valid = remove_nans_from_labeled_array(
             mock_instance, obs_axs=0, chans_axs=1, time_axs=2

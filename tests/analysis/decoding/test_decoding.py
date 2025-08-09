@@ -232,7 +232,7 @@ class TestDecodeOnSigTfrClusters:
                 mock_decoder_instance.fit.return_value = None
                 mock_decoder_instance.predict.return_value = np.array([0, 1, 0, 1, 0])
                 
-                preds = decode_on_sig_tfr_clusters(
+                preds, channel_masks = decode_on_sig_tfr_clusters(
                     X_train, y_train, X_test,
                     train_indices, test_indices,
                     sample_tfr_data, sample_labels, sample_cats,
@@ -273,7 +273,7 @@ class TestDecodeOnSigTfrClusters:
                     mock_decoder_instance = mock_decoder.return_value
                     mock_decoder_instance.predict.return_value = np.array([0, 1, 0, 1, 0])
                     
-                    preds = decode_on_sig_tfr_clusters(
+                    preds, channel_masks = decode_on_sig_tfr_clusters(
                         X_train, y_train, X_test,
                         train_indices, test_indices,
                         concatenated_data, labels, cats,
@@ -309,7 +309,7 @@ class TestGetConfusionMatrixForRoisTfrCluster:
         rois = ['roi1']
         strings_to_find = ['cond1', 'cond2']
         
-        result, cats_dict = get_confusion_matrix_for_rois_tfr_cluster(
+        result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
             sample_roi_labeled_arrays, rois, strings_to_find,
             stat_func, mock_decoder,
             explained_variance=0.95, p_thresh=0.05, n_perm=10,
@@ -342,7 +342,7 @@ class TestGetConfusionMatrixForRoisTfrCluster:
                     mock_decode.return_value = np.array([0, 1, 0, 1])
                     mock_cm.return_value = np.array([[2, 0], [0, 2]])
                     
-                    result, cats_dict = get_confusion_matrix_for_rois_tfr_cluster(
+                    result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
                         mock_roi_arrays, list(mock_roi_arrays.keys()),
                         ['cond1', 'cond2'], stat_func, mock_decoder,
                         n_splits=2, n_repeats=1
@@ -373,7 +373,7 @@ class TestGetConfusionMatrixForRoisTfrCluster:
                     ]
                     mock_cm.side_effect = cms * 10  # Enough for all folds
                     
-                    result, cats_dict = get_confusion_matrix_for_rois_tfr_cluster(
+                    result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
                         mock_roi_arrays, ['roi1'], ['cond1', 'cond2'],
                         stat_func, mock_decoder,
                         n_splits=3, n_repeats=1, random_state=42
@@ -424,7 +424,7 @@ class TestIntegration:
             mock_instance.predict.side_effect = dynamic_predict
             
             # Unpack the tuple return value
-            result, cats_dict = get_confusion_matrix_for_rois_tfr_cluster(
+            result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
                 roi_labeled_arrays,
                 rois=['lpfc'],
                 strings_to_find=['bigS', 'bigH'],
@@ -448,7 +448,7 @@ class TestEdgeCases:
     
     def test_empty_roi_list(self, sample_roi_labeled_arrays, mock_decoder, stat_func):
         """Test with empty ROI list."""
-        result, cats_dict = get_confusion_matrix_for_rois_tfr_cluster(
+        result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
             sample_roi_labeled_arrays, [], ['cond1', 'cond2'],
             stat_func, mock_decoder
         )
