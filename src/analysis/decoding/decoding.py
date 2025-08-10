@@ -1411,6 +1411,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         all_cms = []
         
         for repeat in range(n_repeats):
+            channel_masks[roi][repeat] = {}
             repeat_seed = random_state + repeat * 1000
             skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=repeat_seed)
             
@@ -1464,7 +1465,11 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                         divisor = 1
                     
                     # Avoid division by zero by setting the divisor to 1 where it is 0
-                    divisor[divisor == 0] = 1
+                    if isinstance(divisor, np.ndarray):
+                        divisor[divisor == 0] = 1
+                    elif divisor == 0:
+                        divisor = 1
+                    
                     normalized_cm = repeat_cm.astype('float') / divisor
                     all_cms.append(normalized_cm)
             else:
@@ -1473,7 +1478,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         # Average across repeats
         final_cm = np.mean(all_cms, axis=0)
         confusion_matrices[roi] = final_cm
-        
+
         if clear_memory and roi in roi_labeled_arrays:
             del roi_labeled_arrays[roi]
             gc.collect()

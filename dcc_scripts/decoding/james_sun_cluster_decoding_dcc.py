@@ -368,7 +368,7 @@ if __name__ == "__main__":
                         help='spectral method to use for the statistical test')
     parser.add_argument('--average', type=bool, required=True, default=False,
                         help='whether to trial average the tfrs')
-parser.add_argument('--seed', type=int, required=False, default=None,
+    parser.add_argument('--seed', type=int, required=False, default=None,
                         help='seed for the statistical test')
     parser.add_argument('--tails', type=int, required=False, default=2,
                         help='tails for the statistical test')

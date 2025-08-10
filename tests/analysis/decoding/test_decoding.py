@@ -303,7 +303,8 @@ class TestGetConfusionMatrixForRoisTfrCluster:
             {('cond1',): 0, ('cond2',): 1}  # cats
         )
         
-        mock_decode.return_value = np.array([0, 1, 0, 1])
+        mock_channel_masks = {i: np.ones((10, 50), dtype=bool) for i in range(5)}
+        mock_decode.return_value = (np.array([0, 1, 0, 1]), mock_channel_masks)
         mock_cm.return_value = np.array([[2, 0], [0, 2]])
         
         rois = ['roi1']
@@ -339,7 +340,7 @@ class TestGetConfusionMatrixForRoisTfrCluster:
                         np.array([0, 1] * 10),
                         {('cond1',): 0, ('cond2',): 1}
                     )
-                    mock_decode.return_value = np.array([0, 1, 0, 1])
+                    mock_decode.return_value = (np.array([0, 1, 0, 1]), {i: np.ones((10, 25), dtype=bool) for i in range(5)})
                     mock_cm.return_value = np.array([[2, 0], [0, 2]])
                     
                     result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
@@ -363,7 +364,7 @@ class TestGetConfusionMatrixForRoisTfrCluster:
                         np.array([0, 1] * 10),
                         {('cond1',): 0, ('cond2',): 1}
                     )
-                    mock_decode.return_value = np.array([0, 1, 0, 1])
+                    mock_decode.return_value = (np.array([0, 1, 0, 1]), {i: np.ones((10, 25), dtype=bool) for i in range(5)})
                     
                     # Return different confusion matrices for each fold
                     cms = [
