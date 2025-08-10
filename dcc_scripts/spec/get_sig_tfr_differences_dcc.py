@@ -4,7 +4,7 @@ import sys
 import os
 
 print(sys.path)
-sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+# sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 
 # Get the absolute path to the directory containing the current script
 # For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
@@ -145,6 +145,8 @@ def main(args):
             else:
                 # Fallback for other Linux systems
                 LAB_root = os.path.join(HOME, "CoganLab")
+    else:
+        LAB_root = args.LAB_root
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
     subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=LAB_root, save_dir=config_dir, 
@@ -300,69 +302,13 @@ def main(args):
                         channels_per_page=60,
                         grid_shape=(6, 10),
                         cmap=parula_map,
-                        title_prefix=f"{sub} {roi} ",
+                        title_prefix=f"{roi} ",
                         log_freq=True,
                         show=False)
 
         # Save each page as a separate figure file:
         for i, fig in enumerate(all_elecs_roi_mask_pages):
-            fig_name = f"{sub}_{roi}_all_elecs_sig_{args.spec_method}_clusters_{conditions_save_name}_page_{i+1}.png"
+            fig_name = f"{roi}_all_elecs_sig_{args.spec_method}_clusters_{conditions_save_name}_page_{i+1}.png"
             fig_pathname = os.path.join(subjects_tfr_objects_save_dir, fig_name)
             fig.savefig(fig_pathname, bbox_inches='tight')
             print("Saved figure:", fig_name)
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Make subject and ROI level tfr difference masks.")
-    parser.add_argument('--LAB_root', type=str, required=True, 
-                        help="The cogan lab root directory")
-    parser.add_argument('--subjects', type=list, required=True, 
-                        help="List of subject ID to process")
-    parser.add_argument('--signal_times', type=list, required=True, default=[-1.0, 1.5], 
-                        help='The signal times to use')
-    parser.add_argument('--acc_trials_only', type=bool, required=True, default=True, 
-                        help='Whether to only use accuracy trials')
-    parser.add_argument('--error_trials_only', type=bool, required=True, default=False, 
-                        help='Whether to only use error trials')
-    parser.add_argument('--stat_func', type=func, required=True, 
-                        help='The statistical function to use')
-    parser.add_argument('--p_thresh', type=float, required=True, default=0.05,
-                        help='the p threshold for your statistical test')
-    parser.add_argument('--ignore_adjacency', type=int, required=True, default=1,
-                        help='dimension to ignore when finding significant clusters. By default, ignore the channels dimension for clusters, just find clusters over frequency and time')
-    parser.add_argument('--n_perm', type=int, required=True, default=100,
-                        help='number of permutations for the statistical test')
-    parser.add_argument('--n_jobs', type=int, required=True, default=1,
-                        help='number of jobs to use for the statistical test')
-    parser.add_argument('--freqs', type=numpy.ndarray, required=True, default=np.arange(2, 200., 2.),
-                        help='frequency range to use for the statistical test')
-    parser.add_argument('--n_cycles', type=numpy.ndarray, required=True, default=freqs / 2,
-                        help='number of cycles to use for the statistical test')
-    parser.add_argument('--return_itc', type=bool, required=True, default=False,
-                        help='whether to return the itc')
-    parser.add_argument('--time_bandwidth', type=int, required=True, default=10,
-                        help='time bandwidth for the statistical test')
-    parser.add_argument('--spec_method', type=str, required=True, default='multitaper',
-                        help='spectral method to use for the statistical test')
-    parser.add_argument('--average', type=bool, required=True, default=False,
-                        help='whether to trial average the tfrs')
-    parser.add_argument('--seed', type=int, required=True, default=None,
-                        help='seed for the statistical test')
-    parser.add_argument('--tails', type=int, required=True, default=2,
-                        help='tails for the statistical test')
-    parser.add_argument('--n_splits', type=int, required=True, default=2,
-                        help='number of splits for decoding (not used for finding sig clusters but leave it in for now because we will use it later when adding in the decoding code)')
-    parser.add_argument('--n_repeats', type=int, required=True, default=1,
-                        help='number of repeats for decoding (not used for finding sig clusters but leave it in for now because we will use it later when adding in the decoding code)')
-    parser.add_argument('--random_state', type=int, required=True, default=42,
-                        help='random state for the statistical test')
-    parser.add_argument('--task', type=str, required=True, default='GlobalLocal',
-                        help='experiment name, should be GlobalLocal')
-    parser.add_argument('--conditions', type=dict, required=True,
-                        help='conditions to be compared')
-    parser.add_argument('--epochs_root_file', type=str, required=True,
-                        help='epochs root file name, this is used to find significant electrodes and is stored in the output name. TBH because this finds significance based on bandpass-filtered data, it is a little circular, so i should just use all electrodes in an roi, instead of the significant ones. But just leave it for now for testing purposes. Remove later though. No need for sig electrodes in this analysis.')
-    parser.add_argument('--rois_dict', type=dict, required=True,
-                        help='roi dictionary mapping destrieux atlas rois to big rois')
-
-    args = parser.parse_args()
-    main(args)

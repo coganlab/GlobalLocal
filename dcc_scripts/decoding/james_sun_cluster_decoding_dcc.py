@@ -11,7 +11,7 @@ from typing import Union, List, Sequence, Dict
 from os.path import join, expanduser, basename
 
 print(sys.path)
-sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/")  # need to do this cuz otherwise ieeg isn't added to path...
+# sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/")  # need to do this cuz otherwise ieeg isn't added to path...
 
 # Get the absolute path to the directory containing the current script
 try:
@@ -52,16 +52,6 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-
-# RSA toolbox imports
-import rsatoolbox
-from rsatoolbox.io.mne import read_epochs
-from rsatoolbox.data.ops import merge_datasets
-from rsatoolbox.rdm import calc_rdm_movie, compare
-from rsatoolbox.rdm.calc import _parse_input
-from rsatoolbox.util.build_rdm import _build_rdms
-from rsatoolbox.vis import show_rdm
-from rsatoolbox.vis.timecourse import plot_timecourse
 
 # IEEG imports
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, outliers_to_nan
@@ -335,81 +325,17 @@ def main(args):
                     plt.close(fig) # Close the figure to free up memory
     
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Make subject and ROI level tfr difference masks.")
-    parser.add_argument('--LAB_root', type=str, required=True, 
-                        help="The cogan lab root directory")
-    parser.add_argument('--subjects', type=list, required=True, 
-                        help="List of subject ID to process")
-    parser.add_argument('--signal_times', type=list, required=True, default=[-1.0, 1.5], 
-                        help='The signal times to use')
-    parser.add_argument('--acc_trials_only', type=bool, required=True, default=True, 
-                        help='Whether to only use accuracy trials')
-    parser.add_argument('--error_trials_only', type=bool, required=True, default=False, 
-                        help='Whether to only use error trials')
-    parser.add_argument('--stat_func', type=func, required=True, 
-                        help='The statistical function to use')
-    parser.add_argument('--p_thresh', type=float, required=True, default=0.05,
-                        help='the p threshold for your statistical test')
-    parser.add_argument('--ignore_adjacency', type=int, required=True, default=1,
-                        help='dimension to ignore when finding significant clusters. By default, ignore the channels dimension for clusters, just find clusters over frequency and time')
-    parser.add_argument('--n_perm', type=int, required=True, default=100,
-                        help='number of permutations for the statistical test')
-    parser.add_argument('--n_jobs', type=int, required=True, default=1,
-                        help='number of jobs to use for the statistical test')
-    parser.add_argument('--freqs', type=numpy.ndarray, required=True, default=np.arange(2, 200., 2.),
-                        help='frequency range to use for the statistical test')
-    parser.add_argument('--n_cycles', type=numpy.ndarray, required=True, default=freqs / 2,
-                        help='number of cycles to use for the statistical test')
-    parser.add_argument('--return_itc', type=bool, required=True, default=False,
-                        help='whether to return the itc')
-    parser.add_argument('--time_bandwidth', type=int, required=True, default=10,
-                        help='time bandwidth for the statistical test')
-    parser.add_argument('--spec_method', type=str, required=True, default='multitaper',
-                        help='spectral method to use for the statistical test')
-    parser.add_argument('--average', type=bool, required=True, default=False,
-                        help='whether to trial average the tfrs')
-    parser.add_argument('--seed', type=int, required=False, default=None,
-                        help='seed for the statistical test')
-    parser.add_argument('--tails', type=int, required=False, default=2,
-                        help='tails for the statistical test')
-    parser.add_argument('--n_splits', type=int, required=False, default=5,
-                        help='number of splits for decoding')
-    parser.add_argument('--n_repeats', type=int, required=False, default=5,
-                        help='number of repeats for decoding')
-    parser.add_argument('--random_state', type=int, required=False, default=42,
-                        help='random state for the statistical test and decoding')
-    parser.add_argument('--task', type=str, required=False, default='GlobalLocal',
-                        help='experiment name, should be GlobalLocal')
-    parser.add_argument('--conditions', type=dict, required=True,
-                        help='conditions to be compared')
-    parser.add_argument('--epochs_root_file', type=str, required=True,
-                        help='epochs root file name')
-    parser.add_argument('--rois_dict', type=dict, required=True,
-                        help='roi dictionary mapping destrieux atlas rois to big rois')
-    parser.add_argument('--explained_variance', type=float, required=False, default=0.8,
-                        help='explained variance for the pca')
-    parser.add_argument('--balance_method', type=str, required=False, default='subsample',
-                        help='balance method for the decoding')
-    parser.add_argument('--normalize', type=str, required=False, default='all',
-                        help='normalize for the decoding')
-    parser.add_argument('--obs_axs', type=int, required=False, default=0,
-                        help='obs axs for the labeled array')
-    parser.add_argument('--chans_axs', type=int, required=False, default=1,
-                        help='chans axs for the labeled array')
-    parser.add_argument('--freq_axs', type=int, required=False, default=2,
-                        help='freq axs for the labeled array')
-    parser.add_argument('--time_axs', type=int, required=False, default=3,
-                        help='time axs for the labeled array')
-    parser.add_argument('--oversample', type=bool, required=False, default=True,
-                        help='oversample for the decoding')
-    parser.add_argument('--alpha', type=float, required=False, default=1.,
-                        help='alpha for the decoding')
-    parser.add_argument('--clear_memory', type=bool, required=False, default=True,
-                        help='clear memory for the decoding')
-    args = parser.parse_args()
-
-    # Set n_cycles default based on freqs if not provided
-    if args.n_cycles is None:
-        args.n_cycles = args.freqs / 2
+    # This block is only executed when someone runs this script directly
+    # Since your run script calls main() directly, this block won't be executed
+    # But we'll keep it minimal for compatibility
     
-    main(args)
+    # Check if being called with SimpleNamespace (from run script)
+    import sys
+    if len(sys.argv) == 1:
+        # No command line arguments, must be imported and called from run script
+        pass
+    else:
+        # Someone is trying to run this directly with command line args
+        print("This script should be called via run_james_sun_cluster_decoding.py")
+        print("Direct command-line execution is not supported with complex parameters.")
+        sys.exit(1)
