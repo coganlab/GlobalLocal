@@ -81,7 +81,7 @@ from src.analysis.utils.labeled_array_utils import (
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
 from src.analysis.utils.general_utils import * # This is generally discouraged.
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
-
+import gc
 # ---- Potentially Unused or Redundant ----
 # from pandas import read_csv # pandas is already imported as pd, use pd.read_csv
 # from os.path import join, expanduser, basename # os.path is available via 'import os'
@@ -1337,7 +1337,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
     p_thresh=0.05, n_perm=100, 
     n_splits=5, n_repeats=5, obs_axs=0, chans_axs=1,
     balance_method='subsample', oversample=False,
-    random_state=42, alpha=0.2, ignore_adjacency=1, seed=42, tails=2, normalize: str = None,
+    random_state=42, alpha=0.2, ignore_adjacency=1, seed=42, tails=2, normalize: str = None, clear_memory=True
 ):
     """
     Compute confusion matrices using TFR cluster masking for multiple ROIs. Also returns the sig tfr cluster masks for later plotting.
@@ -1443,6 +1443,10 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                 
                 cm = confusion_matrix(y_test, preds)
                 fold_cms.append(cm)
+
+                if clear_memory:
+                    del X_train_raw, X_test_raw, y_train, y_test, preds, fold_channel_masks
+                    gc.collect()
             
             # Sum across folds
             repeat_cm = np.sum(fold_cms, axis=0)
@@ -1469,6 +1473,14 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         # Average across repeats
         final_cm = np.mean(all_cms, axis=0)
         confusion_matrices[roi] = final_cm
+        
+        if clear_memory and roi in roi_labeled_arrays:
+            del roi_labeled_arrays[roi]
+            gc.collect()
+
+        if clear_memory:
+            del concatenated_data, labels, cats, all_cms
+            gc.collect()
     
     return confusion_matrices, cats_dict, channel_masks
 
