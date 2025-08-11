@@ -4,7 +4,7 @@
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 50
 #SBATCH --mem=200G
-#SBATCH --time=48:00:00
+#SBATCH --time=96:00:00
 
 subject=$1
 
