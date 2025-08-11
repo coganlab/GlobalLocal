@@ -84,14 +84,14 @@ N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
-NORMALIZE = 'all'
+NORMALIZE = 'true'
 OBS_AXS = 0
 CHANS_AXS = 1
 FREQ_AXS = 2
 TIME_AXS = 3
 OVERSAMPLE = True
 ALPHA = 1.0
-CLEAR_MEMORY = True
+CLEAR_MEMORY = False
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
@@ -120,12 +120,12 @@ ROIS_DICT = {
 }
 
 # testing params (comment out)
-SUBJECTS = ['D0103']
-FREQS = np.arange(2,10.,2.)
-N_CYCLES = FREQS / 2
-N_SPLITS = 2
-N_REPEATS = 2
-N_PERM = 5
+# SUBJECTS = ['D0103']
+# FREQS = np.arange(2,10.,2.)
+# N_CYCLES = FREQS / 2
+# N_SPLITS = 2
+# N_REPEATS = 2
+# N_PERM = 5
 
 def run_analysis():
     """Execute the sig TFR differences analysis with configured parameters."""

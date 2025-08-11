@@ -182,9 +182,7 @@ def main(args):
 
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
-    
-    print(all_electrodes_per_subject_roi) # debug
-    
+        
     subjects_tfr_objects = make_subjects_tfr_objects(
         layout=layout,
         spec_method=args.spec_method,
@@ -210,14 +208,7 @@ def main(args):
     
     # TODO: set electrodes as an input parameter (which electrodes to use)
     electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
-    print(electrodes) # debug
-    
-    if electrodes == all_electrodes_per_subject_roi:
-        elec_string_to_add_to_filename = 'all_elecs'
-    elif electrodes == sig_electrodes_per_subject_roi:
-        elec_string_to_add_to_filename = 'sig_elecs'
-    else:
-        elec_string_to_add_to_filename = None
+    print('elecs: ', electrodes) # debug
 
     roi_labeled_arrays = put_data_in_labeled_array_per_roi_subject(
         subjects_tfr_objects,
@@ -275,7 +266,7 @@ def main(args):
         file_name = f'{roi}_{conditions_save_name}_time_averaged_confusion_matrix_{args.n_splits}splits_{args.n_repeats}repeats_{args.balance_method}.png'
         plot_and_save_confusion_matrix(confusion_matrices[roi], cats[roi], file_name, save_dir)
     
-    # plotting
+    # plotting (this will fail if CLEAR_MEMORY is set to True, because roi_labeled_arrays will be deleted by now)
 
     for roi in rois:
         # This assumes 'channel_masks' has the structure {roi: {repeat: {split: {ch_idx: mask}}}}
