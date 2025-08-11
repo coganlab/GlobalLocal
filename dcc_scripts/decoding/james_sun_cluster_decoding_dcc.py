@@ -195,8 +195,12 @@ def main(args):
         error_trials_only=args.error_trials_only 
     )
     
-    # TODO 8/9: okay from here on start doing the roi labeled arrays stuff
-
+    # This part is fine for getting the time and frequency axes
+    first_sub = args.subjects[0]
+    first_condition = list(subjects_tfr_objects[first_sub].keys())[0]
+    times = subjects_tfr_objects[first_sub][first_condition].times
+    freqs = subjects_tfr_objects[first_sub][first_condition].freqs
+    
     # TODO: set electrodes as an input parameter (which electrodes to use)
     electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
 
@@ -220,6 +224,9 @@ def main(args):
         random_state=args.random_state  # For reproducibility
     )
 
+    del subjects_tfr_objects # clear this from memory now that we're done with it
+    gc.collect()
+    
     condition_comparisons = {}
 
     if args.conditions == experiment_conditions.stimulus_experiment_conditions:
@@ -259,11 +266,6 @@ def main(args):
         plot_and_save_confusion_matrix(confusion_matrices[roi], cats[roi], file_name, save_dir)
     
     # plotting
-    # This part is fine for getting the time and frequency axes
-    first_sub = args.subjects[0]
-    first_condition = list(subjects_tfr_objects[first_sub].keys())[0]
-    times = subjects_tfr_objects[first_sub][first_condition].times
-    freqs = subjects_tfr_objects[first_sub][first_condition].freqs
 
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'james_sun_cluster_decoding', f"{conditions_save_name}")
     os.makedirs(save_dir, exist_ok=True)

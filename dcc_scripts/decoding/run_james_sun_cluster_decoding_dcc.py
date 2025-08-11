@@ -47,7 +47,8 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-SUBJECTS = ['D0103']  # Update this for each run
+SUBJECTS = ['D0057','D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0103']
 
 # Time and task parameters
 SIGNAL_TIMES = [-1.0, 1.5]
@@ -68,10 +69,7 @@ RETURN_ITC = False
 AVERAGE = False
 
 # Statistical parameters
-# Note: We'll serialize the stat_func for passing to main
 STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-STAT_FUNC_NAME = 'ttest_ind'  # For reference
-STAT_FUNC_PARAMS = {'equal_var': False, 'nan_policy': 'omit'}
 P_THRESH = 0.05
 N_PERM = 200
 IGNORE_ADJACENCY = 1
@@ -79,7 +77,7 @@ TAILS = 2
 SEED = None
 
 # Parallel processing
-N_JOBS = 1
+N_JOBS = 2
 
 # Decoding parameters
 N_SPLITS = 5
