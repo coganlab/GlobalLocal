@@ -110,7 +110,7 @@ from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_un
 from src.analysis.spec.subjects_tfr_objects_functions import make_subjects_tfr_objects, get_sig_tfr_differences_per_subject, get_sig_tfr_differences_per_roi
 
 from src.analysis.utils.general_utils import (
-    make_or_load_subjects_electrodes_to_ROIs_dict,
+    load_subjects_electrodes_to_ROIs_dict,
     get_good_data,
     get_sig_chans_per_subject,
     make_sig_electrodes_per_subject_and_roi_dict,
@@ -149,8 +149,7 @@ def main(args):
         LAB_root = args.LAB_root
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=LAB_root, save_dir=config_dir, 
-                                                    filename='subjects_electrodestoROIs_dict.json')
+    subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json') # dcc doesn't have access to ecog_recon from box so can't actually make subjects electrodes to rois dict, need to make that on pc and push it here to be loaded
 
     layout = get_data(args.task, root=LAB_root)
 

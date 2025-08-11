@@ -38,7 +38,7 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None
 
 # Subject configuration
-SUBJECTS = ['D0059']  # So need to manually update this, then run sbatch sbatch_get_sig_tfr_differences.sh. Not ideal, it would be better to have a submit script that loops over the subjects, but whatever!
+SUBJECTS = ['D0077']  # So need to manually update this, then run sbatch sbatch_get_sig_tfr_differences.sh. Not ideal, it would be better to have a submit script that loops over the subjects, but whatever!
 
 # Time and task parameters
 SIGNAL_TIMES = [-1.0, 1.5]

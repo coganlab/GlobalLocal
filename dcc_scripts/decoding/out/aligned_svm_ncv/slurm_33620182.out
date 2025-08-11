@@ -1,0 +1,77 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421', '/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421', '/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+JAMES SUN CLUSTER DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0103']
+Conditions:        ['Stimulus_bigS', 'Stimulus_bigH']
+ROIs:              ['lpfc', 'occ']
+Time window:       -1.0 to 1.5 s
+Frequency range:   2.0 to 198.0 Hz (99 frequencies)
+Spectral method:   multitaper
+Permutations:      200
+P-threshold:       0.05
+Stimulus locked:   True
+Epochs file:       Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Explained variance: 0.8
+Balance method:     subsample
+Normalize:          all
+Obs axs:            0
+Chans axs:          1
+Freq axs:           2
+Time axs:           3
+Oversample:         True
+Alpha:              1.0
+Clear memory:       True
+======================================================================
+
+Starting analysis...
+Attempting to load the subjects' electrodes-to-ROIs dictionary...
+File not found: /hpc/home/jz421/coganlab/jz421/src/analysis/config/subjects_electrodestoROIs_dict.json
+No dictionary found. Looks like it's our lucky day to create one!
+D0103
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0103/ieeg/sub-D0103_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+outlier round 1 channels: ['LTMI8']
+outlier round 2 channels: ['LTMI8', 'LFAM1']
+outlier round 2 channels: ['LTMI8', 'LFAM1', 'LTPI1']
+Reading 0 ... 5583980  =      0.000 ...  2726.553 secs...
+Applying average reference.
+Applying a custom ('sEEG',) reference.
+
+✗ Analysis failed with error: [Errno 2] No such file or directory: '/hpc/home/jz421/Box/ECoG_Recon/D103/elec_recon/D103_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv'

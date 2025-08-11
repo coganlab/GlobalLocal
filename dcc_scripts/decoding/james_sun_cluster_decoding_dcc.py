@@ -22,8 +22,8 @@ except NameError:
     # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
     current_script_dir = os.getcwd()
 
-# Navigate up three levels to get to the 'GlobalLocal' directory
-project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 
 # Add the 'GlobalLocal' directory to sys.path if it's not already there
 if project_root not in sys.path:
@@ -101,7 +101,7 @@ from src.analysis.spec.subjects_tfr_objects_functions import (
     get_sig_tfr_differences_per_roi
 )
 from src.analysis.utils.general_utils import (
-    make_or_load_subjects_electrodes_to_ROIs_dict,
+    load_subjects_electrodes_to_ROIs_dict,
     get_good_data,
     get_sig_chans_per_subject,
     make_sig_electrodes_per_subject_and_roi_dict,
@@ -131,8 +131,7 @@ def main(args):
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
 
-    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(args.subjects, task=args.task, LAB_root=LAB_root, save_dir=config_dir, 
-                                                    filename='subjects_electrodestoROIs_dict.json')
+    subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
 
     layout = get_data(args.task, root=LAB_root)
 
