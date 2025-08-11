@@ -181,6 +181,6 @@ if __name__ == '__main__':
 
     # Save summary CSV
     df_sum = pd.DataFrame(all_records)
-    csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.rois}_{args.event}_summary.csv')
+    csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.rois[0]}_{args.event}_summary.csv')
     df_sum.to_csv(csv_path, index=False)
     print(f"Saved coherence summary to {csv_path}")
