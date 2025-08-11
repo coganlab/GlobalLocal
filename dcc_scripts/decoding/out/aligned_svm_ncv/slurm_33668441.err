@@ -693,3 +693,57 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
 /hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 223 annotation(s) that were outside data range.
   new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   44.4s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.1min
+[Parallel(n_jobs=-1)]: Done 219 out of 219 | elapsed:  3.1min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   32.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=-1)]: Done 199 out of 199 | elapsed:  2.0min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   31.4s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=-1)]: Done 199 out of 199 | elapsed:  2.0min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 219 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   43.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.0min
+[Parallel(n_jobs=-1)]: Done 204 out of 204 | elapsed:  3.0min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 219 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   46.1s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.2min
+[Parallel(n_jobs=-1)]: Done 204 out of 204 | elapsed:  3.2min finished

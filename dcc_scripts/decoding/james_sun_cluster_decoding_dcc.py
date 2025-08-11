@@ -172,7 +172,11 @@ def main(args):
         conditions_save_name = 'response_congruency_conditions' + '_' + args.epochs_root_file + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_switch_type_conditions:
         conditions_save_name = 'response_switch_type_conditions' + '_' + args.epochs_root_file + '_' + str(len(args.subjects)) + '_' + 'subjects'
-
+        
+    save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'james_sun_cluster_decoding', f"{conditions_save_name}")
+    os.makedirs(save_dir, exist_ok=True)
+    print(f"Save directory created or already exists at: {save_dir}")
+    
     sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
 
     rois = list(args.rois_dict.keys())
@@ -266,10 +270,6 @@ def main(args):
         plot_and_save_confusion_matrix(confusion_matrices[roi], cats[roi], file_name, save_dir)
     
     # plotting
-
-    save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'james_sun_cluster_decoding', f"{conditions_save_name}")
-    os.makedirs(save_dir, exist_ok=True)
-    print(f"Save directory created or already exists at: {save_dir}")
 
     for roi in rois:
         # This assumes 'channel_masks' has the structure {roi: {repeat: {split: {ch_idx: mask}}}}

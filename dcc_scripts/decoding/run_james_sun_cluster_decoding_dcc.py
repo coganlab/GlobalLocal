@@ -48,7 +48,6 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 SUBJECTS = ['D0057','D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-# SUBJECTS = ['D0103']
 
 # Time and task parameters
 SIGNAL_TIMES = [-1.0, 1.5]
@@ -119,6 +118,14 @@ ROIS_DICT = {
             "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", 
             "S_oc_sup_and_transversal", "S_occipital_ant"]
 }
+
+# testing params (comment out)
+SUBJECTS = ['D0103']
+FREQS = np.arange(2,20.,2.)
+N_CYCLES = FREQS / 2
+N_SPLITS = 1
+N_REPEATS = 1
+N_PERM = 5
 
 def run_analysis():
     """Execute the sig TFR differences analysis with configured parameters."""
