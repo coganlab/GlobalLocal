@@ -12,7 +12,7 @@ Subjects:          ['D0103']
 Conditions:        ['Stimulus_bigS', 'Stimulus_bigH']
 ROIs:              ['lpfc', 'occ']
 Time window:       -1.0 to 1.5 s
-Frequency range:   2.0 to 18.0 Hz (9 frequencies)
+Frequency range:   2.0 to 14.0 Hz (7 frequencies)
 Spectral method:   multitaper
 Permutations:      5
 P-threshold:       0.05
@@ -120,5 +120,77 @@ Processing ROI: lpfc
 Concatenated data shape for lpfc: (366, 11, 99, 357)
 Condition bigS has 183 trials
 Condition bigH has 183 trials
+  Repeat 1/2, Fold 1/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 1/2, Fold 2/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 2/2, Fold 1/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 2/2, Fold 2/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+Processing ROI: occ
+Concatenated data shape for occ: (366, 4, 99, 357)
+Condition bigS has 183 trials
+Condition bigH has 183 trials
+  Repeat 1/2, Fold 1/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 1/2, Fold 2/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 2/2, Fold 1/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+  Repeat 2/2, Fold 2/2
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
 
-✗ Analysis failed with error: k-fold cross-validation requires at least one train/test split by setting n_splits=2 or more, got n_splits=1.
+✗ Analysis failed with error: [Errno 36] File name too long: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/james_sun_cluster_decoding/stimulus_big_letter_conditions_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_1_subjects/lpfc_stimulus_big_letter_conditions_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_1_subjects_time_averaged_confusion_matrix_2splits_2repeats_subsample.png'

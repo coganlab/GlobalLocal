@@ -747,3 +747,4 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
 [Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   46.1s
 [Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.2min
 [Parallel(n_jobs=-1)]: Done 204 out of 204 | elapsed:  3.2min finished
+slurmstepd: error: *** JOB 33668441 ON dcc-comp-03 CANCELLED AT 2025-08-11T14:58:40 ***

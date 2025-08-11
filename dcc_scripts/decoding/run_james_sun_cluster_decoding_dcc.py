@@ -121,10 +121,10 @@ ROIS_DICT = {
 
 # testing params (comment out)
 SUBJECTS = ['D0103']
-FREQS = np.arange(2,20.,2.)
+FREQS = np.arange(2,10.,2.)
 N_CYCLES = FREQS / 2
-N_SPLITS = 1
-N_REPEATS = 1
+N_SPLITS = 2
+N_REPEATS = 2
 N_PERM = 5
 
 def run_analysis():

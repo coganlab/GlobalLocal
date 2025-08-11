@@ -1,0 +1,15 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_james_sun_cluster_decoding_dcc.py", line 201, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/james_sun_cluster_decoding_dcc.py", line 258, in main
+    confusion_matrices, cats, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 1416, in get_confusion_matrix_for_rois_tfr_cluster
+    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=repeat_seed)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/sklearn/model_selection/_split.py", line 705, in __init__
+    super().__init__(n_splits=n_splits, shuffle=shuffle, random_state=random_state)
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/sklearn/model_selection/_split.py", line 321, in __init__
+    raise ValueError(
+ValueError: k-fold cross-validation requires at least one train/test split by setting n_splits=2 or more, got n_splits=1.
