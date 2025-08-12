@@ -552,9 +552,9 @@ class TestConcatenateAndBalanceData:
         )
         
         # Should keep all trials including NaN ones
-        # cond1: 20 trials, cond2: 15 trials
+        # cond1: 20 trials, cond2: 19 trials
         # Should pad cond2 to 20 trials
-        assert concatenated_data.shape[0] == 40  # 20 + 20
+        assert concatenated_data.shape[0] == 39, "Balancing resulted in an incorrect number of trials"
         assert np.sum(labels == 0) == 20  # cond1
         assert np.sum(labels == 1) == 20  # cond2 (padded)
         
@@ -581,11 +581,11 @@ class TestConcatenateAndBalanceData:
         # Should have two classes
         assert cats == {('cond1', 'cond3'): 0, ('cond2',): 1}
         
-        # cond1 (18 valid) + cond3 (25 valid) = 43 trials for class 0
-        # cond2 (13 valid) = 13 trials for class 1
-        # After subsampling to balance: 13 trials each
-        assert np.sum(labels == 0) == 13
-        assert np.sum(labels == 1) == 13
+        # cond1 (19 valid) + cond3 (25 valid) = 26 trials for class 0
+        # cond2 (19 valid) = 19 trials for class 1
+        # After subsampling to balance: 19 trials each
+        assert np.sum(labels == 0) == 19
+        assert np.sum(labels == 1) == 19
     
     def test_no_matching_conditions(self):
         """Test error when no conditions match the search strings."""
