@@ -502,12 +502,12 @@ class TestConcatenateAndBalanceData:
         
         # Create data for different conditions with different trial counts
         cond1_data = np.random.randn(20, 5, 100)  # 20 trials
-        cond2_data = np.random.randn(15, 5, 100)  # 15 trials
+        cond2_data = np.random.randn(19, 5, 100)  # 19 trials
         cond3_data = np.random.randn(25, 5, 100)  # 25 trials
         
         # Add some NaN trials to test NaN handling
-        cond1_data[18:, :, :] = np.nan  # Last 2 trials are NaN
-        cond2_data[13:, :, :] = np.nan  # Last 2 trials are NaN
+        cond1_data[10, 0, 0] = np.nan  # One channel-timepoint is nan
+        cond1_data[19, :, :] = np.nan  # Last trial is NaN
         
         mock_array.keys.return_value = ['cond1', 'cond2', 'cond3']
         data_map = {
@@ -530,15 +530,12 @@ class TestConcatenateAndBalanceData:
             random_state=42
         )
         
-        # Should remove NaN trials first
-        assert not np.any(np.isnan(concatenated_data))
-        
-        # Should have equal trials per condition (min of valid trials)
-        # cond1: 18 valid trials, cond2: 13 valid trials
-        # So should have 13 trials per condition = 26 total
-        assert concatenated_data.shape[0] == 26
-        assert np.sum(labels == 0) == 13  # cond1
-        assert np.sum(labels == 1) == 13  # cond2
+        # Should remove all NaN trials first
+        assert concatenated_data.shape[0] == 38, "Balancing resulted in an incorrect number of trials"
+        assert np.sum(labels == 0) == 19
+        assert np.sum(labels == 1) == 19
+
+        assert np.any(np.isnan(concatenated_data)), "The partial-NaN trial was incorrectly droped)"
         
         # Check cats dictionary
         assert cats == {('cond1',): 0, ('cond2',): 1}
