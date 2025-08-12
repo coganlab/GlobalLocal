@@ -289,7 +289,7 @@ def main(args):
                 roi_ch_indices = sorted(mask_dict.keys())
                 
                 # Use the indices to get the corresponding channel names from the LabeledArray for this ROI
-                roi_ch_names = [roi_labeled_arrays[roi].labels[args.chans_axs][i] for i in roi_ch_indices]
+                roi_ch_names = [roi_labeled_arrays[roi].labels[args.chans_axs+1][i] for i in roi_ch_indices] # adjust chans axs for the conditions dimension
                 
                 # Stack the 2D mask arrays into a single 3D NumPy array
                 stacked_masks = np.array([mask_dict[ch_idx] for ch_idx in roi_ch_indices])

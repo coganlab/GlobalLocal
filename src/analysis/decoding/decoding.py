@@ -150,6 +150,7 @@ def concatenate_and_balance_data_for_decoding(
                 nan_trials = np.full(nan_trial_shape, np.nan)
                 concatenated_data = np.concatenate([concatenated_data, nan_trials], axis=obs_axs)
                 labels = np.concatenate([labels, [condition_label] * trials_to_add])
+                
     elif balance_method == 'subsample':
         min_trial_count = min(trial_counts.values())
         subsampled_indices = []
@@ -1072,6 +1073,10 @@ def decode_on_sig_tfr_clusters(
     decoder.fit(X_train_masked, y_train)
     preds = decoder.predict(X_test_masked)
     
+    # debugging
+    print(f"Number of significant clusters found: {sum(mask.any() for mask in channel_masks.values())}")
+    print(f"Total significant features: {sum(mask.sum() for mask in channel_masks.values())}")
+
     return preds, channel_masks
 
 def compute_sig_tfr_masks_from_roi_labeled_array(
