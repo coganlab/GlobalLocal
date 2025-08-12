@@ -94,8 +94,8 @@ ALPHA = 1.0
 CLEAR_MEMORY = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
-CONDITIONS_NAME = 'stimulus_big_letter_conditions'  # Store the name for reference
+CONDITIONS = experiment_conditions.stimulus_task_conditions
+CONDITIONS_NAME = 'stimulus_task_conditions'  # Store the name for reference
 
 # Stimulus/Response locking
 STIMULUS_LOCKED = True

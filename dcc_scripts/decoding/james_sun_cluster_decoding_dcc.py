@@ -208,7 +208,6 @@ def main(args):
     
     # TODO: set electrodes as an input parameter (which electrodes to use)
     electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
-    print('elecs: ', electrodes) # debug
 
     roi_labeled_arrays = put_data_in_labeled_array_per_roi_subject(
         subjects_tfr_objects,
@@ -222,8 +221,6 @@ def main(args):
         time_axs=args.time_axs,   # Time dimension
         random_state=args.random_state  # For reproducibility
     )
-
-    print(roi_labeled_arrays['lpfc']) # debug
     
     del subjects_tfr_objects # clear this from memory now that we're done with it
     gc.collect()

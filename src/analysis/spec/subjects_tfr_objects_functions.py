@@ -160,16 +160,8 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
         sub_spec_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, sub)
 
         for condition_name, condition_dict in conditions.items():
-            # Define the path where the individual TFR object is or will be saved
-            spec_save_path = os.path.join(sub_spec_dir, condition_name + '_' + spec_method)
-
-            # Check if the TFR object already exists
-            if os.path.exists(spec_save_path):
-                print(f"Loading existing TFR object for sub-{sub}, condition: {condition_name}")
-                spec = joblib.load(spec_save_path)
-            else:
-                print(f"Creating TFR object for sub-{sub}, condition: {condition_name}")
-                spec = make_subject_tfr_object(sub=sub, layout=layout, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only)
+            print(f"Creating TFR object for sub-{sub}, condition: {condition_name}")
+            spec = make_subject_tfr_object(sub=sub, layout=layout, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only)
 
             subjects_tfr_objects[sub][condition_name] = spec
 

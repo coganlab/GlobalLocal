@@ -2,8 +2,8 @@
 #SBATCH --output=out/aligned_svm_ncv/slurm_%j.out
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
-#SBATCH -c 5
-#SBATCH --mem=800G
+#SBATCH -c 10
+#SBATCH --mem=500G
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
