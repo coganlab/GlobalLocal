@@ -155,6 +155,9 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
 
     subjects_tfr_objects = {}
 
+    print(f"make_subjects_tfr_objects - Input freqs: {freqs}")
+    print(f"make_subjects_tfr_objects - Freq range: {freqs[0]} to {freqs[-1]} Hz, {len(freqs)} frequencies")
+
     for sub in subjects:
         subjects_tfr_objects[sub] = {}
         sub_spec_dir = os.path.join(layout.root, 'derivatives', 'spec', spec_method, sub)
