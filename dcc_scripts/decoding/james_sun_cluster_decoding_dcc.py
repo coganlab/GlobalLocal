@@ -98,8 +98,10 @@ from src.analysis.spec.wavelet_functions import (
 from src.analysis.spec.subjects_tfr_objects_functions import (
     make_subjects_tfr_objects,
     get_sig_tfr_differences_per_subject,
-    get_sig_tfr_differences_per_roi
+    get_sig_tfr_differences_per_roi,
+    normalize_subjects_tfr_objects
 )
+
 from src.analysis.utils.general_utils import (
     load_subjects_electrodes_to_ROIs_dict,
     get_good_data,
@@ -199,7 +201,8 @@ def main(args):
         acc_trials_only=args.acc_trials_only,
         error_trials_only=args.error_trials_only 
     )
-    
+
+    subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
     # This part is fine for getting the time and frequency axes
     first_sub = args.subjects[0]
     first_condition = list(subjects_tfr_objects[first_sub].keys())[0]

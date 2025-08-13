@@ -93,6 +93,10 @@ OVERSAMPLE = True
 ALPHA = 1.0
 CLEAR_MEMORY = False
 
+# Baseline parameters
+BASE_TIMES = (-0.5, 0)
+MODE = 'zscore'
+
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
 CONDITIONS_NAME = 'stimulus_big_letter_conditions'  # Store the name for reference
@@ -166,7 +170,9 @@ def run_analysis():
         time_axs=TIME_AXS,
         oversample=OVERSAMPLE,
         alpha=ALPHA,
-        clear_memory=CLEAR_MEMORY
+        clear_memory=CLEAR_MEMORY,
+        base_times=BASE_TIMES,
+        mode=MODE
     )
     
     # Print configuration summary

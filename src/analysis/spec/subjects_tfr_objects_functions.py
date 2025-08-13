@@ -453,3 +453,29 @@ def get_sig_tfr_differences_per_roi(
             roi_pvals[roi] = np.array([])
 
     return roi_masks, roi_pvals
+
+def normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=(-0.5,0), mode='zscore'):
+    """
+    Applies baseline correction to all subjects' TFR objects.
+
+    Parameters
+    ----------
+    subjects_tfr_objects : dict
+        Dictionary of TFR data: {subject_id: {condition_name: tfr_object}}.
+    base_times : tuple of float, optional
+        The time range to use for baseline correction. Default is (-0.5, 0).
+    mode : str, optional
+        The mode to use for baseline correction. Default is 'zscore'.
+
+    Returns
+    -------
+    subjects_tfr_objects : dict
+        Dictionary of TFR data with baseline correction applied.
+    """
+    for sub in subjects_tfr_objects:
+        for condition in subjects_tfr_objects[sub]:
+            subjects_tfr_objects[sub][condition].apply_baseline(
+                baseline=base_times,
+                mode=mode
+            )
+    return subjects_tfr_objects
