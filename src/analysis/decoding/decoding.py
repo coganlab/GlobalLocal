@@ -118,8 +118,8 @@ def concatenate_and_balance_data_for_decoding(
     if balance_method == 'bootstrap':
         pass # bootstrap and take the number of trials from the subject with the fewest trials. Or just do this across the two conditions. I'm not sure.
     elif balance_method == 'subsample':
-        # Remove entirely NaN trials from concatenated_data and labels
-        nan_trials = np.isnan(concatenated_data).all(axis=tuple(range(1, concatenated_data.ndim)))
+        # Remove trials with any NaNs from concatenated_data and labels. Can change to np.isnan().all() instead to only remove trials that are all NaNs.
+        nan_trials = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
         valid_trials = ~nan_trials
 
         # Keep only valid trials

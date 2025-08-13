@@ -83,7 +83,7 @@ N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
-BALANCE_METHOD = 'subsample'
+BALANCE_METHOD = 'pad_with_nans'
 NORMALIZE = 'true'
 OBS_AXS = 0
 CHANS_AXS = 1
@@ -94,8 +94,8 @@ ALPHA = 1.0
 CLEAR_MEMORY = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_task_conditions
-CONDITIONS_NAME = 'stimulus_task_conditions'  # Store the name for reference
+CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
+CONDITIONS_NAME = 'stimulus_big_letter_conditions'  # Store the name for reference
 
 # Stimulus/Response locking
 STIMULUS_LOCKED = True
