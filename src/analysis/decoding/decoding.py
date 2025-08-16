@@ -91,20 +91,7 @@ def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
 ):
     """
-    Processes and balances the data for a given ROI.
-
-    Parameters:
-    - roi_labeled_arrays: Dictionary containing reshaped data for each ROI.
-    - roi: The ROI to process.
-    - strings_to_find: List of strings or string groups to identify condition labels.
-    - obs_axs: The trials axis.
-    - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
-    - random_state: Random seed for reproducibility.
-
-    Returns:
-    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
-    - labels: The processed labels array.
-    - cats: Dictionary of condition categories.
+    Processes and balances the data for a given ROI with improved debugging.
     """
     rng = np.random.RandomState(random_state)
 
@@ -113,23 +100,76 @@ def concatenate_and_balance_data_for_decoding(
         roi_labeled_arrays, roi, strings_to_find, obs_axs
     )
 
-    print(f"Concatenated data shape for {roi}: {concatenated_data.shape}")
-    # TODO: implement bootstrapping - across subjects first and then across conditions, or just across conditions and drop to min number of trials per condition across subjects?
-    if balance_method == 'bootstrap':
-        pass # bootstrap and take the number of trials from the subject with the fewest trials. Or just do this across the two conditions. I'm not sure.
-    elif balance_method == 'subsample':
-        # Remove trials with any NaNs from concatenated_data and labels. Can change to np.isnan().all() instead to only remove trials that are all NaNs.
-        nan_trials = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
-        valid_trials = ~nan_trials
-
-        # Keep only valid trials
+    print(f"\n{'='*60}")
+    print(f"ROI: {roi}")
+    print(f"{'='*60}")
+    print(f"Initial concatenated data shape: {concatenated_data.shape}")
+    print(f"Initial number of labels: {len(labels)}")
+    
+    if balance_method == 'subsample':
+        # Detailed NaN analysis
+        print(f"\n--- NaN Analysis ---")
+        
+        # Check NaNs per trial (any NaN in the trial)
+        nan_trials_mask = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
+        n_nan_trials = np.sum(nan_trials_mask)
+        print(f"Trials with at least one NaN: {n_nan_trials}/{len(nan_trials_mask)} ({100*n_nan_trials/len(nan_trials_mask):.1f}%)")
+        
+        # Analyze NaN patterns
+        if concatenated_data.ndim >= 3:  # Has channel dimension
+            n_channels = concatenated_data.shape[1]
+            
+            # Count NaNs per channel across all trials
+            nan_per_channel = np.zeros(n_channels)
+            for ch_idx in range(n_channels):
+                ch_data = concatenated_data[:, ch_idx, ...]
+                nan_per_channel[ch_idx] = np.sum(np.isnan(ch_data))
+            
+            # Identify channels that are all NaN for all trials
+            all_nan_channels = []
+            for ch_idx in range(n_channels):
+                ch_data = concatenated_data[:, ch_idx, ...]
+                if np.all(np.isnan(ch_data)):
+                    all_nan_channels.append(ch_idx)
+            
+            print(f"Channels that are all NaN: {len(all_nan_channels)}/{n_channels}")
+            
+            # Analyze trial-level NaN patterns
+            nan_due_to_outliers = 0
+            nan_due_to_missing_channels = 0
+            
+            for trial_idx in range(concatenated_data.shape[0]):
+                trial_data = concatenated_data[trial_idx]
+                
+                if np.any(np.isnan(trial_data)):
+                    # Check if entire channels are NaN (missing electrode)
+                    channels_all_nan = np.all(np.isnan(trial_data), axis=tuple(range(1, trial_data.ndim)))
+                    
+                    # Check if there are partial NaNs (likely outliers)
+                    channels_partial_nan = np.any(np.isnan(trial_data), axis=tuple(range(1, trial_data.ndim))) & ~channels_all_nan
+                    
+                    if np.any(channels_partial_nan):
+                        nan_due_to_outliers += 1
+                    elif np.any(channels_all_nan):
+                        nan_due_to_missing_channels += 1
+            
+            print(f"Trials with NaNs likely due to outliers: {nan_due_to_outliers}")
+            print(f"Trials with NaNs likely due to missing channels: {nan_due_to_missing_channels}")
+        
+        # Remove trials with any NaNs
+        valid_trials = ~nan_trials_mask
         concatenated_data = concatenated_data[valid_trials]
         labels = labels[valid_trials]
+        
+        print(f"\nAfter removing NaN trials:")
+        print(f"  Data shape: {concatenated_data.shape}")
+        print(f"  Number of trials kept: {np.sum(valid_trials)}/{len(valid_trials)} ({100*np.sum(valid_trials)/len(valid_trials):.1f}%)")
 
     # Calculate trial counts per condition
     trial_counts = {}
     condition_indices = {}
 
+    print(f"\n--- Trial Counts by Condition ---")
     for string_group in strings_to_find:
         condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
         condition_trials = labels == condition_label
@@ -139,13 +179,15 @@ def concatenate_and_balance_data_for_decoding(
         condition_indices[condition_label] = np.where(condition_trials)[0]
         trial_counts[condition_label] = data_for_condition.shape[0]
 
-        print(f'Condition {string_group} has {trial_counts[condition_label]} trials')
+        print(f'  Condition {string_group}: {trial_counts[condition_label]} trials')
 
     if balance_method == 'pad_with_nans':
         max_trial_count = max(trial_counts.values())
+        print(f"\nPadding to max trial count: {max_trial_count}")
         for condition_label, count in trial_counts.items():
             trials_to_add = max_trial_count - count
             if trials_to_add > 0:
+                print(f"  Adding {trials_to_add} NaN trials to condition {condition_label}")
                 nan_trial_shape = (trials_to_add,) + concatenated_data.shape[1:]
                 nan_trials = np.full(nan_trial_shape, np.nan)
                 concatenated_data = np.concatenate([concatenated_data, nan_trials], axis=obs_axs)
@@ -153,11 +195,13 @@ def concatenate_and_balance_data_for_decoding(
 
     elif balance_method == 'subsample':
         min_trial_count = min(trial_counts.values())
+        print(f"\nSubsampling to min trial count: {min_trial_count}")
         subsampled_indices = []
         for condition_label in trial_counts.keys():
             indices = condition_indices[condition_label]
             if trial_counts[condition_label] > min_trial_count:
                 selected_indices = rng.choice(indices, size=min_trial_count, replace=False)
+                print(f"  Subsampled condition {condition_label}: {len(indices)} -> {min_trial_count}")
             else:
                 selected_indices = indices
             subsampled_indices.extend(selected_indices)
@@ -165,10 +209,12 @@ def concatenate_and_balance_data_for_decoding(
         subsampled_indices = np.array(subsampled_indices, dtype=int)
         concatenated_data = concatenated_data[subsampled_indices]
         labels = labels[subsampled_indices]
-    else:
-        raise ValueError(f"Invalid balance_method: {balance_method}. Choose 'pad_with_nans' or 'subsample'.")
+        
+        print(f"\nFinal balanced data shape: {concatenated_data.shape}")
 
+    print(f"{'='*60}\n")
     return concatenated_data, labels, cats
+
 
 
 # largely stolen from aaron's ieeg plot_decoding.py

@@ -1,0 +1,8 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 189, in <module>
+    run_analysis()
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 152, in run_analysis
+    n_splits=N_SPLITS,
+             ^^^^^^^^
+NameError: name 'N_SPLITS' is not defined

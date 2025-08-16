@@ -203,6 +203,7 @@ def main(args):
     )
 
     subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
+    
     # This part is fine for getting the time and frequency axes
     first_sub = args.subjects[0]
     first_condition = list(subjects_tfr_objects[first_sub].keys())[0]

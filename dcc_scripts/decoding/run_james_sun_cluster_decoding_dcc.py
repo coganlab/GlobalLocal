@@ -199,6 +199,8 @@ def run_analysis():
     print(f"Oversample:         {OVERSAMPLE}")
     print(f"Alpha:              {ALPHA}")
     print(f"Clear memory:       {CLEAR_MEMORY}")
+    print(f"base times:         {BASE_TIMES}")
+    print(f"mode:               {MODE}")
     print("=" * 70)
     
     # Run the analysis
