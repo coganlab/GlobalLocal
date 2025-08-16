@@ -83,7 +83,7 @@ N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
-BALANCE_METHOD = 'pad_with_nans'
+BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
 OBS_AXS = 0
 CHANS_AXS = 1
@@ -124,12 +124,12 @@ ROIS_DICT = {
 }
 
 # testing params (comment out)
-# SUBJECTS = ['D0103']
-# FREQS = np.arange(2,10.,2.)
-# N_CYCLES = FREQS / 2
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 5
+SUBJECTS = ['D0103']
+FREQS = np.arange(2,200.,2.)
+N_CYCLES = FREQS / 2
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 100
 
 def run_analysis():
     """Execute the sig TFR differences analysis with configured parameters."""
