@@ -92,6 +92,7 @@ def concatenate_and_balance_data_for_decoding(
 ):
     """
     Processes and balances the data for a given ROI with improved debugging.
+    Now correctly distinguishes between outlier-induced NaNs and missing channel NaNs.
     """
     rng = np.random.RandomState(random_state)
 
@@ -104,72 +105,125 @@ def concatenate_and_balance_data_for_decoding(
     print(f"ROI: {roi}")
     print(f"{'='*60}")
     print(f"Initial concatenated data shape: {concatenated_data.shape}")
-    print(f"Initial number of labels: {len(labels)}")
+    print(f"  Trials: {concatenated_data.shape[0]}")
+    print(f"  Channels: {concatenated_data.shape[1]}")
+    if concatenated_data.ndim > 2:
+        print(f"  Time points: {concatenated_data.shape[-1]}")
+        if concatenated_data.ndim == 4:  # Has frequency dimension
+            print(f"  Frequencies: {concatenated_data.shape[2]}")
     
     if balance_method == 'subsample':
-        # Detailed NaN analysis
-        print(f"\n--- NaN Analysis ---")
+        print(f"\n--- Detailed NaN Analysis ---")
         
-        # Check NaNs per trial (any NaN in the trial)
-        nan_trials_mask = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
-        n_nan_trials = np.sum(nan_trials_mask)
-        print(f"Trials with at least one NaN: {n_nan_trials}/{len(nan_trials_mask)} ({100*n_nan_trials/len(nan_trials_mask):.1f}%)")
+        n_trials = concatenated_data.shape[0]
+        n_channels = concatenated_data.shape[1] if concatenated_data.ndim >= 2 else 1
         
-        # Analyze NaN patterns
-        if concatenated_data.ndim >= 3:  # Has channel dimension
-            n_channels = concatenated_data.shape[1]
+        # Reshape to (trials, channels, features) for easier analysis
+        # where features = time*freq or just time
+        reshaped_data = concatenated_data.reshape(n_trials, n_channels, -1)
+        n_features = reshaped_data.shape[2]
+        
+        # 1. Identify channels that are completely NaN across all trials (missing channels)
+        missing_channels = []
+        for ch_idx in range(n_channels):
+            ch_data = reshaped_data[:, ch_idx, :]
+            if np.all(np.isnan(ch_data)):
+                missing_channels.append(ch_idx)
+        
+        print(f"\nMissing Channels (all NaN across all trials): {len(missing_channels)}/{n_channels}")
+        
+        # 2. Analyze NaN patterns per trial
+        trials_with_any_nan = 0
+        trials_with_outlier_nans = 0
+        trials_with_missing_channel_nans = 0
+        trials_with_both = 0
+        
+        outlier_nan_counts = []
+        missing_channel_counts_per_trial = []
+        
+        for trial_idx in range(n_trials):
+            trial_data = reshaped_data[trial_idx]  # Shape: (channels, features)
             
-            # Count NaNs per channel across all trials
-            nan_per_channel = np.zeros(n_channels)
+            has_any_nan = False
+            has_outlier_nan = False
+            has_missing_channel = False
+            outlier_nans_in_trial = 0
+            missing_channels_in_trial = 0
+            
             for ch_idx in range(n_channels):
-                ch_data = concatenated_data[:, ch_idx, ...]
-                nan_per_channel[ch_idx] = np.sum(np.isnan(ch_data))
-            
-            # Identify channels that are all NaN for all trials
-            all_nan_channels = []
-            for ch_idx in range(n_channels):
-                ch_data = concatenated_data[:, ch_idx, ...]
-                if np.all(np.isnan(ch_data)):
-                    all_nan_channels.append(ch_idx)
-            
-            print(f"Channels that are all NaN: {len(all_nan_channels)}/{n_channels}")
-            
-            # Analyze trial-level NaN patterns
-            nan_due_to_outliers = 0
-            nan_due_to_missing_channels = 0
-            
-            for trial_idx in range(concatenated_data.shape[0]):
-                trial_data = concatenated_data[trial_idx]
+                ch_data = trial_data[ch_idx]
                 
-                if np.any(np.isnan(trial_data)):
-                    # Check if entire channels are NaN (missing electrode)
-                    channels_all_nan = np.all(np.isnan(trial_data), axis=tuple(range(1, trial_data.ndim)))
+                if np.any(np.isnan(ch_data)):
+                    has_any_nan = True
                     
-                    # Check if there are partial NaNs (likely outliers)
-                    channels_partial_nan = np.any(np.isnan(trial_data), axis=tuple(range(1, trial_data.ndim))) & ~channels_all_nan
-                    
-                    if np.any(channels_partial_nan):
-                        nan_due_to_outliers += 1
-                    elif np.any(channels_all_nan):
-                        nan_due_to_missing_channels += 1
+                    if np.all(np.isnan(ch_data)):
+                        # Entire channel is NaN for this trial
+                        has_missing_channel = True
+                        missing_channels_in_trial += 1
+                    else:
+                        # Partial NaNs - likely outliers
+                        has_outlier_nan = True
+                        outlier_nans_in_trial += np.sum(np.isnan(ch_data))
             
-            print(f"Trials with NaNs likely due to outliers: {nan_due_to_outliers}")
-            print(f"Trials with NaNs likely due to missing channels: {nan_due_to_missing_channels}")
+            if has_any_nan:
+                trials_with_any_nan += 1
+            if has_outlier_nan:
+                trials_with_outlier_nans += 1
+                outlier_nan_counts.append(outlier_nans_in_trial)
+            if has_missing_channel:
+                trials_with_missing_channel_nans += 1
+                missing_channel_counts_per_trial.append(missing_channels_in_trial)
+            if has_outlier_nan and has_missing_channel:
+                trials_with_both += 1
+        
+        print(f"\nTrial-level NaN Statistics:")
+        print(f"  Trials with ANY NaN: {trials_with_any_nan}/{n_trials} ({100*trials_with_any_nan/n_trials:.1f}%)")
+        print(f"  Trials with outlier NaNs (sparse): {trials_with_outlier_nans}/{n_trials} ({100*trials_with_outlier_nans/n_trials:.1f}%)")
+        print(f"  Trials with missing channel NaNs (dense): {trials_with_missing_channel_nans}/{n_trials} ({100*trials_with_missing_channel_nans/n_trials:.1f}%)")
+        print(f"  Trials with both types: {trials_with_both}/{n_trials} ({100*trials_with_both/n_trials:.1f}%)")
+        
+        if outlier_nan_counts:
+            print(f"\nOutlier NaN Statistics (for affected trials):")
+            print(f"  Mean outlier NaNs per affected trial: {np.mean(outlier_nan_counts):.1f}")
+            print(f"  Max outlier NaNs in a trial: {np.max(outlier_nan_counts)}")
+            print(f"  Total outlier NaNs across all trials: {np.sum(outlier_nan_counts)}")
+        
+        if missing_channel_counts_per_trial:
+            print(f"\nMissing Channel Statistics (for affected trials):")
+            print(f"  Mean missing channels per affected trial: {np.mean(missing_channel_counts_per_trial):.1f}")
+            print(f"  Max missing channels in a trial: {np.max(missing_channel_counts_per_trial)}")
+        
+        # 3. Calculate percentage of data that is NaN
+        total_nan_count = np.sum(np.isnan(concatenated_data))
+        total_elements = concatenated_data.size
+        print(f"\nOverall NaN Percentage: {100*total_nan_count/total_elements:.2f}%")
         
         # Remove trials with any NaNs
+        nan_trials_mask = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
         valid_trials = ~nan_trials_mask
+        
+        # Before removing, check which conditions are most affected
+        print(f"\n--- NaN Impact by Condition ---")
+        for string_group in strings_to_find:
+            condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
+            condition_mask = labels == condition_label
+            condition_nan_mask = nan_trials_mask & condition_mask
+            n_condition_trials = np.sum(condition_mask)
+            n_nan_trials = np.sum(condition_nan_mask)
+            print(f"  {string_group}: {n_nan_trials}/{n_condition_trials} trials with NaNs ({100*n_nan_trials/n_condition_trials:.1f}%)")
+        
         concatenated_data = concatenated_data[valid_trials]
         labels = labels[valid_trials]
         
         print(f"\nAfter removing NaN trials:")
-        print(f"  Data shape: {concatenated_data.shape}")
-        print(f"  Number of trials kept: {np.sum(valid_trials)}/{len(valid_trials)} ({100*np.sum(valid_trials)/len(valid_trials):.1f}%)")
+        print(f"  Trials kept: {np.sum(valid_trials)}/{len(valid_trials)} ({100*np.sum(valid_trials)/len(valid_trials):.1f}%)")
+        print(f"  New data shape: {concatenated_data.shape}")
 
     # Calculate trial counts per condition
     trial_counts = {}
     condition_indices = {}
 
-    print(f"\n--- Trial Counts by Condition ---")
+    print(f"\n--- Final Trial Counts by Condition ---")
     for string_group in strings_to_find:
         condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
         condition_trials = labels == condition_label
@@ -180,6 +234,12 @@ def concatenate_and_balance_data_for_decoding(
         trial_counts[condition_label] = data_for_condition.shape[0]
 
         print(f'  Condition {string_group}: {trial_counts[condition_label]} trials')
+
+    # Check if we have enough trials
+    min_trials = min(trial_counts.values()) if trial_counts else 0
+    if min_trials < 10:
+        print(f"\n⚠️ WARNING: Very few trials remaining! Min trials per condition: {min_trials}")
+        print("  This will likely result in poor decoding accuracy.")
 
     if balance_method == 'pad_with_nans':
         max_trial_count = max(trial_counts.values())
@@ -214,8 +274,6 @@ def concatenate_and_balance_data_for_decoding(
 
     print(f"{'='*60}\n")
     return concatenated_data, labels, cats
-
-
 
 # largely stolen from aaron's ieeg plot_decoding.py
 

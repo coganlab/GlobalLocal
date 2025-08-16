@@ -37,7 +37,7 @@ from ieeg.calc.fast import mean_diff
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
-from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_trials
+from src.analysis.utils.general_utils import calculate_RTs, get_good_data, get_trials, get_trials_with_outlier_analysis
 
 import matplotlib.pyplot as plt
 
@@ -185,8 +185,8 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
     padded_times = (times[0] - 0.5, times[1] + 0.5)
-    all_trials = get_trials(good, events, padded_times)
-
+    # all_trials = get_trials(good, events, padded_times)
+    all_trials = get_trials_with_outlier_analysis(good, events, padded_times) # this is just for debugging, go back to using get_trials once done with debugging
     # Compute multitaper for the extracted trials (this can be replaced by epochs.compute_tfr): https://mne.tools/stable/auto_examples/time_frequency/time_frequency_simulated.html#sphx-glr-auto-examples-time-frequency-time-frequency-simulated-py
     spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     
