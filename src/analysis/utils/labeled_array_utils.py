@@ -213,9 +213,6 @@ def make_subject_labeled_array(
 
     subject_nested_dict = {}
 
-    # Get channel names for this subject's ROI
-    sub_channel_names = [f"{sub}-{electrode}" for electrode in electrodes]
-
     data_type = detect_data_type(subjects_data_objects)
     
     # Loop through each condition
@@ -233,12 +230,12 @@ def make_subject_labeled_array(
             raise ValueError("subjects_data_objects must be either Epochs or EpochsTFR from subjects_mne_objects or subjects_tfr_objects")
         epochs_data = epochs.get_data().copy()
 
-        # Randomize the trial order
+        # Randomize the trial order - wait i don't think this is necessary, especially because i'm only making the roi labeled arrays once anyway.
         n_trials = epochs_data.shape[obs_axs]
         print(f'in roi {roi}, subject {sub} has {n_trials} trials for condition {condition_name}')
-        trial_indices = np.arange(n_trials)
-        rng.shuffle(trial_indices)
-        epochs_data = epochs_data.take(trial_indices, axis=obs_axs)
+        # trial_indices = np.arange(n_trials)
+        # rng.shuffle(trial_indices)
+        # epochs_data = epochs_data.take(trial_indices, axis=obs_axs)
 
         # Get the target number of trials for padding
         max_trials = max_trials_per_condition[condition_name]
@@ -271,10 +268,16 @@ def make_subject_labeled_array(
         freq_axs = None
         np_array_str_freqs = None
     
+    # TODO: uh get channel names as labels..? i think the below would work, but test it
+    # Get channel names for this subject's ROI
+    sub_channel_names = [f"{sub}-{electrode}" for electrode in electrodes]
+
+    np_array_sub_channel_names = np.array(sub_channel_names)
+    
     # Create a LabeledArray for the subject
     # TODO: add freqs axs as optional input here
     subject_labeled_array = create_subject_labeled_array_from_dict(
-        subject_nested_dict, sub_channel_names, np_array_str_times, np_array_str_freqs, chans_axs, time_axs, freq_axs
+        subject_nested_dict, np_array_sub_channel_names, np_array_str_times, np_array_str_freqs, chans_axs, time_axs, freq_axs
     )
 
     # Print the shape and time axis labels
@@ -284,7 +287,7 @@ def make_subject_labeled_array(
     return subject_labeled_array
 
 def create_subject_labeled_array_from_dict(
-    subject_nested_dict, sub_channel_names, np_array_str_times, np_array_str_freqs, chans_axs, time_axs, freq_axs=None
+    subject_nested_dict, np_array_sub_channel_names, np_array_str_times, np_array_str_freqs, chans_axs, time_axs, freq_axs=None
 ):
     """
     Create a LabeledArray for a subject from a dictionary of condition data.
@@ -298,7 +301,7 @@ def create_subject_labeled_array_from_dict(
 
     Args:
         subject_nested_dict (dict): {condition_name: np.ndarray(trials, channels, timepoints) OR (trials, channels, timepoints, frequencies)}.
-        sub_channel_names (list): List of strings for channel labels.
+        np_array_sub_channel_names (np.ndarray): Array of strings for channel labels.
         np_array_str_times (np.ndarray): Array of strings for time labels.
         np_array_str_freqs (np.ndarray): Array of strings for frequency labels.
         chans_axs (int): Original channels axis index in the per-condition data arrays
@@ -314,7 +317,7 @@ def create_subject_labeled_array_from_dict(
     """
     subject_labeled_array = LabeledArray.from_dict(subject_nested_dict)
     # Adjust axes indices due to the added conditions axis
-    subject_labeled_array.labels[chans_axs + 1].values = sub_channel_names  # Channels axis
+    subject_labeled_array.labels[chans_axs + 1].values = np_array_sub_channel_names  # Channels axis
     subject_labeled_array.labels[time_axs + 1].values = np_array_str_times  # Time axis
     if freq_axs is not None:
         subject_labeled_array.labels[freq_axs + 1].values = np_array_str_freqs  # Frequency axis

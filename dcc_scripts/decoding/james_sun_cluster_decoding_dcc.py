@@ -226,6 +226,8 @@ def main(args):
         random_state=args.random_state  # For reproducibility
     )
     
+    # TODO: hm need a mapping from roi labeled array channel labels back to subjects tfr objects channel names for the plots 
+    
     del subjects_tfr_objects # clear this from memory now that we're done with it
     gc.collect()
     
