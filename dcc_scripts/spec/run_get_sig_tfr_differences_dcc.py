@@ -38,11 +38,15 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None
 
 # Subject configuration
-SUBJECTS = ['D0077']  # So need to manually update this, then run sbatch sbatch_get_sig_tfr_differences.sh. Not ideal, it would be better to have a submit script that loops over the subjects, but whatever!
+SUBJECTS = ['D0090']  # So need to manually update this, then run sbatch sbatch_get_sig_tfr_differences.sh. Not ideal, it would be better to have a submit script that loops over the subjects, but whatever!
 
 # Time and task parameters
 SIGNAL_TIMES = [-1.0, 1.5]
 TASK = 'GlobalLocal'
+
+# Baseline parameters
+BASE_TIMES = (-0.5, 0)
+MODE = 'zscore'
 
 # Trial selection
 ACC_TRIALS_ONLY = True
@@ -75,11 +79,6 @@ SEED = None  # Set to integer for reproducibility
 
 # Parallel processing
 N_JOBS = 1
-
-# Decoding parameters (for future functionality)
-N_SPLITS = 2
-N_REPEATS = 1
-RANDOM_STATE = 42
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
@@ -140,6 +139,8 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         signal_times=SIGNAL_TIMES,
+        base_times=BASE_TIMES,
+        mode=MODE,
         acc_trials_only=ACC_TRIALS_ONLY,
         error_trials_only=ERROR_TRIALS_ONLY,
         stat_func=STAT_FUNC,
@@ -155,9 +156,6 @@ def run_analysis():
         average=AVERAGE,
         seed=SEED,
         tails=TAILS,
-        n_splits=N_SPLITS,
-        n_repeats=N_REPEATS,
-        random_state=RANDOM_STATE,
         task=TASK,
         conditions=CONDITIONS,
         epochs_root_file=EPOCHS_ROOT_FILE,

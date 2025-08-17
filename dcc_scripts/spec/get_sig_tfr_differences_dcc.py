@@ -107,7 +107,7 @@ from src.analysis.decoding.decoding import (
 )
 
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_sig_tfr_differences, plot_mask_pages
-from src.analysis.spec.subjects_tfr_objects_functions import make_subjects_tfr_objects, get_sig_tfr_differences_per_subject, get_sig_tfr_differences_per_roi
+from src.analysis.spec.subjects_tfr_objects_functions import make_subjects_tfr_objects, get_sig_tfr_differences_per_subject, get_sig_tfr_differences_per_roi, normalize_subjects_tfr_objects
 
 from src.analysis.utils.general_utils import (
     load_subjects_electrodes_to_ROIs_dict,
@@ -212,6 +212,8 @@ def main(args):
     acc_trials_only=args.acc_trials_only,
     error_trials_only=args.error_trials_only 
     )
+    
+    subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
 
     # For per-subject analysis (no electrode filtering needed)
     sig_elec_masks_per_subject, sig_elec_pvals_per_subject = get_sig_tfr_differences_per_subject(subjects_tfr_objects=subjects_tfr_objects, condition_names=condition_names, stat_func=args.stat_func, p_thresh=args.p_thresh, n_perm=args.n_perm, ignore_adjacency=args.ignore_adjacency, n_jobs=args.n_jobs, seed=args.seed, tails=args.tails)
