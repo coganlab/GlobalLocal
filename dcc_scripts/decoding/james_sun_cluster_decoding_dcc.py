@@ -259,7 +259,7 @@ def main(args):
     elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
         condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
 
-    for condition_comparisons, strings_to_find in condition_comparisons.items():
+    for condition_comparison, strings_to_find in condition_comparisons.items():
         confusion_matrices, cats, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
             roi_labeled_arrays, rois, strings_to_find, args.stat_func, 
             Decoder, explained_variance=args.explained_variance,
