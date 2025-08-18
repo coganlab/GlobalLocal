@@ -326,3 +326,7 @@ Trials with >5% outliers: 11/234 (4.7%)
 ============================================================
 
 NOTE: tfr_multitaper() is a legacy function. New code should use .compute_tfr(method="multitaper").
+Applying baseline correction (mode: zscore)
+Applying baseline correction (mode: zscore)
+Processing statistics for subject: D0090
+stat_func returns a tuple. Taking the first element

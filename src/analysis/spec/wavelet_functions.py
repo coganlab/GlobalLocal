@@ -84,7 +84,7 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     del inst
     return base
 
-def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float], n_jobs: int=1) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float], outliers_to_nan: bool, n_jobs: int=1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected wavelets for specified trials.
 
@@ -102,6 +102,8 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
         A list of event names to extract trials for.
     times : tuple of float
         A tuple (start, end) in seconds relative to each event defining the extraction window.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN
     n_jobs : int
         The number of parallel jobs to use for the wavelet scaleogram.
     Returns
@@ -121,7 +123,7 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
     # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
     padded_times = (times[0] - 0.5, times[1] + 0.5)
-    all_trials = get_trials(good, events, padded_times)
+    all_trials = get_trials(good, events, padded_times, outliers_to_nan)
 
     # Compute wavelets for the extracted trials
     spec = wavelet_scaleogram(all_trials, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
@@ -134,7 +136,7 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
 
     return spec
 
-def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, outliers_to_nan: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected multitaper spectrogram for specified trials.
 
@@ -162,6 +164,8 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
         Whether to return the intertrial coherence (ITC) as well as the multitaper spectrogram.
     average : bool
         Whether to average the multitaper spectrogram across trials.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN
     n_jobs : int
         The number of parallel jobs to use for the multitaper spectrogram.
     Returns
@@ -185,12 +189,10 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     # Retrieve preprocessed data for the subject
     good = get_good_data(sub, layout)
     padded_times = (times[0] - 0.5, times[1] + 0.5)
-    # all_trials = get_trials(good, events, padded_times)
-    all_trials = get_trials_with_outlier_analysis(good, events, padded_times) # this is just for debugging, go back to using get_trials once done with debugging
+    all_trials = get_trials(good, events, padded_times, outliers_to_nan)
+    
     # Compute multitaper for the extracted trials (this can be replaced by epochs.compute_tfr): https://mne.tools/stable/auto_examples/time_frequency/time_frequency_simulated.html#sphx-glr-auto-examples-time-frequency-time-frequency-simulated-py
     spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
-    # TODO: OH DO THE BASELINE CORRECTION HERE, I ALREADY PAD IT
-    # TODO: add outlier removal as an option, not a requirement, can run get_trials with that option
     # add fnames to spec.info
     fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
     spec.info['subject_info']['files'] = tuple(fnames)
@@ -198,6 +200,71 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     crop_pad(spec, "0.5s")
 
     return spec
+
+# untested, if this works, can do the same thing for wavelet
+def get_corrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], base_times: tuple[float, float], mode: str, freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, outliers_to_nan: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
+    """
+    Compute baseline-corrected multitaper spectrogram for specified trials.
+
+    This function retrieves preprocessed EEG data for a subject using `get_good_data`, extracts epochs
+    for the specified events (with additional padding), computes the multitaper spectrogram for the epochs and for baseline, and rescales the epochs using the baseline.
+
+
+    Parameters
+    ----------
+    sub : str
+        The subject identifier.
+    layout : BIDSLayout
+        The BIDS layout object containing the data.
+    events : list of str
+        A list of event names to extract trials for.
+    times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the extraction window.
+    base_times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the baseline window
+    mode : str, optional
+        The mode to use for baseline correction. Default is 'zscore'.
+    freqs : np.ndarray
+        The frequencies to compute the multitaper spectrogram for.
+    n_cycles : int | array of int, shape (n_freqs)
+        The number of cycles to use for each frequency.
+    time_bandwidth : int
+        The time-bandwidth product to use for the multitaper spectrogram.
+    return_itc : bool
+        Whether to return the intertrial coherence (ITC) as well as the multitaper spectrogram.
+    average : bool
+        Whether to average the multitaper spectrogram across trials.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN
+    n_jobs : int
+        The number of parallel jobs to use for the multitaper spectrogram.
+    Returns
+    -------
+    spec_rescaled : mne.time_frequency.EpochsTFR
+        The time-frequency representation (multitaper spectrogram) of the baseline-corrected epochs.
+
+    Examples
+    --------
+    >>> # Assume 'layout' is a valid BIDSLayout and subject 'sub-01' has corresponding data.
+    >>> events = ['Stimulus/c25', 'Stimulus/c75']
+    >>> times = (-0.5, 1.5)
+    >>> freqs = np.arange(10, 200, 2)
+    >>> n_cycles = freqs / 2    
+    >>> time_bandwidth = 10
+    >>> return_itc = False
+    >>> tfr = get_uncorrected_multitaper('sub-01', layout, events, times, freqs, n_cycles, time_bandwidth, return_itc)
+    >>> isinstance(tfr, mne.time_frequency.EpochsTFR)
+    True
+    """
+    spec = get_uncorrected_multitaper(sub, layout, events, times, freqs, n_cycles, time_bandwidth, return_itc, average, outliers_to_nan, n_jobs)
+    base = get_uncorrected_multitaper(sub, layout, ["Stimulus"], base_times, freqs, n_cycles, time_bandwidth, return_itc, average, outliers_to_nan, n_jobs)
+    spec_corrected = rescale(spec, base, copy=True, mode=mode)
+
+    return spec_corrected
+
+# TODO : if get_corrected_multitaper works, apply same logic here
+def get_corrected_wavelet():
+    pass
 
 def make_and_get_sig_wavelet_differences(sub: str, layout, events_condition_1: List[str],
                                      events_condition_2: List[str], times: Tuple[float, float],

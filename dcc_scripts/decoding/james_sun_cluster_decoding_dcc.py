@@ -199,10 +199,15 @@ def main(args):
         n_jobs=args.n_jobs,
         average=args.average,
         acc_trials_only=args.acc_trials_only,
-        error_trials_only=args.error_trials_only 
+        error_trials_only=args.error_trials_only,
+        rescale=args.rescale,
+        base_times=args.base_times,
+        mode=args.mode,
+        outliers_to_nan=args.outliers_to_nan
     )
 
-    subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
+    # this is an alternative way of rescaling, but let's rescale the tfr objects themselves directly instead.
+    # subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
     
     # This part is fine for getting the time and frequency axes
     first_sub = args.subjects[0]

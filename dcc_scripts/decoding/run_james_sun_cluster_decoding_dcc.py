@@ -94,8 +94,12 @@ ALPHA = 1.0
 CLEAR_MEMORY = False
 
 # Baseline parameters
+RESCALE=True
 BASE_TIMES = (-0.5, 0)
 MODE = 'zscore'
+
+# remove outlier timepoints or not
+OUTLIERS_TO_NAN = False
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
@@ -171,8 +175,10 @@ def run_analysis():
         oversample=OVERSAMPLE,
         alpha=ALPHA,
         clear_memory=CLEAR_MEMORY,
+        rescale=RESCALE,
         base_times=BASE_TIMES,
-        mode=MODE
+        mode=MODE,
+        outliers_to_nan=OUTLIERS_TO_NAN
     )
     
     # Print configuration summary

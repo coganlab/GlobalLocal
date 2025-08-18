@@ -15,12 +15,12 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root) # insert at the beginning to prioritize it
 
 import joblib
-from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_sig_tfr_differences
+from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper, get_corrected_multitaper, get_sig_tfr_differences
 from src.analysis.utils.general_utils import get_good_data
 import numpy as np
 import mne
 
-def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False):
+def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False, rescale=False, base_times=(-0.5,0), mode='zscore', outliers_to_nan=True):
     """
     Calculates, saves, and returns a TFR object for a single subject and condition.
 
@@ -61,7 +61,14 @@ def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_me
     error_trials_only : bool, optional
         If True, appends "/Accuracy0.0" to BIDS event names to select
         only error trials. Defaults to False.
-
+    rescale : bool
+        Whether to return baseline-corrected spectrograms or not
+    base_times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the baseline window, if using rescale
+    mode : str, optional
+        The mode to use for baseline correction. Default is 'zscore'.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN
     Returns
     -------
     spec : mne.time_frequency.TFR
@@ -78,10 +85,19 @@ def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_me
         BIDS_events = [BIDS_event + "/Accuracy1.0" for BIDS_event in BIDS_events]
     elif error_trials_only:
         BIDS_events = [BIDS_event + "/Accuracy0.0" for BIDS_event in BIDS_events]
+    
     if spec_method == 'multitaper':
-        spec = get_uncorrected_multitaper(sub=sub, layout=layout, events=BIDS_events, times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average)
+        if rescale:
+            spec = get_corrected_multitaper(sub=sub, layout=layout, events=BIDS_events, times=signal_times, base_times=base_times, mode=mode, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, outliers_to_nan=outliers_to_nan, n_jobs=n_jobs)
+        else:
+            spec = get_uncorrected_multitaper(sub=sub, layout=layout, events=BIDS_events, times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, outliers_to_nan=outliers_to_nan, n_jobs=n_jobs)
+    
     elif spec_method == 'wavelet':
-        spec = get_uncorrected_wavelets(sub=sub, layout=layout, events=BIDS_events, times=signal_times, n_jobs=n_jobs)
+        if rescale:
+            # spec = get_corrected_wavelets(sub=sub, layout=layout, events=BIDS_events, times=signal_times, base_times=base_times, mode=mode, n_jobs=n_jobs)
+            raise ValueError("get_corrected_wavelets is not implemented yet") 
+        else:
+            spec = get_uncorrected_wavelets(sub=sub, layout=layout, events=BIDS_events, times=signal_times, n_jobs=n_jobs, outliers_to_nan=outliers_to_nan)
         if average:
             spec = spec.average(
                 lambda x: np.nanmean(x, axis=0), copy=True)
@@ -92,7 +108,7 @@ def make_subject_tfr_object(sub, layout, condition_name, condition_dict, spec_me
 
     return spec
 
-def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False, conditions_save_name="tfr_data"):
+def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_times, freqs, n_cycles, time_bandwidth, return_itc, n_jobs, average, acc_trials_only=False, error_trials_only=False, rescale=False, base_times=(-0.5,0), mode='zscore', outliers_to_nan=True, conditions_save_name="tfr_data"):
     '''
     Calculates and saves time-frequency representations (TFRs) for subjects.
 
@@ -140,6 +156,14 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
     error_trials_only : bool, optional
         If True, appends "/Accuracy0.0" to BIDS
         event names to select only error trials. Defaults to False.
+    rescale : bool
+        Whether to return baseline-corrected spectrograms or not
+    base_times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the baseline window, if using rescale
+    mode : str, optional
+        The mode to use for baseline correction. Default is 'zscore'.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN
     conditions_save_name (str, optional): The base name for the output file
         that aggregates all subjects' TFRs. Defaults to "tfr_data".
 
@@ -164,7 +188,7 @@ def make_subjects_tfr_objects(subjects, layout, conditions, spec_method, signal_
 
         for condition_name, condition_dict in conditions.items():
             print(f"Creating TFR object for sub-{sub}, condition: {condition_name}")
-            spec = make_subject_tfr_object(sub=sub, layout=layout, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only)
+            spec = make_subject_tfr_object(sub=sub, layout=layout, condition_name=condition_name, condition_dict=condition_dict, spec_method=spec_method, signal_times=signal_times, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, n_jobs=n_jobs, average=average, acc_trials_only=acc_trials_only, error_trials_only=error_trials_only, rescale=rescale, base_times=base_times, mode=mode, outliers_to_nan=outliers_to_nan)
 
             subjects_tfr_objects[sub][condition_name] = spec
 
@@ -188,7 +212,11 @@ def load_or_make_subjects_tfr_objects(
     n_jobs=1, 
     average=False, 
     acc_trials_only=False, 
-    error_trials_only=False
+    error_trials_only=False,
+    rescale=False,
+    base_times=(-0.5,0),
+    mode='zscore',
+    outliers_to_nan=True
 ):
     """
     Loads pre-computed TFR objects, or makes them if they don't exist.
@@ -230,7 +258,14 @@ def load_or_make_subjects_tfr_objects(
         If True, select only accurate trials. Defaults to False.
     error_trials_only : bool, optional
         If True, select only error trials. Defaults to False.
-
+    rescale : bool
+        Whether to return baseline-corrected spectrograms or not
+    base_times : tuple of float
+        A tuple (start, end) in seconds relative to each event defining the baseline window, if using rescale
+    mode : str, optional
+        The mode to use for baseline correction. Default is 'zscore'.
+    outliers_to_nan : bool
+        Whether to set outlier timepoints to NaN 
     Returns
     -------
     dict
@@ -265,6 +300,10 @@ def load_or_make_subjects_tfr_objects(
             average=average,
             acc_trials_only=acc_trials_only,
             error_trials_only=error_trials_only,
+            rescale=rescale,
+            base_times=base_times,
+            mode=mode,
+            outliers_to_nan=outliers_to_nan,
             conditions_save_name=conditions_save_name
         )
 
@@ -459,7 +498,7 @@ def get_sig_tfr_differences_per_roi(
 
 def normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=(-0.5,0), mode='zscore'):
     """
-    Applies baseline correction to all subjects' TFR objects.
+    Applies baseline correction to all subjects' TFR objects. This is an alternative way of baseline correcting tfr data to using get_corrected_multitaper or get_corrected_wavelets.
 
     Parameters
     ----------
