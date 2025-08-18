@@ -94,7 +94,7 @@ ALPHA = 1.0
 CLEAR_MEMORY = False
 
 # Baseline parameters
-RESCALE=True
+RESCALE = True
 BASE_TIMES = (-0.5, 0)
 MODE = 'zscore'
 

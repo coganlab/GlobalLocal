@@ -39,16 +39,6 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
-# rsatoolbox imports
-import rsatoolbox # Import the base module
-from rsatoolbox.io.mne import read_epochs
-from rsatoolbox.data.ops import merge_datasets
-from rsatoolbox.rdm import calc_rdm_movie, compare # compare was imported separately
-from rsatoolbox.rdm.calc import _parse_input # Consider if this private member access is necessary
-from rsatoolbox.util.build_rdm import _build_rdms # Consider if this private member access is necessary
-from rsatoolbox.vis import show_rdm
-from rsatoolbox.vis.timecourse import plot_timecourse
-
 # Other third-party
 from tqdm import tqdm # Was imported as numpy, tqdm, mne, pandas - corrected
 from numpy.lib.stride_tricks import as_strided, sliding_window_view # sliding_window_view was imported separately

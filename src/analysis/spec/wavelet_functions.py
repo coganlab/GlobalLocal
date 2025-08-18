@@ -202,6 +202,7 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     return spec
 
 # untested, if this works, can do the same thing for wavelet
+
 def get_corrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], base_times: tuple[float, float], mode: str, freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, outliers_to_nan: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
     """
     Compute baseline-corrected multitaper spectrogram for specified trials.
