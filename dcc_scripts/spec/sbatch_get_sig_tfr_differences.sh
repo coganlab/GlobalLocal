@@ -4,6 +4,7 @@
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 25
 #SBATCH --mem=150G
+#SBATCH --time=48:00:00  # 48 hours (adjust based on your needs)
 
 source $(conda info --base)/etc/profile.d/conda.sh
 

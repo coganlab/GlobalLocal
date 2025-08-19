@@ -197,23 +197,28 @@ def main(args):
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
 
     subjects_tfr_objects = make_subjects_tfr_objects(
-    layout=layout,
-    spec_method=args.spec_method,
-    conditions_save_name=conditions_save_name,
-    subjects=args.subjects,
-    conditions=args.conditions,
-    signal_times=args.signal_times,
-    freqs=args.freqs,
-    n_cycles=args.n_cycles,
-    time_bandwidth=args.time_bandwidth,
-    return_itc=args.return_itc,
-    n_jobs=args.n_jobs,
-    average=args.average,
-    acc_trials_only=args.acc_trials_only,
-    error_trials_only=args.error_trials_only 
+        layout=layout,
+        spec_method=args.spec_method,
+        conditions_save_name=conditions_save_name,
+        subjects=args.subjects,
+        conditions=args.conditions,
+        signal_times=args.signal_times,
+        freqs=args.freqs,
+        n_cycles=args.n_cycles,
+        time_bandwidth=args.time_bandwidth,
+        return_itc=args.return_itc,
+        n_jobs=args.n_jobs,
+        average=args.average,
+        acc_trials_only=args.acc_trials_only,
+        error_trials_only=args.error_trials_only,
+        rescale=args.rescale,
+        base_times=args.base_times,
+        mode=args.mode,
+        mark_outliers_as_nan=args.mark_outliers_as_nan
     )
     
-    subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
+    # alternative way of normalizing BUT this does baselining using trials from specified events, not using all Stimulus trials, so it's actually kind of wrong.
+    # subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
 
     # For per-subject analysis (no electrode filtering needed)
     sig_elec_masks_per_subject, sig_elec_pvals_per_subject = get_sig_tfr_differences_per_subject(subjects_tfr_objects=subjects_tfr_objects, condition_names=condition_names, stat_func=args.stat_func, p_thresh=args.p_thresh, n_perm=args.n_perm, ignore_adjacency=args.ignore_adjacency, n_jobs=args.n_jobs, seed=args.seed, tails=args.tails)

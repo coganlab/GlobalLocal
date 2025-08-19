@@ -44,10 +44,6 @@ SUBJECTS = ['D0090']  # So need to manually update this, then run sbatch sbatch_
 SIGNAL_TIMES = [-1.0, 1.5]
 TASK = 'GlobalLocal'
 
-# Baseline parameters
-BASE_TIMES = (-0.5, 0)
-MODE = 'zscore'
-
 # Trial selection
 ACC_TRIALS_ONLY = True
 ERROR_TRIALS_ONLY = False
@@ -76,6 +72,14 @@ N_PERM = 200  # Increase to 1000 for publication-quality results
 IGNORE_ADJACENCY = 1  # Ignore channels dimension for clusters
 TAILS = 2 # one tailed or two tailed t-test, currently doing a single two-tailed but i think should do two separate one-tailed - do that later..
 SEED = None  # Set to integer for reproducibility
+
+# Baseline parameters
+RESCALE = True
+BASE_TIMES = (-0.5, 0)
+MODE = 'zscore'
+
+# remove outlier timepoints or not
+MARK_OUTLIERS_AS_NAN = False
 
 # Parallel processing
 N_JOBS = 1
@@ -139,8 +143,6 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         signal_times=SIGNAL_TIMES,
-        base_times=BASE_TIMES,
-        mode=MODE,
         acc_trials_only=ACC_TRIALS_ONLY,
         error_trials_only=ERROR_TRIALS_ONLY,
         stat_func=STAT_FUNC,
@@ -159,7 +161,11 @@ def run_analysis():
         task=TASK,
         conditions=CONDITIONS,
         epochs_root_file=EPOCHS_ROOT_FILE,
-        rois_dict=ROIS_DICT
+        rois_dict=ROIS_DICT,
+        rescale=RESCALE,
+        base_times=BASE_TIMES,
+        mode=MODE,
+        mark_outliers_as_nan=MARK_OUTLIERS_AS_NAN
     )
     
     # Print configuration summary
@@ -176,6 +182,10 @@ def run_analysis():
     print(f"P-threshold:       {P_THRESH}")
     print(f"Stimulus locked:   {STIMULUS_LOCKED}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
+    print(f"rescale:            {RESCALE}")
+    print(f"base times:         {BASE_TIMES}")
+    print(f"mode:               {MODE}")
+    print(f"mark outliers as nan:    {MARK_OUTLIERS_AS_NAN}")
     print("=" * 70)
     
     # Run the analysis

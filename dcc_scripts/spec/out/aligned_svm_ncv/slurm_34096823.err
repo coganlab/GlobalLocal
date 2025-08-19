@@ -1,0 +1,4 @@
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/spec/run_get_sig_tfr_differences_dcc.py", line 172
+    base_times=BASE_TIMES,
+    ^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: keyword argument repeated: base_times
