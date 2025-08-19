@@ -40,7 +40,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 # Other third-party
-from tqdm import tqdm # Was imported as numpy, tqdm, mne, pandas - corrected
+from tqdm import tqdm 
 from numpy.lib.stride_tricks import as_strided, sliding_window_view # sliding_window_view was imported separately
 
 # ---- Local/Project-specific imports ----
@@ -56,6 +56,7 @@ from ieeg.calc.mat import LabeledArray, combine
 from ieeg.decoding.decoders import PcaLdaClassification
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
+from ieeg.viz.parula import parula_map
 
 # src imports
 from src.analysis.config import experiment_conditions
@@ -83,6 +84,19 @@ def concatenate_and_balance_data_for_decoding(
     """
     Processes and balances the data for a given ROI with improved debugging.
     Now correctly distinguishes between outlier-induced NaNs and missing channel NaNs.
+    
+    Parameters:
+    - roi_labeled_arrays: Dictionary containing reshaped data for each ROI.
+    - roi: The ROI to process.
+    - strings_to_find: List of strings or string groups to identify condition labels.
+    - obs_axs: The trials axis.
+    - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
+    - random_state: Random seed for reproducibility.
+
+    Returns:
+    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
+    - labels: The processed labels array.
+    - cats: Dictionary of condition categories.
     """
     rng = np.random.RandomState(random_state)
 
@@ -1133,12 +1147,14 @@ def decode_on_sig_tfr_clusters(
         Predicted labels for test data
     channel_masks : dict
         Dictionary of channel masks for significant clusters
+    channel_t_values : dict
+        Dictionary where keys are channel indices (int) and values are t values of shape (n_freqs, n_times). THIS ONLY WORKS IF USING SCIPY STATS TTEST IND.
     """
     # Get condition names from cats dictionary
     condition_names = [k[0] if isinstance(k, tuple) else k for k in cats.keys()]
     
     # Step 1: Create training-only TFR masks
-    channel_masks = compute_sig_tfr_masks_from_concatenated_data(
+    channel_masks, channel_t_values = compute_sig_tfr_masks_from_concatenated_data(
         concatenated_data, labels, train_indices, condition_names, cats,
         obs_axs, chans_axs,
         stat_func, p_thresh, n_perm, 
@@ -1171,7 +1187,7 @@ def decode_on_sig_tfr_clusters(
     print(f"Number of significant clusters found: {sum(mask.any() for mask in channel_masks.values())}")
     print(f"Total significant features: {sum(mask.sum() for mask in channel_masks.values())}")
 
-    return preds, channel_masks
+    return preds, channel_masks, channel_t_values
 
 def compute_sig_tfr_masks_from_roi_labeled_array(
     roi_labeled_array, train_indices, condition_names,
@@ -1249,8 +1265,11 @@ def compute_sig_tfr_masks_for_specified_channels(
     channel_masks : dict
         Dictionary where keys are channel indices (int) and values are 
         boolean masks of shape (n_freqs, n_times)
+    channel_t_values : dict
+        Dictionary where keys are channel indices (int) and values are t values of shape (n_freqs, n_times). THIS ONLY WORKS IF USING SCIPY STATS TTEST IND.
     """    
     channel_masks = {}
+    channel_t_values = {}
     
     # For each channel, compute significant clusters
     for ch_idx in range(n_channels):
@@ -1264,6 +1283,11 @@ def compute_sig_tfr_masks_for_specified_channels(
         
         # Run time perm cluster test
         if len(cond0_chan_data) > 0 and len(cond1_chan_data) > 0:
+            # let's grab the t values too for debugging and plotting - this will only work if using scipy stats ttest ind, otherwise it will crash!
+            t_values = stat_func(cond0_chan_data, cond1_chan_data, axis=0).statistic #.statistic only exists for scipy stats
+            channel_t_values[ch_idx] = t_values
+            
+            # get sig tfr mask for this channel
             mask, _ = time_perm_cluster(
                 cond0_chan_data, cond1_chan_data,
                 stat_func=stat_func,
@@ -1284,7 +1308,7 @@ def compute_sig_tfr_masks_for_specified_channels(
             channel_masks[ch_idx] = np.zeros(mask_shape, dtype=bool)
             print(f"Warning: Channel {ch_idx} has insufficient data for comparison")
     
-    return channel_masks
+    return channel_masks, channel_t_values
 
 def compute_sig_tfr_masks_from_concatenated_data(
     concatenated_data, labels, train_indices, condition_names, cats,
@@ -1328,6 +1352,9 @@ def compute_sig_tfr_masks_from_concatenated_data(
     channel_masks : dict
         Dictionary where keys are channel indices and values are boolean masks
         of shape (n_freqs, n_times) indicating significant clusters
+    channel_t_values : dict
+        Dictionary where keys are channel indices (int) and values are t values of shape (n_freqs, n_times). 
+        THIS ONLY WORKS IF USING SCIPY STATS TTEST IND.
     """
     # Validate we have exactly 2 conditions for now
     if len(condition_names) != 2:
@@ -1353,13 +1380,13 @@ def compute_sig_tfr_masks_from_concatenated_data(
     
     # Compute significant clusters for each channel
     n_channels = concatenated_data.shape[chans_axs]
-    channel_masks = compute_sig_tfr_masks_for_specified_channels(
+    channel_masks, channel_t_values = compute_sig_tfr_masks_for_specified_channels(
         n_channels, train_data_by_condition, condition_names, 
         obs_axs, chans_axs, stat_func, p_thresh, n_perm,
         ignore_adjacency, seed, tails
     )
     
-    return channel_masks
+    return channel_masks, channel_t_values
 
 def apply_tfr_masks_and_flatten_to_make_decoding_matrix(data, obs_axs, chans_axs, channel_masks):
     """
@@ -1491,13 +1518,18 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         Dictionary of condition labels by ROI
     channel_masks : dict
         Dictionary of channel masks for significant clusters. Nested dictionary: {roi: {repeat: {fold: channel_masks}}}
+    channel_t_values : dict
+        Dictionary where keys are channel indices (int) and values are t values of shape (n_freqs, n_times). 
+        THIS ONLY WORKS IF USING SCIPY STATS TTEST IND.
     """
     confusion_matrices = {}
     cats_dict = {}
     channel_masks = {}
+    channel_t_values = {}
     
     for roi in rois:
         channel_masks[roi] = {}
+        channel_t_values[roi] = {}
         print(f"Processing ROI: {roi}")
         
         # Get data and labels
@@ -1511,6 +1543,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
         
         for repeat in range(n_repeats):
             channel_masks[roi][repeat] = {}
+            channel_t_values[roi][repeat] = {}
             repeat_seed = random_state + repeat * 1000
             skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=repeat_seed)
             
@@ -1526,7 +1559,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                 y_test = labels[test_indices]
                 
                 # Balance and decode with TFR masking
-                preds, fold_channel_masks = decode_on_sig_tfr_clusters(
+                preds, fold_channel_masks, fold_channel_t_values = decode_on_sig_tfr_clusters(
                     X_train_raw, y_train, X_test_raw,
                     train_indices, test_indices,
                     concatenated_data, labels, cats,
@@ -1540,12 +1573,12 @@ def get_confusion_matrix_for_rois_tfr_cluster(
                 )
                 
                 channel_masks[roi][repeat][fold_idx] = fold_channel_masks
-                
+                channel_t_values[roi][repeat][fold_idx] = fold_channel_t_values
                 cm = confusion_matrix(y_test, preds)
                 fold_cms.append(cm)
 
                 if clear_memory:
-                    del X_train_raw, X_test_raw, y_train, y_test, preds, fold_channel_masks
+                    del X_train_raw, X_test_raw, y_train, y_test, preds, fold_channel_masks, fold_channel_t_values
                     gc.collect()
             
             # Sum across folds
@@ -1586,7 +1619,7 @@ def get_confusion_matrix_for_rois_tfr_cluster(
             del concatenated_data, labels, cats, all_cms
             gc.collect()
     
-    return confusion_matrices, cats_dict, channel_masks
+    return confusion_matrices, cats_dict, channel_masks, channel_t_values
 
 def get_display_labels_from_cats(cats):
     """Extracts clean labels for plotting from the 'cats' dictionary."""

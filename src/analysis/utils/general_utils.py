@@ -1,4 +1,5 @@
 import mne
+import sys
 import json
 import numpy as np
 import os
@@ -9,9 +10,6 @@ from ieeg.io import raw_from_layout, get_data
 from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
-import mne
-import os
-import numpy as np
 #from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster, window_averaged_shuffle
 from ieeg.viz.mri import gen_labels
@@ -1577,7 +1575,7 @@ def count_electrodes_across_subjects(data, subjects):
             total_electrodes += len(details['default_dict'])
     return total_electrodes
 
-def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float], outliers_to_nan=True) -> mne.Epochs:
+def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float], mark_outliers_as_nan=True) -> mne.Epochs:
     """
     Extract and concatenate non-outlier trials for specified events.
 
@@ -1594,7 +1592,7 @@ def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float], 
         A list of event names to extract trials for.
     times : tuple of float
         A tuple (start, end) in seconds relative to each event defining the extraction window.
-    outliers_to_nan : bool
+    mark_outliers_as_nan : bool
         Whether to set outlier timepoints to NaNs or not
     Returns
     -------
@@ -1623,14 +1621,14 @@ def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float], 
     all_trials = mne.concatenate_epochs(all_trials_list)
     print(len(all_trials))
     
-    if outliers_to_nan:
+    if mark_outliers_as_nan:
         # Mark outliers as NaN
         outliers_to_nan(all_trials, outliers=10)
     
     return all_trials
 
 def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times: tuple[float, float], 
-                                     outlier_threshold: float = 10, create_outlier_plots=False, outliers_to_nan=True) -> mne.Epochs:
+                                     outlier_threshold: float = 10, create_outlier_plots=False, mark_outliers_as_nan=True) -> mne.Epochs:
     """
     Extract and concatenate non-outlier trials for specified events with detailed outlier analysis.
     
@@ -1647,7 +1645,7 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         A tuple (start, end) in seconds relative to each event defining the extraction window.
     outlier_threshold : float
         Number of standard deviations for outlier detection (default: 10)
-    outliers_to_nan : bool
+    mark_outliers_as_nan : bool
         Whether to set outlier timepoints to NaN
     """
     import matplotlib.pyplot as plt
@@ -1669,7 +1667,7 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
     # Get data before marking outliers
     data_before = all_trials.get_data().copy()
     
-    if outliers_to_nan:
+    if mark_outliers_as_nan:
         # Mark outliers as NaN (using threshold of 10 SD by default)
         outliers_to_nan(all_trials, outliers=outlier_threshold)
         

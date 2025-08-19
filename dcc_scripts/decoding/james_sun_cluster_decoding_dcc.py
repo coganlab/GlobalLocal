@@ -203,7 +203,7 @@ def main(args):
         rescale=args.rescale,
         base_times=args.base_times,
         mode=args.mode,
-        outliers_to_nan=args.outliers_to_nan
+        mark_outliers_as_nan=args.mark_outliers_as_nan
     )
 
     # this is an alternative way of rescaling, but let's rescale the tfr objects themselves directly instead.
@@ -260,7 +260,7 @@ def main(args):
         condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
 
     for condition_comparison, strings_to_find in condition_comparisons.items():
-        confusion_matrices, cats, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
+        confusion_matrices, cats, channel_masks, channel_t_values = get_confusion_matrix_for_rois_tfr_cluster(
             roi_labeled_arrays, rois, strings_to_find, args.stat_func, 
             Decoder, explained_variance=args.explained_variance,
             p_thresh=args.p_thresh, n_perm=args.n_perm, 
@@ -290,26 +290,30 @@ def main(args):
                 
                 # This is the dictionary of 2D masks for the current split
                 mask_dict = channel_masks[roi][repeat][split]
-
+                t_values_dict = channel_t_values[roi][repeat][split]
+                
                 if not mask_dict:
                     print(f"Skipping plot for {roi} Repeat {repeat+1} Split {split+1}: No masks found.")
                     continue
-
-                # --- FIX #1 & #2: Get the correct channel names and stack the masks ---
+                
+                if not t_values_dict:
+                    print(f"Skipping plot for {roi} Repeat {repeat+1} Split {split+1}: No t-values found.")
+                    continue
+                
                 # Get the channel indices from the dictionary keys and sort them for consistent order
                 roi_ch_indices = sorted(mask_dict.keys())
                 
                 # Use the indices to get the corresponding channel names from the LabeledArray for this ROI
                 roi_ch_names = [roi_labeled_arrays[roi].labels[args.chans_axs+1][i] for i in roi_ch_indices] # adjust chans axs for the conditions dimension
                 
-                # Stack the 2D mask arrays into a single 3D NumPy array
+                # Stack the 2D mask and t value arrays into single 3D NumPy arrays
                 stacked_masks = np.array([mask_dict[ch_idx] for ch_idx in roi_ch_indices])
-
-                # --- FIX #3: Correct the title prefix ---
+                stacked_t_values = np.array([t_values_dict[ch_idx] for ch_idx in roi_ch_indices])
+                
                 title = f"{roi} Repeat {repeat+1} Split {split+1}: "
 
-                # Now, call the plotting function with the corrected data
-                roi_repeat_split_pages = plot_mask_pages(
+                # Now, call the plotting function with the corrected data for masks
+                roi_repeat_split_mask_pages = plot_mask_pages(
                     stacked_masks,
                     roi_ch_names, # Use the ROI-specific names
                     times=times,
@@ -322,9 +326,31 @@ def main(args):
                     show=False)
 
                 # Save each page as a separate figure file
-                for i, fig in enumerate(roi_repeat_split_pages):
+                for i, fig in enumerate(roi_repeat_split_mask_pages):
                     # Use the corrected filename that doesn't rely on `sub`
                     fig_name = f"{roi}_sig_clusters_repeat{repeat+1}_split{split+1}_{conditions_save_name}_page_{i+1}.png"
+                    fig_pathname = os.path.join(save_dir, fig_name)
+                    fig.savefig(fig_pathname, bbox_inches='tight')
+                    print("Saved figure:", fig_pathname)
+                    plt.close(fig) # Close the figure to free up memory
+                    
+                # Now, call the plotting function with the corrected data for t values
+                roi_repeat_split_t_value_pages = plot_mask_pages(
+                    stacked_t_values,
+                    roi_ch_names, # Use the ROI-specific names
+                    times=times,
+                    freqs=freqs,
+                    channels_per_page=60,
+                    grid_shape=(6, 10),
+                    cmap=parula_map,
+                    title_prefix=title, # Use the corrected title
+                    log_freq=True,
+                    show=False)
+
+                # Save each page as a separate figure file
+                for i, fig in enumerate(roi_repeat_split_t_value_pages):
+                    # Use the corrected filename that doesn't rely on `sub`
+                    fig_name = f"{roi}_t_values_repeat{repeat+1}_split{split+1}_{conditions_save_name}_page_{i+1}.png"
                     fig_pathname = os.path.join(save_dir, fig_name)
                     fig.savefig(fig_pathname, bbox_inches='tight')
                     print("Saved figure:", fig_pathname)

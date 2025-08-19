@@ -99,7 +99,7 @@ BASE_TIMES = (-0.5, 0)
 MODE = 'zscore'
 
 # remove outlier timepoints or not
-OUTLIERS_TO_NAN = False
+MARK_OUTLIERS_AS_NAN = False
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_big_letter_conditions
@@ -116,11 +116,18 @@ else:
     EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
+# ROIS_DICT = {
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", 
+#              "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", 
+#              "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", 
+#              "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", 
+#             "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", 
+#             "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", 
+#             "S_oc_sup_and_transversal", "S_occipital_ant"]
+# }
+
 ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", 
-             "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", 
-             "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", 
-             "S_front_inf", "S_front_middle", "S_front_sup"],
     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", 
             "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", 
             "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", 
@@ -178,7 +185,7 @@ def run_analysis():
         rescale=RESCALE,
         base_times=BASE_TIMES,
         mode=MODE,
-        outliers_to_nan=OUTLIERS_TO_NAN
+        mark_outliers_as_nan=MARK_OUTLIERS_AS_NAN
     )
     
     # Print configuration summary
@@ -205,8 +212,10 @@ def run_analysis():
     print(f"Oversample:         {OVERSAMPLE}")
     print(f"Alpha:              {ALPHA}")
     print(f"Clear memory:       {CLEAR_MEMORY}")
+    print(f"rescale:            {RESCALE}")
     print(f"base times:         {BASE_TIMES}")
     print(f"mode:               {MODE}")
+    print(f"mark outliers as nan:    {MARK_OUTLIERS_AS_NAN}")
     print("=" * 70)
     
     # Run the analysis
