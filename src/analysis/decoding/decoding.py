@@ -393,94 +393,190 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         return matk / divisor
     
     # untested 11/30
-    def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
-                normalize: str = None, obs_axs: int = -2, time_axs: int = -1, n_jobs: int = 1,
-                window: int = None, step_size: int = 1,
-                    shuffle: bool = False, oversample: bool = True) -> np.ndarray:
-        """Cross-validated confusion matrix with windowing and optional shuffling."""
+    # def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
+    #             normalize: str = None, obs_axs: int = -2, time_axs: int = -1, n_jobs: int = 1,
+    #             window: int = None, step_size: int = 1,
+    #                 shuffle: bool = False, oversample: bool = True) -> np.ndarray:
+    #     """Cross-validated confusion matrix with windowing and optional shuffling. REPLACING THIS, DEPRECATED"""
+    #     n_cats = len(set(labels))
+    #     time_axs_positive = time_axs % x_data.ndim
+
+    #     out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
+
+    #     if window is not None:
+    #         # Include the step size in the windowed output shape
+    #         steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
+    #         out_shape = (steps,) + out_shape
+                
+    #     mats = np.zeros(out_shape, dtype=np.uint8)
+    #     data = x_data.swapaxes(0, obs_axs)
+
+    #     if shuffle:
+    #         # shuffled label pool
+    #         label_stack = []
+    #         for i in range(self.n_repeats):
+    #             label_stack.append(labels.copy())
+    #             self.shuffle_labels(data, label_stack[-1], 0)
+
+    #         # build the test/train indices from the shuffled labels for each
+    #         # repetition, then chain together the repetitions
+    #         # splits = (train, test)
+
+    #         print("Shuffle validation:")
+    #         for i, labels in enumerate(label_stack):
+    #             # Compare with the first repetition to ensure variety in shuffles
+    #             if i > 0:
+    #                 diff = np.sum(label_stack[0] != labels)
+
+    #         idxs = ((self.split(data, l), l) for l in label_stack)
+    #         idxs = ((itertools.islice(s, self.n_splits),
+    #                  itertools.repeat(l, self.n_splits))
+    #                 for s, l in idxs)
+    #         splits, label = zip(*idxs)
+    #         splits = itertools.chain.from_iterable(splits)
+    #         label = itertools.chain.from_iterable(label)
+    #         idxs = zip(splits, label)
+
+    #     else:
+    #         idxs = ((splits, labels) for splits in self.split(data, labels))
+    
+    #     # 11/1 below is aaron's code for windowing. 
+    #     def proc(train_idx, test_idx, l):
+    #         x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
+    #         print(f"x_stacked shape: {x_stacked.shape}")
+
+    #         # Use the updated windower function with step_size
+    #         windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
+    #         print(f"windowed shape: {windowed.shape}")
+
+    #         out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
+    #         for i, x_window in enumerate(windowed):
+    #             x_flat = x_window.reshape(x_window.shape[0], -1)
+    #             x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
+    #             out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
+    #         return out
+
+    #     # # loop over folds and repetitions
+    #     if n_jobs == 1:
+    #         idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
+    #         results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
+    #     else:
+    #         results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
+    #             delayed(proc)(train_idx, test_idx, l)
+    #             for (train_idx, test_idx), l in idxs)
+
+    #     # # Collect the results
+    #     for i, result in enumerate(results):
+    #         rep, fold = divmod(i, self.n_splits)
+    #         mats[:, rep, fold] = result
+
+    #     # normalize, sum the folds
+    #     mats = np.sum(mats, axis=-3)
+    #     if normalize == 'true':
+    #         divisor = np.sum(mats, axis=-1, keepdims=True)
+    #     elif normalize == 'pred':
+    #         divisor = np.sum(mats, axis=-2, keepdims=True)
+    #     elif normalize == 'all':
+    #         divisor = self.n_repeats
+    #     else:
+    #         divisor = 1
+    #     return mats / divisor
+
+    def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None, 
+        obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1, 
+        shuffle: bool = False, oversample: bool = True) -> np.ndarray:
+        """Cross-validated confusion matrix with windowing and optional shuffling. NEW VERSION"""
         n_cats = len(set(labels))
         time_axs_positive = time_axs % x_data.ndim
+        
         out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
 
         if window is not None:
-            # Include the step size in the windowed output shape
             steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
             out_shape = (steps,) + out_shape
-                
-        mats = np.zeros(out_shape, dtype=np.uint8)
+        
+        mats = np.zeros(out_shape, dtype=np.float32)
         data = x_data.swapaxes(0, obs_axs)
 
-        if shuffle:
-            # shuffled label pool
-            label_stack = []
-            for i in range(self.n_repeats):
-                label_stack.append(labels.copy())
-                self.shuffle_labels(data, label_stack[-1], 0)
+        rng = np.random.default_rng(seed=self.random_state)
 
-            # build the test/train indices from the shuffled labels for each
-            # repetition, then chain together the repetitions
-            # splits = (train, test)
+        for i in range(self.n_repeats):
+            # create a new StratifiedKFold for each repeat to ensure different shuffles
+            skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=rng)
+            for f, (train_idx, test_idx) in enumerate(skf.split(data, labels)):
+                x_train = data[train_idx]
+                y_train = labels[train_idx]
+                x_test = data[test_idx]
+                y_test = labels[test_idx]
 
-            print("Shuffle validation:")
-            for i, labels in enumerate(label_stack):
-                # Compare with the first repetition to ensure variety in shuffles
-                if i > 0:
-                    diff = np.sum(label_stack[0] != labels)
+                # if shuffle is requested, shuffle ONLY the training labels for this fold
+                if shuffle:
+                    rng.shuffle(y_train)
+                
+                # use a helper function to handle windowing and prediction
+                cm_windowed = self._window_and_predict(
+                    x_train, y_train, x_test, y_test, window, step_size, time_axs, oversample
+                )
 
-            idxs = ((self.split(data, l), l) for l in label_stack)
-            idxs = ((itertools.islice(s, self.n_splits),
-                     itertools.repeat(l, self.n_splits))
-                    for s, l in idxs)
-            splits, label = zip(*idxs)
-            splits = itertools.chain.from_iterable(splits)
-            label = itertools.chain.from_iterable(label)
-            idxs = zip(splits, label)
-
-        else:
-            idxs = ((splits, labels) for splits in self.split(data, labels))
-
-        # 11/1 below is aaron's code for windowing. 
-        def proc(train_idx, test_idx, l):
-            x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
-            print(f"x_stacked shape: {x_stacked.shape}")
-
-            # Use the updated windower function with step_size
-            windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
-            print(f"windowed shape: {windowed.shape}")
-
-            out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
-            for i, x_window in enumerate(windowed):
-                x_flat = x_window.reshape(x_window.shape[0], -1)
-                x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
-                out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
-            return out
-
-        # # loop over folds and repetitions
-        if n_jobs == 1:
-            idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
-            results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
-        else:
-            results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
-                delayed(proc)(train_idx, test_idx, l)
-                for (train_idx, test_idx), l in idxs)
-
-        # # Collect the results
-        for i, result in enumerate(results):
-            rep, fold = divmod(i, self.n_splits)
-            mats[:, rep, fold] = result
-
-        # normalize, sum the folds
-        mats = np.sum(mats, axis=-3)
-        if normalize == 'true':
+                if window is not None:
+                    mats[:,i,f] = cm_windowed
+                else:
+                    mats[i,f] = cm_windowed
+        # sum the folds and average repetitions
+        mats = np.sum(mats, axis=2) # sum folds
+        
+        if normalize = 'true':
             divisor = np.sum(mats, axis=-1, keepdims=True)
         elif normalize == 'pred':
-            divisor = np.sum(mats, axis=-2, keepdims=True)
+            divisor - np.sum(mats, axis=-2, keepdims=True)
         elif normalize == 'all':
-            divisor = self.n_repeats
+            divisor = np.sum(mats, axis=(-2,-1), keepdims=True)
         else:
             divisor = 1
-        return mats / divisor
+
+        # handle division by zero
+        divisor[divisor == 0] = 1
+
+        return np.mean(mats / divisor, axis=1) # average repetitions 
+                
+    def _window_and_predict(self, x_train, y_train, x_test, y_test, window, step_size, time_axs, oversample):
+        """
+        Helper function for cv_cm_jim_window_shuffle to manage windowing, oversampling, and prediction for a single fold
+        """
+        n_cats = len(self.categories)
+
+        # combine data for easier windowing
+        x_stacked = np.concatenate((x_train, x_test), axis=0)
+
+        # apply windowing
+        windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
+        n_windows = windowed.shape[0] if window is not None else 1
+
+        if window is None:
+            windowed = windowed[np.newaxis, ...] # add window dimension for consistency
         
+        out_cm = np.zeros((n_windows, n_cats, n_cats), dtype=np.uint8)
+        
+        for i, x_window in enumerate(windowed):
+            # reshape to (trials, features)
+            x_flat = x_window.reshape(x_window.shape[0], -1)
+
+            # split back into train and test sets
+            x_train_w, x_test_w = np.split(x_flat, [len(y_train)], 0)
+
+            # oversample training data if needed (includes mixup for nans)
+            if oversample:
+                mixup2(arr=x_train_w, labels=y_train, obs_axs=0, alpha=1.)
+            
+            # fill any remaining nans in test data
+            is_nan_test = np.isnan(x_test_w)
+            x_test_w[is_nan_test] = np.random.normal(0,1,np.sum(is_nan_test))
+
+            # fit and predict
+            out_cm[i] = self.fit_predict(x_train_w, x_test_w, y_train, y_test)
+        
+        return np.squeeze(out_cm) # remove leading dimension if only one window
+    
     def fit_predict(self, x_train, x_test, y_train, y_test):
         # fit model and score results
         self.model.fit(x_train, y_train)
@@ -633,7 +729,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
 
 def get_and_plot_confusion_matrix_for_rois_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', random_state=42,
+    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, random_state=42,
 ):
     """
     Compute the confusion matrix for each ROI and return it. This function allows for balancing trial counts
@@ -650,6 +746,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     - n_splits: Number of splits for cross-validation.
     - n_repeats: Number of repeats for cross-validation.
     - obs_axs: The trials axis.
+    - explained_variance: The amount of variance to explain in the PCA.
     - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
     - random_state: Random seed for reproducibility.
     
@@ -666,7 +763,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         )
 
         # Create a Decoder and run cross-validation
-        decoder = Decoder(cats, 0.80, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+        decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
 
         # Use the concatenated data for the decoder
         cm = decoder.cv_cm_jim(concatenated_data, labels, normalize='true', obs_axs=obs_axs)
@@ -705,7 +802,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 # ALSO STORE THE SHUFFLED OUTPUT IN A NUMPY ARRAY SO I DON'T HAVE TO MAKE IT EVERY TIME
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
-    balance_method='pad_with_nans', random_state=42, window_size=None,
+    balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
     step_size=1, n_permutations=100, sampling_rate=256, first_time_point=-1
 ):
     """
@@ -745,6 +842,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         'pad_with_nans': Pads conditions with fewer trials with NaNs.
         'subsample': Subsamples trials from conditions with more trials.
         Default is 'pad_with_nans'.
+    explained_variance : float, optional
+        The amount of variance to explain in the PCA. Default is 0.8.
     random_state : int, optional
         Seed for the random number generator for reproducibility. Default is 42.
     window_size : int, optional
@@ -823,8 +922,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, 0.80, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, 0.80, oversample=True, n_splits=n_splits, n_repeats=n_permutations)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_permutations)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(

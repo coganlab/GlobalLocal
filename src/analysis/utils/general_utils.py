@@ -469,7 +469,7 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
                 # Calculate standard error
                 std_err_data = np.nanstd(epochs_data, axis=0, ddof=1) / np.sqrt(n_valid_per_channel_time)
 
-                # Handle cases where all values are NaN
+                # Handle cases where all values are NaN - TODO: hmm is this line necessary? 8/21/25
                 std_err_data = np.nan_to_num(std_err_data, nan=0.0)
 
                 evoked_std_err = event_epochs.average()  # Create template
