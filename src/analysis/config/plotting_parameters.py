@@ -118,5 +118,25 @@ plotting_parameters = {
     "condition_parameter": "correct",
     "color": "seagreen",
     "line_style": "-", 
+},
+'Stimulus_i75-Stimulus_c75': {
+    "condition_parameter": "i75-c75",
+    "color": "orange",
+    "line_style": "-"
+},
+'Stimulus_i25-Stimulus_c25': {
+    "condition_parameter": "i25-c25",
+    "color": "pink",
+    "line_style": "-"
+},
+'Stimulus_s75-Stimulus_r75': {
+    "condition_parameter": "s75-r75",
+    "color": "purple",
+    "line_style": "-"
+},
+'Stimulus_s25-Stimulus_r25': {
+    "condition_parameter": "s25-r25",
+    "color": "skyblue",
+    "line_style": "-"
 }
 }

@@ -415,8 +415,8 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     # Customize plot
     text_color = "#002060"
 
-    ax.set_xlabel(x_label, fontsize=font_size, labelcolor=text_color)
-    ax.set_ylabel(y_label, fontsize=font_size, labelcolor=text_color)
+    ax.set_xlabel(x_label, fontsize=font_size, color=text_color)
+    ax.set_ylabel(y_label, fontsize=font_size, color=text_color)
     ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
     ax.spines['top'].set_visible(False)
@@ -536,3 +536,59 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
     if save_dir:
         print(f"\nAll plots saved to: {save_dir}")
     plt.close()
+
+def subtract_evoked_conditions(evks_dict, cond1, cond2, roi):
+    """
+    Subtract two evoked conditions (condition 2 from condition 1) for a given ROI.
+    
+    Parameters
+    ----------
+    evks_dict : dict
+        Dictionary of evoked objects for each condition
+    cond1 : str
+        Name of the first condition
+    cond2 : str
+        Name of the second condition
+    roi : str
+        ROI name
+    
+    Returns
+    -------
+    evoked : mne.Evoked
+        Evoked object for the subtracted condition
+    """
+    evoked_cond1 = evks_dict[cond1][roi]
+    evoked_cond2 = evks_dict[cond2][roi]
+    diff_evoked = mne.combine_evoked([evoked_cond1, evoked_cond2], weights=[1,-1])
+    return diff_evoked
+
+def create_subtracted_evokeds_dict(evks_dict, subtraction_pairs, rois):
+    """
+    Create a dictionary of subtracted evokeds for each ROI and subtraction pair.
+    
+    Parameters
+    ----------
+    evks_dict : dict
+        Dictionary of evoked objects for each condition
+    subtraction_pairs : list of tuples
+        List of tuples containing pairs of conditions to subtract (cond 1 - cond 2)
+    rois : list
+        List of ROI names
+    
+    Returns
+    -------
+    subtracted_evokeds_dict : dict
+        Nested dictionary: subtraction_pair -> roi -> multi-channel evoked object
+    """
+    subtracted_evokeds_dict = {}
+
+    for pair in subtraction_pairs:
+        pair_name = '-'.join(pair)
+        subtracted_evokeds_dict[pair_name] = {}
+        for roi in rois:
+            subtracted_evokeds_dict[pair_name][roi] = subtract_evoked_conditions(evks_dict, pair[0], pair[1], roi)
+
+    return subtracted_evokeds_dict
+
+    
+    
