@@ -498,7 +498,7 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         mats = np.zeros(out_shape, dtype=np.float32)
         data = x_data.swapaxes(0, obs_axs)
 
-        rng = np.random.default_rng(seed=self.random_state)
+        rng = np.random.RandomState(seed=self.random_state)
 
         for i in range(self.n_repeats):
             # create a new StratifiedKFold for each repeat to ensure different shuffles
@@ -522,13 +522,14 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
                     mats[:,i,f] = cm_windowed
                 else:
                     mats[i,f] = cm_windowed
+
         # sum the folds and average repetitions
         mats = np.sum(mats, axis=2) # sum folds
         
-        if normalize = 'true':
+        if normalize == 'true':
             divisor = np.sum(mats, axis=-1, keepdims=True)
         elif normalize == 'pred':
-            divisor - np.sum(mats, axis=-2, keepdims=True)
+            divisor = np.sum(mats, axis=-2, keepdims=True)
         elif normalize == 'all':
             divisor = np.sum(mats, axis=(-2,-1), keepdims=True)
         else:
