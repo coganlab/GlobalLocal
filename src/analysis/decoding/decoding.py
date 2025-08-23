@@ -485,98 +485,208 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None, 
         obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1, 
         shuffle: bool = False, oversample: bool = True) -> np.ndarray:
-        """Cross-validated confusion matrix with windowing and optional shuffling. NEW VERSION"""
+        """
+        Cross-validated confusion matrix with windowing and optional shuffling.
+        
+        This function performs cross-validated decoding with optional sliding windows over time.
+        It can shuffle labels (for permutation testing) and handles missing data via mixup.
+        """
+        
+        # Step 1: Setup basic parameters
+        # Count unique classes in the labels (e.g., 2 for binary classification)
         n_cats = len(set(labels))
+        
+        # Convert negative time axis to positive (e.g., -1 becomes 3 for 4D array)
         time_axs_positive = time_axs % x_data.ndim
         
-        out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
-
-        if window is not None:
-            steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
-            out_shape = (steps,) + out_shape
+        # Step 2: Determine output shape based on windowing
+        # Base shape without windows: (repeats, splits, classes, classes)
+        base_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
         
+        if window is not None:
+            # Calculate how many windows fit with the given step size
+            # E.g., 256 samples, window=64, step=32 → (256-64)/32 + 1 = 7 windows
+            steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
+            
+            # Add windows dimension: (repeats, splits, windows, classes, classes)
+            out_shape = (self.n_repeats, self.n_splits, steps, n_cats, n_cats)
+        else:
+            # No windowing - use base shape
+            out_shape = base_shape
+        
+        # Step 3: Initialize output array and prepare data
+        # Create array to store all confusion matrices
         mats = np.zeros(out_shape, dtype=np.float32)
+        
+        # Move observations/trials to first axis for easier indexing
+        # E.g., (trials, channels, freqs, time) stays same if obs_axs=0
         data = x_data.swapaxes(0, obs_axs)
-
-        rng = np.random.RandomState(seed=self.random_state)
-
+        
+        # Initialize random state for reproducibility
+        rng = np.random.RandomState(seed=self.random_state if hasattr(self, 'random_state') else None)
+        
+        # Step 4: Main cross-validation loop
         for i in range(self.n_repeats):
-            # create a new StratifiedKFold for each repeat to ensure different shuffles
+            # Each repeat gets a different random split of the data
             skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=rng)
+            
+            # Iterate through each fold
             for f, (train_idx, test_idx) in enumerate(skf.split(data, labels)):
+                # Extract train/test data for this fold
                 x_train = data[train_idx]
-                y_train = labels[train_idx]
+                y_train = labels[train_idx].copy()  # Copy to avoid modifying original
                 x_test = data[test_idx]
                 y_test = labels[test_idx]
-
-                # if shuffle is requested, shuffle ONLY the training labels for this fold
+                
+                # Step 5: Optional label shuffling (for permutation testing)
                 if shuffle:
+                    # Randomly permute training labels to break label-data relationship
                     rng.shuffle(y_train)
                 
-                # use a helper function to handle windowing and prediction
-                cm_windowed = self._window_and_predict(
-                    x_train, y_train, x_test, y_test, window, step_size, time_axs, oversample
+                # Step 6: Window and predict
+                # This returns confusion matrix(es) for this fold
+                cm_windowed = self._window_and_predict_minimal(
+                    x_train, y_train, x_test, y_test, 
+                    window, step_size, time_axs_positive, oversample
                 )
-
+                
+                # Step 7: Store results
                 if window is not None:
-                    mats[:,i,f] = cm_windowed
+                    # cm_windowed shape: (n_windows, n_cats, n_cats)
+                    mats[i, f, :] = cm_windowed
                 else:
-                    mats[i,f] = cm_windowed
-
-        # sum the folds and average repetitions
-        mats = np.sum(mats, axis=2) # sum folds
+                    # cm_windowed shape: (n_cats, n_cats) 
+                    mats[i, f] = cm_windowed
         
+        # Step 8: Reorganize dimensions for output
+        if window is not None:
+            # Current: (n_repeats, n_splits, n_windows, n_cats, n_cats)
+            # Sum over splits (they're from the same repeat, should be combined)
+            mats = np.sum(mats, axis=1)  # → (n_repeats, n_windows, n_cats, n_cats)
+            
+            # Move windows to first dimension (expected by compute_accuracies)
+            mats = np.transpose(mats, (1, 0, 2, 3))  # → (n_windows, n_repeats, n_cats, n_cats)
+        else:
+            # No windows: just sum over splits
+            mats = np.sum(mats, axis=1)  # → (n_repeats, n_cats, n_cats)
+        
+        # Step 9: Apply normalization
         if normalize == 'true':
+            # Normalize by row sums (true class totals)
             divisor = np.sum(mats, axis=-1, keepdims=True)
         elif normalize == 'pred':
+            # Normalize by column sums (predicted class totals)
             divisor = np.sum(mats, axis=-2, keepdims=True)
         elif normalize == 'all':
+            # Normalize by total sum
             divisor = np.sum(mats, axis=(-2,-1), keepdims=True)
         else:
+            # No normalization
             divisor = 1
+        
+        # Step 10: Safe division and return
+        with np.errstate(divide='ignore', invalid='ignore'):
+            result = mats / divisor
+            # Replace any inf/nan from division by zero with 0
+            result[~np.isfinite(result)] = 0
+        
+        return result
 
-        # handle division by zero
-        divisor[divisor == 0] = 1
+    def _window_and_predict_minimal(self, x_train, y_train, x_test, y_test, 
+                                window, step_size, time_axs, oversample):
+        """
+        helper function that handles windowing and prediction for a single CV fold
 
-        return np.mean(mats / divisor, axis=1) # average repetitions 
-                
-    def _window_and_predict(self, x_train, y_train, x_test, y_test, window, step_size, time_axs, oversample):
+        EXAMPLE FLOW:
+
+        Initial data:
+        - x_train: (70, 10, 256) - 70 training trials, some with NaNs
+        - x_test: (30, 10, 256) - 30 test trials, some with NaNs
+        - window=64, step_size=32
+
+        1. _window_and_predict_minimal combines data:
+        x_stacked = (100, 10, 256)
+
+        2. sample_fold is called:
+        - Reorders data to put train first, test second
+        - Applies mixup to fill training NaNs with smart combinations
+        - Fills test NaNs with random noise
+        - Returns processed (100, 10, 256) with no NaNs
+
+        3. Windowing applied:
+        windowed = (7, 100, 10, 64) - 7 time windows
+
+        4. For each window:
+        - Flatten: (100, 10, 64) → (100, 640)
+        - Split: train (70, 640), test (30, 640)
+        - Decode and get confusion matrix
+
+        5. Return: (7, 2, 2) for binary classification with 7 windows
+
         """
-        Helper function for cv_cm_jim_window_shuffle to manage windowing, oversampling, and prediction for a single fold
-        """
+        # step 1: get number of classes from decoder configuration
         n_cats = len(self.categories)
-
-        # combine data for easier windowing
+        
+        # step 2: combine combine train and test data for consistent windowing
+        # this ensures windows align properly across train/test boundary
         x_stacked = np.concatenate((x_train, x_test), axis=0)
 
-        # apply windowing
-        windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
-        n_windows = windowed.shape[0] if window is not None else 1
+        # step 3: create index arrays for sample_fold
+        # these tell sample_fold which samples are train vs test
+        train_idx = np.arange(len(y_train)) # [0,1,2,...,n_train-1]
+        test_idx = np.arange(len(y_train), len(y_train) + len(y_test)) # [n_train, ..., n_total-1]
+        
+        # Step 4: Use sample_fold for preprocessing. 
+        # This handles:
+        # - Mixup augmentation for training NaNs
+        # - Random noise filling for test NaNs
+        # - Proper data splitting
+        x_processed, y_train_proc, y_test_proc = sample_fold(
+            train_idx, test_idx, x_stacked, 
+            np.concatenate([y_train, y_test]), # combine labels for sample_fold
+            axis=0, # trials are on axis 0
+            oversample=oversample
+        )
+        
+        # Step 5: Apply sliding window if specified
+        if window is not None:
+            # windower creates overlapping windows
+            # E.g., (100, 10, 256) -> (7, 100, 10, 64)
+            # where 7 windows of size 64 with step size 32
+            windowed = windower(x_processed, window, axis=time_axs, step_size=step_size)
+        else:
+            # no windowing - add fake window dimension for consistency
+            # (100, 10, 256) -> (1, 100, 10, 256)
+            windowed = x_processed[np.newaxis, ...]
+        
+        # Step 6: Process each time window independently 
+        out_cm = [] # list to collect confusion matrices
 
-        if window is None:
-            windowed = windowed[np.newaxis, ...] # add window dimension for consistency
-        
-        out_cm = np.zeros((n_windows, n_cats, n_cats), dtype=np.uint8)
-        
-        for i, x_window in enumerate(windowed):
-            # reshape to (trials, features)
+        for x_window in windowed:
+            # Step 6a: Flatten all features except trials dimension
+            # E.g., (100, 10, 64) -> (100, 640)
+            # This creates feature vector for each trial
             x_flat = x_window.reshape(x_window.shape[0], -1)
 
-            # split back into train and test sets
-            x_train_w, x_test_w = np.split(x_flat, [len(y_train)], 0)
-
-            # oversample training data if needed (includes mixup for nans)
-            if oversample:
-                mixup2(arr=x_train_w, labels=y_train, obs_axs=0, alpha=1.)
+            # Step 6b: Split back into train and test sets
+            # We know first len(y_train_proc) samples are training
+            x_train_w, x_test_w = np.split(x_flat, [len(y_train_proc)], axis=0)
             
-            # fill any remaining nans in test data
-            is_nan_test = np.isnan(x_test_w)
-            x_test_w[is_nan_test] = np.random.normal(0,1,np.sum(is_nan_test))
+            # Step 6c: Train model and predict
+            self.fit(x_train_w, y_train_proc) # train on this window's features
+            preds = self.predict(x_test_w) # predict test labels
 
-            # fit and predict
-            out_cm[i] = self.fit_predict(x_train_w, x_test_w, y_train, y_test)
+            # Step 6d: Create confusion matrix for this window
+            # Compares true test labels with predictions
+            out_cm.append(confusion_matrix(y_test_proc, preds))
         
-        return np.squeeze(out_cm) # remove leading dimension if only one window
+        # Step 7: Format output
+        # If only one window, remove the window dimension
+        # otherwise, return array of confusion matrices
+        if len(out_cm) == 1:
+            return np.squeeze(np.array(out_cm)) # remove window dimension
+        else:
+            return np.array(out_cm) # Shape: (n_windows, n_cats, n_cats)
     
     def fit_predict(self, x_train, x_test, y_train, y_test):
         # fit model and score results
@@ -704,28 +814,89 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
 def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
                 x_data: np.ndarray, labels: np.ndarray,
                 axis: int, oversample: bool = True):
-
-    # Combine train and test indices
+    """
+    This function prepares a single fold of cross-validation data by:
+    1. Extracting train/test samples
+    2. Applying mixup augmentation to handle NaNs in training data
+    3. Filling test NaNs with random noise
+    4. Returning the processed data
+    
+    Parameters:
+    -----------
+    train_idx : np.ndarray
+        Indices of training samples (e.g., [0, 2, 3, 5, 7, 8])
+    test_idx : np.ndarray
+        Indices of test samples (e.g., [1, 4, 6, 9])
+    x_data : np.ndarray
+        Full data array (e.g., shape: (100, 10, 256) for 100 trials, 10 channels, 256 timepoints)
+    labels : np.ndarray
+        Labels for all samples (e.g., [0, 1, 0, 1, ...] for 100 trials)
+    axis : int
+        Axis along which to select samples (typically 0 for trials)
+    oversample : bool
+        Whether to apply mixup augmentation for NaN handling
+    
+    Returns:
+    --------
+    x_stacked : np.ndarray
+        Combined train+test data with NaNs handled
+    y_train : np.ndarray
+        Training labels
+    y_test : np.ndarray
+        Test labels
+    """
+    
+    # Step 1: Combine train and test indices
+    # This creates a single array of all indices we'll use
+    # E.g., train_idx=[0,2,4], test_idx=[1,3] → idx_stacked=[0,2,4,1,3]
     idx_stacked = np.concatenate((train_idx, test_idx))
+    
+    # Step 2: Extract the data for these indices
+    # np.take is like fancy indexing but handles axis parameter cleanly
+    # If x_data is (100, 10, 256) and axis=0, this selects specific trials
     x_stacked = np.take(x_data, idx_stacked, axis)
+    
+    # Step 3: Extract corresponding labels
+    # Labels are 1D, so we just index directly
     y_stacked = labels[idx_stacked]
-
-    # Split into training and testing sets
-    sep = train_idx.shape[0]
+    
+    # Step 4: Determine where to split train/test
+    # We know first 'sep' samples are training
+    sep = train_idx.shape[0]  # Number of training samples
+    
+    # Step 5: Split labels into train and test
+    # E.g., if sep=3, y_train gets first 3, y_test gets rest
     y_train, y_test = np.split(y_stacked, [sep])
+    
+    # Step 6: Split data into train and test
+    # Same split but along the specified axis
     x_train, x_test = np.split(x_stacked, [sep], axis=axis)
-
+    
+    # Step 7: Apply mixup augmentation to training data if requested
     if oversample:
-        # Apply mixup2 to x_train
+        # mixup2 modifies x_train IN PLACE
+        # It finds NaN trials and fills them with weighted combinations
+        # of other trials from the same class
         mixup2(arr=x_train, labels=y_train, obs_axs=axis, alpha=1., seed=None)
-
-    # Fill in test data nans with noise from distribution
-    is_nan = np.isnan(x_test)
+        
+        # How mixup2 works internally:
+        # 1. Finds trials with NaNs
+        # 2. For each NaN trial:
+        #    - Finds two random trials (one from same class, one from any class)
+        #    - Creates weighted average: l * same_class + (1-l) * other_class
+        #    - Where l is drawn from Beta(alpha, alpha) distribution
+    
+    # Step 8: Fill test data NaNs with random noise
+    # This is simpler than mixup - just replace NaNs with Gaussian noise
+    is_nan = np.isnan(x_test)  # Boolean mask of NaN locations
     x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
-
-    # Recombine x_train and x_test
+    # Draws from standard normal (mean=0, std=1) for each NaN
+    
+    # Step 9: Recombine processed train and test data
+    # Now both have NaNs handled appropriately
     x_stacked = np.concatenate((x_train, x_test), axis=axis)
-
+    
+    # Return processed data and split labels
     return x_stacked, y_train, y_test
 
 def get_and_plot_confusion_matrix_for_rois_jim(
