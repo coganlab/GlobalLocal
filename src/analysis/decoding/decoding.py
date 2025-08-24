@@ -42,7 +42,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 # Other third-party
 from tqdm import tqdm 
 from numpy.lib.stride_tricks import as_strided, sliding_window_view # sliding_window_view was imported separately
-
+from typing import Union, List, Sequence
 # ---- Local/Project-specific imports ----
 # ieeg imports
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, outliers_to_nan

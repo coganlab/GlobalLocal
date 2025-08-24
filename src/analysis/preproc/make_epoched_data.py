@@ -161,7 +161,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True,outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -177,6 +177,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
+    - mark_outliers_as_nan (bool, optional): Whether to mark outliers as NaN. Defaults to True.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
     - stat_func (function, optional): The statistical function to use for significance testing. Default is ttest_ind(equal_var=False).
@@ -246,7 +247,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
     
-    outliers_to_nan(trials, outliers=outliers)
+    if mark_outliers_as_nan:
+        outliers_to_nan(trials, outliers=outliers)
     HG_base = gamma.extract(trials, passband=passband, copy=False, n_jobs=1)
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
     crop_pad(HG_base, pad_length_string) # need to change this if pad length changes
@@ -274,9 +276,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         stat_func_for_filename = "custom_stat_func" # Fallback
     # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
     if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
 
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -284,7 +286,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         trials = trial_ieeg(good, event, times_adj, preload=True,
                             reject_by_annotation=False)
 
-        outliers_to_nan(trials, outliers=outliers)
+        if mark_outliers_as_nan:
+            outliers_to_nan(trials, outliers=outliers)
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
         print("HG_ev1 before crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
         crop_pad(HG_ev1, pad_length_string) #change this if pad length changes
@@ -352,7 +355,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
