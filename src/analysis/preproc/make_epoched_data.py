@@ -360,7 +360,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
