@@ -1345,7 +1345,7 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.legend()
 
     # Construct the filename
-    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}.png"
+    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_permutations}_perm.png"
     filepath = os.path.join(save_dir, filename)
 
     # Ensure save_dir exists
