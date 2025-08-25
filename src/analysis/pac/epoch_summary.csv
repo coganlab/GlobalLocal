@@ -1,2 +1,2 @@
 subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
-D0100,Response,444,2048.0,222,-1.0,1.5,"LTMM1,LTMM2,LTMM5"
+D0071,Response,444,2048.0,156,-1.0,1.5,"RFO1,RFO2,RFO3"
