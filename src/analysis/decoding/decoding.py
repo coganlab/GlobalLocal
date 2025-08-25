@@ -975,7 +975,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
-    step_size=1, n_permutations=100, sampling_rate=256, first_time_point=-1
+    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -1023,7 +1023,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         time axis length is used (i.e., no sliding window). Default is None.
     step_size : int, optional
         The number of time samples to slide the window by. Default is 1.
-    n_permutations : int, optional
+    n_perm : int, optional
         Number of permutations for the shuffled label decoding (effectively the
         n_repeats for the shuffle decoder). Default is 100.
     sampling_rate : int or float, optional
@@ -1049,7 +1049,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         - cm_shuffle_per_roi : dict
             Similar to `cm_true_per_roi`, but for shuffled labels:
                 - 'cm_shuffle' (numpy.ndarray): Confusion matrices for shuffled labels.
-                  Shape: (n_windows, n_permutations, n_classes, n_classes).
+                  Shape: (n_windows, n_perm, n_classes, n_classes).
                 - (other keys are the same as in `cm_true_per_roi[roi]`)
     """
     # Initialize dictionaries to store confusion matrices for each ROI
@@ -1095,7 +1095,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         
         # Create Decoder instances
         decoder_true = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_permutations)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_perm)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
@@ -1119,7 +1119,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         }
 
         cm_shuffle_per_roi[roi] = {
-            'cm_shuffle': cm_shuffle,  # Shape: (n_windows, n_permutations, n_classes, n_classes)
+            'cm_shuffle': cm_shuffle,  # Shape: (n_windows, n_perm, n_classes, n_classes)
             'time_window_centers': time_window_centers,
             'window_size': effective_window_size,
             'step_size': effective_step_size,
@@ -1143,7 +1143,7 @@ def compute_accuracies(cm_true, cm_shuffle):
         Expected shape: (n_windows, n_repeats, n_classes, n_classes).
     cm_shuffle : numpy.ndarray
         Confusion matrices for shuffled labels.
-        Expected shape: (n_windows, n_permutations, n_classes, n_classes).
+        Expected shape: (n_windows, n_perm, n_classes, n_classes).
 
     Returns
     -------
@@ -1151,14 +1151,14 @@ def compute_accuracies(cm_true, cm_shuffle):
         - accuracies_true : numpy.ndarray
             Accuracies for true labels. Shape: (n_windows, n_repeats).
         - accuracies_shuffle : numpy.ndarray
-            Accuracies for shuffled labels. Shape: (n_windows, n_permutations).
+            Accuracies for shuffled labels. Shape: (n_windows, n_perm).
     """
     n_windows = cm_true.shape[0]
     n_repeats = cm_true.shape[1]
-    n_permutations = cm_shuffle.shape[1]
+    n_perm = cm_shuffle.shape[1]
 
     accuracies_true = np.zeros((n_windows, n_repeats))
-    accuracies_shuffle = np.zeros((n_windows, n_permutations))
+    accuracies_shuffle = np.zeros((n_windows, n_perm))
 
     for win_idx in range(n_windows):
         # True accuracies
@@ -1166,7 +1166,7 @@ def compute_accuracies(cm_true, cm_shuffle):
             cm = cm_true[win_idx, rep_idx]
             accuracies_true[win_idx, rep_idx] = np.trace(cm) / np.sum(cm)
         # Shuffled accuracies
-        for perm_idx in range(n_permutations):
+        for perm_idx in range(n_perm):
             cm = cm_shuffle[win_idx, perm_idx]
             accuracies_shuffle[win_idx, perm_idx] = np.trace(cm) / np.sum(cm)
 
@@ -1186,7 +1186,7 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
     accuracies_true : numpy.ndarray
         Accuracies for true labels. Expected shape: (n_windows, n_repeats).
     accuracies_shuffle : numpy.ndarray
-        Accuracies for shuffled labels. Expected shape: (n_windows, n_permutations).
+        Accuracies for shuffled labels. Expected shape: (n_windows, n_perm).
     p_thresh : float, optional
         P-value threshold for cluster formation. Default is 0.05.
     n_perm : int, optional
@@ -1213,7 +1213,7 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
         n_perm=n_perm,
         tails=1,
         axis=0,
-        stat_func=lambda x, y, axis: np.mean(x, axis=axis),
+        stat_func=stat_func,
         n_jobs=1,
         seed=seed
     )
@@ -1236,7 +1236,7 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     accuracies_true : numpy.ndarray
         Accuracies for true labels. Shape: (n_windows, n_repeats).
     accuracies_shuffle : numpy.ndarray
-        Accuracies for shuffled labels. Shape: (n_windows, n_permutations).
+        Accuracies for shuffled labels. Shape: (n_windows, n_perm).
     significant_clusters : array-like of bool
         A boolean array indicating which time windows are part of a
         statistically significant cluster. Shape: (n_windows,).
@@ -1259,7 +1259,7 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
         if needed, though current xlim are fixed. Default is 0.
     """
     n_repeats = accuracies_true.shape[1]
-    n_permutations = accuracies_shuffle.shape[1]
+    n_perm = accuracies_shuffle.shape[1]
 
     # Compute mean and standard error
     mean_true_accuracy = np.mean(accuracies_true, axis=1)
@@ -1268,7 +1268,7 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
 
     mean_shuffle_accuracy = np.mean(accuracies_shuffle, axis=1)
     std_shuffle_accuracy = np.std(accuracies_shuffle, axis=1)
-    se_shuffle_accuracy = std_shuffle_accuracy / np.sqrt(n_permutations)
+    se_shuffle_accuracy = std_shuffle_accuracy / np.sqrt(n_perm)
 
     # Plotting
     plt.figure(figsize=(12, 6))
@@ -1345,7 +1345,7 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.legend()
 
     # Construct the filename
-    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_permutations}_perm.png"
+    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_perm}_perm.png"
     filepath = os.path.join(save_dir, filename)
 
     # Ensure save_dir exists
