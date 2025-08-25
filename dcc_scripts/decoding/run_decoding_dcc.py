@@ -107,10 +107,10 @@ ROIS_DICT = {
 
 
 # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 10
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 10
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
