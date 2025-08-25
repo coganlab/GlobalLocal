@@ -5,22 +5,21 @@ print(sys.path)
 
 # Get the absolute path to the directory containing the current script
 # For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+# Get the absolute path to the directory containing the current script
 try:
     # This will work if running as a .py script
     current_file_path = os.path.abspath(__file__)
     current_script_dir = os.path.dirname(current_file_path)
 except NameError:
     # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
-    # os.getcwd() often gives the directory of the notebook,
-    # or the directory from which the Jupyter server was started.
     current_script_dir = os.getcwd()
 
-# Navigate up three levels to get to the 'GlobalLocal' directory
-project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 
 # Add the 'GlobalLocal' directory to sys.path if it's not already there
 if project_root not in sys.path:
-    sys.path.insert(0, project_root) # insert at the beginning to prioritize it
+    sys.path.insert(0, project_root)  # insert at the beginning to prioritize it
 
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
     outliers_to_nan
@@ -51,7 +50,6 @@ from scipy.stats import norm, ttest_ind
 from functools import partial
 import json
 import pickle
-
 
 from os.path import join, expanduser, basename
 import glob, json
@@ -210,7 +208,7 @@ def main(args):
         
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
-    other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(subjects)) + '_subjects'
+    other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(args.subjects)) + '_subjects'
 
     for condition_comparison, strings_to_find in condition_comparisons.items():
         confusion_matrices = get_and_plot_confusion_matrix_for_rois_jim(
@@ -280,12 +278,12 @@ def main(args):
 
             # Perform time permutation cluster test
             significant_clusters, p_values = time_perm_cluster(
-                accuracies_true, 
-                accuracies_shuffle,
+                accuracies_true.T, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats
+                accuracies_shuffle.T,
                 p_thresh=args.p_thresh,
                 n_perm=args.n_perm,
                 tails=1,
-                axis=1, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats
+                axis=0, 
                 stat_func=args.stat_func,
                 n_jobs=args.n_jobs,
                 seed=args.random_state
