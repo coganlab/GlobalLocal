@@ -66,7 +66,7 @@ Last edited: 01/16/2024
 4. All wavelet functions live in wavelet_functions.py (also, copy_wavelet_spec.ipynb is deprecated, that was a copy of Aaron's old code)
     
 ### High Gamma Filter and Permutation Testing
-1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: (ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
+1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: ```(ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057```. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
 ### Decoding
 1. Run decoding.ipynb to do decoding. TODO: Make a main function in decoding.py to run decoding all from decoding.py.
