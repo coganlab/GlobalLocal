@@ -42,13 +42,15 @@ Last edited: 01/16/2024
 8. To make the EV matrix, run the next cell in makeInputsForFSL.ipynb
 
 ### Duke Compute Cluster
-1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu
+1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. The 2-step authentication takes a few tries to go through, don't worry.
+   
 2. Also can do ssh -Y netid@dcc-login.oit.duke.edu from the terminal to access the DCC.
-1. To be able to access data from scripts on the DCC using ```LAB_root = os.path.join("cwork", "your_net_id")``` -> Move data from /hpc/home/your_net_id/coganlab/Data/BIDS-1.1_GlobalLocal/ to /cwork/your_net_id/BIDS-1.1_GlobalLocal/ using the Duke Compute Cluster (DCC) Data Transfer Node as the collection on Globus (https://app.globus.org/file-manager?destination_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&destination_path=%2Fcwork%2Fjz421%2FBIDS-1.1_GlobalLocal%2F&origin_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&origin_path=%2Fhpc%2Fhome%2Fjz421%2Fcoganlab%2FData%2FBIDS-1.1_GlobalLocal%2F&two_pane=true).<img width="1273" alt="Screenshot 2025-06-06 at 1 07 21 PM" src="https://github.com/user-attachments/assets/dd0204bd-3536-4fb2-9333-ba289f02ec4a" />
+   
+3. To be able to access data from scripts on the DCC using ```LAB_root = os.path.join("cwork", "your_net_id")``` -> Move data from /hpc/home/your_net_id/coganlab/Data/BIDS-1.1_GlobalLocal/ to /cwork/your_net_id/BIDS-1.1_GlobalLocal/ using the Duke Compute Cluster (DCC) Data Transfer Node as the collection on Globus (https://app.globus.org/file-manager?destination_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&destination_path=%2Fcwork%2Fjz421%2FBIDS-1.1_GlobalLocal%2F&origin_id=1ad66c7c-4f60-11e8-900c-0a6d4e044368&origin_path=%2Fhpc%2Fhome%2Fjz421%2Fcoganlab%2FData%2FBIDS-1.1_GlobalLocal%2F&two_pane=true).<img width="1273" alt="Screenshot 2025-06-06 at 1 07 21 PM" src="https://github.com/user-attachments/assets/dd0204bd-3536-4fb2-9333-ba289f02ec4a" />
 
-2. Use git repositories on the DCC to sync code with local computer code. Use the dcc_scripts folder for scripts that will live on the DCC. Make sure to set up an SSH key for permissions, and pull before making any changes (refer to step 4 here: https://github.com/dward2/BME547/blob/main/Assignments/01_tool_setup_git_intro.md). First, git clone this repository to your netid folder under coganlab on the DCC. Then, do git config --global user.email "your_email@email.com" and do git config --global user.name "your_github_username".
+4. Use git repositories on the DCC to sync code with local computer code. Use the dcc_scripts folder for scripts that will live on the DCC. Make sure to set up an SSH key for permissions, and pull before making any changes (refer to step 4 here: https://github.com/dward2/BME547/blob/main/Assignments/01_tool_setup_git_intro.md). First, git clone this repository to your netid folder under coganlab on the DCC. Then, do git config --global user.email "your_email@email.com" and do git config --global user.name "your_github_username".
 
-3. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
+5. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
 
   
 # **Analysis Steps**
@@ -64,17 +66,11 @@ Last edited: 01/16/2024
 4. All wavelet functions live in wavelet_functions.py (also, copy_wavelet_spec.ipynb is deprecated, that was a copy of Aaron's old code)
     
 ### High Gamma Filter and Permutation Testing
-1. Run first cell (working version 12/1) to do high gamma filter and permutation testing, with baseline as 1 second before stimulus onset and mirrored to break up fixation cross onset. Using these lines - ```sig1 = HG_ev1._data
-sig2 = HG_base._data
-sig3 = make_data_same(sig2, (sig2.shape[0],sig2.shape[1],sig2.shape[2]+1)) # originally we want to make the baseline the same shape as the signal. We still want to do that, but first, we'll make it bigger to reflect it once, then back to normal to randomly offset it and remove fixation cross effects.
-sig4 = make_data_same(sig3, sig2.shape) #here we do the random offset, we know that sig3 is bigger than sig1 by 1 in the time dimension so it will get randomly sliced.
-sig5 = make_data_same(sig4, sig1.shape) #and now sig4 should be sig2 but with a random offset, and we can then set it equal to sig1's shape like the original plan.``` Make sure to edit sub, event, and output_name.
-2. Run last few cells to make grid plots for each channel (everything after "ok make greg significance and high gamma combined plots")
-3. Alternatively, run make_epoched_data to do the stats without plotting. Run make_epoched_data.py like this: (ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
+1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: (ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
 ### Decoding
 1. Run decoding.ipynb to do decoding. TODO: Make a main function in decoding.py to run decoding all from decoding.py.
-2
+2. Or run ```sbatch sbatch_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc.
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
  
