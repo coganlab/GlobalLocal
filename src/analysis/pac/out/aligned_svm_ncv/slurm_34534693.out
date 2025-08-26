@@ -1,0 +1,11 @@
+Subject D0059: loading epochs...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Response_ev1-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+447 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 447 epochs for Response (LMSF1,LMSF2,LMSF3...)
+Epoch summary saved.

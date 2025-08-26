@@ -16,5 +16,5 @@ python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/theta_connect
     --subject ${subject} \
     --bids_root /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS \
     --event Response \
-    --rois ctx_rh_G_front_inf-Orbital ctx_rh_S_circular_insula_sup ctx_rh_G_front_inf-Opercular ctx_rh_S_front_middle ctx_rh_S_front_sup ctx_rh_G_front_middle \
+    --part lpfc \
     --roi_json /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/subjects_electrodestoROIs_dict.json
