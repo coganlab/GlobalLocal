@@ -55,7 +55,7 @@ ACC_TRIALS_ONLY = True
 
 # Statistical parameters
 STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-P_THRESH = 0.05
+P_THRESH = 0.01
 N_PERM = 1000
 
 # Parallel processing
@@ -73,7 +73,7 @@ CHANS_AXS = 1
 TIME_AXS = -1
 
 # Time-windowed decoding parameters
-WINDOW_SIZE = 32  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
+WINDOW_SIZE = 64  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
 STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
@@ -83,7 +83,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 # MARK_OUTLIERS_AS_NAN = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus__conditions
+CONDITIONS = experiment_conditions.stimulus_lwps_conditions
 
 # Epochs file selection
 
@@ -154,7 +154,6 @@ def run_analysis():
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Permutations:      {N_PERM}")
     print(f"P-threshold:       {P_THRESH}")
-    print(f"Stimulus locked:   {STIMULUS_LOCKED}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")

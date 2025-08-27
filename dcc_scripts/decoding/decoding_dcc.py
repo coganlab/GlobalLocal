@@ -350,8 +350,8 @@ def main(args):
                 p_thresh=args.p_thresh
             )
             
-            # convert to a dataframe for further comparisons if necessary (lwpc, lwps)
-            time_window_decoding_results_df = pd.DataFrame.from_dict(time_window_decoding_results, orient='index')
+            # # convert to a dataframe for further comparisons if necessary (lwpc, lwps) - untested and unfinished
+            # time_window_decoding_results_df = pd.DataFrame.from_dict(time_window_decoding_results, orient='index')
     
     # do comparisons for lwpc decoding accuracies - UNTESTED AND UNFINISHED
     # if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
