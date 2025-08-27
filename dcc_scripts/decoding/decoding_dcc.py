@@ -206,12 +206,35 @@ def main(args):
     elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
         condition_comparisons['switchType'] = [['Stimulus_r'], ['Stimulus_s']]
         
+    # 8/26/25 changes that should probably first involve an ANOVA between all four comparisons - note that this will be underpowered since I'm subsampling to the 25% condition
+    # hm i think i should probably trial match too, so the c75 vs i75 would have to be subsampled to the c25 vs i25 trial counts. Ugh that loses sooooo many trials (50%). Rerun make epoched data with more stringent nan criteria so that i don't lose so many trials.
+    elif args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+        condition_comparisons['c25_vs_i25'] = ['c25', 'i25'] # lwpc
+        condition_comparisons['c75_vs_i75'] = ['c75', 'i75']
+        
+        condition_comparisons['c25_vs_i75'] = ['c25', 'i75'] # control comparisons for lwpc, think more about how to interpret these
+        condition_comparisons['c75_vs_i25'] = ['c75', 'i25']
+        
+        condition_comparisons['c25_vs_c75'] = ['c25', 'c75'] # these cross-block comparisons let me decode if there's pre-trial information about the congruency proportion
+        condition_comparisons['i25_vs_i75'] = ['i25', 'i75']
+        
+    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
+        condition_comparisons['s25_vs_r25'] = ['s25', 'r25'] # lwps
+        condition_comparisons['s75_vs_r75'] = ['s75', 'r75']
+        
+        condition_comparisons['s25_vs_r75'] = ['s25', 'r75'] # control comparisons for lwps, think more about how to interpret these
+        condition_comparisons['s75_vs_r25'] = ['s75', 'r25']
+        
+        condition_comparisons['s25_vs_r25'] = ['s25', 'r25'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
+        condition_comparisons['s75_vs_r75'] = ['s75', 'r75'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
+
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
     other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(args.subjects)) + '_subjects'
 
     for condition_comparison, strings_to_find in condition_comparisons.items():
         confusion_matrices = get_and_plot_confusion_matrix_for_rois_jim(
+            timestamp=args.timestamp,
             roi_labeled_arrays=roi_labeled_arrays_no_nans,
             rois=rois,
             condition_comparison=condition_comparison,
@@ -232,9 +255,12 @@ def main(args):
     cm_save_dir = os.path.join(save_dir, "confusion_matrices")
     os.makedirs(cm_save_dir, exist_ok=True)
 
-    condition_comparison_confusion_matrices = {}
+    time_window_decoding_results = {}
 
     for condition_comparison, strings_to_find in condition_comparisons.items():
+        
+        time_window_decoding_results[condition_comparison] = {}
+        
         # Get confusion matrices for each ROI
         cm_true_per_roi, cm_shuffle_per_roi = get_confusion_matrices_for_rois_time_window_decoding_jim(
             roi_labeled_arrays=roi_labeled_arrays,
@@ -259,23 +285,38 @@ def main(args):
         np.save(os.path.join(cm_save_dir, f'{condition_comparison}_{args.n_splits}_splits_{args.n_repeats}_repeats_{args.balance_method}_balance_method_{args.random_state}_random_state_{args.window_size}_window_size_{args.step_size}_step_size_{args.n_perm}_permutations_{args.sampling_rate}_sampling_rate_cm_shuffle_per_roi.npy'), cm_shuffle_per_roi)
 
         # Store the results in a dictionary
-        condition_comparison_confusion_matrices[condition_comparison] = {
-            'strings_to_find': strings_to_find,
-            'cm_true_per_roi': cm_true_per_roi,
-            'cm_shuffle_per_roi': cm_shuffle_per_roi
-        }
+        # time_window_decoding_results[condition_comparison] = {
+        #     'strings_to_find': strings_to_find,
+        #     'cm_true_per_roi': cm_true_per_roi,
+        #     'cm_shuffle_per_roi': cm_shuffle_per_roi
+        # }
 
         # Now compute accuracies and perform time permutation cluster test
         for roi in rois:
+            time_window_decoding_results[condition_comparison][roi] = {}
+            time_window_decoding_results[condition_comparison][roi]['strings_to_find'] = strings_to_find
+
+
             cm_true = cm_true_per_roi[roi]['cm_true']
             cm_shuffle = cm_shuffle_per_roi[roi]['cm_shuffle']
             time_window_centers = cm_true_per_roi[roi]['time_window_centers']
             window_size = cm_true_per_roi[roi]['window_size']
             step_size = cm_true_per_roi[roi]['step_size']
 
+            # store cm outputs nd windowing parameters
+            time_window_decoding_results[condition_comparison][roi]['cm_true'] = cm_true
+            time_window_decoding_results[condition_comparison][roi]['cm_shuffle'] = cm_shuffle
+            time_window_decoding_results[condition_comparison][roi]['time_window_centers'] = time_window_centers
+            time_window_decoding_results[condition_comparison][roi]['window_size'] = window_size
+            time_window_decoding_results[condition_comparison][roi]['step_size'] = step_size
+            
             # Compute accuracies
             accuracies_true, accuracies_shuffle = compute_accuracies(cm_true, cm_shuffle)
 
+            # store accuracies
+            time_window_decoding_results[condition_comparison][roi]['accuracies_true'] = accuracies_true
+            time_window_decoding_results[condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
+            
             # Perform time permutation cluster test
             significant_clusters, p_values = time_perm_cluster(
                 accuracies_true.T, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats
@@ -290,15 +331,10 @@ def main(args):
             )
 
             # Store significant clusters and p-values
-            cm_true_per_roi[roi]['significant_clusters'] = significant_clusters
-            cm_true_per_roi[roi]['p_values'] = p_values
+            time_window_decoding_results[condition_comparison][roi]['significant_clusters'] = significant_clusters
+            time_window_decoding_results[condition_comparison][roi]['p_values'] = p_values
 
-            # Optionally, store accuracies
-            cm_true_per_roi[roi]['accuracies_true'] = accuracies_true
-            cm_shuffle_per_roi[roi]['accuracies_shuffle'] = accuracies_shuffle
-            print(significant_clusters)
-
-            # Plot accuracies
+            # Plot accuracies comparing true and shuffle for this condition comparison and roi
             plot_accuracies(
                 time_points=time_window_centers,
                 accuracies_true=accuracies_true,
@@ -309,8 +345,34 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 condition_comparison=condition_comparison,
                 roi=roi,
-                save_dir=save_dir
+                save_dir=save_dir,
+                timestamp=args.timestamp,
+                p_thresh=args.p_thresh
             )
+            
+            # convert to a dataframe for further comparisons if necessary (lwpc, lwps)
+            time_window_decoding_results_df = pd.DataFrame.from_dict(time_window_decoding_results, orient='index')
+    
+    # do comparisons for lwpc decoding accuracies - UNTESTED AND UNFINISHED
+    # if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+    #     c25_vs_i25_df = time_window_decoding_results_df[condition_comparison == 'c25_vs_i25']
+    #     c75_vs_i75_df = time_window_decoding_results_df[condition_comparison == 'c75_vs_i75']
+    #     c25_vs_i75_df = time_window_decoding_results_df[condition_comparison == 'c25_vs_i75']
+    #     c75_vs_i25_df = time_window_decoding_results_df[condition_comparison == 'c75_vs_i25']
+
+    #     for roi in rois:
+    #         # Perform time permutation cluster test between c25 vs i25 and c75 vs i75
+    #         significant_clusters, p_values = time_perm_cluster(
+    #             c25_vs_i25_df[roi][accuracies_true.T], # shape is (n_windows, n_repeats), we want to shuffle along n_repeats
+    #             c75_vs_i75_df[roi][accuracies_true.T],
+    #             p_thresh=args.p_thresh,
+    #             n_perm=args.n_perm,
+    #             tails=1,
+    #             axis=0, 
+    #             stat_func=args.stat_func,
+    #             n_jobs=args.n_jobs,
+    #             seed=args.random_state
+    #         )
             
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
