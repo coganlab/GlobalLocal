@@ -7,6 +7,32 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 from mne_connectivity import spectral_connectivity_time
 
+def find_roi_names(part):
+    rois_dict = {
+    'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+    'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+    'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+    'v1': ["G_oc-temp_med-Lingual", "S_calcarine", "G_cuneus"],
+    'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
+    }
+    roi_list=rois_dict[part[0]]#for now only one part at a time
+    print(f"Using ROIs: {roi_list}")
+    # Load ROI mapping
+    with open(args.roi_json, 'r') as f:
+        roi_data = json.load(f)
+
+    # Gather channels from specified ROIs
+    chs = []
+    for roi in roi_list:
+        for key in roi_data[subj]['filtROI_dict']:
+            if roi in key:
+                chs.extend(roi_data[subj]['filtROI_dict'][key])
+    chs = list(dict.fromkeys(chs))  # de-duplicate
+    print(f"Computing coherence for {subj}, {len(chs)} channels, {len(chs)*(len(chs)-1)//2} pairs")
+    return chs
+
+
 def load_epochs(subjects,
                 bids_root,
                 deriv_dir='freqFilt/figs',
@@ -119,8 +145,9 @@ if __name__ == '__main__':
     parser.add_argument('--bids_root', type=str, required=True)
     parser.add_argument('--subjects', nargs='+', required=True)
     parser.add_argument('--roi_json', type=str, required=True)
-    parser.add_argument('--rois', nargs='+', required=True)
+    parser.add_argument('--part', nargs='+', required=True)
     parser.add_argument('--event', type=str, required=True)
+    parser.add_argument('--congruency', type=str, default='all')
     parser.add_argument('--fmin', type=float, default=3.0)
     parser.add_argument('--fmax', type=float, default=8.0)
     parser.add_argument('--n_freqs', type=int, default=25)
@@ -135,9 +162,6 @@ if __name__ == '__main__':
     if args.plot:
         os.makedirs(fig_dir, exist_ok=True)
 
-    # Load ROI mapping
-    with open(args.roi_json, 'r') as f:
-        roi_data = json.load(f)
 
     # Load epochs
     epoch_dicts, df_epochs = load_epochs(args.subjects, args.bids_root,
@@ -156,14 +180,8 @@ if __name__ == '__main__':
         if epochs is None:
             print(f"Skipping {subj}: no {args.event} epochs")
             continue
-
-        # Gather channels from specified ROIs
-        chs = []
-        for roi in args.rois:
-            chs.extend(roi_data[subj]['filtROI_dict'].get(roi, []))
-        chs = list(dict.fromkeys(chs))  # de-duplicate
-
-        print(f"Computing coherence for {subj}, {len(chs)} channels, {len(chs)*(len(chs)-1)//2} pairs")
+        print(f"Processing subject {subj}...")
+        chs = find_roi_names(args.part)
         coh_dict = compute_coherence_batch(
             epochs, chs, freqs, n_cycles,
             args.fmin, args.fmax, args.n_jobs
@@ -181,6 +199,6 @@ if __name__ == '__main__':
 
     # Save summary CSV
     df_sum = pd.DataFrame(all_records)
-    csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.rois[0]}_{args.event}_summary.csv')
+    csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.part[0]}_{args.event}_summary.csv')
     df_sum.to_csv(csv_path, index=False)
     print(f"Saved coherence summary to {csv_path}")

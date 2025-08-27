@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 183, in <module>
+    chs = find_roi_names(args.part)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 19, in find_roi_names
+    roi_list=rois_dict[part]
+             ~~~~~~~~~^^^^^^
+TypeError: unhashable type: 'list'
