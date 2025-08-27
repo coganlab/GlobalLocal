@@ -161,7 +161,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True,outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -275,11 +275,17 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
     # need to adapt this to just have a randoffset variable instead of hard coding the output_name_base
-    if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    if mark_outliers_as_nan:
+        if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
+            output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        else:
+            output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
-
+        if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
+            output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        else:
+            output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_markOutliersAsNaN_{mark_outliers_as_nan}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
         times_adj = [times[0] - pad_length, times[1] + pad_length]
@@ -381,6 +387,7 @@ if __name__ == "__main__":
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
     parser.add_argument('--channels', type=str, default=None, help='Channels to plot and get stats for. Default is all channels.')
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
+    parser.add_argument('--mark_outliers_as_nan', type=bool, default=True, help='Whether to mark outliers as NaN. Default is True.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
@@ -399,6 +406,7 @@ if __name__ == "__main__":
         LAB_root=args.LAB_root, 
         channels=args.channels, 
         dec_factor=args.dec_factor, 
+        mark_outliers_as_nan=args.mark_outliers_as_nan,
         outliers=args.outliers, 
         passband=args.passband,
         stat_func=args.stat_func)
