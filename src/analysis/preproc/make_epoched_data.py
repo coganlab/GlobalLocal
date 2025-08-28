@@ -293,7 +293,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
                             reject_by_annotation=False)
 
         if mark_outliers_as_nan:
+            print('marking outliers as nan')
             outliers_to_nan(trials, outliers=outliers)
+
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
         print("HG_ev1 before crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
         crop_pad(HG_ev1, pad_length_string) #change this if pad length changes
@@ -387,11 +389,13 @@ if __name__ == "__main__":
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
     parser.add_argument('--channels', type=str, default=None, help='Channels to plot and get stats for. Default is all channels.')
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
-    parser.add_argument('--mark_outliers_as_nan', type=bool, default=True, help='Whether to mark outliers as NaN. Default is True.')
+    parser.add_argument('--mark_outliers_as_nan', type=str, default='True', choices=['True', 'False'], help="Set to 'True' or 'False'. Default is 'True'.")
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
+
+    mark_outliers_bool = (args.mark_outliers_as_nan == 'True')
 
     print("--------- PARSED ARGUMENTS ---------")
     print(f"args.passband: {args.passband} (type: {type(args.passband)})")
@@ -406,7 +410,7 @@ if __name__ == "__main__":
         LAB_root=args.LAB_root, 
         channels=args.channels, 
         dec_factor=args.dec_factor, 
-        mark_outliers_as_nan=args.mark_outliers_as_nan,
+        mark_outliers_as_nan=mark_outliers_bool,
         outliers=args.outliers, 
         passband=args.passband,
         stat_func=args.stat_func)
