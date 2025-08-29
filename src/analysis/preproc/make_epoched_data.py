@@ -161,7 +161,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=False, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -363,7 +363,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=True, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, mark_outliers_as_nan=False, outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -389,13 +389,11 @@ if __name__ == "__main__":
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
     parser.add_argument('--channels', type=str, default=None, help='Channels to plot and get stats for. Default is all channels.')
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
-    parser.add_argument('--mark_outliers_as_nan', type=str, default='True', choices=['True', 'False'], help="Set to 'True' or 'False'. Default is 'True'.")
+    parser.add_argument('--mark_outliers_as_nan', type=bool, default=False, help='Set to True or False. Default is False. This is not setting, just hard code the default values for now...')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
-
-    mark_outliers_bool = (args.mark_outliers_as_nan == 'True')
 
     print("--------- PARSED ARGUMENTS ---------")
     print(f"args.passband: {args.passband} (type: {type(args.passband)})")
@@ -410,7 +408,7 @@ if __name__ == "__main__":
         LAB_root=args.LAB_root, 
         channels=args.channels, 
         dec_factor=args.dec_factor, 
-        mark_outliers_as_nan=mark_outliers_bool,
+        mark_outliers_as_nan=args.mark_outliers_as_nan,
         outliers=args.outliers, 
         passband=args.passband,
         stat_func=args.stat_func)
