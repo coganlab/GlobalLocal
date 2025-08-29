@@ -334,6 +334,10 @@ def main(args):
             time_window_decoding_results[condition_comparison][roi]['significant_clusters'] = significant_clusters
             time_window_decoding_results[condition_comparison][roi]['p_values'] = p_values
 
+            accuracies_save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}", f"{condition_comparison}", f"{roi}")
+            os.makedirs(accuracies_save_dir, exist_ok=True)
+            print(f"accuracies save dir directory created or already exists at: {accuracies_save_dir}")
+    
             # Plot accuracies comparing true and shuffle for this condition comparison and roi
             plot_accuracies(
                 time_points=time_window_centers,
@@ -345,7 +349,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 condition_comparison=condition_comparison,
                 roi=roi,
-                save_dir=save_dir,
+                save_dir=accuracies_save_dir,
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh
             )

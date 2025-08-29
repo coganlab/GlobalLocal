@@ -55,15 +55,15 @@ ACC_TRIALS_ONLY = True
 
 # Statistical parameters
 STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-P_THRESH = 0.01
-N_PERM = 1000
+P_THRESH = 0.05
+N_PERM = 500
 
 # Parallel processing
 N_JOBS = -1
 
 # Decoding parameters
 N_SPLITS = 5
-N_REPEATS = 1000
+N_REPEATS = 500
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
@@ -83,11 +83,11 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 # MARK_OUTLIERS_AS_NAN = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwps_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
-
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary

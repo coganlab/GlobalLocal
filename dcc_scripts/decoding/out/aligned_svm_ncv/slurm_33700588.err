@@ -1,8 +1,0 @@
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-slurmstepd: error: *** JOB 33700588 ON dcc-coganlab-gpu-02 CANCELLED AT 2025-08-11T16:06:37 ***
