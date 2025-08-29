@@ -11,7 +11,7 @@ Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077
 Conditions:        ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
 ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
 Permutations:      1000
-P-threshold:       0.05
+P-threshold:       0.01
 Epochs file:       Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
 Explained variance: 0.8
 Balance method:     subsample
@@ -29,7 +29,7 @@ Decoding Parameters:
 ----------------------------------------------------------------------
 Statistical Parameters:
   Cluster Perms:     1000
-  P-value Threshold: 0.05
+  P-value Threshold: 0.01
   Tails:             1
 ======================================================================
 ======================================================================

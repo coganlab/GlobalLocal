@@ -1155,3 +1155,778 @@ No baseline correction applied
 Not setting metadata
 193 matching events found
 No baseline correction applied
+    Original shape: (193, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1365.0
+    Max NaN count in a trial: 27563
+    Stimulus_bigH: 193 valid trials out of 193
+ROI 'dlpfc': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
+  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
+in roi dlpfc, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI dlpfc, LabeledArray shape: (2, 234, 12, 641)
+in roi dlpfc, subject D0059 has 214 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0059 has 213 trials for condition Stimulus_bigH
+Subject D0059, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
+in roi dlpfc, subject D0063 has 185 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0063 has 204 trials for condition Stimulus_bigH
+Subject D0063, ROI dlpfc, LabeledArray shape: (2, 234, 33, 641)
+in roi dlpfc, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
+in roi dlpfc, subject D0071 has 206 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0071 has 223 trials for condition Stimulus_bigH
+Subject D0071, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
+in roi dlpfc, subject D0090 has 193 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0090 has 234 trials for condition Stimulus_bigH
+Subject D0090, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
+in roi dlpfc, subject D0094 has 191 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0094 has 187 trials for condition Stimulus_bigH
+Subject D0094, ROI dlpfc, LabeledArray shape: (2, 234, 14, 641)
+in roi dlpfc, subject D0102 has 149 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0102 has 150 trials for condition Stimulus_bigH
+Subject D0102, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
+in roi dlpfc, subject D0103 has 176 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0103 has 183 trials for condition Stimulus_bigH
+Subject D0103, ROI dlpfc, LabeledArray shape: (2, 234, 6, 641)
+in roi dlpfc, subject D0107A has 183 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0107A has 211 trials for condition Stimulus_bigH
+Subject D0107A, ROI dlpfc, LabeledArray shape: (2, 234, 22, 641)
+in roi dlpfc, subject D0110 has 226 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0110 has 213 trials for condition Stimulus_bigH
+Subject D0110, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
+in roi dlpfc, subject D0116 has 195 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0116 has 215 trials for condition Stimulus_bigH
+Subject D0116, ROI dlpfc, LabeledArray shape: (2, 234, 21, 641)
+in roi dlpfc, subject D0117 has 129 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0117 has 154 trials for condition Stimulus_bigH
+Subject D0117, ROI dlpfc, LabeledArray shape: (2, 234, 10, 641)
+in roi dlpfc, subject D0121 has 207 trials for condition Stimulus_bigS
+in roi dlpfc, subject D0121 has 193 trials for condition Stimulus_bigH
+Subject D0121, ROI dlpfc, LabeledArray shape: (2, 234, 51, 641)
+ROI 'acc': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 207 trials from subjects ['D0121']
+  Condition 'Stimulus_bigH': 215 trials from subjects ['D0116']
+in roi acc, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi acc, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI acc, LabeledArray shape: (2, 215, 1, 641)
+in roi acc, subject D0063 has 185 trials for condition Stimulus_bigS
+in roi acc, subject D0063 has 204 trials for condition Stimulus_bigH
+Subject D0063, ROI acc, LabeledArray shape: (2, 215, 16, 641)
+in roi acc, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi acc, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI acc, LabeledArray shape: (2, 215, 7, 641)
+in roi acc, subject D0094 has 191 trials for condition Stimulus_bigS
+in roi acc, subject D0094 has 187 trials for condition Stimulus_bigH
+Subject D0094, ROI acc, LabeledArray shape: (2, 215, 2, 641)
+in roi acc, subject D0102 has 149 trials for condition Stimulus_bigS
+in roi acc, subject D0102 has 150 trials for condition Stimulus_bigH
+Subject D0102, ROI acc, LabeledArray shape: (2, 215, 3, 641)
+in roi acc, subject D0103 has 176 trials for condition Stimulus_bigS
+in roi acc, subject D0103 has 183 trials for condition Stimulus_bigH
+Subject D0103, ROI acc, LabeledArray shape: (2, 215, 2, 641)
+in roi acc, subject D0107A has 183 trials for condition Stimulus_bigS
+in roi acc, subject D0107A has 211 trials for condition Stimulus_bigH
+Subject D0107A, ROI acc, LabeledArray shape: (2, 215, 9, 641)
+in roi acc, subject D0116 has 195 trials for condition Stimulus_bigS
+in roi acc, subject D0116 has 215 trials for condition Stimulus_bigH
+Subject D0116, ROI acc, LabeledArray shape: (2, 215, 10, 641)
+in roi acc, subject D0117 has 129 trials for condition Stimulus_bigS
+in roi acc, subject D0117 has 154 trials for condition Stimulus_bigH
+Subject D0117, ROI acc, LabeledArray shape: (2, 215, 2, 641)
+in roi acc, subject D0121 has 207 trials for condition Stimulus_bigS
+in roi acc, subject D0121 has 193 trials for condition Stimulus_bigH
+Subject D0121, ROI acc, LabeledArray shape: (2, 215, 19, 641)
+ROI 'parietal': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
+  Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
+in roi parietal, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi parietal, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
+in roi parietal, subject D0059 has 214 trials for condition Stimulus_bigS
+in roi parietal, subject D0059 has 213 trials for condition Stimulus_bigH
+Subject D0059, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
+in roi parietal, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi parietal, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI parietal, LabeledArray shape: (2, 226, 6, 641)
+in roi parietal, subject D0071 has 206 trials for condition Stimulus_bigS
+in roi parietal, subject D0071 has 223 trials for condition Stimulus_bigH
+Subject D0071, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
+in roi parietal, subject D0077 has 174 trials for condition Stimulus_bigS
+in roi parietal, subject D0077 has 181 trials for condition Stimulus_bigH
+Subject D0077, ROI parietal, LabeledArray shape: (2, 226, 14, 641)
+in roi parietal, subject D0100 has 208 trials for condition Stimulus_bigS
+in roi parietal, subject D0100 has 213 trials for condition Stimulus_bigH
+Subject D0100, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
+in roi parietal, subject D0110 has 226 trials for condition Stimulus_bigS
+in roi parietal, subject D0110 has 213 trials for condition Stimulus_bigH
+Subject D0110, ROI parietal, LabeledArray shape: (2, 226, 8, 641)
+ROI 'lpfc': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
+  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
+in roi lpfc, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi lpfc, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI lpfc, LabeledArray shape: (2, 234, 17, 641)
+in roi lpfc, subject D0059 has 214 trials for condition Stimulus_bigS
+in roi lpfc, subject D0059 has 213 trials for condition Stimulus_bigH
+Subject D0059, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
+in roi lpfc, subject D0063 has 185 trials for condition Stimulus_bigS
+in roi lpfc, subject D0063 has 204 trials for condition Stimulus_bigH
+Subject D0063, ROI lpfc, LabeledArray shape: (2, 234, 36, 641)
+in roi lpfc, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi lpfc, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI lpfc, LabeledArray shape: (2, 234, 9, 641)
+in roi lpfc, subject D0069 has 152 trials for condition Stimulus_bigS
+in roi lpfc, subject D0069 has 178 trials for condition Stimulus_bigH
+Subject D0069, ROI lpfc, LabeledArray shape: (2, 234, 1, 641)
+in roi lpfc, subject D0071 has 206 trials for condition Stimulus_bigS
+in roi lpfc, subject D0071 has 223 trials for condition Stimulus_bigH
+Subject D0071, ROI lpfc, LabeledArray shape: (2, 234, 13, 641)
+in roi lpfc, subject D0090 has 193 trials for condition Stimulus_bigS
+in roi lpfc, subject D0090 has 234 trials for condition Stimulus_bigH
+Subject D0090, ROI lpfc, LabeledArray shape: (2, 234, 8, 641)
+in roi lpfc, subject D0094 has 191 trials for condition Stimulus_bigS
+in roi lpfc, subject D0094 has 187 trials for condition Stimulus_bigH
+Subject D0094, ROI lpfc, LabeledArray shape: (2, 234, 28, 641)
+in roi lpfc, subject D0102 has 149 trials for condition Stimulus_bigS
+in roi lpfc, subject D0102 has 150 trials for condition Stimulus_bigH
+Subject D0102, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
+in roi lpfc, subject D0103 has 176 trials for condition Stimulus_bigS
+in roi lpfc, subject D0103 has 183 trials for condition Stimulus_bigH
+Subject D0103, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
+in roi lpfc, subject D0107A has 183 trials for condition Stimulus_bigS
+in roi lpfc, subject D0107A has 211 trials for condition Stimulus_bigH
+Subject D0107A, ROI lpfc, LabeledArray shape: (2, 234, 25, 641)
+in roi lpfc, subject D0110 has 226 trials for condition Stimulus_bigS
+in roi lpfc, subject D0110 has 213 trials for condition Stimulus_bigH
+Subject D0110, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
+in roi lpfc, subject D0116 has 195 trials for condition Stimulus_bigS
+in roi lpfc, subject D0116 has 215 trials for condition Stimulus_bigH
+Subject D0116, ROI lpfc, LabeledArray shape: (2, 234, 30, 641)
+in roi lpfc, subject D0117 has 129 trials for condition Stimulus_bigS
+in roi lpfc, subject D0117 has 154 trials for condition Stimulus_bigH
+Subject D0117, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
+in roi lpfc, subject D0121 has 207 trials for condition Stimulus_bigS
+in roi lpfc, subject D0121 has 193 trials for condition Stimulus_bigH
+Subject D0121, ROI lpfc, LabeledArray shape: (2, 234, 61, 641)
+ROI 'v1': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 208 trials from subjects ['D0100']
+  Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
+in roi v1, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi v1, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI v1, LabeledArray shape: (2, 223, 1, 641)
+in roi v1, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi v1, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI v1, LabeledArray shape: (2, 223, 1, 641)
+in roi v1, subject D0071 has 206 trials for condition Stimulus_bigS
+in roi v1, subject D0071 has 223 trials for condition Stimulus_bigH
+Subject D0071, ROI v1, LabeledArray shape: (2, 223, 3, 641)
+in roi v1, subject D0077 has 174 trials for condition Stimulus_bigS
+in roi v1, subject D0077 has 181 trials for condition Stimulus_bigH
+Subject D0077, ROI v1, LabeledArray shape: (2, 223, 1, 641)
+in roi v1, subject D0100 has 208 trials for condition Stimulus_bigS
+in roi v1, subject D0100 has 213 trials for condition Stimulus_bigH
+Subject D0100, ROI v1, LabeledArray shape: (2, 223, 12, 641)
+ROI 'occ': Maximum trials per condition:
+  Condition 'Stimulus_bigS': 214 trials from subjects ['D0059']
+  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
+in roi occ, subject D0057 has 200 trials for condition Stimulus_bigS
+in roi occ, subject D0057 has 205 trials for condition Stimulus_bigH
+Subject D0057, ROI occ, LabeledArray shape: (2, 234, 1, 641)
+in roi occ, subject D0059 has 214 trials for condition Stimulus_bigS
+in roi occ, subject D0059 has 213 trials for condition Stimulus_bigH
+Subject D0059, ROI occ, LabeledArray shape: (2, 234, 1, 641)
+in roi occ, subject D0063 has 185 trials for condition Stimulus_bigS
+in roi occ, subject D0063 has 204 trials for condition Stimulus_bigH
+Subject D0063, ROI occ, LabeledArray shape: (2, 234, 2, 641)
+in roi occ, subject D0065 has 144 trials for condition Stimulus_bigS
+in roi occ, subject D0065 has 172 trials for condition Stimulus_bigH
+Subject D0065, ROI occ, LabeledArray shape: (2, 234, 3, 641)
+in roi occ, subject D0071 has 206 trials for condition Stimulus_bigS
+in roi occ, subject D0071 has 223 trials for condition Stimulus_bigH
+Subject D0071, ROI occ, LabeledArray shape: (2, 234, 4, 641)
+in roi occ, subject D0077 has 174 trials for condition Stimulus_bigS
+in roi occ, subject D0077 has 181 trials for condition Stimulus_bigH
+Subject D0077, ROI occ, LabeledArray shape: (2, 234, 9, 641)
+in roi occ, subject D0090 has 193 trials for condition Stimulus_bigS
+in roi occ, subject D0090 has 234 trials for condition Stimulus_bigH
+Subject D0090, ROI occ, LabeledArray shape: (2, 234, 3, 641)
+in roi occ, subject D0100 has 208 trials for condition Stimulus_bigS
+in roi occ, subject D0100 has 213 trials for condition Stimulus_bigH
+Subject D0100, ROI occ, LabeledArray shape: (2, 234, 43, 641)
+in roi occ, subject D0102 has 149 trials for condition Stimulus_bigS
+in roi occ, subject D0102 has 150 trials for condition Stimulus_bigH
+Subject D0102, ROI occ, LabeledArray shape: (2, 234, 2, 641)
+in roi occ, subject D0103 has 176 trials for condition Stimulus_bigS
+in roi occ, subject D0103 has 183 trials for condition Stimulus_bigH
+Subject D0103, ROI occ, LabeledArray shape: (2, 234, 4, 641)
+in roi occ, subject D0107A has 183 trials for condition Stimulus_bigS
+in roi occ, subject D0107A has 211 trials for condition Stimulus_bigH
+Subject D0107A, ROI occ, LabeledArray shape: (2, 234, 1, 641)
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (140, 197, 641)
+  Trials: 140
+  Channels: 197
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/197
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 2/140 (1.4%)
+  Trials with outlier NaNs (sparse): 0/140 (0.0%)
+  Trials with missing channel NaNs (dense): 2/140 (1.4%)
+  Trials with both types: 0/140 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 197.0
+  Max missing channels in a trial: 197
+
+Overall NaN Percentage: 1.43%
+
+--- NaN Impact by Condition ---
+  bigS: 0/70 trials with NaNs (0.0%)
+  bigH: 2/70 trials with NaNs (2.9%)
+
+After removing NaN trials:
+  Trials kept: 138/140 (98.6%)
+  New data shape: (138, 197, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 70 trials
+  Condition bigH: 68 trials
+
+Subsampling to min trial count: 68
+  Subsampled condition 0: 70 -> 68
+
+Final balanced data shape: (136, 197, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (238, 71, 641)
+  Trials: 238
+  Channels: 71
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/71
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 12/238 (5.0%)
+  Trials with outlier NaNs (sparse): 0/238 (0.0%)
+  Trials with missing channel NaNs (dense): 12/238 (5.0%)
+  Trials with both types: 0/238 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 71.0
+  Max missing channels in a trial: 71
+
+Overall NaN Percentage: 5.04%
+
+--- NaN Impact by Condition ---
+  bigS: 12/119 trials with NaNs (10.1%)
+  bigH: 0/119 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 226/238 (95.0%)
+  New data shape: (226, 71, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 107 trials
+  Condition bigH: 119 trials
+
+Subsampling to min trial count: 107
+  Subsampled condition 1: 119 -> 107
+
+Final balanced data shape: (214, 71, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (266, 40, 641)
+  Trials: 266
+  Channels: 40
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/40
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 18/266 (6.8%)
+  Trials with outlier NaNs (sparse): 0/266 (0.0%)
+  Trials with missing channel NaNs (dense): 18/266 (6.8%)
+  Trials with both types: 0/266 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 40.0
+  Max missing channels in a trial: 40
+
+Overall NaN Percentage: 6.77%
+
+--- NaN Impact by Condition ---
+  bigS: 18/133 trials with NaNs (13.5%)
+  bigH: 0/133 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 248/266 (93.2%)
+  New data shape: (248, 40, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 115 trials
+  Condition bigH: 133 trials
+
+Subsampling to min trial count: 115
+  Subsampled condition 1: 133 -> 115
+
+Final balanced data shape: (230, 40, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (120, 265, 641)
+  Trials: 120
+  Channels: 265
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/265
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 3/120 (2.5%)
+  Trials with outlier NaNs (sparse): 0/120 (0.0%)
+  Trials with missing channel NaNs (dense): 3/120 (2.5%)
+  Trials with both types: 0/120 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 265.0
+  Max missing channels in a trial: 265
+
+Overall NaN Percentage: 2.50%
+
+--- NaN Impact by Condition ---
+  bigS: 3/60 trials with NaNs (5.0%)
+  bigH: 0/60 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 117/120 (97.5%)
+  New data shape: (117, 265, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 57 trials
+  Condition bigH: 60 trials
+
+Subsampling to min trial count: 57
+  Subsampled condition 1: 60 -> 57
+
+Final balanced data shape: (114, 265, 641)
+============================================================
+
+Processing ROI: v1
+
+============================================================
+ROI: v1
+============================================================
+Initial concatenated data shape: (296, 18, 641)
+  Trials: 296
+  Channels: 18
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/18
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 23/296 (7.8%)
+  Trials with outlier NaNs (sparse): 0/296 (0.0%)
+  Trials with missing channel NaNs (dense): 23/296 (7.8%)
+  Trials with both types: 0/296 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 18.0
+  Max missing channels in a trial: 18
+
+Overall NaN Percentage: 7.77%
+
+--- NaN Impact by Condition ---
+  bigS: 23/148 trials with NaNs (15.5%)
+  bigH: 0/148 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 273/296 (92.2%)
+  New data shape: (273, 18, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 125 trials
+  Condition bigH: 148 trials
+
+Subsampling to min trial count: 125
+  Subsampled condition 1: 148 -> 125
+
+Final balanced data shape: (250, 18, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (218, 73, 641)
+  Trials: 218
+  Channels: 73
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/73
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 3/218 (1.4%)
+  Trials with outlier NaNs (sparse): 0/218 (0.0%)
+  Trials with missing channel NaNs (dense): 3/218 (1.4%)
+  Trials with both types: 0/218 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 73.0
+  Max missing channels in a trial: 73
+
+Overall NaN Percentage: 1.38%
+
+--- NaN Impact by Condition ---
+  bigS: 3/109 trials with NaNs (2.8%)
+  bigH: 0/109 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 215/218 (98.6%)
+  New data shape: (215, 73, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 106 trials
+  Condition bigH: 109 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 1: 109 -> 106
+
+Final balanced data shape: (212, 73, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (468, 197, 641)
+  Trials: 468
+  Channels: 197
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/197
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 330/468 (70.5%)
+  Trials with outlier NaNs (sparse): 0/468 (0.0%)
+  Trials with missing channel NaNs (dense): 330/468 (70.5%)
+  Trials with both types: 0/468 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 49.1
+  Max missing channels in a trial: 197
+
+Overall NaN Percentage: 17.58%
+
+--- NaN Impact by Condition ---
+  bigS: 164/234 trials with NaNs (70.1%)
+  bigH: 166/234 trials with NaNs (70.9%)
+
+After removing NaN trials:
+  Trials kept: 138/468 (29.5%)
+  New data shape: (138, 197, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 70 trials
+  Condition bigH: 68 trials
+
+Subsampling to min trial count: 68
+  Subsampled condition 0: 70 -> 68
+
+Final balanced data shape: (136, 197, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (430, 71, 641)
+  Trials: 430
+  Channels: 71
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/71
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 204/430 (47.4%)
+  Trials with outlier NaNs (sparse): 0/430 (0.0%)
+  Trials with missing channel NaNs (dense): 204/430 (47.4%)
+  Trials with both types: 0/430 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 18.1
+  Max missing channels in a trial: 71
+
+Overall NaN Percentage: 12.10%
+
+--- NaN Impact by Condition ---
+  bigS: 108/215 trials with NaNs (50.2%)
+  bigH: 96/215 trials with NaNs (44.7%)
+
+After removing NaN trials:
+  Trials kept: 226/430 (52.6%)
+  New data shape: (226, 71, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 107 trials
+  Condition bigH: 119 trials
+
+Subsampling to min trial count: 107
+  Subsampled condition 1: 119 -> 107
+
+Final balanced data shape: (214, 71, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (452, 40, 641)
+  Trials: 452
+  Channels: 40
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/40
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 204/452 (45.1%)
+  Trials with outlier NaNs (sparse): 0/452 (0.0%)
+  Trials with missing channel NaNs (dense): 204/452 (45.1%)
+  Trials with both types: 0/452 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 14.0
+  Max missing channels in a trial: 40
+
+Overall NaN Percentage: 15.77%
+
+--- NaN Impact by Condition ---
+  bigS: 111/226 trials with NaNs (49.1%)
+  bigH: 93/226 trials with NaNs (41.2%)
+
+After removing NaN trials:
+  Trials kept: 248/452 (54.9%)
+  New data shape: (248, 40, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 115 trials
+  Condition bigH: 133 trials
+
+Subsampling to min trial count: 115
+  Subsampled condition 1: 133 -> 115
+
+Final balanced data shape: (230, 40, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (468, 265, 641)
+  Trials: 468
+  Channels: 265
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/265
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 351/468 (75.0%)
+  Trials with outlier NaNs (sparse): 0/468 (0.0%)
+  Trials with missing channel NaNs (dense): 351/468 (75.0%)
+  Trials with both types: 0/468 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 61.8
+  Max missing channels in a trial: 265
+
+Overall NaN Percentage: 17.50%
+
+--- NaN Impact by Condition ---
+  bigS: 177/234 trials with NaNs (75.6%)
+  bigH: 174/234 trials with NaNs (74.4%)
+
+After removing NaN trials:
+  Trials kept: 117/468 (25.0%)
+  New data shape: (117, 265, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 57 trials
+  Condition bigH: 60 trials
+
+Subsampling to min trial count: 57
+  Subsampled condition 1: 60 -> 57
+
+Final balanced data shape: (114, 265, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: v1
+
+============================================================
+ROI: v1
+============================================================
+Initial concatenated data shape: (446, 18, 641)
+  Trials: 446
+  Channels: 18
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/18
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 173/446 (38.8%)
+  Trials with outlier NaNs (sparse): 0/446 (0.0%)
+  Trials with missing channel NaNs (dense): 173/446 (38.8%)
+  Trials with both types: 0/446 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 4.0
+  Max missing channels in a trial: 18
+
+Overall NaN Percentage: 8.58%
+
+--- NaN Impact by Condition ---
+  bigS: 98/223 trials with NaNs (43.9%)
+  bigH: 75/223 trials with NaNs (33.6%)
+
+After removing NaN trials:
+  Trials kept: 273/446 (61.2%)
+  New data shape: (273, 18, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 125 trials
+  Condition bigH: 148 trials
+
+Subsampling to min trial count: 125
+  Subsampled condition 1: 148 -> 125
+
+Final balanced data shape: (250, 18, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (468, 73, 641)
+  Trials: 468
+  Channels: 73
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/73
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 253/468 (54.1%)
+  Trials with outlier NaNs (sparse): 0/468 (0.0%)
+  Trials with missing channel NaNs (dense): 253/468 (54.1%)
+  Trials with both types: 0/468 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 20.3
+  Max missing channels in a trial: 73
+
+Overall NaN Percentage: 15.03%
+
+--- NaN Impact by Condition ---
+  bigS: 128/234 trials with NaNs (54.7%)
+  bigH: 125/234 trials with NaNs (53.4%)
+
+After removing NaN trials:
+  Trials kept: 215/468 (45.9%)
+  New data shape: (215, 73, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition bigS: 106 trials
+  Condition bigH: 109 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 1: 109 -> 106
+
+Final balanced data shape: (212, 73, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+
+✓ Analysis completed successfully!

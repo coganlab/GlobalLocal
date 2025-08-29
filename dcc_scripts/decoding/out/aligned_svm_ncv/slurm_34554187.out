@@ -10,9 +10,9 @@ BANDPASS FILTERED DECODING ANALYSIS
 Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 Conditions:        ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
 ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
-Permutations:      1000
-P-threshold:       0.05
-Epochs file:       Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Permutations:      300
+P-threshold:       0.01
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
 Explained variance: 0.8
 Balance method:     subsample
 Obs axs:            0
@@ -20,23 +20,23 @@ Chans axs:          1
 Time axs:           -1
 ----------------------------------------------------------------------
 Decoding Parameters:
-  CV Splits/Repeats: 5/1000
-  Shuffle Permutations: 1000
+  CV Splits/Repeats: 5/300
+  Shuffle Permutations: 300
   Balance Method:    subsample
   Explained Variance:0.8
   Window/Step (samp):64/16
   Sampling Rate (Hz):256
 ----------------------------------------------------------------------
 Statistical Parameters:
-  Cluster Perms:     1000
-  P-value Threshold: 0.05
+  Cluster Perms:     300
+  P-value Threshold: 0.01
   Tails:             1
 ======================================================================
 ======================================================================
 
 Starting analysis...
 Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
-Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
 Loaded significant channels for subject D0057
 Loaded significant channels for subject D0059
 Loaded significant channels for subject D0063
@@ -71,9 +71,9 @@ For subject D0110, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_f
 For subject D0116, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA15', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17']
 For subject D0117, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
 For subject D0121, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10']
-Subject D0057 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAMF14']
-Subject D0059 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10', 'LPSF16']
-Subject D0063 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LPSF12', 'RMMF13', 'RMMF14', 'RMMF10']
+Subject D0057 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAMF12', 'RAMF14']
+Subject D0059 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10']
+Subject D0063 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RMMF13', 'RMMF10']
 Subject D0065 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0069 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0071 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
@@ -87,7 +87,7 @@ Subject D0107A significant G_front_middle, G_front_sup, S_front_inf, S_front_mid
 Subject D0110 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0116 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA18', 'RFMM12', 'RAI15', 'RAI17']
 Subject D0117 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0121 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA11']
+Subject D0121 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA7', 'LFA11']
 For subject D0057, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RAMF1']
 For subject D0059, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
 For subject D0063, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LASF1', 'LASF3', 'LASF7', 'LASF9', 'LMSF1', 'LMSF2', 'LMSF4', 'RMSF3', 'RMSF4', 'RMSF5', 'RMMF1', 'RAMF1', 'RAMF2', 'RMMF2', 'RMMF3', 'RMMF4']
@@ -107,7 +107,7 @@ For subject D0117, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['
 For subject D0121, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LFP6', 'LFP7', 'LFP10', 'LFP11', 'LFP12', 'LFP13', 'LFP14', 'LFP15', 'LFAS1', 'LFAS2', 'LFAS3', 'LFMM1', 'LFMM3', 'LFMM4', 'LFMS1', 'LFMS2', 'LFMS3', 'LFMS4', 'LFMM2']
 Subject D0057 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0059 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
-Subject D0063 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LMSF2', 'LMSF4', 'RMSF3', 'RMSF4']
+Subject D0063 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LMSF2', 'LMSF4', 'RMSF3']
 Subject D0065 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0069 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0071 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
@@ -116,12 +116,12 @@ Subject D0090 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes:
 Subject D0094 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0100 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0102 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
-Subject D0103 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFAM2', 'LFAM3']
+Subject D0103 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFAM3']
 Subject D0107A significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0110 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
-Subject D0116 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['RFOA8']
+Subject D0116 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
 Subject D0117 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
-Subject D0121 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFMS1']
+Subject D0121 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFMS1', 'LFMS3']
 For subject D0057, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['RPIP11', 'RPIP12', 'RPIP13', 'RPIP14']
 For subject D0059, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['LMPF11', 'LMPF12', 'LMPF14', 'LMPF16']
 For subject D0063, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
@@ -173,23 +173,23 @@ For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Trian
 For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
 For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
 For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
-Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RAMF14']
-Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10', 'LPSF16']
-Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LPSF12', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RMMF10']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RAMF12', 'RAMF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RMMF13', 'RAI4', 'RAI6', 'RMMF10']
 Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA4', 'RIP6', 'RIA5']
 Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11']
-Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM12', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM12', 'LPAI10', 'LFAI9', 'LFAI10', 'LIA11']
 Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14']
-Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
-Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAI3']
-Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFO15', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAI3', 'RIA6']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LINS4']
 Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA18', 'LFMI3', 'RFMM12', 'RAI15', 'RAI17']
 Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RINSA3']
-Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA11']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA7', 'LFA11']
 For subject D0057, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPIT1']
 For subject D0059, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
 For subject D0063, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
@@ -207,7 +207,7 @@ For subject D0110, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: 
 For subject D0116, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
 For subject D0117, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
 For subject D0121, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-Subject D0057 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RPIT1']
+Subject D0057 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0059 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0063 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0065 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
@@ -216,7 +216,7 @@ Subject D0071 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrode
 Subject D0077 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['ROPM1']
 Subject D0090 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0094 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0100 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['LTOJ1', 'LTPI1', 'LOPM1', 'LOMM3']
+Subject D0100 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['LOPI1', 'LOPM1', 'LOMM3', 'LOMM5']
 Subject D0102 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0103 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 Subject D0107A significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
@@ -241,16 +241,16 @@ For subject D0110, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipi
 For subject D0116, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
 For subject D0117, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
 For subject D0121, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
-Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RPIT1']
+Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0059 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0063 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0069 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
-Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPM11', 'ROPM1']
-Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI2']
+Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPI5', 'ROPI6', 'ROPI8', 'ROPM1']
+Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI1', 'RTPI2']
 Subject D0094 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
-Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTOJ1', 'LTPI1', 'LOPM1', 'LOMM3', 'LTOJ13', 'LOMI11', 'LOPI9', 'LOPM10', 'LOPS12', 'LOPM8', 'LOPM9']
+Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LOPI1', 'LOPM1', 'LOMM3', 'LOMM5', 'LTOJ13', 'LOMI11', 'LOPI9', 'LOPM10', 'LOPS12', 'LOPM8', 'LOPM9']
 Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI2', 'LTPI3', 'LTPI4']
 Subject D0107A significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
@@ -259,7 +259,7 @@ Subject D0116 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G
 Subject D0117 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0121 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Loading data for subject: D0057
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -267,7 +267,7 @@ Not setting metadata
 449 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -348,7 +348,7 @@ No baseline correction applied
     Max NaN count in a trial: 1282
     Stimulus_r75: 46 valid trials out of 46
 Loading data for subject: D0059
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -356,7 +356,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -368,76 +368,76 @@ No baseline correction applied
 Not setting metadata
 53 matching events found
 No baseline correction applied
-    Original shape: (53, 174, 641)
+    Original shape: (53, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 459.6
+    Average NaN count per trial: 483.8
     Max NaN count in a trial: 5128
     Stimulus_s25: 53 valid trials out of 53
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 156 matching events found
 No baseline correction applied
-    Original shape: (156, 174, 641)
+    Original shape: (156, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 604.0
+    Average NaN count per trial: 653.3
     Max NaN count in a trial: 12820
     Stimulus_s75: 156 valid trials out of 156
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 162 matching events found
 No baseline correction applied
-    Original shape: (162, 174, 641)
+    Original shape: (162, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 364.0
-    Max NaN count in a trial: 3846
+    Average NaN count per trial: 375.9
+    Max NaN count in a trial: 5128
     Stimulus_r25: 162 valid trials out of 162
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 53 matching events found
 No baseline correction applied
-    Original shape: (53, 174, 641)
+    Original shape: (53, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 568.4
-    Max NaN count in a trial: 8333
+    Average NaN count per trial: 580.5
+    Max NaN count in a trial: 9615
     Stimulus_r75: 53 valid trials out of 53
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 53 matching events found
 No baseline correction applied
-    Original shape: (53, 174, 641)
+    Original shape: (53, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 459.6
+    Average NaN count per trial: 483.8
     Max NaN count in a trial: 5128
     Stimulus_s25: 53 valid trials out of 53
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 156 matching events found
 No baseline correction applied
-    Original shape: (156, 174, 641)
+    Original shape: (156, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 604.0
+    Average NaN count per trial: 653.3
     Max NaN count in a trial: 12820
     Stimulus_s75: 156 valid trials out of 156
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 162 matching events found
 No baseline correction applied
-    Original shape: (162, 174, 641)
+    Original shape: (162, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 364.0
-    Max NaN count in a trial: 3846
+    Average NaN count per trial: 375.9
+    Max NaN count in a trial: 5128
     Stimulus_r25: 162 valid trials out of 162
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 53 matching events found
 No baseline correction applied
-    Original shape: (53, 174, 641)
+    Original shape: (53, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 568.4
-    Max NaN count in a trial: 8333
+    Average NaN count per trial: 580.5
+    Max NaN count in a trial: 9615
     Stimulus_r75: 53 valid trials out of 53
 Loading data for subject: D0063
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -445,7 +445,7 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -457,34 +457,34 @@ No baseline correction applied
 Not setting metadata
 43 matching events found
 No baseline correction applied
-    Original shape: (43, 235, 641)
+    Original shape: (43, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 969.0
-    Max NaN count in a trial: 8974
+    Average NaN count per trial: 924.2
+    Max NaN count in a trial: 8333
     Stimulus_s25: 43 valid trials out of 43
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 139 matching events found
 No baseline correction applied
-    Original shape: (139, 235, 641)
+    Original shape: (139, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 511.9
-    Max NaN count in a trial: 14743
+    Average NaN count per trial: 484.2
+    Max NaN count in a trial: 14102
     Stimulus_s75: 139 valid trials out of 139
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 151 matching events found
 No baseline correction applied
-    Original shape: (151, 235, 641)
+    Original shape: (151, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 522.1
-    Max NaN count in a trial: 12179
+    Average NaN count per trial: 483.9
+    Max NaN count in a trial: 11538
     Stimulus_r25: 151 valid trials out of 151
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 49 matching events found
 No baseline correction applied
-    Original shape: (49, 235, 641)
+    Original shape: (49, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 170.1
     Max NaN count in a trial: 2564
@@ -493,40 +493,40 @@ No baseline correction applied
 Not setting metadata
 43 matching events found
 No baseline correction applied
-    Original shape: (43, 235, 641)
+    Original shape: (43, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 969.0
-    Max NaN count in a trial: 8974
+    Average NaN count per trial: 924.2
+    Max NaN count in a trial: 8333
     Stimulus_s25: 43 valid trials out of 43
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 139 matching events found
 No baseline correction applied
-    Original shape: (139, 235, 641)
+    Original shape: (139, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 511.9
-    Max NaN count in a trial: 14743
+    Average NaN count per trial: 484.2
+    Max NaN count in a trial: 14102
     Stimulus_s75: 139 valid trials out of 139
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 151 matching events found
 No baseline correction applied
-    Original shape: (151, 235, 641)
+    Original shape: (151, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 522.1
-    Max NaN count in a trial: 12179
+    Average NaN count per trial: 483.9
+    Max NaN count in a trial: 11538
     Stimulus_r25: 151 valid trials out of 151
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 49 matching events found
 No baseline correction applied
-    Original shape: (49, 235, 641)
+    Original shape: (49, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 170.1
     Max NaN count in a trial: 2564
     Stimulus_r75: 49 valid trials out of 49
 Loading data for subject: D0065
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -534,7 +534,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -615,7 +615,7 @@ No baseline correction applied
     Max NaN count in a trial: 101278
     Stimulus_r75: 45 valid trials out of 45
 Loading data for subject: D0069
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -623,7 +623,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -704,7 +704,7 @@ No baseline correction applied
     Max NaN count in a trial: 13461
     Stimulus_r75: 39 valid trials out of 39
 Loading data for subject: D0071
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -712,7 +712,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -793,7 +793,7 @@ No baseline correction applied
     Max NaN count in a trial: 16025
     Stimulus_r75: 52 valid trials out of 52
 Loading data for subject: D0077
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -801,7 +801,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -882,7 +882,7 @@ No baseline correction applied
     Max NaN count in a trial: 7051
     Stimulus_r75: 44 valid trials out of 44
 Loading data for subject: D0090
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -890,7 +890,7 @@ Not setting metadata
 450 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -902,76 +902,76 @@ No baseline correction applied
 Not setting metadata
 48 matching events found
 No baseline correction applied
-    Original shape: (48, 157, 641)
+    Original shape: (48, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 547.5
+    Average NaN count per trial: 534.2
     Max NaN count in a trial: 8333
     Stimulus_s25: 48 valid trials out of 48
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 156 matching events found
 No baseline correction applied
-    Original shape: (156, 157, 641)
+    Original shape: (156, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 690.3
-    Max NaN count in a trial: 14743
+    Average NaN count per trial: 624.6
+    Max NaN count in a trial: 12820
     Stimulus_s75: 156 valid trials out of 156
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 162 matching events found
 No baseline correction applied
-    Original shape: (162, 157, 641)
+    Original shape: (162, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 542.1
-    Max NaN count in a trial: 9615
+    Average NaN count per trial: 514.4
+    Max NaN count in a trial: 8974
     Stimulus_r25: 162 valid trials out of 162
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 55 matching events found
 No baseline correction applied
-    Original shape: (55, 157, 641)
+    Original shape: (55, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 710.9
-    Max NaN count in a trial: 6410
+    Average NaN count per trial: 641.0
+    Max NaN count in a trial: 5769
     Stimulus_r75: 55 valid trials out of 55
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 48 matching events found
 No baseline correction applied
-    Original shape: (48, 157, 641)
+    Original shape: (48, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 547.5
+    Average NaN count per trial: 534.2
     Max NaN count in a trial: 8333
     Stimulus_s25: 48 valid trials out of 48
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 156 matching events found
 No baseline correction applied
-    Original shape: (156, 157, 641)
+    Original shape: (156, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 690.3
-    Max NaN count in a trial: 14743
+    Average NaN count per trial: 624.6
+    Max NaN count in a trial: 12820
     Stimulus_s75: 156 valid trials out of 156
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 162 matching events found
 No baseline correction applied
-    Original shape: (162, 157, 641)
+    Original shape: (162, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 542.1
-    Max NaN count in a trial: 9615
+    Average NaN count per trial: 514.4
+    Max NaN count in a trial: 8974
     Stimulus_r25: 162 valid trials out of 162
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 55 matching events found
 No baseline correction applied
-    Original shape: (55, 157, 641)
+    Original shape: (55, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 710.9
-    Max NaN count in a trial: 6410
+    Average NaN count per trial: 641.0
+    Max NaN count in a trial: 5769
     Stimulus_r75: 55 valid trials out of 55
 Loading data for subject: D0094
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -979,7 +979,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -991,7 +991,7 @@ No baseline correction applied
 Not setting metadata
 48 matching events found
 No baseline correction applied
-    Original shape: (48, 231, 641)
+    Original shape: (48, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 307.1
     Max NaN count in a trial: 4487
@@ -1000,34 +1000,34 @@ No baseline correction applied
 Not setting metadata
 132 matching events found
 No baseline correction applied
-    Original shape: (132, 231, 641)
+    Original shape: (132, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 791.5
+    Average NaN count per trial: 777.0
     Max NaN count in a trial: 12820
     Stimulus_s75: 132 valid trials out of 132
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 152 matching events found
 No baseline correction applied
-    Original shape: (152, 231, 641)
+    Original shape: (152, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 695.8
-    Max NaN count in a trial: 16666
+    Average NaN count per trial: 708.5
+    Max NaN count in a trial: 17307
     Stimulus_r25: 152 valid trials out of 152
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 44 matching events found
 No baseline correction applied
-    Original shape: (44, 231, 641)
+    Original shape: (44, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 728.4
+    Average NaN count per trial: 743.0
     Max NaN count in a trial: 12179
     Stimulus_r75: 44 valid trials out of 44
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 48 matching events found
 No baseline correction applied
-    Original shape: (48, 231, 641)
+    Original shape: (48, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 307.1
     Max NaN count in a trial: 4487
@@ -1036,31 +1036,31 @@ No baseline correction applied
 Not setting metadata
 132 matching events found
 No baseline correction applied
-    Original shape: (132, 231, 641)
+    Original shape: (132, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 791.5
+    Average NaN count per trial: 777.0
     Max NaN count in a trial: 12820
     Stimulus_s75: 132 valid trials out of 132
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 152 matching events found
 No baseline correction applied
-    Original shape: (152, 231, 641)
+    Original shape: (152, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 695.8
-    Max NaN count in a trial: 16666
+    Average NaN count per trial: 708.5
+    Max NaN count in a trial: 17307
     Stimulus_r25: 152 valid trials out of 152
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 44 matching events found
 No baseline correction applied
-    Original shape: (44, 231, 641)
+    Original shape: (44, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 728.4
+    Average NaN count per trial: 743.0
     Max NaN count in a trial: 12179
     Stimulus_r75: 44 valid trials out of 44
 Loading data for subject: D0100
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1068,7 +1068,7 @@ Not setting metadata
 451 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1080,76 +1080,76 @@ No baseline correction applied
 Not setting metadata
 54 matching events found
 No baseline correction applied
-    Original shape: (54, 224, 641)
+    Original shape: (54, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 736.0
+    Average NaN count per trial: 724.1
     Max NaN count in a trial: 9615
     Stimulus_s25: 54 valid trials out of 54
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 147 matching events found
 No baseline correction applied
-    Original shape: (147, 224, 641)
+    Original shape: (147, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1443.3
+    Average NaN count per trial: 1460.8
     Max NaN count in a trial: 46152
     Stimulus_s75: 147 valid trials out of 147
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 163 matching events found
 No baseline correction applied
-    Original shape: (163, 224, 641)
+    Original shape: (163, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1573.0
-    Max NaN count in a trial: 56408
+    Average NaN count per trial: 1624.1
+    Max NaN count in a trial: 57690
     Stimulus_r25: 163 valid trials out of 163
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 50 matching events found
 No baseline correction applied
-    Original shape: (50, 224, 641)
+    Original shape: (50, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1000.0
+    Average NaN count per trial: 1012.8
     Max NaN count in a trial: 19871
     Stimulus_r75: 50 valid trials out of 50
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 54 matching events found
 No baseline correction applied
-    Original shape: (54, 224, 641)
+    Original shape: (54, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 736.0
+    Average NaN count per trial: 724.1
     Max NaN count in a trial: 9615
     Stimulus_s25: 54 valid trials out of 54
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 147 matching events found
 No baseline correction applied
-    Original shape: (147, 224, 641)
+    Original shape: (147, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1443.3
+    Average NaN count per trial: 1460.8
     Max NaN count in a trial: 46152
     Stimulus_s75: 147 valid trials out of 147
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 163 matching events found
 No baseline correction applied
-    Original shape: (163, 224, 641)
+    Original shape: (163, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1573.0
-    Max NaN count in a trial: 56408
+    Average NaN count per trial: 1624.1
+    Max NaN count in a trial: 57690
     Stimulus_r25: 163 valid trials out of 163
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 50 matching events found
 No baseline correction applied
-    Original shape: (50, 224, 641)
+    Original shape: (50, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1000.0
+    Average NaN count per trial: 1012.8
     Max NaN count in a trial: 19871
     Stimulus_r75: 50 valid trials out of 50
 Loading data for subject: D0102
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1157,7 +1157,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1169,7 +1169,7 @@ No baseline correction applied
 Not setting metadata
 35 matching events found
 No baseline correction applied
-    Original shape: (35, 219, 641)
+    Original shape: (35, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 293.0
     Max NaN count in a trial: 2564
@@ -1178,34 +1178,34 @@ No baseline correction applied
 Not setting metadata
 98 matching events found
 No baseline correction applied
-    Original shape: (98, 219, 641)
+    Original shape: (98, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1125.0
-    Max NaN count in a trial: 25640
+    Average NaN count per trial: 1157.7
+    Max NaN count in a trial: 27563
     Stimulus_s75: 98 valid trials out of 98
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 127 matching events found
 No baseline correction applied
-    Original shape: (127, 219, 641)
+    Original shape: (127, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 656.1
+    Average NaN count per trial: 661.2
     Max NaN count in a trial: 8974
     Stimulus_r25: 127 valid trials out of 127
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 39 matching events found
 No baseline correction applied
-    Original shape: (39, 219, 641)
+    Original shape: (39, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1134.1
-    Max NaN count in a trial: 23076
+    Average NaN count per trial: 1166.9
+    Max NaN count in a trial: 24358
     Stimulus_r75: 39 valid trials out of 39
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 35 matching events found
 No baseline correction applied
-    Original shape: (35, 219, 641)
+    Original shape: (35, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 293.0
     Max NaN count in a trial: 2564
@@ -1214,31 +1214,31 @@ No baseline correction applied
 Not setting metadata
 98 matching events found
 No baseline correction applied
-    Original shape: (98, 219, 641)
+    Original shape: (98, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1125.0
-    Max NaN count in a trial: 25640
+    Average NaN count per trial: 1157.7
+    Max NaN count in a trial: 27563
     Stimulus_s75: 98 valid trials out of 98
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 127 matching events found
 No baseline correction applied
-    Original shape: (127, 219, 641)
+    Original shape: (127, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 656.1
+    Average NaN count per trial: 661.2
     Max NaN count in a trial: 8974
     Stimulus_r25: 127 valid trials out of 127
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 39 matching events found
 No baseline correction applied
-    Original shape: (39, 219, 641)
+    Original shape: (39, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1134.1
-    Max NaN count in a trial: 23076
+    Average NaN count per trial: 1166.9
+    Max NaN count in a trial: 24358
     Stimulus_r75: 39 valid trials out of 39
 Loading data for subject: D0103
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1246,7 +1246,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1327,7 +1327,7 @@ No baseline correction applied
     Max NaN count in a trial: 2564
     Stimulus_r75: 43 valid trials out of 43
 Loading data for subject: D0107A
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1335,7 +1335,7 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1416,7 +1416,7 @@ No baseline correction applied
     Max NaN count in a trial: 12820
     Stimulus_r75: 50 valid trials out of 50
 Loading data for subject: D0110
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1424,7 +1424,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1505,7 +1505,7 @@ No baseline correction applied
     Max NaN count in a trial: 17307
     Stimulus_r75: 55 valid trials out of 55
 Loading data for subject: D0116
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1513,7 +1513,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1527,7 +1527,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (44, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 437.0
+    Average NaN count per trial: 466.2
     Max NaN count in a trial: 3205
     Stimulus_s25: 44 valid trials out of 44
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
@@ -1536,7 +1536,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (150, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 739.3
+    Average NaN count per trial: 769.2
     Max NaN count in a trial: 7051
     Stimulus_s75: 150 valid trials out of 150
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
@@ -1545,7 +1545,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (159, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 524.1
+    Average NaN count per trial: 548.3
     Max NaN count in a trial: 5128
     Stimulus_r25: 159 valid trials out of 159
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
@@ -1554,7 +1554,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (53, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1076.4
+    Average NaN count per trial: 1124.8
     Max NaN count in a trial: 10256
     Stimulus_r75: 53 valid trials out of 53
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
@@ -1563,7 +1563,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (44, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 437.0
+    Average NaN count per trial: 466.2
     Max NaN count in a trial: 3205
     Stimulus_s25: 44 valid trials out of 44
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
@@ -1572,7 +1572,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (150, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 739.3
+    Average NaN count per trial: 769.2
     Max NaN count in a trial: 7051
     Stimulus_s75: 150 valid trials out of 150
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
@@ -1581,7 +1581,7 @@ Not setting metadata
 No baseline correction applied
     Original shape: (159, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 524.1
+    Average NaN count per trial: 548.3
     Max NaN count in a trial: 5128
     Stimulus_r25: 159 valid trials out of 159
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
@@ -1590,11 +1590,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (53, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1076.4
+    Average NaN count per trial: 1124.8
     Max NaN count in a trial: 10256
     Stimulus_r75: 53 valid trials out of 53
 Loading data for subject: D0117
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1602,7 +1602,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1614,76 +1614,76 @@ No baseline correction applied
 Not setting metadata
 33 matching events found
 No baseline correction applied
-    Original shape: (33, 196, 641)
+    Original shape: (33, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1107.2
-    Max NaN count in a trial: 14102
+    Average NaN count per trial: 1301.4
+    Max NaN count in a trial: 13461
     Stimulus_s25: 33 valid trials out of 33
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 92 matching events found
 No baseline correction applied
-    Original shape: (92, 196, 641)
+    Original shape: (92, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1748.8
+    Average NaN count per trial: 1923.0
     Max NaN count in a trial: 16025
     Stimulus_s75: 92 valid trials out of 92
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 120 matching events found
 No baseline correction applied
-    Original shape: (120, 196, 641)
+    Original shape: (120, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1666.6
+    Average NaN count per trial: 1816.2
     Max NaN count in a trial: 54485
     Stimulus_r25: 120 valid trials out of 120
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 36 matching events found
 No baseline correction applied
-    Original shape: (36, 196, 641)
+    Original shape: (36, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 2012.0
+    Average NaN count per trial: 1994.2
     Max NaN count in a trial: 17948
     Stimulus_r75: 36 valid trials out of 36
   Loading condition: Stimulus_s25 with parameters: {'BIDS_events': ['Stimulus/s25.0'], 'switchType': 's', 'switchProportion': '25%'}
 Not setting metadata
 33 matching events found
 No baseline correction applied
-    Original shape: (33, 196, 641)
+    Original shape: (33, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1107.2
-    Max NaN count in a trial: 14102
+    Average NaN count per trial: 1301.4
+    Max NaN count in a trial: 13461
     Stimulus_s25: 33 valid trials out of 33
   Loading condition: Stimulus_s75 with parameters: {'BIDS_events': ['Stimulus/s75.0'], 'switchType': 's', 'switchProportion': '75%'}
 Not setting metadata
 92 matching events found
 No baseline correction applied
-    Original shape: (92, 196, 641)
+    Original shape: (92, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1748.8
+    Average NaN count per trial: 1923.0
     Max NaN count in a trial: 16025
     Stimulus_s75: 92 valid trials out of 92
   Loading condition: Stimulus_r25 with parameters: {'BIDS_events': ['Stimulus/r25.0'], 'switchType': 'r', 'switchProportion': '25%'}
 Not setting metadata
 120 matching events found
 No baseline correction applied
-    Original shape: (120, 196, 641)
+    Original shape: (120, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1666.6
+    Average NaN count per trial: 1816.2
     Max NaN count in a trial: 54485
     Stimulus_r25: 120 valid trials out of 120
   Loading condition: Stimulus_r75 with parameters: {'BIDS_events': ['Stimulus/r75.0'], 'switchType': 'r', 'switchProportion': '75%'}
 Not setting metadata
 36 matching events found
 No baseline correction applied
-    Original shape: (36, 196, 641)
+    Original shape: (36, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 2012.0
+    Average NaN count per trial: 1994.2
     Max NaN count in a trial: 17948
     Stimulus_r75: 36 valid trials out of 36
 Loading data for subject: D0121
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -1691,7 +1691,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -2116,8 +2116,8 @@ Processing ROI: dlpfc
 ============================================================
 ROI: dlpfc
 ============================================================
-Initial concatenated data shape: (132, 197, 641)
-  Trials: 132
+Initial concatenated data shape: (130, 197, 641)
+  Trials: 130
   Channels: 197
   Time points: 641
 
@@ -2126,31 +2126,31 @@ Initial concatenated data shape: (132, 197, 641)
 Missing Channels (all NaN across all trials): 0/197
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 50/132 (37.9%)
-  Trials with outlier NaNs (sparse): 0/132 (0.0%)
-  Trials with missing channel NaNs (dense): 50/132 (37.9%)
-  Trials with both types: 0/132 (0.0%)
+  Trials with ANY NaN: 49/130 (37.7%)
+  Trials with outlier NaNs (sparse): 0/130 (0.0%)
+  Trials with missing channel NaNs (dense): 49/130 (37.7%)
+  Trials with both types: 0/130 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 197.0
   Max missing channels in a trial: 197
 
-Overall NaN Percentage: 37.88%
+Overall NaN Percentage: 37.69%
 
 --- NaN Impact by Condition ---
-  s25: 50/66 trials with NaNs (75.8%)
-  r25: 0/66 trials with NaNs (0.0%)
+  s25: 49/65 trials with NaNs (75.4%)
+  r25: 0/65 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 82/132 (62.1%)
-  New data shape: (82, 197, 641)
+  Trials kept: 81/130 (62.3%)
+  New data shape: (81, 197, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 16 trials
-  Condition r25: 66 trials
+  Condition r25: 65 trials
 
 Subsampling to min trial count: 16
-  Subsampled condition 1: 66 -> 16
+  Subsampled condition 1: 65 -> 16
 
 Final balanced data shape: (32, 197, 641)
 ============================================================
@@ -2160,8 +2160,8 @@ Processing ROI: acc
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (182, 71, 641)
-  Trials: 182
+Initial concatenated data shape: (184, 71, 641)
+  Trials: 184
   Channels: 71
   Time points: 641
 
@@ -2170,31 +2170,31 @@ Initial concatenated data shape: (182, 71, 641)
 Missing Channels (all NaN across all trials): 0/71
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 62/182 (34.1%)
-  Trials with outlier NaNs (sparse): 0/182 (0.0%)
-  Trials with missing channel NaNs (dense): 62/182 (34.1%)
-  Trials with both types: 0/182 (0.0%)
+  Trials with ANY NaN: 63/184 (34.2%)
+  Trials with outlier NaNs (sparse): 0/184 (0.0%)
+  Trials with missing channel NaNs (dense): 63/184 (34.2%)
+  Trials with both types: 0/184 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 71.0
   Max missing channels in a trial: 71
 
-Overall NaN Percentage: 34.07%
+Overall NaN Percentage: 34.24%
 
 --- NaN Impact by Condition ---
-  s25: 62/91 trials with NaNs (68.1%)
-  r25: 0/91 trials with NaNs (0.0%)
+  s25: 63/92 trials with NaNs (68.5%)
+  r25: 0/92 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 120/182 (65.9%)
-  New data shape: (120, 71, 641)
+  Trials kept: 121/184 (65.8%)
+  New data shape: (121, 71, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 29 trials
-  Condition r25: 91 trials
+  Condition r25: 92 trials
 
 Subsampling to min trial count: 29
-  Subsampled condition 1: 91 -> 29
+  Subsampled condition 1: 92 -> 29
 
 Final balanced data shape: (58, 71, 641)
 ============================================================
@@ -2248,8 +2248,8 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (112, 265, 641)
-  Trials: 112
+Initial concatenated data shape: (110, 265, 641)
+  Trials: 110
   Channels: 265
   Time points: 641
 
@@ -2258,31 +2258,31 @@ Initial concatenated data shape: (112, 265, 641)
 Missing Channels (all NaN across all trials): 0/265
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 41/112 (36.6%)
-  Trials with outlier NaNs (sparse): 0/112 (0.0%)
-  Trials with missing channel NaNs (dense): 41/112 (36.6%)
-  Trials with both types: 0/112 (0.0%)
+  Trials with ANY NaN: 40/110 (36.4%)
+  Trials with outlier NaNs (sparse): 0/110 (0.0%)
+  Trials with missing channel NaNs (dense): 40/110 (36.4%)
+  Trials with both types: 0/110 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 265.0
   Max missing channels in a trial: 265
 
-Overall NaN Percentage: 36.61%
+Overall NaN Percentage: 36.36%
 
 --- NaN Impact by Condition ---
-  s25: 41/56 trials with NaNs (73.2%)
-  r25: 0/56 trials with NaNs (0.0%)
+  s25: 40/55 trials with NaNs (72.7%)
+  r25: 0/55 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 71/112 (63.4%)
-  New data shape: (71, 265, 641)
+  Trials kept: 70/110 (63.6%)
+  New data shape: (70, 265, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 15 trials
-  Condition r25: 56 trials
+  Condition r25: 55 trials
 
 Subsampling to min trial count: 15
-  Subsampled condition 1: 56 -> 15
+  Subsampled condition 1: 55 -> 15
 
 Final balanced data shape: (30, 265, 641)
 ============================================================
@@ -2336,8 +2336,8 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (162, 73, 641)
-  Trials: 162
+Initial concatenated data shape: (160, 73, 641)
+  Trials: 160
   Channels: 73
   Time points: 641
 
@@ -2346,31 +2346,31 @@ Initial concatenated data shape: (162, 73, 641)
 Missing Channels (all NaN across all trials): 0/73
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 50/162 (30.9%)
-  Trials with outlier NaNs (sparse): 0/162 (0.0%)
-  Trials with missing channel NaNs (dense): 50/162 (30.9%)
-  Trials with both types: 0/162 (0.0%)
+  Trials with ANY NaN: 49/160 (30.6%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 49/160 (30.6%)
+  Trials with both types: 0/160 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 73.0
   Max missing channels in a trial: 73
 
-Overall NaN Percentage: 30.86%
+Overall NaN Percentage: 30.62%
 
 --- NaN Impact by Condition ---
-  s25: 50/81 trials with NaNs (61.7%)
-  r25: 0/81 trials with NaNs (0.0%)
+  s25: 49/80 trials with NaNs (61.2%)
+  r25: 0/80 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 112/162 (69.1%)
-  New data shape: (112, 73, 641)
+  Trials kept: 111/160 (69.4%)
+  New data shape: (111, 73, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 31 trials
-  Condition r25: 81 trials
+  Condition r25: 80 trials
 
 Subsampling to min trial count: 31
-  Subsampled condition 1: 81 -> 31
+  Subsampled condition 1: 80 -> 31
 
 Final balanced data shape: (62, 73, 641)
 ============================================================
@@ -2380,8 +2380,8 @@ Processing ROI: dlpfc
 ============================================================
 ROI: dlpfc
 ============================================================
-Initial concatenated data shape: (132, 197, 641)
-  Trials: 132
+Initial concatenated data shape: (130, 197, 641)
+  Trials: 130
   Channels: 197
   Time points: 641
 
@@ -2390,23 +2390,23 @@ Initial concatenated data shape: (132, 197, 641)
 Missing Channels (all NaN across all trials): 0/197
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 79/132 (59.8%)
-  Trials with outlier NaNs (sparse): 0/132 (0.0%)
-  Trials with missing channel NaNs (dense): 79/132 (59.8%)
-  Trials with both types: 0/132 (0.0%)
+  Trials with ANY NaN: 77/130 (59.2%)
+  Trials with outlier NaNs (sparse): 0/130 (0.0%)
+  Trials with missing channel NaNs (dense): 77/130 (59.2%)
+  Trials with both types: 0/130 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 197.0
   Max missing channels in a trial: 197
 
-Overall NaN Percentage: 59.85%
+Overall NaN Percentage: 59.23%
 
 --- NaN Impact by Condition ---
-  s75: 29/66 trials with NaNs (43.9%)
-  r75: 50/66 trials with NaNs (75.8%)
+  s75: 28/65 trials with NaNs (43.1%)
+  r75: 49/65 trials with NaNs (75.4%)
 
 After removing NaN trials:
-  Trials kept: 53/132 (40.2%)
+  Trials kept: 53/130 (40.8%)
   New data shape: (53, 197, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2424,8 +2424,8 @@ Processing ROI: acc
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (182, 71, 641)
-  Trials: 182
+Initial concatenated data shape: (184, 71, 641)
+  Trials: 184
   Channels: 71
   Time points: 641
 
@@ -2434,31 +2434,31 @@ Initial concatenated data shape: (182, 71, 641)
 Missing Channels (all NaN across all trials): 0/71
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 79/182 (43.4%)
-  Trials with outlier NaNs (sparse): 0/182 (0.0%)
-  Trials with missing channel NaNs (dense): 79/182 (43.4%)
-  Trials with both types: 0/182 (0.0%)
+  Trials with ANY NaN: 80/184 (43.5%)
+  Trials with outlier NaNs (sparse): 0/184 (0.0%)
+  Trials with missing channel NaNs (dense): 80/184 (43.5%)
+  Trials with both types: 0/184 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 71.0
   Max missing channels in a trial: 71
 
-Overall NaN Percentage: 43.41%
+Overall NaN Percentage: 43.48%
 
 --- NaN Impact by Condition ---
-  s75: 16/91 trials with NaNs (17.6%)
-  r75: 63/91 trials with NaNs (69.2%)
+  s75: 16/92 trials with NaNs (17.4%)
+  r75: 64/92 trials with NaNs (69.6%)
 
 After removing NaN trials:
-  Trials kept: 103/182 (56.6%)
-  New data shape: (103, 71, 641)
+  Trials kept: 104/184 (56.5%)
+  New data shape: (104, 71, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition s75: 75 trials
+  Condition s75: 76 trials
   Condition r75: 28 trials
 
 Subsampling to min trial count: 28
-  Subsampled condition 0: 75 -> 28
+  Subsampled condition 0: 76 -> 28
 
 Final balanced data shape: (56, 71, 641)
 ============================================================
@@ -2478,31 +2478,31 @@ Initial concatenated data shape: (194, 40, 641)
 Missing Channels (all NaN across all trials): 0/40
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 76/194 (39.2%)
+  Trials with ANY NaN: 75/194 (38.7%)
   Trials with outlier NaNs (sparse): 0/194 (0.0%)
-  Trials with missing channel NaNs (dense): 76/194 (39.2%)
+  Trials with missing channel NaNs (dense): 75/194 (38.7%)
   Trials with both types: 0/194 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 40.0
   Max missing channels in a trial: 40
 
-Overall NaN Percentage: 39.18%
+Overall NaN Percentage: 38.66%
 
 --- NaN Impact by Condition ---
-  s75: 14/97 trials with NaNs (14.4%)
+  s75: 13/97 trials with NaNs (13.4%)
   r75: 62/97 trials with NaNs (63.9%)
 
 After removing NaN trials:
-  Trials kept: 118/194 (60.8%)
-  New data shape: (118, 40, 641)
+  Trials kept: 119/194 (61.3%)
+  New data shape: (119, 40, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition s75: 83 trials
+  Condition s75: 84 trials
   Condition r75: 35 trials
 
 Subsampling to min trial count: 35
-  Subsampled condition 0: 83 -> 35
+  Subsampled condition 0: 84 -> 35
 
 Final balanced data shape: (70, 40, 641)
 ============================================================
@@ -2512,8 +2512,8 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (112, 265, 641)
-  Trials: 112
+Initial concatenated data shape: (110, 265, 641)
+  Trials: 110
   Channels: 265
   Time points: 641
 
@@ -2522,23 +2522,23 @@ Initial concatenated data shape: (112, 265, 641)
 Missing Channels (all NaN across all trials): 0/265
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 69/112 (61.6%)
-  Trials with outlier NaNs (sparse): 0/112 (0.0%)
-  Trials with missing channel NaNs (dense): 69/112 (61.6%)
-  Trials with both types: 0/112 (0.0%)
+  Trials with ANY NaN: 67/110 (60.9%)
+  Trials with outlier NaNs (sparse): 0/110 (0.0%)
+  Trials with missing channel NaNs (dense): 67/110 (60.9%)
+  Trials with both types: 0/110 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 265.0
   Max missing channels in a trial: 265
 
-Overall NaN Percentage: 61.61%
+Overall NaN Percentage: 60.91%
 
 --- NaN Impact by Condition ---
-  s75: 28/56 trials with NaNs (50.0%)
-  r75: 41/56 trials with NaNs (73.2%)
+  s75: 27/55 trials with NaNs (49.1%)
+  r75: 40/55 trials with NaNs (72.7%)
 
 After removing NaN trials:
-  Trials kept: 43/112 (38.4%)
+  Trials kept: 43/110 (39.1%)
   New data shape: (43, 265, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2600,8 +2600,8 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (162, 73, 641)
-  Trials: 162
+Initial concatenated data shape: (160, 73, 641)
+  Trials: 160
   Channels: 73
   Time points: 641
 
@@ -2610,23 +2610,23 @@ Initial concatenated data shape: (162, 73, 641)
 Missing Channels (all NaN across all trials): 0/73
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 61/162 (37.7%)
-  Trials with outlier NaNs (sparse): 0/162 (0.0%)
-  Trials with missing channel NaNs (dense): 61/162 (37.7%)
-  Trials with both types: 0/162 (0.0%)
+  Trials with ANY NaN: 59/160 (36.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 59/160 (36.9%)
+  Trials with both types: 0/160 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 73.0
   Max missing channels in a trial: 73
 
-Overall NaN Percentage: 37.65%
+Overall NaN Percentage: 36.88%
 
 --- NaN Impact by Condition ---
-  s75: 7/81 trials with NaNs (8.6%)
-  r75: 54/81 trials with NaNs (66.7%)
+  s75: 6/80 trials with NaNs (7.5%)
+  r75: 53/80 trials with NaNs (66.2%)
 
 After removing NaN trials:
-  Trials kept: 101/162 (62.3%)
+  Trials kept: 101/160 (63.1%)
   New data shape: (101, 73, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2644,8 +2644,8 @@ Processing ROI: dlpfc
 ============================================================
 ROI: dlpfc
 ============================================================
-Initial concatenated data shape: (132, 197, 641)
-  Trials: 132
+Initial concatenated data shape: (130, 197, 641)
+  Trials: 130
   Channels: 197
   Time points: 641
 
@@ -2654,23 +2654,23 @@ Initial concatenated data shape: (132, 197, 641)
 Missing Channels (all NaN across all trials): 0/197
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 100/132 (75.8%)
-  Trials with outlier NaNs (sparse): 0/132 (0.0%)
-  Trials with missing channel NaNs (dense): 100/132 (75.8%)
-  Trials with both types: 0/132 (0.0%)
+  Trials with ANY NaN: 98/130 (75.4%)
+  Trials with outlier NaNs (sparse): 0/130 (0.0%)
+  Trials with missing channel NaNs (dense): 98/130 (75.4%)
+  Trials with both types: 0/130 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 197.0
   Max missing channels in a trial: 197
 
-Overall NaN Percentage: 75.76%
+Overall NaN Percentage: 75.38%
 
 --- NaN Impact by Condition ---
-  s25: 50/66 trials with NaNs (75.8%)
-  r75: 50/66 trials with NaNs (75.8%)
+  s25: 49/65 trials with NaNs (75.4%)
+  r75: 49/65 trials with NaNs (75.4%)
 
 After removing NaN trials:
-  Trials kept: 32/132 (24.2%)
+  Trials kept: 32/130 (24.6%)
   New data shape: (32, 197, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2687,8 +2687,8 @@ Processing ROI: acc
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (182, 71, 641)
-  Trials: 182
+Initial concatenated data shape: (184, 71, 641)
+  Trials: 184
   Channels: 71
   Time points: 641
 
@@ -2697,23 +2697,23 @@ Initial concatenated data shape: (182, 71, 641)
 Missing Channels (all NaN across all trials): 0/71
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 125/182 (68.7%)
-  Trials with outlier NaNs (sparse): 0/182 (0.0%)
-  Trials with missing channel NaNs (dense): 125/182 (68.7%)
-  Trials with both types: 0/182 (0.0%)
+  Trials with ANY NaN: 127/184 (69.0%)
+  Trials with outlier NaNs (sparse): 0/184 (0.0%)
+  Trials with missing channel NaNs (dense): 127/184 (69.0%)
+  Trials with both types: 0/184 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 71.0
   Max missing channels in a trial: 71
 
-Overall NaN Percentage: 68.68%
+Overall NaN Percentage: 69.02%
 
 --- NaN Impact by Condition ---
-  s25: 62/91 trials with NaNs (68.1%)
-  r75: 63/91 trials with NaNs (69.2%)
+  s25: 63/92 trials with NaNs (68.5%)
+  r75: 64/92 trials with NaNs (69.6%)
 
 After removing NaN trials:
-  Trials kept: 57/182 (31.3%)
+  Trials kept: 57/184 (31.0%)
   New data shape: (57, 71, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2775,8 +2775,8 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (112, 265, 641)
-  Trials: 112
+Initial concatenated data shape: (110, 265, 641)
+  Trials: 110
   Channels: 265
   Time points: 641
 
@@ -2785,23 +2785,23 @@ Initial concatenated data shape: (112, 265, 641)
 Missing Channels (all NaN across all trials): 0/265
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 82/112 (73.2%)
-  Trials with outlier NaNs (sparse): 0/112 (0.0%)
-  Trials with missing channel NaNs (dense): 82/112 (73.2%)
-  Trials with both types: 0/112 (0.0%)
+  Trials with ANY NaN: 80/110 (72.7%)
+  Trials with outlier NaNs (sparse): 0/110 (0.0%)
+  Trials with missing channel NaNs (dense): 80/110 (72.7%)
+  Trials with both types: 0/110 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 265.0
   Max missing channels in a trial: 265
 
-Overall NaN Percentage: 73.21%
+Overall NaN Percentage: 72.73%
 
 --- NaN Impact by Condition ---
-  s25: 41/56 trials with NaNs (73.2%)
-  r75: 41/56 trials with NaNs (73.2%)
+  s25: 40/55 trials with NaNs (72.7%)
+  r75: 40/55 trials with NaNs (72.7%)
 
 After removing NaN trials:
-  Trials kept: 30/112 (26.8%)
+  Trials kept: 30/110 (27.3%)
   New data shape: (30, 265, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2862,8 +2862,8 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (162, 73, 641)
-  Trials: 162
+Initial concatenated data shape: (160, 73, 641)
+  Trials: 160
   Channels: 73
   Time points: 641
 
@@ -2872,23 +2872,23 @@ Initial concatenated data shape: (162, 73, 641)
 Missing Channels (all NaN across all trials): 0/73
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 104/162 (64.2%)
-  Trials with outlier NaNs (sparse): 0/162 (0.0%)
-  Trials with missing channel NaNs (dense): 104/162 (64.2%)
-  Trials with both types: 0/162 (0.0%)
+  Trials with ANY NaN: 102/160 (63.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 102/160 (63.8%)
+  Trials with both types: 0/160 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 73.0
   Max missing channels in a trial: 73
 
-Overall NaN Percentage: 64.20%
+Overall NaN Percentage: 63.75%
 
 --- NaN Impact by Condition ---
-  s25: 50/81 trials with NaNs (61.7%)
-  r75: 54/81 trials with NaNs (66.7%)
+  s25: 49/80 trials with NaNs (61.2%)
+  r75: 53/80 trials with NaNs (66.2%)
 
 After removing NaN trials:
-  Trials kept: 58/162 (35.8%)
+  Trials kept: 58/160 (36.2%)
   New data shape: (58, 73, 641)
 
 --- Final Trial Counts by Condition ---
@@ -2906,8 +2906,8 @@ Processing ROI: dlpfc
 ============================================================
 ROI: dlpfc
 ============================================================
-Initial concatenated data shape: (132, 197, 641)
-  Trials: 132
+Initial concatenated data shape: (130, 197, 641)
+  Trials: 130
   Channels: 197
   Time points: 641
 
@@ -2916,31 +2916,31 @@ Initial concatenated data shape: (132, 197, 641)
 Missing Channels (all NaN across all trials): 0/197
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 29/132 (22.0%)
-  Trials with outlier NaNs (sparse): 0/132 (0.0%)
-  Trials with missing channel NaNs (dense): 29/132 (22.0%)
-  Trials with both types: 0/132 (0.0%)
+  Trials with ANY NaN: 28/130 (21.5%)
+  Trials with outlier NaNs (sparse): 0/130 (0.0%)
+  Trials with missing channel NaNs (dense): 28/130 (21.5%)
+  Trials with both types: 0/130 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 197.0
   Max missing channels in a trial: 197
 
-Overall NaN Percentage: 21.97%
+Overall NaN Percentage: 21.54%
 
 --- NaN Impact by Condition ---
-  s75: 29/66 trials with NaNs (43.9%)
-  r25: 0/66 trials with NaNs (0.0%)
+  s75: 28/65 trials with NaNs (43.1%)
+  r25: 0/65 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 103/132 (78.0%)
-  New data shape: (103, 197, 641)
+  Trials kept: 102/130 (78.5%)
+  New data shape: (102, 197, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s75: 37 trials
-  Condition r25: 66 trials
+  Condition r25: 65 trials
 
 Subsampling to min trial count: 37
-  Subsampled condition 1: 66 -> 37
+  Subsampled condition 1: 65 -> 37
 
 Final balanced data shape: (74, 197, 641)
 ============================================================
@@ -2950,8 +2950,8 @@ Processing ROI: acc
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (182, 71, 641)
-  Trials: 182
+Initial concatenated data shape: (184, 71, 641)
+  Trials: 184
   Channels: 71
   Time points: 641
 
@@ -2960,33 +2960,33 @@ Initial concatenated data shape: (182, 71, 641)
 Missing Channels (all NaN across all trials): 0/71
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 16/182 (8.8%)
-  Trials with outlier NaNs (sparse): 0/182 (0.0%)
-  Trials with missing channel NaNs (dense): 16/182 (8.8%)
-  Trials with both types: 0/182 (0.0%)
+  Trials with ANY NaN: 16/184 (8.7%)
+  Trials with outlier NaNs (sparse): 0/184 (0.0%)
+  Trials with missing channel NaNs (dense): 16/184 (8.7%)
+  Trials with both types: 0/184 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 71.0
   Max missing channels in a trial: 71
 
-Overall NaN Percentage: 8.79%
+Overall NaN Percentage: 8.70%
 
 --- NaN Impact by Condition ---
-  s75: 16/91 trials with NaNs (17.6%)
-  r25: 0/91 trials with NaNs (0.0%)
+  s75: 16/92 trials with NaNs (17.4%)
+  r25: 0/92 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 166/182 (91.2%)
-  New data shape: (166, 71, 641)
+  Trials kept: 168/184 (91.3%)
+  New data shape: (168, 71, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition s75: 75 trials
-  Condition r25: 91 trials
+  Condition s75: 76 trials
+  Condition r25: 92 trials
 
-Subsampling to min trial count: 75
-  Subsampled condition 1: 91 -> 75
+Subsampling to min trial count: 76
+  Subsampled condition 1: 92 -> 76
 
-Final balanced data shape: (150, 71, 641)
+Final balanced data shape: (152, 71, 641)
 ============================================================
 
 Processing ROI: parietal
@@ -3004,33 +3004,33 @@ Initial concatenated data shape: (194, 40, 641)
 Missing Channels (all NaN across all trials): 0/40
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 14/194 (7.2%)
+  Trials with ANY NaN: 13/194 (6.7%)
   Trials with outlier NaNs (sparse): 0/194 (0.0%)
-  Trials with missing channel NaNs (dense): 14/194 (7.2%)
+  Trials with missing channel NaNs (dense): 13/194 (6.7%)
   Trials with both types: 0/194 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 40.0
   Max missing channels in a trial: 40
 
-Overall NaN Percentage: 7.22%
+Overall NaN Percentage: 6.70%
 
 --- NaN Impact by Condition ---
-  s75: 14/97 trials with NaNs (14.4%)
+  s75: 13/97 trials with NaNs (13.4%)
   r25: 0/97 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 180/194 (92.8%)
-  New data shape: (180, 40, 641)
+  Trials kept: 181/194 (93.3%)
+  New data shape: (181, 40, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition s75: 83 trials
+  Condition s75: 84 trials
   Condition r25: 97 trials
 
-Subsampling to min trial count: 83
-  Subsampled condition 1: 97 -> 83
+Subsampling to min trial count: 84
+  Subsampled condition 1: 97 -> 84
 
-Final balanced data shape: (166, 40, 641)
+Final balanced data shape: (168, 40, 641)
 ============================================================
 
 Processing ROI: lpfc
@@ -3038,8 +3038,8 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (112, 265, 641)
-  Trials: 112
+Initial concatenated data shape: (110, 265, 641)
+  Trials: 110
   Channels: 265
   Time points: 641
 
@@ -3048,31 +3048,31 @@ Initial concatenated data shape: (112, 265, 641)
 Missing Channels (all NaN across all trials): 0/265
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 28/112 (25.0%)
-  Trials with outlier NaNs (sparse): 0/112 (0.0%)
-  Trials with missing channel NaNs (dense): 28/112 (25.0%)
-  Trials with both types: 0/112 (0.0%)
+  Trials with ANY NaN: 27/110 (24.5%)
+  Trials with outlier NaNs (sparse): 0/110 (0.0%)
+  Trials with missing channel NaNs (dense): 27/110 (24.5%)
+  Trials with both types: 0/110 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 265.0
   Max missing channels in a trial: 265
 
-Overall NaN Percentage: 25.00%
+Overall NaN Percentage: 24.55%
 
 --- NaN Impact by Condition ---
-  s75: 28/56 trials with NaNs (50.0%)
-  r25: 0/56 trials with NaNs (0.0%)
+  s75: 27/55 trials with NaNs (49.1%)
+  r25: 0/55 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 84/112 (75.0%)
-  New data shape: (84, 265, 641)
+  Trials kept: 83/110 (75.5%)
+  New data shape: (83, 265, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s75: 28 trials
-  Condition r25: 56 trials
+  Condition r25: 55 trials
 
 Subsampling to min trial count: 28
-  Subsampled condition 1: 56 -> 28
+  Subsampled condition 1: 55 -> 28
 
 Final balanced data shape: (56, 265, 641)
 ============================================================
@@ -3126,8 +3126,8 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (162, 73, 641)
-  Trials: 162
+Initial concatenated data shape: (160, 73, 641)
+  Trials: 160
   Channels: 73
   Time points: 641
 
@@ -3136,31 +3136,31 @@ Initial concatenated data shape: (162, 73, 641)
 Missing Channels (all NaN across all trials): 0/73
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 7/162 (4.3%)
-  Trials with outlier NaNs (sparse): 0/162 (0.0%)
-  Trials with missing channel NaNs (dense): 7/162 (4.3%)
-  Trials with both types: 0/162 (0.0%)
+  Trials with ANY NaN: 6/160 (3.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 6/160 (3.8%)
+  Trials with both types: 0/160 (0.0%)
 
 Missing Channel Statistics (for affected trials):
   Mean missing channels per affected trial: 73.0
   Max missing channels in a trial: 73
 
-Overall NaN Percentage: 4.32%
+Overall NaN Percentage: 3.75%
 
 --- NaN Impact by Condition ---
-  s75: 7/81 trials with NaNs (8.6%)
-  r25: 0/81 trials with NaNs (0.0%)
+  s75: 6/80 trials with NaNs (7.5%)
+  r25: 0/80 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 155/162 (95.7%)
-  New data shape: (155, 73, 641)
+  Trials kept: 154/160 (96.2%)
+  New data shape: (154, 73, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s75: 74 trials
-  Condition r25: 81 trials
+  Condition r25: 80 trials
 
 Subsampling to min trial count: 74
-  Subsampled condition 1: 81 -> 74
+  Subsampled condition 1: 80 -> 74
 
 Final balanced data shape: (148, 73, 641)
 ============================================================
@@ -3180,31 +3180,31 @@ Initial concatenated data shape: (332, 197, 641)
 Missing Channels (all NaN across all trials): 0/197
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 250/332 (75.3%)
+  Trials with ANY NaN: 251/332 (75.6%)
   Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 250/332 (75.3%)
+  Trials with missing channel NaNs (dense): 251/332 (75.6%)
   Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 106.2
+  Mean missing channels per affected trial: 105.7
   Max missing channels in a trial: 197
 
 Overall NaN Percentage: 40.58%
 
 --- NaN Impact by Condition ---
   s25: 150/166 trials with NaNs (90.4%)
-  r25: 100/166 trials with NaNs (60.2%)
+  r25: 101/166 trials with NaNs (60.8%)
 
 After removing NaN trials:
-  Trials kept: 82/332 (24.7%)
-  New data shape: (82, 197, 641)
+  Trials kept: 81/332 (24.4%)
+  New data shape: (81, 197, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 16 trials
-  Condition r25: 66 trials
+  Condition r25: 65 trials
 
 Subsampling to min trial count: 16
-  Subsampled condition 1: 66 -> 16
+  Subsampled condition 1: 65 -> 16
 
 Final balanced data shape: (32, 197, 641)
 ============================================================
@@ -3229,31 +3229,31 @@ Initial concatenated data shape: (332, 71, 641)
 Missing Channels (all NaN across all trials): 0/71
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 212/332 (63.9%)
+  Trials with ANY NaN: 211/332 (63.6%)
   Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 212/332 (63.9%)
+  Trials with missing channel NaNs (dense): 211/332 (63.6%)
   Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 46.7
+  Mean missing channels per affected trial: 46.9
   Max missing channels in a trial: 71
 
 Overall NaN Percentage: 42.00%
 
 --- NaN Impact by Condition ---
   s25: 137/166 trials with NaNs (82.5%)
-  r25: 75/166 trials with NaNs (45.2%)
+  r25: 74/166 trials with NaNs (44.6%)
 
 After removing NaN trials:
-  Trials kept: 120/332 (36.1%)
-  New data shape: (120, 71, 641)
+  Trials kept: 121/332 (36.4%)
+  New data shape: (121, 71, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 29 trials
-  Condition r25: 91 trials
+  Condition r25: 92 trials
 
 Subsampling to min trial count: 29
-  Subsampled condition 1: 91 -> 29
+  Subsampled condition 1: 92 -> 29
 
 Final balanced data shape: (58, 71, 641)
 ============================================================
@@ -3327,31 +3327,31 @@ Initial concatenated data shape: (332, 265, 641)
 Missing Channels (all NaN across all trials): 0/265
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 261/332 (78.6%)
+  Trials with ANY NaN: 262/332 (78.9%)
   Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 261/332 (78.6%)
+  Trials with missing channel NaNs (dense): 262/332 (78.9%)
   Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 136.0
+  Mean missing channels per affected trial: 135.5
   Max missing channels in a trial: 265
 
 Overall NaN Percentage: 40.35%
 
 --- NaN Impact by Condition ---
   s25: 151/166 trials with NaNs (91.0%)
-  r25: 110/166 trials with NaNs (66.3%)
+  r25: 111/166 trials with NaNs (66.9%)
 
 After removing NaN trials:
-  Trials kept: 71/332 (21.4%)
-  New data shape: (71, 265, 641)
+  Trials kept: 70/332 (21.1%)
+  New data shape: (70, 265, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 15 trials
-  Condition r25: 56 trials
+  Condition r25: 55 trials
 
 Subsampling to min trial count: 15
-  Subsampled condition 1: 56 -> 15
+  Subsampled condition 1: 55 -> 15
 
 Final balanced data shape: (30, 265, 641)
 ============================================================
@@ -3425,31 +3425,31 @@ Initial concatenated data shape: (332, 73, 641)
 Missing Channels (all NaN across all trials): 0/73
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 220/332 (66.3%)
+  Trials with ANY NaN: 221/332 (66.6%)
   Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 220/332 (66.3%)
+  Trials with missing channel NaNs (dense): 221/332 (66.6%)
   Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 41.8
+  Mean missing channels per affected trial: 41.6
   Max missing channels in a trial: 73
 
-Overall NaN Percentage: 37.94%
+Overall NaN Percentage: 37.95%
 
 --- NaN Impact by Condition ---
   s25: 135/166 trials with NaNs (81.3%)
-  r25: 85/166 trials with NaNs (51.2%)
+  r25: 86/166 trials with NaNs (51.8%)
 
 After removing NaN trials:
-  Trials kept: 112/332 (33.7%)
-  New data shape: (112, 73, 641)
+  Trials kept: 111/332 (33.4%)
+  New data shape: (111, 73, 641)
 
 --- Final Trial Counts by Condition ---
   Condition s25: 31 trials
-  Condition r25: 81 trials
+  Condition r25: 80 trials
 
 Subsampling to min trial count: 31
-  Subsampled condition 1: 81 -> 31
+  Subsampled condition 1: 80 -> 31
 
 Final balanced data shape: (62, 73, 641)
 ============================================================
@@ -3460,606 +3460,13 @@ Effective step size: 16
 Number of windows: 37
 time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
 stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/dlpfc
 stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/acc
 stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/parietal
 stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/lpfc
 stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (332, 197, 641)
-  Trials: 332
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 279/332 (84.0%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 279/332 (84.0%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 104.2
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 44.44%
-
---- NaN Impact by Condition ---
-  s75: 129/166 trials with NaNs (77.7%)
-  r75: 150/166 trials with NaNs (90.4%)
-
-After removing NaN trials:
-  Trials kept: 53/332 (16.0%)
-  New data shape: (53, 197, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 37 trials
-  Condition r75: 16 trials
-
-Subsampling to min trial count: 16
-  Subsampled condition 0: 37 -> 16
-
-Final balanced data shape: (32, 197, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: acc
-
-============================================================
-ROI: acc
-============================================================
-Initial concatenated data shape: (332, 71, 641)
-  Trials: 332
-  Channels: 71
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/71
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 229/332 (69.0%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 229/332 (69.0%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 46.7
-  Max missing channels in a trial: 71
-
-Overall NaN Percentage: 45.37%
-
---- NaN Impact by Condition ---
-  s75: 91/166 trials with NaNs (54.8%)
-  r75: 138/166 trials with NaNs (83.1%)
-
-After removing NaN trials:
-  Trials kept: 103/332 (31.0%)
-  New data shape: (103, 71, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 75 trials
-  Condition r75: 28 trials
-
-Subsampling to min trial count: 28
-  Subsampled condition 0: 75 -> 28
-
-Final balanced data shape: (56, 71, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: parietal
-
-============================================================
-ROI: parietal
-============================================================
-Initial concatenated data shape: (332, 40, 641)
-  Trials: 332
-  Channels: 40
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/40
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 214/332 (64.5%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 214/332 (64.5%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 28.6
-  Max missing channels in a trial: 40
-
-Overall NaN Percentage: 46.12%
-
---- NaN Impact by Condition ---
-  s75: 83/166 trials with NaNs (50.0%)
-  r75: 131/166 trials with NaNs (78.9%)
-
-After removing NaN trials:
-  Trials kept: 118/332 (35.5%)
-  New data shape: (118, 40, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 83 trials
-  Condition r75: 35 trials
-
-Subsampling to min trial count: 35
-  Subsampled condition 0: 83 -> 35
-
-Final balanced data shape: (70, 40, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (332, 265, 641)
-  Trials: 332
-  Channels: 265
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/265
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 289/332 (87.0%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 289/332 (87.0%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 135.5
-  Max missing channels in a trial: 265
-
-Overall NaN Percentage: 44.49%
-
---- NaN Impact by Condition ---
-  s75: 138/166 trials with NaNs (83.1%)
-  r75: 151/166 trials with NaNs (91.0%)
-
-After removing NaN trials:
-  Trials kept: 43/332 (13.0%)
-  New data shape: (43, 265, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 28 trials
-  Condition r75: 15 trials
-
-Subsampling to min trial count: 15
-  Subsampled condition 0: 28 -> 15
-
-Final balanced data shape: (30, 265, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (332, 18, 641)
-  Trials: 332
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 201/332 (60.5%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 201/332 (60.5%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 12.6
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 42.34%
-
---- NaN Impact by Condition ---
-  s75: 72/166 trials with NaNs (43.4%)
-  r75: 129/166 trials with NaNs (77.7%)
-
-After removing NaN trials:
-  Trials kept: 131/332 (39.5%)
-  New data shape: (131, 18, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 94 trials
-  Condition r75: 37 trials
-
-Subsampling to min trial count: 37
-  Subsampled condition 0: 94 -> 37
-
-Final balanced data shape: (74, 18, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (332, 73, 641)
-  Trials: 332
-  Channels: 73
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/73
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 231/332 (69.6%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 231/332 (69.6%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 46.1
-  Max missing channels in a trial: 73
-
-Overall NaN Percentage: 43.93%
-
---- NaN Impact by Condition ---
-  s75: 92/166 trials with NaNs (55.4%)
-  r75: 139/166 trials with NaNs (83.7%)
-
-After removing NaN trials:
-  Trials kept: 101/332 (30.4%)
-  New data shape: (101, 73, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s75: 74 trials
-  Condition r75: 27 trials
-
-Subsampling to min trial count: 27
-  Subsampled condition 0: 74 -> 27
-
-Final balanced data shape: (54, 73, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (332, 197, 641)
-  Trials: 332
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 300/332 (90.4%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 300/332 (90.4%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 155.7
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 71.43%
-
---- NaN Impact by Condition ---
-  s25: 150/166 trials with NaNs (90.4%)
-  r75: 150/166 trials with NaNs (90.4%)
-
-After removing NaN trials:
-  Trials kept: 32/332 (9.6%)
-  New data shape: (32, 197, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 16 trials
-  Condition r75: 16 trials
-
-Subsampling to min trial count: 16
-
-Final balanced data shape: (32, 197, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: acc
-
-============================================================
-ROI: acc
-============================================================
-Initial concatenated data shape: (332, 71, 641)
-  Trials: 332
-  Channels: 71
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/71
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 275/332 (82.8%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 275/332 (82.8%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 61.7
-  Max missing channels in a trial: 71
-
-Overall NaN Percentage: 72.00%
-
---- NaN Impact by Condition ---
-  s25: 137/166 trials with NaNs (82.5%)
-  r75: 138/166 trials with NaNs (83.1%)
-
-After removing NaN trials:
-  Trials kept: 57/332 (17.2%)
-  New data shape: (57, 71, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 29 trials
-  Condition r75: 28 trials
-
-Subsampling to min trial count: 28
-  Subsampled condition 0: 29 -> 28
-
-Final balanced data shape: (56, 71, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: parietal
-
-============================================================
-ROI: parietal
-============================================================
-Initial concatenated data shape: (332, 40, 641)
-  Trials: 332
-  Channels: 40
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/40
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 269/332 (81.0%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 269/332 (81.0%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 35.3
-  Max missing channels in a trial: 40
-
-Overall NaN Percentage: 71.56%
-
---- NaN Impact by Condition ---
-  s25: 138/166 trials with NaNs (83.1%)
-  r75: 131/166 trials with NaNs (78.9%)
-
-After removing NaN trials:
-  Trials kept: 63/332 (19.0%)
-  New data shape: (63, 40, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 28 trials
-  Condition r75: 35 trials
-
-Subsampling to min trial count: 28
-  Subsampled condition 1: 35 -> 28
-
-Final balanced data shape: (56, 40, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (332, 265, 641)
-  Trials: 332
-  Channels: 265
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/265
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 302/332 (91.0%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 302/332 (91.0%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 208.1
-  Max missing channels in a trial: 265
-
-Overall NaN Percentage: 71.42%
-
---- NaN Impact by Condition ---
-  s25: 151/166 trials with NaNs (91.0%)
-  r75: 151/166 trials with NaNs (91.0%)
-
-After removing NaN trials:
-  Trials kept: 30/332 (9.0%)
-  New data shape: (30, 265, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 15 trials
-  Condition r75: 15 trials
-
-Subsampling to min trial count: 15
-
-Final balanced data shape: (30, 265, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (332, 18, 641)
-  Trials: 332
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 261/332 (78.6%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 261/332 (78.6%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 16.0
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 69.68%
-
---- NaN Impact by Condition ---
-  s25: 132/166 trials with NaNs (79.5%)
-  r75: 129/166 trials with NaNs (77.7%)
-
-After removing NaN trials:
-  Trials kept: 71/332 (21.4%)
-  New data shape: (71, 18, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 34 trials
-  Condition r75: 37 trials
-
-Subsampling to min trial count: 34
-  Subsampled condition 1: 37 -> 34
-
-Final balanced data shape: (68, 18, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (332, 73, 641)
-  Trials: 332
-  Channels: 73
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/73
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 274/332 (82.5%)
-  Trials with outlier NaNs (sparse): 0/332 (0.0%)
-  Trials with missing channel NaNs (dense): 274/332 (82.5%)
-  Trials with both types: 0/332 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 62.3
-  Max missing channels in a trial: 73
-
-Overall NaN Percentage: 70.41%
-
---- NaN Impact by Condition ---
-  s25: 135/166 trials with NaNs (81.3%)
-  r75: 139/166 trials with NaNs (83.7%)
-
-After removing NaN trials:
-  Trials kept: 58/332 (17.5%)
-  New data shape: (58, 73, 641)
-
---- Final Trial Counts by Condition ---
-  Condition s25: 31 trials
-  Condition r75: 27 trials
-
-Subsampling to min trial count: 27
-  Subsampled condition 0: 31 -> 27
-
-Final balanced data shape: (54, 73, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
-stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_True_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/v1
 stat_func returns a tuple. Taking the first element
