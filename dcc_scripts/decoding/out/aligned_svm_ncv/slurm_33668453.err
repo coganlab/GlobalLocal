@@ -1,0 +1,473 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 220 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:  2.0min
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  3.1min
+[Parallel(n_jobs=-1)]: Done 234 out of 234 | elapsed:  4.6min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 217 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 222 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   42.5s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=-1)]: Done 216 out of 216 | elapsed:  2.4min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 217 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 222 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (221) does not match the number of channels in the raw data file (220). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   49.7s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.8min
+[Parallel(n_jobs=-1)]: Done 216 out of 216 | elapsed:  2.9min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 214 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   46.0s
+[Parallel(n_jobs=-1)]: Done 128 out of 128 | elapsed:  1.7min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 214 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (133) does not match the number of channels in the raw data file (132). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   50.4s
+[Parallel(n_jobs=-1)]: Done 128 out of 128 | elapsed:  2.1min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   57.0s
+[Parallel(n_jobs=-1)]: Done 156 out of 156 | elapsed:  2.7min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (163) does not match the number of channels in the raw data file (162). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:  1.1min
+[Parallel(n_jobs=-1)]: Done 156 out of 156 | elapsed:  2.9min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   57.0s
+[Parallel(n_jobs=-1)]: Done 155 out of 155 | elapsed:  2.4min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (165) does not match the number of channels in the raw data file (164). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:  1.3min
+[Parallel(n_jobs=-1)]: Done 155 out of 155 | elapsed:  3.2min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:  1.8min
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  3.2min
+[Parallel(n_jobs=-1)]: Done 234 out of 234 | elapsed:  4.7min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 224 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (241) does not match the number of channels in the raw data file (240). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   49.1s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.2min
+[Parallel(n_jobs=-1)]: Done 234 out of 234 | elapsed:  3.8min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   59.6s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.5min
+[Parallel(n_jobs=-1)]: Done 222 out of 222 | elapsed:  4.1min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   57.0s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.4min
+[Parallel(n_jobs=-1)]: Done 222 out of 222 | elapsed:  3.6min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   35.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.6min
+[Parallel(n_jobs=-1)]: Done 220 out of 220 | elapsed:  2.7min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   39.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.5min
+[Parallel(n_jobs=-1)]: Done 220 out of 220 | elapsed:  2.5min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   51.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  1.9min
+[Parallel(n_jobs=-1)]: Done 222 out of 222 | elapsed:  3.3min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   49.9s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.0min
+[Parallel(n_jobs=-1)]: Done 164 out of 164 | elapsed:  2.3min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   58.2s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.3min
+[Parallel(n_jobs=-1)]: Done 164 out of 164 | elapsed:  2.7min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:  1.1min
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.5min
+[Parallel(n_jobs=-1)]: Done 226 out of 226 | elapsed:  3.8min finished
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:113: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:1621: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  all_trials = mne.concatenate_epochs(all_trials_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 25 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  47 tasks      | elapsed:   55.9s
+[Parallel(n_jobs=-1)]: Done 137 tasks      | elapsed:  2.2min
+[Parallel(n_jobs=-1)]: Done 226 out of 226 | elapsed:  3.8min finished
+/var/spool/slurmd/job33668453/slurm_script: line 12: 2360329 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/decoding/run_james_sun_cluster_decoding_dcc.py
+slurmstepd: error: Detected 1 oom_kill event in StepId=33668453.batch. Some of the step tasks have been OOM Killed.

@@ -1,0 +1,229 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0103']
+Conditions:        ['Stimulus_r', 'Stimulus_s']
+ROIs:              ['lpfc']
+Permutations:      10
+P-threshold:       0.05
+Stimulus locked:   True
+Epochs file:       Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 2/2
+  Shuffle Permutations: 10
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Statistical Parameters:
+  Cluster Perms:     10
+  P-value Threshold: 0.05
+  Tails:             1
+======================================================================
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0103
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
+Not setting metadata
+196 matching events found
+No baseline correction applied
+    Original shape: (196, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 565.8
+    Max NaN count in a trial: 14102
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 597.5
+    Max NaN count in a trial: 8974
+    Stimulus_s: 162 valid trials out of 162
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
+Not setting metadata
+196 matching events found
+No baseline correction applied
+    Original shape: (196, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 565.8
+    Max NaN count in a trial: 14102
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 597.5
+    Max NaN count in a trial: 8974
+    Stimulus_s: 162 valid trials out of 162
+ROI 'lpfc': Maximum trials per condition:
+  Condition 'Stimulus_r': 196 trials from subjects ['D0103']
+  Condition 'Stimulus_s': 162 trials from subjects ['D0103']
+in roi lpfc, subject D0103 has 196 trials for condition Stimulus_r
+in roi lpfc, subject D0103 has 162 trials for condition Stimulus_s
+Subject D0103, ROI lpfc, LabeledArray shape: (2, 196, 11, 641)
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (392, 11, 641)
+  Trials: 392
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 34/392 (8.7%)
+  Trials with outlier NaNs (sparse): 0/392 (0.0%)
+  Trials with missing channel NaNs (dense): 34/392 (8.7%)
+  Trials with both types: 0/392 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 8.67%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_r']: 0/196 trials with NaNs (0.0%)
+  ['Stimulus_s']: 34/196 trials with NaNs (17.3%)
+
+After removing NaN trials:
+  Trials kept: 358/392 (91.3%)
+  New data shape: (358, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_r']: 196 trials
+  Condition ['Stimulus_s']: 162 trials
+
+Subsampling to min trial count: 162
+  Subsampled condition 0: 196 -> 162
+
+Final balanced data shape: (324, 11, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (392, 11, 641)
+  Trials: 392
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 34/392 (8.7%)
+  Trials with outlier NaNs (sparse): 0/392 (0.0%)
+  Trials with missing channel NaNs (dense): 34/392 (8.7%)
+  Trials with both types: 0/392 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 8.67%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_r']: 0/196 trials with NaNs (0.0%)
+  ['Stimulus_s']: 34/196 trials with NaNs (17.3%)
+
+After removing NaN trials:
+  Trials kept: 358/392 (91.3%)
+  New data shape: (358, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_r']: 196 trials
+  Condition ['Stimulus_s']: 162 trials
+
+Subsampling to min trial count: 162
+  Subsampled condition 0: 196 -> 162
+
+Final balanced data shape: (324, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+
+✗ Analysis failed with error: `axis` is out of bounds for array of dimension 1

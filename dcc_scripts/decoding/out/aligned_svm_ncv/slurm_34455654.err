@@ -1,0 +1,25 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 181, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 214, in main
+    confusion_matrices = get_and_plot_confusion_matrix_for_rois_jim(
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 933, in get_and_plot_confusion_matrix_for_rois_jim
+    concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 104, in concatenate_and_balance_data_for_decoding
+    concatenated_data, labels, cats = concatenate_conditions_by_string(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/labeled_array_utils.py", line 559, in concatenate_conditions_by_string
+    matching_conditions = [cond for cond in roi_labeled_arrays[roi].keys() if any(s in cond for s in string_group)]
+                                            ~~~~~~~~~~~~~~~~~~^^^^^
+KeyError: 'parietal'

@@ -1,0 +1,6 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 86, in <module>
+    CONDITIONS = experiment_conditions.stimulus__conditions
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus__conditions'. Did you mean: 'stimulus_conditions'?

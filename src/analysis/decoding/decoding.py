@@ -901,7 +901,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
 
 def get_and_plot_confusion_matrix_for_rois_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, random_state=42,
+    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, random_state=42, timestamp=None
 ):
     """
     Compute the confusion matrix for each ROI and return it. This function allows for balancing trial counts
@@ -921,6 +921,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     - explained_variance: The amount of variance to explain in the PCA.
     - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
     - random_state: Random seed for reproducibility.
+    - timestamp: timestamp of when this script was run for filenaming purposes
     
     Returns:
     - confusion_matrices: Dictionary containing confusion matrices for each ROI.
@@ -958,8 +959,9 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         # Save the figure with the time interval in the filename
         time_str = f"_{time_interval_name}" if time_interval_name else ""
         other_str = f"_{other_string_to_add}" if other_string_to_add else ""
+        timestamp_str = f"{timestamp}_" if timestamp else ""
         file_name = (
-            f'{roi}_{condition_comparison}{time_str}{other_str}_time_averaged_confusion_matrix_'
+            f'{timestamp_str}{roi}_{condition_comparison}{time_str}{other_str}_time_averaged_confusion_matrix_'
             f'{n_splits}splits_{n_repeats}repeats_{balance_method}.png'
         )
         plt.savefig(os.path.join(save_dir, file_name))
@@ -1220,7 +1222,7 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
     return significant_clusters, p_values
 
 def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
-                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir):
+                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05):
     """
     Plot mean true and shuffled accuracies over time with significance.
 
@@ -1257,6 +1259,10 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     first_time_point_s : float, optional
         The time in seconds of the first sample of the epoch, used for x-axis limits
         if needed, though current xlim are fixed. Default is 0.
+    timestamp : str
+        Timestamp string for filenaming purposes
+    p_thresh : float
+        p-value threshold for determining significant clusters
     """
     n_repeats = accuracies_true.shape[1]
     n_perm = accuracies_shuffle.shape[1]
@@ -1275,8 +1281,8 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.plot(time_points, mean_true_accuracy, label='True Accuracy', color='blue')
     plt.fill_between(
         time_points,
-        mean_true_accuracy - std_true_accuracy,
-        mean_true_accuracy + std_true_accuracy,
+        mean_true_accuracy - se_true_accuracy,
+        mean_true_accuracy + se_true_accuracy,
         alpha=0.2,
         color='blue'
     )
@@ -1284,8 +1290,8 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.plot(time_points, mean_shuffle_accuracy, label='Shuffled Accuracy', color='red')
     plt.fill_between(
         time_points,
-        mean_shuffle_accuracy - std_shuffle_accuracy,
-        mean_shuffle_accuracy + std_shuffle_accuracy,
+        mean_shuffle_accuracy - se_shuffle_accuracy,
+        mean_shuffle_accuracy + se_shuffle_accuracy,
         alpha=0.2,
         color='red'
     )
@@ -1343,9 +1349,15 @@ def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significan
     plt.ylabel('Accuracy')
     plt.title(f'Decoding Accuracy over Time for {condition_comparison} in ROI {roi}')
     plt.legend()
+    
+    # CREATE TIMESTAMP PREFIX
+    timestamp_str = f"{timestamp}_" if timestamp else ""
 
+    # CREATE P THRESH PREFIX
+    p_thresh_str = str(p_thresh)
+    
     # Construct the filename
-    filename = f"{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_perm}_perm.png"
+    filename = f"{timestamp_str}{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_perm}_perm_{p_thresh_str}_p_thresh.png"
     filepath = os.path.join(save_dir, filename)
 
     # Ensure save_dir exists

@@ -1,0 +1,43 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421', '/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+JAMES SUN CLUSTER DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0103']
+Conditions:        ['Stimulus_r', 'Stimulus_s']
+ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
+Permutations:      10
+P-threshold:       0.05
+Stimulus locked:   True
+Epochs file:       Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 2/2
+  Shuffle Permutations: 10
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Statistical Parameters:
+  Cluster Perms:     10
+  P-value Threshold: 0.05
+  Tails:             1
+======================================================================
+======================================================================
+
+Starting analysis...
+File not found: /hpc/home/jz421/coganlab/jz421/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0103
+
+✗ Analysis failed with error: 'NoneType' object has no attribute 'items'
