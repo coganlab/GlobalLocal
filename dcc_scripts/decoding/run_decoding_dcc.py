@@ -73,7 +73,7 @@ CHANS_AXS = 1
 TIME_AXS = -1
 
 # Time-windowed decoding parameters
-WINDOW_SIZE = 64  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
+WINDOW_SIZE = 32  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
 STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
@@ -83,7 +83,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 # MARK_OUTLIERS_AS_NAN = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+CONDITIONS = experiment_conditions.stimulus_task_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
@@ -100,7 +100,8 @@ ROIS_DICT = {
     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
 }
 
-
+# which electrodes to use (all or sig)
+ELECTRODES = 'sig'
 
 # # testing params (comment out)
 # SUBJECTS = ['D0103']
@@ -134,6 +135,7 @@ def run_analysis():
         conditions=CONDITIONS,
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
+        electrodes=ELECTRODES,
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
         obs_axs=OBS_AXS,
@@ -155,6 +157,7 @@ def run_analysis():
     print(f"Permutations:      {N_PERM}")
     print(f"P-threshold:       {P_THRESH}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
+    print(f"Electrodes (all or sig):       {ELECTRODES}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")
     print(f"Obs axs:            {OBS_AXS}")

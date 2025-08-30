@@ -1,0 +1,1937 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+Conditions:        ['Stimulus_taskG', 'Stimulus_taskL']
+ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
+Permutations:      500
+P-threshold:       0.05
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 5/500
+  Shuffle Permutations: 500
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Statistical Parameters:
+  Cluster Perms:     500
+  P-value Threshold: 0.05
+  Tails:             1
+======================================================================
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0065
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+Loaded significant channels for subject D0100
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0107A
+Loaded significant channels for subject D0110
+Loaded significant channels for subject D0116
+Loaded significant channels for subject D0117
+Loaded significant channels for subject D0121
+For subject D0057, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14']
+For subject D0059, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14']
+For subject D0069, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0071, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16']
+For subject D0094, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFAM15']
+For subject D0103, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI18']
+For subject D0107A, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10']
+For subject D0116, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA15', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17']
+For subject D0117, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10']
+Subject D0057 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RPI15', 'RPI14', 'RAMF13', 'RAMF14']
+Subject D0059 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+Subject D0063 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF15', 'LMSF5', 'RAMF11', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI10', 'RMMF10']
+Subject D0065 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
+Subject D0069 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP16']
+Subject D0077 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11']
+Subject D0094 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LIA11']
+Subject D0100 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAM15']
+Subject D0103 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14']
+Subject D0107A significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA13', 'RIA14', 'RIA15']
+Subject D0110 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10']
+Subject D0116 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
+Subject D0117 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA12', 'RINSA13']
+Subject D0121 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6']
+For subject D0057, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RAMF1']
+For subject D0059, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0063, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LASF1', 'LASF3', 'LASF7', 'LASF9', 'LMSF1', 'LMSF2', 'LMSF4', 'RMSF3', 'RMSF4', 'RMSF5', 'RMMF1', 'RAMF1', 'RAMF2', 'RMMF2', 'RMMF3', 'RMMF4']
+For subject D0065, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RASF1', 'RASF2', 'RASF7', 'RASF8', 'RASF9', 'RMSF4', 'RMSF5']
+For subject D0069, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0071, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0077, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0090, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0094, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LFPM1', 'LFPM2']
+For subject D0100, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0102, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RFAM1', 'RFAM2', 'RFMM1']
+For subject D0103, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LFAM2', 'LFAM3']
+For subject D0107A, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RFOA5', 'RFOA6', 'RFOA7', 'RFOA8', 'RFOA9', 'RFOA12', 'RFAM1', 'RFAM3', 'RFMM1']
+For subject D0110, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
+For subject D0116, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LFOA6', 'LFOA7', 'LFOA8', 'LFOA9', 'LFMM1', 'RFOA5', 'RFOA7', 'RFOA8', 'RFOA9', 'RFMM1']
+For subject D0117, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RMOF4', 'RMOF10']
+For subject D0121, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LFP6', 'LFP7', 'LFP10', 'LFP11', 'LFP12', 'LFP13', 'LFP14', 'LFP15', 'LFAS1', 'LFAS2', 'LFAS3', 'LFMM1', 'LFMM3', 'LFMM4', 'LFMS1', 'LFMS2', 'LFMS3', 'LFMS4', 'LFMM2']
+Subject D0057 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0059 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0063 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LASF3', 'LMSF2', 'LMSF4', 'RMSF3', 'RMSF4']
+Subject D0065 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0069 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0071 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0077 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0090 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0094 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0100 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0102 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['RFMM1']
+Subject D0103 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFAM2', 'LFAM3']
+Subject D0107A significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['RFOA8', 'RFOA12', 'RFAM1', 'RFMM1']
+Subject D0110 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0116 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['RFMM1']
+Subject D0117 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: []
+Subject D0121 significant G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes: ['LFP12', 'LFAS3', 'LFMM3', 'LFMS1', 'LFMS2', 'LFMM2']
+For subject D0057, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['RPIP11', 'RPIP12', 'RPIP13', 'RPIP14']
+For subject D0059, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['LMPF11', 'LMPF12', 'LMPF14', 'LMPF16']
+For subject D0063, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0065, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['RMMP14', 'RMMP15', 'RMMP16', 'RPMP14', 'RPMP16', 'RPIP16']
+For subject D0069, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0071, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['RTPS9', 'RTPS10']
+For subject D0077, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['ROAM5', 'ROAM6', 'ROAM7', 'ROAS12', 'ROAS13', 'ROAS14', 'ROAS15', 'ROPS10', 'ROPS12', 'RPAS6', 'RPAS7', 'RPAS10', 'ROAS7', 'ROAS11']
+For subject D0090, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0094, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0100, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['LOAS15', 'LPAI18']
+For subject D0102, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0103, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0107A, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0110, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: ['LMSF14', 'LPSF14', 'LPIF7', 'LPIF8', 'LPIF9', 'LPIF10', 'LASP7', 'LASP9']
+For subject D0116, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0117, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+For subject D0121, G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes are: []
+Subject D0057 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: ['RPIP11', 'RPIP12', 'RPIP13', 'RPIP14']
+Subject D0059 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: ['LMPF11', 'LMPF12', 'LMPF14']
+Subject D0063 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0065 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0069 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0071 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: ['RTPS9', 'RTPS10']
+Subject D0077 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: ['ROAS14', 'ROPS10', 'RPAS7', 'ROAS11']
+Subject D0090 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0094 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0100 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0102 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0103 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0107A significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0110 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: ['LMSF14', 'LASP7']
+Subject D0116 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0117 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+Subject D0121 significant G_parietal_sup, S_intrapariet_and_P_trans, G_pariet_inf-Angular, G_pariet_inf-Supramar electrodes: []
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RPI15', 'RPI14', 'RAMF13', 'RAMF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF15', 'LMSF5', 'RAMF11', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI10', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP16']
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LFAI5', 'LFPI10', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14', 'RFAM15']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA13', 'RIA14', 'RIA15']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10', 'LINS4']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA3', 'RINSA12', 'RINSA13']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6', 'LFMI4', 'LFMI5']
+For subject D0057, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPIT1']
+For subject D0059, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0063, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0065, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPMT1']
+For subject D0069, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0071, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RTPI1', 'RO1', 'RO2']
+For subject D0077, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['ROPM1']
+For subject D0090, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0094, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0100, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2']
+For subject D0102, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0103, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0107A, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0110, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0116, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0117, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+For subject D0121, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
+Subject D0057 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0059 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0063 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0065 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RPMT1']
+Subject D0069 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0071 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RO1', 'RO2']
+Subject D0077 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['ROPM1']
+Subject D0090 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0094 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0100 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['LTOJ1', 'LOPM1', 'LTOJ3', 'LOMM3', 'LOMM4', 'LOMM5']
+Subject D0102 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0103 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0107A significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0110 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0116 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0117 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+Subject D0121 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
+For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
+For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
+For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
+For subject D0065, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPMT1', 'RPIT1', 'RPIT2']
+For subject D0069, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0071, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI1', 'RO1', 'RO2', 'RO10']
+For subject D0077, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI2', 'ROPI5', 'ROPI6', 'ROPI8', 'ROPM9', 'ROPM11', 'ROPM12', 'ROPM1', 'ROPM8']
+For subject D0090, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPO1', 'RTPI1', 'RTPI2']
+For subject D0094, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0100, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2', 'LTOJ13', 'LOAI12', 'LOAI13', 'LOAI14', 'LOAI15', 'LOMI8', 'LOMI9', 'LOMI11', 'LOMI12', 'LOPI9', 'LOPI10', 'LOAM15', 'LOMM15', 'LOPM10', 'LOMS13', 'LOMS14', 'LOMS15', 'LOPS9', 'LOPS11', 'LOPS12', 'LPPI14', 'LPPI15', 'LOMM13', 'LOMM14', 'LOMS11', 'LOMS12', 'LOPM8', 'LOPM9', 'LPPI7', 'LPPI8', 'LPPI9']
+For subject D0102, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTAI6', 'RTPI1']
+For subject D0103, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTLI3', 'LTPI2', 'LTPI3', 'LTPI4']
+For subject D0107A, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI3']
+For subject D0110, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0116, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0117, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0121, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0059 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0063 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RPMT1', 'RPIT1', 'RPIT2']
+Subject D0069 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RO1', 'RO2', 'RO10']
+Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPI5', 'ROPI6', 'ROPM9', 'ROPM1', 'ROPM8']
+Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPO1', 'RTPI2']
+Subject D0094 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTOJ1', 'LOPM1', 'LTOJ3', 'LOMM3', 'LOMM4', 'LOMM5', 'LTOJ13', 'LOAI12', 'LOAI13', 'LOAI14', 'LOAI15', 'LOMI8', 'LOMI9', 'LOMI11', 'LOMI12', 'LOPI9', 'LOPI10', 'LOAM15', 'LOPM10', 'LOMS13', 'LOPS12', 'LOMM13', 'LOMM14', 'LOPM8', 'LOPM9', 'LPPI7', 'LPPI8', 'LPPI9']
+Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI1']
+Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTLI3', 'LTPI2', 'LTPI3', 'LTPI4']
+Subject D0107A significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0110 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0116 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0117 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0121 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Loading data for subject: D0057
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 205 valid trials out of 205
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 200 valid trials out of 200
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 205 valid trials out of 205
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 200 valid trials out of 200
+Loading data for subject: D0059
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 212 valid trials out of 212
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 215 valid trials out of 215
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 212 valid trials out of 212
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 215 valid trials out of 215
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+184 matching events found
+No baseline correction applied
+    Original shape: (184, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 184 valid trials out of 184
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 205 valid trials out of 205
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+184 matching events found
+No baseline correction applied
+    Original shape: (184, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 184 valid trials out of 184
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 205 valid trials out of 205
+Loading data for subject: D0065
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+155 matching events found
+No baseline correction applied
+    Original shape: (155, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 155 valid trials out of 155
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+161 matching events found
+No baseline correction applied
+    Original shape: (161, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 161 valid trials out of 161
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+155 matching events found
+No baseline correction applied
+    Original shape: (155, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 155 valid trials out of 155
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+161 matching events found
+No baseline correction applied
+    Original shape: (161, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 161 valid trials out of 161
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 157 valid trials out of 157
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+173 matching events found
+No baseline correction applied
+    Original shape: (173, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 173 valid trials out of 173
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 157 valid trials out of 157
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+173 matching events found
+No baseline correction applied
+    Original shape: (173, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 173 valid trials out of 173
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+214 matching events found
+No baseline correction applied
+    Original shape: (214, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 214 valid trials out of 214
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 215 valid trials out of 215
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+214 matching events found
+No baseline correction applied
+    Original shape: (214, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 214 valid trials out of 214
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 215 valid trials out of 215
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+182 matching events found
+No baseline correction applied
+    Original shape: (182, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 182 valid trials out of 182
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+173 matching events found
+No baseline correction applied
+    Original shape: (173, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 173 valid trials out of 173
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+182 matching events found
+No baseline correction applied
+    Original shape: (182, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 182 valid trials out of 182
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+173 matching events found
+No baseline correction applied
+    Original shape: (173, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 173 valid trials out of 173
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 219 valid trials out of 219
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 208 valid trials out of 208
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 219 valid trials out of 219
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 208 valid trials out of 208
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+191 matching events found
+No baseline correction applied
+    Original shape: (191, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 191 valid trials out of 191
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+187 matching events found
+No baseline correction applied
+    Original shape: (187, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 187 valid trials out of 187
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+191 matching events found
+No baseline correction applied
+    Original shape: (191, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 191 valid trials out of 191
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+187 matching events found
+No baseline correction applied
+    Original shape: (187, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 187 valid trials out of 187
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+210 matching events found
+No baseline correction applied
+    Original shape: (210, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 210 valid trials out of 210
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Original shape: (211, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 211 valid trials out of 211
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+210 matching events found
+No baseline correction applied
+    Original shape: (210, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 210 valid trials out of 210
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Original shape: (211, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 211 valid trials out of 211
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Original shape: (177, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 177 valid trials out of 177
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+122 matching events found
+No baseline correction applied
+    Original shape: (122, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 122 valid trials out of 122
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Original shape: (177, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 177 valid trials out of 177
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+122 matching events found
+No baseline correction applied
+    Original shape: (122, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 122 valid trials out of 122
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 168 valid trials out of 168
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+191 matching events found
+No baseline correction applied
+    Original shape: (191, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 191 valid trials out of 191
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 168 valid trials out of 168
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+191 matching events found
+No baseline correction applied
+    Original shape: (191, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 191 valid trials out of 191
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 200 valid trials out of 200
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+194 matching events found
+No baseline correction applied
+    Original shape: (194, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 194 valid trials out of 194
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 200 valid trials out of 200
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+194 matching events found
+No baseline correction applied
+    Original shape: (194, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 194 valid trials out of 194
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 219 valid trials out of 219
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Original shape: (220, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 220 valid trials out of 220
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 219 valid trials out of 219
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Original shape: (220, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 220 valid trials out of 220
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+202 matching events found
+No baseline correction applied
+    Original shape: (202, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 202 valid trials out of 202
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 208 valid trials out of 208
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+202 matching events found
+No baseline correction applied
+    Original shape: (202, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 202 valid trials out of 202
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 208 valid trials out of 208
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+143 matching events found
+No baseline correction applied
+    Original shape: (143, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 143 valid trials out of 143
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+140 matching events found
+No baseline correction applied
+    Original shape: (140, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 140 valid trials out of 140
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+143 matching events found
+No baseline correction applied
+    Original shape: (143, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 143 valid trials out of 143
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+140 matching events found
+No baseline correction applied
+    Original shape: (140, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 140 valid trials out of 140
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+203 matching events found
+No baseline correction applied
+    Original shape: (203, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 203 valid trials out of 203
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+197 matching events found
+No baseline correction applied
+    Original shape: (197, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 197 valid trials out of 197
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
+Not setting metadata
+203 matching events found
+No baseline correction applied
+    Original shape: (203, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskG: 203 valid trials out of 203
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
+Not setting metadata
+197 matching events found
+No baseline correction applied
+    Original shape: (197, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_taskL: 197 valid trials out of 197
+ROI 'dlpfc': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 219 trials from subjects ['D0090', 'D0110']
+  Condition 'Stimulus_taskL': 220 trials from subjects ['D0110']
+in roi dlpfc, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI dlpfc, LabeledArray shape: (2, 220, 12, 641)
+in roi dlpfc, subject D0059 has 212 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0059 has 215 trials for condition Stimulus_taskL
+Subject D0059, ROI dlpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi dlpfc, subject D0063 has 184 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0063 has 205 trials for condition Stimulus_taskL
+Subject D0063, ROI dlpfc, LabeledArray shape: (2, 220, 33, 641)
+in roi dlpfc, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI dlpfc, LabeledArray shape: (2, 220, 8, 641)
+in roi dlpfc, subject D0071 has 214 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0071 has 215 trials for condition Stimulus_taskL
+Subject D0071, ROI dlpfc, LabeledArray shape: (2, 220, 8, 641)
+in roi dlpfc, subject D0090 has 219 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0090 has 208 trials for condition Stimulus_taskL
+Subject D0090, ROI dlpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi dlpfc, subject D0094 has 191 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0094 has 187 trials for condition Stimulus_taskL
+Subject D0094, ROI dlpfc, LabeledArray shape: (2, 220, 14, 641)
+in roi dlpfc, subject D0102 has 177 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0102 has 122 trials for condition Stimulus_taskL
+Subject D0102, ROI dlpfc, LabeledArray shape: (2, 220, 1, 641)
+in roi dlpfc, subject D0103 has 168 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0103 has 191 trials for condition Stimulus_taskL
+Subject D0103, ROI dlpfc, LabeledArray shape: (2, 220, 6, 641)
+in roi dlpfc, subject D0107A has 200 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0107A has 194 trials for condition Stimulus_taskL
+Subject D0107A, ROI dlpfc, LabeledArray shape: (2, 220, 22, 641)
+in roi dlpfc, subject D0110 has 219 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0110 has 220 trials for condition Stimulus_taskL
+Subject D0110, ROI dlpfc, LabeledArray shape: (2, 220, 1, 641)
+in roi dlpfc, subject D0116 has 202 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0116 has 208 trials for condition Stimulus_taskL
+Subject D0116, ROI dlpfc, LabeledArray shape: (2, 220, 21, 641)
+in roi dlpfc, subject D0117 has 143 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0117 has 140 trials for condition Stimulus_taskL
+Subject D0117, ROI dlpfc, LabeledArray shape: (2, 220, 10, 641)
+in roi dlpfc, subject D0121 has 203 trials for condition Stimulus_taskG
+in roi dlpfc, subject D0121 has 197 trials for condition Stimulus_taskL
+Subject D0121, ROI dlpfc, LabeledArray shape: (2, 220, 51, 641)
+ROI 'acc': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 205 trials from subjects ['D0057']
+  Condition 'Stimulus_taskL': 208 trials from subjects ['D0116']
+in roi acc, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi acc, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI acc, LabeledArray shape: (2, 208, 1, 641)
+in roi acc, subject D0063 has 184 trials for condition Stimulus_taskG
+in roi acc, subject D0063 has 205 trials for condition Stimulus_taskL
+Subject D0063, ROI acc, LabeledArray shape: (2, 208, 16, 641)
+in roi acc, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi acc, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI acc, LabeledArray shape: (2, 208, 7, 641)
+in roi acc, subject D0094 has 191 trials for condition Stimulus_taskG
+in roi acc, subject D0094 has 187 trials for condition Stimulus_taskL
+Subject D0094, ROI acc, LabeledArray shape: (2, 208, 2, 641)
+in roi acc, subject D0102 has 177 trials for condition Stimulus_taskG
+in roi acc, subject D0102 has 122 trials for condition Stimulus_taskL
+Subject D0102, ROI acc, LabeledArray shape: (2, 208, 3, 641)
+in roi acc, subject D0103 has 168 trials for condition Stimulus_taskG
+in roi acc, subject D0103 has 191 trials for condition Stimulus_taskL
+Subject D0103, ROI acc, LabeledArray shape: (2, 208, 2, 641)
+in roi acc, subject D0107A has 200 trials for condition Stimulus_taskG
+in roi acc, subject D0107A has 194 trials for condition Stimulus_taskL
+Subject D0107A, ROI acc, LabeledArray shape: (2, 208, 9, 641)
+in roi acc, subject D0116 has 202 trials for condition Stimulus_taskG
+in roi acc, subject D0116 has 208 trials for condition Stimulus_taskL
+Subject D0116, ROI acc, LabeledArray shape: (2, 208, 10, 641)
+in roi acc, subject D0117 has 143 trials for condition Stimulus_taskG
+in roi acc, subject D0117 has 140 trials for condition Stimulus_taskL
+Subject D0117, ROI acc, LabeledArray shape: (2, 208, 2, 641)
+in roi acc, subject D0121 has 203 trials for condition Stimulus_taskG
+in roi acc, subject D0121 has 197 trials for condition Stimulus_taskL
+Subject D0121, ROI acc, LabeledArray shape: (2, 208, 19, 641)
+ROI 'parietal': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 219 trials from subjects ['D0110']
+  Condition 'Stimulus_taskL': 220 trials from subjects ['D0110']
+in roi parietal, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi parietal, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI parietal, LabeledArray shape: (2, 220, 4, 641)
+in roi parietal, subject D0059 has 212 trials for condition Stimulus_taskG
+in roi parietal, subject D0059 has 215 trials for condition Stimulus_taskL
+Subject D0059, ROI parietal, LabeledArray shape: (2, 220, 4, 641)
+in roi parietal, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi parietal, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI parietal, LabeledArray shape: (2, 220, 6, 641)
+in roi parietal, subject D0071 has 214 trials for condition Stimulus_taskG
+in roi parietal, subject D0071 has 215 trials for condition Stimulus_taskL
+Subject D0071, ROI parietal, LabeledArray shape: (2, 220, 2, 641)
+in roi parietal, subject D0077 has 182 trials for condition Stimulus_taskG
+in roi parietal, subject D0077 has 173 trials for condition Stimulus_taskL
+Subject D0077, ROI parietal, LabeledArray shape: (2, 220, 14, 641)
+in roi parietal, subject D0100 has 210 trials for condition Stimulus_taskG
+in roi parietal, subject D0100 has 211 trials for condition Stimulus_taskL
+Subject D0100, ROI parietal, LabeledArray shape: (2, 220, 2, 641)
+in roi parietal, subject D0110 has 219 trials for condition Stimulus_taskG
+in roi parietal, subject D0110 has 220 trials for condition Stimulus_taskL
+Subject D0110, ROI parietal, LabeledArray shape: (2, 220, 8, 641)
+ROI 'lpfc': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 219 trials from subjects ['D0090', 'D0110']
+  Condition 'Stimulus_taskL': 220 trials from subjects ['D0110']
+in roi lpfc, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi lpfc, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI lpfc, LabeledArray shape: (2, 220, 17, 641)
+in roi lpfc, subject D0059 has 212 trials for condition Stimulus_taskG
+in roi lpfc, subject D0059 has 215 trials for condition Stimulus_taskL
+Subject D0059, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0063 has 184 trials for condition Stimulus_taskG
+in roi lpfc, subject D0063 has 205 trials for condition Stimulus_taskL
+Subject D0063, ROI lpfc, LabeledArray shape: (2, 220, 36, 641)
+in roi lpfc, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi lpfc, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI lpfc, LabeledArray shape: (2, 220, 9, 641)
+in roi lpfc, subject D0069 has 157 trials for condition Stimulus_taskG
+in roi lpfc, subject D0069 has 173 trials for condition Stimulus_taskL
+Subject D0069, ROI lpfc, LabeledArray shape: (2, 220, 1, 641)
+in roi lpfc, subject D0071 has 214 trials for condition Stimulus_taskG
+in roi lpfc, subject D0071 has 215 trials for condition Stimulus_taskL
+Subject D0071, ROI lpfc, LabeledArray shape: (2, 220, 13, 641)
+in roi lpfc, subject D0090 has 219 trials for condition Stimulus_taskG
+in roi lpfc, subject D0090 has 208 trials for condition Stimulus_taskL
+Subject D0090, ROI lpfc, LabeledArray shape: (2, 220, 8, 641)
+in roi lpfc, subject D0094 has 191 trials for condition Stimulus_taskG
+in roi lpfc, subject D0094 has 187 trials for condition Stimulus_taskL
+Subject D0094, ROI lpfc, LabeledArray shape: (2, 220, 28, 641)
+in roi lpfc, subject D0102 has 177 trials for condition Stimulus_taskG
+in roi lpfc, subject D0102 has 122 trials for condition Stimulus_taskL
+Subject D0102, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0103 has 168 trials for condition Stimulus_taskG
+in roi lpfc, subject D0103 has 191 trials for condition Stimulus_taskL
+Subject D0103, ROI lpfc, LabeledArray shape: (2, 220, 11, 641)
+in roi lpfc, subject D0107A has 200 trials for condition Stimulus_taskG
+in roi lpfc, subject D0107A has 194 trials for condition Stimulus_taskL
+Subject D0107A, ROI lpfc, LabeledArray shape: (2, 220, 25, 641)
+in roi lpfc, subject D0110 has 219 trials for condition Stimulus_taskG
+in roi lpfc, subject D0110 has 220 trials for condition Stimulus_taskL
+Subject D0110, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0116 has 202 trials for condition Stimulus_taskG
+in roi lpfc, subject D0116 has 208 trials for condition Stimulus_taskL
+Subject D0116, ROI lpfc, LabeledArray shape: (2, 220, 30, 641)
+in roi lpfc, subject D0117 has 143 trials for condition Stimulus_taskG
+in roi lpfc, subject D0117 has 140 trials for condition Stimulus_taskL
+Subject D0117, ROI lpfc, LabeledArray shape: (2, 220, 11, 641)
+in roi lpfc, subject D0121 has 203 trials for condition Stimulus_taskG
+in roi lpfc, subject D0121 has 197 trials for condition Stimulus_taskL
+Subject D0121, ROI lpfc, LabeledArray shape: (2, 220, 61, 641)
+ROI 'v1': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 214 trials from subjects ['D0071']
+  Condition 'Stimulus_taskL': 215 trials from subjects ['D0071']
+in roi v1, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi v1, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI v1, LabeledArray shape: (2, 215, 1, 641)
+in roi v1, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi v1, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI v1, LabeledArray shape: (2, 215, 1, 641)
+in roi v1, subject D0071 has 214 trials for condition Stimulus_taskG
+in roi v1, subject D0071 has 215 trials for condition Stimulus_taskL
+Subject D0071, ROI v1, LabeledArray shape: (2, 215, 3, 641)
+in roi v1, subject D0077 has 182 trials for condition Stimulus_taskG
+in roi v1, subject D0077 has 173 trials for condition Stimulus_taskL
+Subject D0077, ROI v1, LabeledArray shape: (2, 215, 1, 641)
+in roi v1, subject D0100 has 210 trials for condition Stimulus_taskG
+in roi v1, subject D0100 has 211 trials for condition Stimulus_taskL
+Subject D0100, ROI v1, LabeledArray shape: (2, 215, 12, 641)
+ROI 'occ': Maximum trials per condition:
+  Condition 'Stimulus_taskG': 219 trials from subjects ['D0090']
+  Condition 'Stimulus_taskL': 215 trials from subjects ['D0059', 'D0071']
+in roi occ, subject D0057 has 205 trials for condition Stimulus_taskG
+in roi occ, subject D0057 has 200 trials for condition Stimulus_taskL
+Subject D0057, ROI occ, LabeledArray shape: (2, 219, 1, 641)
+in roi occ, subject D0059 has 212 trials for condition Stimulus_taskG
+in roi occ, subject D0059 has 215 trials for condition Stimulus_taskL
+Subject D0059, ROI occ, LabeledArray shape: (2, 219, 1, 641)
+in roi occ, subject D0063 has 184 trials for condition Stimulus_taskG
+in roi occ, subject D0063 has 205 trials for condition Stimulus_taskL
+Subject D0063, ROI occ, LabeledArray shape: (2, 219, 2, 641)
+in roi occ, subject D0065 has 155 trials for condition Stimulus_taskG
+in roi occ, subject D0065 has 161 trials for condition Stimulus_taskL
+Subject D0065, ROI occ, LabeledArray shape: (2, 219, 3, 641)
+in roi occ, subject D0071 has 214 trials for condition Stimulus_taskG
+in roi occ, subject D0071 has 215 trials for condition Stimulus_taskL
+Subject D0071, ROI occ, LabeledArray shape: (2, 219, 4, 641)
+in roi occ, subject D0077 has 182 trials for condition Stimulus_taskG
+in roi occ, subject D0077 has 173 trials for condition Stimulus_taskL
+Subject D0077, ROI occ, LabeledArray shape: (2, 219, 9, 641)
+in roi occ, subject D0090 has 219 trials for condition Stimulus_taskG
+in roi occ, subject D0090 has 208 trials for condition Stimulus_taskL
+Subject D0090, ROI occ, LabeledArray shape: (2, 219, 3, 641)
+in roi occ, subject D0100 has 210 trials for condition Stimulus_taskG
+in roi occ, subject D0100 has 211 trials for condition Stimulus_taskL
+Subject D0100, ROI occ, LabeledArray shape: (2, 219, 43, 641)
+in roi occ, subject D0102 has 177 trials for condition Stimulus_taskG
+in roi occ, subject D0102 has 122 trials for condition Stimulus_taskL
+Subject D0102, ROI occ, LabeledArray shape: (2, 219, 2, 641)
+in roi occ, subject D0103 has 168 trials for condition Stimulus_taskG
+in roi occ, subject D0103 has 191 trials for condition Stimulus_taskL
+Subject D0103, ROI occ, LabeledArray shape: (2, 219, 4, 641)
+in roi occ, subject D0107A has 200 trials for condition Stimulus_taskG
+in roi occ, subject D0107A has 194 trials for condition Stimulus_taskL
+Subject D0107A, ROI occ, LabeledArray shape: (2, 219, 1, 641)
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (286, 197, 641)
+  Trials: 286
+  Channels: 197
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/197
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 21/286 (7.3%)
+  Trials with outlier NaNs (sparse): 0/286 (0.0%)
+  Trials with missing channel NaNs (dense): 21/286 (7.3%)
+  Trials with both types: 0/286 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 197.0
+  Max missing channels in a trial: 197
+
+Overall NaN Percentage: 7.34%
+
+--- NaN Impact by Condition ---
+  taskG: 0/143 trials with NaNs (0.0%)
+  taskL: 21/143 trials with NaNs (14.7%)
+
+After removing NaN trials:
+  Trials kept: 265/286 (92.7%)
+  New data shape: (265, 197, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 197, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (286, 71, 641)
+  Trials: 286
+  Channels: 71
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/71
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 21/286 (7.3%)
+  Trials with outlier NaNs (sparse): 0/286 (0.0%)
+  Trials with missing channel NaNs (dense): 21/286 (7.3%)
+  Trials with both types: 0/286 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 71.0
+  Max missing channels in a trial: 71
+
+Overall NaN Percentage: 7.34%
+
+--- NaN Impact by Condition ---
+  taskG: 0/143 trials with NaNs (0.0%)
+  taskL: 21/143 trials with NaNs (14.7%)
+
+After removing NaN trials:
+  Trials kept: 265/286 (92.7%)
+  New data shape: (265, 71, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 71, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (322, 40, 641)
+  Trials: 322
+  Channels: 40
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/40
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 6/322 (1.9%)
+  Trials with outlier NaNs (sparse): 0/322 (0.0%)
+  Trials with missing channel NaNs (dense): 6/322 (1.9%)
+  Trials with both types: 0/322 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 40.0
+  Max missing channels in a trial: 40
+
+Overall NaN Percentage: 1.86%
+
+--- NaN Impact by Condition ---
+  taskG: 6/161 trials with NaNs (3.7%)
+  taskL: 0/161 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 316/322 (98.1%)
+  New data shape: (316, 40, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 161 trials
+
+Subsampling to min trial count: 155
+  Subsampled condition 1: 161 -> 155
+
+Final balanced data shape: (310, 40, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (286, 265, 641)
+  Trials: 286
+  Channels: 265
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/265
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 21/286 (7.3%)
+  Trials with outlier NaNs (sparse): 0/286 (0.0%)
+  Trials with missing channel NaNs (dense): 21/286 (7.3%)
+  Trials with both types: 0/286 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 265.0
+  Max missing channels in a trial: 265
+
+Overall NaN Percentage: 7.34%
+
+--- NaN Impact by Condition ---
+  taskG: 0/143 trials with NaNs (0.0%)
+  taskL: 21/143 trials with NaNs (14.7%)
+
+After removing NaN trials:
+  Trials kept: 265/286 (92.7%)
+  New data shape: (265, 265, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 265, 641)
+============================================================
+
+Processing ROI: v1
+
+============================================================
+ROI: v1
+============================================================
+Initial concatenated data shape: (322, 18, 641)
+  Trials: 322
+  Channels: 18
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/18
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 6/322 (1.9%)
+  Trials with outlier NaNs (sparse): 0/322 (0.0%)
+  Trials with missing channel NaNs (dense): 6/322 (1.9%)
+  Trials with both types: 0/322 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 18.0
+  Max missing channels in a trial: 18
+
+Overall NaN Percentage: 1.86%
+
+--- NaN Impact by Condition ---
+  taskG: 6/161 trials with NaNs (3.7%)
+  taskL: 0/161 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 316/322 (98.1%)
+  New data shape: (316, 18, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 161 trials
+
+Subsampling to min trial count: 155
+  Subsampled condition 1: 161 -> 155
+
+Final balanced data shape: (310, 18, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (310, 73, 641)
+  Trials: 310
+  Channels: 73
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/73
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 33/310 (10.6%)
+  Trials with outlier NaNs (sparse): 0/310 (0.0%)
+  Trials with missing channel NaNs (dense): 33/310 (10.6%)
+  Trials with both types: 0/310 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 73.0
+  Max missing channels in a trial: 73
+
+Overall NaN Percentage: 10.65%
+
+--- NaN Impact by Condition ---
+  taskG: 0/155 trials with NaNs (0.0%)
+  taskL: 33/155 trials with NaNs (21.3%)
+
+After removing NaN trials:
+  Trials kept: 277/310 (89.4%)
+  New data shape: (277, 73, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 155 -> 122
+
+Final balanced data shape: (244, 73, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (440, 197, 641)
+  Trials: 440
+  Channels: 197
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/197
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 175/440 (39.8%)
+  Trials with outlier NaNs (sparse): 0/440 (0.0%)
+  Trials with missing channel NaNs (dense): 175/440 (39.8%)
+  Trials with both types: 0/440 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 57.5
+  Max missing channels in a trial: 197
+
+Overall NaN Percentage: 11.61%
+
+--- NaN Impact by Condition ---
+  taskG: 77/220 trials with NaNs (35.0%)
+  taskL: 98/220 trials with NaNs (44.5%)
+
+After removing NaN trials:
+  Trials kept: 265/440 (60.2%)
+  New data shape: (265, 197, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 197, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (416, 71, 641)
+  Trials: 416
+  Channels: 71
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/71
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 151/416 (36.3%)
+  Trials with outlier NaNs (sparse): 0/416 (0.0%)
+  Trials with missing channel NaNs (dense): 151/416 (36.3%)
+  Trials with both types: 0/416 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 16.6
+  Max missing channels in a trial: 71
+
+Overall NaN Percentage: 8.50%
+
+--- NaN Impact by Condition ---
+  taskG: 65/208 trials with NaNs (31.2%)
+  taskL: 86/208 trials with NaNs (41.3%)
+
+After removing NaN trials:
+  Trials kept: 265/416 (63.7%)
+  New data shape: (265, 71, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 71, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (440, 40, 641)
+  Trials: 440
+  Channels: 40
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/40
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 124/440 (28.2%)
+  Trials with outlier NaNs (sparse): 0/440 (0.0%)
+  Trials with missing channel NaNs (dense): 124/440 (28.2%)
+  Trials with both types: 0/440 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 17.7
+  Max missing channels in a trial: 40
+
+Overall NaN Percentage: 12.47%
+
+--- NaN Impact by Condition ---
+  taskG: 65/220 trials with NaNs (29.5%)
+  taskL: 59/220 trials with NaNs (26.8%)
+
+After removing NaN trials:
+  Trials kept: 316/440 (71.8%)
+  New data shape: (316, 40, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 161 trials
+
+Subsampling to min trial count: 155
+  Subsampled condition 1: 161 -> 155
+
+Final balanced data shape: (310, 40, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (440, 265, 641)
+  Trials: 440
+  Channels: 265
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/265
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 175/440 (39.8%)
+  Trials with outlier NaNs (sparse): 0/440 (0.0%)
+  Trials with missing channel NaNs (dense): 175/440 (39.8%)
+  Trials with both types: 0/440 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 77.3
+  Max missing channels in a trial: 265
+
+Overall NaN Percentage: 11.60%
+
+--- NaN Impact by Condition ---
+  taskG: 77/220 trials with NaNs (35.0%)
+  taskL: 98/220 trials with NaNs (44.5%)
+
+After removing NaN trials:
+  Trials kept: 265/440 (60.2%)
+  New data shape: (265, 265, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 143 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 143 -> 122
+
+Final balanced data shape: (244, 265, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Processing ROI: v1
+
+============================================================
+ROI: v1
+============================================================
+Initial concatenated data shape: (430, 18, 641)
+  Trials: 430
+  Channels: 18
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/18
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/430 (26.5%)
+  Trials with outlier NaNs (sparse): 0/430 (0.0%)
+  Trials with missing channel NaNs (dense): 114/430 (26.5%)
+  Trials with both types: 0/430 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 2.9
+  Max missing channels in a trial: 18
+
+Overall NaN Percentage: 4.20%
+
+--- NaN Impact by Condition ---
+  taskG: 60/215 trials with NaNs (27.9%)
+  taskL: 54/215 trials with NaNs (25.1%)
+
+After removing NaN trials:
+  Trials kept: 316/430 (73.5%)
+  New data shape: (316, 18, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 161 trials
+
+Subsampling to min trial count: 155
+  Subsampled condition 1: 161 -> 155
+
+Final balanced data shape: (310, 18, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (438, 73, 641)
+  Trials: 438
+  Channels: 73
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/73
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 161/438 (36.8%)
+  Trials with outlier NaNs (sparse): 0/438 (0.0%)
+  Trials with missing channel NaNs (dense): 161/438 (36.8%)
+  Trials with both types: 0/438 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 16.7
+  Max missing channels in a trial: 73
+
+Overall NaN Percentage: 8.42%
+
+--- NaN Impact by Condition ---
+  taskG: 64/219 trials with NaNs (29.2%)
+  taskL: 97/219 trials with NaNs (44.3%)
+
+After removing NaN trials:
+  Trials kept: 277/438 (63.2%)
+  New data shape: (277, 73, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition taskG: 155 trials
+  Condition taskL: 122 trials
+
+Subsampling to min trial count: 122
+  Subsampled condition 0: 155 -> 122
+
+Final balanced data shape: (244, 73, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
+Effective window size: 64
+Effective step size: 16
+Number of windows: 37
+time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/dlpfc
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/acc
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/parietal
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/lpfc
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/v1
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/task/occ
+
+✓ Analysis completed successfully!

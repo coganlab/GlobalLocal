@@ -162,7 +162,12 @@ def main(args):
     subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
 
     # TODO: set electrodes as an input parameter (which electrodes to use)
-    electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
+    if args.electrodes == 'all':
+        electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
+    elif args.electrodes == 'sig':
+        electrodes = sig_electrodes_per_subject_roi
+    else:
+        raise ValueError("electrodes input must be set to all or sig")
     
     if electrodes == all_electrodes_per_subject_roi:
         elec_string_to_add_to_filename = 'all_elecs'
@@ -233,13 +238,17 @@ def main(args):
     other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(args.subjects)) + '_subjects'
 
     for condition_comparison, strings_to_find in condition_comparisons.items():
+        
+        condition_save_dir = os.path.join(save_dir, f"{condition_comparison}")
+        os.makedirs(condition_save_dir, exist_ok=True)
+        
         confusion_matrices = get_and_plot_confusion_matrix_for_rois_jim(
             timestamp=args.timestamp,
             roi_labeled_arrays=roi_labeled_arrays_no_nans,
             rois=rois,
             condition_comparison=condition_comparison,
             strings_to_find=strings_to_find,
-            save_dir=save_dir,
+            save_dir=condition_save_dir,
             time_interval_name=None,
             other_string_to_add=elec_string_to_add_to_filename,
             n_splits=args.n_splits,
@@ -293,6 +302,11 @@ def main(args):
 
         # Now compute accuracies and perform time permutation cluster test
         for roi in rois:
+            
+            condition_roi_save_dir = os.path.join(save_dir, f"{condition_comparison}", f"{roi}")
+            os.makedirs(condition_roi_save_dir, exist_ok=True)
+            print(f"accuracies save dir directory created or already exists at: {condition_roi_save_dir}")
+            
             time_window_decoding_results[condition_comparison][roi] = {}
             time_window_decoding_results[condition_comparison][roi]['strings_to_find'] = strings_to_find
 
@@ -333,10 +347,6 @@ def main(args):
             # Store significant clusters and p-values
             time_window_decoding_results[condition_comparison][roi]['significant_clusters'] = significant_clusters
             time_window_decoding_results[condition_comparison][roi]['p_values'] = p_values
-
-            accuracies_save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}", f"{condition_comparison}", f"{roi}")
-            os.makedirs(accuracies_save_dir, exist_ok=True)
-            print(f"accuracies save dir directory created or already exists at: {accuracies_save_dir}")
     
             # Plot accuracies comparing true and shuffle for this condition comparison and roi
             plot_accuracies(
@@ -349,7 +359,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 condition_comparison=condition_comparison,
                 roi=roi,
-                save_dir=accuracies_save_dir,
+                save_dir=condition_roi_save_dir,
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh
             )
