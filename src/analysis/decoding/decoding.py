@@ -930,6 +930,8 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     rng = np.random.RandomState(random_state)
 
     for roi in rois:
+        roi_save_dir = os.path.join(save_dir, f"{roi}")
+        os.makedirs(roi_save_dir, exist_ok=True)
         print(f"Processing ROI: {roi}")
         concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
             roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
@@ -964,7 +966,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
             f'{timestamp_str}{roi}_{condition_comparison}{time_str}{other_str}_time_averaged_confusion_matrix_'
             f'{n_splits}splits_{n_repeats}repeats_{balance_method}.png'
         )
-        plt.savefig(os.path.join(save_dir, file_name))
+        plt.savefig(os.path.join(roi_save_dir, file_name))
         plt.close()
 
     return confusion_matrices
