@@ -8,11 +8,12 @@ WARNING: Keras package is not installed. You will be unable to useall neural net
 BANDPASS FILTERED DECODING ANALYSIS
 ======================================================================
 Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-Conditions:        ['Stimulus_bigS', 'Stimulus_bigH']
-ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
+Conditions:        ['Stimulus_r', 'Stimulus_s']
+ROIs:              ['acc', 'parietal', 'lpfc', 'occ']
 Permutations:      500
 P-threshold:       0.05
 Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       sig
 Explained variance: 0.8
 Balance method:     subsample
 Obs axs:            0
@@ -24,7 +25,7 @@ Decoding Parameters:
   Shuffle Permutations: 500
   Balance Method:    subsample
   Explained Variance:0.8
-  Window/Step (samp):64/16
+  Window/Step (samp):32/16
   Sampling Rate (Hz):256
 ----------------------------------------------------------------------
 Statistical Parameters:
@@ -54,40 +55,6 @@ Loaded significant channels for subject D0110
 Loaded significant channels for subject D0116
 Loaded significant channels for subject D0117
 Loaded significant channels for subject D0121
-For subject D0057, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14']
-For subject D0059, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
-For subject D0063, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
-For subject D0065, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14']
-For subject D0069, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0071, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
-For subject D0077, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0090, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16']
-For subject D0094, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
-For subject D0100, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0102, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFAM15']
-For subject D0103, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI18']
-For subject D0107A, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
-For subject D0110, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10']
-For subject D0116, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA15', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17']
-For subject D0117, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
-For subject D0121, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10']
-Subject D0057 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RPI15', 'RPI14', 'RAMF13', 'RAMF14']
-Subject D0059 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
-Subject D0063 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF15', 'LMSF5', 'RAMF11', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI10', 'RMMF10']
-Subject D0065 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
-Subject D0069 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0071 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP16']
-Subject D0077 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0090 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11']
-Subject D0094 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LIA11']
-Subject D0100 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0102 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAM15']
-Subject D0103 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14']
-Subject D0107A significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA13', 'RIA14', 'RIA15']
-Subject D0110 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10']
-Subject D0116 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
-Subject D0117 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA12', 'RINSA13']
-Subject D0121 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6']
 For subject D0057, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RAMF1']
 For subject D0059, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
 For subject D0063, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LASF1', 'LASF3', 'LASF7', 'LASF9', 'LMSF1', 'LMSF2', 'LMSF4', 'RMSF3', 'RMSF4', 'RMSF5', 'RMMF1', 'RAMF1', 'RAMF2', 'RMMF2', 'RMMF3', 'RMMF4']
@@ -190,40 +157,6 @@ Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_in
 Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
 Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA3', 'RINSA12', 'RINSA13']
 Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6', 'LFMI4', 'LFMI5']
-For subject D0057, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPIT1']
-For subject D0059, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0063, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0065, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPMT1']
-For subject D0069, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0071, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RTPI1', 'RO1', 'RO2']
-For subject D0077, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['ROPM1']
-For subject D0090, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0094, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0100, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2']
-For subject D0102, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0103, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0107A, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0110, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0116, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0117, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0121, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-Subject D0057 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0059 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0063 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0065 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RPMT1']
-Subject D0069 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0071 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RO1', 'RO2']
-Subject D0077 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['ROPM1']
-Subject D0090 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0094 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0100 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['LTOJ1', 'LOPM1', 'LTOJ3', 'LOMM3', 'LOMM4', 'LOMM5']
-Subject D0102 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0103 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0107A significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0110 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0116 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0117 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0121 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
 For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
 For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
@@ -275,42 +208,42 @@ Not setting metadata
 449 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-200 matching events found
+212 matching events found
 No baseline correction applied
-    Original shape: (200, 175, 641)
+    Original shape: (212, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 200 valid trials out of 200
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 212 valid trials out of 212
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-205 matching events found
+189 matching events found
 No baseline correction applied
-    Original shape: (205, 175, 641)
+    Original shape: (189, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 205 valid trials out of 205
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 189 valid trials out of 189
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-200 matching events found
+212 matching events found
 No baseline correction applied
-    Original shape: (200, 175, 641)
+    Original shape: (212, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 200 valid trials out of 200
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 212 valid trials out of 212
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-205 matching events found
+189 matching events found
 No baseline correction applied
-    Original shape: (205, 175, 641)
+    Original shape: (189, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 205 valid trials out of 205
+    Stimulus_s: 189 valid trials out of 189
 Loading data for subject: D0059
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -328,42 +261,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-214 matching events found
+215 matching events found
 No baseline correction applied
-    Original shape: (214, 178, 641)
+    Original shape: (215, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 214 valid trials out of 214
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 215 valid trials out of 215
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-213 matching events found
+209 matching events found
 No baseline correction applied
-    Original shape: (213, 178, 641)
+    Original shape: (209, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 209 valid trials out of 209
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-214 matching events found
+215 matching events found
 No baseline correction applied
-    Original shape: (214, 178, 641)
+    Original shape: (215, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 214 valid trials out of 214
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 215 valid trials out of 215
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-213 matching events found
+209 matching events found
 No baseline correction applied
-    Original shape: (213, 178, 641)
+    Original shape: (209, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
+    Stimulus_s: 209 valid trials out of 209
 Loading data for subject: D0063
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -381,42 +314,42 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-185 matching events found
+200 matching events found
 No baseline correction applied
-    Original shape: (185, 234, 641)
+    Original shape: (200, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 185 valid trials out of 185
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 200 valid trials out of 200
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-204 matching events found
+182 matching events found
 No baseline correction applied
-    Original shape: (204, 234, 641)
+    Original shape: (182, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 204 valid trials out of 204
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 182 valid trials out of 182
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-185 matching events found
+200 matching events found
 No baseline correction applied
-    Original shape: (185, 234, 641)
+    Original shape: (200, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 185 valid trials out of 185
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 200 valid trials out of 200
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-204 matching events found
+182 matching events found
 No baseline correction applied
-    Original shape: (204, 234, 641)
+    Original shape: (182, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 204 valid trials out of 204
+    Stimulus_s: 182 valid trials out of 182
 Loading data for subject: D0065
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -434,42 +367,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-144 matching events found
+173 matching events found
 No baseline correction applied
-    Original shape: (144, 216, 641)
+    Original shape: (173, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 144 valid trials out of 144
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 173 valid trials out of 173
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-172 matching events found
+140 matching events found
 No baseline correction applied
-    Original shape: (172, 216, 641)
+    Original shape: (140, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 172 valid trials out of 172
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 140 valid trials out of 140
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-144 matching events found
+173 matching events found
 No baseline correction applied
-    Original shape: (144, 216, 641)
+    Original shape: (173, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 144 valid trials out of 144
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 173 valid trials out of 173
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-172 matching events found
+140 matching events found
 No baseline correction applied
-    Original shape: (172, 216, 641)
+    Original shape: (140, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 172 valid trials out of 172
+    Stimulus_s: 140 valid trials out of 140
 Loading data for subject: D0069
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -487,42 +420,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-152 matching events found
+185 matching events found
 No baseline correction applied
-    Original shape: (152, 128, 641)
+    Original shape: (185, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 152 valid trials out of 152
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 185 valid trials out of 185
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-178 matching events found
+143 matching events found
 No baseline correction applied
-    Original shape: (178, 128, 641)
+    Original shape: (143, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 178 valid trials out of 178
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 143 valid trials out of 143
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-152 matching events found
+185 matching events found
 No baseline correction applied
-    Original shape: (152, 128, 641)
+    Original shape: (185, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 152 valid trials out of 152
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 185 valid trials out of 185
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-178 matching events found
+143 matching events found
 No baseline correction applied
-    Original shape: (178, 128, 641)
+    Original shape: (143, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 178 valid trials out of 178
+    Stimulus_s: 143 valid trials out of 143
 Loading data for subject: D0071
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -540,42 +473,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-206 matching events found
+216 matching events found
 No baseline correction applied
-    Original shape: (206, 156, 641)
+    Original shape: (216, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 206 valid trials out of 206
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 216 valid trials out of 216
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-223 matching events found
+209 matching events found
 No baseline correction applied
-    Original shape: (223, 156, 641)
+    Original shape: (209, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 223 valid trials out of 223
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 209 valid trials out of 209
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-206 matching events found
+216 matching events found
 No baseline correction applied
-    Original shape: (206, 156, 641)
+    Original shape: (216, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 206 valid trials out of 206
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 216 valid trials out of 216
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-223 matching events found
+209 matching events found
 No baseline correction applied
-    Original shape: (223, 156, 641)
+    Original shape: (209, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 223 valid trials out of 223
+    Stimulus_s: 209 valid trials out of 209
 Loading data for subject: D0077
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -593,42 +526,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-174 matching events found
+192 matching events found
 No baseline correction applied
-    Original shape: (174, 131, 641)
+    Original shape: (192, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 174 valid trials out of 174
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 192 valid trials out of 192
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-181 matching events found
+160 matching events found
 No baseline correction applied
-    Original shape: (181, 131, 641)
+    Original shape: (160, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 181 valid trials out of 181
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 160 valid trials out of 160
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-174 matching events found
+192 matching events found
 No baseline correction applied
-    Original shape: (174, 131, 641)
+    Original shape: (192, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 174 valid trials out of 174
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 192 valid trials out of 192
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-181 matching events found
+160 matching events found
 No baseline correction applied
-    Original shape: (181, 131, 641)
+    Original shape: (160, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 181 valid trials out of 181
+    Stimulus_s: 160 valid trials out of 160
 Loading data for subject: D0090
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -646,42 +579,42 @@ Not setting metadata
 450 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-193 matching events found
+217 matching events found
 No baseline correction applied
-    Original shape: (193, 155, 641)
+    Original shape: (217, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 193 valid trials out of 193
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 217 valid trials out of 217
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-234 matching events found
+204 matching events found
 No baseline correction applied
-    Original shape: (234, 155, 641)
+    Original shape: (204, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 234 valid trials out of 234
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 204 valid trials out of 204
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-193 matching events found
+217 matching events found
 No baseline correction applied
-    Original shape: (193, 155, 641)
+    Original shape: (217, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 193 valid trials out of 193
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 217 valid trials out of 217
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-234 matching events found
+204 matching events found
 No baseline correction applied
-    Original shape: (234, 155, 641)
+    Original shape: (204, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 234 valid trials out of 234
+    Stimulus_s: 204 valid trials out of 204
 Loading data for subject: D0094
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -699,42 +632,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-191 matching events found
+196 matching events found
 No baseline correction applied
-    Original shape: (191, 234, 641)
+    Original shape: (196, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 191 valid trials out of 191
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-187 matching events found
+180 matching events found
 No baseline correction applied
-    Original shape: (187, 234, 641)
+    Original shape: (180, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 187 valid trials out of 187
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 180 valid trials out of 180
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-191 matching events found
+196 matching events found
 No baseline correction applied
-    Original shape: (191, 234, 641)
+    Original shape: (196, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 191 valid trials out of 191
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-187 matching events found
+180 matching events found
 No baseline correction applied
-    Original shape: (187, 234, 641)
+    Original shape: (180, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 187 valid trials out of 187
+    Stimulus_s: 180 valid trials out of 180
 Loading data for subject: D0100
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -752,16 +685,7 @@ Not setting metadata
 451 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
-Not setting metadata
-208 matching events found
-No baseline correction applied
-    Original shape: (208, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_bigS: 208 valid trials out of 208
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
 213 matching events found
 No baseline correction applied
@@ -769,17 +693,17 @@ No baseline correction applied
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_r: 213 valid trials out of 213
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-208 matching events found
+201 matching events found
 No baseline correction applied
-    Original shape: (208, 222, 641)
+    Original shape: (201, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 208 valid trials out of 208
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_s: 201 valid trials out of 201
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
 213 matching events found
 No baseline correction applied
@@ -787,7 +711,16 @@ No baseline correction applied
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
+    Stimulus_r: 213 valid trials out of 213
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
+Not setting metadata
+201 matching events found
+No baseline correction applied
+    Original shape: (201, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_s: 201 valid trials out of 201
 Loading data for subject: D0102
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -805,42 +738,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-149 matching events found
+166 matching events found
 No baseline correction applied
-    Original shape: (149, 220, 641)
+    Original shape: (166, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 149 valid trials out of 149
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 166 valid trials out of 166
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-150 matching events found
+133 matching events found
 No baseline correction applied
-    Original shape: (150, 220, 641)
+    Original shape: (133, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 150 valid trials out of 150
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 133 valid trials out of 133
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-149 matching events found
+166 matching events found
 No baseline correction applied
-    Original shape: (149, 220, 641)
+    Original shape: (166, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 149 valid trials out of 149
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 166 valid trials out of 166
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-150 matching events found
+133 matching events found
 No baseline correction applied
-    Original shape: (150, 220, 641)
+    Original shape: (133, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 150 valid trials out of 150
+    Stimulus_s: 133 valid trials out of 133
 Loading data for subject: D0103
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -858,42 +791,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-176 matching events found
+196 matching events found
 No baseline correction applied
-    Original shape: (176, 222, 641)
+    Original shape: (196, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 176 valid trials out of 176
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-183 matching events found
+162 matching events found
 No baseline correction applied
-    Original shape: (183, 222, 641)
+    Original shape: (162, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 183 valid trials out of 183
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 162 valid trials out of 162
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-176 matching events found
+196 matching events found
 No baseline correction applied
-    Original shape: (176, 222, 641)
+    Original shape: (196, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 176 valid trials out of 176
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 196 valid trials out of 196
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-183 matching events found
+162 matching events found
 No baseline correction applied
-    Original shape: (183, 222, 641)
+    Original shape: (162, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 183 valid trials out of 183
+    Stimulus_s: 162 valid trials out of 162
 Loading data for subject: D0107A
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -911,42 +844,42 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-183 matching events found
+201 matching events found
 No baseline correction applied
-    Original shape: (183, 164, 641)
+    Original shape: (201, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 183 valid trials out of 183
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 201 valid trials out of 201
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-211 matching events found
+188 matching events found
 No baseline correction applied
-    Original shape: (211, 164, 641)
+    Original shape: (188, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 211 valid trials out of 211
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 188 valid trials out of 188
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-183 matching events found
+201 matching events found
 No baseline correction applied
-    Original shape: (183, 164, 641)
+    Original shape: (201, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 183 valid trials out of 183
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 201 valid trials out of 201
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-211 matching events found
+188 matching events found
 No baseline correction applied
-    Original shape: (211, 164, 641)
+    Original shape: (188, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 211 valid trials out of 211
+    Stimulus_s: 188 valid trials out of 188
 Loading data for subject: D0110
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -964,42 +897,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-226 matching events found
+220 matching events found
 No baseline correction applied
-    Original shape: (226, 226, 641)
+    Original shape: (220, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 226 valid trials out of 226
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 220 valid trials out of 220
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-213 matching events found
+215 matching events found
 No baseline correction applied
-    Original shape: (213, 226, 641)
+    Original shape: (215, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 215 valid trials out of 215
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-226 matching events found
+220 matching events found
 No baseline correction applied
-    Original shape: (226, 226, 641)
+    Original shape: (220, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 226 valid trials out of 226
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 220 valid trials out of 220
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-213 matching events found
+215 matching events found
 No baseline correction applied
-    Original shape: (213, 226, 641)
+    Original shape: (215, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 213 valid trials out of 213
+    Stimulus_s: 215 valid trials out of 215
 Loading data for subject: D0116
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1017,42 +950,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-195 matching events found
+212 matching events found
 No baseline correction applied
-    Original shape: (195, 219, 641)
+    Original shape: (212, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 195 valid trials out of 195
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 212 valid trials out of 212
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-215 matching events found
+194 matching events found
 No baseline correction applied
-    Original shape: (215, 219, 641)
+    Original shape: (194, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 215 valid trials out of 215
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 194 valid trials out of 194
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-195 matching events found
+212 matching events found
 No baseline correction applied
-    Original shape: (195, 219, 641)
+    Original shape: (212, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 195 valid trials out of 195
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 212 valid trials out of 212
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-215 matching events found
+194 matching events found
 No baseline correction applied
-    Original shape: (215, 219, 641)
+    Original shape: (194, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 215 valid trials out of 215
+    Stimulus_s: 194 valid trials out of 194
 Loading data for subject: D0117
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1070,42 +1003,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-129 matching events found
+156 matching events found
 No baseline correction applied
-    Original shape: (129, 199, 641)
+    Original shape: (156, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 129 valid trials out of 129
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 156 valid trials out of 156
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-154 matching events found
+125 matching events found
 No baseline correction applied
-    Original shape: (154, 199, 641)
+    Original shape: (125, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 154 valid trials out of 154
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+    Stimulus_s: 125 valid trials out of 125
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-129 matching events found
+156 matching events found
 No baseline correction applied
-    Original shape: (129, 199, 641)
+    Original shape: (156, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 129 valid trials out of 129
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 156 valid trials out of 156
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
-154 matching events found
+125 matching events found
 No baseline correction applied
-    Original shape: (154, 199, 641)
+    Original shape: (125, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 154 valid trials out of 154
+    Stimulus_s: 125 valid trials out of 125
 Loading data for subject: D0121
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1123,34 +1056,16 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
 Not setting metadata
-207 matching events found
+204 matching events found
 No baseline correction applied
-    Original shape: (207, 204, 641)
+    Original shape: (204, 204, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigS: 207 valid trials out of 207
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
-Not setting metadata
-193 matching events found
-No baseline correction applied
-    Original shape: (193, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_bigH: 193 valid trials out of 193
-  Loading condition: Stimulus_bigS with parameters: {'BIDS_events': ['Stimulus/BigLetters'], 'bigLetter': 's'}
-Not setting metadata
-207 matching events found
-No baseline correction applied
-    Original shape: (207, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_bigS: 207 valid trials out of 207
-  Loading condition: Stimulus_bigH with parameters: {'BIDS_events': ['Stimulus/BigLetterh'], 'bigLetter': 'h'}
+    Stimulus_r: 204 valid trials out of 204
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
 Not setting metadata
 193 matching events found
 No baseline correction applied
@@ -1158,297 +1073,175 @@ No baseline correction applied
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_bigH: 193 valid trials out of 193
-ROI 'dlpfc': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
-  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
-in roi dlpfc, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI dlpfc, LabeledArray shape: (2, 234, 12, 641)
-in roi dlpfc, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi dlpfc, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI dlpfc, LabeledArray shape: (2, 234, 33, 641)
-in roi dlpfc, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
-in roi dlpfc, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
-in roi dlpfc, subject D0090 has 193 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi dlpfc, subject D0094 has 191 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI dlpfc, LabeledArray shape: (2, 234, 14, 641)
-in roi dlpfc, subject D0102 has 149 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
-in roi dlpfc, subject D0103 has 176 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI dlpfc, LabeledArray shape: (2, 234, 6, 641)
-in roi dlpfc, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI dlpfc, LabeledArray shape: (2, 234, 22, 641)
-in roi dlpfc, subject D0110 has 226 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
-in roi dlpfc, subject D0116 has 195 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI dlpfc, LabeledArray shape: (2, 234, 21, 641)
-in roi dlpfc, subject D0117 has 129 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI dlpfc, LabeledArray shape: (2, 234, 10, 641)
-in roi dlpfc, subject D0121 has 207 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI dlpfc, LabeledArray shape: (2, 234, 51, 641)
+    Stimulus_s: 193 valid trials out of 193
+  Loading condition: Stimulus_r with parameters: {'BIDS_events': ['Stimulus/r25.0/Accuracy1.0', 'Stimulus/r75.0/Accuracy1.0'], 'switchType': 'r'}
+Not setting metadata
+204 matching events found
+No baseline correction applied
+    Original shape: (204, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_r: 204 valid trials out of 204
+  Loading condition: Stimulus_s with parameters: {'BIDS_events': ['Stimulus/s25.0/Accuracy1.0', 'Stimulus/s75.0/Accuracy1.0'], 'switchType': 's'}
+Not setting metadata
+193 matching events found
+No baseline correction applied
+    Original shape: (193, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_s: 193 valid trials out of 193
 ROI 'acc': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 207 trials from subjects ['D0121']
-  Condition 'Stimulus_bigH': 215 trials from subjects ['D0116']
-in roi acc, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi acc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI acc, LabeledArray shape: (2, 215, 1, 641)
-in roi acc, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi acc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI acc, LabeledArray shape: (2, 215, 16, 641)
-in roi acc, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi acc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI acc, LabeledArray shape: (2, 215, 7, 641)
-in roi acc, subject D0094 has 191 trials for condition Stimulus_bigS
-in roi acc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI acc, LabeledArray shape: (2, 215, 2, 641)
-in roi acc, subject D0102 has 149 trials for condition Stimulus_bigS
-in roi acc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI acc, LabeledArray shape: (2, 215, 3, 641)
-in roi acc, subject D0103 has 176 trials for condition Stimulus_bigS
-in roi acc, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI acc, LabeledArray shape: (2, 215, 2, 641)
-in roi acc, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi acc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI acc, LabeledArray shape: (2, 215, 9, 641)
-in roi acc, subject D0116 has 195 trials for condition Stimulus_bigS
-in roi acc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI acc, LabeledArray shape: (2, 215, 10, 641)
-in roi acc, subject D0117 has 129 trials for condition Stimulus_bigS
-in roi acc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI acc, LabeledArray shape: (2, 215, 2, 641)
-in roi acc, subject D0121 has 207 trials for condition Stimulus_bigS
-in roi acc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI acc, LabeledArray shape: (2, 215, 19, 641)
+  Condition 'Stimulus_r': 212 trials from subjects ['D0116']
+  Condition 'Stimulus_s': 194 trials from subjects ['D0116']
+in roi acc, subject D0063 has 200 trials for condition Stimulus_r
+in roi acc, subject D0063 has 182 trials for condition Stimulus_s
+Subject D0063, ROI acc, LabeledArray shape: (2, 212, 5, 641)
+in roi acc, subject D0102 has 166 trials for condition Stimulus_r
+in roi acc, subject D0102 has 133 trials for condition Stimulus_s
+Subject D0102, ROI acc, LabeledArray shape: (2, 212, 1, 641)
+in roi acc, subject D0103 has 196 trials for condition Stimulus_r
+in roi acc, subject D0103 has 162 trials for condition Stimulus_s
+Subject D0103, ROI acc, LabeledArray shape: (2, 212, 2, 641)
+in roi acc, subject D0107A has 201 trials for condition Stimulus_r
+in roi acc, subject D0107A has 188 trials for condition Stimulus_s
+Subject D0107A, ROI acc, LabeledArray shape: (2, 212, 4, 641)
+in roi acc, subject D0116 has 212 trials for condition Stimulus_r
+in roi acc, subject D0116 has 194 trials for condition Stimulus_s
+Subject D0116, ROI acc, LabeledArray shape: (2, 212, 1, 641)
+in roi acc, subject D0121 has 204 trials for condition Stimulus_r
+in roi acc, subject D0121 has 193 trials for condition Stimulus_s
+Subject D0121, ROI acc, LabeledArray shape: (2, 212, 6, 641)
 ROI 'parietal': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
-  Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
-in roi parietal, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi parietal, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
-in roi parietal, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi parietal, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
-in roi parietal, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi parietal, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI parietal, LabeledArray shape: (2, 226, 6, 641)
-in roi parietal, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi parietal, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
-in roi parietal, subject D0077 has 174 trials for condition Stimulus_bigS
-in roi parietal, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI parietal, LabeledArray shape: (2, 226, 14, 641)
-in roi parietal, subject D0100 has 208 trials for condition Stimulus_bigS
-in roi parietal, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
-in roi parietal, subject D0110 has 226 trials for condition Stimulus_bigS
-in roi parietal, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI parietal, LabeledArray shape: (2, 226, 8, 641)
+  Condition 'Stimulus_r': 220 trials from subjects ['D0110']
+  Condition 'Stimulus_s': 215 trials from subjects ['D0110']
+in roi parietal, subject D0057 has 212 trials for condition Stimulus_r
+in roi parietal, subject D0057 has 189 trials for condition Stimulus_s
+Subject D0057, ROI parietal, LabeledArray shape: (2, 220, 4, 641)
+in roi parietal, subject D0059 has 215 trials for condition Stimulus_r
+in roi parietal, subject D0059 has 209 trials for condition Stimulus_s
+Subject D0059, ROI parietal, LabeledArray shape: (2, 220, 3, 641)
+in roi parietal, subject D0071 has 216 trials for condition Stimulus_r
+in roi parietal, subject D0071 has 209 trials for condition Stimulus_s
+Subject D0071, ROI parietal, LabeledArray shape: (2, 220, 2, 641)
+in roi parietal, subject D0077 has 192 trials for condition Stimulus_r
+in roi parietal, subject D0077 has 160 trials for condition Stimulus_s
+Subject D0077, ROI parietal, LabeledArray shape: (2, 220, 4, 641)
+in roi parietal, subject D0110 has 220 trials for condition Stimulus_r
+in roi parietal, subject D0110 has 215 trials for condition Stimulus_s
+Subject D0110, ROI parietal, LabeledArray shape: (2, 220, 2, 641)
 ROI 'lpfc': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
-  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
-in roi lpfc, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi lpfc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI lpfc, LabeledArray shape: (2, 234, 17, 641)
-in roi lpfc, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi lpfc, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi lpfc, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi lpfc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI lpfc, LabeledArray shape: (2, 234, 36, 641)
-in roi lpfc, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi lpfc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI lpfc, LabeledArray shape: (2, 234, 9, 641)
-in roi lpfc, subject D0069 has 152 trials for condition Stimulus_bigS
-in roi lpfc, subject D0069 has 178 trials for condition Stimulus_bigH
-Subject D0069, ROI lpfc, LabeledArray shape: (2, 234, 1, 641)
-in roi lpfc, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi lpfc, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI lpfc, LabeledArray shape: (2, 234, 13, 641)
-in roi lpfc, subject D0090 has 193 trials for condition Stimulus_bigS
-in roi lpfc, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI lpfc, LabeledArray shape: (2, 234, 8, 641)
-in roi lpfc, subject D0094 has 191 trials for condition Stimulus_bigS
-in roi lpfc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI lpfc, LabeledArray shape: (2, 234, 28, 641)
-in roi lpfc, subject D0102 has 149 trials for condition Stimulus_bigS
-in roi lpfc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi lpfc, subject D0103 has 176 trials for condition Stimulus_bigS
-in roi lpfc, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
-in roi lpfc, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi lpfc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI lpfc, LabeledArray shape: (2, 234, 25, 641)
-in roi lpfc, subject D0110 has 226 trials for condition Stimulus_bigS
-in roi lpfc, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi lpfc, subject D0116 has 195 trials for condition Stimulus_bigS
-in roi lpfc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI lpfc, LabeledArray shape: (2, 234, 30, 641)
-in roi lpfc, subject D0117 has 129 trials for condition Stimulus_bigS
-in roi lpfc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
-in roi lpfc, subject D0121 has 207 trials for condition Stimulus_bigS
-in roi lpfc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI lpfc, LabeledArray shape: (2, 234, 61, 641)
-ROI 'v1': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 208 trials from subjects ['D0100']
-  Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
-in roi v1, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi v1, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi v1, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi v1, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI v1, LabeledArray shape: (2, 223, 3, 641)
-in roi v1, subject D0077 has 174 trials for condition Stimulus_bigS
-in roi v1, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0100 has 208 trials for condition Stimulus_bigS
-in roi v1, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI v1, LabeledArray shape: (2, 223, 12, 641)
+  Condition 'Stimulus_r': 220 trials from subjects ['D0110']
+  Condition 'Stimulus_s': 215 trials from subjects ['D0110']
+in roi lpfc, subject D0057 has 212 trials for condition Stimulus_r
+in roi lpfc, subject D0057 has 189 trials for condition Stimulus_s
+Subject D0057, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0059 has 215 trials for condition Stimulus_r
+in roi lpfc, subject D0059 has 209 trials for condition Stimulus_s
+Subject D0059, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0063 has 200 trials for condition Stimulus_r
+in roi lpfc, subject D0063 has 182 trials for condition Stimulus_s
+Subject D0063, ROI lpfc, LabeledArray shape: (2, 220, 11, 641)
+in roi lpfc, subject D0065 has 173 trials for condition Stimulus_r
+in roi lpfc, subject D0065 has 140 trials for condition Stimulus_s
+Subject D0065, ROI lpfc, LabeledArray shape: (2, 220, 1, 641)
+in roi lpfc, subject D0071 has 216 trials for condition Stimulus_r
+in roi lpfc, subject D0071 has 209 trials for condition Stimulus_s
+Subject D0071, ROI lpfc, LabeledArray shape: (2, 220, 11, 641)
+in roi lpfc, subject D0090 has 217 trials for condition Stimulus_r
+in roi lpfc, subject D0090 has 204 trials for condition Stimulus_s
+Subject D0090, ROI lpfc, LabeledArray shape: (2, 220, 2, 641)
+in roi lpfc, subject D0094 has 196 trials for condition Stimulus_r
+in roi lpfc, subject D0094 has 180 trials for condition Stimulus_s
+Subject D0094, ROI lpfc, LabeledArray shape: (2, 220, 11, 641)
+in roi lpfc, subject D0102 has 166 trials for condition Stimulus_r
+in roi lpfc, subject D0102 has 133 trials for condition Stimulus_s
+Subject D0102, ROI lpfc, LabeledArray shape: (2, 220, 3, 641)
+in roi lpfc, subject D0103 has 196 trials for condition Stimulus_r
+in roi lpfc, subject D0103 has 162 trials for condition Stimulus_s
+Subject D0103, ROI lpfc, LabeledArray shape: (2, 220, 8, 641)
+in roi lpfc, subject D0107A has 201 trials for condition Stimulus_r
+in roi lpfc, subject D0107A has 188 trials for condition Stimulus_s
+Subject D0107A, ROI lpfc, LabeledArray shape: (2, 220, 14, 641)
+in roi lpfc, subject D0110 has 220 trials for condition Stimulus_r
+in roi lpfc, subject D0110 has 215 trials for condition Stimulus_s
+Subject D0110, ROI lpfc, LabeledArray shape: (2, 220, 2, 641)
+in roi lpfc, subject D0116 has 212 trials for condition Stimulus_r
+in roi lpfc, subject D0116 has 194 trials for condition Stimulus_s
+Subject D0116, ROI lpfc, LabeledArray shape: (2, 220, 18, 641)
+in roi lpfc, subject D0117 has 156 trials for condition Stimulus_r
+in roi lpfc, subject D0117 has 125 trials for condition Stimulus_s
+Subject D0117, ROI lpfc, LabeledArray shape: (2, 220, 5, 641)
+in roi lpfc, subject D0121 has 204 trials for condition Stimulus_r
+in roi lpfc, subject D0121 has 193 trials for condition Stimulus_s
+Subject D0121, ROI lpfc, LabeledArray shape: (2, 220, 20, 641)
 ROI 'occ': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 214 trials from subjects ['D0059']
-  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
-in roi occ, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi occ, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-in roi occ, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi occ, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-in roi occ, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi occ, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI occ, LabeledArray shape: (2, 234, 2, 641)
-in roi occ, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi occ, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI occ, LabeledArray shape: (2, 234, 3, 641)
-in roi occ, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi occ, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI occ, LabeledArray shape: (2, 234, 4, 641)
-in roi occ, subject D0077 has 174 trials for condition Stimulus_bigS
-in roi occ, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI occ, LabeledArray shape: (2, 234, 9, 641)
-in roi occ, subject D0090 has 193 trials for condition Stimulus_bigS
-in roi occ, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI occ, LabeledArray shape: (2, 234, 3, 641)
-in roi occ, subject D0100 has 208 trials for condition Stimulus_bigS
-in roi occ, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI occ, LabeledArray shape: (2, 234, 43, 641)
-in roi occ, subject D0102 has 149 trials for condition Stimulus_bigS
-in roi occ, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI occ, LabeledArray shape: (2, 234, 2, 641)
-in roi occ, subject D0103 has 176 trials for condition Stimulus_bigS
-in roi occ, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI occ, LabeledArray shape: (2, 234, 4, 641)
-in roi occ, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi occ, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (300, 197, 641)
-  Trials: 300
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 21/300 (7.0%)
-  Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 21/300 (7.0%)
-  Trials with both types: 0/300 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 197.0
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 7.00%
-
---- NaN Impact by Condition ---
-  bigS: 21/150 trials with NaNs (14.0%)
-  bigH: 0/150 trials with NaNs (0.0%)
-
-After removing NaN trials:
-  Trials kept: 279/300 (93.0%)
-  New data shape: (279, 197, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
-
-Final balanced data shape: (258, 197, 641)
-============================================================
-
+  Condition 'Stimulus_r': 217 trials from subjects ['D0090']
+  Condition 'Stimulus_s': 209 trials from subjects ['D0071']
+in roi occ, subject D0065 has 173 trials for condition Stimulus_r
+in roi occ, subject D0065 has 140 trials for condition Stimulus_s
+Subject D0065, ROI occ, LabeledArray shape: (2, 217, 3, 641)
+in roi occ, subject D0071 has 216 trials for condition Stimulus_r
+in roi occ, subject D0071 has 209 trials for condition Stimulus_s
+Subject D0071, ROI occ, LabeledArray shape: (2, 217, 3, 641)
+in roi occ, subject D0077 has 192 trials for condition Stimulus_r
+in roi occ, subject D0077 has 160 trials for condition Stimulus_s
+Subject D0077, ROI occ, LabeledArray shape: (2, 217, 5, 641)
+in roi occ, subject D0090 has 217 trials for condition Stimulus_r
+in roi occ, subject D0090 has 204 trials for condition Stimulus_s
+Subject D0090, ROI occ, LabeledArray shape: (2, 217, 2, 641)
+in roi occ, subject D0100 has 213 trials for condition Stimulus_r
+in roi occ, subject D0100 has 201 trials for condition Stimulus_s
+Subject D0100, ROI occ, LabeledArray shape: (2, 217, 28, 641)
+in roi occ, subject D0102 has 166 trials for condition Stimulus_r
+in roi occ, subject D0102 has 133 trials for condition Stimulus_s
+Subject D0102, ROI occ, LabeledArray shape: (2, 217, 1, 641)
+in roi occ, subject D0103 has 196 trials for condition Stimulus_r
+in roi occ, subject D0103 has 162 trials for condition Stimulus_s
+Subject D0103, ROI occ, LabeledArray shape: (2, 217, 4, 641)
 Processing ROI: acc
 
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (300, 71, 641)
-  Trials: 300
-  Channels: 71
+Initial concatenated data shape: (332, 19, 641)
+  Trials: 332
+  Channels: 19
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/71
+Missing Channels (all NaN across all trials): 0/19
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 21/300 (7.0%)
-  Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 21/300 (7.0%)
-  Trials with both types: 0/300 (0.0%)
+  Trials with ANY NaN: 33/332 (9.9%)
+  Trials with outlier NaNs (sparse): 0/332 (0.0%)
+  Trials with missing channel NaNs (dense): 33/332 (9.9%)
+  Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 71.0
-  Max missing channels in a trial: 71
+  Mean missing channels per affected trial: 19.0
+  Max missing channels in a trial: 19
 
-Overall NaN Percentage: 7.00%
+Overall NaN Percentage: 9.94%
 
 --- NaN Impact by Condition ---
-  bigS: 21/150 trials with NaNs (14.0%)
-  bigH: 0/150 trials with NaNs (0.0%)
+  ['Stimulus_r']: 0/166 trials with NaNs (0.0%)
+  ['Stimulus_s']: 33/166 trials with NaNs (19.9%)
 
 After removing NaN trials:
-  Trials kept: 279/300 (93.0%)
-  New data shape: (279, 71, 641)
+  Trials kept: 299/332 (90.1%)
+  New data shape: (299, 19, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
+  Condition ['Stimulus_r']: 166 trials
+  Condition ['Stimulus_s']: 133 trials
 
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
+Subsampling to min trial count: 133
+  Subsampled condition 0: 166 -> 133
 
-Final balanced data shape: (258, 71, 641)
+Final balanced data shape: (266, 19, 641)
 ============================================================
 
 Processing ROI: parietal
@@ -1456,43 +1249,43 @@ Processing ROI: parietal
 ============================================================
 ROI: parietal
 ============================================================
-Initial concatenated data shape: (344, 40, 641)
-  Trials: 344
-  Channels: 40
+Initial concatenated data shape: (384, 15, 641)
+  Trials: 384
+  Channels: 15
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/40
+Missing Channels (all NaN across all trials): 0/15
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 28/344 (8.1%)
-  Trials with outlier NaNs (sparse): 0/344 (0.0%)
-  Trials with missing channel NaNs (dense): 28/344 (8.1%)
-  Trials with both types: 0/344 (0.0%)
+  Trials with ANY NaN: 32/384 (8.3%)
+  Trials with outlier NaNs (sparse): 0/384 (0.0%)
+  Trials with missing channel NaNs (dense): 32/384 (8.3%)
+  Trials with both types: 0/384 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 40.0
-  Max missing channels in a trial: 40
+  Mean missing channels per affected trial: 15.0
+  Max missing channels in a trial: 15
 
-Overall NaN Percentage: 8.14%
+Overall NaN Percentage: 8.33%
 
 --- NaN Impact by Condition ---
-  bigS: 28/172 trials with NaNs (16.3%)
-  bigH: 0/172 trials with NaNs (0.0%)
+  ['Stimulus_r']: 0/192 trials with NaNs (0.0%)
+  ['Stimulus_s']: 32/192 trials with NaNs (16.7%)
 
 After removing NaN trials:
-  Trials kept: 316/344 (91.9%)
-  New data shape: (316, 40, 641)
+  Trials kept: 352/384 (91.7%)
+  New data shape: (352, 15, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition ['Stimulus_r']: 192 trials
+  Condition ['Stimulus_s']: 160 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 160
+  Subsampled condition 0: 192 -> 160
 
-Final balanced data shape: (288, 40, 641)
+Final balanced data shape: (320, 15, 641)
 ============================================================
 
 Processing ROI: lpfc
@@ -1500,87 +1293,43 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (300, 265, 641)
-  Trials: 300
-  Channels: 265
+Initial concatenated data shape: (312, 116, 641)
+  Trials: 312
+  Channels: 116
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/265
+Missing Channels (all NaN across all trials): 0/116
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 21/300 (7.0%)
-  Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 21/300 (7.0%)
-  Trials with both types: 0/300 (0.0%)
+  Trials with ANY NaN: 31/312 (9.9%)
+  Trials with outlier NaNs (sparse): 0/312 (0.0%)
+  Trials with missing channel NaNs (dense): 31/312 (9.9%)
+  Trials with both types: 0/312 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 265.0
-  Max missing channels in a trial: 265
+  Mean missing channels per affected trial: 116.0
+  Max missing channels in a trial: 116
 
-Overall NaN Percentage: 7.00%
-
---- NaN Impact by Condition ---
-  bigS: 21/150 trials with NaNs (14.0%)
-  bigH: 0/150 trials with NaNs (0.0%)
-
-After removing NaN trials:
-  Trials kept: 279/300 (93.0%)
-  New data shape: (279, 265, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
-
-Final balanced data shape: (258, 265, 641)
-============================================================
-
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (344, 18, 641)
-  Trials: 344
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 28/344 (8.1%)
-  Trials with outlier NaNs (sparse): 0/344 (0.0%)
-  Trials with missing channel NaNs (dense): 28/344 (8.1%)
-  Trials with both types: 0/344 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 18.0
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 8.14%
+Overall NaN Percentage: 9.94%
 
 --- NaN Impact by Condition ---
-  bigS: 28/172 trials with NaNs (16.3%)
-  bigH: 0/172 trials with NaNs (0.0%)
+  ['Stimulus_r']: 0/156 trials with NaNs (0.0%)
+  ['Stimulus_s']: 31/156 trials with NaNs (19.9%)
 
 After removing NaN trials:
-  Trials kept: 316/344 (91.9%)
-  New data shape: (316, 18, 641)
+  Trials kept: 281/312 (90.1%)
+  New data shape: (281, 116, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition ['Stimulus_r']: 156 trials
+  Condition ['Stimulus_s']: 125 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 125
+  Subsampled condition 0: 156 -> 125
 
-Final balanced data shape: (288, 18, 641)
+Final balanced data shape: (250, 116, 641)
 ============================================================
 
 Processing ROI: occ
@@ -1588,350 +1337,248 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (300, 73, 641)
-  Trials: 300
-  Channels: 73
+Initial concatenated data shape: (332, 46, 641)
+  Trials: 332
+  Channels: 46
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/73
+Missing Channels (all NaN across all trials): 0/46
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 6/300 (2.0%)
-  Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 6/300 (2.0%)
-  Trials with both types: 0/300 (0.0%)
+  Trials with ANY NaN: 33/332 (9.9%)
+  Trials with outlier NaNs (sparse): 0/332 (0.0%)
+  Trials with missing channel NaNs (dense): 33/332 (9.9%)
+  Trials with both types: 0/332 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 73.0
-  Max missing channels in a trial: 73
+  Mean missing channels per affected trial: 46.0
+  Max missing channels in a trial: 46
 
-Overall NaN Percentage: 2.00%
-
---- NaN Impact by Condition ---
-  bigS: 6/150 trials with NaNs (4.0%)
-  bigH: 0/150 trials with NaNs (0.0%)
-
-After removing NaN trials:
-  Trials kept: 294/300 (98.0%)
-  New data shape: (294, 73, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 144
-  Subsampled condition 1: 150 -> 144
-
-Final balanced data shape: (288, 73, 641)
-============================================================
-
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (468, 197, 641)
-  Trials: 468
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 189/468 (40.4%)
-  Trials with outlier NaNs (sparse): 0/468 (0.0%)
-  Trials with missing channel NaNs (dense): 189/468 (40.4%)
-  Trials with both types: 0/468 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 82.4
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 16.90%
+Overall NaN Percentage: 9.94%
 
 --- NaN Impact by Condition ---
-  bigS: 105/234 trials with NaNs (44.9%)
-  bigH: 84/234 trials with NaNs (35.9%)
+  ['Stimulus_r']: 0/166 trials with NaNs (0.0%)
+  ['Stimulus_s']: 33/166 trials with NaNs (19.9%)
 
 After removing NaN trials:
-  Trials kept: 279/468 (59.6%)
-  New data shape: (279, 197, 641)
+  Trials kept: 299/332 (90.1%)
+  New data shape: (299, 46, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
+  Condition ['Stimulus_r']: 166 trials
+  Condition ['Stimulus_s']: 133 trials
 
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
+Subsampling to min trial count: 133
+  Subsampled condition 0: 166 -> 133
 
-Final balanced data shape: (258, 197, 641)
+Final balanced data shape: (266, 46, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
 Processing ROI: acc
 
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (430, 71, 641)
-  Trials: 430
-  Channels: 71
+Initial concatenated data shape: (424, 19, 641)
+  Trials: 424
+  Channels: 19
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/71
+Missing Channels (all NaN across all trials): 0/19
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 151/430 (35.1%)
-  Trials with outlier NaNs (sparse): 0/430 (0.0%)
-  Trials with missing channel NaNs (dense): 151/430 (35.1%)
-  Trials with both types: 0/430 (0.0%)
+  Trials with ANY NaN: 125/424 (29.5%)
+  Trials with outlier NaNs (sparse): 0/424 (0.0%)
+  Trials with missing channel NaNs (dense): 125/424 (29.5%)
+  Trials with both types: 0/424 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 23.2
-  Max missing channels in a trial: 71
+  Mean missing channels per affected trial: 6.3
+  Max missing channels in a trial: 19
 
-Overall NaN Percentage: 11.48%
+Overall NaN Percentage: 9.77%
 
 --- NaN Impact by Condition ---
-  bigS: 86/215 trials with NaNs (40.0%)
-  bigH: 65/215 trials with NaNs (30.2%)
+  ['Stimulus_r']: 46/212 trials with NaNs (21.7%)
+  ['Stimulus_s']: 79/212 trials with NaNs (37.3%)
 
 After removing NaN trials:
-  Trials kept: 279/430 (64.9%)
-  New data shape: (279, 71, 641)
+  Trials kept: 299/424 (70.5%)
+  New data shape: (299, 19, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
+  Condition ['Stimulus_r']: 166 trials
+  Condition ['Stimulus_s']: 133 trials
 
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
+Subsampling to min trial count: 133
+  Subsampled condition 0: 166 -> 133
 
-Final balanced data shape: (258, 71, 641)
+Final balanced data shape: (266, 19, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: parietal
 
 ============================================================
 ROI: parietal
 ============================================================
-Initial concatenated data shape: (452, 40, 641)
-  Trials: 452
-  Channels: 40
+Initial concatenated data shape: (440, 15, 641)
+  Trials: 440
+  Channels: 15
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/40
+Missing Channels (all NaN across all trials): 0/15
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 136/452 (30.1%)
-  Trials with outlier NaNs (sparse): 0/452 (0.0%)
-  Trials with missing channel NaNs (dense): 136/452 (30.1%)
-  Trials with both types: 0/452 (0.0%)
+  Trials with ANY NaN: 88/440 (20.0%)
+  Trials with outlier NaNs (sparse): 0/440 (0.0%)
+  Trials with missing channel NaNs (dense): 88/440 (20.0%)
+  Trials with both types: 0/440 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 19.7
-  Max missing channels in a trial: 40
+  Mean missing channels per affected trial: 6.8
+  Max missing channels in a trial: 15
 
-Overall NaN Percentage: 14.79%
+Overall NaN Percentage: 9.03%
 
 --- NaN Impact by Condition ---
-  bigS: 82/226 trials with NaNs (36.3%)
-  bigH: 54/226 trials with NaNs (23.9%)
+  ['Stimulus_r']: 28/220 trials with NaNs (12.7%)
+  ['Stimulus_s']: 60/220 trials with NaNs (27.3%)
 
 After removing NaN trials:
-  Trials kept: 316/452 (69.9%)
-  New data shape: (316, 40, 641)
+  Trials kept: 352/440 (80.0%)
+  New data shape: (352, 15, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition ['Stimulus_r']: 192 trials
+  Condition ['Stimulus_s']: 160 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 160
+  Subsampled condition 0: 192 -> 160
 
-Final balanced data shape: (288, 40, 641)
+Final balanced data shape: (320, 15, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: lpfc
 
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (468, 265, 641)
-  Trials: 468
-  Channels: 265
+Initial concatenated data shape: (440, 116, 641)
+  Trials: 440
+  Channels: 116
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/265
+Missing Channels (all NaN across all trials): 0/116
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 189/468 (40.4%)
-  Trials with outlier NaNs (sparse): 0/468 (0.0%)
-  Trials with missing channel NaNs (dense): 189/468 (40.4%)
-  Trials with both types: 0/468 (0.0%)
+  Trials with ANY NaN: 159/440 (36.1%)
+  Trials with outlier NaNs (sparse): 0/440 (0.0%)
+  Trials with missing channel NaNs (dense): 159/440 (36.1%)
+  Trials with both types: 0/440 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 110.8
-  Max missing channels in a trial: 265
+  Mean missing channels per affected trial: 37.8
+  Max missing channels in a trial: 116
 
-Overall NaN Percentage: 16.89%
-
---- NaN Impact by Condition ---
-  bigS: 105/234 trials with NaNs (44.9%)
-  bigH: 84/234 trials with NaNs (35.9%)
-
-After removing NaN trials:
-  Trials kept: 279/468 (59.6%)
-  New data shape: (279, 265, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
-
-Final balanced data shape: (258, 265, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (446, 18, 641)
-  Trials: 446
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 130/446 (29.1%)
-  Trials with outlier NaNs (sparse): 0/446 (0.0%)
-  Trials with missing channel NaNs (dense): 130/446 (29.1%)
-  Trials with both types: 0/446 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 4.7
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 7.64%
+Overall NaN Percentage: 11.79%
 
 --- NaN Impact by Condition ---
-  bigS: 79/223 trials with NaNs (35.4%)
-  bigH: 51/223 trials with NaNs (22.9%)
+  ['Stimulus_r']: 64/220 trials with NaNs (29.1%)
+  ['Stimulus_s']: 95/220 trials with NaNs (43.2%)
 
 After removing NaN trials:
-  Trials kept: 316/446 (70.9%)
-  New data shape: (316, 18, 641)
+  Trials kept: 281/440 (63.9%)
+  New data shape: (281, 116, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition ['Stimulus_r']: 156 trials
+  Condition ['Stimulus_s']: 125 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 125
+  Subsampled condition 0: 156 -> 125
 
-Final balanced data shape: (288, 18, 641)
+Final balanced data shape: (250, 116, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: occ
 
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (468, 73, 641)
-  Trials: 468
-  Channels: 73
+Initial concatenated data shape: (434, 46, 641)
+  Trials: 434
+  Channels: 46
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/73
+Missing Channels (all NaN across all trials): 0/46
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 174/468 (37.2%)
-  Trials with outlier NaNs (sparse): 0/468 (0.0%)
-  Trials with missing channel NaNs (dense): 174/468 (37.2%)
-  Trials with both types: 0/468 (0.0%)
+  Trials with ANY NaN: 135/434 (31.1%)
+  Trials with outlier NaNs (sparse): 0/434 (0.0%)
+  Trials with missing channel NaNs (dense): 135/434 (31.1%)
+  Trials with both types: 0/434 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 28.1
-  Max missing channels in a trial: 73
+  Mean missing channels per affected trial: 13.5
+  Max missing channels in a trial: 46
 
-Overall NaN Percentage: 14.29%
+Overall NaN Percentage: 9.14%
 
 --- NaN Impact by Condition ---
-  bigS: 90/234 trials with NaNs (38.5%)
-  bigH: 84/234 trials with NaNs (35.9%)
+  ['Stimulus_r']: 51/217 trials with NaNs (23.5%)
+  ['Stimulus_s']: 84/217 trials with NaNs (38.7%)
 
 After removing NaN trials:
-  Trials kept: 294/468 (62.8%)
-  New data shape: (294, 73, 641)
+  Trials kept: 299/434 (68.9%)
+  New data shape: (299, 46, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 150 trials
+  Condition ['Stimulus_r']: 166 trials
+  Condition ['Stimulus_s']: 133 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 150 -> 144
+Subsampling to min trial count: 133
+  Subsampled condition 0: 166 -> 133
 
-Final balanced data shape: (288, 73, 641)
+Final balanced data shape: (266, 46, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/switchType/acc
 stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/dlpfc
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/switchType/parietal
 stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/acc
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/switchType/lpfc
 stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/parietal
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/switchType/occ
 stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/lpfc
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/v1
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/occ
 
 ✓ Analysis completed successfully!

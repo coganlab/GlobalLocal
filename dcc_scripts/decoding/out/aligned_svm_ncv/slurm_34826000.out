@@ -9,10 +9,11 @@ BANDPASS FILTERED DECODING ANALYSIS
 ======================================================================
 Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 Conditions:        ['Stimulus_bigS', 'Stimulus_bigH']
-ROIs:              ['dlpfc', 'acc', 'parietal', 'lpfc', 'v1', 'occ']
+ROIs:              ['acc', 'parietal', 'lpfc', 'occ']
 Permutations:      500
 P-threshold:       0.05
 Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       sig
 Explained variance: 0.8
 Balance method:     subsample
 Obs axs:            0
@@ -24,7 +25,7 @@ Decoding Parameters:
   Shuffle Permutations: 500
   Balance Method:    subsample
   Explained Variance:0.8
-  Window/Step (samp):64/16
+  Window/Step (samp):32/16
   Sampling Rate (Hz):256
 ----------------------------------------------------------------------
 Statistical Parameters:
@@ -54,40 +55,6 @@ Loaded significant channels for subject D0110
 Loaded significant channels for subject D0116
 Loaded significant channels for subject D0117
 Loaded significant channels for subject D0121
-For subject D0057, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14']
-For subject D0059, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
-For subject D0063, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
-For subject D0065, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14']
-For subject D0069, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0071, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
-For subject D0077, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0090, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16']
-For subject D0094, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
-For subject D0100, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
-For subject D0102, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFAM15']
-For subject D0103, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI18']
-For subject D0107A, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
-For subject D0110, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10']
-For subject D0116, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA15', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17']
-For subject D0117, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
-For subject D0121, G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10']
-Subject D0057 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RPI15', 'RPI14', 'RAMF13', 'RAMF14']
-Subject D0059 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
-Subject D0063 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF15', 'LMSF5', 'RAMF11', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI10', 'RMMF10']
-Subject D0065 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
-Subject D0069 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0071 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP16']
-Subject D0077 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0090 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA11']
-Subject D0094 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LIA11']
-Subject D0100 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0102 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAM15']
-Subject D0103 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14']
-Subject D0107A significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFOA18', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA13', 'RIA14', 'RIA15']
-Subject D0110 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10']
-Subject D0116 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
-Subject D0117 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA12', 'RINSA13']
-Subject D0121 significant G_front_middle, G_front_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6']
 For subject D0057, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['RAMF1']
 For subject D0059, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: []
 For subject D0063, G_and_S_cingul-Ant, G_and_S_cingul-Mid-Ant electrodes are: ['LASF1', 'LASF3', 'LASF7', 'LASF9', 'LMSF1', 'LMSF2', 'LMSF4', 'RMSF3', 'RMSF4', 'RMSF5', 'RMMF1', 'RAMF1', 'RAMF2', 'RMMF2', 'RMMF3', 'RMMF4']
@@ -190,40 +157,6 @@ Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_in
 Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
 Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA3', 'RINSA12', 'RINSA13']
 Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6', 'LFMI4', 'LFMI5']
-For subject D0057, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPIT1']
-For subject D0059, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0063, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0065, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RPMT1']
-For subject D0069, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0071, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['RTPI1', 'RO1', 'RO2']
-For subject D0077, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['ROPM1']
-For subject D0090, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0094, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0100, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2']
-For subject D0102, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0103, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0107A, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0110, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0116, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0117, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-For subject D0121, G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes are: []
-Subject D0057 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0059 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0063 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0065 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RPMT1']
-Subject D0069 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0071 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['RO1', 'RO2']
-Subject D0077 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['ROPM1']
-Subject D0090 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0094 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0100 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: ['LTOJ1', 'LOPM1', 'LTOJ3', 'LOMM3', 'LOMM4', 'LOMM5']
-Subject D0102 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0103 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0107A significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0110 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0116 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0117 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
-Subject D0121 significant G_oc-temp_med-Lingual, S_calcarine, G_cuneus electrodes: []
 For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
 For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
 For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
@@ -1159,84 +1092,27 @@ No baseline correction applied
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
     Stimulus_bigH: 193 valid trials out of 193
-ROI 'dlpfc': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
-  Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
-in roi dlpfc, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI dlpfc, LabeledArray shape: (2, 234, 12, 641)
-in roi dlpfc, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi dlpfc, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI dlpfc, LabeledArray shape: (2, 234, 33, 641)
-in roi dlpfc, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
-in roi dlpfc, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI dlpfc, LabeledArray shape: (2, 234, 8, 641)
-in roi dlpfc, subject D0090 has 193 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI dlpfc, LabeledArray shape: (2, 234, 5, 641)
-in roi dlpfc, subject D0094 has 191 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI dlpfc, LabeledArray shape: (2, 234, 14, 641)
-in roi dlpfc, subject D0102 has 149 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
-in roi dlpfc, subject D0103 has 176 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI dlpfc, LabeledArray shape: (2, 234, 6, 641)
-in roi dlpfc, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI dlpfc, LabeledArray shape: (2, 234, 22, 641)
-in roi dlpfc, subject D0110 has 226 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI dlpfc, LabeledArray shape: (2, 234, 1, 641)
-in roi dlpfc, subject D0116 has 195 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI dlpfc, LabeledArray shape: (2, 234, 21, 641)
-in roi dlpfc, subject D0117 has 129 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI dlpfc, LabeledArray shape: (2, 234, 10, 641)
-in roi dlpfc, subject D0121 has 207 trials for condition Stimulus_bigS
-in roi dlpfc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI dlpfc, LabeledArray shape: (2, 234, 51, 641)
 ROI 'acc': Maximum trials per condition:
   Condition 'Stimulus_bigS': 207 trials from subjects ['D0121']
   Condition 'Stimulus_bigH': 215 trials from subjects ['D0116']
-in roi acc, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi acc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI acc, LabeledArray shape: (2, 215, 1, 641)
 in roi acc, subject D0063 has 185 trials for condition Stimulus_bigS
 in roi acc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI acc, LabeledArray shape: (2, 215, 16, 641)
-in roi acc, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi acc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI acc, LabeledArray shape: (2, 215, 7, 641)
-in roi acc, subject D0094 has 191 trials for condition Stimulus_bigS
-in roi acc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI acc, LabeledArray shape: (2, 215, 2, 641)
+Subject D0063, ROI acc, LabeledArray shape: (2, 215, 5, 641)
 in roi acc, subject D0102 has 149 trials for condition Stimulus_bigS
 in roi acc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI acc, LabeledArray shape: (2, 215, 3, 641)
+Subject D0102, ROI acc, LabeledArray shape: (2, 215, 1, 641)
 in roi acc, subject D0103 has 176 trials for condition Stimulus_bigS
 in roi acc, subject D0103 has 183 trials for condition Stimulus_bigH
 Subject D0103, ROI acc, LabeledArray shape: (2, 215, 2, 641)
 in roi acc, subject D0107A has 183 trials for condition Stimulus_bigS
 in roi acc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI acc, LabeledArray shape: (2, 215, 9, 641)
+Subject D0107A, ROI acc, LabeledArray shape: (2, 215, 4, 641)
 in roi acc, subject D0116 has 195 trials for condition Stimulus_bigS
 in roi acc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI acc, LabeledArray shape: (2, 215, 10, 641)
-in roi acc, subject D0117 has 129 trials for condition Stimulus_bigS
-in roi acc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI acc, LabeledArray shape: (2, 215, 2, 641)
+Subject D0116, ROI acc, LabeledArray shape: (2, 215, 1, 641)
 in roi acc, subject D0121 has 207 trials for condition Stimulus_bigS
 in roi acc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI acc, LabeledArray shape: (2, 215, 19, 641)
+Subject D0121, ROI acc, LabeledArray shape: (2, 215, 6, 641)
 ROI 'parietal': Maximum trials per condition:
   Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
   Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
@@ -1245,210 +1121,127 @@ in roi parietal, subject D0057 has 205 trials for condition Stimulus_bigH
 Subject D0057, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
 in roi parietal, subject D0059 has 214 trials for condition Stimulus_bigS
 in roi parietal, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
-in roi parietal, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi parietal, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI parietal, LabeledArray shape: (2, 226, 6, 641)
+Subject D0059, ROI parietal, LabeledArray shape: (2, 226, 3, 641)
 in roi parietal, subject D0071 has 206 trials for condition Stimulus_bigS
 in roi parietal, subject D0071 has 223 trials for condition Stimulus_bigH
 Subject D0071, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
 in roi parietal, subject D0077 has 174 trials for condition Stimulus_bigS
 in roi parietal, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI parietal, LabeledArray shape: (2, 226, 14, 641)
-in roi parietal, subject D0100 has 208 trials for condition Stimulus_bigS
-in roi parietal, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
+Subject D0077, ROI parietal, LabeledArray shape: (2, 226, 4, 641)
 in roi parietal, subject D0110 has 226 trials for condition Stimulus_bigS
 in roi parietal, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI parietal, LabeledArray shape: (2, 226, 8, 641)
+Subject D0110, ROI parietal, LabeledArray shape: (2, 226, 2, 641)
 ROI 'lpfc': Maximum trials per condition:
   Condition 'Stimulus_bigS': 226 trials from subjects ['D0110']
   Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
 in roi lpfc, subject D0057 has 200 trials for condition Stimulus_bigS
 in roi lpfc, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI lpfc, LabeledArray shape: (2, 234, 17, 641)
+Subject D0057, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
 in roi lpfc, subject D0059 has 214 trials for condition Stimulus_bigS
 in roi lpfc, subject D0059 has 213 trials for condition Stimulus_bigH
 Subject D0059, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
 in roi lpfc, subject D0063 has 185 trials for condition Stimulus_bigS
 in roi lpfc, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI lpfc, LabeledArray shape: (2, 234, 36, 641)
+Subject D0063, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
 in roi lpfc, subject D0065 has 144 trials for condition Stimulus_bigS
 in roi lpfc, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI lpfc, LabeledArray shape: (2, 234, 9, 641)
-in roi lpfc, subject D0069 has 152 trials for condition Stimulus_bigS
-in roi lpfc, subject D0069 has 178 trials for condition Stimulus_bigH
-Subject D0069, ROI lpfc, LabeledArray shape: (2, 234, 1, 641)
+Subject D0065, ROI lpfc, LabeledArray shape: (2, 234, 1, 641)
 in roi lpfc, subject D0071 has 206 trials for condition Stimulus_bigS
 in roi lpfc, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI lpfc, LabeledArray shape: (2, 234, 13, 641)
+Subject D0071, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
 in roi lpfc, subject D0090 has 193 trials for condition Stimulus_bigS
 in roi lpfc, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI lpfc, LabeledArray shape: (2, 234, 8, 641)
+Subject D0090, ROI lpfc, LabeledArray shape: (2, 234, 2, 641)
 in roi lpfc, subject D0094 has 191 trials for condition Stimulus_bigS
 in roi lpfc, subject D0094 has 187 trials for condition Stimulus_bigH
-Subject D0094, ROI lpfc, LabeledArray shape: (2, 234, 28, 641)
+Subject D0094, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
 in roi lpfc, subject D0102 has 149 trials for condition Stimulus_bigS
 in roi lpfc, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
+Subject D0102, ROI lpfc, LabeledArray shape: (2, 234, 3, 641)
 in roi lpfc, subject D0103 has 176 trials for condition Stimulus_bigS
 in roi lpfc, subject D0103 has 183 trials for condition Stimulus_bigH
-Subject D0103, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
+Subject D0103, ROI lpfc, LabeledArray shape: (2, 234, 8, 641)
 in roi lpfc, subject D0107A has 183 trials for condition Stimulus_bigS
 in roi lpfc, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI lpfc, LabeledArray shape: (2, 234, 25, 641)
+Subject D0107A, ROI lpfc, LabeledArray shape: (2, 234, 14, 641)
 in roi lpfc, subject D0110 has 226 trials for condition Stimulus_bigS
 in roi lpfc, subject D0110 has 213 trials for condition Stimulus_bigH
-Subject D0110, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
+Subject D0110, ROI lpfc, LabeledArray shape: (2, 234, 2, 641)
 in roi lpfc, subject D0116 has 195 trials for condition Stimulus_bigS
 in roi lpfc, subject D0116 has 215 trials for condition Stimulus_bigH
-Subject D0116, ROI lpfc, LabeledArray shape: (2, 234, 30, 641)
+Subject D0116, ROI lpfc, LabeledArray shape: (2, 234, 18, 641)
 in roi lpfc, subject D0117 has 129 trials for condition Stimulus_bigS
 in roi lpfc, subject D0117 has 154 trials for condition Stimulus_bigH
-Subject D0117, ROI lpfc, LabeledArray shape: (2, 234, 11, 641)
+Subject D0117, ROI lpfc, LabeledArray shape: (2, 234, 5, 641)
 in roi lpfc, subject D0121 has 207 trials for condition Stimulus_bigS
 in roi lpfc, subject D0121 has 193 trials for condition Stimulus_bigH
-Subject D0121, ROI lpfc, LabeledArray shape: (2, 234, 61, 641)
-ROI 'v1': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 208 trials from subjects ['D0100']
-  Condition 'Stimulus_bigH': 223 trials from subjects ['D0071']
-in roi v1, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi v1, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0065 has 144 trials for condition Stimulus_bigS
-in roi v1, subject D0065 has 172 trials for condition Stimulus_bigH
-Subject D0065, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0071 has 206 trials for condition Stimulus_bigS
-in roi v1, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI v1, LabeledArray shape: (2, 223, 3, 641)
-in roi v1, subject D0077 has 174 trials for condition Stimulus_bigS
-in roi v1, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI v1, LabeledArray shape: (2, 223, 1, 641)
-in roi v1, subject D0100 has 208 trials for condition Stimulus_bigS
-in roi v1, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI v1, LabeledArray shape: (2, 223, 12, 641)
+Subject D0121, ROI lpfc, LabeledArray shape: (2, 234, 20, 641)
 ROI 'occ': Maximum trials per condition:
-  Condition 'Stimulus_bigS': 214 trials from subjects ['D0059']
+  Condition 'Stimulus_bigS': 208 trials from subjects ['D0100']
   Condition 'Stimulus_bigH': 234 trials from subjects ['D0090']
-in roi occ, subject D0057 has 200 trials for condition Stimulus_bigS
-in roi occ, subject D0057 has 205 trials for condition Stimulus_bigH
-Subject D0057, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-in roi occ, subject D0059 has 214 trials for condition Stimulus_bigS
-in roi occ, subject D0059 has 213 trials for condition Stimulus_bigH
-Subject D0059, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-in roi occ, subject D0063 has 185 trials for condition Stimulus_bigS
-in roi occ, subject D0063 has 204 trials for condition Stimulus_bigH
-Subject D0063, ROI occ, LabeledArray shape: (2, 234, 2, 641)
 in roi occ, subject D0065 has 144 trials for condition Stimulus_bigS
 in roi occ, subject D0065 has 172 trials for condition Stimulus_bigH
 Subject D0065, ROI occ, LabeledArray shape: (2, 234, 3, 641)
 in roi occ, subject D0071 has 206 trials for condition Stimulus_bigS
 in roi occ, subject D0071 has 223 trials for condition Stimulus_bigH
-Subject D0071, ROI occ, LabeledArray shape: (2, 234, 4, 641)
+Subject D0071, ROI occ, LabeledArray shape: (2, 234, 3, 641)
 in roi occ, subject D0077 has 174 trials for condition Stimulus_bigS
 in roi occ, subject D0077 has 181 trials for condition Stimulus_bigH
-Subject D0077, ROI occ, LabeledArray shape: (2, 234, 9, 641)
+Subject D0077, ROI occ, LabeledArray shape: (2, 234, 5, 641)
 in roi occ, subject D0090 has 193 trials for condition Stimulus_bigS
 in roi occ, subject D0090 has 234 trials for condition Stimulus_bigH
-Subject D0090, ROI occ, LabeledArray shape: (2, 234, 3, 641)
+Subject D0090, ROI occ, LabeledArray shape: (2, 234, 2, 641)
 in roi occ, subject D0100 has 208 trials for condition Stimulus_bigS
 in roi occ, subject D0100 has 213 trials for condition Stimulus_bigH
-Subject D0100, ROI occ, LabeledArray shape: (2, 234, 43, 641)
+Subject D0100, ROI occ, LabeledArray shape: (2, 234, 28, 641)
 in roi occ, subject D0102 has 149 trials for condition Stimulus_bigS
 in roi occ, subject D0102 has 150 trials for condition Stimulus_bigH
-Subject D0102, ROI occ, LabeledArray shape: (2, 234, 2, 641)
+Subject D0102, ROI occ, LabeledArray shape: (2, 234, 1, 641)
 in roi occ, subject D0103 has 176 trials for condition Stimulus_bigS
 in roi occ, subject D0103 has 183 trials for condition Stimulus_bigH
 Subject D0103, ROI occ, LabeledArray shape: (2, 234, 4, 641)
-in roi occ, subject D0107A has 183 trials for condition Stimulus_bigS
-in roi occ, subject D0107A has 211 trials for condition Stimulus_bigH
-Subject D0107A, ROI occ, LabeledArray shape: (2, 234, 1, 641)
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (300, 197, 641)
-  Trials: 300
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 21/300 (7.0%)
-  Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 21/300 (7.0%)
-  Trials with both types: 0/300 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 197.0
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 7.00%
-
---- NaN Impact by Condition ---
-  bigS: 21/150 trials with NaNs (14.0%)
-  bigH: 0/150 trials with NaNs (0.0%)
-
-After removing NaN trials:
-  Trials kept: 279/300 (93.0%)
-  New data shape: (279, 197, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
-
-Final balanced data shape: (258, 197, 641)
-============================================================
-
 Processing ROI: acc
 
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (300, 71, 641)
+Initial concatenated data shape: (300, 19, 641)
   Trials: 300
-  Channels: 71
+  Channels: 19
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/71
+Missing Channels (all NaN across all trials): 0/19
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 21/300 (7.0%)
+  Trials with ANY NaN: 1/300 (0.3%)
   Trials with outlier NaNs (sparse): 0/300 (0.0%)
-  Trials with missing channel NaNs (dense): 21/300 (7.0%)
+  Trials with missing channel NaNs (dense): 1/300 (0.3%)
   Trials with both types: 0/300 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 71.0
-  Max missing channels in a trial: 71
+  Mean missing channels per affected trial: 19.0
+  Max missing channels in a trial: 19
 
-Overall NaN Percentage: 7.00%
+Overall NaN Percentage: 0.33%
 
 --- NaN Impact by Condition ---
-  bigS: 21/150 trials with NaNs (14.0%)
+  bigS: 1/150 trials with NaNs (0.7%)
   bigH: 0/150 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 279/300 (93.0%)
-  New data shape: (279, 71, 641)
+  Trials kept: 299/300 (99.7%)
+  New data shape: (299, 19, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
+  Condition bigS: 149 trials
   Condition bigH: 150 trials
 
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
+Subsampling to min trial count: 149
+  Subsampled condition 1: 150 -> 149
 
-Final balanced data shape: (258, 71, 641)
+Final balanced data shape: (298, 19, 641)
 ============================================================
 
 Processing ROI: parietal
@@ -1456,43 +1249,43 @@ Processing ROI: parietal
 ============================================================
 ROI: parietal
 ============================================================
-Initial concatenated data shape: (344, 40, 641)
-  Trials: 344
-  Channels: 40
+Initial concatenated data shape: (362, 15, 641)
+  Trials: 362
+  Channels: 15
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/40
+Missing Channels (all NaN across all trials): 0/15
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 28/344 (8.1%)
-  Trials with outlier NaNs (sparse): 0/344 (0.0%)
-  Trials with missing channel NaNs (dense): 28/344 (8.1%)
-  Trials with both types: 0/344 (0.0%)
+  Trials with ANY NaN: 7/362 (1.9%)
+  Trials with outlier NaNs (sparse): 0/362 (0.0%)
+  Trials with missing channel NaNs (dense): 7/362 (1.9%)
+  Trials with both types: 0/362 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 40.0
-  Max missing channels in a trial: 40
+  Mean missing channels per affected trial: 15.0
+  Max missing channels in a trial: 15
 
-Overall NaN Percentage: 8.14%
+Overall NaN Percentage: 1.93%
 
 --- NaN Impact by Condition ---
-  bigS: 28/172 trials with NaNs (16.3%)
-  bigH: 0/172 trials with NaNs (0.0%)
+  bigS: 7/181 trials with NaNs (3.9%)
+  bigH: 0/181 trials with NaNs (0.0%)
 
 After removing NaN trials:
-  Trials kept: 316/344 (91.9%)
-  New data shape: (316, 40, 641)
+  Trials kept: 355/362 (98.1%)
+  New data shape: (355, 15, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition bigS: 174 trials
+  Condition bigH: 181 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 174
+  Subsampled condition 1: 181 -> 174
 
-Final balanced data shape: (288, 40, 641)
+Final balanced data shape: (348, 15, 641)
 ============================================================
 
 Processing ROI: lpfc
@@ -1500,14 +1293,14 @@ Processing ROI: lpfc
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (300, 265, 641)
+Initial concatenated data shape: (300, 116, 641)
   Trials: 300
-  Channels: 265
+  Channels: 116
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/265
+Missing Channels (all NaN across all trials): 0/116
 
 Trial-level NaN Statistics:
   Trials with ANY NaN: 21/300 (7.0%)
@@ -1516,8 +1309,8 @@ Trial-level NaN Statistics:
   Trials with both types: 0/300 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 265.0
-  Max missing channels in a trial: 265
+  Mean missing channels per affected trial: 116.0
+  Max missing channels in a trial: 116
 
 Overall NaN Percentage: 7.00%
 
@@ -1527,7 +1320,7 @@ Overall NaN Percentage: 7.00%
 
 After removing NaN trials:
   Trials kept: 279/300 (93.0%)
-  New data shape: (279, 265, 641)
+  New data shape: (279, 116, 641)
 
 --- Final Trial Counts by Condition ---
   Condition bigS: 129 trials
@@ -1536,51 +1329,7 @@ After removing NaN trials:
 Subsampling to min trial count: 129
   Subsampled condition 1: 150 -> 129
 
-Final balanced data shape: (258, 265, 641)
-============================================================
-
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (344, 18, 641)
-  Trials: 344
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 28/344 (8.1%)
-  Trials with outlier NaNs (sparse): 0/344 (0.0%)
-  Trials with missing channel NaNs (dense): 28/344 (8.1%)
-  Trials with both types: 0/344 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 18.0
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 8.14%
-
---- NaN Impact by Condition ---
-  bigS: 28/172 trials with NaNs (16.3%)
-  bigH: 0/172 trials with NaNs (0.0%)
-
-After removing NaN trials:
-  Trials kept: 316/344 (91.9%)
-  New data shape: (316, 18, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
-
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
-
-Final balanced data shape: (288, 18, 641)
+Final balanced data shape: (258, 116, 641)
 ============================================================
 
 Processing ROI: occ
@@ -1588,14 +1337,14 @@ Processing ROI: occ
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (300, 73, 641)
+Initial concatenated data shape: (300, 46, 641)
   Trials: 300
-  Channels: 73
+  Channels: 46
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/73
+Missing Channels (all NaN across all trials): 0/46
 
 Trial-level NaN Statistics:
   Trials with ANY NaN: 6/300 (2.0%)
@@ -1604,8 +1353,8 @@ Trial-level NaN Statistics:
   Trials with both types: 0/300 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 73.0
-  Max missing channels in a trial: 73
+  Mean missing channels per affected trial: 46.0
+  Max missing channels in a trial: 46
 
 Overall NaN Percentage: 2.00%
 
@@ -1615,7 +1364,7 @@ Overall NaN Percentage: 2.00%
 
 After removing NaN trials:
   Trials kept: 294/300 (98.0%)
-  New data shape: (294, 73, 641)
+  New data shape: (294, 46, 641)
 
 --- Final Trial Counts by Condition ---
   Condition bigS: 144 trials
@@ -1624,169 +1373,120 @@ After removing NaN trials:
 Subsampling to min trial count: 144
   Subsampled condition 1: 150 -> 144
 
-Final balanced data shape: (288, 73, 641)
+Final balanced data shape: (288, 46, 641)
 ============================================================
 
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (468, 197, 641)
-  Trials: 468
-  Channels: 197
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/197
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 189/468 (40.4%)
-  Trials with outlier NaNs (sparse): 0/468 (0.0%)
-  Trials with missing channel NaNs (dense): 189/468 (40.4%)
-  Trials with both types: 0/468 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 82.4
-  Max missing channels in a trial: 197
-
-Overall NaN Percentage: 16.90%
-
---- NaN Impact by Condition ---
-  bigS: 105/234 trials with NaNs (44.9%)
-  bigH: 84/234 trials with NaNs (35.9%)
-
-After removing NaN trials:
-  Trials kept: 279/468 (59.6%)
-  New data shape: (279, 197, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
-  Condition bigH: 150 trials
-
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
-
-Final balanced data shape: (258, 197, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
 Processing ROI: acc
 
 ============================================================
 ROI: acc
 ============================================================
-Initial concatenated data shape: (430, 71, 641)
+Initial concatenated data shape: (430, 19, 641)
   Trials: 430
-  Channels: 71
+  Channels: 19
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/71
+Missing Channels (all NaN across all trials): 0/19
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 151/430 (35.1%)
+  Trials with ANY NaN: 131/430 (30.5%)
   Trials with outlier NaNs (sparse): 0/430 (0.0%)
-  Trials with missing channel NaNs (dense): 151/430 (35.1%)
+  Trials with missing channel NaNs (dense): 131/430 (30.5%)
   Trials with both types: 0/430 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 23.2
-  Max missing channels in a trial: 71
+  Mean missing channels per affected trial: 6.3
+  Max missing channels in a trial: 19
 
-Overall NaN Percentage: 11.48%
+Overall NaN Percentage: 10.06%
 
 --- NaN Impact by Condition ---
-  bigS: 86/215 trials with NaNs (40.0%)
+  bigS: 66/215 trials with NaNs (30.7%)
   bigH: 65/215 trials with NaNs (30.2%)
 
 After removing NaN trials:
-  Trials kept: 279/430 (64.9%)
-  New data shape: (279, 71, 641)
+  Trials kept: 299/430 (69.5%)
+  New data shape: (299, 19, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 129 trials
+  Condition bigS: 149 trials
   Condition bigH: 150 trials
 
-Subsampling to min trial count: 129
-  Subsampled condition 1: 150 -> 129
+Subsampling to min trial count: 149
+  Subsampled condition 1: 150 -> 149
 
-Final balanced data shape: (258, 71, 641)
+Final balanced data shape: (298, 19, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: parietal
 
 ============================================================
 ROI: parietal
 ============================================================
-Initial concatenated data shape: (452, 40, 641)
+Initial concatenated data shape: (452, 15, 641)
   Trials: 452
-  Channels: 40
+  Channels: 15
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/40
+Missing Channels (all NaN across all trials): 0/15
 
 Trial-level NaN Statistics:
-  Trials with ANY NaN: 136/452 (30.1%)
+  Trials with ANY NaN: 97/452 (21.5%)
   Trials with outlier NaNs (sparse): 0/452 (0.0%)
-  Trials with missing channel NaNs (dense): 136/452 (30.1%)
+  Trials with missing channel NaNs (dense): 97/452 (21.5%)
   Trials with both types: 0/452 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 19.7
-  Max missing channels in a trial: 40
+  Mean missing channels per affected trial: 7.5
+  Max missing channels in a trial: 15
 
-Overall NaN Percentage: 14.79%
+Overall NaN Percentage: 10.66%
 
 --- NaN Impact by Condition ---
-  bigS: 82/226 trials with NaNs (36.3%)
-  bigH: 54/226 trials with NaNs (23.9%)
+  bigS: 52/226 trials with NaNs (23.0%)
+  bigH: 45/226 trials with NaNs (19.9%)
 
 After removing NaN trials:
-  Trials kept: 316/452 (69.9%)
-  New data shape: (316, 40, 641)
+  Trials kept: 355/452 (78.5%)
+  New data shape: (355, 15, 641)
 
 --- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
+  Condition bigS: 174 trials
+  Condition bigH: 181 trials
 
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
+Subsampling to min trial count: 174
+  Subsampled condition 1: 181 -> 174
 
-Final balanced data shape: (288, 40, 641)
+Final balanced data shape: (348, 15, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: lpfc
 
 ============================================================
 ROI: lpfc
 ============================================================
-Initial concatenated data shape: (468, 265, 641)
+Initial concatenated data shape: (468, 116, 641)
   Trials: 468
-  Channels: 265
+  Channels: 116
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/265
+Missing Channels (all NaN across all trials): 0/116
 
 Trial-level NaN Statistics:
   Trials with ANY NaN: 189/468 (40.4%)
@@ -1795,10 +1495,10 @@ Trial-level NaN Statistics:
   Trials with both types: 0/468 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 110.8
-  Max missing channels in a trial: 265
+  Mean missing channels per affected trial: 46.8
+  Max missing channels in a trial: 116
 
-Overall NaN Percentage: 16.89%
+Overall NaN Percentage: 16.29%
 
 --- NaN Impact by Condition ---
   bigS: 105/234 trials with NaNs (44.9%)
@@ -1806,7 +1506,7 @@ Overall NaN Percentage: 16.89%
 
 After removing NaN trials:
   Trials kept: 279/468 (59.6%)
-  New data shape: (279, 265, 641)
+  New data shape: (279, 116, 641)
 
 --- Final Trial Counts by Condition ---
   Condition bigS: 129 trials
@@ -1815,76 +1515,27 @@ After removing NaN trials:
 Subsampling to min trial count: 129
   Subsampled condition 1: 150 -> 129
 
-Final balanced data shape: (258, 265, 641)
+Final balanced data shape: (258, 116, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-Processing ROI: v1
-
-============================================================
-ROI: v1
-============================================================
-Initial concatenated data shape: (446, 18, 641)
-  Trials: 446
-  Channels: 18
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/18
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 130/446 (29.1%)
-  Trials with outlier NaNs (sparse): 0/446 (0.0%)
-  Trials with missing channel NaNs (dense): 130/446 (29.1%)
-  Trials with both types: 0/446 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 4.7
-  Max missing channels in a trial: 18
-
-Overall NaN Percentage: 7.64%
-
---- NaN Impact by Condition ---
-  bigS: 79/223 trials with NaNs (35.4%)
-  bigH: 51/223 trials with NaNs (22.9%)
-
-After removing NaN trials:
-  Trials kept: 316/446 (70.9%)
-  New data shape: (316, 18, 641)
-
---- Final Trial Counts by Condition ---
-  Condition bigS: 144 trials
-  Condition bigH: 172 trials
-
-Subsampling to min trial count: 144
-  Subsampled condition 1: 172 -> 144
-
-Final balanced data shape: (288, 18, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
-Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 Processing ROI: occ
 
 ============================================================
 ROI: occ
 ============================================================
-Initial concatenated data shape: (468, 73, 641)
+Initial concatenated data shape: (468, 46, 641)
   Trials: 468
-  Channels: 73
+  Channels: 46
   Time points: 641
 
 --- Detailed NaN Analysis ---
 
-Missing Channels (all NaN across all trials): 0/73
+Missing Channels (all NaN across all trials): 0/46
 
 Trial-level NaN Statistics:
   Trials with ANY NaN: 174/468 (37.2%)
@@ -1893,10 +1544,10 @@ Trial-level NaN Statistics:
   Trials with both types: 0/468 (0.0%)
 
 Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 28.1
-  Max missing channels in a trial: 73
+  Mean missing channels per affected trial: 18.1
+  Max missing channels in a trial: 46
 
-Overall NaN Percentage: 14.29%
+Overall NaN Percentage: 14.59%
 
 --- NaN Impact by Condition ---
   bigS: 90/234 trials with NaNs (38.5%)
@@ -1904,7 +1555,7 @@ Overall NaN Percentage: 14.29%
 
 After removing NaN trials:
   Trials kept: 294/468 (62.8%)
-  New data shape: (294, 73, 641)
+  New data shape: (294, 46, 641)
 
 --- Final Trial Counts by Condition ---
   Condition bigS: 144 trials
@@ -1913,25 +1564,21 @@ After removing NaN trials:
 Subsampling to min trial count: 144
   Subsampled condition 1: 150 -> 144
 
-Final balanced data shape: (288, 73, 641)
+Final balanced data shape: (288, 46, 641)
 ============================================================
 
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320]
-Effective window size: 64
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
 Effective step size: 16
-Number of windows: 37
-time_window_centers are: [-0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375]
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/dlpfc
-stat_func returns a tuple. Taking the first element
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
 accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/acc
 stat_func returns a tuple. Taking the first element
 accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/parietal
 stat_func returns a tuple. Taking the first element
 accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/lpfc
 stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/v1
-stat_func returns a tuple. Taking the first element
 accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/BigLetter/occ
+stat_func returns a tuple. Taking the first element
 
 ✓ Analysis completed successfully!

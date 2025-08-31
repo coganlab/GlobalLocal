@@ -83,7 +83,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 # MARK_OUTLIERS_AS_NAN = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_task_conditions
+CONDITIONS = experiment_conditions.stimulus_small_letter_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
@@ -91,12 +91,17 @@ EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFac
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
+# ROIS_DICT = {
+#     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+#     'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'v1': ["G_oc-temp_med-Lingual", "S_calcarine", "G_cuneus"],
+#     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
+# }
+
 ROIS_DICT = {
-    'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-    'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'v1': ["G_oc-temp_med-Lingual", "S_calcarine", "G_cuneus"],
     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
 }
 
