@@ -1930,8 +1930,8 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
         data_subset = trials.get_data(picks=picks, tmin=tmin, tmax=tmax, verbose=verbose, copy=False)
         full_data = trials._data[:, picks_idx]
 
-    # Find outliers and create a boolean mask where True means "keep"
-    keep_mask = find_outliers(data_subset, outliers, deviation, center)
+    # Find outliers and create a boolean mask where True means "keep" - leaving out deviation and center for now because i'm on an older version of ieeg pipelines that doesn't have those inputs to find_outliers 8/31/25
+    keep_mask = find_outliers(data=data_subset, outliers=outliers)
 
     # If the policy is 'ignore', we're done.
     if outlier_policy == 'ignore':
