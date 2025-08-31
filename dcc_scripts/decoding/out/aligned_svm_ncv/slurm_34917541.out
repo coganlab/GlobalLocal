@@ -193,3 +193,829 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 215 valid trials out of 215
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 212 valid trials out of 212
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 215 valid trials out of 215
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 212 valid trials out of 212
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Original shape: (211, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 211 valid trials out of 211
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+178 matching events found
+No baseline correction applied
+    Original shape: (178, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 178 valid trials out of 178
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Original shape: (211, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 211 valid trials out of 211
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+178 matching events found
+No baseline correction applied
+    Original shape: (178, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 178 valid trials out of 178
+Loading data for subject: D0065
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Original shape: (177, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 177 valid trials out of 177
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+139 matching events found
+No baseline correction applied
+    Original shape: (139, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 139 valid trials out of 139
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Original shape: (177, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 177 valid trials out of 177
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+139 matching events found
+No baseline correction applied
+    Original shape: (139, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 139 valid trials out of 139
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+183 matching events found
+No baseline correction applied
+    Original shape: (183, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 183 valid trials out of 183
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 147 valid trials out of 147
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+183 matching events found
+No baseline correction applied
+    Original shape: (183, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 183 valid trials out of 183
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 147 valid trials out of 147
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+224 matching events found
+No baseline correction applied
+    Original shape: (224, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 224 valid trials out of 224
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 205 valid trials out of 205
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+224 matching events found
+No baseline correction applied
+    Original shape: (224, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 224 valid trials out of 224
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+205 matching events found
+No baseline correction applied
+    Original shape: (205, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 205 valid trials out of 205
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+175 matching events found
+No baseline correction applied
+    Original shape: (175, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 175 valid trials out of 175
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+180 matching events found
+No baseline correction applied
+    Original shape: (180, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 180 valid trials out of 180
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+175 matching events found
+No baseline correction applied
+    Original shape: (175, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 175 valid trials out of 175
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+180 matching events found
+No baseline correction applied
+    Original shape: (180, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 180 valid trials out of 180
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 212 valid trials out of 212
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 215 valid trials out of 215
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+212 matching events found
+No baseline correction applied
+    Original shape: (212, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 212 valid trials out of 212
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+215 matching events found
+No baseline correction applied
+    Original shape: (215, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 215 valid trials out of 215
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+188 matching events found
+No baseline correction applied
+    Original shape: (188, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 188 valid trials out of 188
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+190 matching events found
+No baseline correction applied
+    Original shape: (190, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 190 valid trials out of 190
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+188 matching events found
+No baseline correction applied
+    Original shape: (188, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 188 valid trials out of 188
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+190 matching events found
+No baseline correction applied
+    Original shape: (190, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 190 valid trials out of 190
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 208 valid trials out of 208
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Original shape: (213, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 213 valid trials out of 213
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+208 matching events found
+No baseline correction applied
+    Original shape: (208, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 208 valid trials out of 208
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Original shape: (213, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 213 valid trials out of 213
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+151 matching events found
+No baseline correction applied
+    Original shape: (151, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 151 valid trials out of 151
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+148 matching events found
+No baseline correction applied
+    Original shape: (148, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 148 valid trials out of 148
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+151 matching events found
+No baseline correction applied
+    Original shape: (151, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 151 valid trials out of 151
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+148 matching events found
+No baseline correction applied
+    Original shape: (148, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 148 valid trials out of 148
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+189 matching events found
+No baseline correction applied
+    Original shape: (189, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 189 valid trials out of 189
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+170 matching events found
+No baseline correction applied
+    Original shape: (170, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 170 valid trials out of 170
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+189 matching events found
+No baseline correction applied
+    Original shape: (189, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 189 valid trials out of 189
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+170 matching events found
+No baseline correction applied
+    Original shape: (170, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 170 valid trials out of 170
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+192 matching events found
+No baseline correction applied
+    Original shape: (192, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 192 valid trials out of 192
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+202 matching events found
+No baseline correction applied
+    Original shape: (202, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 202 valid trials out of 202
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+192 matching events found
+No baseline correction applied
+    Original shape: (192, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 192 valid trials out of 192
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+202 matching events found
+No baseline correction applied
+    Original shape: (202, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 202 valid trials out of 202
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 219 valid trials out of 219
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Original shape: (220, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 220 valid trials out of 220
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Original shape: (219, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 219 valid trials out of 219
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Original shape: (220, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 220 valid trials out of 220
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Original shape: (213, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 213 valid trials out of 213
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+197 matching events found
+No baseline correction applied
+    Original shape: (197, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 197 valid trials out of 197
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Original shape: (213, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 213 valid trials out of 213
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+197 matching events found
+No baseline correction applied
+    Original shape: (197, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 197 valid trials out of 197
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+142 matching events found
+No baseline correction applied
+    Original shape: (142, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 142 valid trials out of 142
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+141 matching events found
+No baseline correction applied
+    Original shape: (141, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 141 valid trials out of 141
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+142 matching events found
+No baseline correction applied
+    Original shape: (142, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 142 valid trials out of 142
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+141 matching events found
+No baseline correction applied
+    Original shape: (141, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 141 valid trials out of 141
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+193 matching events found
+No baseline correction applied
+    Original shape: (193, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 193 valid trials out of 193
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+207 matching events found
+No baseline correction applied
+    Original shape: (207, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallH: 207 valid trials out of 207
+  Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
+Not setting metadata
+193 matching events found
+No baseline correction applied
+    Original shape: (193, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_smallS: 193 valid trials out of 193
+  Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
+Not setting metadata
+207 matching events found
+No baseline correction applied

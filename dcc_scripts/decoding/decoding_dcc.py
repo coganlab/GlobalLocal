@@ -85,7 +85,9 @@ from src.analysis.decoding.decoding import (
     windower,
     get_confusion_matrices_for_rois_time_window_decoding_jim,
     compute_accuracies,
-    plot_accuracies
+    plot_true_vs_shuffle_accuracies,
+    plot_accuracies_nature_style,
+    make_pooled_shuffle_distribution
 )
 
 def main(args):
@@ -349,7 +351,7 @@ def main(args):
             time_window_decoding_results[condition_comparison][roi]['p_values'] = p_values
     
             # Plot accuracies comparing true and shuffle for this condition comparison and roi
-            plot_accuracies(
+            plot_true_vs_shuffle_accuracies(
                 time_points=time_window_centers,
                 accuracies_true=accuracies_true,
                 accuracies_shuffle=accuracies_shuffle,
@@ -364,29 +366,83 @@ def main(args):
                 p_thresh=args.p_thresh
             )
             
-            # # convert to a dataframe for further comparisons if necessary (lwpc, lwps) - untested and unfinished
-            # time_window_decoding_results_df = pd.DataFrame.from_dict(time_window_decoding_results, orient='index')
-    
-    # do comparisons for lwpc decoding accuracies - UNTESTED AND UNFINISHED
-    # if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-    #     c25_vs_i25_df = time_window_decoding_results_df[condition_comparison == 'c25_vs_i25']
-    #     c75_vs_i75_df = time_window_decoding_results_df[condition_comparison == 'c75_vs_i75']
-    #     c25_vs_i75_df = time_window_decoding_results_df[condition_comparison == 'c25_vs_i75']
-    #     c75_vs_i25_df = time_window_decoding_results_df[condition_comparison == 'c75_vs_i25']
+    # do lwpc comparison 
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:       
+        for roi in rois:
+            time_window_centers = time_window_decoding_results['c25_vs_i25'][roi]['time_window_centers']
+            c25_vs_i25_acc = time_window_decoding_results['c25_vs_i25'][roi]['accuracies_true']
+            c75_vs_i75_acc = time_window_decoding_results['c75_vs_i75'][roi]['accuracies_true']
+            
+            # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
+            lwpc_significant_clusters, lwpc_p_values = time_perm_cluster(
+                c25_vs_i25_acc.T,
+                c75_vs_i75_acc.T,
+                p_thresh=args.p_thresh,
+                n_perm=args.n_perm,
+                tails=1,
+                axis=0, 
+                stat_func=args.stat_func,
+                n_jobs=args.n_jobs,
+                seed=args.random_state
+            )
+            
+            # get i vs c pooled shuffle distribution
+            strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_perm,
+                random_state=args.random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            # Plot accuracies comparing c25_vs_i25 and c75_vs_i75 for this condition comparison and roi
+            # For LWPC comparisons
+            accuracies_dict = {
+                'c25_vs_i25': c25_vs_i25_acc,
+                'c75_vs_i75': c75_vs_i75_acc,
+                'pooled_shuffle': accuracies_shuffle_pooled
+            }
 
-    #     for roi in rois:
-    #         # Perform time permutation cluster test between c25 vs i25 and c75 vs i75
-    #         significant_clusters, p_values = time_perm_cluster(
-    #             c25_vs_i25_df[roi][accuracies_true.T], # shape is (n_windows, n_repeats), we want to shuffle along n_repeats
-    #             c75_vs_i75_df[roi][accuracies_true.T],
-    #             p_thresh=args.p_thresh,
-    #             n_perm=args.n_perm,
-    #             tails=1,
-    #             axis=0, 
-    #             stat_func=args.stat_func,
-    #             n_jobs=args.n_jobs,
-    #             seed=args.random_state
-    #         )
+            colors = {
+                'c25_vs_i25': '#0173B2',  # Blue
+                'c75_vs_i75': '#DE8F05' ,   # Orange
+                'pooled_shuffle': '#949494'  # Gray
+            }
+            
+            linestyles = {
+                'c25_vs_i25': '-',  # Solid
+                'c75_vs_i75': '-',  # Solid
+                'pooled_shuffle': '--'                       # Dashed
+            }
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict=accuracies_dict,
+                significant_clusters=lwpc_significant_clusters,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'lwpc_comparison_{roi}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, 'lwpc_plots'), # Save in a sub-directory
+                timestamp=args.timestamp,
+                p_thresh=args.p_thresh,
+                colors=colors,
+                linestyles=linestyles,
+                single_column=False,
+                ylim=(0.4, 0.75),
+                show_chance_level=False # The pooled shuffle line is the new chance level
+            )
+
+            
+
             
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
