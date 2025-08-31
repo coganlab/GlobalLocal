@@ -1628,7 +1628,7 @@ def get_trials(data: mne.io.Raw, events: list[str], times: tuple[float, float], 
     return all_trials
 
 def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times: tuple[float, float], 
-                                     outlier_threshold: float = 10, create_outlier_plots=False, mark_outliers_as_nan=True) -> mne.Epochs:
+                                     outlier_threshold: float = 10, create_outlier_plots=False, mark_outliers_as_nan=True, save_dir=None) -> mne.Epochs:
     """
     Extract and concatenate non-outlier trials for specified events with detailed outlier analysis.
     
@@ -1647,6 +1647,8 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         Number of standard deviations for outlier detection (default: 10)
     mark_outliers_as_nan : bool
         Whether to set outlier timepoints to NaN
+    save_dir : str
+        Save directory for plots and prints
     """
     import matplotlib.pyplot as plt
     from scipy.ndimage import label
@@ -1861,7 +1863,7 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
                 axes[1, 2].legend()
             
             plt.tight_layout()
-            plt.show()
+            plt.savefig(os.path.join(save_dir, f'{event}_outlier_analysis.png'))
         
         print("="*60 + "\n")
     
