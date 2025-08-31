@@ -1684,6 +1684,10 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         # Identify where NaNs were introduced (these are the outliers)
         outlier_mask = np.isnan(data_after) & ~np.isnan(data_before)
         
+        events_str = '-'.join(events).replace('/', '_')
+        plot_filename = f'{events_str}_outlier_analysis.png'
+        full_save_path = os.path.join(save_dir, plot_filename)
+
         # 1. Overall statistics
         n_trials, n_channels, n_times = data_after.shape
         total_points = data_after.size
@@ -1863,7 +1867,10 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
                 axes[1, 2].legend()
             
             plt.tight_layout()
-            plt.savefig(os.path.join(save_dir, f'{event}_outlier_analysis.png'))
+            print(f"Attempting to save plot to: {full_save_path}")
+            plt.savefig(full_save_path)
+            print("Plot save command executed successfully.")
+            plt.close(fig)
         
         print("="*60 + "\n")
     
