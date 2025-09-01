@@ -1223,7 +1223,387 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
     )
     return significant_clusters, p_values
 
-def plot_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
+import numpy as np
+import matplotlib.pyplot as plt
+from typing import Dict, Optional, Union, List, Tuple
+import os
+from itertools import groupby
+from operator import itemgetter
+
+# Nature journal style settings
+NATURE_STYLE = {
+    'figure.figsize': (89/25.4, 89/25.4),  # 89mm (single column) converted to inches
+    'font.size': 7,
+    'axes.labelsize': 7,
+    'axes.titlesize': 7,
+    'xtick.labelsize': 6,
+    'ytick.labelsize': 6,
+    'legend.fontsize': 6,
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'axes.linewidth': 0.5,
+    'axes.spines.top': False,
+    'axes.spines.right': False,
+    'xtick.major.width': 0.5,
+    'ytick.major.width': 0.5,
+    'xtick.major.size': 2,
+    'ytick.major.size': 2,
+    'lines.linewidth': 1,
+    'lines.markersize': 3,
+    'legend.frameon': False,
+    'legend.columnspacing': 0.5,
+    'legend.handlelength': 1,
+    'savefig.dpi': 300,
+    'savefig.bbox': 'tight',
+    'savefig.pad_inches': 0.05
+}
+
+def plot_accuracies_nature_style(
+    time_points: np.ndarray,
+    accuracies_dict: Dict[str, np.ndarray],
+    significant_clusters: Optional[np.ndarray] = None,
+    window_size: Optional[int] = None,
+    step_size: Optional[int] = None,
+    sampling_rate: float = 256,
+    comparison_name: str = "",
+    roi: str = "",
+    save_dir: str = ".",
+    timestamp: Optional[str] = None,
+    p_thresh: float = 0.05,
+    colors: Optional[Dict[str, str]] = None,
+    linestyles: Optional[Dict[str, str]] = None,
+    title: Optional[str] = None,
+    ylabel: str = "Accuracy",
+    ylim: Tuple[float, float] = (0.0, 1.0),  # CHANGED: Default Y-axis is now 0 to 1
+    xlim: Tuple[float, float] = (-0.5, 1.5),
+    single_column: bool = True,
+    show_legend: bool = True,
+    show_significance: bool = True,
+    significance_y_position: Optional[float] = None,
+    filename_suffix: str = "",
+    return_fig: bool = False,
+    show_chance_level: bool = True,
+    chance_level: float = 0.5
+):
+    """
+    Plot accuracies in Nature journal style.
+    
+    Follows Nature's guidelines:
+    - Single column width: 89mm (3.5 inches)
+    - Double column width: 183mm (7.2 inches)
+    - Font: Arial or Helvetica
+    - Font sizes: 7pt for labels, 6pt for tick labels
+    - Minimal design with no unnecessary elements
+    - High contrast colors suitable for print
+    """
+    
+    # Apply Nature style settings
+    with plt.rc_context(NATURE_STYLE):
+        # Set figure size based on column width
+        if single_column:
+            fig_width = 89 / 25.4  # 89mm to inches
+            fig_height = fig_width * 0.7  # Aspect ratio
+        else:
+            fig_width = 183 / 25.4 # 183mm to inches
+            fig_height = fig_width * 0.4
+        
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        
+        # Define Nature-appropriate colors if not provided
+        if colors is None:
+            nature_colors = [
+                '#0173B2',  # Blue
+                '#DE8F05',  # Orange
+                '#029E73',  # Green
+                '#CC78BC',  # Light purple
+                '#ECE133',  # Yellow
+                '#56B4E9',  # Light blue
+                '#F0E442',  # Light yellow
+                '#949494',  # Gray
+            ]
+            colors = {}
+            for i, label in enumerate(accuracies_dict.keys()):
+                colors[label] = nature_colors[i % len(nature_colors)]
+        
+        # Plot each accuracy time series
+        for i, (label, accuracies) in enumerate(accuracies_dict.items()):
+            # Compute statistics
+            if accuracies.ndim == 2:
+                n_samples = accuracies.shape[1]
+                mean_accuracy = np.mean(accuracies, axis=1)
+                sem_accuracy = np.std(accuracies, axis=1) / np.sqrt(n_samples)
+            else:
+                mean_accuracy = accuracies
+                sem_accuracy = np.zeros_like(accuracies)
+            
+            # Get color and linestyle
+            color = colors.get(label, '#0173B2') if colors else '#0173B2'
+            linestyle = linestyles.get(label, '-') if linestyles else '-'
+            
+            # Plot mean line with higher contrast
+            ax.plot(time_points, mean_accuracy, 
+                    label=label, 
+                    color=color, 
+                    linestyle=linestyle,
+                    linewidth=1,
+                    zorder=3)
+            
+            # Plot SEM as shaded area
+            ax.fill_between(
+                time_points,
+                mean_accuracy - sem_accuracy,
+                mean_accuracy + sem_accuracy,
+                alpha=0.25,  # Lighter shading for Nature style
+                color=color,
+                linewidth=0,
+                zorder=1
+            )
+        
+        # Add chance level line if requested
+        if show_chance_level:
+            ax.axhline(y=chance_level, 
+                        color='#666666', 
+                        linestyle='--', 
+                        linewidth=0.5,
+                        zorder=2,
+                        label='Chance')
+        # Add stimulus onset line
+        ax.axvline(x=0, 
+                    color='#666666', 
+                    linestyle='-', 
+                    linewidth=0.5,
+                    alpha=0.5,
+                    zorder=2)
+        
+        # Add significance markers
+        if show_significance and significant_clusters is not None and np.any(significant_clusters):
+            clusters = find_contiguous_clusters(significant_clusters)
+            
+            # CHANGED: Position significance bars at a fixed high point (e.g., 95% of the y-axis)
+            if significance_y_position is None:
+                y_range = ylim[1] - ylim[0]
+                # Place the bar at 95% of the total y-axis height, well above the data
+                significance_y_position = ylim[0] + y_range * 0.95
+            
+            for start_idx, end_idx in clusters:
+                # Calculate time range
+                if window_size:
+                    window_duration = window_size / sampling_rate / 2
+                else:
+                    window_duration = 0
+                
+                start_time = time_points[start_idx] - window_duration
+                end_time = time_points[end_idx] + window_duration
+                
+                # Draw significance bar
+                ax.plot([start_time, end_time], 
+                        [significance_y_position, significance_y_position],
+                        color='black', 
+                        linewidth=1,
+                        solid_capstyle='butt')
+                
+                # Add significance marker
+                center_time = (start_time + end_time) / 2
+                ax.text(center_time, 
+                        significance_y_position + (ylim[1] - ylim[0]) * 0.02, # Position asterisk just above bar
+                        '*', 
+                        ha='center', 
+                        va='bottom', 
+                        fontsize=8,
+                        fontweight='bold')
+        
+        # Set labels
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_ylabel(ylabel, fontsize=7)
+        
+        # Set axis limits
+        ax.set_ylim(ylim)
+        ax.set_xlim(xlim)
+        
+        # Configure ticks
+        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        
+        # Set specific x-ticks for clarity
+        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        ax.set_xticks(x_ticks)
+        
+        # CHANGED: Set specific y-ticks for consistency
+        y_ticks = np.arange(0.0, 1.01, 0.25)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels([f'{y:.2f}' for y in y_ticks])
+
+        # Configure legend
+        if show_legend:
+            # The legend is placed in the upper right. With the new ylim, it should have enough space.
+            legend = ax.legend(
+                loc='upper right',
+                fontsize=6,
+                frameon=False,
+                handlelength=1,
+                handletextpad=0.5,
+                borderpad=0.2,
+                columnspacing=0.5
+            )
+            if len(accuracies_dict) > 1: # Only make lines thicker if there's more than just the chance line
+                # Make legend lines thicker for visibility
+                for line in legend.get_lines():
+                    line.set_linewidth(1.5)
+
+        # Add title only if specified
+        if title:
+            ax.set_title(title, fontsize=7, pad=3)
+        
+        # Remove top and right spines (Nature style)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        # Make remaining spines thinner
+        ax.spines['left'].set_linewidth(0.5)
+        ax.spines['bottom'].set_linewidth(0.5)
+        
+        # Tight layout
+        plt.tight_layout(pad=0.5)
+        
+        if return_fig:
+            return fig
+        else:
+            # Create filename
+            timestamp_str = f"{timestamp}_" if timestamp else ""
+            
+            filename_parts = [timestamp_str.rstrip('_')]
+            if comparison_name:
+                filename_parts.append(comparison_name)
+            if roi:
+                filename_parts.append(roi)
+            if filename_suffix:
+                filename_parts.append(filename_suffix)
+            
+            # Add format specifications
+            filename_parts.append('nature_style')
+            
+            filename = "_".join(filter(None, filename_parts)) + ".pdf"  # PDF for publication
+            filepath = os.path.join(save_dir, filename)
+            
+            # Ensure save directory exists
+            os.makedirs(save_dir, exist_ok=True)
+            
+            # Save in multiple formats
+            plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.eps'), format='eps', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            
+            plt.close(fig)
+            print(f"Saved Nature-style plot to: {filepath}")
+
+
+def find_contiguous_clusters(significant_clusters: Union[np.ndarray, List[bool]]) -> List[Tuple[int, int]]:
+    """
+    Find start and end indices of contiguous True blocks.
+    
+    Parameters
+    ----------
+    significant_clusters : array-like of bool
+        Boolean array indicating significant time points.
+        
+    Returns
+    -------
+    clusters : List[Tuple[int, int]]
+        List of (start_idx, end_idx) tuples.
+    """
+    clusters = []
+    in_cluster = False
+    
+    for idx, val in enumerate(list(significant_clusters)):
+        if val and not in_cluster:
+            start_idx = idx
+            in_cluster = True
+        elif not val and in_cluster:
+            end_idx = idx - 1
+            clusters.append((start_idx, end_idx))
+            in_cluster = False
+    
+    if in_cluster:
+        end_idx = len(list(significant_clusters)) - 1
+        clusters.append((start_idx, end_idx))
+    
+    return clusters
+
+
+# Convenience function to create multi-panel Nature figures
+def create_multipanel_nature_figure(
+    panels_data: List[Dict],
+    panel_labels: List[str] = None,
+    n_cols: int = 2,
+    save_path: str = None,
+    fig_title: str = None
+):
+    """
+    Create a multi-panel figure in Nature style.
+    
+    Parameters
+    ----------
+    panels_data : List[Dict]
+        List of dictionaries, each containing data for one panel.
+        Each dict should have keys matching plot_accuracies_nature_style parameters.
+    panel_labels : List[str], optional
+        Labels for each panel (e.g., ['a', 'b', 'c', 'd']).
+    n_cols : int
+        Number of columns in the figure grid.
+    save_path : str, optional
+        Path to save the figure.
+    fig_title : str, optional
+        Overall figure title.
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The complete multi-panel figure.
+    """
+    
+    n_panels = len(panels_data)
+    n_rows = (n_panels + n_cols - 1) // n_cols
+    
+    with plt.rc_context(NATURE_STYLE):
+        # Full page width for Nature
+        fig_width = 183 / 25.4  # 183mm to inches
+        fig_height = fig_width * (n_rows / n_cols) * 0.7
+        
+        fig, axes = plt.subplots(n_rows, n_cols, figsize=(fig_width, fig_height))
+        
+        if n_panels == 1:
+            axes = [axes]
+        else:
+            axes = axes.flatten()
+        
+        for i, (panel_data, ax) in enumerate(zip(panels_data, axes)):
+            plt.sca(ax)
+            
+            # Add panel label
+            if panel_labels and i < len(panel_labels):
+                ax.text(-0.15, 1.05, panel_labels[i], 
+                       transform=ax.transAxes,
+                       fontsize=8, fontweight='bold',
+                       va='top', ha='right')
+            
+            # Plot the panel (simplified - you'd need to adapt the plotting code)
+            # This is a placeholder for the actual plotting logic
+            
+        # Remove empty subplots
+        for i in range(n_panels, len(axes)):
+            fig.delaxes(axes[i])
+        
+        if fig_title:
+            fig.suptitle(fig_title, fontsize=8, fontweight='bold', y=1.02)
+        
+        plt.tight_layout()
+        
+        if save_path:
+            plt.savefig(save_path, format='pdf', dpi=300, bbox_inches='tight')
+            plt.savefig(save_path.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        
+        return fig
+    
+def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
                     window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05):
     """
     Plot mean true and shuffled accuracies over time with significance.
@@ -1982,3 +2362,92 @@ def plot_and_save_tfr_masks(masks_dict, mask_type, subjects_or_rois, ch_names, t
             fig.savefig(fig_pathname, bbox_inches='tight')
             plt.close(fig)  # Close to free memory
             print(f"Saved figure: {fig_name}")
+            
+def make_pooled_shuffle_distribution(
+    roi: str,
+    roi_labeled_arrays: dict,
+    strings_to_find_pooled: list,
+    explained_variance: float,
+    n_splits: int,
+    n_perm: int,
+    random_state: int,
+    balance_method: str,
+    obs_axs: int,
+    window_size: int,
+    step_size: int
+) -> np.ndarray:
+    """
+    Generates a pooled shuffle distribution for a given ROI.
+
+    This function pools trials from multiple conditions, balances the dataset,
+    and then performs time-windowed decoding with shuffled labels to create
+    a null distribution of decoding accuracies.
+
+    Parameters
+    ----------
+    roi : str
+        The Region of Interest (ROI) to process.
+    roi_labeled_arrays : dict
+        A dictionary of LabeledArray objects containing the epoched data.
+    strings_to_find_pooled : list
+        A list of lists defining how to pool conditions into classes.
+        (e.g., [['c25', 'c75'], ['i25', 'i75']]).
+    explained_variance : float
+        The proportion of variance for the PCA to explain.
+    n_splits : int
+        The number of splits for cross-validation.
+    n_perm : int
+        The number of permutations (shuffles) to run.
+    random_state : int
+        The random seed for reproducibility.
+    balance_method : str
+        The method to balance trial counts ('subsample' or 'pad_with_nans').
+    obs_axs : int
+        The axis in the data array corresponding to observations (trials).
+    window_size : int
+        The number of time samples in each sliding window.
+    step_size : int
+        The number of time samples to slide the window by.
+
+    Returns
+    -------
+    np.ndarray
+        An array of shuffled accuracies with shape (n_windows, n_permutations).
+    """
+    print(f"Generating pooled shuffle distribution for ROI: {roi}...")
+
+    # 1. Use existing function to create a balanced, pooled dataset
+    x_pooled, y_pooled, cats_pooled = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays,
+        roi,
+        strings_to_find_pooled,
+        obs_axs=obs_axs,
+        balance_method=balance_method,
+        random_state=random_state
+    )
+
+    # 2. Instantiate a decoder for the shuffle permutation
+    decoder_shuffle_pooled = Decoder(
+        cats_pooled,
+        explained_variance=explained_variance,
+        oversample=True,
+        n_splits=n_splits,
+        n_repeats=n_perm  # Use n_perm for repetitions
+    )
+
+    # 3. Run the time-windowed decoding with shuffle=True
+    cm_shuffle_pooled = decoder_shuffle_pooled.cv_cm_jim_window_shuffle(
+        x_pooled,
+        y_pooled,
+        normalize='true',
+        obs_axs=obs_axs,
+        time_axs=-1,
+        window=window_size,
+        step_size=step_size,
+        shuffle=True
+    )
+
+    # 4. Compute accuracies from the shuffled confusion matrices
+    _, accuracies_shuffle_pooled = compute_accuracies(cm_shuffle_pooled, cm_shuffle_pooled)
+
+    return accuracies_shuffle_pooled
