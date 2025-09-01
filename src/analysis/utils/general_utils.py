@@ -1665,7 +1665,9 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
     # Concatenate all trials
     all_trials = mne.concatenate_epochs(all_trials_list)
     print(f"\nTotal trials before outlier marking: {len(all_trials)}")
-    
+    n_trials, n_channels, n_timepoints = all_trials.shape
+
+    print(f"time range: {all_trials.tmin} to {all_trials.tmax}") # check this
     # Get data before marking outliers
     data_before = all_trials.get_data().copy()
     
@@ -1688,78 +1690,44 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         plot_filename = f'{events_str}_outlier_analysis.png'
         full_save_path = os.path.join(save_dir, plot_filename)
 
-        # 1. Overall statistics
-        n_trials, n_channels, n_times = data_after.shape
-        total_points = data_after.size
-        outlier_points = np.sum(outlier_mask)
+        sfreq = all_trials.info['sfreq'] # sampling frequency
         
-        print(f"\nOverall Statistics:")
-        print(f"  Data shape: {n_trials} trials × {n_channels} channels × {n_times} timepoints")
-        print(f"  Total data points: {total_points:,}")
-        print(f"  Outlier data points: {outlier_points:,}")
-        print(f"  Percentage of outliers: {100*outlier_points/total_points:.3f}%")
-        print(f"  Outlier threshold used: {outlier_threshold} SD")
-        
-        # 2. Per-trial analysis
-        outliers_per_trial = np.sum(outlier_mask, axis=(1, 2))
-        trials_with_outliers = outliers_per_trial > 0
-        
-        print(f"\nPer-Trial Statistics:")
-        print(f"  Trials with no outliers: {np.sum(~trials_with_outliers)}/{n_trials} ({100*np.sum(~trials_with_outliers)/n_trials:.1f}%)")
-        print(f"  Trials with outliers: {np.sum(trials_with_outliers)}/{n_trials} ({100*np.sum(trials_with_outliers)/n_trials:.1f}%)")
-        
-        if np.any(trials_with_outliers):
-            print(f"  For trials WITH outliers:")
-            print(f"    Mean outlier points: {np.mean(outliers_per_trial[trials_with_outliers]):.1f}")
-            print(f"    Median outlier points: {np.median(outliers_per_trial[trials_with_outliers]):.1f}")
-            print(f"    Max outlier points: {np.max(outliers_per_trial)}")
-            
-            # Calculate what percentage of each trial is outliers
-            trial_percentages = 100 * outliers_per_trial / (n_channels * n_times)
-            affected_percentages = trial_percentages[trials_with_outliers]
-            print(f"    Mean % of trial that is outliers: {np.mean(affected_percentages):.2f}%")
-            print(f"    Max % of trial that is outliers: {np.max(trial_percentages):.2f}%")
-        
-        # Identify worst trials
-        worst_trials = np.argsort(outliers_per_trial)[-5:][::-1]
-        print(f"\n  Top 5 worst trials (indices): {worst_trials.tolist()}")
-        print(f"  Their outlier counts: {outliers_per_trial[worst_trials].tolist()}")
-        
-        # 3. Per-channel analysis
-        outliers_per_channel = np.sum(outlier_mask, axis=(0, 2))
-        channels_with_outliers = outliers_per_channel > 0
-        
+        # 1. Per trial (and channel) analysis
+        outliers_per_trial_and_channel_ms = np.sum(outlier_mask, axis=2) / sfreq * 1000
+        outliers_per_trial_and_channel_flattened_ms = outliers_per_trial_and_channel_ms.flatten()
+        trials_with_outliers = outliers_per_trial_and_channel_flattened_ms > 0
+        n_trials_across_channels = len(outliers_per_trial_and_channel_flattened_ms)
+        n_trials_with_outliers = len(trials_with_outliers)
+        print(f"\nPer-Trial, Per-Channel Statistics:")
+        print(f"  Number of trials across all channels (channel-trials): {n_trials_across_channels}")
+        print(f"  Number of trials (channel-trials) with outliers: {n_trials_with_outliers}")
+        print(f"  Mean outlier duration: {np.mean(outliers_per_trial_and_channel_flattened_ms):.1f}")
+        print(f"  Median outlier duration: {np.median(outliers_per_trial_and_channel_flattened_ms):.1f}")
+        print(f"  Max outlier duration: {np.max(outliers_per_trial_and_channel_flattened_ms):.1f}")
+
+        # 2. Per-channel analysis
+        outliers_per_channel_ms = np.sum(outlier_mask, axis=(0, 2)) / sfreq * 1000
+        channels_with_outliers = outliers_per_channel_ms > 0
+        n_channels = len(outliers_per_channel_ms)
+        n_channels_with_outliers = len(channels_with_outliers)
         print(f"\nPer-Channel Statistics:")
-        print(f"  Channels with no outliers: {np.sum(~channels_with_outliers)}/{n_channels} ({100*np.sum(~channels_with_outliers)/n_channels:.1f}%)")
-        print(f"  Channels with outliers: {np.sum(channels_with_outliers)}/{n_channels} ({100*np.sum(channels_with_outliers)/n_channels:.1f}%)")
+        print(f"  Number of channels: {n_channels}")
+        print(f"  Number of channels with outliers: {n_channels_with_outliers}")
         
         if np.any(channels_with_outliers):
             print(f"  For channels WITH outliers:")
-            print(f"    Mean outlier points: {np.mean(outliers_per_channel[channels_with_outliers]):.1f}")
-            print(f"    Median outlier points: {np.median(outliers_per_channel[channels_with_outliers]):.1f}")
-            print(f"    Max outlier points: {np.max(outliers_per_channel)}")
+            print(f"    Mean outlier points: {np.mean(channels_with_outliers):.1f}")
+            print(f"    Median outlier points: {np.median(channels_with_outliers):.1f}")
+            print(f"    Max outlier points: {np.max(channels_with_outliers):.1f}")
         
         # Identify problematic channels
-        worst_channels = np.argsort(outliers_per_channel)[-5:][::-1]
+        worst_channels = np.argsort(outliers_per_channel_ms)[-5:][::-1]
         channel_names = [all_trials.ch_names[i] for i in worst_channels]
+        worst_channel_times_ms = outliers_per_channel_ms[worst_channels]
         print(f"\n  Top 5 worst channels: {channel_names}")
-        print(f"  Their outlier counts: {outliers_per_channel[worst_channels].tolist()}")
+        print(f"  Their outlier times (ms): {[f'{t:.3f}' for t in worst_channel_times_ms]}")
         
-        # 4. Temporal analysis
-        outliers_per_timepoint = np.sum(outlier_mask, axis=(0, 1))
-        
-        print(f"\nTemporal Statistics:")
-        print(f"  Mean outliers per timepoint: {np.mean(outliers_per_timepoint):.1f}")
-        print(f"  Max outliers at any timepoint: {np.max(outliers_per_timepoint)}")
-        
-        # Find time periods with most outliers
-        time_window = 50  # samples
-        smoothed_outliers = np.convolve(outliers_per_timepoint, np.ones(time_window)/time_window, mode='valid')
-        peak_time_idx = np.argmax(smoothed_outliers)
-        peak_time = all_trials.times[peak_time_idx]
-        print(f"  Peak outlier period around: {peak_time:.3f} seconds")
-        
-        # 5. Distribution of outlier durations (consecutive outlier samples)
+        # 3. Distribution of outlier durations (consecutive outlier samples)
         print(f"\nOutlier Duration Analysis:")
         duration_counts = []
         
@@ -1781,90 +1749,67 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
             print(f"  Median segment duration: {np.median(duration_counts):.1f} samples ({np.median(duration_counts)/all_trials.info['sfreq']*1000:.1f} ms)")
             print(f"  Max segment duration: {np.max(duration_counts)} samples ({np.max(duration_counts)/all_trials.info['sfreq']*1000:.1f} ms)")
         
-        # 6. Impact assessment
+        # 4. Impact assessment
         print(f"\n--- Impact Assessment ---")
         
         # How many trials would be lost if we drop any trial with outliers?
         print(f"If dropping trials with ANY outliers: {np.sum(trials_with_outliers)}/{n_trials} trials lost ({100*np.sum(trials_with_outliers)/n_trials:.1f}%)")
         
         # How many trials have >1% outliers?
-        high_outlier_trials = trial_percentages > 1.0
-        print(f"Trials with >1% outliers: {np.sum(high_outlier_trials)}/{n_trials} ({100*np.sum(high_outlier_trials)/n_trials:.1f}%)")
+        outliers_per_trial_and_channel_flattened_trial_percentage = outliers_per_trial_and_channel_flattened_ms / ((all_trials.tmax - all_trials.tmin) * 1000)
+        high_outlier_trials = outliers_per_trial_and_channel_flattened_trial_percentage > 1.0
+        n_high_outlier_trials = len(high_outlier_trials)
+        print(f"Trials with >1% outliers: {n_high_outlier_trials}/{n_trials} ({100*n_high_outlier_trials/n_trials:.1f}%)")
         
         # How many trials have >5% outliers?
-        very_high_outlier_trials = trial_percentages > 5.0
-        print(f"Trials with >5% outliers: {np.sum(very_high_outlier_trials)}/{n_trials} ({100*np.sum(very_high_outlier_trials)/n_trials:.1f}%)")
+        very_high_outlier_trials = outliers_per_trial_and_channel_flattened_trial_percentage > 5.0
+        n_very_high_outlier_trials = len(very_high_outlier_trials)
+        print(f"Trials with >5% outliers: {n_very_high_outlier_trials}/{n_trials} ({100*n_very_high_outlier_trials/n_trials:.1f}%)")
         
-        # 7. Create visualization
+        # 5. Create visualization
         if create_outlier_plots:
             fig, axes = plt.subplots(2, 3, figsize=(15, 8))
             fig.suptitle(f'Outlier Distribution Analysis (Threshold: {outlier_threshold} SD)', fontsize=14, fontweight='bold')
+
+            # Plot 1: Histogram of outlier duration per trial (per channel)
+            axes[0,0].hist(outliers_per_trial_and_channel_flattened_ms)
+            axes[0,0].set_xlabel('Outlier duration (ms)')
+            axes[0,0].set_ylabel('Number of Trials')
+            axes[0,0].set_title('Outlier duration per Trial (per channel)')
             
-            # Plot 1: Histogram of outliers per trial
-            axes[0, 0].hist(outliers_per_trial[outliers_per_trial > 0], bins=30, edgecolor='black', alpha=0.7)
-            axes[0, 0].set_xlabel('Number of Outlier Points')
-            axes[0, 0].set_ylabel('Number of Trials')
-            axes[0, 0].set_title('Outliers per Trial (excluding zero)')
-            axes[0, 0].axvline(np.mean(outliers_per_trial[outliers_per_trial > 0]), 
-                            color='red', linestyle='--', 
-                            label=f'Mean: {np.mean(outliers_per_trial[outliers_per_trial > 0]):.1f}')
-            axes[0, 0].legend()
-            
-            # Plot 2: Histogram of outliers per channel
-            axes[0, 1].hist(outliers_per_channel[outliers_per_channel > 0], bins=30, edgecolor='black', alpha=0.7)
-            axes[0, 1].set_xlabel('Number of Outlier Points')
+            # Plot 2: Histogram of outlier duration per channel
+            axes[0, 1].hist(outliers_per_channel_ms)
+            axes[0, 1].set_xlabel('Outlier duration (ms)')
             axes[0, 1].set_ylabel('Number of Channels')
-            axes[0, 1].set_title('Outliers per Channel (excluding zero)')
-            if np.any(outliers_per_channel > 0):
-                axes[0, 1].axvline(np.mean(outliers_per_channel[outliers_per_channel > 0]), 
-                                color='red', linestyle='--', 
-                                label=f'Mean: {np.mean(outliers_per_channel[outliers_per_channel > 0]):.1f}')
-            axes[0, 1].legend()
+            axes[0, 1].set_title('Outlier duration per Channel')
             
-            # Plot 3: Outliers over time
-            axes[0, 2].plot(all_trials.times, outliers_per_timepoint)
-            axes[0, 2].set_xlabel('Time (s)')
-            axes[0, 2].set_ylabel('Number of Outlier Points')
-            axes[0, 2].set_title('Outliers Over Time')
-            axes[0, 2].grid(True, alpha=0.3)
-            axes[0, 2].axvline(0, color='red', linestyle='--', alpha=0.5, label='Stimulus onset')
-            axes[0, 2].legend()
-            
-            # Plot 4: Heatmap of outliers (trials x channels, summed over time)
+            # Plot 3: Heatmap of outliers (trials x channels, summed over time)
             outlier_heatmap = np.sum(outlier_mask, axis=2)
-            n_show = min(50, n_trials)
-            im = axes[1, 0].imshow(outlier_heatmap[:n_show, :], aspect='auto', cmap='hot')
+            im = axes[1, 0].imshow(outlier_heatmap / sfreq * 1000, aspect='auto', cmap='hot')
             axes[1, 0].set_xlabel('Channel Index')
-            axes[1, 0].set_ylabel(f'Trial Index (first {n_show})')
+            axes[1, 0].set_ylabel('Trial Index')
             axes[1, 0].set_title('Outlier Heatmap (sum over time)')
-            plt.colorbar(im, ax=axes[1, 0], label='Outlier Count')
+            plt.colorbar(im, ax=axes[1, 0], label='Outlier duration (ms)')
             
-            # Plot 5: Duration distribution
+            # Plot 4: Duration distribution
             if len(duration_counts) > 0:
                 # Convert to milliseconds
-                duration_ms = duration_counts / all_trials.info['sfreq'] * 1000
-                axes[1, 1].hist(duration_ms[duration_ms < np.percentile(duration_ms, 99)], 
-                            bins=30, edgecolor='black', alpha=0.7)
+                duration_ms = duration_counts / sfreq * 1000
+                axes[1, 1].hist(duration_ms)
                 axes[1, 1].set_xlabel('Duration (ms)')
                 axes[1, 1].set_ylabel('Count')
-                axes[1, 1].set_title('Outlier Segment Duration Distribution')
-                axes[1, 1].axvline(np.median(duration_ms), color='red', linestyle='--', 
-                                label=f'Median: {np.median(duration_ms):.1f} ms')
-                axes[1, 1].legend()
+                axes[1, 1].set_title('Outlier Segment Duration Distribution Across Trial and Channels')
             else:
                 axes[1, 1].text(0.5, 0.5, 'No outlier segments found', 
                             ha='center', va='center', transform=axes[1, 1].transAxes)
             
-            # Plot 6: Trial percentage distribution
-            trial_percentages_nonzero = trial_percentages[trial_percentages > 0]
-            if len(trial_percentages_nonzero) > 0:
-                axes[1, 2].hist(trial_percentages_nonzero, bins=30, edgecolor='black', alpha=0.7)
+            # Plot 5: Trial percentage distribution
+            trial_percentages = outliers_per_trial_and_channel_flattened_trial_percentage
+            if len(trial_percentages) > 0:
+                axes[1, 2].hist(trial_percentages)
                 axes[1, 2].set_xlabel('Percentage of Trial that is Outliers (%)')
                 axes[1, 2].set_ylabel('Number of Trials')
                 axes[1, 2].set_title('Distribution of Outlier Percentage per Trial')
-                axes[1, 2].axvline(1.0, color='orange', linestyle='--', label='1% threshold')
-                axes[1, 2].axvline(5.0, color='red', linestyle='--', label='5% threshold')
-                axes[1, 2].legend()
             
             plt.tight_layout()
             print(f"Attempting to save plot to: {full_save_path}")
