@@ -1,0 +1,1633 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+Conditions:        ['Stimulus_c25', 'Stimulus_c75', 'Stimulus_i25', 'Stimulus_i75']
+ROIs:              ['lpfc', 'occ']
+Permutations:      500
+P-threshold:       0.05
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       sig
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 5/500
+  Shuffle Permutations: 500
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):32/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Statistical Parameters:
+  Cluster Perms:     500
+  P-value Threshold: 0.05
+  Tails:             1
+======================================================================
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0065
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+Loaded significant channels for subject D0100
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0107A
+Loaded significant channels for subject D0110
+Loaded significant channels for subject D0116
+Loaded significant channels for subject D0117
+Loaded significant channels for subject D0121
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RAMF12', 'RAMF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAMF11', 'RMMF13', 'RMMF14', 'RAI4', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA4', 'RIP6', 'RIA5']
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM12', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFO15', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFAI3', 'RIA6']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LINS4']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA18', 'LFMI3', 'RFMM12', 'RAI15', 'RAI17']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RINSA3']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA11']
+For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
+For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
+For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
+For subject D0065, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPMT1', 'RPIT1', 'RPIT2']
+For subject D0069, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0071, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI1', 'RO1', 'RO2', 'RO10']
+For subject D0077, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI2', 'ROPI5', 'ROPI6', 'ROPI8', 'ROPM9', 'ROPM11', 'ROPM12', 'ROPM1', 'ROPM8']
+For subject D0090, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPO1', 'RTPI1', 'RTPI2']
+For subject D0094, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0100, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2', 'LTOJ13', 'LOAI12', 'LOAI13', 'LOAI14', 'LOAI15', 'LOMI8', 'LOMI9', 'LOMI11', 'LOMI12', 'LOPI9', 'LOPI10', 'LOAM15', 'LOMM15', 'LOPM10', 'LOMS13', 'LOMS14', 'LOMS15', 'LOPS9', 'LOPS11', 'LOPS12', 'LPPI14', 'LPPI15', 'LOMM13', 'LOMM14', 'LOMS11', 'LOMS12', 'LOPM8', 'LOPM9', 'LPPI7', 'LPPI8', 'LPPI9']
+For subject D0102, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTAI6', 'RTPI1']
+For subject D0103, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTLI3', 'LTPI2', 'LTPI3', 'LTPI4']
+For subject D0107A, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI3']
+For subject D0110, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0116, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0117, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0121, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0059 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0063 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0069 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPM11', 'ROPM1']
+Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI2']
+Subject D0094 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI1', 'LOMM3', 'LOMM5', 'LTOJ13', 'LOMI11', 'LOPI9', 'LOPM10', 'LOPS12', 'LOPM8', 'LOPM9']
+Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI2', 'LTPI3', 'LTPI4']
+Subject D0107A significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0110 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0116 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0117 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0121 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Loading data for subject: D0057
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+143 matching events found
+No baseline correction applied
+    Original shape: (143, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 112.1
+    Max NaN count in a trial: 1282
+    Stimulus_c25: 143 valid trials out of 143
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 139.9
+    Max NaN count in a trial: 1282
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+43 matching events found
+No baseline correction applied
+    Original shape: (43, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 104.3
+    Max NaN count in a trial: 1282
+    Stimulus_i25: 43 valid trials out of 43
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 129.0
+    Max NaN count in a trial: 1923
+    Stimulus_i75: 164 valid trials out of 164
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+143 matching events found
+No baseline correction applied
+    Original shape: (143, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 112.1
+    Max NaN count in a trial: 1282
+    Stimulus_c25: 143 valid trials out of 143
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 139.9
+    Max NaN count in a trial: 1282
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+43 matching events found
+No baseline correction applied
+    Original shape: (43, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 104.3
+    Max NaN count in a trial: 1282
+    Stimulus_i25: 43 valid trials out of 43
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 129.0
+    Max NaN count in a trial: 1923
+    Stimulus_i75: 164 valid trials out of 164
+Loading data for subject: D0059
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+161 matching events found
+No baseline correction applied
+    Original shape: (161, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 306.6
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 161 valid trials out of 161
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 442.9
+    Max NaN count in a trial: 7692
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+53 matching events found
+No baseline correction applied
+    Original shape: (53, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 254.0
+    Max NaN count in a trial: 3846
+    Stimulus_i25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+158 matching events found
+No baseline correction applied
+    Original shape: (158, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 835.7
+    Max NaN count in a trial: 12820
+    Stimulus_i75: 158 valid trials out of 158
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+161 matching events found
+No baseline correction applied
+    Original shape: (161, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 306.6
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 161 valid trials out of 161
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 442.9
+    Max NaN count in a trial: 7692
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+53 matching events found
+No baseline correction applied
+    Original shape: (53, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 254.0
+    Max NaN count in a trial: 3846
+    Stimulus_i25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+158 matching events found
+No baseline correction applied
+    Original shape: (158, 178, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 835.7
+    Max NaN count in a trial: 12820
+    Stimulus_i75: 158 valid trials out of 158
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+165 matching events found
+No baseline correction applied
+    Original shape: (165, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 528.3
+    Max NaN count in a trial: 7692
+    Stimulus_c25: 165 valid trials out of 165
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 240.4
+    Max NaN count in a trial: 2564
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Original shape: (36, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 498.6
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 36 valid trials out of 36
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 548.7
+    Max NaN count in a trial: 14102
+    Stimulus_i75: 132 valid trials out of 132
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+165 matching events found
+No baseline correction applied
+    Original shape: (165, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 528.3
+    Max NaN count in a trial: 7692
+    Stimulus_c25: 165 valid trials out of 165
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 240.4
+    Max NaN count in a trial: 2564
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Original shape: (36, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 498.6
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 36 valid trials out of 36
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 548.7
+    Max NaN count in a trial: 14102
+    Stimulus_i75: 132 valid trials out of 132
+Loading data for subject: D0065
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+138 matching events found
+No baseline correction applied
+    Original shape: (138, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 4737.8
+    Max NaN count in a trial: 119226
+    Stimulus_c25: 138 valid trials out of 138
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+39 matching events found
+No baseline correction applied
+    Original shape: (39, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1084.8
+    Max NaN count in a trial: 37178
+    Stimulus_c75: 39 valid trials out of 39
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 709.7
+    Max NaN count in a trial: 6410
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Original shape: (111, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2783.4
+    Max NaN count in a trial: 101278
+    Stimulus_i75: 111 valid trials out of 111
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+138 matching events found
+No baseline correction applied
+    Original shape: (138, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 4737.8
+    Max NaN count in a trial: 119226
+    Stimulus_c25: 138 valid trials out of 138
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+39 matching events found
+No baseline correction applied
+    Original shape: (39, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1084.8
+    Max NaN count in a trial: 37178
+    Stimulus_c75: 39 valid trials out of 39
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 709.7
+    Max NaN count in a trial: 6410
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Original shape: (111, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2783.4
+    Max NaN count in a trial: 101278
+    Stimulus_i75: 111 valid trials out of 111
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 670.1
+    Max NaN count in a trial: 22435
+    Stimulus_c25: 132 valid trials out of 132
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 356.1
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+33 matching events found
+No baseline correction applied
+    Original shape: (33, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 466.2
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 33 valid trials out of 33
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+120 matching events found
+No baseline correction applied
+    Original shape: (120, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 582.2
+    Max NaN count in a trial: 13461
+    Stimulus_i75: 120 valid trials out of 120
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 670.1
+    Max NaN count in a trial: 22435
+    Stimulus_c25: 132 valid trials out of 132
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 356.1
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+33 matching events found
+No baseline correction applied
+    Original shape: (33, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 466.2
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 33 valid trials out of 33
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+120 matching events found
+No baseline correction applied
+    Original shape: (120, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 582.2
+    Max NaN count in a trial: 13461
+    Stimulus_i75: 120 valid trials out of 120
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2478.3
+    Max NaN count in a trial: 22435
+    Stimulus_c25: 157 valid trials out of 157
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2083.2
+    Max NaN count in a trial: 13461
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2576.3
+    Max NaN count in a trial: 16666
+    Stimulus_i25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1962.1
+    Max NaN count in a trial: 23076
+    Stimulus_i75: 164 valid trials out of 164
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2478.3
+    Max NaN count in a trial: 22435
+    Stimulus_c25: 157 valid trials out of 157
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2083.2
+    Max NaN count in a trial: 13461
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2576.3
+    Max NaN count in a trial: 16666
+    Stimulus_i25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 156, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1962.1
+    Max NaN count in a trial: 23076
+    Stimulus_i75: 164 valid trials out of 164
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 584.9
+    Max NaN count in a trial: 7051
+    Stimulus_c25: 137 valid trials out of 137
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 771.8
+    Max NaN count in a trial: 8974
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+37 matching events found
+No baseline correction applied
+    Original shape: (37, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 589.0
+    Max NaN count in a trial: 7051
+    Stimulus_i25: 37 valid trials out of 37
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 500.2
+    Max NaN count in a trial: 6410
+    Stimulus_i75: 132 valid trials out of 132
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 584.9
+    Max NaN count in a trial: 7051
+    Stimulus_c25: 137 valid trials out of 137
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 771.8
+    Max NaN count in a trial: 8974
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+37 matching events found
+No baseline correction applied
+    Original shape: (37, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 589.0
+    Max NaN count in a trial: 7051
+    Stimulus_i25: 37 valid trials out of 37
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 500.2
+    Max NaN count in a trial: 6410
+    Stimulus_i75: 132 valid trials out of 132
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 648.9
+    Max NaN count in a trial: 12820
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 788.9
+    Max NaN count in a trial: 8333
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 663.9
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 371.5
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 157 valid trials out of 157
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 648.9
+    Max NaN count in a trial: 12820
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 788.9
+    Max NaN count in a trial: 8333
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 663.9
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 155, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 371.5
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 157 valid trials out of 157
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+160 matching events found
+No baseline correction applied
+    Original shape: (160, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 749.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 160 valid trials out of 160
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 758.7
+    Max NaN count in a trial: 17307
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 897.4
+    Max NaN count in a trial: 12820
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+124 matching events found
+No baseline correction applied
+    Original shape: (124, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 485.9
+    Max NaN count in a trial: 11538
+    Stimulus_i75: 124 valid trials out of 124
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+160 matching events found
+No baseline correction applied
+    Original shape: (160, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 749.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 160 valid trials out of 160
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 758.7
+    Max NaN count in a trial: 17307
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 897.4
+    Max NaN count in a trial: 12820
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+124 matching events found
+No baseline correction applied
+    Original shape: (124, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 485.9
+    Max NaN count in a trial: 11538
+    Stimulus_i75: 124 valid trials out of 124
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1877.2
+    Max NaN count in a trial: 57690
+    Stimulus_c25: 168 valid trials out of 168
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1059.6
+    Max NaN count in a trial: 15384
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1613.9
+    Max NaN count in a trial: 27563
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+148 matching events found
+No baseline correction applied
+    Original shape: (148, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 753.6
+    Max NaN count in a trial: 21153
+    Stimulus_i75: 148 valid trials out of 148
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1877.2
+    Max NaN count in a trial: 57690
+    Stimulus_c25: 168 valid trials out of 168
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1059.6
+    Max NaN count in a trial: 15384
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1613.9
+    Max NaN count in a trial: 27563
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+148 matching events found
+No baseline correction applied
+    Original shape: (148, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 753.6
+    Max NaN count in a trial: 21153
+    Stimulus_i75: 148 valid trials out of 148
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 924.4
+    Max NaN count in a trial: 27563
+    Stimulus_c25: 147 valid trials out of 147
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1254.1
+    Max NaN count in a trial: 24358
+    Stimulus_c75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+26 matching events found
+No baseline correction applied
+    Original shape: (26, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 493.1
+    Max NaN count in a trial: 7692
+    Stimulus_i25: 26 valid trials out of 26
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+80 matching events found
+No baseline correction applied
+    Original shape: (80, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 584.9
+    Max NaN count in a trial: 8333
+    Stimulus_i75: 80 valid trials out of 80
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 924.4
+    Max NaN count in a trial: 27563
+    Stimulus_c25: 147 valid trials out of 147
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1254.1
+    Max NaN count in a trial: 24358
+    Stimulus_c75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+26 matching events found
+No baseline correction applied
+    Original shape: (26, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 493.1
+    Max NaN count in a trial: 7692
+    Stimulus_i25: 26 valid trials out of 26
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+80 matching events found
+No baseline correction applied
+    Original shape: (80, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 584.9
+    Max NaN count in a trial: 8333
+    Stimulus_i75: 80 valid trials out of 80
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 753.9
+    Max NaN count in a trial: 14102
+    Stimulus_c25: 159 valid trials out of 159
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 328.3
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 905.8
+    Max NaN count in a trial: 6410
+    Stimulus_i25: 46 valid trials out of 46
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+113 matching events found
+No baseline correction applied
+    Original shape: (113, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 289.3
+    Max NaN count in a trial: 5128
+    Stimulus_i75: 113 valid trials out of 113
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 753.9
+    Max NaN count in a trial: 14102
+    Stimulus_c25: 159 valid trials out of 159
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 328.3
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 905.8
+    Max NaN count in a trial: 6410
+    Stimulus_i25: 46 valid trials out of 46
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+113 matching events found
+No baseline correction applied
+    Original shape: (113, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 289.3
+    Max NaN count in a trial: 5128
+    Stimulus_i75: 113 valid trials out of 113
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1907.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2840.5
+    Max NaN count in a trial: 45511
+    Stimulus_c75: 51 valid trials out of 51
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+44 matching events found
+No baseline correction applied
+    Original shape: (44, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2491.2
+    Max NaN count in a trial: 10256
+    Stimulus_i25: 44 valid trials out of 44
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1787.3
+    Max NaN count in a trial: 12820
+    Stimulus_i75: 137 valid trials out of 137
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1907.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2840.5
+    Max NaN count in a trial: 45511
+    Stimulus_c75: 51 valid trials out of 51
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+44 matching events found
+No baseline correction applied
+    Original shape: (44, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2491.2
+    Max NaN count in a trial: 10256
+    Stimulus_i25: 44 valid trials out of 44
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 164, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1787.3
+    Max NaN count in a trial: 12820
+    Stimulus_i75: 137 valid trials out of 137
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 836.4
+    Max NaN count in a trial: 18589
+    Stimulus_c25: 164 valid trials out of 164
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2197.7
+    Max NaN count in a trial: 23717
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 992.9
+    Max NaN count in a trial: 8974
+    Stimulus_i25: 51 valid trials out of 51
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1198.1
+    Max NaN count in a trial: 20512
+    Stimulus_i75: 168 valid trials out of 168
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 836.4
+    Max NaN count in a trial: 18589
+    Stimulus_c25: 164 valid trials out of 164
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2197.7
+    Max NaN count in a trial: 23717
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 992.9
+    Max NaN count in a trial: 8974
+    Stimulus_i25: 51 valid trials out of 51
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 226, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1198.1
+    Max NaN count in a trial: 20512
+    Stimulus_i75: 168 valid trials out of 168
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+166 matching events found
+No baseline correction applied
+    Original shape: (166, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 745.3
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 166 valid trials out of 166
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 675.3
+    Max NaN count in a trial: 6410
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 609.7
+    Max NaN count in a trial: 10256
+    Stimulus_i25: 41 valid trials out of 41
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 658.4
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 147 valid trials out of 147
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+166 matching events found
+No baseline correction applied
+    Original shape: (166, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 745.3
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 166 valid trials out of 166
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 675.3
+    Max NaN count in a trial: 6410
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 609.7
+    Max NaN count in a trial: 10256
+    Stimulus_i25: 41 valid trials out of 41
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 219, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 658.4
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 147 valid trials out of 147
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+127 matching events found
+No baseline correction applied
+    Original shape: (127, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2094.6
+    Max NaN count in a trial: 54485
+    Stimulus_c25: 127 valid trials out of 127
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+35 matching events found
+No baseline correction applied
+    Original shape: (35, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1318.6
+    Max NaN count in a trial: 13461
+    Stimulus_c75: 35 valid trials out of 35
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1304.9
+    Max NaN count in a trial: 14102
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Original shape: (93, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1736.9
+    Max NaN count in a trial: 24358
+    Stimulus_i75: 93 valid trials out of 93
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+127 matching events found
+No baseline correction applied
+    Original shape: (127, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2094.6
+    Max NaN count in a trial: 54485
+    Stimulus_c25: 127 valid trials out of 127
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+35 matching events found
+No baseline correction applied
+    Original shape: (35, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1318.6
+    Max NaN count in a trial: 13461
+    Stimulus_c75: 35 valid trials out of 35
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1304.9
+    Max NaN count in a trial: 14102
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Original shape: (93, 199, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1736.9
+    Max NaN count in a trial: 24358
+    Stimulus_i75: 93 valid trials out of 93
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+154 matching events found
+No baseline correction applied
+    Original shape: (154, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1252.9
+    Max NaN count in a trial: 42947
+    Stimulus_c25: 154 valid trials out of 154
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1392.9
+    Max NaN count in a trial: 21794
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 897.4
+    Max NaN count in a trial: 16666
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+149 matching events found
+No baseline correction applied
+    Original shape: (149, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 963.7
+    Max NaN count in a trial: 19230
+    Stimulus_i75: 149 valid trials out of 149
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+154 matching events found
+No baseline correction applied
+    Original shape: (154, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1252.9
+    Max NaN count in a trial: 42947
+    Stimulus_c25: 154 valid trials out of 154
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1392.9
+    Max NaN count in a trial: 21794
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 204, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 897.4
+    Max NaN count in a trial: 16666
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+149 matching events found
+No baseline correction applied

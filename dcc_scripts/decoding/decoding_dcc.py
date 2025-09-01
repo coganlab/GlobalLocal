@@ -441,6 +441,80 @@ def main(args):
                 show_chance_level=False # The pooled shuffle line is the new chance level
             )
 
+    # do lwps comparison 
+    if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
+        for roi in rois:
+            time_window_centers = time_window_decoding_results['s25_vs_r25'][roi]['time_window_centers']
+            s25_vs_r25_acc = time_window_decoding_results['s25_vs_r25'][roi]['accuracies_true']
+            s75_vs_r75_acc = time_window_decoding_results['s75_vs_r75'][roi]['accuracies_true']
+            
+            # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
+            lwps_significant_clusters, lwps_p_values = time_perm_cluster(
+                s25_vs_r25_acc.T,
+                s75_vs_r75_acc.T,
+                p_thresh=args.p_thresh,
+                n_perm=args.n_perm,
+                tails=1,
+                axis=0, 
+                stat_func=args.stat_func,
+                n_jobs=args.n_jobs,
+                seed=args.random_state
+            )
+            
+            # get s vs r pooled shuffle distribution
+            strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_perm,
+                random_state=args.random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            # Plot accuracies comparing s25_vs_r25 and s75_vs_r75 for this condition comparison and roi
+            # For LWPS comparisons
+            accuracies_dict = {
+                's25_vs_r25': s25_vs_r25_acc,
+                's75_vs_r75': s75_vs_r75_acc,
+                'pooled_shuffle': accuracies_shuffle_pooled
+            }
+
+            colors = {
+                's25_vs_r25': '#0173B2',  # Blue
+                's75_vs_r75': '#DE8F05' ,   # Orange
+                'pooled_shuffle': '#949494'  # Gray
+            }
+            
+            linestyles = {
+                's25_vs_r25': '-',  # Solid
+                's75_vs_r75': '-',  # Solid
+                'pooled_shuffle': '--'                       # Dashed
+            }
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict=accuracies_dict,
+                significant_clusters=lwps_significant_clusters,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'lwps_comparison_{roi}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, 'lwps_plots'), # Save in a sub-directory
+                timestamp=args.timestamp,
+                p_thresh=args.p_thresh,
+                colors=colors,
+                linestyles=linestyles,
+                single_column=False,
+                ylim=(0.4, 0.75),
+                show_chance_level=False # The pooled shuffle line is the new chance level
+            )
             
 
             
