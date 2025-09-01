@@ -1,0 +1,6 @@
+['/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/decoding', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/etb28/coganlab/etb28/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/decoding', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/etb28/coganlab/etb28/GlobalLocal/IEEG_Pipelines/']
