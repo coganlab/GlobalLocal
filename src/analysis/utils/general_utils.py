@@ -1665,7 +1665,7 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
     # Concatenate all trials
     all_trials = mne.concatenate_epochs(all_trials_list)
     print(f"\nTotal trials before outlier marking: {len(all_trials)}")
-    n_trials, n_channels, n_timepoints = all_trials.shape
+
 
     print(f"time range: {all_trials.tmin} to {all_trials.tmax}") # check this
     # Get data before marking outliers
@@ -1691,13 +1691,13 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         full_save_path = os.path.join(save_dir, plot_filename)
 
         sfreq = all_trials.info['sfreq'] # sampling frequency
-        
+        n_trials, n_channels, n_timepoints = outlier_mask.shape
         # 1. Per trial (and channel) analysis
         outliers_per_trial_and_channel_ms = np.sum(outlier_mask, axis=2) / sfreq * 1000
         outliers_per_trial_and_channel_flattened_ms = outliers_per_trial_and_channel_ms.flatten()
         trials_with_outliers = outliers_per_trial_and_channel_flattened_ms > 0
         n_trials_across_channels = len(outliers_per_trial_and_channel_flattened_ms)
-        n_trials_with_outliers = len(trials_with_outliers)
+        n_trials_with_outliers = np.sum(trials_with_outliers)
         print(f"\nPer-Trial, Per-Channel Statistics:")
         print(f"  Number of trials across all channels (channel-trials): {n_trials_across_channels}")
         print(f"  Number of trials (channel-trials) with outliers: {n_trials_with_outliers}")
@@ -1709,7 +1709,7 @@ def get_trials_with_outlier_analysis(data: mne.io.Raw, events: list[str], times:
         outliers_per_channel_ms = np.sum(outlier_mask, axis=(0, 2)) / sfreq * 1000
         channels_with_outliers = outliers_per_channel_ms > 0
         n_channels = len(outliers_per_channel_ms)
-        n_channels_with_outliers = len(channels_with_outliers)
+        n_channels_with_outliers = np.sum(channels_with_outliers)
         print(f"\nPer-Channel Statistics:")
         print(f"  Number of channels: {n_channels}")
         print(f"  Number of channels with outliers: {n_channels_with_outliers}")
