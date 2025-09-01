@@ -12,7 +12,7 @@ Conditions:        ['Stimulus_smallS', 'Stimulus_smallH']
 ROIs:              ['lpfc', 'occ']
 Permutations:      500
 P-threshold:       0.05
-Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
 Electrodes (all or sig):       sig
 Explained variance: 0.8
 Balance method:     subsample
@@ -37,7 +37,7 @@ Statistical Parameters:
 
 Starting analysis...
 Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
-Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
 Loaded significant channels for subject D0057
 Loaded significant channels for subject D0059
 Loaded significant channels for subject D0063
@@ -72,23 +72,23 @@ For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Trian
 For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
 For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
 For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
-Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RPI15', 'RPI14', 'RAMF13', 'RAMF14']
-Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
-Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF15', 'LMSF5', 'RAMF11', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI10', 'RMMF10']
-Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RAMF12', 'RAMF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF11', 'LMMF10']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAMF11', 'RMMF13', 'RMMF14', 'RAI4', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP16']
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA4', 'RIP6', 'RIA5']
 Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
 Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11']
-Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LFAI5', 'LFPI10', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM12', 'LFAI9', 'LFAI10', 'LIA11']
 Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
-Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14', 'RFAM15']
-Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
-Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA13', 'RIA14', 'RIA15']
-Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10', 'LINS4']
-Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
-Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA3', 'RINSA12', 'RINSA13']
-Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6', 'LFMI4', 'LFMI5']
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFO15', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA17', 'RFAI3', 'RIA6']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LINS4']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA18', 'LFMI3', 'RFMM12', 'RAI15', 'RAI17']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RINSA3']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS2', 'LFA11']
 For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
 For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
 For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
@@ -109,22 +109,22 @@ For subject D0121, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipi
 Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0059 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0063 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
-Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RPMT1', 'RPIT1', 'RPIT2']
+Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0069 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
-Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RO1', 'RO2', 'RO10']
-Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPI5', 'ROPI6', 'ROPM9', 'ROPM1', 'ROPM8']
-Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPO1', 'RTPI2']
+Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPM11', 'ROPM1']
+Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI2']
 Subject D0094 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
-Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTOJ1', 'LOPM1', 'LTOJ3', 'LOMM3', 'LOMM4', 'LOMM5', 'LTOJ13', 'LOAI12', 'LOAI13', 'LOAI14', 'LOAI15', 'LOMI8', 'LOMI9', 'LOMI11', 'LOMI12', 'LOPI9', 'LOPI10', 'LOAM15', 'LOPM10', 'LOMS13', 'LOPS12', 'LOMM13', 'LOMM14', 'LOPM8', 'LOPM9', 'LPPI7', 'LPPI8', 'LPPI9']
-Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI1']
-Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTLI3', 'LTPI2', 'LTPI3', 'LTPI4']
+Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI1', 'LOMM3', 'LOMM5', 'LTOJ13', 'LOMI11', 'LOPI9', 'LOPM10', 'LOPS12', 'LOPM8', 'LOPM9']
+Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI2', 'LTPI3', 'LTPI4']
 Subject D0107A significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0110 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0116 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0117 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Subject D0121 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
 Loading data for subject: D0057
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -132,7 +132,7 @@ Not setting metadata
 449 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -146,8 +146,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (181, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 131.0
+    Max NaN count in a trial: 1282
     Stimulus_smallS: 181 valid trials out of 181
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -155,8 +155,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (224, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 114.5
+    Max NaN count in a trial: 1923
     Stimulus_smallH: 224 valid trials out of 224
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -164,8 +164,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (181, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 131.0
+    Max NaN count in a trial: 1282
     Stimulus_smallS: 181 valid trials out of 181
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -173,11 +173,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (224, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 114.5
+    Max NaN count in a trial: 1923
     Stimulus_smallH: 224 valid trials out of 224
 Loading data for subject: D0059
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -185,7 +185,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -199,8 +199,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (215, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 620.1
+    Max NaN count in a trial: 12820
     Stimulus_smallS: 215 valid trials out of 215
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -208,8 +208,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (212, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 405.2
+    Max NaN count in a trial: 7692
     Stimulus_smallH: 212 valid trials out of 212
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -217,8 +217,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (215, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 620.1
+    Max NaN count in a trial: 12820
     Stimulus_smallS: 215 valid trials out of 215
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -226,11 +226,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (212, 178, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 405.2
+    Max NaN count in a trial: 7692
     Stimulus_smallH: 212 valid trials out of 212
 Loading data for subject: D0063
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -238,7 +238,7 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -252,8 +252,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (211, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 419.2
+    Max NaN count in a trial: 11538
     Stimulus_smallS: 211 valid trials out of 211
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -261,8 +261,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (178, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 576.2
+    Max NaN count in a trial: 14102
     Stimulus_smallH: 178 valid trials out of 178
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -270,8 +270,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (211, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 419.2
+    Max NaN count in a trial: 11538
     Stimulus_smallS: 211 valid trials out of 211
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -279,11 +279,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (178, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 576.2
+    Max NaN count in a trial: 14102
     Stimulus_smallH: 178 valid trials out of 178
 Loading data for subject: D0065
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -291,7 +291,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -305,8 +305,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (177, 216, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2716.1
+    Max NaN count in a trial: 101278
     Stimulus_smallS: 177 valid trials out of 177
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -314,8 +314,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (139, 216, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 3915.2
+    Max NaN count in a trial: 119226
     Stimulus_smallH: 139 valid trials out of 139
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -323,8 +323,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (177, 216, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2716.1
+    Max NaN count in a trial: 101278
     Stimulus_smallS: 177 valid trials out of 177
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -332,11 +332,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (139, 216, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 3915.2
+    Max NaN count in a trial: 119226
     Stimulus_smallH: 139 valid trials out of 139
 Loading data for subject: D0069
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -344,7 +344,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -358,8 +358,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (183, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 525.4
+    Max NaN count in a trial: 15384
     Stimulus_smallS: 183 valid trials out of 183
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -367,8 +367,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (147, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 636.6
+    Max NaN count in a trial: 22435
     Stimulus_smallH: 147 valid trials out of 147
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -376,8 +376,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (183, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 525.4
+    Max NaN count in a trial: 15384
     Stimulus_smallS: 183 valid trials out of 183
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -385,11 +385,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (147, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 636.6
+    Max NaN count in a trial: 22435
     Stimulus_smallH: 147 valid trials out of 147
 Loading data for subject: D0071
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -397,7 +397,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -411,8 +411,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (224, 156, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2200.6
+    Max NaN count in a trial: 23076
     Stimulus_smallS: 224 valid trials out of 224
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -420,8 +420,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (205, 156, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2285.7
+    Max NaN count in a trial: 22435
     Stimulus_smallH: 205 valid trials out of 205
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -429,8 +429,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (224, 156, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2200.6
+    Max NaN count in a trial: 23076
     Stimulus_smallS: 224 valid trials out of 224
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -438,11 +438,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (205, 156, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2285.7
+    Max NaN count in a trial: 22435
     Stimulus_smallH: 205 valid trials out of 205
 Loading data for subject: D0077
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -450,7 +450,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -464,8 +464,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (175, 131, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 644.7
+    Max NaN count in a trial: 7051
     Stimulus_smallS: 175 valid trials out of 175
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -473,8 +473,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (180, 131, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 516.4
+    Max NaN count in a trial: 8974
     Stimulus_smallH: 180 valid trials out of 180
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -482,8 +482,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (175, 131, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 644.7
+    Max NaN count in a trial: 7051
     Stimulus_smallS: 175 valid trials out of 175
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -491,11 +491,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (180, 131, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 516.4
+    Max NaN count in a trial: 8974
     Stimulus_smallH: 180 valid trials out of 180
 Loading data for subject: D0090
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -503,7 +503,7 @@ Not setting metadata
 450 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -517,8 +517,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (212, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 713.6
+    Max NaN count in a trial: 12820
     Stimulus_smallS: 212 valid trials out of 212
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -526,8 +526,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (215, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 420.4
+    Max NaN count in a trial: 6410
     Stimulus_smallH: 215 valid trials out of 215
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -535,8 +535,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (212, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 713.6
+    Max NaN count in a trial: 12820
     Stimulus_smallS: 212 valid trials out of 212
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -544,11 +544,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (215, 155, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 420.4
+    Max NaN count in a trial: 6410
     Stimulus_smallH: 215 valid trials out of 215
 Loading data for subject: D0094
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -556,7 +556,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -570,8 +570,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (188, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 787.6
+    Max NaN count in a trial: 17307
     Stimulus_smallS: 188 valid trials out of 188
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -579,8 +579,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (190, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 576.9
+    Max NaN count in a trial: 12820
     Stimulus_smallH: 190 valid trials out of 190
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -588,8 +588,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (188, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 787.6
+    Max NaN count in a trial: 17307
     Stimulus_smallS: 188 valid trials out of 188
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -597,11 +597,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (190, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 576.9
+    Max NaN count in a trial: 12820
     Stimulus_smallH: 190 valid trials out of 190
 Loading data for subject: D0100
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -609,7 +609,7 @@ Not setting metadata
 451 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -623,8 +623,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (208, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 930.7
+    Max NaN count in a trial: 14743
     Stimulus_smallS: 208 valid trials out of 208
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -632,8 +632,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (213, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1763.5
+    Max NaN count in a trial: 57690
     Stimulus_smallH: 213 valid trials out of 213
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -641,8 +641,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (208, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 930.7
+    Max NaN count in a trial: 14743
     Stimulus_smallS: 208 valid trials out of 208
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -650,11 +650,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (213, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1763.5
+    Max NaN count in a trial: 57690
     Stimulus_smallH: 213 valid trials out of 213
 Loading data for subject: D0102
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -662,7 +662,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -676,8 +676,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (151, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 755.6
+    Max NaN count in a trial: 8974
     Stimulus_smallS: 151 valid trials out of 151
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -685,8 +685,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (148, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 939.8
+    Max NaN count in a trial: 27563
     Stimulus_smallH: 148 valid trials out of 148
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -694,8 +694,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (151, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 755.6
+    Max NaN count in a trial: 8974
     Stimulus_smallS: 151 valid trials out of 151
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -703,11 +703,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (148, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 939.8
+    Max NaN count in a trial: 27563
     Stimulus_smallH: 148 valid trials out of 148
 Loading data for subject: D0103
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -715,7 +715,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -729,8 +729,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (189, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 501.9
+    Max NaN count in a trial: 6410
     Stimulus_smallS: 189 valid trials out of 189
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -738,8 +738,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (170, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 663.6
+    Max NaN count in a trial: 14102
     Stimulus_smallH: 170 valid trials out of 170
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -747,8 +747,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (189, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 501.9
+    Max NaN count in a trial: 6410
     Stimulus_smallS: 189 valid trials out of 189
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -756,11 +756,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (170, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 663.6
+    Max NaN count in a trial: 14102
     Stimulus_smallH: 170 valid trials out of 170
 Loading data for subject: D0107A
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -768,7 +768,7 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -782,8 +782,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (192, 164, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2303.6
+    Max NaN count in a trial: 45511
     Stimulus_smallS: 192 valid trials out of 192
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -791,8 +791,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (202, 164, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1811.9
+    Max NaN count in a trial: 12179
     Stimulus_smallH: 202 valid trials out of 202
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -800,8 +800,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (192, 164, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2303.6
+    Max NaN count in a trial: 45511
     Stimulus_smallS: 192 valid trials out of 192
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -809,11 +809,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (202, 164, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1811.9
+    Max NaN count in a trial: 12179
     Stimulus_smallH: 202 valid trials out of 202
 Loading data for subject: D0110
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -821,7 +821,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -835,8 +835,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (219, 226, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 848.8
+    Max NaN count in a trial: 18589
     Stimulus_smallS: 219 valid trials out of 219
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -844,8 +844,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (220, 226, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1483.0
+    Max NaN count in a trial: 23717
     Stimulus_smallH: 220 valid trials out of 220
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -853,8 +853,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (219, 226, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 848.8
+    Max NaN count in a trial: 18589
     Stimulus_smallS: 219 valid trials out of 219
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -862,11 +862,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (220, 226, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1483.0
+    Max NaN count in a trial: 23717
     Stimulus_smallH: 220 valid trials out of 220
 Loading data for subject: D0116
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -874,7 +874,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -888,8 +888,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (213, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 607.9
+    Max NaN count in a trial: 10256
     Stimulus_smallS: 213 valid trials out of 213
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -897,8 +897,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (197, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 780.9
+    Max NaN count in a trial: 7051
     Stimulus_smallH: 197 valid trials out of 197
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -906,8 +906,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (213, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 607.9
+    Max NaN count in a trial: 10256
     Stimulus_smallS: 213 valid trials out of 213
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -915,11 +915,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (197, 219, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 780.9
+    Max NaN count in a trial: 7051
     Stimulus_smallH: 197 valid trials out of 197
 Loading data for subject: D0117
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -927,7 +927,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -941,8 +941,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (142, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1399.4
+    Max NaN count in a trial: 24358
     Stimulus_smallS: 142 valid trials out of 142
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -950,8 +950,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (141, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2209.4
+    Max NaN count in a trial: 54485
     Stimulus_smallH: 141 valid trials out of 141
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -959,8 +959,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (142, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1399.4
+    Max NaN count in a trial: 24358
     Stimulus_smallS: 142 valid trials out of 142
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -968,11 +968,11 @@ Not setting metadata
 No baseline correction applied
     Original shape: (141, 199, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 2209.4
+    Max NaN count in a trial: 54485
     Stimulus_smallH: 141 valid trials out of 141
 Loading data for subject: D0121
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -980,7 +980,7 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
         0 CTF compensation matrices available
@@ -994,8 +994,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (193, 204, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 886.8
+    Max NaN count in a trial: 42947
     Stimulus_smallS: 193 valid trials out of 193
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
@@ -1003,8 +1003,8 @@ Not setting metadata
 No baseline correction applied
     Original shape: (207, 204, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 1343.9
+    Max NaN count in a trial: 27563
     Stimulus_smallH: 207 valid trials out of 207
   Loading condition: Stimulus_smallS with parameters: {'BIDS_events': ['Stimulus/SmallLetters'], 'smallLetter': 's'}
 Not setting metadata
@@ -1012,276 +1012,10 @@ Not setting metadata
 No baseline correction applied
     Original shape: (193, 204, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
+    Average NaN count per trial: 886.8
+    Max NaN count in a trial: 42947
     Stimulus_smallS: 193 valid trials out of 193
   Loading condition: Stimulus_smallH with parameters: {'BIDS_events': ['Stimulus/SmallLetterh'], 'smallLetter': 'h'}
 Not setting metadata
 207 matching events found
 No baseline correction applied
-    Original shape: (207, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_smallH: 207 valid trials out of 207
-ROI 'lpfc': Maximum trials per condition:
-  Condition 'Stimulus_smallS': 224 trials from subjects ['D0071']
-  Condition 'Stimulus_smallH': 224 trials from subjects ['D0057']
-in roi lpfc, subject D0057 has 181 trials for condition Stimulus_smallS
-in roi lpfc, subject D0057 has 224 trials for condition Stimulus_smallH
-Subject D0057, ROI lpfc, LabeledArray shape: (2, 224, 5, 641)
-in roi lpfc, subject D0059 has 215 trials for condition Stimulus_smallS
-in roi lpfc, subject D0059 has 212 trials for condition Stimulus_smallH
-Subject D0059, ROI lpfc, LabeledArray shape: (2, 224, 5, 641)
-in roi lpfc, subject D0063 has 211 trials for condition Stimulus_smallS
-in roi lpfc, subject D0063 has 178 trials for condition Stimulus_smallH
-Subject D0063, ROI lpfc, LabeledArray shape: (2, 224, 11, 641)
-in roi lpfc, subject D0065 has 177 trials for condition Stimulus_smallS
-in roi lpfc, subject D0065 has 139 trials for condition Stimulus_smallH
-Subject D0065, ROI lpfc, LabeledArray shape: (2, 224, 1, 641)
-in roi lpfc, subject D0071 has 224 trials for condition Stimulus_smallS
-in roi lpfc, subject D0071 has 205 trials for condition Stimulus_smallH
-Subject D0071, ROI lpfc, LabeledArray shape: (2, 224, 11, 641)
-in roi lpfc, subject D0090 has 212 trials for condition Stimulus_smallS
-in roi lpfc, subject D0090 has 215 trials for condition Stimulus_smallH
-Subject D0090, ROI lpfc, LabeledArray shape: (2, 224, 2, 641)
-in roi lpfc, subject D0094 has 188 trials for condition Stimulus_smallS
-in roi lpfc, subject D0094 has 190 trials for condition Stimulus_smallH
-Subject D0094, ROI lpfc, LabeledArray shape: (2, 224, 11, 641)
-in roi lpfc, subject D0102 has 151 trials for condition Stimulus_smallS
-in roi lpfc, subject D0102 has 148 trials for condition Stimulus_smallH
-Subject D0102, ROI lpfc, LabeledArray shape: (2, 224, 3, 641)
-in roi lpfc, subject D0103 has 189 trials for condition Stimulus_smallS
-in roi lpfc, subject D0103 has 170 trials for condition Stimulus_smallH
-Subject D0103, ROI lpfc, LabeledArray shape: (2, 224, 8, 641)
-in roi lpfc, subject D0107A has 192 trials for condition Stimulus_smallS
-in roi lpfc, subject D0107A has 202 trials for condition Stimulus_smallH
-Subject D0107A, ROI lpfc, LabeledArray shape: (2, 224, 14, 641)
-in roi lpfc, subject D0110 has 219 trials for condition Stimulus_smallS
-in roi lpfc, subject D0110 has 220 trials for condition Stimulus_smallH
-Subject D0110, ROI lpfc, LabeledArray shape: (2, 224, 2, 641)
-in roi lpfc, subject D0116 has 213 trials for condition Stimulus_smallS
-in roi lpfc, subject D0116 has 197 trials for condition Stimulus_smallH
-Subject D0116, ROI lpfc, LabeledArray shape: (2, 224, 18, 641)
-in roi lpfc, subject D0117 has 142 trials for condition Stimulus_smallS
-in roi lpfc, subject D0117 has 141 trials for condition Stimulus_smallH
-Subject D0117, ROI lpfc, LabeledArray shape: (2, 224, 5, 641)
-in roi lpfc, subject D0121 has 193 trials for condition Stimulus_smallS
-in roi lpfc, subject D0121 has 207 trials for condition Stimulus_smallH
-Subject D0121, ROI lpfc, LabeledArray shape: (2, 224, 20, 641)
-ROI 'occ': Maximum trials per condition:
-  Condition 'Stimulus_smallS': 224 trials from subjects ['D0071']
-  Condition 'Stimulus_smallH': 215 trials from subjects ['D0090']
-in roi occ, subject D0065 has 177 trials for condition Stimulus_smallS
-in roi occ, subject D0065 has 139 trials for condition Stimulus_smallH
-Subject D0065, ROI occ, LabeledArray shape: (2, 224, 3, 641)
-in roi occ, subject D0071 has 224 trials for condition Stimulus_smallS
-in roi occ, subject D0071 has 205 trials for condition Stimulus_smallH
-Subject D0071, ROI occ, LabeledArray shape: (2, 224, 3, 641)
-in roi occ, subject D0077 has 175 trials for condition Stimulus_smallS
-in roi occ, subject D0077 has 180 trials for condition Stimulus_smallH
-Subject D0077, ROI occ, LabeledArray shape: (2, 224, 5, 641)
-in roi occ, subject D0090 has 212 trials for condition Stimulus_smallS
-in roi occ, subject D0090 has 215 trials for condition Stimulus_smallH
-Subject D0090, ROI occ, LabeledArray shape: (2, 224, 2, 641)
-in roi occ, subject D0100 has 208 trials for condition Stimulus_smallS
-in roi occ, subject D0100 has 213 trials for condition Stimulus_smallH
-Subject D0100, ROI occ, LabeledArray shape: (2, 224, 28, 641)
-in roi occ, subject D0102 has 151 trials for condition Stimulus_smallS
-in roi occ, subject D0102 has 148 trials for condition Stimulus_smallH
-Subject D0102, ROI occ, LabeledArray shape: (2, 224, 1, 641)
-in roi occ, subject D0103 has 189 trials for condition Stimulus_smallS
-in roi occ, subject D0103 has 170 trials for condition Stimulus_smallH
-Subject D0103, ROI occ, LabeledArray shape: (2, 224, 4, 641)
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (284, 116, 641)
-  Trials: 284
-  Channels: 116
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/116
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 3/284 (1.1%)
-  Trials with outlier NaNs (sparse): 0/284 (0.0%)
-  Trials with missing channel NaNs (dense): 3/284 (1.1%)
-  Trials with both types: 0/284 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 116.0
-  Max missing channels in a trial: 116
-
-Overall NaN Percentage: 1.06%
-
---- NaN Impact by Condition ---
-  smallS: 0/142 trials with NaNs (0.0%)
-  smallH: 3/142 trials with NaNs (2.1%)
-
-After removing NaN trials:
-  Trials kept: 281/284 (98.9%)
-  New data shape: (281, 116, 641)
-
---- Final Trial Counts by Condition ---
-  Condition smallS: 142 trials
-  Condition smallH: 139 trials
-
-Subsampling to min trial count: 139
-  Subsampled condition 0: 142 -> 139
-
-Final balanced data shape: (278, 116, 641)
-============================================================
-
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (302, 46, 641)
-  Trials: 302
-  Channels: 46
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/46
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 12/302 (4.0%)
-  Trials with outlier NaNs (sparse): 0/302 (0.0%)
-  Trials with missing channel NaNs (dense): 12/302 (4.0%)
-  Trials with both types: 0/302 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 46.0
-  Max missing channels in a trial: 46
-
-Overall NaN Percentage: 3.97%
-
---- NaN Impact by Condition ---
-  smallS: 0/151 trials with NaNs (0.0%)
-  smallH: 12/151 trials with NaNs (7.9%)
-
-After removing NaN trials:
-  Trials kept: 290/302 (96.0%)
-  New data shape: (290, 46, 641)
-
---- Final Trial Counts by Condition ---
-  Condition smallS: 151 trials
-  Condition smallH: 139 trials
-
-Subsampling to min trial count: 139
-  Subsampled condition 0: 151 -> 139
-
-Final balanced data shape: (278, 46, 641)
-============================================================
-
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (448, 116, 641)
-  Trials: 448
-  Channels: 116
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/116
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 167/448 (37.3%)
-  Trials with outlier NaNs (sparse): 0/448 (0.0%)
-  Trials with missing channel NaNs (dense): 167/448 (37.3%)
-  Trials with both types: 0/448 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 39.1
-  Max missing channels in a trial: 111
-
-Overall NaN Percentage: 12.55%
-
---- NaN Impact by Condition ---
-  smallS: 82/224 trials with NaNs (36.6%)
-  smallH: 85/224 trials with NaNs (37.9%)
-
-After removing NaN trials:
-  Trials kept: 281/448 (62.7%)
-  New data shape: (281, 116, 641)
-
---- Final Trial Counts by Condition ---
-  Condition smallS: 142 trials
-  Condition smallH: 139 trials
-
-Subsampling to min trial count: 139
-  Subsampled condition 0: 142 -> 139
-
-Final balanced data shape: (278, 116, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (448, 46, 641)
-  Trials: 448
-  Channels: 46
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/46
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 158/448 (35.3%)
-  Trials with outlier NaNs (sparse): 0/448 (0.0%)
-  Trials with missing channel NaNs (dense): 158/448 (35.3%)
-  Trials with both types: 0/448 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 14.1
-  Max missing channels in a trial: 46
-
-Overall NaN Percentage: 10.78%
-
---- NaN Impact by Condition ---
-  smallS: 73/224 trials with NaNs (32.6%)
-  smallH: 85/224 trials with NaNs (37.9%)
-
-After removing NaN trials:
-  Trials kept: 290/448 (64.7%)
-  New data shape: (290, 46, 641)
-
---- Final Trial Counts by Condition ---
-  Condition smallS: 151 trials
-  Condition smallH: 139 trials
-
-Subsampling to min trial count: 139
-  Subsampled condition 0: 151 -> 139
-
-Final balanced data shape: (278, 46, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/SmallLetter/lpfc
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/SmallLetter/occ
-stat_func returns a tuple. Taking the first element
-
-✓ Analysis completed successfully!
