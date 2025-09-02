@@ -2538,3 +2538,50 @@ Final balanced data shape: (250, 45, 641)
 
 Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/lwps_plots/20250901_115049_lwps_comparison_lpfc_lpfc_nature_style.pdf
 stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: occ...
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (652, 16, 641)
+  Trials: 652
+  Channels: 16
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/16
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 301/652 (46.2%)
+  Trials with outlier NaNs (sparse): 0/652 (0.0%)
+  Trials with missing channel NaNs (dense): 301/652 (46.2%)
+  Trials with both types: 0/652 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 13.6
+  Max missing channels in a trial: 16
+
+Overall NaN Percentage: 39.24%
+
+--- NaN Impact by Condition ---
+  ['s25', 's75']: 166/326 trials with NaNs (50.9%)
+  ['r25', 'r75']: 135/326 trials with NaNs (41.4%)
+
+After removing NaN trials:
+  Trials kept: 351/652 (53.8%)
+  New data shape: (351, 16, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s25', 's75']: 160 trials
+  Condition ['r25', 'r75']: 191 trials
+
+Subsampling to min trial count: 160
+  Subsampled condition 1: 191 -> 160
+
+Final balanced data shape: (320, 16, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/lwps_plots/20250901_115049_lwps_comparison_occ_occ_nature_style.pdf
+
+✓ Analysis completed successfully!
