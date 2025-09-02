@@ -42,7 +42,7 @@ Last edited: 01/16/2024
 8. To make the EV matrix, run the next cell in makeInputsForFSL.ipynb
 
 ### Duke Compute Cluster
-1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, add ```[[ $- != *i* ]] && return``` to your shell's startup file on the DCC (to open this file, ssh into the DCC, and then ```nano ~/.bashrc```, and press Ctrl+X to exit after modifying it)
+1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file on the DCC (to open this file, ssh into the DCC, and then ```nano ~/.bashrc```, and press Ctrl+X to exit after modifying it)
    
 2. Also can do ssh -Y netid@dcc-login.oit.duke.edu from the terminal to access the DCC.
    
