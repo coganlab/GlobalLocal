@@ -1,0 +1,7 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 39, in <module>
+    from dcc_scripts.decoding.decoding_dcc import main
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 81, in <module>
+    from src.analysis.decoding.decoding import (
+ImportError: cannot import name 'plot_accuracies_nature_style' from 'src.analysis.decoding.decoding' (/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/decoding/decoding.py)

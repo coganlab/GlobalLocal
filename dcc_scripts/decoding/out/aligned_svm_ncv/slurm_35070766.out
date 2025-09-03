@@ -1,0 +1,42 @@
+['/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/decoding', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/etb28/coganlab/etb28/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/decoding', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/etb28/coganlab/etb28/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+Conditions:        ['Stimulus_c25', 'Stimulus_c75', 'Stimulus_i25', 'Stimulus_i75']
+ROIs:              ['lpfc', 'occ', 'dlpfc', 'acc', 'parietal']
+Permutations:      500
+P-threshold:       0.05
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       sig
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 5/500
+  Shuffle Permutations: 500
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):32/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Statistical Parameters:
+  Cluster Perms:     500
+  P-value Threshold: 0.05
+  Tails:             1
+======================================================================
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+
+✗ Analysis failed with error: [Errno 2] No such file or directory: '/cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/sig_chans_D0057_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False.json'
