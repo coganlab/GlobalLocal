@@ -138,8 +138,13 @@ def main(args):
         conditions_save_name = 'stimulus_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
         conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
+        conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     
-
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_experiment_conditions:
@@ -156,7 +161,11 @@ def main(args):
         conditions_save_name = 'response_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_err_corr_conditions:
         conditions_save_name = 'response_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-        
+    elif args.conditions == experiment_conditions.response_congruency_by_switch_proportion_conditions:
+        conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
+        conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
@@ -241,6 +250,23 @@ def main(args):
         
         condition_comparisons['s25_vs_r25'] = ['s25', 'r25'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
         condition_comparisons['s75_vs_r75'] = ['s75', 'r75'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
+
+    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        condition_comparisons['c_in_25switchBlock_vs_i_in_25switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events']]
+        condition_comparisons['c_in_75switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
+        condition_comparisons['c_in_25switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
+        condition_comparisons['c_in_75switchBlock_vs_i_in_25switchBlock'] = [args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events']]
+        condition_comparisons['c_in_25switchBlock_vs_c_in_75switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events']]
+        condition_comparisons['i_in_25switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
+
+    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        condition_comparisons['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events']]
+        condition_comparisons['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']]
+        condition_comparisons['s_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']]
+        condition_comparisons['s_in_75incongruentBlock_vs_r_in_25incongruentBlock'] = [args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events']] 
+        condition_comparisons['s_in_25incongruentBlock_vs_s_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events']] 
+        condition_comparisons['r_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']] 
+
 
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
@@ -386,7 +412,7 @@ def main(args):
                 c75_vs_i75_acc.T,
                 p_thresh=args.p_thresh,
                 n_perm=args.n_perm,
-                tails=1,
+                tails=2,
                 axis=0, 
                 stat_func=args.stat_func,
                 n_jobs=args.n_jobs,
@@ -461,7 +487,7 @@ def main(args):
                 s75_vs_r75_acc.T,
                 p_thresh=args.p_thresh,
                 n_perm=args.n_perm,
-                tails=1,
+                tails=2,
                 axis=0, 
                 stat_func=args.stat_func,
                 n_jobs=args.n_jobs,
@@ -523,7 +549,155 @@ def main(args):
                 show_chance_level=False # The pooled shuffle line is the new chance level
             )
             
+    # do congruency by switch proportion comparison 
+    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:       
+        for roi in rois:
+            time_window_centers = time_window_decoding_results['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
+            c_in_25switchBlock_vs_i_in_25switchBlock_acc = time_window_decoding_results['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['accuracies_true']
+            c_in_75switchBlock_vs_i_in_75switchBlock_acc = time_window_decoding_results['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]['accuracies_true']
+            
+            # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
+            significant_clusters, p_values = time_perm_cluster(
+                c_in_25switchBlock_vs_i_in_25switchBlock_acc.T,
+                c_in_75switchBlock_vs_i_in_75switchBlock_acc.T,
+                p_thresh=args.p_thresh,
+                n_perm=args.n_perm,
+                tails=2,
+                axis=0, 
+                stat_func=args.stat_func,
+                n_jobs=args.n_jobs,
+                seed=args.random_state
+            )
+            
+            # get i vs c pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all i trials nad all c trials
+            strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_perm,
+                random_state=args.random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            # Plot accuracies for this condition comparison and roi
+            accuracies_dict = {
+                'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_acc,
+                'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_acc,
+                'pooled_shuffle': accuracies_shuffle_pooled
+            }
 
+            colors = {
+                'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
+                'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05' ,   # Orange
+                'pooled_shuffle': '#949494'  # Gray
+            }
+            
+            linestyles = {
+                'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
+                'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+                'pooled_shuffle': '--'                       # Dashed
+            }
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict=accuracies_dict,
+                significant_clusters=significant_clusters,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'congruency_by_switch_proportion_comparison_{roi}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, 'congruency_by_switch_proportion_plots'), # Save in a sub-directory
+                timestamp=args.timestamp,
+                p_thresh=args.p_thresh,
+                colors=colors,
+                linestyles=linestyles,
+                single_column=False,
+                ylim=(0.4, 0.75),
+                show_chance_level=False # The pooled shuffle line is the new chance level
+            )
+
+    # do switch type by congruency proportion comparison 
+    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:       
+        for roi in rois:
+            time_window_centers = time_window_decoding_results['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+            s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc = time_window_decoding_results['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['accuracies_true']
+            s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc = time_window_decoding_results['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]['accuracies_true']
+
+            # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
+            significant_clusters, p_values = time_perm_cluster(
+                s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc.T,
+                s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc.T,
+                p_thresh=args.p_thresh,
+                n_perm=args.n_perm,
+                tails=2,
+                axis=0, 
+                stat_func=args.stat_func,
+                n_jobs=args.n_jobs,
+                seed=args.random_state
+            )
+            
+            # get s vs r pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all s trials nad all r trials
+            strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_perm,
+                random_state=args.random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            # Plot accuracies comparing c25_vs_i25 and c75_vs_i75 for this condition comparison and roi
+            # For LWPC comparisons
+            accuracies_dict = {
+                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc,
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc,
+                'pooled_shuffle': accuracies_shuffle_pooled
+            }
+
+            colors = {
+                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05' ,   # Orange
+                'pooled_shuffle': '#949494'  # Gray
+            }
+            
+            linestyles = {
+                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
+                'pooled_shuffle': '--'                       # Dashed
+            }
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict=accuracies_dict,
+                significant_clusters=significant_clusters,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'switch_type_by_congruency_proportion_comparison_{roi}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, 'switch_type_by_congruency_proportion_plots'), # Save in a sub-directory
+                timestamp=args.timestamp,
+                p_thresh=args.p_thresh,
+                colors=colors,
+                linestyles=linestyles,
+                single_column=False,
+                ylim=(0.4, 0.75),
+                show_chance_level=False # The pooled shuffle line is the new chance level
+            )
+            
             
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
