@@ -34,6 +34,7 @@ import pandas as pd
 from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.calc.mat import LabeledArray, combine
+from ieeg.calc.fast import mean_diff
 
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
 from src.analysis.utils.general_utils import *
@@ -336,11 +337,13 @@ def main(args):
         # }
 
         # Now compute accuracies and perform time permutation cluster test
+        condition_save_dir = os.path.join(save_dir, f"{condition_comparison}")
+        os.makedirs(condition_save_dir, exist_ok=True)
+
         for roi in rois:
-            
-            condition_roi_save_dir = os.path.join(save_dir, f"{condition_comparison}", f"{roi}")
-            os.makedirs(condition_roi_save_dir, exist_ok=True)
-            print(f"accuracies save dir directory created or already exists at: {condition_roi_save_dir}")
+            condition_roi_stat_func_save_dir = os.path.join(condition_save_dir, f"{roi}", f"{args.stat_func_str}")
+            os.makedirs(condition_roi_stat_func_save_dir, exist_ok=True)
+            print(f"accuracies save dir directory created or already exists at: {condition_roi_stat_func_save_dir}")
             
             time_window_decoding_results[condition_comparison][roi] = {}
             time_window_decoding_results[condition_comparison][roi]['strings_to_find'] = strings_to_find
@@ -394,7 +397,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 condition_comparison=condition_comparison,
                 roi=roi,
-                save_dir=condition_roi_save_dir,
+                save_dir=condition_roi_stat_func_save_dir,
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh
             )
@@ -464,7 +467,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 comparison_name=f'lwpc_comparison_{roi}',
                 roi=roi,
-                save_dir=os.path.join(save_dir, 'lwpc_plots'), # Save in a sub-directory
+                save_dir=os.path.join(condition_save_dir, 'lwpc_plots'), # Save in a sub-directory
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh,
                 colors=colors,
@@ -539,7 +542,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 comparison_name=f'lwps_comparison_{roi}',
                 roi=roi,
-                save_dir=os.path.join(save_dir, 'lwps_plots'), # Save in a sub-directory
+                save_dir=os.path.join(condition_save_dir, 'lwps_plots'), # Save in a sub-directory
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh,
                 colors=colors,
@@ -613,7 +616,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 comparison_name=f'congruency_by_switch_proportion_comparison_{roi}',
                 roi=roi,
-                save_dir=os.path.join(save_dir, 'congruency_by_switch_proportion_plots'), # Save in a sub-directory
+                save_dir=os.path.join(condition_save_dir, 'congruency_by_switch_proportion_plots'), # Save in a sub-directory
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh,
                 colors=colors,
@@ -688,7 +691,7 @@ def main(args):
                 sampling_rate=args.sampling_rate,
                 comparison_name=f'switch_type_by_congruency_proportion_comparison_{roi}',
                 roi=roi,
-                save_dir=os.path.join(save_dir, 'switch_type_by_congruency_proportion_plots'), # Save in a sub-directory
+                save_dir=os.path.join(condition_save_dir, 'switch_type_by_congruency_proportion_plots'), # Save in a sub-directory
                 timestamp=args.timestamp,
                 p_thresh=args.p_thresh,
                 colors=colors,

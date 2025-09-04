@@ -8,12 +8,12 @@ WARNING: Keras package is not installed. You will be unable to useall neural net
 BANDPASS FILTERED DECODING ANALYSIS
 ======================================================================
 Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-Conditions:        ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+Conditions:        ['Stimulus_taskG', 'Stimulus_taskL']
 ROIs:              ['lpfc', 'occ', 'dlpfc', 'acc', 'parietal']
 Permutations:      500
 P-threshold:       0.05
 Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
-Electrodes (all or sig):       all
+Electrodes (all or sig):       sig
 Explained variance: 0.8
 Balance method:     subsample
 Obs axs:            0
@@ -242,78 +242,42 @@ Not setting metadata
 449 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 175, 641)
+    Original shape: (224, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (110, 175, 641)
+    Original shape: (225, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 225 valid trials out of 225
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 175, 641)
+    Original shape: (224, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (112, 175, 641)
+    Original shape: (225, 175, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 175, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 175, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 175, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 175, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 225 valid trials out of 225
 Loading data for subject: D0059
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -331,78 +295,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 178, 641)
+    Original shape: (224, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 178, 641)
+    Original shape: (224, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 178, 641)
+    Original shape: (224, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 178, 641)
+    Original shape: (224, 178, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 178, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 178, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 178, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 178, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0063
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -420,78 +348,42 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (110, 234, 641)
+    Original shape: (227, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 227 valid trials out of 227
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (110, 234, 641)
+    Original shape: (225, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 225 valid trials out of 225
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-113 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (113, 234, 641)
+    Original shape: (227, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 113 valid trials out of 113
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 227 valid trials out of 227
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (112, 234, 641)
+    Original shape: (225, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-113 matching events found
-No baseline correction applied
-    Original shape: (113, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 113 valid trials out of 113
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 225 valid trials out of 225
 Loading data for subject: D0065
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -509,78 +401,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 216, 641)
+    Original shape: (224, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 216, 641)
+    Original shape: (224, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 216, 641)
+    Original shape: (224, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 216, 641)
+    Original shape: (224, 216, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 216, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 216, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 216, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 216, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0069
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -598,78 +454,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 128, 641)
+    Original shape: (224, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 128, 641)
+    Original shape: (224, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 128, 641)
+    Original shape: (224, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 128, 641)
+    Original shape: (224, 128, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 128, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 128, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 128, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 128, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0071
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -687,78 +507,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 156, 641)
+    Original shape: (224, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 156, 641)
+    Original shape: (224, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 156, 641)
+    Original shape: (224, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 156, 641)
+    Original shape: (224, 156, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 156, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 156, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 156, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 156, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0077
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -776,78 +560,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 131, 641)
+    Original shape: (224, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 131, 641)
+    Original shape: (224, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 131, 641)
+    Original shape: (224, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 131, 641)
+    Original shape: (224, 131, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 131, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 131, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 131, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 131, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0090
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -865,78 +613,42 @@ Not setting metadata
 450 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (110, 155, 641)
+    Original shape: (225, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 225 valid trials out of 225
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (110, 155, 641)
+    Original shape: (225, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 225 valid trials out of 225
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (112, 155, 641)
+    Original shape: (225, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 225 valid trials out of 225
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (112, 155, 641)
+    Original shape: (225, 155, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 155, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 155, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 155, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 155, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 225 valid trials out of 225
 Loading data for subject: D0094
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -954,78 +666,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 234, 641)
+    Original shape: (224, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 234, 641)
+    Original shape: (224, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 234, 641)
+    Original shape: (224, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 234, 641)
+    Original shape: (224, 234, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 234, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0100
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1043,78 +719,42 @@ Not setting metadata
 451 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (110, 222, 641)
+    Original shape: (227, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 227 valid trials out of 227
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (112, 222, 641)
+    Original shape: (227, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 227 valid trials out of 227
 Loading data for subject: D0102
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1132,78 +772,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 220, 641)
+    Original shape: (224, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 220, 641)
+    Original shape: (224, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 220, 641)
+    Original shape: (224, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 220, 641)
+    Original shape: (224, 220, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 220, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 220, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 220, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 220, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0103
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1221,78 +825,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 222, 641)
+    Original shape: (224, 222, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0107A
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1310,78 +878,42 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (110, 164, 641)
+    Original shape: (227, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 227 valid trials out of 227
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-111 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (111, 164, 641)
+    Original shape: (225, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 111 valid trials out of 111
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 225 valid trials out of 225
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+227 matching events found
 No baseline correction applied
-    Original shape: (112, 164, 641)
+    Original shape: (227, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 227 valid trials out of 227
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-113 matching events found
+225 matching events found
 No baseline correction applied
-    Original shape: (113, 164, 641)
+    Original shape: (225, 164, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 113 valid trials out of 113
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 164, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-111 matching events found
-No baseline correction applied
-    Original shape: (111, 164, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 111 valid trials out of 111
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 164, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-113 matching events found
-No baseline correction applied
-    Original shape: (113, 164, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 113 valid trials out of 113
+    Stimulus_taskL: 225 valid trials out of 225
 Loading data for subject: D0110
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1399,78 +931,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 226, 641)
+    Original shape: (224, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 226, 641)
+    Original shape: (224, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 226, 641)
+    Original shape: (224, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 226, 641)
+    Original shape: (224, 226, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 226, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 226, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 226, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 226, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0116
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1488,78 +984,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 219, 641)
+    Original shape: (224, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 219, 641)
+    Original shape: (224, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 219, 641)
+    Original shape: (224, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 219, 641)
+    Original shape: (224, 219, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 219, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 219, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 219, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 219, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0117
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1577,78 +1037,42 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 199, 641)
+    Original shape: (224, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 199, 641)
+    Original shape: (224, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 199, 641)
+    Original shape: (224, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 199, 641)
+    Original shape: (224, 199, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 199, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 199, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 199, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 199, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+    Stimulus_taskL: 224 valid trials out of 224
 Loading data for subject: D0121
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1666,70 +1090,34 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 204, 641)
+    Original shape: (224, 204, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-110 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (110, 204, 641)
+    Original shape: (224, 204, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
+    Stimulus_taskL: 224 valid trials out of 224
+  Loading condition: Stimulus_taskG with parameters: {'BIDS_events': ['Stimulus/Taskg'], 'task': 'g'}
 Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
-    Original shape: (112, 204, 641)
+    Original shape: (224, 204, 641)
     Trials with all NaN values: 0
     Average NaN count per trial: 0.0
     Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
+    Stimulus_taskG: 224 valid trials out of 224
+  Loading condition: Stimulus_taskL with parameters: {'BIDS_events': ['Stimulus/Taskl'], 'task': 'l'}
 Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_s_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s25.0', 'Stimulus/c25.0/s75.0'], 'switchType': 's', 'congruencyProportion': '75%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_25incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_s_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s25.0', 'Stimulus/c75.0/s75.0'], 'switchType': 's', 'congruencyProportion': '25%'}
-Not setting metadata
-110 matching events found
-No baseline correction applied
-    Original shape: (110, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
-  Loading condition: Stimulus_r_in_25incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r25.0', 'Stimulus/c25.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '75%'}
-Not setting metadata
-112 matching events found
-No baseline correction applied
-    Original shape: (112, 204, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 0.0
-    Max NaN count in a trial: 0
-    Stimulus_r_in_25incongruentBlock: 112 valid trials out of 112
-  Loading condition: Stimulus_r_in_75incongruentBlock with parameters: {'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r25.0', 'Stimulus/c75.0/r75.0'], 'switchType': 'r', 'congruencyProportion': '25%'}
-Not setting metadata
-112 matching events found
+224 matching events found
 No baseline correction applied
