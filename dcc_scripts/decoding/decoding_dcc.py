@@ -252,20 +252,20 @@ def main(args):
         condition_comparisons['s75_vs_r75'] = ['s75', 'r75'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
 
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        condition_comparisons['c_in_25switchBlock_vs_i_in_25switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events']]
-        condition_comparisons['c_in_75switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
-        condition_comparisons['c_in_25switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
-        condition_comparisons['c_in_75switchBlock_vs_i_in_25switchBlock'] = [args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events']]
-        condition_comparisons['c_in_25switchBlock_vs_c_in_75switchBlock'] = [args.conditions['Stimulus_c_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_c_in_75switchBlock']['BIDS_events']]
-        condition_comparisons['i_in_25switchBlock_vs_i_in_75switchBlock'] = [args.conditions['Stimulus_i_in_25switchBlock']['BIDS_events'], args.conditions['Stimulus_i_in_75switchBlock']['BIDS_events']]
-
+        condition_comparisons['c_in_25switchBlock_vs_i_in_25switchBlock'] = ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_25switchBlock']
+        condition_comparisons['c_in_75switchBlock_vs_i_in_75switchBlock'] = ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_75switchBlock']
+        condition_comparisons['c_in_25switchBlock_vs_i_in_75switchBlock'] = ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_75switchBlock']
+        condition_comparisons['c_in_75switchBlock_vs_i_in_25switchBlock'] = ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_25switchBlock']
+        condition_comparisons['c_in_25switchBlock_vs_c_in_75switchBlock'] = ['Stimulus_c_in_25switchBlock', 'Stimulus_c_in_75switchBlock']
+        condition_comparisons['i_in_25switchBlock_vs_i_in_75switchBlock'] = ['Stimulus_i_in_25switchBlock', 'Stimulus_i_in_75switchBlock']
+        
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        condition_comparisons['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events']]
-        condition_comparisons['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']]
-        condition_comparisons['s_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']]
-        condition_comparisons['s_in_75incongruentBlock_vs_r_in_25incongruentBlock'] = [args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events']] 
-        condition_comparisons['s_in_25incongruentBlock_vs_s_in_75incongruentBlock'] = [args.conditions['Stimulus_s_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_s_in_75incongruentBlock']['BIDS_events']] 
-        condition_comparisons['r_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = [args.conditions['Stimulus_r_in_25incongruentBlock']['BIDS_events'], args.conditions['Stimulus_r_in_75incongruentBlock']['BIDS_events']] 
+        condition_comparisons['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'] = ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_25incongruentBlock']
+        condition_comparisons['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'] = ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+        condition_comparisons['s_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+        condition_comparisons['s_in_75incongruentBlock_vs_r_in_25incongruentBlock'] = ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock'] 
+        condition_comparisons['s_in_25incongruentBlock_vs_s_in_75incongruentBlock'] = ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock'] 
+        condition_comparisons['r_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = ['Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
 
 
     # get the confusion matrix using the downsampled version
