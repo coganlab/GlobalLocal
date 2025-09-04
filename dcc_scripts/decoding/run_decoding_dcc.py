@@ -12,6 +12,8 @@ from functools import partial
 from scipy.stats import ttest_ind
 from types import SimpleNamespace
 from datetime import datetime
+from ieeg.calc.fast import mean_diff
+
 # ============================================================================
 # PATH SETUP
 # ============================================================================
@@ -52,10 +54,19 @@ TASK = 'GlobalLocal'
 
 # Trial selection
 # switched to False for err-corr decoding
-ACC_TRIALS_ONLY = False
+ACC_TRIALS_ONLY = True
 
 # Statistical parameters
-STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+# Choose your stat function here
+STAT_FUNC_CHOICE = 'mean_diff' # or 'ttest'
+
+if STAT_FUNC_CHOICE == 'mean_diff':
+    STAT_FUNC = mean_diff
+    STAT_FUNC_STR = 'mean_diff'
+elif STAT_FUNC_CHOICE == 'ttest':
+    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    STAT_FUNC_STR = 'ttest'
+    
 P_THRESH = 0.05
 N_PERM = 500
 
@@ -81,10 +92,11 @@ FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
@@ -109,7 +121,7 @@ ROIS_DICT = {
 }
 
 # which electrodes to use (all or sig)
-ELECTRODES = 'sig'
+ELECTRODES = 'all'
 
 # # testing params (comment out)
 # SUBJECTS = ['D0103']
@@ -132,6 +144,7 @@ def run_analysis():
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
         stat_func=STAT_FUNC,
+        stat_func_str=STAT_FUNC_STR,
         p_thresh=P_THRESH,
         n_perm=N_PERM,
         n_jobs=N_JOBS,

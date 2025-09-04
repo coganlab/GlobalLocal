@@ -177,6 +177,52 @@ stimulus_lwps_conditions = {
         "switchProportion": "75%"
     }
 }
+    
+stimulus_congruency_by_switch_proportion_conditions = {
+    "Stimulus_c_in_25switchBlock": {
+        "BIDS_events": ["Stimulus/c25.0/s25.0", "Stimulus/c75.0/s25.0", "Stimulus/c25.0/r25.0", "Stimulus/c75.0/r25.0"],
+        "congruency": "c",
+        "switchProportion": "25%"
+    },
+    "Stimulus_c_in_75switchBlock": {
+        "BIDS_events": ["Stimulus/c25.0/s75.0", "Stimulus/c75.0/s75.0", "Stimulus/c25.0/r75.0", "Stimulus/c75.0/r75.0"],
+        "congruency": "c",
+        "switchProportion": "75%"
+    },
+    "Stimulus_i_in_25switchBlock": {
+        "BIDS_events": ["Stimulus/i25.0/s25.0", "Stimulus/i75.0/s25.0", "Stimulus/i25.0/r25.0", "Stimulus/i75.0/r25.0"],
+        "congruency": "i",
+        "switchProportion": "25%"
+    },
+    "Stimulus_i_in_75switchBlock": {
+        "BIDS_events": ["Stimulus/i25.0/s75.0", "Stimulus/i75.0/s75.0", "Stimulus/i25.0/r75.0", "Stimulus/i75.0/r75.0"],
+        "congruency": "i",
+        "switchProportion": "75%"
+    }
+}
+
+stimulus_switch_type_by_congruency_proportion_conditions = {
+    "Stimulus_s_in_25incongruentBlock": {
+        "BIDS_events": ["Stimulus/i25.0/s25.0", "Stimulus/i25.0/s75.0", "Stimulus/c25.0/s25.0", "Stimulus/c25.0/s75.0"],
+        "switchType": "s",
+        "congruencyProportion": "75%"
+    },
+    "Stimulus_s_in_75incongruentBlock": {
+        "BIDS_events": ["Stimulus/i75.0/s25.0", "Stimulus/i75.0/s75.0", "Stimulus/c75.0/s25.0", "Stimulus/c75.0/s75.0"],
+        "switchType": "s",
+        "congruencyProportion": "25%"
+    },
+    "Stimulus_r_in_25incongruentBlock": {
+        "BIDS_events": ["Stimulus/i25.0/r25.0", "Stimulus/i25.0/r75.0", "Stimulus/c25.0/r25.0", "Stimulus/c25.0/r75.0"],
+        "switchType": "r",
+        "congruencyProportion": "75%"
+    },
+    "Stimulus_r_in_75incongruentBlock": {
+        "BIDS_events": ["Stimulus/i75.0/r25.0", "Stimulus/i75.0/r75.0", "Stimulus/c75.0/r25.0", "Stimulus/c75.0/r75.0"],
+        "switchType": "r",
+        "congruencyProportion": "25%"
+    },
+}
 
 # all 16 trial types
 stimulus_experiment_conditions = {
@@ -608,4 +654,50 @@ response_task_conditions = {
         "BIDS_events": ["Response/Taskl"],
         "task": "l",
     }
+}
+
+response_congruency_by_switch_proportion_conditions = {
+    "Response_c_in_25switchBlock": {
+        "BIDS_events": ["Response/c25.0/s25.0", "Response/c75.0/s25.0", "Response/c25.0/r25.0", "Response/c75.0/r25.0"],
+        "congruency": "c",
+        "switchProportion": "25%"
+    },
+    "Response_c_in_75switchBlock": {
+        "BIDS_events": ["Response/c25.0/s75.0", "Response/c75.0/s75.0", "Response/c25.0/r75.0", "Response/c75.0/r75.0"],
+        "congruency": "c",
+        "switchProportion": "75%"
+    },
+    "Response_i_in_25switchBlock": {
+        "BIDS_events": ["Response/i25.0/s25.0", "Response/i75.0/s25.0", "Response/i25.0/r25.0", "Response/i75.0/r25.0"],
+        "congruency": "i",
+        "switchProportion": "25%"
+    },
+    "Response_i_in_75switchBlock": {
+        "BIDS_events": ["Response/i25.0/s75.0", "Response/i75.0/s75.0", "Response/i25.0/r75.0", "Response/i75.0/r75.0"],
+        "congruency": "i",
+        "switchProportion": "75%"
+    }
+}
+
+response_switch_type_by_congruency_proportion_conditions = {
+    "Response_s_in_25incongruentBlock": {
+        "BIDS_events": ["Response/i25.0/s25.0", "Response/i25.0/s75.0", "Response/c25.0/s25.0", "Response/c25.0/s75.0"],
+        "switchType": "s",
+        "congruencyProportion": "75%"
+    },
+    "Response_s_in_75incongruentBlock": {
+        "BIDS_events": ["Response/i75.0/s25.0", "Response/i75.0/s75.0", "Response/c75.0/s25.0", "Response/c75.0/s75.0"],
+        "switchType": "s",
+        "congruencyProportion": "25%"
+    },
+    "Response_r_in_25incongruentBlock": {
+        "BIDS_events": ["Response/i25.0/r25.0", "Response/i25.0/r75.0", "Response/c25.0/r25.0", "Response/c25.0/r75.0"],
+        "switchType": "r",
+        "congruencyProportion": "75%"
+    },
+    "Response_r_in_75incongruentBlock": {
+        "BIDS_events": ["Response/i75.0/r25.0", "Response/i75.0/r75.0", "Response/c75.0/r25.0", "Response/c75.0/r75.0"],
+        "switchType": "r",
+        "congruencyProportion": "25%"
+    },
 }
