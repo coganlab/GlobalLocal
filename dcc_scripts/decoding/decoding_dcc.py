@@ -573,7 +573,7 @@ def main(args):
             )
             
             # get i vs c pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all i trials nad all c trials
-            strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
+            strings_to_find_pooled = [['c_in'], ['i_in']]
             
             accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
                 roi=roi,
@@ -647,7 +647,7 @@ def main(args):
             )
             
             # get s vs r pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all s trials nad all r trials
-            strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
+            strings_to_find_pooled = [['s_in'], ['r_in']]
             
             accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
                 roi=roi,

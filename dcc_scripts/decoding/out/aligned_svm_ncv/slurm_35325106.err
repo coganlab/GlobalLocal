@@ -271,40 +271,18 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
   event_epochs = mne.concatenate_epochs(combined_epochs)
 /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
   event_epochs = mne.concatenate_epochs(combined_epochs)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
-  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 206, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 578, in main
+    accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 2420, in make_pooled_shuffle_distribution
+    x_pooled, y_pooled, cats_pooled = concatenate_and_balance_data_for_decoding(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 104, in concatenate_and_balance_data_for_decoding
+    concatenated_data, labels, cats = concatenate_conditions_by_string(
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/labeled_array_utils.py", line 584, in concatenate_conditions_by_string
+    raise ValueError(f"No matching conditions found for ROI: {roi} and strings: {strings_to_find}")
+ValueError: No matching conditions found for ROI: lpfc and strings: [['c25', 'c75'], ['i25', 'i75']]

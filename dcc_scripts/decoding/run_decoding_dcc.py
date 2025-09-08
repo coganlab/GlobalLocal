@@ -92,7 +92,7 @@ FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+CONDITIONS = experiment_conditions.stimulus_switch_type_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
@@ -123,7 +123,7 @@ ROIS_DICT = {
 # which electrodes to use (all or sig)
 ELECTRODES = 'all'
 
-# # testing params (comment out)
+# testing params (comment out)
 # SUBJECTS = ['D0103']
 # N_SPLITS = 2
 # N_REPEATS = 2
