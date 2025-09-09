@@ -6,3 +6,5 @@ data
 *.pyc
 *.json
 *.png
+__pycache__/
+*.pyc
