@@ -28,13 +28,43 @@ stimulus_err_corr_conditions = {
 
 response_err_corr_conditions = {
     "Response_err": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0"],
+        "BIDS_events": ["Response/Responded1.0/Accuracy0.0"],
         "responseType" : "err"
 
     },
     "Response_corr": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy1.0"],
+        "BIDS_events": ["Response/Responded1.0/Accuracy1.0"],
         "responseType" : "corr"
+
+    }
+}
+
+# err congruency type
+stimulus_err_congruency_conditions = {
+    "Stimulus_err_con": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/c25.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0"],
+        "responseType" : "err", 
+        "congruency" : "c"
+
+    },
+    "Stimulus_err_inc": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy1.0/i25.0", "Stimulus/Responded1.0/Accuracy1.0/i75.0"],
+        "responseType" : "err",
+        "congruency" : "i"
+    }
+}
+
+response_err_congruency_conditions = {
+    "Response_err_con": {
+        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/c25.0", "Response/Responded1.0/Accuracy0.0/c75.0"],
+        "responseType" : "err",
+        "congruency" : "c"
+
+    },
+    "Response_err_inc": {
+        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/i25.0", "Response/Responded1.0/Accuracy0.0/i75.0"],
+        "responseType" : "err", 
+        "congruency" : "i"
 
     }
 }
