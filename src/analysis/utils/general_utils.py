@@ -1868,3 +1868,63 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
     trials._data[:, picks_idx] = processed_data
 
     return trials
+
+def identify_bad_channels_by_trial_nan_rate(epochs: mne.Epochs, threshold_percent: float = 5.0) -> list:
+    """
+    Identifies channels where the percentage of trials with NaNs exceeds a threshold.
+    A trial is counted if it has one or more NaN values.
+    """
+    data = epochs.get_data()
+    n_epochs = data.shape[0]
+
+    # Check for any NaNs along the time axis for each trial and channel
+    trial_has_nan = np.isnan(data).any(axis=2)
+
+    # Count NaN trials per channel and calculate the percentage
+    nan_percentages = np.sum(trial_has_nan, axis=0) * 100 / n_epochs
+
+    # Find channels exceeding the threshold
+    bad_channel_indices = np.where(nan_percentages > threshold_percent)[0]
+    
+    all_channel_names = np.array(epochs.ch_names)
+    bad_channels = all_channel_names[bad_channel_indices].tolist()
+
+    if bad_channels:
+        print(f"Found {len(bad_channels)} channels with > {threshold_percent}% outlier trials: {bad_channels}")
+    else:
+        print(f"No channels found with > {threshold_percent}% outlier trials.")
+        
+    return bad_channels
+
+def impute_trial_nans_by_channel_mean(epochs: mne.Epochs):
+    """
+    Imputes NaN values in Epochs data on a per-channel, per-timepoint basis.
+
+    This function modifies the MNE Epochs object in-place.
+    """
+    data = epochs.get_data() # Shape: (n_epochs, n_channels, n_times)
+
+    # Iterate through each channel to process it independently
+    for ch_idx in range(data.shape[1]):
+        channel_data = data[:, ch_idx, :] # Shape: (n_epochs, n_times)
+        
+        # Find if this channel has any NaNs at all
+        if not np.isnan(channel_data).any():
+            continue # Skip if there's nothing to impute
+
+        # Calculate the mean for each time point across all trials, ignoring NaNs
+        # Result shape: (n_times,)
+        mean_across_trials = np.nanmean(channel_data, axis=0)
+
+        # Find the indices (epoch, time) of NaNs within this channel's data
+        nan_indices = np.where(np.isnan(channel_data))
+
+        # Replace each NaN with the mean of its corresponding time point
+        channel_data[nan_indices] = np.take(mean_across_trials, nan_indices[1])
+        
+        # Put the imputed data back into the main data array
+        data[:, ch_idx, :] = channel_data
+    
+    # Update the epochs object with the cleaned data
+    epochs._data = data
+    print("NaN values have been imputed using the per-channel, per-timepoint mean.")

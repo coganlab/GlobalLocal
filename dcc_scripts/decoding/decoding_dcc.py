@@ -38,7 +38,13 @@ from ieeg.calc.fast import mean_diff
 
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
 from src.analysis.utils.general_utils import *
-from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict
+from src.analysis.utils.general_utils import (
+    make_or_load_subjects_electrodes_to_ROIs_dict, 
+    identify_bad_channels_by_trial_nan_rate, 
+    impute_trial_nans_by_channel_mean,
+    create_subjects_mne_objects_dict
+)
+
 import matplotlib.pyplot as plt
 
 from pandas import read_csv
@@ -178,6 +184,33 @@ def main(args):
       
     subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
 
+    # drop channels with too many outliers (>1% for now) and impute outlier trials with the channel mean across trials
+    for subject in subjects_mne_objects:
+        print(f"\nremoving bad channels and imputing nans for subject: {subject}")
+        for condition in subjects_mne_objects[subject]:
+            print(f" Condition: {condition}")
+            epochs = subjects_mne_objects[subject][condition]
+        
+            # mark outliers if not already marked
+            if not np.isnan(epochs.get_data()).any():
+                print("Marking outliers as NaN...")
+                outliers_to_nan(epochs, outliers=10) # set this to whatever threshold
+            else:
+                print("Skipping outlier marking because NaNs are already present")
+            
+            # identify and drop bad channels
+            print(f"identifying channels with >{args.channel_outlier_threshold_percent}% trial outliers")
+            bad_channels = identify_bad_channels_by_trial_nan_rate(epochs, args.channel_outlier_threshold_percent)
+            if bad_channels:
+                print(f"bad channels: {bad_channels}")
+                epochs.drop_channels(bad_channels, on_missing='ignore')
+                print(f" dropped {len(bad_channels)} bad channels")
+            
+            # impute remaining nan trials within the good channels
+            print("imputing remaining nan trials")
+            impute_trial_nans_by_channel_mean(epochs)
+    print(f"bad channels are now removed and nans imputed for subject: {subject}")
+    
     # TODO: set electrodes as an input parameter (which electrodes to use)
     if args.electrodes == 'all':
         electrodes = all_electrodes_per_subject_roi # toggle this to sig_electrodes_per_subject_roi if just using sig elecs, or electrodes_per_subject_roi if using all elecs
@@ -347,7 +380,6 @@ def main(args):
             
             time_window_decoding_results[condition_comparison][roi] = {}
             time_window_decoding_results[condition_comparison][roi]['strings_to_find'] = strings_to_find
-
 
             cm_true = cm_true_per_roi[roi]['cm_true']
             cm_shuffle = cm_shuffle_per_roi[roi]['cm_shuffle']

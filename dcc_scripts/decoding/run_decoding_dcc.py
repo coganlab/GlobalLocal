@@ -47,7 +47,7 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-SUBJECTS = ['D0057','D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'
@@ -56,9 +56,12 @@ TASK = 'GlobalLocal'
 # switched to False for err-corr decoding
 ACC_TRIALS_ONLY = True
 
+# threshold of percent trial outliers for a channel to be dropped
+CHANNEL_OUTLIER_THRESHOLD_PERCENT = 1
+
 # Statistical parameters
 # Choose your stat function here
-STAT_FUNC_CHOICE = 'mean_diff' # or 'ttest'
+STAT_FUNC_CHOICE = 'ttest' # or 'ttest'
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
@@ -92,13 +95,13 @@ FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_switch_type_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
@@ -143,6 +146,7 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
+        channel_outlier_threshold_percent=CHANNEL_OUTLIER_THRESHOLD_PERCENT,
         stat_func=STAT_FUNC,
         stat_func_str=STAT_FUNC_STR,
         p_thresh=P_THRESH,

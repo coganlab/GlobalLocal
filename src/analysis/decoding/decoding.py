@@ -1331,11 +1331,14 @@ def plot_accuracies_nature_style(
             if accuracies.ndim == 2:
                 n_samples = accuracies.shape[1]
                 mean_accuracy = np.mean(accuracies, axis=1)
-                sem_accuracy = np.std(accuracies, axis=1) / np.sqrt(n_samples)
+                std_accuracy = np.std(accuracies, axis=1)
+                sem_accuracy = std_accuracy / np.sqrt(n_samples)
             else:
                 mean_accuracy = accuracies
-                sem_accuracy = np.zeros_like(accuracies)
-            
+                std_accuracy = np.zeros_like(accuracies)
+                sem_accuracy = np.zeros_like(accuracies) # huhh? why is this zero???
+                print(f"⚠️ Warning: Accuracy data for '{label}' is 1D. Cannot compute SEM; plotting without error bars.")
+
             # Get color and linestyle
             color = colors.get(label, '#0173B2') if colors else '#0173B2'
             linestyle = linestyles.get(label, '-') if linestyles else '-'
@@ -1351,8 +1354,8 @@ def plot_accuracies_nature_style(
             # Plot SEM as shaded area
             ax.fill_between(
                 time_points,
-                mean_accuracy - sem_accuracy,
-                mean_accuracy + sem_accuracy,
+                mean_accuracy - std_accuracy,
+                mean_accuracy + std_accuracy,
                 alpha=0.25,  # Lighter shading for Nature style
                 color=color,
                 linewidth=0,
