@@ -316,7 +316,7 @@ def create_roi_grand_average(subjects_mne_objects, subjects, roi, electrodes_per
     return grand_averages_electrodes
 
 def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, plotting_parameters,
-                            save_dir=None, show_std=True, show_sem=False, show_ci=False, ci=0.95, figsize=(12, 8), x_label='Time (s)', ylim=None, y_label='Power (z)', font_size=12, title_font_size=14, save_name_suffix=None):
+                            save_dir=None, show_std=True, show_sem=False, show_ci=False, ci=0.95, figsize=(12, 8), x_label='Time (s)', ylim=None, y_label='Power (z)', axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
     """
     Custom plot with standard deviation or standard error shading.
     
@@ -342,7 +342,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     show_sem : bool
         Whether to show standard error of mean shading
     figsize : tuple
-        Figure size
+        Figure size 
     ylim : tuple
         Y-axis limits
     save_name_suffix : str
@@ -415,13 +415,13 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     # Customize plot
     text_color = "#002060"
 
-    ax.set_xlabel(x_label, fontsize=font_size, color=text_color)
-    ax.set_ylabel(y_label, fontsize=font_size, color=text_color)
+    ax.set_xlabel(x_label, fontsize=axis_font_size, color=text_color)
+    ax.set_ylabel(y_label, fontsize=axis_font_size, color=text_color)
     ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.tick_params(axis='both', colors=text_color)
+    ax.tick_params(axis='both', colors=text_color, labelsize=tick_font_size)
     
     # Set title
     title = f'{roi.upper()}'
@@ -458,7 +458,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
 def plot_power_traces_for_all_rois(evks_dict_elecs, rois, 
                                   condition_names, conditions_save_name, plotting_parameters, save_dir=None,
                                   error_type='std', figsize=(12, 8), x_label='Time (s)', y_label='Power (z)',
-                                  font_size=12, title_font_size=14, save_name_suffix=None):
+                                  axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
     """
     Plot power traces for each ROI comparing the specified conditions
     
@@ -482,8 +482,10 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         X-axis label
     y_label : str
         Y-axis label
-    font_size : int
-        Font size for labels and title
+    axis_font_size : int
+        Font size for axis labels and title
+    tick_font_size : int
+        Font size for tick labels
     title_font_size : int
         Font size for title
     figsize : tuple
@@ -501,7 +503,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
             plot_power_trace_for_roi(
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters,
                 save_dir=save_dir,
-                show_std=True, show_sem=False, font_size=font_size, 
+                show_std=True, show_sem=False, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
                 title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
             )
@@ -510,7 +512,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
             plot_power_trace_for_roi(
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters,
                 save_dir=save_dir,
-                show_std=False, show_sem=True, font_size=font_size, 
+                show_std=False, show_sem=True, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
                 title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
             )
@@ -519,7 +521,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
             plot_power_trace_for_roi(
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters,
                 save_dir=save_dir,
-                show_std=False, show_sem=False, show_ci=True, ci=0.95, font_size=font_size, 
+                show_std=False, show_sem=False, show_ci=True, ci=0.95, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
                 title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
             )
@@ -528,7 +530,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
             plot_power_trace_for_roi(
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters,
                 save_dir=save_dir,
-                show_std=False, show_sem=False, show_ci=False, ci=None, font_size=font_size, 
+                show_std=False, show_sem=False, show_ci=False, ci=None, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
                 title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
             )

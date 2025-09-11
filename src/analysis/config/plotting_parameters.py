@@ -109,14 +109,25 @@ plotting_parameters = {
     "color": "gray",
     "line_style": "--"
 },
+# commenting these out for now, going to put them in black
+# "Stimulus_err": {
+#     "condition_parameter": "error",
+#     "color": "firebrick",
+#     "line_style": "-",
+# },
+# "Stimulus_corr": {
+#     "condition_parameter": "correct",
+#     "color": "seagreen",
+#     "line_style": "-", 
+# },
 "Stimulus_err": {
     "condition_parameter": "error",
-    "color": "firebrick",
-    "line_style": "-",
+    "color": "black",
+    "line_style": "--",
 },
 "Stimulus_corr": {
     "condition_parameter": "correct",
-    "color": "seagreen",
+    "color": "black",
     "line_style": "-", 
 },
 'Stimulus_i75-Stimulus_c75': {
