@@ -3,7 +3,7 @@
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 10
-#SBATCH --mem=30G
+#SBATCH --mem=100G
 
 subject=$1
 task=$2
@@ -14,11 +14,11 @@ base_times_length=$6
 pad_length=$7
 LAB_root=$8
 channels=$9
-dec_factor=$10
-outlier_policy=$11
-outliers=$12
-threshold_percent=$13
-passband=$14
+dec_factor=${10}
+outlier_policy=${11}
+outliers=${12}
+threshold_percent=${13}
+passband=${14}
 
 # can't pass in stat_func because it's a function, sadly...manually set this in make_epoched_data_dcc.py
 

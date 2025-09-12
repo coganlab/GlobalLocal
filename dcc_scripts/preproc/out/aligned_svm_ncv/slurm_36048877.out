@@ -1,0 +1,49 @@
+['/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+--------- PARSED ARGUMENTS ---------
+args.subjects: ['D0057'] (type: <class 'list'>)
+args.task: GlobalLocal (type: <class 'str'>)
+args.times: [-1.0, 1.5] (type: <class 'list'>)
+args.within_base_times: [-1.0, 0.0] (type: <class 'list'>)
+args.baseline_event: Stimulus (type: <class 'str'>)
+args.base_times_length: 0.5 (type: <class 'float'>)
+args.pad_length: 0.5 (type: <class 'float'>)
+args.LAB_root: /cwork/jz421 (type: <class 'str'>)
+args.channels: None (type: <class 'str'>)
+args.dec_factor: 8 (type: <class 'int'>)
+args.outlier_policy: drop_and_impute (type: <class 'str'>)
+args.outliers: 10 (type: <class 'int'>)
+args.threshold_percent: 2.0 (type: <class 'float'>)
+args.passband: [70.0, 150.0] (type: <class 'list'>)
+======================================================================
+epoching data for subject: D0057
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.

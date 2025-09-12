@@ -56,7 +56,7 @@ sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to d
 import pickle
 from scipy.stats import ttest_ind
 from functools import partial
-from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, handle_outliers
+from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean
 
 def trial_ieeg_rand_offset(raw: mne.io.Raw, event: str | list[str, ...], within_times: tuple[float,float], times_length: float, pad_length: float,
                verbose=None, **kwargs) -> mne.Epochs:
@@ -222,25 +222,45 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
-    # debugging 6/17/25
-    # Create a baseline EpochsTFR using the baseline event
-    if baseline_event == "experimentStart":
-        # Adjust the time window
-        within_base_times_adj = [within_base_times[0] - pad_length, within_base_times[1] + pad_length]
-        trials = trial_ieeg(good, baseline_event, within_base_times_adj, preload=True)
-    else:
-        trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
-    
-    trials = handle_outliers(trials, outliers=outliers, outlier_policy=outlier_policy)
-    HG_base = gamma.extract(trials, passband=passband, copy=False, n_jobs=1)
-    pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
-    crop_pad(HG_base, pad_length_string) # need to change this if pad length changes
+    # <<< Step 1: IDENTIFY all bad channels before processing >>>
+    all_channels_to_drop = []
+    if outlier_policy == 'drop_and_impute':
+        print("--- Identifying Bad Channels ---")
+        # Identify from Baseline
+        base_trials_qc = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
+        outliers_to_nan(base_trials_qc, outliers=outliers)
+        dropped_base = identify_bad_channels_by_trial_nan_rate(base_trials_qc, threshold_percent)
+        print(f"Found {len(dropped_base)} bad baseline channels: {dropped_base}")
+
+        # Identify channels with too many outlier trials based on the stimulus period
+        times_adj = [times[0] - pad_length, times[1] + pad_length]
+        dropped_stimulus = []
+        event_trials_qc = trial_ieeg(good, "Stimulus", times_adj, preload=True, reject_by_annotation=False)
+        outliers_to_nan(event_trials_qc, outliers=outliers)
+        dropped_stimulus = identify_bad_channels_by_trial_nan_rate(event_trials_qc, threshold_percent)
+        print(f"Found {len(dropped_stimulus)} bad Stimulus channels: {dropped_stimulus}")
+
+        # <<< Step 2: CREATE a single master list of channels to drop >>>
+        all_channels_to_drop = list(set(dropped_base + dropped_stimulus))
+        print(f"\n>>> Final unified list of {len(all_channels_to_drop)} channels to drop: {all_channels_to_drop}\n")
+
+    # <<< Step 3: PROCESS the baseline ONCE >>>
+    base_trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
+    if outlier_policy == 'drop_and_impute':
+        base_trials.drop_channels(all_channels_to_drop, on_missing='ignore')
+        impute_trial_nans_by_channel_mean(base_trials)
+    elif outlier_policy == 'nan':
+        outliers_to_nan(base_trials, outliers=outliers)
+
+    HG_base = gamma.extract(base_trials, passband=passband, copy=False, n_jobs=1)
+    pad_length_string = f"{pad_length}s"
+    crop_pad(HG_base, pad_length_string)
     HG_base.decimate(dec_factor)
     
-    # Square the data to get power from amplitude
+    # Square the data to get power from amplitude (FIXED: Now correctly placed)
     HG_base_power = HG_base.copy()
-    HG_base_power._data = HG_base._data ** 2  # Square amplitude to get power
-    
+    HG_base_power._data = HG_base._data ** 2
+     
     if isinstance(stat_func, partial):
         base_func_name = stat_func.func.__name__
         # Create a descriptive name like "ttest_ind_equal_var_False"
@@ -258,24 +278,25 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
         
-    if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_threshold_percent_{threshold_percent}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
-    else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_threshold_percent_{threshold_percent}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_threshold_percent_{threshold_percent}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     
     for event in ["Stimulus", "Response"]:
+        print(f"--- Processing Event: {event} ---")
         output_name_event = f'{event}_{output_name_base}'
         times_adj = [times[0] - pad_length, times[1] + pad_length]
-        trials = trial_ieeg(good, event, times_adj, preload=True,
-                            reject_by_annotation=False)
-
-        trials, dropped_channels = handle_outliers(trials, outliers=outliers, outlier_policy=outlier_policy, threshold_percent=threshold_percent)
-
+        
+        trials = trial_ieeg(good, event, times_adj, preload=True, reject_by_annotation=False)
+        
+        if outlier_policy == 'drop_and_impute':
+            # Drop the MASTER list and impute
+            trials.drop_channels(all_channels_to_drop, on_missing='ignore')
+            impute_trial_nans_by_channel_mean(trials)
+        elif outlier_policy == 'nan':
+            outliers_to_nan(trials, outliers=outliers)
+            
+        # Now extract gamma and proceed with analysis
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
-        print("HG_ev1 before crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
-        crop_pad(HG_ev1, pad_length_string) #change this if pad length changes
-        print("HG_ev1 after crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
-
+        crop_pad(HG_ev1, pad_length_string)
         HG_ev1.decimate(dec_factor)
 
         # Square the data to get power from amplitude
@@ -338,7 +359,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         # save dropped channels
         dropped_channels_filepath = os.path.join(save_dir, f'{sub}_{output_name_event}_dropped_channels.json')
         with open(dropped_channels_filepath, 'w') as f:
-            json.dump({'dropped_channels': dropped_channels}, f, indent=4)
+            json.dump({'dropped_channels': all_channels_to_drop}, f, indent=4)
         print(f"saved list of dropped channels to: {dropped_channels_filepath}")
 
 # %%

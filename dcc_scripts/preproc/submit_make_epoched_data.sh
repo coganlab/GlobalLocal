@@ -4,7 +4,7 @@
 
 # subjects=("D0057" "D0059" "D0063" "D0065" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100" "D0102" "D0103" "D0107A" "D0110")
 
-subjects=("D0057")
+subjects=("D0065")
 
 # Define all arguments for the Python script
 TASK="GlobalLocal"
@@ -13,7 +13,7 @@ WITHIN_BASE_TIMES="-1 0"
 BASELINE_EVENT="Stimulus"
 BASE_TIMES_LENGTH=0.5
 PAD_LENGTH=0.5
-LAB_ROOT="/cwork/coganlab/jz421"
+LAB_ROOT="/cwork/jz421"
 CHANNELS="None"
 DEC_FACTOR=8
 OUTLIER_POLICY="drop_and_impute"

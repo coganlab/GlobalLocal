@@ -1899,3 +1899,24 @@ def impute_trial_nans_by_channel_mean(epochs: mne.Epochs):
     # Update the epochs object with the cleaned data
     epochs._data = data
     print("NaN values have been imputed using the per-channel, per-timepoint mean.")
+    
+def drop_bad_channels_and_impute_outlier_trials(epochs: mne.Epochs,
+                                channels_to_drop: list,
+                                outliers: float):
+    """
+    Cleans an MNE Epochs object by dropping specified channels, 
+    marking outlier trials as NaN, and then imputing those NaNs.
+    """
+    # 1. Drop the unified list of bad channels
+    print(f"Dropping {len(channels_to_drop)} channels from this Epochs object.")
+    epochs.drop_channels(channels_to_drop, on_missing='ignore')
+
+    # 2. Mark remaining outlier trials as NaN
+    print(f"Marking outlier trials > {outliers} SD as NaN.")
+    outliers_to_nan(epochs, outliers=outliers)
+
+    # 3. Impute the NaNs with the channel-wise mean
+    print("Imputing NaN trials with the mean of each channel.")
+    impute_trial_nans_by_channel_mean(epochs)
+
+    return epochs
