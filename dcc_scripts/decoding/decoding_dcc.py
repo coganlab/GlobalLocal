@@ -189,7 +189,7 @@ def main(args):
         print(f"\nremoving bad channels and imputing nans for subject: {subject}")
         for condition in subjects_mne_objects[subject]:
             print(f" Condition: {condition}")
-            epochs = subjects_mne_objects[subject][condition]
+            epochs = subjects_mne_objects[subject][condition]['HG_ev1_power_rescaled'] # grab power for now
         
             # mark outliers if not already marked
             if not np.isnan(epochs.get_data()).any():

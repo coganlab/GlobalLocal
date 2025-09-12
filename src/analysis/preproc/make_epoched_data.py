@@ -18,7 +18,7 @@
 import sys
 import os
 print(sys.path)
-sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
+# sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...comment out when running on cluster, but uncomment when running on pc.
 
 # Get the absolute path to the directory containing the current script
 # For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
@@ -57,36 +57,6 @@ import pickle
 from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, handle_outliers
-
-# Directory where your .npy files are saved
-npy_directory = r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
-
-# Dictionary to hold the data
-acc_array = {}
-
-# Iterate over each file in the directory
-for file in os.listdir(npy_directory):
-    if file.endswith('.npy'):
-        # Construct the full file path
-        file_path = os.path.join(npy_directory, file)
-        # Load the numpy array from the file
-        acc_array[file.split('_')[0]] = np.load(file_path)
-
-# Now you have a dictionary where each key is the subject ID
-# and the value is the numpy array of accuracies for that subject.
-        
-combined_data = pd.read_csv(r'C:\Users\jz421\Box\CoganLab\D_Data\GlobalLocal\combinedData.csv')
-
-# %% [markdown]
-# define subjects
-
-# %%
-
-# %% [markdown]
-# use time point cluster stats for determining stimulus significance (old method as of 2/13/24)
-# 
-# updated this one 2/29, once it's tested and works, then turn into a function and delete other cells below
-# %%
 
 def trial_ieeg_rand_offset(raw: mne.io.Raw, event: str | list[str, ...], within_times: tuple[float,float], times_length: float, pad_length: float,
                verbose=None, **kwargs) -> mne.Epochs:
@@ -161,7 +131,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='nan', outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -177,8 +147,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
-    - outlier_policy (str, optional): How to handle outliers. Either set to nan, interpolate, or ignore.
+    - outlier_policy (str, optional): How to handle outliers. Either set to nan, drop_and_impute, or ignore.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
+    - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.  
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
     - stat_func (function, optional): The statistical function to use for significance testing. Default is ttest_ind(equal_var=False).
     
@@ -186,14 +157,27 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
     The results will be saved to output files.
     """
-
+    print("=" * 70)
+    print(f'epoching data for subject: {sub}')
+    
+    # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
         HOME = os.path.expanduser("~")
-        if os.name == 'nt':  # windows
+        USER = os.path.basename(HOME)
+        
+        if os.name == 'nt':  # Windows
             LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        else:  # mac
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box",
-                                    "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            # Check if we're on the cluster by looking for /cwork directory
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                # Fallback for other Linux systems
+                LAB_root = os.path.join(HOME, "CoganLab")
+    else:
+        LAB_root = LAB_root
 
     layout = get_data(task, root=LAB_root)
     filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
@@ -275,9 +259,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         stat_func_for_filename = "custom_stat_func" # Fallback
         
     if baseline_event == "experimentStart" or baseline_event == 'experimentStart':
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_threshold_percent_{threshold_percent}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     else:
-        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+        output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_randoffset_{baseline_event}Base_decFactor_{dec_factor}_outlier_policy_{outlier_policy}_outliers_{outliers}_threshold_percent_{threshold_percent}_passband_{passband[0]}-{passband[1]}_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
     
     for event in ["Stimulus", "Response"]:
         output_name_event = f'{event}_{output_name_base}'
@@ -285,7 +269,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         trials = trial_ieeg(good, event, times_adj, preload=True,
                             reject_by_annotation=False)
 
-        trials = handle_outliers(trials, outliers=outliers, outlier_policy=outlier_policy)
+        trials, dropped_channels = handle_outliers(trials, outliers=outliers, outlier_policy=outlier_policy, threshold_percent=threshold_percent)
 
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
         print("HG_ev1 before crop_pad: ", HG_ev1.tmin, HG_ev1.tmax)
@@ -350,11 +334,17 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         # Save the mat array
         np.save(mat_save_path, mat)
+        
+        # save dropped channels
+        dropped_channels_filepath = os.path.join(save_dir, f'{sub}_{output_name_event}_dropped_channels.json')
+        with open(dropped_channels_filepath, 'w') as f:
+            json.dump({'dropped_channels': dropped_channels}, f, indent=4)
+        print(f"saved list of dropped channels to: {dropped_channels_filepath}")
 
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='nan', outliers=10, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -365,7 +355,7 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
                           pad_length=pad_length, LAB_root=LAB_root, channels=channels,
-                          dec_factor=dec_factor, outlier_policy=outlier_policy, outliers=outliers, passband=passband, stat_func=stat_func)
+                          dec_factor=dec_factor, outlier_policy=outlier_policy, outliers=outliers, threshold_percent=threshold_percent, passband=passband, stat_func=stat_func)
         
 if __name__ == "__main__":
     import argparse
@@ -382,13 +372,30 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outlier_policy', type=str, default='nan', help='How to handle outlier values. Can set to nan, interpolate, or ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
+    parser.add_argument('--threshold_percent', type=float, default=2.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
 
+    # Convert the string 'None' to a proper None object
+    channels_arg = None if args.channels == 'None' else args.channels
+    
     print("--------- PARSED ARGUMENTS ---------")
-    print(f"args.passband: {args.passband} (type: {type(args.passband)})")
     print(f"args.subjects: {args.subjects} (type: {type(args.subjects)})")
+    print(f"args.task: {args.task} (type: {type(args.task)})")
+    print(f"args.times: {args.times} (type: {type(args.times)})")
+    print(f"args.within_base_times: {args.within_base_times} (type: {type(args.within_base_times)})")
+    print(f"args.baseline_event: {args.baseline_event} (type: {type(args.baseline_event)})")
+    print(f"args.base_times_length: {args.base_times_length} (type: {type(args.base_times_length)})")
+    print(f"args.pad_length: {args.pad_length} (type: {type(args.pad_length)})")
+    print(f"args.LAB_root: {args.LAB_root} (type: {type(args.LAB_root)})")
+    print(f"args.channels: {args.channels} (type: {type(args.channels)})")
+    print(f"args.dec_factor: {args.dec_factor} (type: {type(args.dec_factor)})")
+    print(f"args.outlier_policy: {args.outlier_policy} (type: {type(args.outlier_policy)})")
+    print(f"args.outliers: {args.outliers} (type: {type(args.outliers)})")
+    print(f"args.threshold_percent: {args.threshold_percent} (type: {type(args.threshold_percent)})")
+    print(f"args.passband: {args.passband} (type: {type(args.passband)})")
+
 
     main(subjects=args.subjects, 
         task=args.task, 
@@ -397,9 +404,10 @@ if __name__ == "__main__":
         base_times_length=args.base_times_length, 
         pad_length=args.pad_length, 
         LAB_root=args.LAB_root, 
-        channels=args.channels, 
+        channels=channels_arg, 
         dec_factor=args.dec_factor, 
         outlier_policy=args.outlier_policy,
         outliers=args.outliers, 
+        threshold_percent=args.threshold_percent,
         passband=args.passband,
         stat_func=args.stat_func)
