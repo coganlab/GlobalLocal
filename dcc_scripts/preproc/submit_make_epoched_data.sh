@@ -18,7 +18,7 @@ CHANNELS="None"
 DEC_FACTOR=8
 OUTLIER_POLICY="drop_and_impute"
 OUTLIERS=10
-THRESHOLD_PERCENT=2.0
+THRESHOLD_PERCENT=5.0
 PASSBAND="70 150"
 SBATCH_SCRIPT_PATH="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/preproc/sbatch_make_epoched_data.sh"
 
