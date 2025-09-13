@@ -131,7 +131,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -147,7 +147,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
-    - outlier_policy (str, optional): How to handle outliers. Either set to nan, drop_and_impute, or ignore.
+    - outlier_policy (str, optional): How to handle outliers. Either set to drop, nan, drop_and_nan, drop_and_impute, or ignore. Note that drop in this case refers to dropping channels with more % outliers than the threshold percentage, not to dropping the outlier trials themselves. NaN will replace the outlier trials with NaNs, and impute will replace them with the channel mean.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.  
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
@@ -369,7 +369,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -399,27 +399,27 @@ if __name__ == "__main__":
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
     parser.add_argument('--threshold_percent', type=float, default=2.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
-    parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
+    parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False, nan_policy='omit'), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
 
     # Convert the string 'None' to a proper None object
     channels_arg = None if args.channels == 'None' else args.channels
     
     print("--------- PARSED ARGUMENTS ---------")
-    print(f"args.subjects: {args.subjects} (type: {type(args.subjects)})")
-    print(f"args.task: {args.task} (type: {type(args.task)})")
-    print(f"args.times: {args.times} (type: {type(args.times)})")
-    print(f"args.within_base_times: {args.within_base_times} (type: {type(args.within_base_times)})")
-    print(f"args.baseline_event: {args.baseline_event} (type: {type(args.baseline_event)})")
-    print(f"args.base_times_length: {args.base_times_length} (type: {type(args.base_times_length)})")
-    print(f"args.pad_length: {args.pad_length} (type: {type(args.pad_length)})")
-    print(f"args.LAB_root: {args.LAB_root} (type: {type(args.LAB_root)})")
-    print(f"args.channels: {args.channels} (type: {type(args.channels)})")
-    print(f"args.dec_factor: {args.dec_factor} (type: {type(args.dec_factor)})")
-    print(f"args.outlier_policy: {args.outlier_policy} (type: {type(args.outlier_policy)})")
-    print(f"args.outliers: {args.outliers} (type: {type(args.outliers)})")
-    print(f"args.threshold_percent: {args.threshold_percent} (type: {type(args.threshold_percent)})")
-    print(f"args.passband: {args.passband} (type: {type(args.passband)})")
+    print(f"args.subjects: {args.subjects}")
+    print(f"args.task: {args.task}")
+    print(f"args.times: {args.times}")
+    print(f"args.within_base_times: {args.within_base_times}")
+    print(f"args.baseline_event: {args.baseline_event}")
+    print(f"args.base_times_length: {args.base_times_length}")
+    print(f"args.pad_length: {args.pad_length}")
+    print(f"args.LAB_root: {args.LAB_root}")
+    print(f"args.channels: {args.channels}")
+    print(f"args.dec_factor: {args.dec_factor}")
+    print(f"args.outlier_policy: {args.outlier_policy}")
+    print(f"args.outliers: {args.outliers}")
+    print(f"args.threshold_percent: {args.threshold_percent}")
+    print(f"args.passband: {args.passband}")
 
 
     main(subjects=args.subjects, 
