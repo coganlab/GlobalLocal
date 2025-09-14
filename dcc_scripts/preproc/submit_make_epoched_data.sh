@@ -2,9 +2,9 @@
 
 # loop over subjects and submit the sbatch script for plot clean
 
-# subjects=("D0057" "D0059" "D0063" "D0065" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100" "D0102" "D0103" "D0107A" "D0110")
+subjects=("D0057" "D0059" "D0063" "D0065" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100" "D0102" "D0103" "D0107A" "D0110", 'D0116', 'D0117', 'D0121')
 
-subjects=("D0065")
+# subjects=("D0065")
 
 # Define all arguments for the Python script
 TASK="GlobalLocal"
@@ -16,7 +16,7 @@ PAD_LENGTH=0.5
 LAB_ROOT="/cwork/jz421"
 CHANNELS="None"
 DEC_FACTOR=8
-OUTLIER_POLICY="drop_and_nan"
+OUTLIER_POLICY="drop"
 OUTLIERS=10
 THRESHOLD_PERCENT=5.0
 PASSBAND="70 150"
