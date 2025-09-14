@@ -83,6 +83,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
+BOOTSTRAPS = 1
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -163,6 +164,7 @@ def run_analysis():
         electrodes=ELECTRODES,
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
+        bootstraps=BOOTSTRAPS,
         obs_axs=OBS_AXS,
         chans_axs=CHANS_AXS,
         time_axs=TIME_AXS,
