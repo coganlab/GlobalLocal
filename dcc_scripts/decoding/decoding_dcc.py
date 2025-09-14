@@ -294,9 +294,24 @@ def main(args):
     other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(args.subjects)) + '_subjects'
     # make a dict to store the final statistical results (e.g., significance masks) for each comparison and ROI, aggregated across all bootstraps
     aggregated_bootstrap_stats_results = {}
-    
-    # loop over each bootstrap sample
+    for roi in rois:
+        # Initialize keys for all possible comparisons
+        for condition_comparison in condition_comparisons.keys():
+            aggregated_bootstrap_stats_results[(condition_comparison, roi)] = []
+        # Add special comparison keys
+        if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+            aggregated_bootstrap_stats_results[('lwpc', roi)] = []    # loop over each bootstrap sample
+        if args.conditions == experiment_conditions.stimulus_lwps_conditions:
+            aggregated_bootstrap_stats_results[('lwps', roi)] = []
+        if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+            aggregated_bootstrap_stats_results[('congruency_by_switch_proportion', roi)] = []
+        if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+            aggregated_bootstrap_stats_results[('switch_type_by_congruency_proportion', roi)] = []
+            
+    time_window_decoding_results = {}     
+     
     for bootstrap_idx in range(args.bootstraps):
+        time_window_decoding_results[bootstrap_idx] = {}
         print(f"\n{'='*20} PROCESSING BOOTSTRAP {bootstrap_idx+1}/{args.bootstraps} {'='*20}\n")
         
         # get the specific LabeledArray dict for this bootstrap iteration
@@ -332,11 +347,9 @@ def main(args):
         cm_save_dir = os.path.join(save_dir, "confusion_matrices")
         os.makedirs(cm_save_dir, exist_ok=True)
 
-        time_window_decoding_results = {}
-
         for condition_comparison, strings_to_find in condition_comparisons.items():
             
-            time_window_decoding_results[condition_comparison] = {}
+            time_window_decoding_results[bootstrap_idx][condition_comparison] = {}
             
             # Get confusion matrices for each ROI
             cm_true_per_roi, cm_shuffle_per_roi = get_confusion_matrices_for_rois_time_window_decoding_jim(
@@ -370,8 +383,8 @@ def main(args):
                 os.makedirs(condition_roi_stat_func_save_dir, exist_ok=True)
                 print(f"accuracies save dir directory created or already exists at: {condition_roi_stat_func_save_dir}")
                 
-                time_window_decoding_results[condition_comparison][roi] = {}
-                time_window_decoding_results[condition_comparison][roi]['strings_to_find'] = strings_to_find
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi] = {}
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['strings_to_find'] = strings_to_find
 
                 cm_true = cm_true_per_roi[roi]['cm_true']
                 cm_shuffle = cm_shuffle_per_roi[roi]['cm_shuffle']
@@ -380,18 +393,18 @@ def main(args):
                 step_size = cm_true_per_roi[roi]['step_size']
 
                 # store cm outputs nd windowing parameters
-                time_window_decoding_results[condition_comparison][roi]['cm_true'] = cm_true
-                time_window_decoding_results[condition_comparison][roi]['cm_shuffle'] = cm_shuffle
-                time_window_decoding_results[condition_comparison][roi]['time_window_centers'] = time_window_centers
-                time_window_decoding_results[condition_comparison][roi]['window_size'] = window_size
-                time_window_decoding_results[condition_comparison][roi]['step_size'] = step_size
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['cm_true'] = cm_true
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['cm_shuffle'] = cm_shuffle
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['time_window_centers'] = time_window_centers
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['window_size'] = window_size
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['step_size'] = step_size
                 
                 # Compute accuracies
                 accuracies_true, accuracies_shuffle = compute_accuracies(cm_true, cm_shuffle)
 
-                # store accuracies
-                time_window_decoding_results[condition_comparison][roi]['accuracies_true'] = accuracies_true
-                time_window_decoding_results[condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
+                # store accuracies - TODO: average across bootstraps somehow for these
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['accuracies_true'] = accuracies_true
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
                 
                 # Perform time permutation cluster test
                 significant_clusters, p_values = time_perm_cluster(
@@ -407,8 +420,8 @@ def main(args):
                 )
 
                 # Store significant clusters and p-values
-                time_window_decoding_results[condition_comparison][roi]['significant_clusters'] = significant_clusters
-                time_window_decoding_results[condition_comparison][roi]['p_values'] = p_values
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_clusters
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['p_values'] = p_values
 
                 # store boolean mask of significant clusters in bootstrap stats dict
                 if (condition_comparison, roi) not in aggregated_bootstrap_stats_results:
@@ -416,7 +429,7 @@ def main(args):
                 
                 aggregated_bootstrap_stats_results[(condition_comparison, roi)].append(significant_clusters)
                 
-                # Plot accuracies comparing true and shuffle for this condition comparison and roi
+                # Plot accuracies comparing true and shuffle for this condition comparison and roi - TODO: need to move this out of the bootstrap loop, and just plot the bootstrap averaged accuracy.
                 plot_true_vs_shuffle_accuracies(
                     time_points=time_window_centers,
                     accuracies_true=accuracies_true,
@@ -435,9 +448,9 @@ def main(args):
         # do lwpc comparison 
         if args.conditions == experiment_conditions.stimulus_lwpc_conditions:       
             for roi in rois:
-                time_window_centers = time_window_decoding_results['c25_vs_i25'][roi]['time_window_centers']
-                c25_vs_i25_acc = time_window_decoding_results['c25_vs_i25'][roi]['accuracies_true']
-                c75_vs_i75_acc = time_window_decoding_results['c75_vs_i75'][roi]['accuracies_true']
+                time_window_centers = time_window_decoding_results[bootstrap_idx]['c25_vs_i25'][roi]['time_window_centers']
+                c25_vs_i25_acc = time_window_decoding_results[bootstrap_idx]['c25_vs_i25'][roi]['accuracies_true']
+                c75_vs_i75_acc = time_window_decoding_results[bootstrap_idx]['c75_vs_i75'][roi]['accuracies_true']
                 
                 # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
                 lwpc_significant_clusters, lwpc_p_values = time_perm_cluster(
@@ -453,7 +466,6 @@ def main(args):
                 )
 
                 # store boolean mask of significant lwpc clusters in bootstrap stats dict
-                aggregated_bootstrap_stats_results[('lwpc', roi)] = []
                 aggregated_bootstrap_stats_results[('lwpc', roi)].append(lwpc_significant_clusters)
                 
                 # get i vs c pooled shuffle distribution
@@ -515,9 +527,9 @@ def main(args):
         # do lwps comparison 
         if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
             for roi in rois:
-                time_window_centers = time_window_decoding_results['s25_vs_r25'][roi]['time_window_centers']
-                s25_vs_r25_acc = time_window_decoding_results['s25_vs_r25'][roi]['accuracies_true']
-                s75_vs_r75_acc = time_window_decoding_results['s75_vs_r75'][roi]['accuracies_true']
+                time_window_centers = time_window_decoding_results[bootstrap_idx]['s25_vs_r25'][roi]['time_window_centers']
+                s25_vs_r25_acc = time_window_decoding_results[bootstrap_idx]['s25_vs_r25'][roi]['accuracies_true']
+                s75_vs_r75_acc = time_window_decoding_results[bootstrap_idx]['s75_vs_r75'][roi]['accuracies_true']
                 
                 # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
                 lwps_significant_clusters, lwps_p_values = time_perm_cluster(
@@ -533,7 +545,6 @@ def main(args):
                 )
                 
                 # store boolean mask of significant lwps clusters in bootstrap stats dict
-                aggregated_bootstrap_stats_results[('lwps', roi)] = []
                 aggregated_bootstrap_stats_results[('lwps', roi)].append(lwps_significant_clusters)
                 
                 # get s vs r pooled shuffle distribution
@@ -594,9 +605,9 @@ def main(args):
         # do congruency by switch proportion comparison 
         if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:       
             for roi in rois:
-                time_window_centers = time_window_decoding_results['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
-                c_in_25switchBlock_vs_i_in_25switchBlock_acc = time_window_decoding_results['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['accuracies_true']
-                c_in_75switchBlock_vs_i_in_75switchBlock_acc = time_window_decoding_results['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]['accuracies_true']
+                time_window_centers = time_window_decoding_results[bootstrap_idx]['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
+                c_in_25switchBlock_vs_i_in_25switchBlock_acc = time_window_decoding_results[bootstrap_idx]['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['accuracies_true']
+                c_in_75switchBlock_vs_i_in_75switchBlock_acc = time_window_decoding_results[bootstrap_idx]['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]['accuracies_true']
                 
                 # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
                 significant_clusters, p_values = time_perm_cluster(
@@ -671,9 +682,9 @@ def main(args):
         # do switch type by congruency proportion comparison 
         if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:       
             for roi in rois:
-                time_window_centers = time_window_decoding_results['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
-                s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc = time_window_decoding_results['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['accuracies_true']
-                s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc = time_window_decoding_results['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]['accuracies_true']
+                time_window_centers = time_window_decoding_results[bootstrap_idx]['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+                s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc = time_window_decoding_results[bootstrap_idx]['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['accuracies_true']
+                s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc = time_window_decoding_results[bootstrap_idx]['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]['accuracies_true']
 
                 # doing a one-sided test first, but could do a two-sided test because either could be higher than the other, just find when they're different
                 significant_clusters, p_values = time_perm_cluster(

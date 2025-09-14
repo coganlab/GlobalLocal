@@ -768,8 +768,8 @@ def make_bootstrapped_labeled_arrays_for_roi(
             for channel in all_channels_in_roi:
                 channel_data = nan_removed_data_dict[condition_name][channel]
                 
-                # randomly sample trials *without* replacement
-                sample_indices = rng.choice(len(channel_data), size=n_samples, replace=False)
+                # randomly subsample trials *without* replacement down to the channel with the fewest good trials for this roi and condition
+                sample_indices = rng.choice(len(channel_data), size=n_samples, replace=False) 
                 resampled_channels_for_condition.append(channel_data[sample_indices])
                 
             # Stack the resampled channels along the channel axis
@@ -875,7 +875,7 @@ def make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel
     
     return bootstrapped_roi_arrays
 
-def make_bootstrapped_roi_labeled_arrays(
+def make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
     rois, subjects_data_objects, condition_names, subjects,
     electrodes_per_subject_roi, n_bootstraps=1, n_jobs=-1,
     obs_axs=0, chans_axs=1, time_axs=2, freq_axs=None, random_state=None
