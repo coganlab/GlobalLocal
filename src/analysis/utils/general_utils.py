@@ -1771,10 +1771,9 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
                     outlier_policy: str = 'nan',
                     copy: bool = False, 
                     picks: list = 'data',
-                    deviation: callable = np.nanstd,
-                    center: callable = np.nanmean, 
                     tmin: int | float = None,
                     tmax: int | float = None, 
+                    threshold_percent = 5,
                     verbose=None) -> mne.epochs.BaseEpochs:
     """
     Identifies and handles outliers in epoched data.
@@ -1788,20 +1787,18 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
     outlier_policy : str, optional
         How to handle identified outliers. Options are:
         - 'nan': Replace outliers with np.nan (default).
-        - 'interpolate': Replace outliers with linearly interpolated values.
+        - 'drop_and_impute': Drop channels with more outlier trials than a percentage threshold, and impute the remaining outlier trials with the channel mean across trials.
         - 'ignore': Do not modify the data.
     copy : bool, optional
         Whether to copy the data, by default False.
     picks : list, optional
         The channels to remove outliers from, by default 'data'.
-    deviation: callable, optional
-        Metric function to determine the deviation from the center. Default is np.nanstd.
-    center : callable, optional
-        Metric function to determine the center of the data. Default is np.nanmean.
     tmin : int | float, optional
         Start time of the window to check for outliers.
     tmax : int | float, optional
         End time of the window to check for outliers.
+    threshold_percent : int | float, optional
+        Channels with a greater percent of outlier trials than this threshold will be removed from further analyses.
     %(verbose)s
 
     Returns
@@ -1809,65 +1806,39 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
     mne.epochs.BaseEpochs
         The trials with outliers handled according to the specified policy.
     """
-    if outlier_policy not in ['nan', 'interpolate', 'ignore']:
-        raise ValueError("outlier_policy must be 'nan', 'interpolate', or 'ignore'")
+    if outlier_policy not in ['nan', 'drop_and_impute', 'ignore']:
+        raise ValueError("outlier_policy must be 'nan', 'drop_and_impute', or 'ignore'")
 
     if copy:
         trials = trials.copy()
         
-    picks_idx = mne.io.pick._picks_to_idx(trials.info, picks)
-    
-    # Load data to be processed
-    if isinstance(trials, mne.time_frequency.BaseTFR):
-        # For TFR data, we might need a more complex interpolation strategy,
-        # but for now, we'll operate on the data array directly.
-        data_subset = trials.get_data(picks=picks, tmin=tmin, tmax=tmax)
-        full_data = trials.get_data(picks=picks)
-    else:
-        if not isinstance(trials, mne.epochs.EpochsArray):
-            trials.load_data()
-        data_subset = trials.get_data(picks=picks, tmin=tmin, tmax=tmax, verbose=verbose, copy=False)
-        full_data = trials._data[:, picks_idx]
-
-    # Find outliers and create a boolean mask where True means "keep" - leaving out deviation and center for now because i'm on an older version of ieeg pipelines that doesn't have those inputs to find_outliers 8/31/25
-    keep_mask = find_outliers(data=data_subset, outliers=outliers)
-
     # If the policy is 'ignore', we're done.
     if outlier_policy == 'ignore':
         mne.utils.logger.info("Outlier policy set to 'ignore'. No changes made to data.")
-        return trials
+        return trials, []
+    
+    # 1. Mark outlier timepoints as NaN directly on the Epochs object
+    print(f"Marking outliers > {outliers} SD as NaN...")
+    outliers_to_nan(trials, outliers=outliers)
+    
+    # 2. If the policy is 'drop and impute', then drop bad channels, and impute remaining outlier trials
+    dropped_channels = []
+    if outlier_policy == 'drop_and_impute':
+        mne.utils.logger.info(f"Dropping channels with more than {threshold_percent}% outlier trials, and imputing the remaining outlier trials with the channel mean.")
 
-    # Set outliers to np.nan. This is the first step for both 'nan' and 'interpolate'.
-    # The [..., None] adds a time dimension to the mask to allow broadcasting
-    processed_data = np.where(keep_mask[..., np.newaxis], full_data, np.nan)
+        # identify and drop bad channels
+        print(f"identifying channels with >{threshold_percent}% trial outliers")
+        bad_channels = identify_bad_channels_by_trial_nan_rate(trials, threshold_percent)
+        if bad_channels:
+            print(f"bad channels: {bad_channels}")
+            trials.drop_channels(bad_channels, on_missing='ignore')
+            print(f" dropped {len(bad_channels)} bad channels")
+        
+        # impute remaining nan trials within the good channels
+        print("imputing remaining nan trials")
+        impute_trial_nans_by_channel_mean(trials)
 
-    if outlier_policy == 'interpolate':
-        mne.utils.logger.info("Interpolating NaN values...")
-        # Iterate over each trial and channel to perform 1D interpolation along the time axis
-        for i in range(processed_data.shape[0]):  # Iterate through trials
-            for j in range(processed_data.shape[1]):  # Iterate through channels
-                segment = processed_data[i, j, :]
-                nan_indices = np.isnan(segment)
-                
-                # Proceed if there are NaNs to interpolate and at least one valid data point
-                if np.any(nan_indices) and not np.all(nan_indices):
-                    x = np.arange(len(segment))
-                    non_nan_indices = ~nan_indices
-                    
-                    # np.interp performs linear interpolation
-                    interpolated_values = np.interp(
-                        x[nan_indices],         # Points to evaluate
-                        x[non_nan_indices],     # x-coordinates of known points
-                        segment[non_nan_indices] # y-coordinates of known points
-                    )
-                    
-                    # Fill in the NaNs with the interpolated values
-                    processed_data[i, j, nan_indices] = interpolated_values
-
-    # Assign the processed data back to the trials object
-    trials._data[:, picks_idx] = processed_data
-
-    return trials
+    return trials, dropped_channels
 
 def identify_bad_channels_by_trial_nan_rate(epochs: mne.Epochs, threshold_percent: float = 5.0) -> list:
     """

@@ -612,3 +612,328 @@ def get_data_in_time_range(labeled_array, time_range, time_axs=-1):
     filtered_data = labeled_array.take(time_indices, axis=3)
 
     return filtered_data
+
+def make_np_array_with_nan_trials_removed_for_each_channel(
+    roi, subjects_data_objects, condition_names, subjects, 
+    electrodes_per_subject_roi, chans_axs=1
+):
+    """
+    Extracts epoch data for each channel in an ROI and removes NaN trials.
+
+    This function iterates through each subject and their corresponding electrodes
+    within a specified ROI. For each unique channel (subject-electrode pair),
+    it extracts the data, removes any trial that contains one or more NaN
+    values, and stores the resulting clean NumPy array in a nested dictionary.
+
+    Args:
+        roi (str): The name of the Region of Interest (ROI) to process.
+        subjects_data_objects (dict): A dictionary of MNE Epochs or EpochsTFR objects.
+        condition_names (list): A list of strings for the condition names.
+        subjects (list): A list of subject identifiers.
+        electrodes_per_subject_roi (dict): A dictionary mapping ROIs to subjects 
+                                           and their electrodes.
+        chans_axs (int, optional): The axis index for channels in the MNE data 
+                                   array. Defaults to 1.
+
+    Returns:
+        tuple: A tuple containing:
+            - nan_removed_data_dict (dict): A nested dictionary with the structure
+              `{condition: {channel: np.ndarray}}` where each array has
+              NaN-containing trials removed.
+            - all_channels_in_roi (list): A list of all unique channel names
+              (e.g., 'D57-LTM1') found in the ROI.
+    """
+    # Get epochs for each channel individually, and remove nan trials
+    # Structure: nan_removed_data_dict[condition][channel_id] = nan_removed_numpy_array
+    nan_removed_data_dict = {condition_name: {} for condition_name in condition_names}
+    all_channels_in_roi = []
+    
+    data_type = detect_data_type(subjects_data_objects)
+    
+    for sub in subjects:
+        electrodes = electrodes_per_subject_roi.get(roi, {}).get(sub, []) # get list of electrodes in this roi for this subject
+        for electrode in electrodes:
+            channel = f"{sub}-{electrode}" # add this subject's name to the electrode name to create the channel name
+            if channel not in all_channels_in_roi:
+                all_channels_in_roi.append(channel) 
+            
+            for condition_name in condition_names:
+                if condition_name not in subjects_data_objects.get(sub, {}):
+                    continue
+                
+                if data_type == 'Epochs':
+                    epochs_for_this_sub_and_cond_and_elec = get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_objects(
+                        subjects_data_objects, condition_name, sub, [electrode]
+                    )
+                elif data_type == 'EpochsTFR':
+                    epochs_for_this_sub_and_cond_and_elec = get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_tfr_objects(
+                        subjects_data_objects, condition_name, sub, [electrode]
+                    )
+                else:
+                    raise ValueError('currently this only supports Epochs and EpochsTFR data')
+
+                np_array_for_this_sub_and_cond_and_elec = epochs_for_this_sub_and_cond_and_elec.get_data(copy=True).squeeze(axis=chans_axs) # remove the unnecessary channels axis cuz it's just for one channel, so now it's (trials, time) or (trials, freqs, time)
+                
+                # remove trials with any NaN values for this sub, cond, and chan
+                valid_trials_mask = ~np.isnan(np_array_for_this_sub_and_cond_and_elec).any(axis=tuple(range(1, np_array_for_this_sub_and_cond_and_elec.ndim)))
+                nan_removed_data_dict[condition_name][channel] = np_array_for_this_sub_and_cond_and_elec[valid_trials_mask]
+                
+    if not all_channels_in_roi:
+        print(f" No valid channels found for ROI: {roi}. Skipping.")
+        return {}, []
+    else:
+        return nan_removed_data_dict, all_channels_in_roi
+
+def subsample_to_min_trials_per_condition(roi, nan_removed_data_dict, condition_names):
+    """
+    Determines the minimum number of trials for subsampling.
+
+    For each condition, this function finds the minimum number of valid (NaN-free)
+    trials across all channels within a given ROI. This value is used to
+    equalize trial counts across channels during bootstrapping.
+
+    Args:
+        roi (str): The name of the ROI being processed, for logging purposes.
+        nan_removed_data_dict (dict): A nested dictionary from 
+                                      `make_np_array_with_nan_trials_removed_for_each_channel`.
+        condition_names (list): A list of condition names to process.
+
+    Returns:
+        dict: A dictionary `{condition_name: min_trial_count}` mapping each
+              condition to the minimum number of trials found across all its
+              channels.
+    """
+    min_trials_per_condition = {}
+    for condition_name in condition_names:
+        # get trial counts for all channels in this condition
+        trial_counts = [len(data) for data in nan_removed_data_dict[condition_name].values()]
+        
+        if not trial_counts:
+            # This can happen if a condition has no channels with valid data
+            print(f"Warning: No valid trials found for condition '{condition_name}' in ROI {roi}. Setting min trials to 0.")
+            min_trials_per_condition[condition_name] = 0
+        else:
+            min_trials_per_condition[condition_name] = min(trial_counts)
+            print(f"condition '{condition_name}': subsampling to {min_trials_per_condition[condition_name]} trials")
+            
+    return min_trials_per_condition
+
+def make_bootstrapped_labeled_arrays_for_roi(
+    nan_removed_data_dict, min_trials_per_condition, all_channels_in_roi,
+    condition_names, n_bootstraps, rng, chans_axs, time_axs, data_type,
+    sample_times, freq_axs=None, sample_freqs=None
+):
+    """
+    Generates bootstrapped LabeledArray samples for one ROI.
+
+    For each bootstrap iteration, this function samples trials *without replacement*
+    from each channel's cleaned data, ensuring each channel contributes an equal
+    number of trials per condition. These resampled channels are then stacked
+    to form a dense LabeledArray for that bootstrap instance.
+
+    Args:
+        nan_removed_data_dict (dict): Nested dictionary with NaN-free trial data.
+        min_trials_per_condition (dict): Dictionary specifying the number of 
+                                         trials to sample for each condition.
+        all_channels_in_roi (list): List of all channel names in the ROI.
+        condition_names (list): List of condition names.
+        n_bootstraps (int): The number of bootstrap samples to generate.
+        rng (np.random.RandomState): NumPy random number generator instance.
+        chans_axs (int): The axis index for channels.
+        time_axs (int): The axis index for time.
+        data_type (str): The type of MNE data ('Epochs' or 'EpochsTFR').
+        sample_times (np.ndarray): Array of time points for labeling the time axis.
+        freq_axs (int, optional): The axis index for frequency. Defaults to None.
+        sample_freqs (np.ndarray, optional): Array of frequencies for labeling. 
+                                             Defaults to None.
+
+    Returns:
+        list: A list of `LabeledArray` objects, where each element is one 
+              bootstrap sample.
+    """
+    bootstrapped_roi_arrays = []
+    print(f"generating {n_bootstraps} bootstrap sample(s)")
+    
+    for i in range(n_bootstraps):
+        bootstrapped_conditions_data = {}
+        
+        # loop through conditions to build one bootstrapped LabeledArray
+        for condition_name in condition_names:
+            n_samples = min_trials_per_condition[condition_name]
+            if n_samples == 0:
+                # Skip condition if it has no trials to sample
+                continue
+
+            resampled_channels_for_condition = []
+            for channel in all_channels_in_roi:
+                channel_data = nan_removed_data_dict[condition_name][channel]
+                
+                # randomly subsample trials *without* replacement down to the channel with the fewest good trials for this roi and condition
+                sample_indices = rng.choice(len(channel_data), size=n_samples, replace=False) 
+                resampled_channels_for_condition.append(channel_data[sample_indices])
+                
+            # Stack the resampled channels along the channel axis
+            # this makes a dense array for this condition: (trials, channels, time) or (trials, channels, freqs, time)
+            concatenated_chans = np.stack(resampled_channels_for_condition, axis=chans_axs)
+            bootstrapped_conditions_data[condition_name] = concatenated_chans
+            
+        if not bootstrapped_conditions_data:
+            print(f"Warning: unable to create bootstrapped conditions data for roi {roi} on iteration {i}")
+            continue
+    
+        # make the LabeledArray for this bootstrap
+        bootstrapped_labeled_array = LabeledArray.from_dict(bootstrapped_conditions_data)
+        
+        # Add labels
+        bootstrapped_labeled_array.labels[chans_axs+1] = np.array(all_channels_in_roi) # channel axis
+        bootstrapped_labeled_array.labels[time_axs+1] = np.array([str(t) for t in sample_times]) # time axis
+        if freq_axs is not None and data_type == 'EpochsTFR' and sample_freqs is not None:
+            bootstrapped_labeled_array.labels[freq_axs+1] = np.array([str(f) for f in sample_freqs]) # freq axis
+        
+        bootstrapped_roi_arrays.append(bootstrapped_labeled_array)
+    
+    return bootstrapped_roi_arrays
+
+def make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel(
+    roi, subjects_data_objects, condition_names,
+    subjects, electrodes_per_subject_roi, n_bootstraps=1,
+    obs_axs=0, chans_axs=1, time_axs=2, freq_axs=None,
+    random_state=None                  
+):
+    """
+    Orchestrates the creation of bootstrapped LabeledArrays for a single ROI.
+
+    This function is a pipeline that:
+    1. Removes NaN-containing trials on a per-channel basis.
+    2. Determines the minimum trial count per condition to equalize trial numbers.
+    3. Generates a list of bootstrapped `LabeledArray` samples by repeatedly
+       subsampling trials from each channel.
+
+    Args:
+        roi (str): The single ROI name to be processed.
+        subjects_data_objects (dict): A dictionary of MNE Epochs or EpochsTFR objects.
+        condition_names (list): A list of condition names.
+        subjects (list): A list of subjects.
+        electrodes_per_subject_roi (dict): A dictionary mapping ROIs to subjects
+                                           and their electrodes.
+        n_bootstraps (int, optional): The number of bootstrap samples to create. 
+                                      Defaults to 1.
+        obs_axs (int, optional): The trials dimension index. Defaults to 0.
+        chans_axs (int, optional): The channels dimension index. Defaults to 1.
+        time_axs (int, optional): The time dimension index. Defaults to 2.
+        freq_axs (int, optional): The frequency dimension index. Defaults to None.
+        random_state (int, RandomState, or None): Seed for the random number
+                                                   generator. Defaults to None.
+
+    Returns:
+        list: A list containing the generated bootstrapped `LabeledArray`
+              objects for the specified ROI. Returns an empty list if no
+              valid data is found for the ROI.
+    """
+    rng = np.random.RandomState(random_state)
+    print(f"\nMaking LabeledArray for ROI: {roi} with NaN trials removed within each channel")
+    
+    # Step 1: Extract data and remove NaNs on a per-channel basis
+    nan_removed_data_dict, all_channels_in_roi = make_np_array_with_nan_trials_removed_for_each_channel(
+        roi, subjects_data_objects, condition_names, subjects, electrodes_per_subject_roi, chans_axs
+    )
+
+    if not all_channels_in_roi:
+        return []
+
+    # Step 2: Determine subsampling size
+    min_trials_per_condition = subsample_to_min_trials_per_condition(
+        roi, nan_removed_data_dict, condition_names
+    )
+    
+    # Extract sample time/frequency info from the first available MNE object
+    data_type = detect_data_type(subjects_data_objects)
+    sample_epochs = None
+    for sub in subjects:
+        if sub in subjects_data_objects:
+            for cond in condition_names:
+                if cond in subjects_data_objects[sub]:
+                    if data_type == 'Epochs':
+                        sample_epochs = subjects_data_objects[sub][cond]['HG_ev1_power_rescaled']
+                    elif data_type == 'EpochsTFR':
+                        sample_epochs = subjects_data_objects[sub][cond]
+                    break
+        if sample_epochs is not None:
+            break
+    if sample_epochs is None:
+        raise ValueError(f"Could not find any MNE data for ROI {roi} to extract time/freq labels.")
+
+    sample_times = sample_epochs.times
+    sample_freqs = sample_epochs.freqs if data_type == 'EpochsTFR' else None
+
+    # Step 3: Generate bootstrapped arrays
+    bootstrapped_roi_arrays = make_bootstrapped_labeled_arrays_for_roi(
+        nan_removed_data_dict, min_trials_per_condition, all_channels_in_roi,
+        condition_names, n_bootstraps, rng, chans_axs, time_axs, data_type,
+        sample_times, freq_axs, sample_freqs
+    )
+    
+    return bootstrapped_roi_arrays
+
+def make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
+    rois, subjects_data_objects, condition_names, subjects,
+    electrodes_per_subject_roi, n_bootstraps=1, n_jobs=-1,
+    obs_axs=0, chans_axs=1, time_axs=2, freq_axs=None, random_state=None
+):
+    """
+    Parallelizes the creation of bootstrapped LabeledArrays across multiple ROIs.
+
+    This function uses `joblib` to process each ROI in parallel, calling
+    `make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel`
+    for each one.
+
+    Args:
+        rois (list): A list of ROI names to process.
+        subjects_data_objects (dict): A dictionary of MNE Epochs or EpochsTFR objects.
+        condition_names (list): A list of condition names.
+        subjects (list): A list of subjects.
+        electrodes_per_subject_roi (dict): A dictionary mapping ROIs to subjects
+                                           and their electrodes.
+        n_bootstraps (int, optional): Number of bootstrap samples per ROI. Defaults to 1.
+        n_jobs (int, optional): Number of parallel jobs. Defaults to -1 (all CPUs).
+        obs_axs (int, optional): The trials dimension index. Defaults to 0.
+        chans_axs (int, optional): The channels dimension index. Defaults to 1.
+        time_axs (int, optional): The time dimension index. Defaults to 2.
+        freq_axs (int, optional): The frequency dimension index. Defaults to None.
+        random_state (int, optional): Seed for reproducibility. Defaults to None.
+
+    Returns:
+        dict: A dictionary where keys are ROI names and values are lists of
+              bootstrapped `LabeledArray` objects.
+    """
+    # Use joblib to parallelize the processing of each ROI
+    results = Parallel(n_jobs=n_jobs)(
+        delayed(make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel)(
+            roi,
+            subjects_data_objects,
+            condition_names,
+            subjects,
+            electrodes_per_subject_roi,
+            n_bootstraps,
+            obs_axs,
+            chans_axs,
+            time_axs,
+            freq_axs,
+            random_state + i if random_state is not None else None  # Ensure different seeds for parallel jobs
+        ) for i, roi in enumerate(rois)
+    )
+
+    # Combine the results from the parallel jobs into a dictionary
+    roi_bootstrapped_arrays = {roi: result for roi, result in zip(rois, results) if result}
+
+    return roi_bootstrapped_arrays
+    
+
+                
+                
+                
+                
+                
+    
+    
+    

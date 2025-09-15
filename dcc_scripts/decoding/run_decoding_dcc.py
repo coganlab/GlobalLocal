@@ -83,6 +83,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
+BOOTSTRAPS = 1
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -127,13 +128,13 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 10
-# ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 10
+ROIS_DICT = {
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -163,6 +164,7 @@ def run_analysis():
         electrodes=ELECTRODES,
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
+        bootstraps=BOOTSTRAPS,
         obs_axs=OBS_AXS,
         chans_axs=CHANS_AXS,
         time_axs=TIME_AXS,
