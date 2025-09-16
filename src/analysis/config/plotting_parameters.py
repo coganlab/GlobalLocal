@@ -130,6 +130,16 @@ plotting_parameters = {
     "color": "black",
     "line_style": "-", 
 },
+"Stimulus_err_inc": {
+    "condition_parameter": "error",
+    "color": "black",
+    "line_style": "--",
+},
+"Stimulus_err_con": {
+    "condition_parameter": "correct",
+    "color": "black",
+    "line_style": "-", 
+},
 'Stimulus_i75-Stimulus_c75': {
     "condition_parameter": "i75-c75",
     "color": "orange",
