@@ -56,12 +56,9 @@ TASK = 'GlobalLocal'
 # switched to False for err-corr decoding
 ACC_TRIALS_ONLY = True
 
-# threshold of percent trial outliers for a channel to be dropped
-CHANNEL_OUTLIER_THRESHOLD_PERCENT = 1
-
 # Statistical parameters
 # Choose your stat function here
-STAT_FUNC_CHOICE = 'ttest' # or 'ttest'
+STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
@@ -99,10 +96,12 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
@@ -127,14 +126,14 @@ ROIS_DICT = {
 # which electrodes to use (all or sig)
 ELECTRODES = 'all'
 
-# testing params (comment out)
-SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 2
-N_PERM = 10
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# # testing params (comment out)
+# SUBJECTS = ['D0103']
+# N_SPLITS = 2
+# N_REPEATS = 2
+# N_PERM = 10
+# ROIS_DICT = {
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -147,7 +146,6 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
-        channel_outlier_threshold_percent=CHANNEL_OUTLIER_THRESHOLD_PERCENT,
         stat_func=STAT_FUNC,
         stat_func_str=STAT_FUNC_STR,
         p_thresh=P_THRESH,

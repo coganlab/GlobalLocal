@@ -1899,3 +1899,140 @@ def impute_trial_nans_by_channel_mean(epochs: mne.Epochs):
     # Update the epochs object with the cleaned data
     epochs._data = data
     print("NaN values have been imputed using the per-channel, per-timepoint mean.")
+    
+def filter_electrode_lists_against_subjects_mne_objects(
+    rois: list, 
+    electrodes: dict, 
+    subjects_mne_objects: dict
+) -> dict:
+    """
+    Filters electrode lists for each ROI and subject against available channels in MNE objects.
+
+    This function takes a theoretical list of electrodes organized by ROI and subject,
+    and filters it to ensure that only electrodes actually present in the loaded
+    MNE data (`subjects_mne_objects`) are retained. This is crucial for preventing
+    errors when an electrode list (e.g., from a static JSON file) is out of sync
+    with preprocessed data from which channels may have been dropped.
+
+    Parameters
+    ----------
+    rois : list
+        A list of Region of Interest (ROI) names to process (e.g., ['DLPFC', 'OFC']).
+    electrodes : dict
+        A nested dictionary containing the theoretical electrode lists.
+        Expected structure: `electrodes[roi][subject] = ['elec1', 'elec2', ...]`.
+    subjects_mne_objects : dict
+        The main nested dictionary containing loaded MNE Epochs objects for each subject.
+        Expected structure: `subjects_mne_objects[subject][condition][mne_object_type]`.
+
+    Returns
+    -------
+    dict
+        A new nested dictionary with the same structure as the input `electrodes`
+        dictionary, but with the electrode lists filtered to include only channels
+        that exist in the corresponding MNE Epochs objects.
+    """
+    filtered_electrodes = {}
+
+    for roi in rois:
+        # Initialize the nested dictionary for the current ROI
+        filtered_electrodes[roi] = {}
+
+        # Check if the ROI exists in the input electrodes dictionary to avoid errors
+        if roi not in electrodes:
+            print(f"Warning: ROI '{roi}' not found in the electrodes dictionary. Skipping.")
+            continue
+
+        # Iterate through subjects defined for this ROI in the electrodes dictionary
+        for sub in electrodes[roi].keys():
+            if sub in subjects_mne_objects:
+                try:
+                    # Get the list of channels that are actually available in the data
+                    first_cond = list(subjects_mne_objects[sub].keys())[0]
+                    first_mne_object_type = list(subjects_mne_objects[sub][first_cond].keys())[0]
+                    epochs_obj = subjects_mne_objects[sub][first_cond][first_mne_object_type]
+                    available_channels = epochs_obj.ch_names
+
+                    # Filter the theoretical electrode list against the available channels
+                    verified_electrodes = [
+                        elec for elec in electrodes[roi][sub] if elec in available_channels
+                    ]
+                    filtered_electrodes[roi][sub] = verified_electrodes
+
+                except (KeyError, IndexError):
+                    # Handle cases where a subject's data might be empty or structured unexpectedly
+                    print(f"Warning: Could not retrieve MNE object for subject '{sub}'. Skipping filtering for this subject.")
+                    filtered_electrodes[roi][sub] = []
+            else:
+                # If the subject isn't in the MNE objects, they can't have any valid electrodes
+                filtered_electrodes[roi][sub] = []
+                
+    return filtered_electrodes
+
+def find_difference_between_two_electrode_lists(
+    electrodes_1: dict, 
+    electrodes_2: dict
+) -> tuple[dict, dict]:
+    """
+    Compares two nested electrode dictionaries and finds the differences in both directions.
+
+    This function is useful for identifying which electrodes are present in one list
+    but not the other, on a per-subject, per-ROI basis. It's ideal for tasks like
+    verifying which channels were dropped during a preprocessing step.
+
+    Parameters
+    ----------
+    electrodes_1 : dict
+        The first nested dictionary of electrodes.
+        Expected structure: `electrodes_1[roi][subject] = ['elec1', 'elec2', ...]`.
+    electrodes_2 : dict
+        The second nested dictionary of electrodes, with the same expected structure.
+
+    Returns
+    -------
+    tuple[dict, dict]
+        A tuple containing two dictionaries:
+        1. in_1_not_2 (dict): Contains electrodes that are present in `electrodes_1`
+           but are missing from `electrodes_2`.
+        2. in_2_not_1 (dict): Contains electrodes that are present in `electrodes_2`
+           but are missing from `electrodes_1`.
+        Both dictionaries maintain the original nested structure: `[roi][subject] = [list_of_different_electrodes]`.
+    """
+    # Initialize dictionaries to hold the results
+    in_1_not_2 = {}
+    in_2_not_1 = {}
+    
+    # Get a combined set of all ROIs present in both dictionaries to ensure we check every ROI
+    all_rois = set(electrodes_1.keys()) | set(electrodes_2.keys())
+
+    for roi in all_rois:
+        # Initialize the nested dictionaries for the current ROI in the results
+        in_1_not_2[roi] = {}
+        in_2_not_1[roi] = {}
+        
+        # Get a combined set of all subjects for the current ROI
+        subjects_in_1 = set(electrodes_1.get(roi, {}).keys())
+        subjects_in_2 = set(electrodes_2.get(roi, {}).keys())
+        all_subjects = subjects_in_1 | subjects_in_2
+
+        for sub in all_subjects:
+            # Safely get the electrode lists for the current subject and ROI from both dictionaries.
+            # If a subject or ROI doesn't exist in a dictionary, default to an empty list.
+            list_1 = electrodes_1.get(roi, {}).get(sub, [])
+            list_2 = electrodes_2.get(roi, {}).get(sub, [])
+            
+            # Use set operations for efficient and clean comparison
+            set_1 = set(list_1)
+            set_2 = set(list_2)
+            
+            # Find electrodes in the first list but not in the second
+            diff_1_not_2 = list(set_1 - set_2)
+            if diff_1_not_2:
+                in_1_not_2[roi][sub] = diff_1_not_2
+            
+            # Find electrodes in the second list but not in the first
+            diff_2_not_1 = list(set_2 - set_1)
+            if diff_2_not_1:
+                in_2_not_1[roi][sub] = diff_2_not_1
+                
+    return in_1_not_2, in_2_not_1

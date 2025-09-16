@@ -79,7 +79,7 @@ def get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_
     subjects_mne_objects, condition_name, sub, electrodes
 ):
     """
-    Get epochs data for a specific subject, condition name, and electrodes from subjects mne objects dict
+    Get epochs data for a specific subject, condition name, and electrodes from subjects mne objects dict. Only grabs the electrodes that actually exist (i.e., when bad channels are dropped from the epochs object there will be a mismatch between the epochs object and the electrodes list)
     
     Args:
         subjects_mne_objects (dict): Dictionary of MNE epoch objects, structured as
@@ -91,6 +91,7 @@ def get_epochs_data_for_sub_and_condition_name_and_electrodes_from_subjects_mne_
     Returns:
         mne.Epochs: The epochs data for the specified subject, condition, and ROI.
     """
+    
     return subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy().pick(electrodes)
 
 def get_epochs_tfr_data_for_sub_and_condition_name_and_electrodes_from_subjects_tfr_objects(
@@ -762,7 +763,7 @@ def make_bootstrapped_labeled_arrays_for_roi(
             n_samples = min_trials_per_condition[condition_name]
             if n_samples == 0:
                 # Skip condition if it has no trials to sample
-                continue
+                raise ValueError(f"n_samples is 0")
 
             resampled_channels_for_condition = []
             for channel in all_channels_in_roi:
@@ -778,8 +779,7 @@ def make_bootstrapped_labeled_arrays_for_roi(
             bootstrapped_conditions_data[condition_name] = concatenated_chans
             
         if not bootstrapped_conditions_data:
-            print(f"Warning: unable to create bootstrapped conditions data for roi {roi} on iteration {i}")
-            continue
+            raise ValueError(f"Warning: unable to create bootstrapped conditions data on iteration {i}")
     
         # make the LabeledArray for this bootstrap
         bootstrapped_labeled_array = LabeledArray.from_dict(bootstrapped_conditions_data)

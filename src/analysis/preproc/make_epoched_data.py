@@ -297,7 +297,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
             impute_trial_nans_by_channel_mean(trials)
         else:
             print('ignoring outliers')
-                
+
+        # After dropping channels, update the channels list to match the data
+        channels = trials.ch_names
+        
         # Now extract gamma and proceed with analysis
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
         crop_pad(HG_ev1, pad_length_string)

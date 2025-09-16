@@ -42,7 +42,9 @@ from src.analysis.utils.general_utils import (
     make_or_load_subjects_electrodes_to_ROIs_dict, 
     identify_bad_channels_by_trial_nan_rate, 
     impute_trial_nans_by_channel_mean,
-    create_subjects_mne_objects_dict
+    create_subjects_mne_objects_dict,
+    filter_electrode_lists_against_subjects_mne_objects,
+    find_difference_between_two_electrode_lists
 )
 
 import matplotlib.pyplot as plt
@@ -187,18 +189,30 @@ def main(args):
     
     # determine which electrodes to use (all electrodes or just the task-significant ones)
     if args.electrodes == 'all':
-        electrodes = all_electrodes_per_subject_roi 
+        raw_electrodes = all_electrodes_per_subject_roi 
+        elec_string_to_add_to_filename = 'all_elecs'
     elif args.electrodes == 'sig':
-        electrodes = sig_electrodes_per_subject_roi
+        raw_electrodes = sig_electrodes_per_subject_roi
+        elec_string_to_add_to_filename = 'sig_elecs'
+
     else:
         raise ValueError("electrodes input must be set to all or sig")
+        
+    # filter electrodes to only the ones that exist in the epochs objects. This mismatch can arise due to dropping channels when making the epochs objects, because the subjects_electrodestoROIs_dict is made based on all the electrodes, with no dropping.
+    electrodes = filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_mne_objects)
     
-    if electrodes == all_electrodes_per_subject_roi:
-        elec_string_to_add_to_filename = 'all_elecs'
-    elif electrodes == sig_electrodes_per_subject_roi:
-        elec_string_to_add_to_filename = 'sig_elecs'
-    else:
-        elec_string_to_add_to_filename = None
+    dropped_electrodes, _ = find_difference_between_two_electrode_lists(raw_electrodes, electrodes)
+    print("\n--- Summary of Dropped Electrodes ---")
+    total_dropped = 0
+    for roi, sub_dict in dropped_electrodes.items():
+        if not sub_dict: continue # Skip ROIs with no dropped electrodes
+        print(f"ROI: {roi}")
+        for sub, elec_list in sub_dict.items():
+            if elec_list:
+                print(f"  - Subject {sub}: Dropped {len(elec_list)} electrode(s)")
+                total_dropped += len(elec_list)
+    print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
+    print("-------------------------------------\n")
     
     roi_bootstrapped_labeled_arrays = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
         rois=rois,

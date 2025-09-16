@@ -3,7 +3,7 @@
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 10
-#SBATCH --mem=60G
+#SBATCH --mem=80G
 
 subject=$1
 task=$2
