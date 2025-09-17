@@ -1608,7 +1608,7 @@ def create_multipanel_nature_figure(
         return fig
     
 def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
-                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05):
+                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05, other_string_to_add=None):
     """
     Plot mean true and shuffled accuracies over time with significance.
 
@@ -1742,8 +1742,12 @@ def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shu
     # CREATE P THRESH PREFIX
     p_thresh_str = str(p_thresh)
     
+    # ADD other string if provided
+    other_str = f"_{other_string_to_add}" if other_string_to_add else ""
+    
     # Construct the filename
-    filename = f"{timestamp_str}{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_perm}_perm_{p_thresh_str}_p_thresh.png"
+    filename = (f"{timestamp_str}{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_"
+                f"{n_repeats}_repeats_{n_perm}_perm_{p_thresh_str}_p_thresh{other_str}.png") 
     filepath = os.path.join(save_dir, filename)
 
     # Ensure save_dir exists

@@ -205,7 +205,7 @@ def run_analysis():
     print(f"  Cluster Perms:     {N_PERM}")
     print(f"  P-value Threshold: {P_THRESH}")
     print(f"  Tails:             {TAILS}")
-    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {folds_as_samples}")
+    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {FOLDS_AS_SAMPLES}")
     print("=" * 70)
     print("=" * 70)
     
