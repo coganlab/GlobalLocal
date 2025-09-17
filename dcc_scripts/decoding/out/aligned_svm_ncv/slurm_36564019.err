@@ -1,0 +1,8 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 224, in <module>
+    run_analysis()
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 208, in run_analysis
+    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {folds_as_samples}")
+                                                                                                   ^^^^^^^^^^^^^^^^
+NameError: name 'folds_as_samples' is not defined

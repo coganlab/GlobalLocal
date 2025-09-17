@@ -92,6 +92,9 @@ SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 
+# whether to do stats across folds (true) or repeats (false)
+FOLDS_AS_SAMPLES = True
+
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
@@ -169,7 +172,8 @@ def run_analysis():
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
         sampling_rate=SAMPLING_RATE,
-        first_time_point=FIRST_TIME_POINT
+        first_time_point=FIRST_TIME_POINT,
+        folds_as_samples=FOLDS_AS_SAMPLES
     )
     
     # Print configuration summary
@@ -201,6 +205,7 @@ def run_analysis():
     print(f"  Cluster Perms:     {N_PERM}")
     print(f"  P-value Threshold: {P_THRESH}")
     print(f"  Tails:             {TAILS}")
+    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {folds_as_samples}")
     print("=" * 70)
     print("=" * 70)
     

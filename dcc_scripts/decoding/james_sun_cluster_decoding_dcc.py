@@ -108,7 +108,9 @@ from src.analysis.utils.general_utils import (
     get_sig_chans_per_subject,
     make_sig_electrodes_per_subject_and_roi_dict,
     calculate_total_electrodes,
-    check_sampling_rates
+    check_sampling_rates,
+    filter_electrode_lists_against_subjects_mne_objects,
+    find_difference_between_two_electrode_lists
 )
 
 def main(args):
@@ -181,10 +183,10 @@ def main(args):
     print(f"Save directory created or already exists at: {save_dir}")
     
     sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
-
+    
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
-        
+       
     subjects_tfr_objects = make_subjects_tfr_objects(
         layout=layout,
         spec_method=args.spec_method,
@@ -206,6 +208,34 @@ def main(args):
         mark_outliers_as_nan=args.mark_outliers_as_nan
     )
 
+    # determine which electrodes to use (all electrodes or just the task-significant ones)
+    if args.electrodes == 'all':
+        raw_electrodes = all_electrodes_per_subject_roi 
+        elec_string_to_add_to_filename = 'all_elecs'
+    elif args.electrodes == 'sig':
+        raw_electrodes = sig_electrodes_per_subject_roi
+        elec_string_to_add_to_filename = 'sig_elecs'
+
+    else:
+        raise ValueError("electrodes input must be set to all or sig")
+        
+    # untested 9/17/25
+    # filter electrodes to only the ones that exist in the epochs objects. This mismatch can arise due to dropping channels when making the epochs objects, because the subjects_electrodestoROIs_dict is made based on all the electrodes, with no dropping.
+    electrodes = filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_tfr_objects)
+    
+    dropped_electrodes, _ = find_difference_between_two_electrode_lists(raw_electrodes, electrodes)
+    print("\n--- Summary of Dropped Electrodes ---")
+    total_dropped = 0
+    for roi, sub_dict in dropped_electrodes.items():
+        if not sub_dict: continue # Skip ROIs with no dropped electrodes
+        print(f"ROI: {roi}")
+        for sub, elec_list in sub_dict.items():
+            if elec_list:
+                print(f"  - Subject {sub}: Dropped {len(elec_list)} electrode(s)")
+                total_dropped += len(elec_list)
+    print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
+    print("-------------------------------------\n")
+    
     # this is an alternative way of rescaling, but let's rescale the tfr objects themselves directly instead.
     # subjects_tfr_objects = normalize_subjects_tfr_objects(subjects_tfr_objects, base_times=args.base_times, mode=args.mode)
     

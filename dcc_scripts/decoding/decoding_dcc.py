@@ -382,7 +382,8 @@ def main(args):
                 step_size=args.step_size,
                 n_perm=args.n_perm,
                 sampling_rate=args.sampling_rate,
-                first_time_point=-1
+                first_time_point=-1,
+                folds_as_samples=args.folds_as_samples
             )
 
             np.save(os.path.join(cm_save_dir, f'{condition_comparison}_{args.n_splits}_splits_{args.n_repeats}_repeats_{args.balance_method}_balance_method_{args.random_state}_random_state_{args.window_size}_window_size_{args.step_size}_step_size_{args.n_perm}_permutations_{args.sampling_rate}_sampling_rate_cm_true_per_roi.npy'), cm_true_per_roi)
