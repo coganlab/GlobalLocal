@@ -8,7 +8,7 @@ WARNING: Keras package is not installed. You will be unable to useall neural net
 BANDPASS FILTERED DECODING ANALYSIS
 ======================================================================
 Subjects:          ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-Conditions:        ['Stimulus_c', 'Stimulus_i']
+Conditions:        ['Stimulus_c25', 'Stimulus_c75', 'Stimulus_i25', 'Stimulus_i75']
 ROIs:              ['lpfc', 'occ', 'dlpfc', 'acc', 'parietal']
 Permutations:      500
 P-threshold:       0.05
@@ -241,42 +241,78 @@ Not setting metadata
 449 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-198 matching events found
+143 matching events found
 No baseline correction applied
-    Original shape: (198, 175, 641)
+    Original shape: (143, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 119.8
+    Average NaN count per trial: 112.1
     Max NaN count in a trial: 1282
-    Stimulus_c: 198 valid trials out of 198
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 143 valid trials out of 143
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-207 matching events found
+55 matching events found
 No baseline correction applied
-    Original shape: (207, 175, 641)
+    Original shape: (55, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 123.9
-    Max NaN count in a trial: 1923
-    Stimulus_i: 207 valid trials out of 207
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
-Not setting metadata
-198 matching events found
-No baseline correction applied
-    Original shape: (198, 175, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 119.8
+    Average NaN count per trial: 139.9
     Max NaN count in a trial: 1282
-    Stimulus_c: 198 valid trials out of 198
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-207 matching events found
+43 matching events found
 No baseline correction applied
-    Original shape: (207, 175, 641)
+    Original shape: (43, 175, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 123.9
+    Average NaN count per trial: 104.3
+    Max NaN count in a trial: 1282
+    Stimulus_i25: 43 valid trials out of 43
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 129.0
     Max NaN count in a trial: 1923
-    Stimulus_i: 207 valid trials out of 207
+    Stimulus_i75: 164 valid trials out of 164
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+143 matching events found
+No baseline correction applied
+    Original shape: (143, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 112.1
+    Max NaN count in a trial: 1282
+    Stimulus_c25: 143 valid trials out of 143
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 139.9
+    Max NaN count in a trial: 1282
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+43 matching events found
+No baseline correction applied
+    Original shape: (43, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 104.3
+    Max NaN count in a trial: 1282
+    Stimulus_i25: 43 valid trials out of 43
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 129.0
+    Max NaN count in a trial: 1923
+    Stimulus_i75: 164 valid trials out of 164
 Loading data for subject: D0059
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -294,42 +330,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-216 matching events found
+161 matching events found
 No baseline correction applied
-    Original shape: (216, 176, 641)
+    Original shape: (161, 176, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 267.1
+    Average NaN count per trial: 226.9
+    Max NaN count in a trial: 3846
+    Stimulus_c25: 161 valid trials out of 161
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 176, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 384.6
     Max NaN count in a trial: 7692
-    Stimulus_c: 216 valid trials out of 216
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-211 matching events found
+53 matching events found
 No baseline correction applied
-    Original shape: (211, 176, 641)
+    Original shape: (53, 176, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 616.7
+    Average NaN count per trial: 241.9
+    Max NaN count in a trial: 3205
+    Stimulus_i25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+158 matching events found
+No baseline correction applied
+    Original shape: (158, 176, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 742.4
     Max NaN count in a trial: 11538
-    Stimulus_i: 211 valid trials out of 211
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 158 valid trials out of 158
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-216 matching events found
+161 matching events found
 No baseline correction applied
-    Original shape: (216, 176, 641)
+    Original shape: (161, 176, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 267.1
+    Average NaN count per trial: 226.9
+    Max NaN count in a trial: 3846
+    Stimulus_c25: 161 valid trials out of 161
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Original shape: (55, 176, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 384.6
     Max NaN count in a trial: 7692
-    Stimulus_c: 216 valid trials out of 216
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-211 matching events found
+53 matching events found
 No baseline correction applied
-    Original shape: (211, 176, 641)
+    Original shape: (53, 176, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 616.7
+    Average NaN count per trial: 241.9
+    Max NaN count in a trial: 3205
+    Stimulus_i25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+158 matching events found
+No baseline correction applied
+    Original shape: (158, 176, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 742.4
     Max NaN count in a trial: 11538
-    Stimulus_i: 211 valid trials out of 211
+    Stimulus_i75: 158 valid trials out of 158
 Loading data for subject: D0063
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -347,42 +419,78 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-221 matching events found
+165 matching events found
 No baseline correction applied
-    Original shape: (221, 232, 641)
+    Original shape: (165, 232, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 336.5
+    Average NaN count per trial: 404.0
     Max NaN count in a trial: 7692
-    Stimulus_c: 221 valid trials out of 221
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 165 valid trials out of 165
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-168 matching events found
+56 matching events found
 No baseline correction applied
-    Original shape: (168, 232, 641)
+    Original shape: (56, 232, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 442.6
+    Average NaN count per trial: 137.4
+    Max NaN count in a trial: 2564
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Original shape: (36, 232, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 409.5
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 36 valid trials out of 36
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 232, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 451.6
     Max NaN count in a trial: 14102
-    Stimulus_i: 168 valid trials out of 168
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 132 valid trials out of 132
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-221 matching events found
+165 matching events found
 No baseline correction applied
-    Original shape: (221, 232, 641)
+    Original shape: (165, 232, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 336.5
+    Average NaN count per trial: 404.0
     Max NaN count in a trial: 7692
-    Stimulus_c: 221 valid trials out of 221
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 165 valid trials out of 165
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-168 matching events found
+56 matching events found
 No baseline correction applied
-    Original shape: (168, 232, 641)
+    Original shape: (56, 232, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 442.6
+    Average NaN count per trial: 137.4
+    Max NaN count in a trial: 2564
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Original shape: (36, 232, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 409.5
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 36 valid trials out of 36
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 232, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 451.6
     Max NaN count in a trial: 14102
-    Stimulus_i: 168 valid trials out of 168
+    Stimulus_i75: 132 valid trials out of 132
 Loading data for subject: D0069
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -400,42 +508,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-177 matching events found
+132 matching events found
 No baseline correction applied
-    Original shape: (177, 128, 641)
+    Original shape: (132, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 590.3
+    Average NaN count per trial: 670.1
     Max NaN count in a trial: 22435
-    Stimulus_c: 177 valid trials out of 177
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 132 valid trials out of 132
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-153 matching events found
+45 matching events found
 No baseline correction applied
-    Original shape: (153, 128, 641)
+    Original shape: (45, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 557.2
+    Average NaN count per trial: 356.1
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+33 matching events found
+No baseline correction applied
+    Original shape: (33, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 466.2
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 33 valid trials out of 33
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+120 matching events found
+No baseline correction applied
+    Original shape: (120, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 582.2
     Max NaN count in a trial: 13461
-    Stimulus_i: 153 valid trials out of 153
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 120 valid trials out of 120
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-177 matching events found
+132 matching events found
 No baseline correction applied
-    Original shape: (177, 128, 641)
+    Original shape: (132, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 590.3
+    Average NaN count per trial: 670.1
     Max NaN count in a trial: 22435
-    Stimulus_c: 177 valid trials out of 177
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 132 valid trials out of 132
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-153 matching events found
+45 matching events found
 No baseline correction applied
-    Original shape: (153, 128, 641)
+    Original shape: (45, 128, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 557.2
+    Average NaN count per trial: 356.1
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+33 matching events found
+No baseline correction applied
+    Original shape: (33, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 466.2
+    Max NaN count in a trial: 5128
+    Stimulus_i25: 33 valid trials out of 33
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+120 matching events found
+No baseline correction applied
+    Original shape: (120, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 582.2
     Max NaN count in a trial: 13461
-    Stimulus_i: 153 valid trials out of 153
+    Stimulus_i75: 120 valid trials out of 120
 Loading data for subject: D0071
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -453,42 +597,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-213 matching events found
+157 matching events found
 No baseline correction applied
-    Original shape: (213, 133, 641)
+    Original shape: (157, 133, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1014.2
+    Average NaN count per trial: 1032.9
     Max NaN count in a trial: 10256
-    Stimulus_c: 213 valid trials out of 213
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 157 valid trials out of 157
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-216 matching events found
+56 matching events found
 No baseline correction applied
-    Original shape: (216, 133, 641)
+    Original shape: (56, 133, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1023.8
+    Average NaN count per trial: 961.5
+    Max NaN count in a trial: 5769
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 133, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1084.8
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 133, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1004.5
     Max NaN count in a trial: 12820
-    Stimulus_i: 216 valid trials out of 216
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 164 valid trials out of 164
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-213 matching events found
+157 matching events found
 No baseline correction applied
-    Original shape: (213, 133, 641)
+    Original shape: (157, 133, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1014.2
+    Average NaN count per trial: 1032.9
     Max NaN count in a trial: 10256
-    Stimulus_c: 213 valid trials out of 213
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 157 valid trials out of 157
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-216 matching events found
+56 matching events found
 No baseline correction applied
-    Original shape: (216, 133, 641)
+    Original shape: (56, 133, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1023.8
+    Average NaN count per trial: 961.5
+    Max NaN count in a trial: 5769
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+52 matching events found
+No baseline correction applied
+    Original shape: (52, 133, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1084.8
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+164 matching events found
+No baseline correction applied
+    Original shape: (164, 133, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1004.5
     Max NaN count in a trial: 12820
-    Stimulus_i: 216 valid trials out of 216
+    Stimulus_i75: 164 valid trials out of 164
 Loading data for subject: D0077
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -506,42 +686,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-186 matching events found
+137 matching events found
 No baseline correction applied
-    Original shape: (186, 126, 641)
+    Original shape: (137, 126, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 379.1
-    Max NaN count in a trial: 6410
-    Stimulus_c: 186 valid trials out of 186
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
-Not setting metadata
-169 matching events found
-No baseline correction applied
-    Original shape: (169, 126, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 341.4
+    Average NaN count per trial: 318.2
     Max NaN count in a trial: 4487
-    Stimulus_i: 169 valid trials out of 169
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_c25: 137 valid trials out of 137
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-186 matching events found
+49 matching events found
 No baseline correction applied
-    Original shape: (186, 126, 641)
+    Original shape: (49, 126, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 379.1
+    Average NaN count per trial: 549.4
     Max NaN count in a trial: 6410
-    Stimulus_c: 186 valid trials out of 186
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-169 matching events found
+37 matching events found
 No baseline correction applied
-    Original shape: (169, 126, 641)
+    Original shape: (37, 126, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 341.4
+    Average NaN count per trial: 450.4
     Max NaN count in a trial: 4487
-    Stimulus_i: 169 valid trials out of 169
+    Stimulus_i25: 37 valid trials out of 37
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 126, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 310.8
+    Max NaN count in a trial: 4487
+    Stimulus_i75: 132 valid trials out of 132
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 126, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 318.2
+    Max NaN count in a trial: 4487
+    Stimulus_c25: 137 valid trials out of 137
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 126, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 549.4
+    Max NaN count in a trial: 6410
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+37 matching events found
+No baseline correction applied
+    Original shape: (37, 126, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 450.4
+    Max NaN count in a trial: 4487
+    Stimulus_i25: 37 valid trials out of 37
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+132 matching events found
+No baseline correction applied
+    Original shape: (132, 126, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 310.8
+    Max NaN count in a trial: 4487
+    Stimulus_i75: 132 valid trials out of 132
 Loading data for subject: D0090
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -559,42 +775,78 @@ Not setting metadata
 450 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-214 matching events found
+162 matching events found
 No baseline correction applied
-    Original shape: (214, 153, 641)
+    Original shape: (162, 153, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 563.1
+    Average NaN count per trial: 534.2
     Max NaN count in a trial: 11538
-    Stimulus_c: 214 valid trials out of 214
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-213 matching events found
+52 matching events found
 No baseline correction applied
-    Original shape: (213, 153, 641)
+    Original shape: (52, 153, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 376.2
+    Average NaN count per trial: 653.3
+    Max NaN count in a trial: 7692
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 153, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 583.8
+    Max NaN count in a trial: 3846
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 153, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 302.1
     Max NaN count in a trial: 5769
-    Stimulus_i: 213 valid trials out of 213
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 157 valid trials out of 157
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-214 matching events found
+162 matching events found
 No baseline correction applied
-    Original shape: (214, 153, 641)
+    Original shape: (162, 153, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 563.1
+    Average NaN count per trial: 534.2
     Max NaN count in a trial: 11538
-    Stimulus_c: 214 valid trials out of 214
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-213 matching events found
+52 matching events found
 No baseline correction applied
-    Original shape: (213, 153, 641)
+    Original shape: (52, 153, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 376.2
+    Average NaN count per trial: 653.3
+    Max NaN count in a trial: 7692
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 153, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 583.8
+    Max NaN count in a trial: 3846
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+157 matching events found
+No baseline correction applied
+    Original shape: (157, 153, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 302.1
     Max NaN count in a trial: 5769
-    Stimulus_i: 213 valid trials out of 213
+    Stimulus_i75: 157 valid trials out of 157
 Loading data for subject: D0094
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -612,42 +864,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-209 matching events found
+160 matching events found
 No baseline correction applied
-    Original shape: (209, 234, 641)
+    Original shape: (160, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 751.4
+    Average NaN count per trial: 749.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 160 valid trials out of 160
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 758.7
     Max NaN count in a trial: 17307
-    Stimulus_c: 209 valid trials out of 209
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-169 matching events found
+45 matching events found
 No baseline correction applied
-    Original shape: (169, 234, 641)
+    Original shape: (45, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 595.5
+    Average NaN count per trial: 897.4
     Max NaN count in a trial: 12820
-    Stimulus_i: 169 valid trials out of 169
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
 Not setting metadata
-209 matching events found
+124 matching events found
 No baseline correction applied
-    Original shape: (209, 234, 641)
+    Original shape: (124, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 751.4
+    Average NaN count per trial: 485.9
+    Max NaN count in a trial: 11538
+    Stimulus_i75: 124 valid trials out of 124
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+160 matching events found
+No baseline correction applied
+    Original shape: (160, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 749.2
+    Max NaN count in a trial: 12179
+    Stimulus_c25: 160 valid trials out of 160
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+49 matching events found
+No baseline correction applied
+    Original shape: (49, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 758.7
     Max NaN count in a trial: 17307
-    Stimulus_c: 209 valid trials out of 209
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-169 matching events found
+45 matching events found
 No baseline correction applied
-    Original shape: (169, 234, 641)
+    Original shape: (45, 234, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 595.5
+    Average NaN count per trial: 897.4
     Max NaN count in a trial: 12820
-    Stimulus_i: 169 valid trials out of 169
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+124 matching events found
+No baseline correction applied
+    Original shape: (124, 234, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 485.9
+    Max NaN count in a trial: 11538
+    Stimulus_i75: 124 valid trials out of 124
 Loading data for subject: D0100
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -665,42 +953,78 @@ Not setting metadata
 451 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-217 matching events found
+168 matching events found
 No baseline correction applied
-    Original shape: (217, 220, 641)
+    Original shape: (168, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1601.0
+    Average NaN count per trial: 1789.5
     Max NaN count in a trial: 57049
-    Stimulus_c: 217 valid trials out of 217
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 168 valid trials out of 168
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-204 matching events found
+49 matching events found
 No baseline correction applied
-    Original shape: (204, 220, 641)
+    Original shape: (49, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 920.7
+    Average NaN count per trial: 955.0
+    Max NaN count in a trial: 14743
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1522.4
     Max NaN count in a trial: 26922
-    Stimulus_i: 204 valid trials out of 204
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
 Not setting metadata
-217 matching events found
+148 matching events found
 No baseline correction applied
-    Original shape: (217, 220, 641)
+    Original shape: (148, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1601.0
+    Average NaN count per trial: 693.0
+    Max NaN count in a trial: 19871
+    Stimulus_i75: 148 valid trials out of 148
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1789.5
     Max NaN count in a trial: 57049
-    Stimulus_c: 217 valid trials out of 217
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 168 valid trials out of 168
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-204 matching events found
+49 matching events found
 No baseline correction applied
-    Original shape: (204, 220, 641)
+    Original shape: (49, 220, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 920.7
+    Average NaN count per trial: 955.0
+    Max NaN count in a trial: 14743
+    Stimulus_c75: 49 valid trials out of 49
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1522.4
     Max NaN count in a trial: 26922
-    Stimulus_i: 204 valid trials out of 204
+    Stimulus_i25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+148 matching events found
+No baseline correction applied
+    Original shape: (148, 220, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 693.0
+    Max NaN count in a trial: 19871
+    Stimulus_i75: 148 valid trials out of 148
 Loading data for subject: D0102
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -718,42 +1042,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-193 matching events found
+147 matching events found
 No baseline correction applied
-    Original shape: (193, 218, 641)
+    Original shape: (147, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 906.7
+    Average NaN count per trial: 832.9
     Max NaN count in a trial: 26281
-    Stimulus_c: 193 valid trials out of 193
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 147 valid trials out of 147
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-106 matching events found
+46 matching events found
 No baseline correction applied
-    Original shape: (106, 218, 641)
+    Original shape: (46, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 508.0
+    Average NaN count per trial: 1142.7
+    Max NaN count in a trial: 23076
+    Stimulus_c75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+26 matching events found
+No baseline correction applied
+    Original shape: (26, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 468.4
+    Max NaN count in a trial: 7692
+    Stimulus_i25: 26 valid trials out of 26
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+80 matching events found
+No baseline correction applied
+    Original shape: (80, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 520.8
     Max NaN count in a trial: 8333
-    Stimulus_i: 106 valid trials out of 106
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 80 valid trials out of 80
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-193 matching events found
+147 matching events found
 No baseline correction applied
-    Original shape: (193, 218, 641)
+    Original shape: (147, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 906.7
+    Average NaN count per trial: 832.9
     Max NaN count in a trial: 26281
-    Stimulus_c: 193 valid trials out of 193
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 147 valid trials out of 147
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-106 matching events found
+46 matching events found
 No baseline correction applied
-    Original shape: (106, 218, 641)
+    Original shape: (46, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 508.0
+    Average NaN count per trial: 1142.7
+    Max NaN count in a trial: 23076
+    Stimulus_c75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+26 matching events found
+No baseline correction applied
+    Original shape: (26, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 468.4
+    Max NaN count in a trial: 7692
+    Stimulus_i25: 26 valid trials out of 26
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+80 matching events found
+No baseline correction applied
+    Original shape: (80, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 520.8
     Max NaN count in a trial: 8333
-    Stimulus_i: 106 valid trials out of 106
+    Stimulus_i75: 80 valid trials out of 80
 Loading data for subject: D0103
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -771,42 +1131,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
-Not setting metadata
-200 matching events found
-No baseline correction applied
-    Original shape: (200, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 666.6
-    Max NaN count in a trial: 14102
-    Stimulus_c: 200 valid trials out of 200
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
 159 matching events found
 No baseline correction applied
     Original shape: (159, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 467.6
-    Max NaN count in a trial: 6410
-    Stimulus_i: 159 valid trials out of 159
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
-Not setting metadata
-200 matching events found
-No baseline correction applied
-    Original shape: (200, 222, 641)
-    Trials with all NaN values: 0
-    Average NaN count per trial: 666.6
+    Average NaN count per trial: 753.9
     Max NaN count in a trial: 14102
-    Stimulus_c: 200 valid trials out of 200
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 159 valid trials out of 159
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 328.3
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 905.8
+    Max NaN count in a trial: 6410
+    Stimulus_i25: 46 valid trials out of 46
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+113 matching events found
+No baseline correction applied
+    Original shape: (113, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 289.3
+    Max NaN count in a trial: 5128
+    Stimulus_i75: 113 valid trials out of 113
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
 159 matching events found
 No baseline correction applied
     Original shape: (159, 222, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 467.6
+    Average NaN count per trial: 753.9
+    Max NaN count in a trial: 14102
+    Stimulus_c25: 159 valid trials out of 159
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+41 matching events found
+No baseline correction applied
+    Original shape: (41, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 328.3
+    Max NaN count in a trial: 3846
+    Stimulus_c75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+46 matching events found
+No baseline correction applied
+    Original shape: (46, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 905.8
     Max NaN count in a trial: 6410
-    Stimulus_i: 159 valid trials out of 159
+    Stimulus_i25: 46 valid trials out of 46
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+113 matching events found
+No baseline correction applied
+    Original shape: (113, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 289.3
+    Max NaN count in a trial: 5128
+    Stimulus_i75: 113 valid trials out of 113
 Loading data for subject: D0107A
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -824,42 +1220,78 @@ Not setting metadata
 452 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-213 matching events found
+162 matching events found
 No baseline correction applied
-    Original shape: (213, 143, 641)
+    Original shape: (162, 143, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1071.3
+    Average NaN count per trial: 834.9
+    Max NaN count in a trial: 6410
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 143, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1822.5
     Max NaN count in a trial: 37819
-    Stimulus_c: 213 valid trials out of 213
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 51 valid trials out of 51
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-181 matching events found
+44 matching events found
 No baseline correction applied
-    Original shape: (181, 143, 641)
+    Original shape: (44, 143, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 988.1
+    Average NaN count per trial: 1194.6
     Max NaN count in a trial: 8333
-    Stimulus_i: 181 valid trials out of 181
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i25: 44 valid trials out of 44
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
 Not setting metadata
-213 matching events found
+137 matching events found
 No baseline correction applied
-    Original shape: (213, 143, 641)
+    Original shape: (137, 143, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1071.3
+    Average NaN count per trial: 921.7
+    Max NaN count in a trial: 8333
+    Stimulus_i75: 137 valid trials out of 137
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Original shape: (162, 143, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 834.9
+    Max NaN count in a trial: 6410
+    Stimulus_c25: 162 valid trials out of 162
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+51 matching events found
+No baseline correction applied
+    Original shape: (51, 143, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1822.5
     Max NaN count in a trial: 37819
-    Stimulus_c: 213 valid trials out of 213
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 51 valid trials out of 51
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-181 matching events found
+44 matching events found
 No baseline correction applied
-    Original shape: (181, 143, 641)
+    Original shape: (44, 143, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 988.1
+    Average NaN count per trial: 1194.6
     Max NaN count in a trial: 8333
-    Stimulus_i: 181 valid trials out of 181
+    Stimulus_i25: 44 valid trials out of 44
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+137 matching events found
+No baseline correction applied
+    Original shape: (137, 143, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 921.7
+    Max NaN count in a trial: 8333
+    Stimulus_i75: 137 valid trials out of 137
 Loading data for subject: D0110
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -877,42 +1309,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-220 matching events found
+164 matching events found
 No baseline correction applied
-    Original shape: (220, 223, 641)
+    Original shape: (164, 223, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1081.0
+    Average NaN count per trial: 730.9
+    Max NaN count in a trial: 17948
+    Stimulus_c25: 164 valid trials out of 164
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 223, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2106.1
     Max NaN count in a trial: 23717
-    Stimulus_c: 220 valid trials out of 220
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-219 matching events found
+51 matching events found
 No baseline correction applied
-    Original shape: (219, 223, 641)
+    Original shape: (51, 223, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1015.6
+    Average NaN count per trial: 804.4
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 51 valid trials out of 51
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 223, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1079.8
     Max NaN count in a trial: 20512
-    Stimulus_i: 219 valid trials out of 219
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 168 valid trials out of 168
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-220 matching events found
+164 matching events found
 No baseline correction applied
-    Original shape: (220, 223, 641)
+    Original shape: (164, 223, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1081.0
+    Average NaN count per trial: 730.9
+    Max NaN count in a trial: 17948
+    Stimulus_c25: 164 valid trials out of 164
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 223, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 2106.1
     Max NaN count in a trial: 23717
-    Stimulus_c: 220 valid trials out of 220
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-219 matching events found
+51 matching events found
 No baseline correction applied
-    Original shape: (219, 223, 641)
+    Original shape: (51, 223, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1015.6
+    Average NaN count per trial: 804.4
+    Max NaN count in a trial: 8333
+    Stimulus_i25: 51 valid trials out of 51
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Original shape: (168, 223, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1079.8
     Max NaN count in a trial: 20512
-    Stimulus_i: 219 valid trials out of 219
+    Stimulus_i75: 168 valid trials out of 168
 Loading data for subject: D0116
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -930,42 +1398,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-222 matching events found
+166 matching events found
 No baseline correction applied
-    Original shape: (222, 218, 641)
+    Original shape: (166, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 681.4
+    Average NaN count per trial: 695.1
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 166 valid trials out of 166
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 641.0
     Max NaN count in a trial: 6410
-    Stimulus_c: 222 valid trials out of 222
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-188 matching events found
+41 matching events found
 No baseline correction applied
-    Original shape: (188, 218, 641)
+    Original shape: (41, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 593.3
+    Average NaN count per trial: 562.8
     Max NaN count in a trial: 10256
-    Stimulus_i: 188 valid trials out of 188
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i25: 41 valid trials out of 41
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
 Not setting metadata
-222 matching events found
+147 matching events found
 No baseline correction applied
-    Original shape: (222, 218, 641)
+    Original shape: (147, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 681.4
+    Average NaN count per trial: 601.8
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 147 valid trials out of 147
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
+Not setting metadata
+166 matching events found
+No baseline correction applied
+    Original shape: (166, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 695.1
+    Max NaN count in a trial: 5128
+    Stimulus_c25: 166 valid trials out of 166
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Original shape: (56, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 641.0
     Max NaN count in a trial: 6410
-    Stimulus_c: 222 valid trials out of 222
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
 Not setting metadata
-188 matching events found
+41 matching events found
 No baseline correction applied
-    Original shape: (188, 218, 641)
+    Original shape: (41, 218, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 593.3
+    Average NaN count per trial: 562.8
     Max NaN count in a trial: 10256
-    Stimulus_i: 188 valid trials out of 188
+    Stimulus_i25: 41 valid trials out of 41
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+147 matching events found
+No baseline correction applied
+    Original shape: (147, 218, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 601.8
+    Max NaN count in a trial: 7051
+    Stimulus_i75: 147 valid trials out of 147
 Loading data for subject: D0117
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -983,42 +1487,78 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-162 matching events found
+127 matching events found
 No baseline correction applied
-    Original shape: (162, 187, 641)
+    Original shape: (127, 187, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1250.3
+    Average NaN count per trial: 1342.6
     Max NaN count in a trial: 48716
-    Stimulus_c: 162 valid trials out of 162
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 127 valid trials out of 127
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-121 matching events found
+35 matching events found
 No baseline correction applied
-    Original shape: (121, 187, 641)
+    Original shape: (35, 187, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1117.8
+    Average NaN count per trial: 915.7
+    Max NaN count in a trial: 10256
+    Stimulus_c75: 35 valid trials out of 35
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 187, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 961.5
+    Max NaN count in a trial: 10897
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Original shape: (93, 187, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1164.8
     Max NaN count in a trial: 22435
-    Stimulus_i: 121 valid trials out of 121
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 93 valid trials out of 93
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-162 matching events found
+127 matching events found
 No baseline correction applied
-    Original shape: (162, 187, 641)
+    Original shape: (127, 187, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1250.3
+    Average NaN count per trial: 1342.6
     Max NaN count in a trial: 48716
-    Stimulus_c: 162 valid trials out of 162
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 127 valid trials out of 127
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-121 matching events found
+35 matching events found
 No baseline correction applied
-    Original shape: (121, 187, 641)
+    Original shape: (35, 187, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1117.8
+    Average NaN count per trial: 915.7
+    Max NaN count in a trial: 10256
+    Stimulus_c75: 35 valid trials out of 35
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+28 matching events found
+No baseline correction applied
+    Original shape: (28, 187, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 961.5
+    Max NaN count in a trial: 10897
+    Stimulus_i25: 28 valid trials out of 28
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Original shape: (93, 187, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 1164.8
     Max NaN count in a trial: 22435
-    Stimulus_i: 121 valid trials out of 121
+    Stimulus_i75: 93 valid trials out of 93
 Loading data for subject: D0121
 Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
@@ -1036,572 +1576,138 @@ Not setting metadata
 448 matching events found
 No baseline correction applied
 0 projection items activated
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-206 matching events found
+154 matching events found
 No baseline correction applied
-    Original shape: (206, 198, 641)
+    Original shape: (154, 198, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1073.5
+    Average NaN count per trial: 1028.1
     Max NaN count in a trial: 42306
-    Stimulus_c: 206 valid trials out of 206
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 154 valid trials out of 154
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-194 matching events found
+52 matching events found
 No baseline correction applied
-    Original shape: (194, 198, 641)
+    Original shape: (52, 198, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 726.9
+    Average NaN count per trial: 1208.0
+    Max NaN count in a trial: 21794
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 198, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 669.5
+    Max NaN count in a trial: 16025
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+149 matching events found
+No baseline correction applied
+    Original shape: (149, 198, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 744.2
     Max NaN count in a trial: 18589
-    Stimulus_i: 194 valid trials out of 194
-  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+    Stimulus_i75: 149 valid trials out of 149
+  Loading condition: Stimulus_c25 with parameters: {'BIDS_events': ['Stimulus/c25.0'], 'congruency': 'c', 'congruencyProportion': '75%'}
 Not setting metadata
-206 matching events found
+154 matching events found
 No baseline correction applied
-    Original shape: (206, 198, 641)
+    Original shape: (154, 198, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 1073.5
+    Average NaN count per trial: 1028.1
     Max NaN count in a trial: 42306
-    Stimulus_c: 206 valid trials out of 206
-  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+    Stimulus_c25: 154 valid trials out of 154
+  Loading condition: Stimulus_c75 with parameters: {'BIDS_events': ['Stimulus/c75.0'], 'congruency': 'c', 'congruencyProportion': '25%'}
 Not setting metadata
-194 matching events found
+52 matching events found
 No baseline correction applied
-    Original shape: (194, 198, 641)
+    Original shape: (52, 198, 641)
     Trials with all NaN values: 0
-    Average NaN count per trial: 726.9
+    Average NaN count per trial: 1208.0
+    Max NaN count in a trial: 21794
+    Stimulus_c75: 52 valid trials out of 52
+  Loading condition: Stimulus_i25 with parameters: {'BIDS_events': ['Stimulus/i25.0'], 'congruency': 'i', 'congruencyProportion': '75%'}
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Original shape: (45, 198, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 669.5
+    Max NaN count in a trial: 16025
+    Stimulus_i25: 45 valid trials out of 45
+  Loading condition: Stimulus_i75 with parameters: {'BIDS_events': ['Stimulus/i75.0'], 'congruency': 'i', 'congruencyProportion': '25%'}
+Not setting metadata
+149 matching events found
+No baseline correction applied
+    Original shape: (149, 198, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 744.2
     Max NaN count in a trial: 18589
-    Stimulus_i: 194 valid trials out of 194
+    Stimulus_i75: 149 valid trials out of 149
 
 --- Summary of Dropped Electrodes ---
-ROI: occ
-  - Subject D0065: Dropped 3 electrode(s)
-  - Subject D0100: Dropped 1 electrode(s)
+ROI: acc
+  - Subject D0065: Dropped 7 electrode(s)
+  - Subject D0107A: Dropped 2 electrode(s)
 ROI: dlpfc
-  - Subject D0107A: Dropped 1 electrode(s)
+  - Subject D0071: Dropped 2 electrode(s)
+  - Subject D0121: Dropped 2 electrode(s)
   - Subject D0065: Dropped 8 electrode(s)
-  - Subject D0121: Dropped 2 electrode(s)
-  - Subject D0071: Dropped 2 electrode(s)
-ROI: lpfc
   - Subject D0107A: Dropped 1 electrode(s)
-  - Subject D0065: Dropped 9 electrode(s)
-  - Subject D0121: Dropped 2 electrode(s)
+ROI: occ
+  - Subject D0100: Dropped 1 electrode(s)
+  - Subject D0065: Dropped 3 electrode(s)
+ROI: lpfc
   - Subject D0071: Dropped 2 electrode(s)
+  - Subject D0121: Dropped 2 electrode(s)
+  - Subject D0065: Dropped 9 electrode(s)
+  - Subject D0107A: Dropped 1 electrode(s)
 ROI: parietal
   - Subject D0065: Dropped 6 electrode(s)
-ROI: acc
-  - Subject D0107A: Dropped 2 electrode(s)
-  - Subject D0065: Dropped 7 electrode(s)
 Total electrodes dropped across all subjects/ROIs: 46
 -------------------------------------
 
 ['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
 
 Making LabeledArray for ROI: parietal with NaN trials removed within each channel
-condition 'Stimulus_c': subsampling to 183 trials
-condition 'Stimulus_i': subsampling to 165 trials
+condition 'Stimulus_c25': subsampling to 135 trials
+condition 'Stimulus_c75': subsampling to 48 trials
+condition 'Stimulus_i25': subsampling to 36 trials
+condition 'Stimulus_i75': subsampling to 129 trials
 generating 1 bootstrap sample(s)
 ['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
 
 Making LabeledArray for ROI: occ with NaN trials removed within each channel
-condition 'Stimulus_c': subsampling to 184 trials
-condition 'Stimulus_i': subsampling to 106 trials
+condition 'Stimulus_c25': subsampling to 135 trials
+condition 'Stimulus_c75': subsampling to 41 trials
+condition 'Stimulus_i25': subsampling to 26 trials
+condition 'Stimulus_i75': subsampling to 80 trials
 generating 1 bootstrap sample(s)
 ['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
 
 Making LabeledArray for ROI: acc with NaN trials removed within each channel
-condition 'Stimulus_c': subsampling to 162 trials
-condition 'Stimulus_i': subsampling to 106 trials
+condition 'Stimulus_c25': subsampling to 127 trials
+condition 'Stimulus_c75': subsampling to 35 trials
+condition 'Stimulus_i25': subsampling to 26 trials
+condition 'Stimulus_i75': subsampling to 80 trials
 generating 1 bootstrap sample(s)
 ['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
 
 Making LabeledArray for ROI: dlpfc with NaN trials removed within each channel
-condition 'Stimulus_c': subsampling to 155 trials
-condition 'Stimulus_i': subsampling to 106 trials
+condition 'Stimulus_c25': subsampling to 121 trials
+condition 'Stimulus_c75': subsampling to 33 trials
+condition 'Stimulus_i25': subsampling to 26 trials
+condition 'Stimulus_i75': subsampling to 80 trials
 generating 1 bootstrap sample(s)
 ['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
 
 Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
-condition 'Stimulus_c': subsampling to 155 trials
-condition 'Stimulus_i': subsampling to 106 trials
+condition 'Stimulus_c25': subsampling to 121 trials
+condition 'Stimulus_c75': subsampling to 33 trials
+condition 'Stimulus_i25': subsampling to 26 trials
+condition 'Stimulus_i75': subsampling to 80 trials
 generating 1 bootstrap sample(s)
-
-==================== PROCESSING BOOTSTRAP 1/1 ====================
-
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (310, 251, 641)
-  Trials: 310
-  Channels: 251
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/251
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 49/310 (15.8%)
-  Trials with outlier NaNs (sparse): 0/310 (0.0%)
-  Trials with missing channel NaNs (dense): 49/310 (15.8%)
-  Trials with both types: 0/310 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 251.0
-  Max missing channels in a trial: 251
-
-Overall NaN Percentage: 15.81%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
-  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
-
-After removing NaN trials:
-  Trials kept: 261/310 (84.2%)
-  New data shape: (261, 251, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 155 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 155 -> 106
-
-Final balanced data shape: (212, 251, 641)
-============================================================
-
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (368, 69, 641)
-  Trials: 368
-  Channels: 69
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/69
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 78/368 (21.2%)
-  Trials with outlier NaNs (sparse): 0/368 (0.0%)
-  Trials with missing channel NaNs (dense): 78/368 (21.2%)
-  Trials with both types: 0/368 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 69.0
-  Max missing channels in a trial: 69
-
-Overall NaN Percentage: 21.20%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/184 trials with NaNs (0.0%)
-  ['Stimulus_i']: 78/184 trials with NaNs (42.4%)
-
-After removing NaN trials:
-  Trials kept: 290/368 (78.8%)
-  New data shape: (290, 69, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 184 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 184 -> 106
-
-Final balanced data shape: (212, 69, 641)
-============================================================
-
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (310, 184, 641)
-  Trials: 310
-  Channels: 184
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/184
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 49/310 (15.8%)
-  Trials with outlier NaNs (sparse): 0/310 (0.0%)
-  Trials with missing channel NaNs (dense): 49/310 (15.8%)
-  Trials with both types: 0/310 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 184.0
-  Max missing channels in a trial: 184
-
-Overall NaN Percentage: 15.81%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
-  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
-
-After removing NaN trials:
-  Trials kept: 261/310 (84.2%)
-  New data shape: (261, 184, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 155 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 155 -> 106
-
-Final balanced data shape: (212, 184, 641)
-============================================================
-
-Processing ROI: acc
-
-============================================================
-ROI: acc
-============================================================
-Initial concatenated data shape: (324, 62, 641)
-  Trials: 324
-  Channels: 62
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/62
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 56/324 (17.3%)
-  Trials with outlier NaNs (sparse): 0/324 (0.0%)
-  Trials with missing channel NaNs (dense): 56/324 (17.3%)
-  Trials with both types: 0/324 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 62.0
-  Max missing channels in a trial: 62
-
-Overall NaN Percentage: 17.28%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/162 trials with NaNs (0.0%)
-  ['Stimulus_i']: 56/162 trials with NaNs (34.6%)
-
-After removing NaN trials:
-  Trials kept: 268/324 (82.7%)
-  New data shape: (268, 62, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 162 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 162 -> 106
-
-Final balanced data shape: (212, 62, 641)
-============================================================
-
-Processing ROI: parietal
-
-============================================================
-ROI: parietal
-============================================================
-Initial concatenated data shape: (366, 34, 641)
-  Trials: 366
-  Channels: 34
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/34
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 18/366 (4.9%)
-  Trials with outlier NaNs (sparse): 0/366 (0.0%)
-  Trials with missing channel NaNs (dense): 18/366 (4.9%)
-  Trials with both types: 0/366 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 34.0
-  Max missing channels in a trial: 34
-
-Overall NaN Percentage: 4.92%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/183 trials with NaNs (0.0%)
-  ['Stimulus_i']: 18/183 trials with NaNs (9.8%)
-
-After removing NaN trials:
-  Trials kept: 348/366 (95.1%)
-  New data shape: (348, 34, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 183 trials
-  Condition ['Stimulus_i']: 165 trials
-
-Subsampling to min trial count: 165
-  Subsampled condition 0: 183 -> 165
-
-Final balanced data shape: (330, 34, 641)
-============================================================
-
-Processing ROI: lpfc
-
-============================================================
-ROI: lpfc
-============================================================
-Initial concatenated data shape: (310, 251, 641)
-  Trials: 310
-  Channels: 251
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/251
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 49/310 (15.8%)
-  Trials with outlier NaNs (sparse): 0/310 (0.0%)
-  Trials with missing channel NaNs (dense): 49/310 (15.8%)
-  Trials with both types: 0/310 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 251.0
-  Max missing channels in a trial: 251
-
-Overall NaN Percentage: 15.81%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
-  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
-
-After removing NaN trials:
-  Trials kept: 261/310 (84.2%)
-  New data shape: (261, 251, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 155 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 155 -> 106
-
-Final balanced data shape: (212, 251, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-Processing ROI: occ
-
-============================================================
-ROI: occ
-============================================================
-Initial concatenated data shape: (368, 69, 641)
-  Trials: 368
-  Channels: 69
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/69
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 78/368 (21.2%)
-  Trials with outlier NaNs (sparse): 0/368 (0.0%)
-  Trials with missing channel NaNs (dense): 78/368 (21.2%)
-  Trials with both types: 0/368 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 69.0
-  Max missing channels in a trial: 69
-
-Overall NaN Percentage: 21.20%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/184 trials with NaNs (0.0%)
-  ['Stimulus_i']: 78/184 trials with NaNs (42.4%)
-
-After removing NaN trials:
-  Trials kept: 290/368 (78.8%)
-  New data shape: (290, 69, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 184 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 184 -> 106
-
-Final balanced data shape: (212, 69, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-Processing ROI: dlpfc
-
-============================================================
-ROI: dlpfc
-============================================================
-Initial concatenated data shape: (310, 184, 641)
-  Trials: 310
-  Channels: 184
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/184
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 49/310 (15.8%)
-  Trials with outlier NaNs (sparse): 0/310 (0.0%)
-  Trials with missing channel NaNs (dense): 49/310 (15.8%)
-  Trials with both types: 0/310 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 184.0
-  Max missing channels in a trial: 184
-
-Overall NaN Percentage: 15.81%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
-  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
-
-After removing NaN trials:
-  Trials kept: 261/310 (84.2%)
-  New data shape: (261, 184, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 155 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 155 -> 106
-
-Final balanced data shape: (212, 184, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-Processing ROI: acc
-
-============================================================
-ROI: acc
-============================================================
-Initial concatenated data shape: (324, 62, 641)
-  Trials: 324
-  Channels: 62
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/62
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 56/324 (17.3%)
-  Trials with outlier NaNs (sparse): 0/324 (0.0%)
-  Trials with missing channel NaNs (dense): 56/324 (17.3%)
-  Trials with both types: 0/324 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 62.0
-  Max missing channels in a trial: 62
-
-Overall NaN Percentage: 17.28%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/162 trials with NaNs (0.0%)
-  ['Stimulus_i']: 56/162 trials with NaNs (34.6%)
-
-After removing NaN trials:
-  Trials kept: 268/324 (82.7%)
-  New data shape: (268, 62, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 162 trials
-  Condition ['Stimulus_i']: 106 trials
-
-Subsampling to min trial count: 106
-  Subsampled condition 0: 162 -> 106
-
-Final balanced data shape: (212, 62, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-Processing ROI: parietal
-
-============================================================
-ROI: parietal
-============================================================
-Initial concatenated data shape: (366, 34, 641)
-  Trials: 366
-  Channels: 34
-  Time points: 641
-
---- Detailed NaN Analysis ---
-
-Missing Channels (all NaN across all trials): 0/34
-
-Trial-level NaN Statistics:
-  Trials with ANY NaN: 18/366 (4.9%)
-  Trials with outlier NaNs (sparse): 0/366 (0.0%)
-  Trials with missing channel NaNs (dense): 18/366 (4.9%)
-  Trials with both types: 0/366 (0.0%)
-
-Missing Channel Statistics (for affected trials):
-  Mean missing channels per affected trial: 34.0
-  Max missing channels in a trial: 34
-
-Overall NaN Percentage: 4.92%
-
---- NaN Impact by Condition ---
-  ['Stimulus_c']: 0/183 trials with NaNs (0.0%)
-  ['Stimulus_i']: 18/183 trials with NaNs (9.8%)
-
-After removing NaN trials:
-  Trials kept: 348/366 (95.1%)
-  New data shape: (348, 34, 641)
-
---- Final Trial Counts by Condition ---
-  Condition ['Stimulus_c']: 183 trials
-  Condition ['Stimulus_i']: 165 trials
-
-Subsampling to min trial count: 165
-  Subsampled condition 0: 183 -> 165
-
-Final balanced data shape: (330, 34, 641)
-============================================================
-
-start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
-Effective window size: 32
-Effective step size: 16
-Number of windows: 39
-time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/congruency/lpfc/ttest
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/congruency/occ/ttest
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/congruency/dlpfc/ttest
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/congruency/acc/ttest
-stat_func returns a tuple. Taking the first element
-accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/congruency/parietal/ttest
-stat_func returns a tuple. Taking the first element
-
-✓ Analysis completed successfully!

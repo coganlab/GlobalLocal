@@ -484,9 +484,9 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
 
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None, 
         obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1, 
-        shuffle: bool = False, oversample: bool = True) -> np.ndarray:
+        shuffle: bool = False, oversample: bool = True, folds_as_samples: bool = False) -> np.ndarray:
         """
-        Cross-validated confusion matrix with windowing and optional shuffling.
+        Cross-validated confusion matrix with windowing, optional shuffling, and an option to treat folds as independent samples.
         
         This function performs cross-validated decoding with optional sliding windows over time.
         It can shuffle labels (for permutation testing) and handles missing data via mixup.
@@ -559,16 +559,16 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
                     mats[i, f] = cm_windowed
         
         # Step 8: Reorganize dimensions for output
-        if window is not None:
-            # Current: (n_repeats, n_splits, n_windows, n_cats, n_cats)
-            # Sum over splits (they're from the same repeat, should be combined)
-            mats = np.sum(mats, axis=1)  # → (n_repeats, n_windows, n_cats, n_cats)
-            
-            # Move windows to first dimension (expected by compute_accuracies)
-            mats = np.transpose(mats, (1, 0, 2, 3))  # → (n_windows, n_repeats, n_cats, n_cats)
+        if folds_as_samples:
+            # reshape to combine repeats and splits into a single 'samples' dimension
+            # go from (n_repeats, n_splits, n_windows, n_cats, n_cats) to (n_windows, n_repeats*n_splits, n_cats, n_cats)
+            mats = mats.reshape((self.n_repeats, self.n_splits, steps, n_cats, n_cats))
+            mats = np.transpose(mats, (1,0,2,3)) # move windows to the first axis
         else:
-            # No windows: just sum over splits
-            mats = np.sum(mats, axis=1)  # → (n_repeats, n_cats, n_cats)
+            # sum over splits
+            # orig shape: (n_repeats, n_splits, n_windows, n_cats, n_cats)
+            mats = np.sum(mats, axis=1) # -> (n_repeats, n_windows, n_cats, n_cats)
+            mats = np.transpose(mats, (1,0,2,3)) # -> (n_windows, n_repeats, n_cats, n_cats)
         
         # Step 9: Apply normalization
         if normalize == 'true':
@@ -979,7 +979,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
-    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1
+    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -1037,7 +1037,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         The time (in seconds) corresponding to the first sample in the epoch.
         Used to adjust the `start_times` of the windows if they are not
         aligned to the beginning of the concatenated data. Default is -1.
-
+    folds_as_samples : bool, optional
+        Whether to use the folds (splits) as the unit to be shuffled across for time perm cluster. Default is false and to sum across splits within repeats, and use repeats as the unit to be shuffled across instead.
     Returns
     -------
     tuple of (dict, dict)
@@ -1104,13 +1105,13 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
             concatenated_data, labels, normalize='true', obs_axs=obs_axs, time_axs=time_axs,
-            window=effective_window_size, step_size=effective_step_size, shuffle=False
+            window=effective_window_size, step_size=effective_step_size, shuffle=False, folds_as_samples=folds_as_samples
         )
 
         # Run decoding with shuffled labels
         cm_shuffle = decoder_shuffle.cv_cm_jim_window_shuffle(
             concatenated_data, labels, normalize='true', obs_axs=obs_axs, time_axs=time_axs,
-            window=effective_window_size, step_size=effective_step_size, shuffle=True
+            window=effective_window_size, step_size=effective_step_size, shuffle=True, folds_as_samples=folds_as_samples
         )
 
         # Store the confusion matrices and time info
@@ -1607,7 +1608,7 @@ def create_multipanel_nature_figure(
         return fig
     
 def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shuffle, significant_clusters,
-                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05):
+                    window_size, step_size, sampling_rate, condition_comparison, roi, save_dir, timestamp=None, p_thresh=0.05, other_string_to_add=None):
     """
     Plot mean true and shuffled accuracies over time with significance.
 
@@ -1741,8 +1742,12 @@ def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shu
     # CREATE P THRESH PREFIX
     p_thresh_str = str(p_thresh)
     
+    # ADD other string if provided
+    other_str = f"_{other_string_to_add}" if other_string_to_add else ""
+    
     # Construct the filename
-    filename = f"{timestamp_str}{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_{n_repeats}_repeats_{n_perm}_perm_{p_thresh_str}_p_thresh.png"
+    filename = (f"{timestamp_str}{condition_comparison}_ROI_{roi}_window{window_size}_step{step_size}_"
+                f"{n_repeats}_repeats_{n_perm}_perm_{p_thresh_str}_p_thresh{other_str}.png") 
     filepath = os.path.join(save_dir, filename)
 
     # Ensure save_dir exists

@@ -197,7 +197,10 @@ def main(args):
 
     else:
         raise ValueError("electrodes input must be set to all or sig")
-        
+    
+    # ADD THIS BLOCK to create a string for the sampling method
+    folds_info_str = 'folds_as_samples' if args.folds_as_samples else 'repeats_as_samples'
+
     # filter electrodes to only the ones that exist in the epochs objects. This mismatch can arise due to dropping channels when making the epochs objects, because the subjects_electrodestoROIs_dict is made based on all the electrodes, with no dropping.
     electrodes = filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_mne_objects)
     
@@ -305,7 +308,10 @@ def main(args):
 
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
-    other_string_to_add = elec_string_to_add_to_filename + '_' + str(len(args.subjects)) + '_subjects'
+    other_string_to_add = (
+        f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}"
+    )
+    
     # make a dict to store the final statistical results (e.g., significance masks) for each comparison and ROI, aggregated across all bootstraps
     aggregated_bootstrap_stats_results = {}
     for roi in rois:
@@ -382,11 +388,20 @@ def main(args):
                 step_size=args.step_size,
                 n_perm=args.n_perm,
                 sampling_rate=args.sampling_rate,
-                first_time_point=-1
+                first_time_point=-1,
+                folds_as_samples=args.folds_as_samples
             )
 
-            np.save(os.path.join(cm_save_dir, f'{condition_comparison}_{args.n_splits}_splits_{args.n_repeats}_repeats_{args.balance_method}_balance_method_{args.random_state}_random_state_{args.window_size}_window_size_{args.step_size}_step_size_{args.n_perm}_permutations_{args.sampling_rate}_sampling_rate_cm_true_per_roi.npy'), cm_true_per_roi)
-            np.save(os.path.join(cm_save_dir, f'{condition_comparison}_{args.n_splits}_splits_{args.n_repeats}_repeats_{args.balance_method}_balance_method_{args.random_state}_random_state_{args.window_size}_window_size_{args.step_size}_step_size_{args.n_perm}_permutations_{args.sampling_rate}_sampling_rate_cm_shuffle_per_roi.npy'), cm_shuffle_per_roi)
+            filename_base = (
+                f'{condition_comparison}_{args.n_splits}_splits_{args.n_repeats}_repeats_'
+                f'{args.balance_method}_balance_method_{args.random_state}_random_state_'
+                f'{args.window_size}_window_size_{args.step_size}_step_size_{args.n_perm}_permutations_'
+                f'{folds_info_str}_{args.sampling_rate}_sampling_rate'
+            )
+
+            # Save the numpy arrays with the new filename
+            np.save(os.path.join(cm_save_dir, f'{filename_base}_cm_true_per_roi.npy'), cm_true_per_roi)
+            np.save(os.path.join(cm_save_dir, f'{filename_base}_cm_shuffle_per_roi.npy'), cm_shuffle_per_roi)
 
             # Now compute accuracies and perform time permutation cluster test
             condition_save_dir = os.path.join(save_dir, f"{condition_comparison}")
@@ -456,7 +471,8 @@ def main(args):
                     roi=roi,
                     save_dir=condition_roi_stat_func_save_dir,
                     timestamp=args.timestamp,
-                    p_thresh=args.p_thresh
+                    p_thresh=args.p_thresh,
+                    other_string_to_add=other_string_to_add
                 )
                 
         # do lwpc comparison 
