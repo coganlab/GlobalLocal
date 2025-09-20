@@ -2459,3 +2459,146 @@ def make_pooled_shuffle_distribution(
     _, accuracies_shuffle_pooled = compute_accuracies(cm_shuffle_pooled, cm_shuffle_pooled)
 
     return accuracies_shuffle_pooled
+
+def find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+    series, distribution, time_points,
+    percentile=95,
+    cluster_percentile=95, n_cluster_perms=1000,
+    random_state=None
+):
+    """
+    Find significant clusters of a single time-series (i.e., mean true decoding accuracies over time) vs. a distribution of time-series (i.e., distribution of shuffled label decoding accuracies over time).
+    Check if min_cluster_size is necessary! I think any two consecutive significant time points should be counted as a cluster.
+    
+    Parameters
+    ----------
+    series : np.ndarray
+        Shape: (1, indices) - A series of values, of length indices (make this 2D though so can compare with the distribution). Example is a time series of the mean true decoding accuracies.
+    distribution : np.ndarray
+        Shape: (n, indices) - 2D distribution of series. Example is a distribution of shuffled decoding accuracies. TIMES MUST MATCH BETWEEN THE SERIES AND THE DISTRIBUTION.
+    significant_percentile : float
+        Percentile of the distribution that a value from the series must be to be classified as significant (before cluster correction). For example, a true decoding accuracy timepoint must be in the 95th percentile of the shuffled decoding accuracy distribution.
+    cluster_percentile : float
+        Percentile of the cluster size distribution that a significant cluster must be to survive cluster correction. For example, if a cluster's size is in the 95th percentile of all cluster sizes.
+    n_cluster_perms : int
+        Number of permutations to be done to form a null distribution of "significant" cluster sizes.
+         
+    Returns
+    -------
+    significant_clusters : list of tuples
+        List of (start_idx, end_idx) for significant clusters of consecutive values in the series that are greater than the significant percentile of the distribution.
+    """
+    
+    rng = np.random.RandomState(random_state)
+    times = len(series)
+    
+    # Step 1: Find the percentile threshold values for the distribution
+    pointwise_distribution_threshold = np.percentile(distribution, percentile, axis=0)
+    
+    # Step 2: Find true significant clusters in which consecutive points in the series are above the percentile threshold values of the distribution
+    true_sig_mask = series > pointwise_distribution_threshold
+    true_clusters = find_contiguous_clusters(true_sig_mask)
+    
+    # Step 3: Find true cluster lengths (in time, this is what we'll use as our measure of cluster size)
+    true_cluster_lengths = find_cluster_lengths(true_clusters)
+    
+    # Step 4: Make null distribution of maximum cluster lengths
+    max_perm_cluster_lengths = get_max_perm_cluster_lengths_based_on_percentile(n_cluster_perms, distribution, percentile, random_state)
+
+    # Step 5: Apply cluster correction such that true cluster lengths must be greater than cluster_percentile of the maximum cluster sizes across permutations to survive
+    max_perm_cluster_lengths_threshold = np.percentile(max_perm_cluster_lengths, cluster_percentile)
+    significant_clusters = []
+    
+    for true_cluster, true_cluster_length in zip(true_clusters, true_cluster_lengths):
+        if true_cluster_length > max_perm_cluster_lengths_threshold:
+            significant_clusters.append(true_cluster)
+    
+    return significant_clusters
+    
+def find_cluster_lengths(clusters: list[tuple[int, int]]) -> list[int]:
+    """Calculates the length of each cluster.
+    
+    This function takes a list of clusters, where each cluster is represented by a tuple of its start and end indices, and computes the number of points contained within each cluster (inclusive).
+    
+    Parameters
+    ---------
+    clusters : list[tuple[int, int]]
+        A list of tuples, where each tuple contains the start and end
+        index of a contiguous cluster
+        
+    Returns:
+    cluster_lengths : list[int]
+        A list of integers representing the length of each corresponding cluster.
+        
+    Example
+    -------
+    >>> clusters = [(10, 15), (25, 30)]
+    >>> find_cluster_lengths(clusters)
+    [6,6]
+    """
+    cluster_lengths = []
+    for start_idx, end_idx in clusters:
+        cluster_lengths.append(end_idx - start_idx + 1)                     
+    return cluster_lengths
+
+def get_max_perm_cluster_lengths_based_on_percentile(
+    n_cluster_perms: int, 
+    distribution: np.ndarray, 
+    percentile: float, 
+    random_state: int = None
+    ) -> list[int]:
+    '''
+    Builds a null distribution of maximum cluster lengths.
+    
+    This function performs permutations to create a distribution of the max cluster size expected by chance. In each permutation, it:
+    1. Randomly selects one time-series form the null 'distribution'.
+    2. Uses the remaining series to calculate a pointwise percentile threshold.
+    3. Finds clusters where the selected series exceeds this threshold.
+    4. Records the length of the largest cluster found.
+    
+    The resulting list of maximum lengths can be used to determine a
+    significance threshold for cluster-based permutation testing.
+    
+    Parameters
+    ----------
+    n_cluster_perms : int
+        The number of permutations to run to build the null distribution.
+    distribution : np.ndarray
+        A 2D array of shape (n, time) representing the null distribution (e.g., from shuffled-label decoding)
+    percentile : float
+        The percentile (0-100) used to define pointwise significance when forming clusters within each permutation.
+    random_state : int, optional
+        Seed for the random number generator for reproducibility.
+    
+    Returns
+    -------
+    list[int]
+        A list containing the maximum cluster length found in each permutation.
+        The length of this list is equal to 'n_cluster_perms'.
+    '''
+    rng = np.random.RandomState(random_state)
+    max_perm_cluster_lengths = []
+    for _ in range(n_cluster_perms):
+        # randomly select one row of the distribution to act as a series for this permutation
+        perm_row_idx = rng.randint(0, distribution.shape[0])
+        perm_series = distribution[perm_row_idx, :]
+        
+        # use remaining rows as the null distribution
+        remaining_rows = np.delete(distribution, perm_row_idx, axis=0)
+        perm_threshold = np.percentile(remaining_rows, percentile, axis=0)
+        
+        # find clusters in this permutation
+        perm_sig_mask = perm_series > perm_threshold
+        perm_clusters = find_contiguous_clusters(perm_sig_mask)
+        
+        # find maximum cluster length for this permutation and add it to the list of maximum cluster lengths for all permutations
+        perm_cluster_lengths = find_cluster_lengths(perm_clusters)
+        
+        if perm_cluster_lengths:
+            max_perm_cluster_length = max(perm_cluster_lengths)
+        else:
+            max_perm_cluster_length = 0 # no clusters found, so max length is 0
+            
+        max_perm_cluster_lengths.append(max_perm_cluster_length)
+        
+    return max_perm_cluster_lengths

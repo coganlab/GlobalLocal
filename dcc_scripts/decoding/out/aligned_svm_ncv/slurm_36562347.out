@@ -1711,3 +1711,3088 @@ condition 'Stimulus_s_in_75incongruentBlock': subsampling to 53 trials
 condition 'Stimulus_r_in_25incongruentBlock': subsampling to 80 trials
 condition 'Stimulus_r_in_75incongruentBlock': subsampling to 69 trials
 generating 1 bootstrap sample(s)
+
+==================== PROCESSING BOOTSTRAP 1/1 ====================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/160 (8.1%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 13/160 (8.1%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 8.12%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 147/160 (91.9%)
+  New data shape: (147, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 80 -> 67
+
+Final balanced data shape: (134, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 20/188 (10.6%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 20/188 (10.6%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 10.64%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 168/188 (89.4%)
+  New data shape: (168, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 94 -> 74
+
+Final balanced data shape: (148, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/160 (8.1%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 13/160 (8.1%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 8.12%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 147/160 (91.9%)
+  New data shape: (147, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 80 -> 67
+
+Final balanced data shape: (134, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 14/168 (8.3%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 14/168 (8.3%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 8.33%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 154/168 (91.7%)
+  New data shape: (154, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+
+Subsampling to min trial count: 70
+  Subsampled condition 1: 84 -> 70
+
+Final balanced data shape: (140, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 22/192 (11.5%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 22/192 (11.5%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 11.46%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 170/192 (88.5%)
+  New data shape: (170, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 96 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 38/160 (23.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 38/160 (23.8%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 23.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 122/160 (76.2%)
+  New data shape: (122, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 69 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 62/188 (33.0%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 62/188 (33.0%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 32.98%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 126/188 (67.0%)
+  New data shape: (126, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 72 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 38/160 (23.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 38/160 (23.8%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 23.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 122/160 (76.2%)
+  New data shape: (122, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 69 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 43/168 (25.6%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 43/168 (25.6%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 25.60%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 125/168 (74.4%)
+  New data shape: (125, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 71 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 19/192 (9.9%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 19/192 (9.9%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 9.90%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 173/192 (90.1%)
+  New data shape: (173, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 82
+  Subsampled condition 1: 91 -> 82
+
+Final balanced data shape: (164, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 24/160 (15.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 24/160 (15.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 15.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 136/160 (85.0%)
+  New data shape: (136, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 69 -> 67
+
+Final balanced data shape: (134, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 42/188 (22.3%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 42/188 (22.3%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 22.34%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 146/188 (77.7%)
+  New data shape: (146, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 72
+  Subsampled condition 0: 74 -> 72
+
+Final balanced data shape: (144, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 24/160 (15.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 24/160 (15.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 15.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 136/160 (85.0%)
+  New data shape: (136, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 69 -> 67
+
+Final balanced data shape: (134, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/168 (16.1%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 27/168 (16.1%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 16.07%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 141/168 (83.9%)
+  New data shape: (141, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 70
+  Subsampled condition 1: 71 -> 70
+
+Final balanced data shape: (140, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/192 (14.1%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 27/192 (14.1%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 14.06%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 165/192 (85.9%)
+  New data shape: (165, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 91 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/160 (16.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 27/160 (16.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 16.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 133/160 (83.1%)
+  New data shape: (133, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 80 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/188 (21.3%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 40/188 (21.3%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 21.28%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 148/188 (78.7%)
+  New data shape: (148, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 94 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/160 (16.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 27/160 (16.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 16.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 133/160 (83.1%)
+  New data shape: (133, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 80 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 30/168 (17.9%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 30/168 (17.9%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 17.86%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 138/168 (82.1%)
+  New data shape: (138, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 84 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 14/192 (7.3%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 14/192 (7.3%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 7.29%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 178/192 (92.7%)
+  New data shape: (178, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+
+Subsampling to min trial count: 82
+  Subsampled condition 1: 96 -> 82
+
+Final balanced data shape: (164, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/160 (25.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 40/160 (25.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 25.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+
+After removing NaN trials:
+  Trials kept: 120/160 (75.0%)
+  New data shape: (120, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 0: 67 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 60/188 (31.9%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 60/188 (31.9%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 31.91%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+
+After removing NaN trials:
+  Trials kept: 128/188 (68.1%)
+  New data shape: (128, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 0: 74 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/160 (25.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 40/160 (25.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 25.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+
+After removing NaN trials:
+  Trials kept: 120/160 (75.0%)
+  New data shape: (120, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 0: 67 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 44/168 (26.2%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 44/168 (26.2%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 26.19%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+
+After removing NaN trials:
+  Trials kept: 124/168 (73.8%)
+  New data shape: (124, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 0: 70 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 36/192 (18.8%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 36/192 (18.8%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 18.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+
+After removing NaN trials:
+  Trials kept: 156/192 (81.2%)
+  New data shape: (156, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 82 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 11/160 (6.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 11/160 (6.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 6.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 149/160 (93.1%)
+  New data shape: (149, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 69
+  Subsampled condition 0: 80 -> 69
+
+Final balanced data shape: (138, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 22/188 (11.7%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 22/188 (11.7%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 11.70%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 166/188 (88.3%)
+  New data shape: (166, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 72
+  Subsampled condition 0: 94 -> 72
+
+Final balanced data shape: (144, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 11/160 (6.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 11/160 (6.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 6.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 149/160 (93.1%)
+  New data shape: (149, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 69
+  Subsampled condition 0: 80 -> 69
+
+Final balanced data shape: (138, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/168 (7.7%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 13/168 (7.7%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 7.74%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 155/168 (92.3%)
+  New data shape: (155, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 71
+  Subsampled condition 0: 84 -> 71
+
+Final balanced data shape: (142, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 5/192 (2.6%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 5/192 (2.6%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 2.60%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 187/192 (97.4%)
+  New data shape: (187, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 91
+  Subsampled condition 0: 96 -> 91
+
+Final balanced data shape: (182, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/160 (8.1%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 13/160 (8.1%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 8.12%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 147/160 (91.9%)
+  New data shape: (147, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 80 -> 67
+
+Final balanced data shape: (134, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 20/188 (10.6%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 20/188 (10.6%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 10.64%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 168/188 (89.4%)
+  New data shape: (168, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 94 -> 74
+
+Final balanced data shape: (148, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/160 (8.1%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 13/160 (8.1%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 8.12%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 147/160 (91.9%)
+  New data shape: (147, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 80 -> 67
+
+Final balanced data shape: (134, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 14/168 (8.3%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 14/168 (8.3%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 8.33%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 154/168 (91.7%)
+  New data shape: (154, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+
+Subsampling to min trial count: 70
+  Subsampled condition 1: 84 -> 70
+
+Final balanced data shape: (140, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 22/192 (11.5%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 22/192 (11.5%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 11.46%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 170/192 (88.5%)
+  New data shape: (170, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 96 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_25incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_25incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_25incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_25incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_25incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 38/160 (23.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 38/160 (23.8%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 23.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 122/160 (76.2%)
+  New data shape: (122, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 69 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 62/188 (33.0%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 62/188 (33.0%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 32.98%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 126/188 (67.0%)
+  New data shape: (126, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 72 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 38/160 (23.8%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 38/160 (23.8%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 23.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 122/160 (76.2%)
+  New data shape: (122, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 69 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 43/168 (25.6%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 43/168 (25.6%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 25.60%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 125/168 (74.4%)
+  New data shape: (125, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 71 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 19/192 (9.9%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 19/192 (9.9%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 9.90%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 173/192 (90.1%)
+  New data shape: (173, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 82
+  Subsampled condition 1: 91 -> 82
+
+Final balanced data shape: (164, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_75incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_75incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_75incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_75incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_75incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 24/160 (15.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 24/160 (15.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 15.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 136/160 (85.0%)
+  New data shape: (136, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 69 -> 67
+
+Final balanced data shape: (134, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 42/188 (22.3%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 42/188 (22.3%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 22.34%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 146/188 (77.7%)
+  New data shape: (146, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 72
+  Subsampled condition 0: 74 -> 72
+
+Final balanced data shape: (144, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 24/160 (15.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 24/160 (15.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 15.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 136/160 (85.0%)
+  New data shape: (136, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 67
+  Subsampled condition 1: 69 -> 67
+
+Final balanced data shape: (134, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/168 (16.1%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 27/168 (16.1%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 16.07%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 141/168 (83.9%)
+  New data shape: (141, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 70
+  Subsampled condition 1: 71 -> 70
+
+Final balanced data shape: (140, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/192 (14.1%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 27/192 (14.1%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 14.06%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 165/192 (85.9%)
+  New data shape: (165, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 91 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_75incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_75incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_75incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_75incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_r_in_75incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/160 (16.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 27/160 (16.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 16.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 133/160 (83.1%)
+  New data shape: (133, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 80 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/188 (21.3%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 40/188 (21.3%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 21.28%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 148/188 (78.7%)
+  New data shape: (148, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 94 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 27/160 (16.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 27/160 (16.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 16.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 133/160 (83.1%)
+  New data shape: (133, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 1: 80 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 30/168 (17.9%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 30/168 (17.9%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 17.86%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 138/168 (82.1%)
+  New data shape: (138, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 84 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 14/192 (7.3%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 14/192 (7.3%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 7.29%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 178/192 (92.7%)
+  New data shape: (178, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+
+Subsampling to min trial count: 82
+  Subsampled condition 1: 96 -> 82
+
+Final balanced data shape: (164, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_25incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_25incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_25incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_25incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_75incongruentBlock_vs_r_in_25incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/160 (25.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 40/160 (25.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 25.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+
+After removing NaN trials:
+  Trials kept: 120/160 (75.0%)
+  New data shape: (120, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 0: 67 -> 53
+
+Final balanced data shape: (106, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 60/188 (31.9%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 60/188 (31.9%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 31.91%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 20/94 trials with NaNs (21.3%)
+  Stimulus_s_in_75incongruentBlock: 40/94 trials with NaNs (42.6%)
+
+After removing NaN trials:
+  Trials kept: 128/188 (68.1%)
+  New data shape: (128, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 0: 74 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 40/160 (25.0%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 40/160 (25.0%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 25.00%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 13/80 trials with NaNs (16.2%)
+  Stimulus_s_in_75incongruentBlock: 27/80 trials with NaNs (33.8%)
+
+After removing NaN trials:
+  Trials kept: 120/160 (75.0%)
+  New data shape: (120, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 67 trials
+  Condition Stimulus_s_in_75incongruentBlock: 53 trials
+
+Subsampling to min trial count: 53
+  Subsampled condition 0: 67 -> 53
+
+Final balanced data shape: (106, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 44/168 (26.2%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 44/168 (26.2%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 26.19%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 14/84 trials with NaNs (16.7%)
+  Stimulus_s_in_75incongruentBlock: 30/84 trials with NaNs (35.7%)
+
+After removing NaN trials:
+  Trials kept: 124/168 (73.8%)
+  New data shape: (124, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 70 trials
+  Condition Stimulus_s_in_75incongruentBlock: 54 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 0: 70 -> 54
+
+Final balanced data shape: (108, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 36/192 (18.8%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 36/192 (18.8%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 18.75%
+
+--- NaN Impact by Condition ---
+  Stimulus_s_in_25incongruentBlock: 22/96 trials with NaNs (22.9%)
+  Stimulus_s_in_75incongruentBlock: 14/96 trials with NaNs (14.6%)
+
+After removing NaN trials:
+  Trials kept: 156/192 (81.2%)
+  New data shape: (156, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_s_in_25incongruentBlock: 74 trials
+  Condition Stimulus_s_in_75incongruentBlock: 82 trials
+
+Subsampling to min trial count: 74
+  Subsampled condition 1: 82 -> 74
+
+Final balanced data shape: (148, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_s_in_75incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_s_in_75incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_s_in_75incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_s_in_75incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/s_in_25incongruentBlock_vs_s_in_75incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (160, 251, 641)
+  Trials: 160
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 11/160 (6.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 11/160 (6.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 6.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 149/160 (93.1%)
+  New data shape: (149, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 69
+  Subsampled condition 0: 80 -> 69
+
+Final balanced data shape: (138, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 22/188 (11.7%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 22/188 (11.7%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 11.70%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/94 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 166/188 (88.3%)
+  New data shape: (166, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 94 trials
+  Condition Stimulus_r_in_75incongruentBlock: 72 trials
+
+Subsampling to min trial count: 72
+  Subsampled condition 0: 94 -> 72
+
+Final balanced data shape: (144, 69, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (160, 184, 641)
+  Trials: 160
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 11/160 (6.9%)
+  Trials with outlier NaNs (sparse): 0/160 (0.0%)
+  Trials with missing channel NaNs (dense): 11/160 (6.9%)
+  Trials with both types: 0/160 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 6.88%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/80 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 11/80 trials with NaNs (13.8%)
+
+After removing NaN trials:
+  Trials kept: 149/160 (93.1%)
+  New data shape: (149, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 80 trials
+  Condition Stimulus_r_in_75incongruentBlock: 69 trials
+
+Subsampling to min trial count: 69
+  Subsampled condition 0: 80 -> 69
+
+Final balanced data shape: (138, 184, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (168, 62, 641)
+  Trials: 168
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 13/168 (7.7%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 13/168 (7.7%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 7.74%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/84 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 13/84 trials with NaNs (15.5%)
+
+After removing NaN trials:
+  Trials kept: 155/168 (92.3%)
+  New data shape: (155, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 84 trials
+  Condition Stimulus_r_in_75incongruentBlock: 71 trials
+
+Subsampling to min trial count: 71
+  Subsampled condition 0: 84 -> 71
+
+Final balanced data shape: (142, 62, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (192, 34, 641)
+  Trials: 192
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 5/192 (2.6%)
+  Trials with outlier NaNs (sparse): 0/192 (0.0%)
+  Trials with missing channel NaNs (dense): 5/192 (2.6%)
+  Trials with both types: 0/192 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 2.60%
+
+--- NaN Impact by Condition ---
+  Stimulus_r_in_25incongruentBlock: 0/96 trials with NaNs (0.0%)
+  Stimulus_r_in_75incongruentBlock: 5/96 trials with NaNs (5.2%)
+
+After removing NaN trials:
+  Trials kept: 187/192 (97.4%)
+  New data shape: (187, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition Stimulus_r_in_25incongruentBlock: 96 trials
+  Condition Stimulus_r_in_75incongruentBlock: 91 trials
+
+Subsampling to min trial count: 91
+  Subsampled condition 0: 96 -> 91
+
+Final balanced data shape: (182, 34, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/lpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/occ/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/dlpfc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/acc/ttest
+stat_func returns a tuple. Taking the first element
+accuracies save dir directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/parietal/ttest
+stat_func returns a tuple. Taking the first element
+stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: lpfc...
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (320, 251, 641)
+  Trials: 320
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 51/320 (15.9%)
+  Trials with outlier NaNs (sparse): 0/320 (0.0%)
+  Trials with missing channel NaNs (dense): 51/320 (15.9%)
+  Trials with both types: 0/320 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 15.94%
+
+--- NaN Impact by Condition ---
+  ['s_in']: 40/160 trials with NaNs (25.0%)
+  ['r_in']: 11/160 trials with NaNs (6.9%)
+
+After removing NaN trials:
+  Trials kept: 269/320 (84.1%)
+  New data shape: (269, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s_in']: 120 trials
+  Condition ['r_in']: 149 trials
+
+Subsampling to min trial count: 120
+  Subsampled condition 1: 149 -> 120
+
+Final balanced data shape: (240, 251, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/switch_type_by_congruency_proportion_plots/20250917_091722_switch_type_by_congruency_proportion_comparison_lpfc_lpfc_nature_style.pdf
+stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: occ...
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (376, 69, 641)
+  Trials: 376
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 82/376 (21.8%)
+  Trials with outlier NaNs (sparse): 0/376 (0.0%)
+  Trials with missing channel NaNs (dense): 82/376 (21.8%)
+  Trials with both types: 0/376 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 21.81%
+
+--- NaN Impact by Condition ---
+  ['s_in']: 60/188 trials with NaNs (31.9%)
+  ['r_in']: 22/188 trials with NaNs (11.7%)
+
+After removing NaN trials:
+  Trials kept: 294/376 (78.2%)
+  New data shape: (294, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s_in']: 128 trials
+  Condition ['r_in']: 166 trials
+
+Subsampling to min trial count: 128
+  Subsampled condition 1: 166 -> 128
+
+Final balanced data shape: (256, 69, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/switch_type_by_congruency_proportion_plots/20250917_091722_switch_type_by_congruency_proportion_comparison_occ_occ_nature_style.pdf
+stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: dlpfc...
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (320, 184, 641)
+  Trials: 320
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 51/320 (15.9%)
+  Trials with outlier NaNs (sparse): 0/320 (0.0%)
+  Trials with missing channel NaNs (dense): 51/320 (15.9%)
+  Trials with both types: 0/320 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 15.94%
+
+--- NaN Impact by Condition ---
+  ['s_in']: 40/160 trials with NaNs (25.0%)
+  ['r_in']: 11/160 trials with NaNs (6.9%)
+
+After removing NaN trials:
+  Trials kept: 269/320 (84.1%)
+  New data shape: (269, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s_in']: 120 trials
+  Condition ['r_in']: 149 trials
+
+Subsampling to min trial count: 120
+  Subsampled condition 1: 149 -> 120
+
+Final balanced data shape: (240, 184, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/switch_type_by_congruency_proportion_plots/20250917_091722_switch_type_by_congruency_proportion_comparison_dlpfc_dlpfc_nature_style.pdf
+stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: acc...
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (336, 62, 641)
+  Trials: 336
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 57/336 (17.0%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 57/336 (17.0%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 16.96%
+
+--- NaN Impact by Condition ---
+  ['s_in']: 44/168 trials with NaNs (26.2%)
+  ['r_in']: 13/168 trials with NaNs (7.7%)
+
+After removing NaN trials:
+  Trials kept: 279/336 (83.0%)
+  New data shape: (279, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s_in']: 124 trials
+  Condition ['r_in']: 155 trials
+
+Subsampling to min trial count: 124
+  Subsampled condition 1: 155 -> 124
+
+Final balanced data shape: (248, 62, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/switch_type_by_congruency_proportion_plots/20250917_091722_switch_type_by_congruency_proportion_comparison_acc_acc_nature_style.pdf
+stat_func returns a tuple. Taking the first element
+Generating pooled shuffle distribution for ROI: parietal...
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (384, 34, 641)
+  Trials: 384
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 41/384 (10.7%)
+  Trials with outlier NaNs (sparse): 0/384 (0.0%)
+  Trials with missing channel NaNs (dense): 41/384 (10.7%)
+  Trials with both types: 0/384 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 10.68%
+
+--- NaN Impact by Condition ---
+  ['s_in']: 36/192 trials with NaNs (18.8%)
+  ['r_in']: 5/192 trials with NaNs (2.6%)
+
+After removing NaN trials:
+  Trials kept: 343/384 (89.3%)
+  New data shape: (343, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s_in']: 156 trials
+  Condition ['r_in']: 187 trials
+
+Subsampling to min trial count: 156
+  Subsampled condition 1: 187 -> 156
+
+Final balanced data shape: (312, 34, 641)
+============================================================
+
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/r_in_25incongruentBlock_vs_r_in_75incongruentBlock/switch_type_by_congruency_proportion_plots/20250917_091722_switch_type_by_congruency_proportion_comparison_parietal_parietal_nature_style.pdf
+
+✓ Analysis completed successfully!

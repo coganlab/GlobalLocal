@@ -1096,3 +1096,307 @@ ROI: dlpfc
 Total electrodes dropped across all subjects/ROIs: 46
 -------------------------------------
 
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: parietal with NaN trials removed within each channel
+condition 'Stimulus_c': subsampling to 183 trials
+condition 'Stimulus_i': subsampling to 165 trials
+generating 1 bootstrap sample(s)
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: acc with NaN trials removed within each channel
+condition 'Stimulus_c': subsampling to 162 trials
+condition 'Stimulus_i': subsampling to 106 trials
+generating 1 bootstrap sample(s)
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: occ with NaN trials removed within each channel
+condition 'Stimulus_c': subsampling to 184 trials
+condition 'Stimulus_i': subsampling to 106 trials
+generating 1 bootstrap sample(s)
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: dlpfc with NaN trials removed within each channel
+condition 'Stimulus_c': subsampling to 155 trials
+condition 'Stimulus_i': subsampling to 106 trials
+generating 1 bootstrap sample(s)
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+condition 'Stimulus_c': subsampling to 155 trials
+condition 'Stimulus_i': subsampling to 106 trials
+generating 1 bootstrap sample(s)
+
+==================== PROCESSING BOOTSTRAP 1/1 ====================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (310, 251, 641)
+  Trials: 310
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 49/310 (15.8%)
+  Trials with outlier NaNs (sparse): 0/310 (0.0%)
+  Trials with missing channel NaNs (dense): 49/310 (15.8%)
+  Trials with both types: 0/310 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 15.81%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
+  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
+
+After removing NaN trials:
+  Trials kept: 261/310 (84.2%)
+  New data shape: (261, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 155 trials
+  Condition ['Stimulus_i']: 106 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 0: 155 -> 106
+
+Final balanced data shape: (212, 251, 641)
+============================================================
+
+Processing ROI: occ
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (368, 69, 641)
+  Trials: 368
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 78/368 (21.2%)
+  Trials with outlier NaNs (sparse): 0/368 (0.0%)
+  Trials with missing channel NaNs (dense): 78/368 (21.2%)
+  Trials with both types: 0/368 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 21.20%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/184 trials with NaNs (0.0%)
+  ['Stimulus_i']: 78/184 trials with NaNs (42.4%)
+
+After removing NaN trials:
+  Trials kept: 290/368 (78.8%)
+  New data shape: (290, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 184 trials
+  Condition ['Stimulus_i']: 106 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 0: 184 -> 106
+
+Final balanced data shape: (212, 69, 641)
+============================================================
+
+Processing ROI: dlpfc
+
+============================================================
+ROI: dlpfc
+============================================================
+Initial concatenated data shape: (310, 184, 641)
+  Trials: 310
+  Channels: 184
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/184
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 49/310 (15.8%)
+  Trials with outlier NaNs (sparse): 0/310 (0.0%)
+  Trials with missing channel NaNs (dense): 49/310 (15.8%)
+  Trials with both types: 0/310 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 184.0
+  Max missing channels in a trial: 184
+
+Overall NaN Percentage: 15.81%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
+  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
+
+After removing NaN trials:
+  Trials kept: 261/310 (84.2%)
+  New data shape: (261, 184, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 155 trials
+  Condition ['Stimulus_i']: 106 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 0: 155 -> 106
+
+Final balanced data shape: (212, 184, 641)
+============================================================
+
+Processing ROI: acc
+
+============================================================
+ROI: acc
+============================================================
+Initial concatenated data shape: (324, 62, 641)
+  Trials: 324
+  Channels: 62
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/62
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 56/324 (17.3%)
+  Trials with outlier NaNs (sparse): 0/324 (0.0%)
+  Trials with missing channel NaNs (dense): 56/324 (17.3%)
+  Trials with both types: 0/324 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 62.0
+  Max missing channels in a trial: 62
+
+Overall NaN Percentage: 17.28%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/162 trials with NaNs (0.0%)
+  ['Stimulus_i']: 56/162 trials with NaNs (34.6%)
+
+After removing NaN trials:
+  Trials kept: 268/324 (82.7%)
+  New data shape: (268, 62, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 162 trials
+  Condition ['Stimulus_i']: 106 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 0: 162 -> 106
+
+Final balanced data shape: (212, 62, 641)
+============================================================
+
+Processing ROI: parietal
+
+============================================================
+ROI: parietal
+============================================================
+Initial concatenated data shape: (366, 34, 641)
+  Trials: 366
+  Channels: 34
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/34
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 18/366 (4.9%)
+  Trials with outlier NaNs (sparse): 0/366 (0.0%)
+  Trials with missing channel NaNs (dense): 18/366 (4.9%)
+  Trials with both types: 0/366 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 34.0
+  Max missing channels in a trial: 34
+
+Overall NaN Percentage: 4.92%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/183 trials with NaNs (0.0%)
+  ['Stimulus_i']: 18/183 trials with NaNs (9.8%)
+
+After removing NaN trials:
+  Trials kept: 348/366 (95.1%)
+  New data shape: (348, 34, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 183 trials
+  Condition ['Stimulus_i']: 165 trials
+
+Subsampling to min trial count: 165
+  Subsampled condition 0: 183 -> 165
+
+Final balanced data shape: (330, 34, 641)
+============================================================
+
+Processing ROI: lpfc
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (310, 251, 641)
+  Trials: 310
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 49/310 (15.8%)
+  Trials with outlier NaNs (sparse): 0/310 (0.0%)
+  Trials with missing channel NaNs (dense): 49/310 (15.8%)
+  Trials with both types: 0/310 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 15.81%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_c']: 0/155 trials with NaNs (0.0%)
+  ['Stimulus_i']: 49/155 trials with NaNs (31.6%)
+
+After removing NaN trials:
+  Trials kept: 261/310 (84.2%)
+  New data shape: (261, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_c']: 155 trials
+  Condition ['Stimulus_i']: 106 trials
+
+Subsampling to min trial count: 106
+  Subsampled condition 0: 155 -> 106
+
+Final balanced data shape: (212, 251, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+
+✗ Analysis failed with error: axes don't match array
