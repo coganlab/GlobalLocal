@@ -560,10 +560,14 @@ class Decoder(PcaLdaClassification, MinimumNaNSplit):
         
         # Step 8: Reorganize dimensions for output
         if folds_as_samples:
-            # reshape to combine repeats and splits into a single 'samples' dimension
-            # go from (n_repeats, n_splits, n_windows, n_cats, n_cats) to (n_windows, n_repeats*n_splits, n_cats, n_cats)
-            mats = mats.reshape((self.n_repeats, self.n_splits, steps, n_cats, n_cats))
-            mats = np.transpose(mats, (1,0,2,3)) # move windows to the first axis
+            # Current shape: (n_repeats, n_splits, n_windows, n_cats, n_cats)
+            # First, move n_windows to the front to get a new shape of (n_windows, n_repeats, n_splits, n_cats, n_cats)
+            mats = np.transpose(mats, (2, 0, 1, 3, 4))
+            
+            # now, reshape to combine n_repeats and n_splits into a single 'samples' dimension
+            n_windows, n_repeats, n_splits, n_cats, _ = mats.shape
+            mats = mats.reshape(n_windows, n_repeats * n_splits, n_cats, n_cats)
+            # final desired shape: (n_windows, n_repeats * n_splits, n_cats, n_cats)
         else:
             # sum over splits
             # orig shape: (n_repeats, n_splits, n_windows, n_cats, n_cats)
@@ -1284,7 +1288,8 @@ def plot_accuracies_nature_style(
     filename_suffix: str = "",
     return_fig: bool = False,
     show_chance_level: bool = True,
-    chance_level: float = 0.5
+    chance_level: float = 0.5,
+    samples_axis=0
 ):
     """
     Plot accuracies in Nature journal style.
@@ -1330,9 +1335,9 @@ def plot_accuracies_nature_style(
         for i, (label, accuracies) in enumerate(accuracies_dict.items()):
             # Compute statistics
             if accuracies.ndim == 2:
-                n_samples = accuracies.shape[1]
-                mean_accuracy = np.mean(accuracies, axis=1)
-                std_accuracy = np.std(accuracies, axis=1)
+                n_samples = accuracies.shape[samples_axis]
+                mean_accuracy = np.mean(accuracies, axis=samples_axis)
+                std_accuracy = np.std(accuracies, axis=samples_axis)
                 sem_accuracy = std_accuracy / np.sqrt(n_samples)
             else:
                 mean_accuracy = accuracies
@@ -2659,11 +2664,13 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
                     significant_clusters[start_idx:end_idx+1] = True
                 
                 pooled_stats[condition_comparison][roi] = {
-                    'mean_true': mean_pooled_true
-                    'std_true': np.std(pooled_true, axis=0)
+                    'pooled_true': pooled_true,
+                    'mean_true': mean_pooled_true,
+                    'std_true': np.std(pooled_true, axis=0),
+                    'pooled_shuffle': pooled_shuffle,
                     'mean_shuffle': mean_pooled_shuffle,
-                    'std_shuffle': np.std(pooled_shuffle, axis=0)
-                    'significant_clusters': significant_clusters
+                    'std_shuffle': np.std(pooled_shuffle, axis=0),
+                    'significant_clusters': significant_clusters,
                     'n_samples': pooled_true.shape[0]
                 }   
                   

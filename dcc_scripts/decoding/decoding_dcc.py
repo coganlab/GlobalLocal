@@ -765,21 +765,30 @@ def main(args):
         n_cluster_perms=args.n_cluster_perms,
         random_state=args.random_state
     )
+                
+    # define color and linestyle for plotting true vs shuffle
+    colors = {
+    'true': '#0173B2',  # Blue
+    'shuffle': '#949494'  # Gray
+    }
     
-    
-                    
-
-                    
+    linestyles = {
+        'true': '-',
+        'shuffle': '--'
+    }  
+                  
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
         for roi in rois:
-            if roi in pooled_stats[condition_comparison]:
-                stats = pooled_stats[condition_comparison][roi] 
+            if roi in pooled_bootstrap_stats[condition_comparison]:
+                stats = pooled_bootstrap_stats[condition_comparison][roi] 
+                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+
                 plot_accuracies_nature_style(
                     time_points=time_window_centers,
                     accuracies_dict={
-                        'true': np.array([stats['mean_true']]), # reshape for plotting
-                        'shuffle': np.array([stats['mean_shuffle']])
+                        'true': stats['pooled_true'],
+                        'shuffle': stats['pooled_shuffle']
                     },
                     significant_clusters=stats['significant_clusters'],
                     window_size=args.window_size,
