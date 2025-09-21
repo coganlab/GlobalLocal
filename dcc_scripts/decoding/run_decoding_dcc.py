@@ -95,6 +95,11 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 # whether to do stats across folds (true) or repeats (false)
 FOLDS_AS_SAMPLES = False
 
+# percentile stats parameters
+PERCENTILE=95,
+CLUSTER_PERCENTILE=95,
+N_CLUSTER_PERMS=100
+
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions
 
@@ -173,7 +178,10 @@ def run_analysis():
         step_size=STEP_SIZE,
         sampling_rate=SAMPLING_RATE,
         first_time_point=FIRST_TIME_POINT,
-        folds_as_samples=FOLDS_AS_SAMPLES
+        folds_as_samples=FOLDS_AS_SAMPLES,
+        percentile=PERCENTILE,
+        cluster_percentile=CLUSTER_PERCENTILE,
+        n_cluster_perms=N_CLUSTER_PERMS
     )
     
     # Print configuration summary
@@ -201,11 +209,17 @@ def run_analysis():
     print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
-    print("Statistical Parameters:")
+    print("Time Perm Cluster Statistical Parameters:")
     print(f"  Cluster Perms:     {N_PERM}")
     print(f"  P-value Threshold: {P_THRESH}")
     print(f"  Tails:             {TAILS}")
+
     print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {FOLDS_AS_SAMPLES}")
+    
+    print("Percentile Statistical Parameters:")
+    print(f"  Percentile: {PERCENTILE}")
+    print(f"  Cluster Percentile: {CLUSTER_PERCENTILE}")
+    print(f"  N Cluster Perms: {N_CLUSTER_PERMS}")
     print("=" * 70)
     print("=" * 70)
     

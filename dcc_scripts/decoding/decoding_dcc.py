@@ -97,7 +97,8 @@ from src.analysis.decoding.decoding import (
     compute_accuracies,
     plot_true_vs_shuffle_accuracies,
     plot_accuracies_nature_style,
-    make_pooled_shuffle_distribution
+    make_pooled_shuffle_distribution,
+    find_significant_clusters_of_series_vs_distribution_based_on_percentile
 )
 
 def main(args):
@@ -431,26 +432,47 @@ def main(args):
                 # Compute accuracies
                 accuracies_true, accuracies_shuffle = compute_accuracies(cm_true, cm_shuffle)
 
+                # find average accuracies, either across folds or repeats/perms, depending on whether folds_as_samples is set to true or not
+                mean_accuracies_true = np.mean(accuracies_true, axis=1, keepdims=True) # Shape: (n_windows, 1), keeping folds/repeats dimension for compatibility with the percentile function
+                mean_accuracies_shuffle = np.mean(accuracies_shuffle, axis=1, keepdims=True) 
+                
                 # store accuracies - TODO: average across bootstraps somehow for these
                 time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['accuracies_true'] = accuracies_true
                 time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
                 
-                # Perform time permutation cluster test
-                significant_clusters, p_values = time_perm_cluster(
-                    accuracies_true.T, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats. TODO: shuffle along folds instead of repeats, and take stdev over folds instead of repeats too!
-                    accuracies_shuffle.T,
-                    p_thresh=args.p_thresh,
-                    n_perm=args.n_perm,
-                    tails=1,
-                    axis=0, 
-                    stat_func=args.stat_func,
-                    n_jobs=args.n_jobs,
-                    seed=args.random_state
+                # not doing time perm cluster anymore, doing percentile based sig instead
+                # significant_clusters, p_values = time_perm_cluster(
+                #     accuracies_true.T, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats. TODO: shuffle along folds instead of repeats, and take stdev over folds instead of repeats too!
+                #     accuracies_shuffle.T,
+                #     p_thresh=args.p_thresh,
+                #     n_perm=args.n_perm,
+                #     tails=1,
+                #     axis=0, 
+                #     stat_func=args.stat_func,
+                #     n_jobs=args.n_jobs,
+                #     seed=args.random_state
+                # )
+                                
+                # perform percentile-based significance test, where the mean accuracy across folds/repeats from true labels is compared to the distribution of accuracies across folds/repeats from shuffled labels
+                significant_clusters = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                    series=mean_accuracies_true.T, # shape needs to be (1, n_windows)
+                    distribution=accuracies_shuffle.T, # shape: (n_perm, n_windows)
+                    time_points=time_window_centers,
+                    percentile=args.percentile,
+                    cluster_percentile=args.cluster_percentile,
+                    n_cluster_perms=args.n_cluster_perms,
+                    random_state=args.random_state
                 )
 
-                # Store significant clusters and p-values
-                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_clusters
-                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['p_values'] = p_values
+                # convert cluster list to boolean mask for compatibility with existing code
+                significant_mask = np.zeros(len(time_window_centers), dtype=bool)
+                for start_idx, end_idx in significant_clusters:
+                    significant_mask[start_idx:end_idx+1] = True
+                    
+                # Store significant cluster mask
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_mask # this is for percentile method, can switch back to using significant_clusters if using time_perm_cluster method.
 
                 # store boolean mask of significant clusters in bootstrap stats dict
                 if (condition_comparison, roi) not in aggregated_bootstrap_stats_results:
