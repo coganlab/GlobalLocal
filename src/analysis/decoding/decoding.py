@@ -1137,7 +1137,7 @@ def compute_accuracies(cm_true, cm_shuffle):
     """
     Compute accuracies from true and shuffled confusion matrices.
 
-    This function calculates the accuracy for each window and repetition/permutation
+    This function calculates the accuracy for each window and fold or repetition/permutation
     by taking the trace of the confusion matrix (sum of true positives) and
     dividing by the total sum of the matrix (total number of instances).
 
@@ -1145,18 +1145,18 @@ def compute_accuracies(cm_true, cm_shuffle):
     ----------
     cm_true : numpy.ndarray
         Confusion matrices for true labels.
-        Expected shape: (n_windows, n_repeats, n_classes, n_classes).
+        Expected shape: (n_windows, n_repeats or n_folds, n_classes, n_classes).
     cm_shuffle : numpy.ndarray
         Confusion matrices for shuffled labels.
-        Expected shape: (n_windows, n_perm, n_classes, n_classes).
+        Expected shape: (n_windows, n_perm or n_folds, n_classes, n_classes).
 
     Returns
     -------
     tuple of (numpy.ndarray, numpy.ndarray)
         - accuracies_true : numpy.ndarray
-            Accuracies for true labels. Shape: (n_windows, n_repeats).
+            Accuracies for true labels. Shape: (n_windows, n_repeats or n_folds).
         - accuracies_shuffle : numpy.ndarray
-            Accuracies for shuffled labels. Shape: (n_windows, n_perm).
+            Accuracies for shuffled labels. Shape: (n_windows, n_perm or n_folds).
     """
     n_windows = cm_true.shape[0]
     n_repeats = cm_true.shape[1]
@@ -2602,3 +2602,18 @@ def get_max_perm_cluster_lengths_based_on_percentile(
         max_perm_cluster_lengths.append(max_perm_cluster_length)
         
     return max_perm_cluster_lengths
+
+def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstraps,
+                                        condition_comparisons, rois,
+                                        percentile=95, cluster_percentile=95,
+                                        n_cluster_perms=1000, random_state=42):
+    """
+    Pool all bootstrap samples together and run statistics once on the pooled data.
+    """
+    pooled_stats = {}
+    
+    for condition_comparison in condition_comparisons.keys():
+        pooled_stats[condition_comparison] = {}
+        
+        for roi in rois:
+            # collect ALL accuracies from all bootstraps

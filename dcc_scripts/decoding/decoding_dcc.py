@@ -456,7 +456,7 @@ def main(args):
                 # )
                                 
                 # perform percentile-based significance test, where the mean accuracy across folds/repeats from true labels is compared to the distribution of accuracies across folds/repeats from shuffled labels
-                significant_clusters = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
                     series=mean_accuracies_true.T, # shape needs to be (1, n_windows)
                     distribution=accuracies_shuffle.T, # shape: (n_perm, n_windows)
                     time_points=time_window_centers,
@@ -467,13 +467,12 @@ def main(args):
                 )
 
                 # convert cluster list to boolean mask for compatibility with existing code
-                significant_mask = np.zeros(len(time_window_centers), dtype=bool)
-                for start_idx, end_idx in significant_clusters:
-                    significant_mask[start_idx:end_idx+1] = True
+                significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
+                for start_idx, end_idx in significant_cluster_indices:
+                    significant_clusters[start_idx:end_idx+1] = True
                     
                 # Store significant cluster mask
-                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_mask # this is for percentile method, can switch back to using significant_clusters if using time_perm_cluster method.
-
+                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_clusters
                 # store boolean mask of significant clusters in bootstrap stats dict
                 if (condition_comparison, roi) not in aggregated_bootstrap_stats_results:
                     aggregated_bootstrap_stats_results[(condition_comparison, roi)] = []
