@@ -442,60 +442,6 @@ def main(args):
                 time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
                 time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
                 
-                # not doing time perm cluster anymore, doing percentile based sig instead
-                # significant_clusters, p_values = time_perm_cluster(
-                #     accuracies_true.T, # shape is (n_windows, n_repeats), we want to shuffle along n_repeats. TODO: shuffle along folds instead of repeats, and take stdev over folds instead of repeats too!
-                #     accuracies_shuffle.T,
-                #     p_thresh=args.p_thresh,
-                #     n_perm=args.n_perm,
-                #     tails=1,
-                #     axis=0, 
-                #     stat_func=args.stat_func,
-                #     n_jobs=args.n_jobs,
-                #     seed=args.random_state
-                # )
-                                
-                # perform percentile-based significance test, where the mean accuracy across folds/repeats from true labels is compared to the distribution of accuracies across folds/repeats from shuffled labels
-                significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
-                    series=mean_accuracies_true.T, # shape needs to be (1, n_windows)
-                    distribution=accuracies_shuffle.T, # shape: (n_perm, n_windows)
-                    time_points=time_window_centers,
-                    percentile=args.percentile,
-                    cluster_percentile=args.cluster_percentile,
-                    n_cluster_perms=args.n_cluster_perms,
-                    random_state=args.random_state
-                )
-
-                # convert cluster list to boolean mask for compatibility with existing code
-                significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
-                for start_idx, end_idx in significant_cluster_indices:
-                    significant_clusters[start_idx:end_idx+1] = True
-                    
-                # Store significant cluster mask
-                time_window_decoding_results[bootstrap_idx][condition_comparison][roi]['significant_clusters'] = significant_clusters
-                # store boolean mask of significant clusters in bootstrap stats dict
-                if (condition_comparison, roi) not in aggregated_bootstrap_stats_results:
-                    aggregated_bootstrap_stats_results[(condition_comparison, roi)] = []
-                
-                aggregated_bootstrap_stats_results[(condition_comparison, roi)].append(significant_clusters)
-                
-                # Plot accuracies comparing true and shuffle for this condition comparison and roi - TODO: need to move this out of the bootstrap loop, and just plot the bootstrap averaged accuracy.
-                plot_true_vs_shuffle_accuracies(
-                    time_points=time_window_centers,
-                    accuracies_true=accuracies_true,
-                    accuracies_shuffle=accuracies_shuffle,
-                    significant_clusters=significant_clusters,
-                    window_size=args.window_size,
-                    step_size=args.step_size,
-                    sampling_rate=args.sampling_rate,
-                    condition_comparison=condition_comparison,
-                    roi=roi,
-                    save_dir=condition_roi_stat_func_save_dir,
-                    timestamp=args.timestamp,
-                    p_thresh=args.p_thresh,
-                    other_string_to_add=other_string_to_add
-                )
-                
         # do lwpc comparison 
         if args.conditions == experiment_conditions.stimulus_lwpc_conditions:       
             for roi in rois:
@@ -807,7 +753,50 @@ def main(args):
                     ylim=(0.4, 0.75),
                     show_chance_level=False # The pooled shuffle line is the new chance level
                 )
-            
+    
+    # after all bootstraps complete, run pooled statistics
+    pooled_bootstrap_stats = compute_pooled_bootstrap_statistics(
+        time_window_decoding_results,
+        args.bootstraps,
+        condition_comparisons,
+        rois,
+        percentile=args.percentile,
+        cluster_percentile=args.cluster_percentile,
+        n_cluster_perms=args.n_cluster_perms,
+        random_state=args.random_state
+    )
+    
+    
+                    
+
+                    
+    # then plot using the pooled statistics
+    for condition_comparison in condition_comparisons.keys():
+        for roi in rois:
+            if roi in pooled_stats[condition_comparison]:
+                stats = pooled_stats[condition_comparison][roi] 
+                plot_accuracies_nature_style(
+                    time_points=time_window_centers,
+                    accuracies_dict={
+                        'true': np.array([stats['mean_true']]), # reshape for plotting
+                        'shuffle': np.array([stats['mean_shuffle']])
+                    },
+                    significant_clusters=stats['significant_clusters'],
+                    window_size=args.window_size,
+                    step_size=args.step_size,
+                    sampling_rate=args.sampling_rate,
+                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}_{roi}',
+                    roi=roi,
+                    save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                    timestamp=args.timestamp,
+                    p_thresh=args.percentile,
+                    colors=colors,
+                    linestyles=linestyles,
+                    single_column=False,
+                    ylim=(0.4, 0.75),
+                    show_chance_level=False # The pooled shuffle line is the new chance level
+                    
+                )     
             
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly

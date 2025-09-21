@@ -2617,3 +2617,56 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
         
         for roi in rois:
             # collect ALL accuracies from all bootstraps
+            all_true_accs = [] # will be (n_bootstraps * (n_folds or n_repeats), n_windows)
+            all_shuffle_accs = []
+            
+            for b_idx in range(n_bootstraps):
+                if condition_comparison in time_window_decoding_results[b_idx]:
+                    if roi in time_window_decoding_results[b_idx][condition_comparison]:
+                        # get the raw accuracies (not averaged)
+                        true_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_true']
+                        shuffle_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_shuffle']
+                        
+                        # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
+                        all_true_accs.append(true_acc.T)
+                        all_shuffle_accs.append(shuffle_acc.T)
+                        
+            if all_true_accs:
+                # concatenate all bootstraps
+                pooled_true = np.vstack(all_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
+                pooled_shuffle = np.vstack(all_shuffle_accs)
+                
+                # take mean across all samples for the "series" and distribution
+                mean_pooled_true = np.mean(pooled_true, axis=0, keepdims=True) # (1, n_windows)
+                
+                mean_pooled_shuffle = np.mean(pooled_shuffle, axis=0, keepdims=True) # (1, n_windows)
+
+                # Run significance test on pooled data
+                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+                significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                    series=mean_pooled_true,
+                    distribution=pooled_shuffle,
+                    time_points=time_window_centers,
+                    percentile=percentile,
+                    cluster_percentile=cluster_percentile,
+                    n_cluster_perms=n_cluster_perms,
+                    random_state=random_state
+                )  
+                
+                # convert to boolean mask
+                significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
+                for start_idx, end_idx in significant_cluster_indices:
+                    significant_clusters[start_idx:end_idx+1] = True
+                
+                pooled_stats[condition_comparison][roi] = {
+                    'mean_true': mean_pooled_true
+                    'std_true': np.std(pooled_true, axis=0)
+                    'mean_shuffle': mean_pooled_shuffle,
+                    'std_shuffle': np.std(pooled_shuffle, axis=0)
+                    'significant_clusters': significant_clusters
+                    'n_samples': pooled_true.shape[0]
+                }   
+                  
+    return pooled_stats         
+
+            
