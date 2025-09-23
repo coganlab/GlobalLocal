@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect_plot.py", line 53, in <module>
+    main(args.csv_path, args.output)
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect_plot.py", line 44, in main
+    plt.savefig(output, dpi=300)
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/pyplot.py", line 1243, in savefig
+    res = fig.savefig(*args, **kwargs)  # type: ignore[func-returns-value]
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/figure.py", line 3490, in savefig
+    self.canvas.print_figure(fname, **kwargs)
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/backend_bases.py", line 2184, in print_figure
+    result = print_method(
+             ^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/backend_bases.py", line 2040, in <lambda>
+    print_method = functools.wraps(meth)(lambda *args, **kwargs: meth(
+                                                                 ^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/backends/backend_agg.py", line 481, in print_png
+    self._print_pil(filename_or_obj, "png", pil_kwargs, metadata)
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/backends/backend_agg.py", line 430, in _print_pil
+    mpl.image.imsave(
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/image.py", line 1634, in imsave
+    image.save(fname, **pil_kwargs)
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/PIL/Image.py", line 2591, in save
+    fp = builtins.open(filename, "w+b")
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_different_conguency_plots/coherence_D0057_lpfc_Stimulus_c25.0_Accuracy1.0_summary.png'

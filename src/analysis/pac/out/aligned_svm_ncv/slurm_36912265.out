@@ -1,0 +1,5 @@
+Subject D0063: loading epochs...
+  Epoch file not found for Stimulus_c_(0.0, 0.5): /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_c_(0.0, 0.5)_ev1-epo.fif
+Epoch summary saved.
+Skipping D0063: no Stimulus_c_(0.0, 0.5) epochs
+Saved coherence summary to ./coherence_D0063_acc_Stimulus_c_(0.0, 0.5)_summary.csv
