@@ -67,20 +67,21 @@ elif STAT_FUNC_CHOICE == 'ttest':
     STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
     STAT_FUNC_STR = 'ttest'
     
-P_THRESH = 0.05
-N_PERM = 500
+# old stat params for time_perm_cluster
+# P_THRESH = 0.05
+# N_PERM = 100
 
 # Parallel processing
 N_JOBS = -1
 
 # Decoding parameters
 N_SPLITS = 5
-N_REPEATS = 500
+N_REPEATS = 50
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 1
+BOOTSTRAPS = 100
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -93,15 +94,15 @@ FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 
 # whether to do stats across folds (true) or repeats (false)
-FOLDS_AS_SAMPLES = False
+FOLDS_AS_SAMPLES = True
 
 # percentile stats parameters
 PERCENTILE=95,
 CLUSTER_PERCENTILE=95,
-N_CLUSTER_PERMS=100
+N_CLUSTER_PERMS=200
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -135,15 +136,15 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # testing params (comment out)
-SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 2
-N_PERM = 5
-N_CLUSTER_PERM S= 5
-BOOTSTRAPS =2 
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# SUBJECTS = ['D0103']
+# N_SPLITS = 2
+# N_REPEATS = 2
+# N_PERM = 5
+# N_CLUSTER_PERMS= 5
+# BOOTSTRAPS = 2 
+# ROIS_DICT = {
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -211,10 +212,10 @@ def run_analysis():
     print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
-    print("Time Perm Cluster Statistical Parameters:")
-    print(f"  Cluster Perms:     {N_PERM}")
-    print(f"  P-value Threshold: {P_THRESH}")
-    print(f"  Tails:             {TAILS}")
+    # print("Time Perm Cluster Statistical Parameters:")
+    # print(f"  Cluster Perms:     {N_PERM}")
+    # print(f"  P-value Threshold: {P_THRESH}")
+    # print(f"  Tails:             {TAILS}")
 
     print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {FOLDS_AS_SAMPLES}")
     

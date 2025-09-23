@@ -2501,7 +2501,7 @@ def find_significant_clusters_of_series_vs_distribution_based_on_percentile(
     pointwise_distribution_threshold = np.percentile(distribution, percentile, axis=0)
     
     # Step 2: Find true significant clusters in which consecutive points in the series are above the percentile threshold values of the distribution
-    true_sig_mask = series > pointwise_distribution_threshold
+    true_sig_mask = (series > pointwise_distribution_threshold).squeeze()
     true_clusters = find_contiguous_clusters(true_sig_mask)
     
     # Step 3: Find true cluster lengths (in time, this is what we'll use as our measure of cluster size)
@@ -2593,7 +2593,7 @@ def get_max_perm_cluster_lengths_based_on_percentile(
         perm_threshold = np.percentile(remaining_rows, percentile, axis=0)
         
         # find clusters in this permutation
-        perm_sig_mask = perm_series > perm_threshold
+        perm_sig_mask = (perm_series > perm_threshold).squeeze()
         perm_clusters = find_contiguous_clusters(perm_sig_mask)
         
         # find maximum cluster length for this permutation and add it to the list of maximum cluster lengths for all permutations
