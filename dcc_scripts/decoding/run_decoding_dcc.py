@@ -92,6 +92,7 @@ STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
+N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across folds (true) or repeats (false)
 FOLDS_AS_SAMPLES = True
@@ -99,7 +100,7 @@ FOLDS_AS_SAMPLES = True
 # percentile stats parameters
 PERCENTILE=95,
 CLUSTER_PERCENTILE=95,
-N_CLUSTER_PERMS=200
+N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_congruency_conditions
@@ -159,8 +160,6 @@ def run_analysis():
         acc_trials_only=ACC_TRIALS_ONLY,
         stat_func=STAT_FUNC,
         stat_func_str=STAT_FUNC_STR,
-        p_thresh=P_THRESH,
-        n_perm=N_PERM,
         n_jobs=N_JOBS,
         tails=TAILS,
         n_splits=N_SPLITS,
@@ -184,7 +183,8 @@ def run_analysis():
         folds_as_samples=FOLDS_AS_SAMPLES,
         percentile=PERCENTILE,
         cluster_percentile=CLUSTER_PERCENTILE,
-        n_cluster_perms=N_CLUSTER_PERMS
+        n_cluster_perms=N_CLUSTER_PERMS,
+        n_shuffle_perms=N_SHUFFLE_PERMS
     )
     
     # Print configuration summary
@@ -194,8 +194,6 @@ def run_analysis():
     print(f"Subjects:          {SUBJECTS}")
     print(f"Conditions:        {list(CONDITIONS.keys())}")
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
-    print(f"Permutations:      {N_PERM}")
-    print(f"P-threshold:       {P_THRESH}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
@@ -206,7 +204,6 @@ def run_analysis():
     print("-" * 70)
     print("Decoding Parameters:")
     print(f"  CV Splits/Repeats: {N_SPLITS}/{N_REPEATS}")
-    print(f"  Shuffle Permutations: {N_PERM}")
     print(f"  Balance Method:    {BALANCE_METHOD}")
     print(f"  Explained Variance:{EXPLAINED_VARIANCE}")
     print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")

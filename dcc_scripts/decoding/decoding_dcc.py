@@ -101,9 +101,10 @@ from src.analysis.decoding.decoding import (
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
     compute_pooled_bootstrap_statistics
 )
-def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays, condition_comparisons, elec_string_to_add_to_filename, save_dir):
+def process_bootstrap(bootstrap_idx, args, rois, condition_names, subjects_mne_objects, electrodes, condition_comparisons, save_dir):
     """
-    Processes a single bootstrap sample for decoding. This is a helper function designed to be called in parallel by joblib.
+    Generates and processes a single bootstrap sample.
+    This function is designed to be called in parallel by joblib.
     """
     # use a unique random state for each bootstrap to ensure independent and reproducible results
     bootstrap_random_state = args.random_state + bootstrap_idx if args.random_state is not None else None
@@ -112,12 +113,32 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
     results_for_this_bootstrap = {}
     print(f"\n{'='*20}) PROCESSING BOOTSTRAP {bootstrap_idx+1}/{args.bootstraps} {'='*20}\n")
     
-    # get the specific LabeledArray dict for this bootstrap iteration
+    # 1. Generate data for THIS bootstrap sample inside the worker
+    # We set n_bootstraps=1 because this function handles one bootstrap.
+    # We set n_jobs=1 to avoid nested parallelism, which is inefficient and can cause issues.
+    print(f"Bootstrap {bootstrap_idx + 1}: Generating data sample...")
+    roi_labeled_arrays_this_bootstrap_list = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
+        rois=rois,
+        subjects_data_objects=subjects_mne_objects,
+        condition_names=condition_names,
+        subjects=args.subjects,
+        electrodes_per_subject_roi=electrodes,
+        n_bootstraps=1,  # Generate only one sample
+        chans_axs=args.chans_axs,
+        time_axs=args.time_axs,
+        freq_axs=None,
+        random_state=args.random_state + bootstrap_idx if args.random_state is not None else None, # Unique seed
+        n_jobs=1  # Run ROI generation serially within this worker
+    )
+
+    # Extract the single LabeledArray from the list returned for each ROI
     roi_labeled_arrays_this_bootstrap = {
-        roi: bootstraps[bootstrap_idx]
-        for roi, bootstraps in roi_bootstrapped_labeled_arrays.items()
-        if bootstrap_idx < len(bootstraps)
+        roi: arrays[0] for roi, arrays in roi_labeled_arrays_this_bootstrap_list.items() if arrays
     }
+
+    if not roi_labeled_arrays_this_bootstrap:
+        print(f"Warning: No data generated for bootstrap {bootstrap_idx + 1}. Skipping.")
+        return None
         
     # Main code
     # Directory to save confusion matrices
@@ -145,7 +166,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
             random_state=bootstrap_random_state,
             window_size=args.window_size,
             step_size=args.step_size,
-            n_perm=args.n_perm,
+            n_perm=args.n_shuffle_perms,
             sampling_rate=args.sampling_rate,
             first_time_point=-1,
             folds_as_samples=args.folds_as_samples
@@ -205,7 +226,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -248,7 +269,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -291,7 +312,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -333,7 +354,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -588,14 +609,22 @@ def main(args):
             bootstrap_idx,
             args,
             rois,
-            roi_bootstrapped_labeled_arrays,
+            condition_names,
+            subjects_mne_objects,
+            electrodes,
             condition_comparisons,
             save_dir
         ) for bootstrap_idx in range(args.bootstraps)
     )
+
     
     # reconstruct the main results dictionary from the list returned by the parallel jobs
-    time_window_decoding_results = {i: result for i, result in enumerate(bootstrap_results_list)}
+    time_window_decoding_results = {i: result for i, result in enumerate(bootstrap_results_list) if result is not None}
+    
+    if not time_window_decoding_results:
+        print("\n✗ Analysis failed: No bootstrap samples were successfully processed.")
+        return
+    
     print(f"\n{'-'*20} PARALLEL BOOTSTRAPPING COMPLETE {'='*20}\n")
  
     # after all bootstraps complete, run pooled statistics
