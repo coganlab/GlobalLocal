@@ -60,9 +60,12 @@ from functools import partial
 
 from naplib.preprocessing import filterbank_hilbert as fb_hilb
 from tqdm import tqdm
+import re
+from pathlib import Path
+from src.analysis.utils.general_utils import identify_bad_channels_by_trial_nan_rate
 
 # Directory where your .npy files are saved
-npy_directory = r'cwork/rl330/D_Data/GlobalLocal/accArrays'  # Replace with your directory path
+npy_directory = r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
 
 # Dictionary to hold the data
 acc_array = {}
@@ -78,7 +81,7 @@ for file in os.listdir(npy_directory):
 # Now you have a dictionary where each key is the subject ID
 # and the value is the numpy array of accuracies for that subject.
 
-combined_data = pd.read_csv(r'cwork/rl330/D_Data/GlobalLocal/combinedData.csv')
+combined_data = pd.read_csv(r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\combinedData.csv')
 
 # %% [markdown]
 # define subjects
@@ -198,7 +201,10 @@ def shuffle_array(arr):
     arr = np.random.shuffle(arr)
     return arr
 
-def epoch_and_save(sub, task='GlobalLocal', times=(-1, 1.5), within_base_times=(-1, 0), base_times_length=0.5, 
+def sanitize_filename(name: str) -> str:
+    return re.sub(r'[<>:"/\\|?*]', '_', name)
+
+def epoch_and_save(sub, task='GlobalLocal', times=(-1, 0), within_base_times=(-1, 0), base_times_length=0.5, 
 baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
     '''
     save epoched data. 
@@ -268,36 +274,64 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
 
-    for event in ["Stimulus", "Response"]:
-        #output_name_event = f'{event}_{output_name_base}'
-        trials_ev = trial_ieeg(
-                good, event,
-                [times[0] - pad_length, times[1] + pad_length],
+    print(f"--- Identifying Channels with more than 5% outlier trials in the stimulus period ---")
+    # Identify channels with too many outlier trials based on the stimulus period
+    times_adj = [times[0] - pad_length, times[1] + pad_length]
+    event_trials_qc = trial_ieeg(good, "Stimulus", times_adj, preload=True, reject_by_annotation=False)
+    outliers_to_nan(event_trials_qc, outliers=outliers)
+    channels_to_drop = identify_bad_channels_by_trial_nan_rate(event_trials_qc, 5.0)  # 5.0% threshold
+    print(f"Found {len(channels_to_drop)} bad Stimulus channels: {channels_to_drop}")
+
+    window_size = 0.5
+    start = -1.0
+    end = 1.5
+    windows = []
+    t = start
+    while t + window_size <= end:
+        windows.append((t, t + window_size))
+        t += window_size
+
+    groups = {
+        "Stimulus": ["Stimulus"],
+        "stimulus_c": ["Stimulus/c25.0/Accuracy1.0", "Stimulus/c75.0/Accuracy1.0"],
+        "stimulus_i": ["Stimulus/i25.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
+        "stimulus_r": ["Stimulus/r25.0/Accuracy1.0", "Stimulus/r75.0/Accuracy1.0"],
+        "stimulus_s": ["Stimulus/s25.0/Accuracy1.0", "Stimulus/s75.0/Accuracy1.0"],
+    }
+
+    for group_name, ev_list in groups.items():
+        for win in windows:
+            trials_ev = trial_ieeg(
+                good, ev_list,  
+                [win[0] - pad_length, win[1] + pad_length],
                 preload=True, reject_by_annotation=False
             )
-        print("trial before crop_pad: ", trials_ev.tmin, trials_ev.tmax)
-        crop_pad(trials_ev, pad_length_string) # crop the trials to remove the padding
-        print("trial after crop_pad: ", trials_ev.tmin, trials_ev.tmax)
+            outliers_to_nan(trials_ev, outliers=outliers)
+            trials_ev.drop_channels(channels_to_drop, on_missing='ignore')
+            print(f"trial before crop_pad ({group_name} {win}): ", trials_ev.tmin, trials_ev.tmax)
+            crop_pad(trials_ev, f"{pad_length}s")
+            print(f"trial after crop_pad ({group_name} {win}): ", trials_ev.tmin, trials_ev.tmax)
 
-        # Save
-        trials_ev.save(f'{save_dir}/{sub}_{event}_ev1-epo.fif', overwrite=True)
-        print(f"Saved {event} trials for subject {sub} to {save_dir}/{sub}_{event}_ev1-epo.fif")
+            safe_event = sanitize_filename(group_name)
+            trials_ev.save(f'{save_dir}/{sub}_{safe_event}_{win}_ev1-epo.fif', overwrite=True)
+            print(f"Saved {group_name} trials for subject {sub} window {win} to {save_dir}/{sub}_{safe_event}_{win}_ev1-epo.fif")
 
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150)):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outliers=10, passband=(70,150), time_window=(-1, -0.5)):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
         #subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
-        subjects = ['D0116']# use one subject at a time to avoid the permission error
+        subjects = ['D0063']# use one subject at a time to avoid the permission error
     for sub in subjects:
-        epoch_and_save(sub=sub, task=task, times=times,
+        epoch_and_save(sub=sub, task=task, times=time_window,
                           within_base_times=within_base_times, base_times_length=base_times_length,
                           pad_length=pad_length, LAB_root=LAB_root, channels=channels,
-                          dec_factor=dec_factor, outliers=outliers, passband=passband)
-        
+                          dec_factor=dec_factor, outliers=outliers, passband=passband,
+                          )
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Process subjects and plot bandpass-filtered data, compute time permutation cluster matrix of electrodes by time, and find task-significant electrodes.")
@@ -313,6 +347,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
+    parser.add_argument('--time_window', type=float, nargs=2, default=(-1, 1.5), help='Time window for permutation cluster stats. Default is (-1, 1.5).')
     args=parser.parse_args()
 
     print("--------- PARSED ARGUMENTS ---------")
@@ -329,4 +364,6 @@ if __name__ == "__main__":
         channels=args.channels, 
         dec_factor=args.dec_factor, 
         outliers=args.outliers, 
-        passband=args.passband)
+        passband=args.passband,
+        time_window=args.time_window
+        )

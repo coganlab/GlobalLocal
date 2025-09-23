@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect_plot.py", line 53, in <module>
+    main(args.csv_path, args.output)
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect_plot.py", line 8, in main
+    df = pd.read_csv(csv_path)
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0063_lpfc_Stimulus_i75.0_Accuracy1.0_(0.0, 0.5)_summary.csv'

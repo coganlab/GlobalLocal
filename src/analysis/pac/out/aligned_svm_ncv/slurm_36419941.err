@@ -1,0 +1,2 @@
+/var/spool/slurmd/job36419941/slurm_script: line 18: syntax error near unexpected token `('
+/var/spool/slurmd/job36419941/slurm_script: line 18: `    --event Stimulus_c75.0_Accuracy1.0_(0.0,0.5) \'
