@@ -1,0 +1,282 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0103']
+Conditions:        ['Stimulus_c', 'Stimulus_i']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       all
+Explained variance: 0.8
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 2/2
+  Balance Method:    subsample
+  Explained Variance:0.8
+  Window/Step (samp):32/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+ folds as samples (use folds as unit of statistical analysis or use repeats instead): True
+Percentile Statistical Parameters:
+  Percentile: (95,)
+  Cluster Percentile: (95,)
+  N Cluster Perms: 5
+======================================================================
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Loaded significant channels for subject D0103
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_c: 200 valid trials out of 200
+  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_i: 159 valid trials out of 159
+  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_c: 200 valid trials out of 200
+  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_i: 159 valid trials out of 159
+
+--- Summary of Dropped Electrodes ---
+ROI: lpfc
+  - Subject D0071: Dropped 13 electrode(s)
+  - Subject D0116: Dropped 30 electrode(s)
+  - Subject D0069: Dropped 1 electrode(s)
+  - Subject D0117: Dropped 11 electrode(s)
+  - Subject D0059: Dropped 5 electrode(s)
+  - Subject D0094: Dropped 28 electrode(s)
+  - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0110: Dropped 5 electrode(s)
+  - Subject D0121: Dropped 61 electrode(s)
+  - Subject D0057: Dropped 17 electrode(s)
+  - Subject D0090: Dropped 8 electrode(s)
+  - Subject D0065: Dropped 9 electrode(s)
+  - Subject D0102: Dropped 5 electrode(s)
+  - Subject D0063: Dropped 36 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 254
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (1 samples across 1 jobs) ====================
+
+
+====================) PROCESSING BOOTSTRAP 1/1 ====================
+
+Bootstrap 1: Generating data sample...
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_c: 200 valid trials out of 200
+  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_i: 159 valid trials out of 159
+  Loading condition: Stimulus_c with parameters: {'BIDS_events': ['Stimulus/c25.0/Accuracy1.0', 'Stimulus/c75.0/Accuracy1.0'], 'congruency': 'c'}
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Original shape: (200, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_c: 200 valid trials out of 200
+  Loading condition: Stimulus_i with parameters: {'BIDS_events': ['Stimulus/i25.0/Accuracy1.0', 'Stimulus/i75.0/Accuracy1.0'], 'congruency': 'i'}
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Original shape: (159, 222, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_i: 159 valid trials out of 159
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAI4
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_c', 'Stimulus_i']
+condition 'Stimulus_c': subsampling to 200 trials
+condition 'Stimulus_i': subsampling to 159 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_c', 'Stimulus_i']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_c', 'Stimulus_i']
+
+Bootstrap 1: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['-1.0', '-0.99609375', '-0.9921875', '-0.98828125', '-0.984375', '-0.98046875', '-0.9765625', '-0.97265625', '-0.96875', '-0.96484375', '-0.9609375', '-0.95703125', '-0.953125', '-0.94921875', '-0.9453125', '-0.94140625', '-0.9375', '-0.93359375', '-0.9296875', '-0.92578125', '-0.921875', '-0.91796875', '-0.9140625', '-0.91015625', '-0.90625', '-0.90234375', '-0.8984375', '-0.89453125', '-0.890625', '-0.88671875', '-0.8828125', '-0.87890625', '-0.875', '-0.87109375', '-0.8671875', '-0.86328125', '-0.859375', '-0.85546875', '-0.8515625', '-0.84765625', '-0.84375', '-0.83984375', '-0.8359375', '-0.83203125', '-0.828125', '-0.82421875', '-0.8203125', '-0.81640625', '-0.8125', '-0.80859375', '-0.8046875', '-0.80078125', '-0.796875', '-0.79296875', '-0.7890625', '-0.78515625', '-0.78125', '-0.77734375', '-0.7734375', '-0.76953125', '-0.765625', '-0.76171875', '-0.7578125', '-0.75390625', '-0.75', '-0.74609375', '-0.7421875', '-0.73828125', '-0.734375', '-0.73046875', '-0.7265625', '-0.72265625', '-0.71875', '-0.71484375', '-0.7109375', '-0.70703125', '-0.703125', '-0.69921875', '-0.6953125', '-0.69140625', '-0.6875', '-0.68359375', '-0.6796875', '-0.67578125', '-0.671875', '-0.66796875', '-0.6640625', '-0.66015625', '-0.65625', '-0.65234375', '-0.6484375', '-0.64453125', '-0.640625', '-0.63671875', '-0.6328125', '-0.62890625', '-0.625', '-0.62109375', '-0.6171875', '-0.61328125', '-0.609375', '-0.60546875', '-0.6015625', '-0.59765625', '-0.59375', '-0.58984375', '-0.5859375', '-0.58203125', '-0.578125', '-0.57421875', '-0.5703125', '-0.56640625', '-0.5625', '-0.55859375', '-0.5546875', '-0.55078125', '-0.546875', '-0.54296875', '-0.5390625', '-0.53515625', '-0.53125', '-0.52734375', '-0.5234375', '-0.51953125', '-0.515625', '-0.51171875', '-0.5078125', '-0.50390625', '-0.5', '-0.49609375', '-0.4921875', '-0.48828125', '-0.484375', '-0.48046875', '-0.4765625', '-0.47265625', '-0.46875', '-0.46484375', '-0.4609375', '-0.45703125', '-0.453125', '-0.44921875', '-0.4453125', '-0.44140625', '-0.4375', '-0.43359375', '-0.4296875', '-0.42578125', '-0.421875', '-0.41796875', '-0.4140625', '-0.41015625', '-0.40625', '-0.40234375', '-0.3984375', '-0.39453125', '-0.390625', '-0.38671875', '-0.3828125', '-0.37890625', '-0.375', '-0.37109375', '-0.3671875', '-0.36328125', '-0.359375', '-0.35546875', '-0.3515625', '-0.34765625', '-0.34375', '-0.33984375', '-0.3359375', '-0.33203125', '-0.328125', '-0.32421875', '-0.3203125', '-0.31640625', '-0.3125', '-0.30859375', '-0.3046875', '-0.30078125', '-0.296875', '-0.29296875', '-0.2890625', '-0.28515625', '-0.28125', '-0.27734375', '-0.2734375', '-0.26953125', '-0.265625', '-0.26171875', '-0.2578125', '-0.25390625', '-0.25', '-0.24609375', '-0.2421875', '-0.23828125', '-0.234375', '-0.23046875', '-0.2265625', '-0.22265625', '-0.21875', '-0.21484375', '-0.2109375', '-0.20703125', '-0.203125', '-0.19921875', '-0.1953125', '-0.19140625', '-0.1875', '-0.18359375', '-0.1796875', '-0.17578125', '-0.171875', '-0.16796875', '-0.1640625', '-0.16015625', '-0.15625', '-0.15234375', '-0.1484375', '-0.14453125', '-0.140625', '-0.13671875', '-0.1328125', '-0.12890625', '-0.125', '-0.12109375', '-0.1171875', '-0.11328125', '-0.109375', '-0.10546875', '-0.1015625', '-0.09765625', '-0.09375', '-0.08984375', '-0.0859375', '-0.08203125', '-0.078125', '-0.07421875', '-0.0703125', '-0.06640625', '-0.0625', '-0.05859375', '-0.0546875', '-0.05078125', '-0.046875', '-0.04296875', '-0.0390625', '-0.03515625', '-0.03125', '-0.02734375', '-0.0234375', '-0.01953125', '-0.015625', '-0.01171875', '-0.0078125', '-0.00390625', '0.0', '0.00390625', '0.0078125', '0.01171875', '0.015625', '0.01953125', '0.0234375', '0.02734375', '0.03125', '0.03515625', '0.0390625', '0.04296875', '0.046875', '0.05078125', '0.0546875', '0.05859375', '0.0625', '0.06640625', '0.0703125', '0.07421875', '0.078125', '0.08203125', '0.0859375', '0.08984375', '0.09375', '0.09765625', '0.1015625', '0.10546875', '0.109375', '0.11328125', '0.1171875', '0.12109375', '0.125', '0.12890625', '0.1328125', '0.13671875', '0.140625', '0.14453125', '0.1484375', '0.15234375', '0.15625', '0.16015625', '0.1640625', '0.16796875', '0.171875', '0.17578125', '0.1796875', '0.18359375', '0.1875', '0.19140625', '0.1953125', '0.19921875', '0.203125', '0.20703125', '0.2109375', '0.21484375', '0.21875', '0.22265625', '0.2265625', '0.23046875', '0.234375', '0.23828125', '0.2421875', '0.24609375', '0.25', '0.25390625', '0.2578125', '0.26171875', '0.265625', '0.26953125', '0.2734375', '0.27734375', '0.28125', '0.28515625', '0.2890625', '0.29296875', '0.296875', '0.30078125', '0.3046875', '0.30859375', '0.3125', '0.31640625', '0.3203125', '0.32421875', '0.328125', '0.33203125', '0.3359375', '0.33984375', '0.34375', '0.34765625', '0.3515625', '0.35546875', '0.359375', '0.36328125', '0.3671875', '0.37109375', '0.375', '0.37890625', '0.3828125', '0.38671875', '0.390625', '0.39453125', '0.3984375', '0.40234375', '0.40625', '0.41015625', '0.4140625', '0.41796875', '0.421875', '0.42578125', '0.4296875', '0.43359375', '0.4375', '0.44140625', '0.4453125', '0.44921875', '0.453125', '0.45703125', '0.4609375', '0.46484375', '0.46875', '0.47265625', '0.4765625', '0.48046875', '0.484375', '0.48828125', '0.4921875', '0.49609375', '0.5', '0.50390625', '0.5078125', '0.51171875', '0.515625', '0.51953125', '0.5234375', '0.52734375', '0.53125', '0.53515625', '0.5390625', '0.54296875', '0.546875', '0.55078125', '0.5546875', '0.55859375', '0.5625', '0.56640625', '0.5703125', '0.57421875', '0.578125', '0.58203125', '0.5859375', '0.58984375', '0.59375', '0.59765625', '0.6015625', '0.60546875', '0.609375', '0.61328125', '0.6171875', '0.62109375', '0.625', '0.62890625', '0.6328125', '0.63671875', '0.640625', '0.64453125', '0.6484375', '0.65234375', '0.65625', '0.66015625', '0.6640625', '0.66796875', '0.671875', '0.67578125', '0.6796875', '0.68359375', '0.6875', '0.69140625', '0.6953125', '0.69921875', '0.703125', '0.70703125', '0.7109375', '0.71484375', '0.71875', '0.72265625', '0.7265625', '0.73046875', '0.734375', '0.73828125', '0.7421875', '0.74609375', '0.75', '0.75390625', '0.7578125', '0.76171875', '0.765625', '0.76953125', '0.7734375', '0.77734375', '0.78125', '0.78515625', '0.7890625', '0.79296875', '0.796875', '0.80078125', '0.8046875', '0.80859375', '0.8125', '0.81640625', '0.8203125', '0.82421875', '0.828125', '0.83203125', '0.8359375', '0.83984375', '0.84375', '0.84765625', '0.8515625', '0.85546875', '0.859375', '0.86328125', '0.8671875', '0.87109375', '0.875', '0.87890625', '0.8828125', '0.88671875', '0.890625', '0.89453125', '0.8984375', '0.90234375', '0.90625', '0.91015625', '0.9140625', '0.91796875', '0.921875', '0.92578125', '0.9296875', '0.93359375', '0.9375', '0.94140625', '0.9453125', '0.94921875', '0.953125', '0.95703125', '0.9609375', '0.96484375', '0.96875', '0.97265625', '0.9765625', '0.98046875', '0.984375', '0.98828125', '0.9921875', '0.99609375', '1.0', '1.00390625', '1.0078125', '1.01171875', '1.015625', '1.01953125', '1.0234375', '1.02734375', '1.03125', '1.03515625', '1.0390625', '1.04296875', '1.046875', '1.05078125', '1.0546875', '1.05859375', '1.0625', '1.06640625', '1.0703125', '1.07421875', '1.078125', '1.08203125', '1.0859375', '1.08984375', '1.09375', '1.09765625', '1.1015625', '1.10546875', '1.109375', '1.11328125', '1.1171875', '1.12109375', '1.125', '1.12890625', '1.1328125', '1.13671875', '1.140625', '1.14453125', '1.1484375', '1.15234375', '1.15625', '1.16015625', '1.1640625', '1.16796875', '1.171875', '1.17578125', '1.1796875', '1.18359375', '1.1875', '1.19140625', '1.1953125', '1.19921875', '1.203125', '1.20703125', '1.2109375', '1.21484375', '1.21875', '1.22265625', '1.2265625', '1.23046875', '1.234375', '1.23828125', '1.2421875', '1.24609375', '1.25', '1.25390625', '1.2578125', '1.26171875', '1.265625', '1.26953125', '1.2734375', '1.27734375', '1.28125', '1.28515625', '1.2890625', '1.29296875', '1.296875', '1.30078125', '1.3046875', '1.30859375', '1.3125', '1.31640625', '1.3203125', '1.32421875', '1.328125', '1.33203125', '1.3359375', '1.33984375', '1.34375', '1.34765625', '1.3515625', '1.35546875', '1.359375', '1.36328125', '1.3671875', '1.37109375', '1.375', '1.37890625', '1.3828125', '1.38671875', '1.390625', '1.39453125', '1.3984375', '1.40234375', '1.40625', '1.41015625', '1.4140625', '1.41796875', '1.421875', '1.42578125', '1.4296875', '1.43359375', '1.4375', '1.44140625', '1.4453125', '1.44921875', '1.453125', '1.45703125', '1.4609375', '1.46484375', '1.46875', '1.47265625', '1.4765625', '1.48046875', '1.484375', '1.48828125', '1.4921875', '1.49609375', '1.5']
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.calc.mat.LabeledArray'>
+Actual condition keys in the LabeledArray: ['-1.0', '-0.99609375', '-0.9921875', '-0.98828125', '-0.984375', '-0.98046875', '-0.9765625', '-0.97265625', '-0.96875', '-0.96484375', '-0.9609375', '-0.95703125', '-0.953125', '-0.94921875', '-0.9453125', '-0.94140625', '-0.9375', '-0.93359375', '-0.9296875', '-0.92578125', '-0.921875', '-0.91796875', '-0.9140625', '-0.91015625', '-0.90625', '-0.90234375', '-0.8984375', '-0.89453125', '-0.890625', '-0.88671875', '-0.8828125', '-0.87890625', '-0.875', '-0.87109375', '-0.8671875', '-0.86328125', '-0.859375', '-0.85546875', '-0.8515625', '-0.84765625', '-0.84375', '-0.83984375', '-0.8359375', '-0.83203125', '-0.828125', '-0.82421875', '-0.8203125', '-0.81640625', '-0.8125', '-0.80859375', '-0.8046875', '-0.80078125', '-0.796875', '-0.79296875', '-0.7890625', '-0.78515625', '-0.78125', '-0.77734375', '-0.7734375', '-0.76953125', '-0.765625', '-0.76171875', '-0.7578125', '-0.75390625', '-0.75', '-0.74609375', '-0.7421875', '-0.73828125', '-0.734375', '-0.73046875', '-0.7265625', '-0.72265625', '-0.71875', '-0.71484375', '-0.7109375', '-0.70703125', '-0.703125', '-0.69921875', '-0.6953125', '-0.69140625', '-0.6875', '-0.68359375', '-0.6796875', '-0.67578125', '-0.671875', '-0.66796875', '-0.6640625', '-0.66015625', '-0.65625', '-0.65234375', '-0.6484375', '-0.64453125', '-0.640625', '-0.63671875', '-0.6328125', '-0.62890625', '-0.625', '-0.62109375', '-0.6171875', '-0.61328125', '-0.609375', '-0.60546875', '-0.6015625', '-0.59765625', '-0.59375', '-0.58984375', '-0.5859375', '-0.58203125', '-0.578125', '-0.57421875', '-0.5703125', '-0.56640625', '-0.5625', '-0.55859375', '-0.5546875', '-0.55078125', '-0.546875', '-0.54296875', '-0.5390625', '-0.53515625', '-0.53125', '-0.52734375', '-0.5234375', '-0.51953125', '-0.515625', '-0.51171875', '-0.5078125', '-0.50390625', '-0.5', '-0.49609375', '-0.4921875', '-0.48828125', '-0.484375', '-0.48046875', '-0.4765625', '-0.47265625', '-0.46875', '-0.46484375', '-0.4609375', '-0.45703125', '-0.453125', '-0.44921875', '-0.4453125', '-0.44140625', '-0.4375', '-0.43359375', '-0.4296875', '-0.42578125', '-0.421875', '-0.41796875', '-0.4140625', '-0.41015625', '-0.40625', '-0.40234375', '-0.3984375', '-0.39453125', '-0.390625', '-0.38671875', '-0.3828125', '-0.37890625', '-0.375', '-0.37109375', '-0.3671875', '-0.36328125', '-0.359375', '-0.35546875', '-0.3515625', '-0.34765625', '-0.34375', '-0.33984375', '-0.3359375', '-0.33203125', '-0.328125', '-0.32421875', '-0.3203125', '-0.31640625', '-0.3125', '-0.30859375', '-0.3046875', '-0.30078125', '-0.296875', '-0.29296875', '-0.2890625', '-0.28515625', '-0.28125', '-0.27734375', '-0.2734375', '-0.26953125', '-0.265625', '-0.26171875', '-0.2578125', '-0.25390625', '-0.25', '-0.24609375', '-0.2421875', '-0.23828125', '-0.234375', '-0.23046875', '-0.2265625', '-0.22265625', '-0.21875', '-0.21484375', '-0.2109375', '-0.20703125', '-0.203125', '-0.19921875', '-0.1953125', '-0.19140625', '-0.1875', '-0.18359375', '-0.1796875', '-0.17578125', '-0.171875', '-0.16796875', '-0.1640625', '-0.16015625', '-0.15625', '-0.15234375', '-0.1484375', '-0.14453125', '-0.140625', '-0.13671875', '-0.1328125', '-0.12890625', '-0.125', '-0.12109375', '-0.1171875', '-0.11328125', '-0.109375', '-0.10546875', '-0.1015625', '-0.09765625', '-0.09375', '-0.08984375', '-0.0859375', '-0.08203125', '-0.078125', '-0.07421875', '-0.0703125', '-0.06640625', '-0.0625', '-0.05859375', '-0.0546875', '-0.05078125', '-0.046875', '-0.04296875', '-0.0390625', '-0.03515625', '-0.03125', '-0.02734375', '-0.0234375', '-0.01953125', '-0.015625', '-0.01171875', '-0.0078125', '-0.00390625', '0.0', '0.00390625', '0.0078125', '0.01171875', '0.015625', '0.01953125', '0.0234375', '0.02734375', '0.03125', '0.03515625', '0.0390625', '0.04296875', '0.046875', '0.05078125', '0.0546875', '0.05859375', '0.0625', '0.06640625', '0.0703125', '0.07421875', '0.078125', '0.08203125', '0.0859375', '0.08984375', '0.09375', '0.09765625', '0.1015625', '0.10546875', '0.109375', '0.11328125', '0.1171875', '0.12109375', '0.125', '0.12890625', '0.1328125', '0.13671875', '0.140625', '0.14453125', '0.1484375', '0.15234375', '0.15625', '0.16015625', '0.1640625', '0.16796875', '0.171875', '0.17578125', '0.1796875', '0.18359375', '0.1875', '0.19140625', '0.1953125', '0.19921875', '0.203125', '0.20703125', '0.2109375', '0.21484375', '0.21875', '0.22265625', '0.2265625', '0.23046875', '0.234375', '0.23828125', '0.2421875', '0.24609375', '0.25', '0.25390625', '0.2578125', '0.26171875', '0.265625', '0.26953125', '0.2734375', '0.27734375', '0.28125', '0.28515625', '0.2890625', '0.29296875', '0.296875', '0.30078125', '0.3046875', '0.30859375', '0.3125', '0.31640625', '0.3203125', '0.32421875', '0.328125', '0.33203125', '0.3359375', '0.33984375', '0.34375', '0.34765625', '0.3515625', '0.35546875', '0.359375', '0.36328125', '0.3671875', '0.37109375', '0.375', '0.37890625', '0.3828125', '0.38671875', '0.390625', '0.39453125', '0.3984375', '0.40234375', '0.40625', '0.41015625', '0.4140625', '0.41796875', '0.421875', '0.42578125', '0.4296875', '0.43359375', '0.4375', '0.44140625', '0.4453125', '0.44921875', '0.453125', '0.45703125', '0.4609375', '0.46484375', '0.46875', '0.47265625', '0.4765625', '0.48046875', '0.484375', '0.48828125', '0.4921875', '0.49609375', '0.5', '0.50390625', '0.5078125', '0.51171875', '0.515625', '0.51953125', '0.5234375', '0.52734375', '0.53125', '0.53515625', '0.5390625', '0.54296875', '0.546875', '0.55078125', '0.5546875', '0.55859375', '0.5625', '0.56640625', '0.5703125', '0.57421875', '0.578125', '0.58203125', '0.5859375', '0.58984375', '0.59375', '0.59765625', '0.6015625', '0.60546875', '0.609375', '0.61328125', '0.6171875', '0.62109375', '0.625', '0.62890625', '0.6328125', '0.63671875', '0.640625', '0.64453125', '0.6484375', '0.65234375', '0.65625', '0.66015625', '0.6640625', '0.66796875', '0.671875', '0.67578125', '0.6796875', '0.68359375', '0.6875', '0.69140625', '0.6953125', '0.69921875', '0.703125', '0.70703125', '0.7109375', '0.71484375', '0.71875', '0.72265625', '0.7265625', '0.73046875', '0.734375', '0.73828125', '0.7421875', '0.74609375', '0.75', '0.75390625', '0.7578125', '0.76171875', '0.765625', '0.76953125', '0.7734375', '0.77734375', '0.78125', '0.78515625', '0.7890625', '0.79296875', '0.796875', '0.80078125', '0.8046875', '0.80859375', '0.8125', '0.81640625', '0.8203125', '0.82421875', '0.828125', '0.83203125', '0.8359375', '0.83984375', '0.84375', '0.84765625', '0.8515625', '0.85546875', '0.859375', '0.86328125', '0.8671875', '0.87109375', '0.875', '0.87890625', '0.8828125', '0.88671875', '0.890625', '0.89453125', '0.8984375', '0.90234375', '0.90625', '0.91015625', '0.9140625', '0.91796875', '0.921875', '0.92578125', '0.9296875', '0.93359375', '0.9375', '0.94140625', '0.9453125', '0.94921875', '0.953125', '0.95703125', '0.9609375', '0.96484375', '0.96875', '0.97265625', '0.9765625', '0.98046875', '0.984375', '0.98828125', '0.9921875', '0.99609375', '1.0', '1.00390625', '1.0078125', '1.01171875', '1.015625', '1.01953125', '1.0234375', '1.02734375', '1.03125', '1.03515625', '1.0390625', '1.04296875', '1.046875', '1.05078125', '1.0546875', '1.05859375', '1.0625', '1.06640625', '1.0703125', '1.07421875', '1.078125', '1.08203125', '1.0859375', '1.08984375', '1.09375', '1.09765625', '1.1015625', '1.10546875', '1.109375', '1.11328125', '1.1171875', '1.12109375', '1.125', '1.12890625', '1.1328125', '1.13671875', '1.140625', '1.14453125', '1.1484375', '1.15234375', '1.15625', '1.16015625', '1.1640625', '1.16796875', '1.171875', '1.17578125', '1.1796875', '1.18359375', '1.1875', '1.19140625', '1.1953125', '1.19921875', '1.203125', '1.20703125', '1.2109375', '1.21484375', '1.21875', '1.22265625', '1.2265625', '1.23046875', '1.234375', '1.23828125', '1.2421875', '1.24609375', '1.25', '1.25390625', '1.2578125', '1.26171875', '1.265625', '1.26953125', '1.2734375', '1.27734375', '1.28125', '1.28515625', '1.2890625', '1.29296875', '1.296875', '1.30078125', '1.3046875', '1.30859375', '1.3125', '1.31640625', '1.3203125', '1.32421875', '1.328125', '1.33203125', '1.3359375', '1.33984375', '1.34375', '1.34765625', '1.3515625', '1.35546875', '1.359375', '1.36328125', '1.3671875', '1.37109375', '1.375', '1.37890625', '1.3828125', '1.38671875', '1.390625', '1.39453125', '1.3984375', '1.40234375', '1.40625', '1.41015625', '1.4140625', '1.41796875', '1.421875', '1.42578125', '1.4296875', '1.43359375', '1.4375', '1.44140625', '1.4453125', '1.44921875', '1.453125', '1.45703125', '1.4609375', '1.46484375', '1.46875', '1.47265625', '1.4765625', '1.48046875', '1.484375', '1.48828125', '1.4921875', '1.49609375', '1.5']
+The code is searching for strings: [['Stimulus_c'], ['Stimulus_i']]
+===================================================
+
+
+✗ Analysis failed with error: No matching conditions found for ROI: lpfc and strings: [['Stimulus_c'], ['Stimulus_i']]
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_c for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_i for subject D0103, electrode LFAI4
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_c', 'Stimulus_i']
+condition 'Stimulus_c': subsampling to 200 trials
+condition 'Stimulus_i': subsampling to 159 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_c', 'Stimulus_i']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_c', 'Stimulus_i']

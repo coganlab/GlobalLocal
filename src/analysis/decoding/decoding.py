@@ -28,8 +28,10 @@ from scipy.ndimage import label # was imported separately, now grouped with scip
 from scipy.stats import norm # also from scipy.stats
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
+
+# import matplotlib
+# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
-from matplotlib import pyplot # Note: matplotlib.pyplot is typically imported as plt. This is redundant if plt is already imported.
 
 # scikit-learn imports
 from sklearn.model_selection import cross_val_score, StratifiedKFold
@@ -100,6 +102,30 @@ def concatenate_and_balance_data_for_decoding(
     """
     rng = np.random.RandomState(random_state)
 
+    # ==================== NEW DEBUGGING BLOCK ====================
+    print("\n" + "="*20 + " DEBUGGING " + "="*20)
+    # Check what the main roi_labeled_arrays dictionary contains
+    print(f"Top-level keys in roi_labeled_arrays: {list(roi_labeled_arrays.keys())}")
+    
+    # Check the specific ROI we are trying to access
+    if roi in roi_labeled_arrays:
+        la = roi_labeled_arrays[roi]
+        print(f"Data for ROI '{roi}' found.")
+        print(f"Object type for this ROI is: {type(la)}")
+        
+        # This is the most important check: what are the actual condition keys?
+        if hasattr(la, 'keys'):
+            print(f"Actual condition keys in the LabeledArray: {list(la.keys())}")
+        else:
+            print("Object is not a LabeledArray or dictionary-like object.")
+            
+    else:
+        print(f"!!!!!!!!!! CRITICAL ERROR: ROI '{roi}' NOT FOUND IN THE DATA !!!!!!!!!!!")
+    
+    print(f"The code is searching for strings: {strings_to_find}")
+    print("="*51 + "\n")
+    # =============================================================
+    
     # Concatenate the trials and get labels
     concatenated_data, labels, cats = concatenate_conditions_by_string(
         roi_labeled_arrays, roi, strings_to_find, obs_axs

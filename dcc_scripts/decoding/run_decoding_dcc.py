@@ -72,7 +72,7 @@ elif STAT_FUNC_CHOICE == 'ttest':
 # N_PERM = 100
 
 # Parallel processing
-N_JOBS = -1
+N_JOBS = -1 
 
 # Decoding parameters
 N_SPLITS = 5
@@ -81,7 +81,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 100
+BOOTSTRAPS = 10
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -142,7 +142,8 @@ ELECTRODES = 'all'
 # N_REPEATS = 2
 # N_PERM = 5
 # N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2 
+# BOOTSTRAPS = 1
+# N_JOBS = 1
 # ROIS_DICT = {
 #     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
@@ -209,6 +210,7 @@ def run_analysis():
     print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
+    
     # print("Time Perm Cluster Statistical Parameters:")
     # print(f"  Cluster Perms:     {N_PERM}")
     # print(f"  P-value Threshold: {P_THRESH}")
