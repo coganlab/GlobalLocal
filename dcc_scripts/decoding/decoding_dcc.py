@@ -103,7 +103,7 @@ from src.analysis.decoding.decoding import (
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
     compute_pooled_bootstrap_statistics
 )
-def process_bootstrap(bootstrap_idx, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
+def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
     Generates and processes a single bootstrap sample.
     This function is designed to be called in parallel by joblib.
@@ -120,15 +120,6 @@ def process_bootstrap(bootstrap_idx, args, rois, condition_names, electrodes, co
     # We set n_jobs=1 to avoid nested parallelism, which is inefficient and can cause issues.
     print(f"Bootstrap {bootstrap_idx + 1}: Generating data sample...")
 
-    subjects_mne_objects = create_subjects_mne_objects_dict(
-        subjects=args.subjects,
-        epochs_root_file=args.epochs_root_file,
-        conditions=args.conditions,
-        task="GlobalLocal",
-        just_HG_ev1_rescaled=True,
-        acc_trials_only=args.acc_trials_only
-    )
-    
     roi_labeled_arrays_this_bootstrap_list = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
         rois=rois,
         subjects_data_objects=subjects_mne_objects,
@@ -624,9 +615,10 @@ def main(args):
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
     # use joblib to run the bootstrap processing in parallel
-    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10)(
+    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='threading')(
         delayed(process_bootstrap)(
             bootstrap_idx,
+            subjects_mne_objects,
             args,
             rois,
             condition_names,
