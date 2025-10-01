@@ -101,6 +101,7 @@ FOLDS_AS_SAMPLES = True
 PERCENTILE=95,
 CLUSTER_PERCENTILE=95,
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05,
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_congruency_conditions
@@ -185,7 +186,8 @@ def run_analysis():
         percentile=PERCENTILE,
         cluster_percentile=CLUSTER_PERCENTILE,
         n_cluster_perms=N_CLUSTER_PERMS,
-        n_shuffle_perms=N_SHUFFLE_PERMS
+        n_shuffle_perms=N_SHUFFLE_PERMS,
+        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS
     )
     
     # Print configuration summary

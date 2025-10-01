@@ -131,7 +131,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
         chans_axs=args.chans_axs,
         time_axs=args.time_axs,
         freq_axs=None,
-        random_state=args.random_state + bootstrap_idx if args.random_state is not None else None, # Unique seed
+        random_state=bootstrap_random_state, # Unique seed
         n_jobs=1  # Run ROI generation serially within this worker
     )
 
@@ -250,20 +250,10 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             accuracies_dict = {
                 'c25_vs_i25': c25_vs_i25_acc,
                 'c75_vs_i75': c75_vs_i75_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
-            }
-
-            colors = {
-                'c25_vs_i25': '#0173B2',  # Blue
-                'c75_vs_i75': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
+                'pooled_lwpc_shuffle': accuracies_shuffle_pooled
             }
             
-            linestyles = {
-                'c25_vs_i25': '-',  # Solid
-                'c75_vs_i75': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
-            }
+            results_for_this_bootstrap['pooled_lwpc_shuffle'][roi] = accuracies_shuffle_pooled
 
     # do lwps comparison 
     if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
@@ -288,25 +278,29 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 window_size=args.window_size,
                 step_size=args.step_size
             )
+            
+            # pull accuracies_dict, colors, and linestyles into main
             # Plot accuracies comparing s25_vs_r25 and s75_vs_r75 for this condition comparison and roi
             # For LWPS comparisons
             accuracies_dict = {
                 's25_vs_r25': s25_vs_r25_acc,
                 's75_vs_r75': s75_vs_r75_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
+                'pooled_lwps_shuffle': accuracies_shuffle_pooled
             }
 
             colors = {
                 's25_vs_r25': '#0173B2',  # Blue
                 's75_vs_r75': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
+                'pooled_lwps_shuffle': '#949494'  # Gray
             }
             
             linestyles = {
                 's25_vs_r25': '-',  # Solid
                 's75_vs_r75': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
+                'pooled_lwps_shuffle': '--' # Dashed
             }
+            
+            results_for_this_bootstrap['pooled_lwps_shuffle'][roi] = accuracies_shuffle_pooled
             
     # do congruency by switch proportion comparison 
     if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:       
@@ -335,20 +329,22 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             accuracies_dict = {
                 'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_acc,
                 'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
+                'pooled_congruency_by_switch_proportion_shuffle': accuracies_shuffle_pooled
             }
 
             colors = {
                 'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
                 'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
+                'pooled_congruency_by_switch_proportion_shuffle': '#949494'  # Gray
             }
             
             linestyles = {
                 'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
                 'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
+                'pooled_congruency_by_switch_proportion_shuffle': '--'                       # Dashed
             }
+
+            results_for_this_bootstrap['pooled_congruency_by_switch_proportion_shuffle'][roi] = accuracies_shuffle_pooled
 
     # do switch type by congruency proportion comparison 
     if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:       
@@ -376,26 +372,28 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
             # Plot accuracies comparing c25_vs_i25 and c75_vs_i75 for this condition comparison and roi
             # For LWPC comparisons
+            # pull these into main
             accuracies_dict = {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc,
                 's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
+                'pooled_switch_type_by_congruency_proportion_shuffle': accuracies_shuffle_pooled
             }
 
             colors = {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
                 's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
+                'pooled_switch_type_by_congruency_proportion_shuffle': '#949494'  # Gray
             }
             
             linestyles = {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
                 's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
+                'pooled_switch_type_by_congruency_proportion_shuffle': '--'                       # Dashed
             }
+            
+            results_for_this_bootstrap['pooled_switch_type_by_congruency_proportion_shuffle'][roi] = accuracies_shuffle_pooled
 
     return results_for_this_bootstrap
-
 
 def main(args):
     # Determine LAB_root based on the operating system and environment
@@ -629,7 +627,6 @@ def main(args):
         ) for bootstrap_idx in range(args.bootstraps)
     )
 
-    
     # reconstruct the main results dictionary from the list returned by the parallel jobs
     time_window_decoding_results = {i: result for i, result in enumerate(bootstrap_results_list) if result is not None}
     
@@ -653,8 +650,8 @@ def main(args):
                 
     # define color and linestyle for plotting true vs shuffle
     colors = {
-    'true': '#0173B2',  # Blue
-    'shuffle': '#949494'  # Gray
+        'true': '#0173B2',  # Blue
+        'shuffle': '#949494'  # Gray
     }
     
     linestyles = {
@@ -692,18 +689,75 @@ def main(args):
                 )    
                  
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        colors = {
-            'c25_vs_i25': 'red',
-            'c75_vs_i75': 'green',
-            'shuffle': '#949494'
+        print("\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) ---")
+        lwpc_colors = {
+            'c25_vs_i25': 'blue',
+            'c75_vs_i75': 'orange',
+            'pooled_lwpc_shuffle': '#949494'  # Gray
         }
         
-        linestyles = {
-            'c25_vs_i25': '-',
-            'c75_vs_i75': '-',
-            'shuffle': '--'
-        }  
+        lwpc_linestyles = {
+            'c25_vs_i25': '-',  # Solid
+            'c75_vs_i75': '-',  # Solid
+            'pooled_lwpc_shuffle': '--'  # Dashed
+        }
         
+        lwpc_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+            time_window_decoding_results, 
+            args.bootstraps, 
+            condition_comparison_1='c25_vs_i25',
+            condition_comparison_2='c75_vs_i75', 
+            rois, 
+            args.stat_func, 
+            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
+            n_perm=args.n_cluster_perms, 
+            tails=2, 
+            axis=0, 
+            random_state=args.random_state, 
+            n_jobs=args.n_jobs)
+
+        for roi in rois:
+            all_lwpc_pooled_shuffles = []
+            
+            for b_idx in range(args.bootstraps):
+                pooled_lwpc_shuffle_acc_this_bootstrap = time_window_decoding_results[b_idx]['pooled_lwpc_shuffle'][roi]
+                all_lwpc_pooled_shuffles.append(pooled_lwpc_shuffle_acc_this_bootstrap)
+        
+            stacked_lwpc_pooled_shuffles = np.vstack(all_lwpc_pooled_shuffles)
+            
+            c25_vs_i25_stats = pooled_bootstrap_stats['c25_vs_i25'][roi]
+            c75_vs_i75_stats = pooled_bootstrap_stats['c75_vs_i75'][roi]
+            time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
+            
+            significant_clusters_lwpc = lwpc_comparison_stats[roi]
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c25_vs_i25': c25_vs_i25_stats['pooled_true'],
+                    'c75_vs_i75': c75_vs_i75_stats['pooled_true'],
+                    'pooled_shuffle': stacked_lwpc_pooled_shuffles
+                },
+                significant_clusters = significant_clusters_lwpc,
+                window_size = args.window_size,
+                step_size = args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPC_comparison_{roi}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=lwpc_colors,
+                linestyles=lwpc_linestyles,
+                single_column=False,
+                ylim=(0.4, 0.75),
+                ylabel="Congruency Decoding Accuracy",
+                # Place the significance bar higher to avoid overlap
+                significance_y_position=0.72,
+                show_chance_level=False # The pooled shuffle line is our chance level
+                )
+            
+                 
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
     # Since your run script calls main() directly, this block won't be executed

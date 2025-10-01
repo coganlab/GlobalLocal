@@ -2703,7 +2703,7 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
     return pooled_stats         
 
 
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, n_cluster_perms=1000, random_state=42, n_jobs=1):
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
     
     # collect concatenated true accuracies from all bootstraps
     pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs = get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi)
@@ -2749,7 +2749,7 @@ def get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decodi
     
     return pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs
 
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, n_cluster_perms=1000, random_state=42, n_jobs=1):
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
     stats = {}
     
     for roi in rois:
