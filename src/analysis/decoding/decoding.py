@@ -2733,10 +2733,7 @@ def get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decodi
     for b_idx in range(n_bootstraps):
         # get the raw accuracies (not averaged)
         condition_comparison_1_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
-        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
-
-        condition_comparison_1_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
-        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
 
         # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
         all_condition_comparison_1_true_accs.append(condition_comparison_1_true_acc.T)
@@ -2753,7 +2750,21 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(tim
     stats = {}
     
     for roi in rois:
-        significant_clusters, p_values = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, p_thresh, n_perm, tails, axis, n_cluster_perms, random_state, n_jobs, stat_func)
+        significant_clusters, p_values = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=n_bootstraps, 
+            condition_comparison_1=condition_comparison_1, 
+            condition_comparison_2=condition_comparison_2, 
+            roi=roi, 
+            stat_func=stat_func,
+            p_thresh=p_thresh, 
+            n_perm=n_perm, 
+            tails=tails, 
+            axis=axis, 
+            random_state=random_state, 
+            n_jobs=n_jobs
+            )
+        
         stats[roi] = significant_clusters, p_values
         
     return stats

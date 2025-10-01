@@ -592,22 +592,6 @@ def main(args):
     other_string_to_add = (
         f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}"
     )
-    
-    # make a dict to store the final statistical results (e.g., significance masks) for each comparison and ROI, aggregated across all bootstraps
-    aggregated_bootstrap_stats_results = {}
-    for roi in rois:
-        # Initialize keys for all possible comparisons
-        for condition_comparison in condition_comparisons.keys():
-            aggregated_bootstrap_stats_results[(condition_comparison, roi)] = []
-        # Add special comparison keys
-        if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-            aggregated_bootstrap_stats_results[('lwpc', roi)] = []    # loop over each bootstrap sample
-        if args.conditions == experiment_conditions.stimulus_lwps_conditions:
-            aggregated_bootstrap_stats_results[('lwps', roi)] = []
-        if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-            aggregated_bootstrap_stats_results[('congruency_by_switch_proportion', roi)] = []
-        if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-            aggregated_bootstrap_stats_results[('switch_type_by_congruency_proportion', roi)] = []
             
     time_window_decoding_results = {}     
      
@@ -690,6 +674,8 @@ def main(args):
                  
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
         print("\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) ---")
+        results_for_this_bootstrap['pooled_lwpc_shuffle'] = {}
+        
         lwpc_colors = {
             'c25_vs_i25': 'blue',
             'c75_vs_i75': 'orange',
@@ -703,11 +689,11 @@ def main(args):
         }
         
         lwpc_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
-            time_window_decoding_results, 
-            args.bootstraps, 
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=args.bootstraps, 
             condition_comparison_1='c25_vs_i25',
             condition_comparison_2='c75_vs_i75', 
-            rois, 
+            rois=rois, 
             args.stat_func, 
             p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
             n_perm=args.n_cluster_perms, 
@@ -729,14 +715,14 @@ def main(args):
             c75_vs_i75_stats = pooled_bootstrap_stats['c75_vs_i75'][roi]
             time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
             
-            significant_clusters_lwpc = lwpc_comparison_stats[roi]
+            significant_clusters_lwpc, p_values_lwpc = lwpc_comparison_stats[roi]
             
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
                 accuracies_dict={
                     'c25_vs_i25': c25_vs_i25_stats['pooled_true'],
                     'c75_vs_i75': c75_vs_i75_stats['pooled_true'],
-                    'pooled_shuffle': stacked_lwpc_pooled_shuffles
+                    'lwpc_pooled_shuffles': stacked_lwpc_pooled_shuffles
                 },
                 significant_clusters = significant_clusters_lwpc,
                 window_size = args.window_size,
