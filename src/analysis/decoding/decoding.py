@@ -2702,4 +2702,58 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
                   
     return pooled_stats         
 
+
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, n_cluster_perms=1000, random_state=42, n_jobs=1):
+    
+    # collect concatenated true accuracies from all bootstraps
+    pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs = get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi)
+    
+    # get shuffled accuracies - can i just add shuffled accs together from both of these? no, right? I should make a separate shuffle distribution that uses all trials for this comparison (i.e., for c25 vs i25 and c75 vs i75, i shouldn't just grab the shuffled accs from c25 vs i25 and from c75 vs i75, but rather make a c vs i shuffled acc distribution.)
+    # ugh so i need to make shuffled acc using all the trials with congruency labels if i'm doing lwpc...similar idea as commit 2859769 with its make_pooled_shuffle_distribution
+    
+    significant_clusters, p_values = time_perm_cluster(
+        pooled_condition_comparison_1_true_accs,
+        pooled_condition_comparison_2_true_accs,
+        p_thresh=p_thresh,
+        n_perm=n_perm,
+        tails=tails,
+        axis=axis,
+        stat_func=stat_func,
+        n_jobs=n_jobs,
+        seed=random_state
+    )
+    
+    return significant_clusters, p_values
+
+def get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi):
+    # collect ALL accuracies from all bootstraps
+    all_condition_comparison_1_true_accs = [] # will be (n_bootstraps * (n_folds or n_repeats), n_windows)
+    all_condition_comparison_2_true_accs = []
+    
+    for b_idx in range(n_bootstraps):
+        # get the raw accuracies (not averaged)
+        condition_comparison_1_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+
+        condition_comparison_1_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+
+        # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
+        all_condition_comparison_1_true_accs.append(condition_comparison_1_true_acc.T)
+        all_condition_comparison_2_true_accs.append(condition_comparison_2_true_acc.T)
             
+    if all_condition_comparison_1_true_accs and all_condition_comparison_2_true_accs:
+        # concatenate all bootstraps
+        pooled_condition_comparison_1_true_accs = np.vstack(all_condition_comparison_1_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
+        pooled_condition_comparison_2_true_accs = np.vstack(all_condition_comparison_2_true_accs)   
+    
+    return pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs
+
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, n_cluster_perms=1000, random_state=42, n_jobs=1):
+    stats = {}
+    
+    for roi in rois:
+        significant_clusters, p_values = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, p_thresh, n_perm, tails, axis, n_cluster_perms, random_state, n_jobs, stat_func)
+        stats[roi] = significant_clusters, p_values
+        
+    return stats

@@ -101,7 +101,8 @@ from src.analysis.decoding.decoding import (
     plot_accuracies_nature_style,
     make_pooled_shuffle_distribution,
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
-    compute_pooled_bootstrap_statistics
+    compute_pooled_bootstrap_statistics,
+    do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions
 )
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
@@ -687,10 +688,22 @@ def main(args):
                     linestyles=linestyles,
                     single_column=False,
                     ylim=(0.4, 0.75),
-                    show_chance_level=False # The pooled shuffle line is the new chance level
-                    
-                )     
-            
+                    show_chance_level=False # The pooled shuffle line is the new chance level   
+                )    
+                 
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+        colors = {
+            'c25_vs_i25': 'red',
+            'c75_vs_i75': 'green',
+            'shuffle': '#949494'
+        }
+        
+        linestyles = {
+            'c25_vs_i25': '-',
+            'c75_vs_i75': '-',
+            'shuffle': '--'
+        }  
+        
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
     # Since your run script calls main() directly, this block won't be executed
