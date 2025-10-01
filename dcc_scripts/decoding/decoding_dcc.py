@@ -223,7 +223,9 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
     # do lwpc comparison 
-    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:       
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
+        results_for_this_bootstrap['pooled_lwpc_shuffle'] = {}
+          
         for roi in rois:
             time_window_centers = results_for_this_bootstrap['c25_vs_i25'][roi]['time_window_centers']
             c25_vs_i25_acc = results_for_this_bootstrap['c25_vs_i25'][roi]['accuracies_true']
@@ -674,7 +676,6 @@ def main(args):
                  
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
         print("\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) ---")
-        results_for_this_bootstrap['pooled_lwpc_shuffle'] = {}
         
         lwpc_colors = {
             'c25_vs_i25': 'blue',
