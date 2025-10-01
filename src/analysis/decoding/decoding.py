@@ -2664,19 +2664,19 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
                         
             if all_true_accs:
                 # concatenate all bootstraps
-                pooled_true = np.vstack(all_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
-                pooled_shuffle = np.vstack(all_shuffle_accs)
+                true_accs_pooled_across_bootstraps = np.vstack(all_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
+                shuffle_accs_pooled_across_bootstraps = np.vstack(all_shuffle_accs)
                 
                 # take mean across all samples for the "series" and distribution
-                mean_pooled_true = np.mean(pooled_true, axis=0, keepdims=True) # (1, n_windows)
+                mean_true_accs_pooled_across_bootstraps = np.mean(true_accs_pooled_across_bootstraps, axis=0, keepdims=True) # (1, n_windows)
                 
-                mean_pooled_shuffle = np.mean(pooled_shuffle, axis=0, keepdims=True) # (1, n_windows)
+                mean_shuffle_accs_pooled_across_bootstraps = np.mean(shuffle_accs_pooled_across_bootstraps, axis=0, keepdims=True) # (1, n_windows)
 
                 # Run significance test on pooled data
                 time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
                 significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
-                    series=mean_pooled_true,
-                    distribution=pooled_shuffle,
+                    series=mean_true_accs_pooled_across_bootstraps,
+                    distribution=shuffle_accs_pooled_across_bootstraps,
                     time_points=time_window_centers,
                     percentile=percentile,
                     cluster_percentile=cluster_percentile,
@@ -2690,14 +2690,14 @@ def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstra
                     significant_clusters[start_idx:end_idx+1] = True
                 
                 pooled_stats[condition_comparison][roi] = {
-                    'pooled_true': pooled_true,
-                    'mean_true': mean_pooled_true,
-                    'std_true': np.std(pooled_true, axis=0),
-                    'pooled_shuffle': pooled_shuffle,
-                    'mean_shuffle': mean_pooled_shuffle,
-                    'std_shuffle': np.std(pooled_shuffle, axis=0),
+                    'true_accs_pooled_across_bootstraps': true_accs_pooled_across_bootstraps,
+                    'mean_true': mean_true_accs_pooled_across_bootstraps,
+                    'std_true': np.std(true_accs_pooled_across_bootstraps, axis=0),
+                    'shuffle_accs_pooled_across_bootstraps': shuffle_accs_pooled_across_bootstraps,
+                    'mean_shuffle': mean_shuffle_accs_pooled_across_bootstraps,
+                    'std_shuffle': np.std(shuffle_accs_pooled_across_bootstraps, axis=0),
                     'significant_clusters': significant_clusters,
-                    'n_samples': pooled_true.shape[0]
+                    'n_samples': true_accs_pooled_across_bootstraps.shape[0]
                 }   
                   
     return pooled_stats         
