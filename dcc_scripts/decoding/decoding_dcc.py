@@ -224,7 +224,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
     # do lwpc comparison 
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
-        results_for_this_bootstrap['lwpc_shuffled_accs_across_pooled_conditions'] = {}
+        results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
             time_window_centers = results_for_this_bootstrap['c25_vs_i25'][roi]['time_window_centers']
@@ -252,10 +252,10 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             accuracies_dict = {
                 'c25_vs_i25': c25_vs_i25_acc,
                 'c75_vs_i75': c75_vs_i75_acc,
-                'lwpc_shuffled_accs_across_pooled_conditions': accuracies_shuffle_pooled
+                'lwpc_shuffle_accs_across_pooled_conditions': accuracies_shuffle_pooled
             }
             
-            results_for_this_bootstrap['lwpc_shuffled_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
     # # do lwps comparison 
     # if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
@@ -680,13 +680,13 @@ def main(args):
         lwpc_colors = {
             'c25_vs_i25': 'blue',
             'c75_vs_i75': 'orange',
-            'lwpc_shuffled_accs_across_pooled_conditions': '#949494'  # Gray
+            'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         lwpc_linestyles = {
             'c25_vs_i25': '-',  # Solid
             'c75_vs_i75': '-',  # Solid
-            'lwpc_shuffled_accs_across_pooled_conditions': '--'  # Dashed
+            'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
         lwpc_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
@@ -695,7 +695,7 @@ def main(args):
             condition_comparison_1='c25_vs_i25',
             condition_comparison_2='c75_vs_i75', 
             rois=rois, 
-            args.stat_func, 
+            stat_func=args.stat_func, 
             p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
             n_perm=args.n_cluster_perms, 
             tails=2, 
@@ -704,13 +704,13 @@ def main(args):
             n_jobs=args.n_jobs)
 
         for roi in rois:
-            lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps = []
+            lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = []
             
             for b_idx in range(args.bootstraps):
-                lwpc_shuffled_accs_across_pooled_conditions_this_bootstrap = time_window_decoding_results[b_idx]['lwpc_shuffled_accs_across_pooled_conditions'][roi]
-                lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps.append(lwpc_shuffled_accs_across_pooled_conditions_this_bootstrap)
+                lwpc_shuffle_accs_across_pooled_conditions_this_bootstrap = time_window_decoding_results[b_idx]['lwpc_shuffle_accs_across_pooled_conditions'][roi]
+                lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps.append(lwpc_shuffle_accs_across_pooled_conditions_this_bootstrap)
         
-            stacked_lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps = np.vstack(lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps)
+            stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps)
             
             c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
             c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
@@ -723,7 +723,7 @@ def main(args):
                 accuracies_dict={
                     'c25_vs_i25': c25_vs_i25_stats['true_accs_pooled_across_bootstraps'],
                     'c75_vs_i75': c75_vs_i75_stats['true_accs_pooled_across_bootstraps'],
-                    'lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffled_accs_across_pooled_conditions_across_bootstraps
+                    'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
                 },
                 significant_clusters = significant_clusters_lwpc,
                 window_size = args.window_size,
