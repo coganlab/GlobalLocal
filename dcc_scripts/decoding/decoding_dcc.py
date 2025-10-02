@@ -697,6 +697,7 @@ def main(args):
             rois=rois, 
             stat_func=args.stat_func, 
             p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
+            p_cluster=args.p_thresh_for_time_perm_cluster_stats, # need to add this line to fix a bug, explicitly sets the cluster p-value
             n_perm=args.n_cluster_perms, 
             tails=2, 
             axis=0, 
