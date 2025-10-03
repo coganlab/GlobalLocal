@@ -600,7 +600,7 @@ def main(args):
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
     # use joblib to run the bootstrap processing in parallel
-    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='threading')(
+    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
         delayed(process_bootstrap)(
             bootstrap_idx,
             subjects_mne_objects,
@@ -621,7 +621,7 @@ def main(args):
         return
     
     print(f"\n{'-'*20} PARALLEL BOOTSTRAPPING COMPLETE {'='*20}\n")
- 
+    
     # after all bootstraps complete, run pooled statistics
     all_bootstrap_stats = compute_pooled_bootstrap_statistics(
         time_window_decoding_results,
@@ -631,7 +631,8 @@ def main(args):
         percentile=args.percentile,
         cluster_percentile=args.cluster_percentile,
         n_cluster_perms=args.n_cluster_perms,
-        random_state=args.random_state
+        random_state=args.random_state,
+        unit_of_analysis=args.unit_of_analysis
     )
                 
     # define color and linestyle for plotting true vs shuffle
@@ -651,12 +652,15 @@ def main(args):
             if roi in all_bootstrap_stats[condition_comparison]:
                 stats = all_bootstrap_stats[condition_comparison][roi] 
                 time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
-
+                
+                # extract the correct keys based on unit_of_analysis
+                unit = stats['unit_of_analysis']
+                
                 plot_accuracies_nature_style(
                     time_points=time_window_centers,
                     accuracies_dict={
-                        'true': stats['true_accs_pooled_across_bootstraps'],
-                        'shuffle': stats['shuffle_accs_pooled_across_bootstraps']
+                        'true': stats[f'{unit}_true_accs'], # use the full distribution
+                        'shuffle': stats[f'{unit}_shuffle_accs']
                     },
                     significant_clusters=stats['significant_clusters'],
                     window_size=args.window_size,
@@ -715,6 +719,10 @@ def main(args):
             
             c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
             c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
+            
+            # Extract unit of analysis
+            unit = c25_vs_i25_stats['unit_of_analysis']
+            
             time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
             
             significant_clusters_lwpc, p_values_lwpc = lwpc_comparison_stats[roi]
@@ -722,8 +730,8 @@ def main(args):
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
                 accuracies_dict={
-                    'c25_vs_i25': c25_vs_i25_stats['true_accs_pooled_across_bootstraps'],
-                    'c75_vs_i75': c75_vs_i75_stats['true_accs_pooled_across_bootstraps'],
+                    'c25_vs_i25': c25_vs_i25_stats[f'{unit}_true_accs'],
+                    'c75_vs_i75': c75_vs_i75_stats[f'{unit}_true_accs'],
                     'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
                 },
                 significant_clusters = significant_clusters_lwpc,

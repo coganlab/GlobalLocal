@@ -2634,80 +2634,146 @@ def get_max_perm_cluster_lengths_based_on_percentile(
         
     return max_perm_cluster_lengths
 
-def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstraps,
-                                        condition_comparisons, rois,
-                                        percentile=95, cluster_percentile=95,
-                                        n_cluster_perms=1000, random_state=42):
+def compute_pooled_bootstrap_statistics(
+    time_window_decoding_results, 
+    n_bootstraps,
+    condition_comparisons, 
+    rois,
+    percentile=95, 
+    cluster_percentile=95,
+    n_cluster_perms=1000, 
+    random_state=42, 
+    unit_of_analysis='bootstrap'
+):
     """
-    Pool all bootstrap samples together and run statistics once on the pooled data.
+    Pool samples and run statistics based on the specified unit of analysis.
+    
+    Parameters
+    ----------
+    time_window_decoding_results : dict
+        Dictionary with bootstrap indices as keys, containing decoding results
+    n_bootstraps : int
+        Number of bootstrap samples
+    condition_comparisons : dict
+        Dictionary of condition comparisons to analyze
+    rois : list
+        List of ROIs to process
+    percentile : float
+        Percentile threshold for pointwise significance
+    cluster_percentile : float
+        Percentile threshold for cluster-level correction
+    n_cluster_perms : int
+        Number of permutations for cluster correction
+    random_state : int
+        Random seed for reproducibility
+    unit_of_analysis : str
+        'bootstrap': Average within each bootstrap (across repeats/folds)
+        'repeat': Each repeat is a sample (average across folds only)
+        'fold': Each fold is a sample (no averaging)
+        
+    Returns
+    -------
+    pooled_stats : dict
+        Nested dictionary with statistics for each condition comparison and ROI
     """
+    
     pooled_stats = {}
     
     for condition_comparison in condition_comparisons.keys():
         pooled_stats[condition_comparison] = {}
         
         for roi in rois:
-            # collect ALL accuracies from all bootstraps
-            all_true_accs = [] # will be (n_bootstraps * (n_folds or n_repeats), n_windows)
-            all_shuffle_accs = []
+            # Collect all accuracies across bootstraps
+            all_true_accuracies = []  # Will collect based on unit_of_analysis
+            all_shuffle_accuracies = []
             
+            # First, gather raw data from all bootstraps
             for b_idx in range(n_bootstraps):
-                if condition_comparison in time_window_decoding_results[b_idx]:
-                    if roi in time_window_decoding_results[b_idx][condition_comparison]:
-                        # get the raw accuracies (not averaged)
-                        true_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_true']
-                        shuffle_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_shuffle']
+                if (condition_comparison in time_window_decoding_results[b_idx] and 
+                    roi in time_window_decoding_results[b_idx][condition_comparison]):
+                    
+                    # Get raw accuracies - shape: (n_windows, n_repeats_or_folds)
+                    true_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_true']
+                    shuffle_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_shuffle']
+                    
+                    if unit_of_analysis == 'bootstrap':
+                        # Average across repeats/folds for this bootstrap
+                        # Result: one value per bootstrap
+                        bootstrap_mean_true = np.mean(true_acc, axis=1)  # (n_windows,)
+                        bootstrap_mean_shuffle = np.mean(shuffle_acc, axis=1)
                         
-                        # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
-                        all_true_accs.append(true_acc.T)
-                        all_shuffle_accs.append(shuffle_acc.T)
+                        all_true_accuracies.append(bootstrap_mean_true)
+                        all_shuffle_accuracies.append(bootstrap_mean_shuffle)
                         
-            if all_true_accs:
-                # concatenate all bootstraps
-                true_accs_pooled_across_bootstraps = np.vstack(all_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
-                shuffle_accs_pooled_across_bootstraps = np.vstack(all_shuffle_accs)
-                
-                # take mean across all samples for the "series" and distribution
-                mean_true_accs_pooled_across_bootstraps = np.mean(true_accs_pooled_across_bootstraps, axis=0, keepdims=True) # (1, n_windows)
-                
-                mean_shuffle_accs_pooled_across_bootstraps = np.mean(shuffle_accs_pooled_across_bootstraps, axis=0, keepdims=True) # (1, n_windows)
+                    elif unit_of_analysis == 'repeat':
+                        # Keep repeats separate (assuming folds were already summed/averaged)
+                        # Each repeat becomes a separate sample
+                        # true_acc shape should be (n_windows, n_repeats) if folds_as_samples=False
+                        for rep_idx in range(true_acc.shape[1]):
+                            all_true_accuracies.append(true_acc[:, rep_idx])
+                            all_shuffle_accuracies.append(shuffle_acc[:, rep_idx])
+                            
+                    elif unit_of_analysis == 'fold':
+                        # Keep all folds as separate samples
+                        # true_acc shape should be (n_windows, n_repeats*n_folds) if folds_as_samples=True
+                        for sample_idx in range(true_acc.shape[1]):
+                            all_true_accuracies.append(true_acc[:, sample_idx])
+                            all_shuffle_accuracies.append(shuffle_acc[:, sample_idx])
+                    
+                    else:
+                        raise ValueError(f"Invalid unit_of_analysis: {unit_of_analysis}")
+            
+            if not all_true_accuracies:
+                print(f"Warning: No data for {condition_comparison} - {roi}")
+                continue
+            
+            # Stack all samples - shape: (n_samples, n_windows)
+            true_accs_stacked = np.vstack(all_true_accuracies)
+            shuffle_accs_stacked = np.vstack(all_shuffle_accuracies)
+            
+            # Compute mean across samples for the "series" to test
+            mean_true_accs = np.mean(true_accs_stacked, axis=0, keepdims=True)  # (1, n_windows)
+            mean_shuffle_accs = np.mean(shuffle_accs_stacked, axis=0, keepdims=True)
+            
+            # Run significance test using percentile-based cluster correction
+            time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+            
+            significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                series=mean_true_accs,
+                distribution=shuffle_accs_stacked,  # Use full distribution for comparison
+                time_points=time_window_centers,
+                percentile=percentile,
+                cluster_percentile=cluster_percentile,
+                n_cluster_perms=n_cluster_perms,
+                random_state=random_state
+            )
+            
+            # Convert cluster indices to boolean mask
+            significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
+            for start_idx, end_idx in significant_cluster_indices:
+                significant_clusters[start_idx:end_idx+1] = True
+            
+            # Store results with clear naming
+            pooled_stats[condition_comparison][roi] = {
+                f'{unit_of_analysis}_true_accs': true_accs_stacked,  # All samples
+                f'mean_true_across_{unit_of_analysis}s': mean_true_accs,
+                f'std_true_across_{unit_of_analysis}s': np.std(true_accs_stacked, axis=0),
+                f'{unit_of_analysis}_shuffle_accs': shuffle_accs_stacked,  # All samples
+                f'mean_shuffle_across_{unit_of_analysis}s': mean_shuffle_accs,
+                f'std_shuffle_across_{unit_of_analysis}s': np.std(shuffle_accs_stacked, axis=0),
+                'significant_clusters': significant_clusters,
+                f'n_{unit_of_analysis}_samples': true_accs_stacked.shape[0],
+                'unit_of_analysis': unit_of_analysis
+            }
+    
+    return pooled_stats        
 
-                # Run significance test on pooled data
-                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
-                significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
-                    series=mean_true_accs_pooled_across_bootstraps,
-                    distribution=shuffle_accs_pooled_across_bootstraps,
-                    time_points=time_window_centers,
-                    percentile=percentile,
-                    cluster_percentile=cluster_percentile,
-                    n_cluster_perms=n_cluster_perms,
-                    random_state=random_state
-                )  
-                
-                # convert to boolean mask
-                significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
-                for start_idx, end_idx in significant_cluster_indices:
-                    significant_clusters[start_idx:end_idx+1] = True
-                
-                pooled_stats[condition_comparison][roi] = {
-                    'true_accs_pooled_across_bootstraps': true_accs_pooled_across_bootstraps,
-                    'mean_true': mean_true_accs_pooled_across_bootstraps,
-                    'std_true': np.std(true_accs_pooled_across_bootstraps, axis=0),
-                    'shuffle_accs_pooled_across_bootstraps': shuffle_accs_pooled_across_bootstraps,
-                    'mean_shuffle': mean_shuffle_accs_pooled_across_bootstraps,
-                    'std_shuffle': np.std(shuffle_accs_pooled_across_bootstraps, axis=0),
-                    'significant_clusters': significant_clusters,
-                    'n_samples': true_accs_pooled_across_bootstraps.shape[0]
-                }   
-                  
-    return pooled_stats         
 
-
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
     
     # collect concatenated true accuracies from all bootstraps
     pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs = get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi)
-    
+
     # get shuffled accuracies - can i just add shuffled accs together from both of these? no, right? I should make a separate shuffle distribution that uses all trials for this comparison (i.e., for c25 vs i25 and c75 vs i75, i shouldn't just grab the shuffled accs from c25 vs i25 and from c75 vs i75, but rather make a c vs i shuffled acc distribution.)
     # ugh so i need to make shuffled acc using all the trials with congruency labels if i'm doing lwpc...similar idea as commit 2859769 with its make_pooled_shuffle_distribution
     
@@ -2715,6 +2781,7 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for
         pooled_condition_comparison_1_true_accs,
         pooled_condition_comparison_2_true_accs,
         p_thresh=p_thresh,
+        p_cluster=p_cluster,
         n_perm=n_perm,
         tails=tails,
         axis=axis,
@@ -2726,27 +2793,33 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for
     return significant_clusters, p_values
 
 def get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi):
-    # collect ALL accuracies from all bootstraps
-    all_condition_comparison_1_true_accs = [] # will be (n_bootstraps * (n_folds or n_repeats), n_windows)
-    all_condition_comparison_2_true_accs = []
+    # collect mean accuracy from each bootstrap
+    all_condition_comparison_1_true_bootstrap_accs = [] # will be (n_bootstraps, n_windows)
+    all_condition_comparison_2_true_bootstrap_accs = []
     
     for b_idx in range(n_bootstraps):
         # get the raw accuracies (not averaged)
-        condition_comparison_1_true_acc = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
-        condition_comparison_2_true_acc = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
+        condition_comparison_1_true_accs = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+        condition_comparison_2_true_accs = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
 
-        # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
-        all_condition_comparison_1_true_accs.append(condition_comparison_1_true_acc.T)
-        all_condition_comparison_2_true_accs.append(condition_comparison_2_true_acc.T)
+        condition_comparison_1_true_bootstrap_acc = np.mean(condition_comparison_1_true_accs, axis=1).squeeze()
+        condition_comparison_2_true_bootstrap_acc = np.mean(condition_comparison_2_true_accs, axis=1).squeeze()
+
+        # ensure we have 1D arrays
+        assert condition_comparison_1_true_bootstrap_acc.ndim == 1, f"Expected 1D array, got shape {condition_comparison_1_true_bootstrap_acc.shape}"
+
+        # each is shape of 1
+        all_condition_comparison_1_true_bootstrap_accs.append(condition_comparison_1_true_bootstrap_acc)
+        all_condition_comparison_2_true_bootstrap_accs.append(condition_comparison_2_true_bootstrap_acc)
             
-    if all_condition_comparison_1_true_accs and all_condition_comparison_2_true_accs:
+    if all_condition_comparison_1_true_bootstrap_accs and all_condition_comparison_2_true_bootstrap_accs:
         # concatenate all bootstraps
-        pooled_condition_comparison_1_true_accs = np.vstack(all_condition_comparison_1_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
-        pooled_condition_comparison_2_true_accs = np.vstack(all_condition_comparison_2_true_accs)   
+        pooled_condition_comparison_1_true_bootstrap_accs = np.vstack(all_condition_comparison_1_true_bootstrap_accs) # (n_bootstraps, n_windows)
+        pooled_condition_comparison_2_true_bootstrap_accs = np.vstack(all_condition_comparison_2_true_bootstrap_accs)   
     
-    return pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs
+    return pooled_condition_comparison_1_true_bootstrap_accs, pooled_condition_comparison_2_true_bootstrap_accs
 
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
     stats = {}
     
     for roi in rois:
@@ -2757,7 +2830,8 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(tim
             condition_comparison_2=condition_comparison_2, 
             roi=roi, 
             stat_func=stat_func,
-            p_thresh=p_thresh, 
+            p_thresh=p_thresh,
+            p_cluster=p_cluster, 
             n_perm=n_perm, 
             tails=tails, 
             axis=axis, 

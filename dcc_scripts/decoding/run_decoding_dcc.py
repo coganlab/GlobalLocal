@@ -76,7 +76,7 @@ N_JOBS = -1
 
 # Decoding parameters
 N_SPLITS = 5
-N_REPEATS = 50
+N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
@@ -94,8 +94,11 @@ FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
-# whether to do stats across folds (true) or repeats (false)
-FOLDS_AS_SAMPLES = True
+# whether to do stats across fold, repeat, or bootstrap
+UNIT_OF_ANALYSIS='repeat'
+
+# whether to store individual folds (true) or sum them within repeats (false)
+FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
 
 # percentile stats parameters
 PERCENTILE=95,
@@ -104,7 +107,7 @@ N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and tr
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05,
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -138,16 +141,16 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # testing params (comment out)
-SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 2
-N_PERM = 5
-N_CLUSTER_PERMS= 5
-BOOTSTRAPS = 2
-N_JOBS = 1
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# SUBJECTS = ['D0103']
+# N_SPLITS = 2
+# N_REPEATS = 2
+# N_PERM = 5
+# N_CLUSTER_PERMS= 5
+# BOOTSTRAPS = 2
+# N_JOBS = 1
+# ROIS_DICT = {
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -183,6 +186,7 @@ def run_analysis():
         sampling_rate=SAMPLING_RATE,
         first_time_point=FIRST_TIME_POINT,
         folds_as_samples=FOLDS_AS_SAMPLES,
+        unit_of_analysis=UNIT_OF_ANALYSIS,
         percentile=PERCENTILE,
         cluster_percentile=CLUSTER_PERCENTILE,
         n_cluster_perms=N_CLUSTER_PERMS,
@@ -218,7 +222,7 @@ def run_analysis():
     # print(f"  P-value Threshold: {P_THRESH}")
     # print(f"  Tails:             {TAILS}")
 
-    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {FOLDS_AS_SAMPLES}")
+    print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     
     print("Percentile Statistical Parameters:")
     print(f"  Percentile: {PERCENTILE}")
