@@ -679,12 +679,12 @@ def main(args):
                 )    
                  
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        print("\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) ---")
+        print(f"\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         lwpc_colors = {
-            'c25_vs_i25': 'blue',
-            'c75_vs_i75': 'orange',
-            'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+            'c25_vs_i25': '#0173B2',  # Blue
+            'c75_vs_i75': '#DE8F05',  # Orange
+          'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         lwpc_linestyles = {
@@ -693,6 +693,7 @@ def main(args):
             'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
+        # Perform the statistical comparison between the two true accuracy distributions
         lwpc_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
             time_window_decoding_results=time_window_decoding_results, 
             n_bootstraps=args.bootstraps, 
@@ -700,32 +701,46 @@ def main(args):
             condition_comparison_2='c75_vs_i75', 
             rois=rois, 
             stat_func=args.stat_func, 
+            unit_of_analysis=args.unit_of_analysis,
             p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
-            p_cluster=args.p_thresh_for_time_perm_cluster_stats, # need to add this line to fix a bug, explicitly sets the cluster p-value
+            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
             n_perm=args.n_cluster_perms, 
             tails=2, 
             axis=0, 
             random_state=args.random_state, 
-            n_jobs=args.n_jobs)
+            n_jobs=args.n_jobs
+        )
 
         for roi in rois:
+            if roi not in all_bootstrap_stats.get('c25_vs_i25', {}) or roi not in lwpc_comparison_stats:
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
             lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = []
-            
             for b_idx in range(args.bootstraps):
-                lwpc_shuffle_accs_across_pooled_conditions_this_bootstrap = time_window_decoding_results[b_idx]['lwpc_shuffle_accs_across_pooled_conditions'][roi]
-                lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps.append(lwpc_shuffle_accs_across_pooled_conditions_this_bootstrap)
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['lwpc_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
         
-            stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps)
+            # Stack all samples from all bootstraps
+            stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
             
+            # --- Get data for plotting from the main stats dictionary ---
             c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
             c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
             
-            # Extract unit of analysis
+            # This ensures the plot's lines/error bars match the unit of analysis
             unit = c25_vs_i25_stats['unit_of_analysis']
             
             time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
             
-            significant_clusters_lwpc, p_values_lwpc = lwpc_comparison_stats[roi]
+            # Get the significance clusters from our new comparison
+            significant_clusters_lwpc, _ = lwpc_comparison_stats[roi]
             
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
@@ -734,11 +749,12 @@ def main(args):
                     'c75_vs_i75': c75_vs_i75_stats[f'{unit}_true_accs'],
                     'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
                 },
-                significant_clusters = significant_clusters_lwpc,
-                window_size = args.window_size,
-                step_size = args.step_size,
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_lwpc,
+                window_size=args.window_size,
+                step_size=args.step_size,
                 sampling_rate=args.sampling_rate,
-                comparison_name=f'bootstrap_LWPC_comparison_{roi}',
+                comparison_name=f'bootstrap_LWPC_comparison_{roi}_{unit}',
                 roi=roi,
                 save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
                 timestamp=args.timestamp,
@@ -748,10 +764,9 @@ def main(args):
                 single_column=False,
                 ylim=(0.4, 0.75),
                 ylabel="Congruency Decoding Accuracy",
-                # Place the significance bar higher to avoid overlap
                 significance_y_position=0.72,
-                show_chance_level=False # The pooled shuffle line is our chance level
-                )
+                show_chance_level=False, # The pooled shuffle line is our chance level
+            )
             
                  
 if __name__ == "__main__":

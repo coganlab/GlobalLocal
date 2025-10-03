@@ -2769,22 +2769,38 @@ def compute_pooled_bootstrap_statistics(
     return pooled_stats        
 
 
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi, stat_func, p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(
+    time_window_decoding_results, n_bootstraps, 
+    condition_comparison_1, condition_comparison_2, roi, 
+    stat_func, unit_of_analysis,
+    p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1
+):
     
-    # collect concatenated true accuracies from all bootstraps
-    pooled_condition_comparison_1_true_accs, pooled_condition_comparison_2_true_accs = get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi)
-
-    # get shuffled accuracies - can i just add shuffled accs together from both of these? no, right? I should make a separate shuffle distribution that uses all trials for this comparison (i.e., for c25 vs i25 and c75 vs i75, i shouldn't just grab the shuffled accs from c25 vs i25 and from c75 vs i75, but rather make a c vs i shuffled acc distribution.)
-    # ugh so i need to make shuffled acc using all the trials with congruency labels if i'm doing lwpc...similar idea as commit 2859769 with its make_pooled_shuffle_distribution
+    # Use the new, flexible data extraction function
+    pooled_cond1_accs, pooled_cond2_accs = get_pooled_accuracy_distributions_for_comparison(
+        time_window_decoding_results,
+        n_bootstraps,
+        condition_comparison_1,
+        condition_comparison_2,
+        roi,
+        unit_of_analysis
+    )
     
+    # Handle cases with no data
+    if pooled_cond1_accs.size == 0 or pooled_cond2_accs.size == 0:
+        print(f"Warning: Insufficient data for LWPC comparison in ROI {roi}. Skipping stats.")
+        # Return a correctly shaped empty result
+        time_points_len = len(time_window_decoding_results[0][condition_comparison_1][roi]['time_window_centers'])
+        return np.zeros(time_points_len, dtype=bool), np.array([])
+        
     significant_clusters, p_values = time_perm_cluster(
-        pooled_condition_comparison_1_true_accs,
-        pooled_condition_comparison_2_true_accs,
+        pooled_cond1_accs,
+        pooled_cond2_accs,
         p_thresh=p_thresh,
         p_cluster=p_cluster,
         n_perm=n_perm,
         tails=tails,
-        axis=axis,
+        axis=axis, # Samples are on axis 0, time on axis 1
         stat_func=stat_func,
         n_jobs=n_jobs,
         seed=random_state
@@ -2792,34 +2808,87 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for
     
     return significant_clusters, p_values
 
-def get_two_true_bootstrap_accuracy_distributions_for_one_roi(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, roi):
-    # collect mean accuracy from each bootstrap
-    all_condition_comparison_1_true_bootstrap_accs = [] # will be (n_bootstraps, n_windows)
-    all_condition_comparison_2_true_bootstrap_accs = []
-    
+def get_pooled_accuracy_distributions_for_comparison(
+    time_window_decoding_results: dict,
+    n_bootstraps: int,
+    condition_comparison_1: str,
+    condition_comparison_2: str,
+    roi: str,
+    unit_of_analysis: str
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Pools accuracy samples for two conditions based on the specified unit of analysis.
+
+    This function iterates through all bootstrap results and collects accuracy time-series.
+    The level of granularity (pooling bootstrap means, repeats, or folds) is
+    determined by the `unit_of_analysis` parameter.
+
+    Parameters
+    ----------
+    time_window_decoding_results : dict
+        The main results dictionary from the parallel bootstrap processing.
+    n_bootstraps : int
+        The total number of bootstraps run.
+    condition_comparison_1 : str
+        The name of the first condition to pool (e.g., 'c25_vs_i25').
+    condition_comparison_2 : str
+        The name of the second condition to pool (e.g., 'c75_vs_i75').
+    roi : str
+        The Region of Interest to process.
+    unit_of_analysis : str
+        The sampling unit ('bootstrap', 'repeat', or 'fold').
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        A tuple containing two numpy arrays:
+        - The first array has shape (n_samples, n_windows) for condition 1.
+        - The second array has shape (n_samples, n_windows) for condition 2.
+        Returns empty arrays if data is not found.
+    """
+    all_cond1_accuracies = []
+    all_cond2_accuracies = []
+
     for b_idx in range(n_bootstraps):
-        # get the raw accuracies (not averaged)
-        condition_comparison_1_true_accs = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
-        condition_comparison_2_true_accs = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
+        # Ensure data exists for this bootstrap, ROI, and both conditions
+        if (b_idx in time_window_decoding_results and
+            condition_comparison_1 in time_window_decoding_results[b_idx] and
+            roi in time_window_decoding_results[b_idx][condition_comparison_1] and
+            condition_comparison_2 in time_window_decoding_results[b_idx] and
+            roi in time_window_decoding_results[b_idx][condition_comparison_2]):
 
-        condition_comparison_1_true_bootstrap_acc = np.mean(condition_comparison_1_true_accs, axis=1).squeeze()
-        condition_comparison_2_true_bootstrap_acc = np.mean(condition_comparison_2_true_accs, axis=1).squeeze()
+            # Get the raw accuracies for this bootstrap. Shape: (n_windows, n_repeats_or_folds)
+            acc1 = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+            acc2 = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
 
-        # ensure we have 1D arrays
-        assert condition_comparison_1_true_bootstrap_acc.ndim == 1, f"Expected 1D array, got shape {condition_comparison_1_true_bootstrap_acc.shape}"
+            if unit_of_analysis == 'bootstrap':
+                # Average across repeats/folds to get a single time-series per bootstrap
+                all_cond1_accuracies.append(np.mean(acc1, axis=1)) # Shape: (n_windows,)
+                all_cond2_accuracies.append(np.mean(acc2, axis=1))
+            elif unit_of_analysis in ['repeat', 'fold']:
+                # Treat each repeat or fold as an independent sample
+                # Loop through the samples dimension (axis=1)
+                for sample_idx in range(acc1.shape[1]):
+                    all_cond1_accuracies.append(acc1[:, sample_idx])
+                    all_cond2_accuracies.append(acc2[:, sample_idx])
+            else:
+                raise ValueError(f"Invalid unit_of_analysis: '{unit_of_analysis}'")
 
-        # each is shape of 1
-        all_condition_comparison_1_true_bootstrap_accs.append(condition_comparison_1_true_bootstrap_acc)
-        all_condition_comparison_2_true_bootstrap_accs.append(condition_comparison_2_true_bootstrap_acc)
-            
-    if all_condition_comparison_1_true_bootstrap_accs and all_condition_comparison_2_true_bootstrap_accs:
-        # concatenate all bootstraps
-        pooled_condition_comparison_1_true_bootstrap_accs = np.vstack(all_condition_comparison_1_true_bootstrap_accs) # (n_bootstraps, n_windows)
-        pooled_condition_comparison_2_true_bootstrap_accs = np.vstack(all_condition_comparison_2_true_bootstrap_accs)   
-    
-    return pooled_condition_comparison_1_true_bootstrap_accs, pooled_condition_comparison_2_true_bootstrap_accs
+    if not all_cond1_accuracies or not all_cond2_accuracies:
+        return np.array([]), np.array([])
 
-def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(time_window_decoding_results, n_bootstraps, condition_comparison_1, condition_comparison_2, rois, stat_func, p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1):
+    # Stack all collected samples into a 2D array (n_samples, n_windows)
+    pooled_cond1_accs = np.vstack(all_cond1_accuracies)
+    pooled_cond2_accs = np.vstack(all_cond2_accuracies)
+
+    return pooled_cond1_accs, pooled_cond2_accs
+
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+    time_window_decoding_results, n_bootstraps, 
+    condition_comparison_1, condition_comparison_2, rois, 
+    stat_func, unit_of_analysis,
+    p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1
+):
     stats = {}
     
     for roi in rois:
@@ -2830,6 +2899,7 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(tim
             condition_comparison_2=condition_comparison_2, 
             roi=roi, 
             stat_func=stat_func,
+            unit_of_analysis=unit_of_analysis,
             p_thresh=p_thresh,
             p_cluster=p_cluster, 
             n_perm=n_perm, 
@@ -2837,7 +2907,7 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(tim
             axis=axis, 
             random_state=random_state, 
             n_jobs=n_jobs
-            )
+        )
         
         stats[roi] = significant_clusters, p_values
         
