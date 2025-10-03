@@ -131,12 +131,22 @@ plotting_parameters = {
     "line_style": "-", 
 },
 "Stimulus_err_inc": {
-    "condition_parameter": "error",
+    "condition_parameter": "err-inc",
     "color": "black",
     "line_style": "--",
 },
 "Stimulus_err_con": {
-    "condition_parameter": "correct",
+    "condition_parameter": "err-con",
+    "color": "black",
+    "line_style": "-", 
+},
+"Stimulus_err_iR": {
+    "condition_parameter": "err-iR",
+    "color": "black",
+    "line_style": "-", 
+},
+"Stimulus_err_cS": {
+    "condition_parameter": "err-cS",
     "color": "black",
     "line_style": "-", 
 },
