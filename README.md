@@ -69,8 +69,7 @@ Last edited: 01/16/2024
 1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: ```(ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057```. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
 ### Decoding
-1. Run decoding.ipynb to do decoding. TODO: Make a main function in decoding.py to run decoding all from decoding.py.
-2. Or run ```sbatch sbatch_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc.
+1. run ```sbatch sbatch_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc, with chosen parameters in run_decoding_dcc.py. Testing code is at bottom of this file, uncomment to test. Make sure your chosen epochs root file is saved in the dcc cwork folder. Using unit of analysis as repeat right now. The decoding_dcc.py script will load in the epoched data of specified subjects, then for each bootstrap, transform it into a LabeledArray where each electrode is randomly downsampled to the lowest number of trials across electrodes in that roi and condition, then for each condition comparison (i.e., congruent vs incongruent), randomly downsample again to the lowest number of trials across conditions for that condition comparison, then run decoding where error bars and stats are calculated using the unit of analysis (bootstrap, repeat, fold). If bootstrap, it will sum accuracies across folds and average across repeats for each bootstrap. If repeat, it will sum accuracies across folds for each repeat. If fold, it will find the variance and stats over all folds.
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
  
