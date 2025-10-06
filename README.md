@@ -64,6 +64,7 @@ Last edited: 01/16/2024
 2. Run plot_wavelets.ipynb to make wavelet plots for each electrode
 3. Run wavelet_differences.ipynb to make wavelet_difference plots for different conditions.
 4. All wavelet functions live in wavelet_functions.py (also, copy_wavelet_spec.ipynb is deprecated, that was a copy of Aaron's old code)
+5. Alternatively, use the submit/sbatch script on the cluster.
     
 ### High Gamma Filter and Permutation Testing
 1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: ```(ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057```. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
