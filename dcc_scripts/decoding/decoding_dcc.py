@@ -222,14 +222,12 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
             results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
-    # do lwpc comparison 
+    # lwpc
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
         results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
             time_window_centers = results_for_this_bootstrap['c25_vs_i25'][roi]['time_window_centers']
-            c25_vs_i25_acc = results_for_this_bootstrap['c25_vs_i25'][roi]['accuracies_true']
-            c75_vs_i75_acc = results_for_this_bootstrap['c75_vs_i75'][roi]['accuracies_true']
             
             # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
@@ -248,153 +246,86 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            # For LWPC comparisons - this is not used here but just leave as a placeholder for now, and pull it into the main function once i figure out the stats for these
-            accuracies_dict = {
-                'c25_vs_i25': c25_vs_i25_acc,
-                'c75_vs_i75': c75_vs_i75_acc,
-                'lwpc_shuffle_accs_across_pooled_conditions': accuracies_shuffle_pooled
-            }
-            
             results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
-    # # do lwps comparison 
-    # if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
-    #     for roi in rois:
-    #         time_window_centers = results_for_this_bootstrap['s25_vs_r25'][roi]['time_window_centers']
-    #         s25_vs_r25_acc = results_for_this_bootstrap['s25_vs_r25'][roi]['accuracies_true']
-    #         s75_vs_r75_acc = results_for_this_bootstrap['s75_vs_r75'][roi]['accuracies_true']
+    # lwps
+    if args.conditions == experiment_conditions.stimulus_lwps_conditions:   
+        results_for_this_bootstrap['lwps_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['s25_vs_r25'][roi]['time_window_centers']
+            
+            # get i vs c pooled shuffle distribution
+            strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            
+            results_for_this_bootstrap['lwps_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
-    #         # get s vs r pooled shuffle distribution
-    #         strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
+    # congruency by switch proportion
+    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:   
+        results_for_this_bootstrap['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
             
-    #         accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-    #             roi=roi,
-    #             roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-    #             strings_to_find_pooled=strings_to_find_pooled,
-    #             explained_variance=args.explained_variance,
-    #             n_splits=args.n_splits,
-    #             n_perm=args.n_shuffle_perms,
-    #             random_state=bootstrap_random_state,
-    #             balance_method='subsample', # Subsampling is recommended for pooling
-    #             obs_axs=args.obs_axs,
-    #             window_size=args.window_size,
-    #             step_size=args.step_size
-    #         )
+            # get i vs c pooled shuffle distribution
+            strings_to_find_pooled = [['c_in'], ['i_in']]
             
-    #         # pull accuracies_dict, colors, and linestyles into main
-    #         # Plot accuracies comparing s25_vs_r25 and s75_vs_r75 for this condition comparison and roi
-    #         # For LWPS comparisons
-    #         accuracies_dict = {
-    #             's25_vs_r25': s25_vs_r25_acc,
-    #             's75_vs_r75': s75_vs_r75_acc,
-    #             'pooled_lwps_shuffle': accuracies_shuffle_pooled
-    #         }
-
-    #         colors = {
-    #             's25_vs_r25': '#0173B2',  # Blue
-    #             's75_vs_r75': '#DE8F05' ,   # Orange
-    #             'pooled_lwps_shuffle': '#949494'  # Gray
-    #         }
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
             
-    #         linestyles = {
-    #             's25_vs_r25': '-',  # Solid
-    #             's75_vs_r75': '-',  # Solid
-    #             'pooled_lwps_shuffle': '--' # Dashed
-    #         }
+            results_for_this_bootstrap['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
-    #         results_for_this_bootstrap['pooled_lwps_shuffle'][roi] = accuracies_shuffle_pooled
+    # switch type by congruency proportion
+    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:   
+        results_for_this_bootstrap['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
             
-    # # do congruency by switch proportion comparison 
-    # if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:       
-    #     for roi in rois:
-    #         time_window_centers = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
-    #         c_in_25switchBlock_vs_i_in_25switchBlock_acc = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['accuracies_true']
-    #         c_in_75switchBlock_vs_i_in_75switchBlock_acc = results_for_this_bootstrap['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]['accuracies_true']
+            # get s vs r pooled shuffle distribution
+            strings_to_find_pooled = [['s_in'], ['r_in']]
             
-    #         # get i vs c pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all i trials nad all c trials
-    #         strings_to_find_pooled = [['c_in'], ['i_in']]
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
             
-    #         accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-    #             roi=roi,
-    #             roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-    #             strings_to_find_pooled=strings_to_find_pooled,
-    #             explained_variance=args.explained_variance,
-    #             n_splits=args.n_splits,
-    #             n_perm=args.n_shuffle_perms,
-    #             random_state=bootstrap_random_state,
-    #             balance_method='subsample', # Subsampling is recommended for pooling
-    #             obs_axs=args.obs_axs,
-    #             window_size=args.window_size,
-    #             step_size=args.step_size
-    #         )
-    #         # Plot accuracies for this condition comparison and roi
-    #         accuracies_dict = {
-    #             'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_acc,
-    #             'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_acc,
-    #             'pooled_congruency_by_switch_proportion_shuffle': accuracies_shuffle_pooled
-    #         }
-
-    #         colors = {
-    #             'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
-    #             'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05' ,   # Orange
-    #             'pooled_congruency_by_switch_proportion_shuffle': '#949494'  # Gray
-    #         }
+            results_for_this_bootstrap['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
-    #         linestyles = {
-    #             'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
-    #             'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
-    #             'pooled_congruency_by_switch_proportion_shuffle': '--'                       # Dashed
-    #         }
-
-    #         results_for_this_bootstrap['pooled_congruency_by_switch_proportion_shuffle'][roi] = accuracies_shuffle_pooled
-
-    # # do switch type by congruency proportion comparison 
-    # if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:       
-    #     for roi in rois:
-    #         time_window_centers = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
-    #         s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['accuracies_true']
-    #         s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc = results_for_this_bootstrap['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]['accuracies_true']
-               
-    #         # get s vs r pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all s trials nad all r trials
-    #         strings_to_find_pooled = [['s_in'], ['r_in']]
-            
-    #         accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-    #             roi=roi,
-    #             roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-    #             strings_to_find_pooled=strings_to_find_pooled,
-    #             explained_variance=args.explained_variance,
-    #             n_splits=args.n_splits,
-    #             n_perm=args.n_shuffle_perms,
-    #             random_state=bootstrap_random_state,
-    #             balance_method='subsample', # Subsampling is recommended for pooling
-    #             obs_axs=args.obs_axs,
-    #             window_size=args.window_size,
-    #             step_size=args.step_size
-    #         )
-            
-    #         # Plot accuracies comparing c25_vs_i25 and c75_vs_i75 for this condition comparison and roi
-    #         # For LWPC comparisons
-    #         # pull these into main
-    #         accuracies_dict = {
-    #             's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc,
-    #             's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc,
-    #             'pooled_switch_type_by_congruency_proportion_shuffle': accuracies_shuffle_pooled
-    #         }
-
-    #         colors = {
-    #             's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
-    #             's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05' ,   # Orange
-    #             'pooled_switch_type_by_congruency_proportion_shuffle': '#949494'  # Gray
-    #         }
-            
-    #         linestyles = {
-    #             's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
-    #             's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
-    #             'pooled_switch_type_by_congruency_proportion_shuffle': '--'                       # Dashed
-    #         }
-            
-    #         results_for_this_bootstrap['pooled_switch_type_by_congruency_proportion_shuffle'][roi] = accuracies_shuffle_pooled
-
     return results_for_this_bootstrap
 
 def main(args):
@@ -645,7 +576,9 @@ def main(args):
         'true': '-',
         'shuffle': '--'
     }  
-                  
+    sub_str = str(len(args.subjects))
+    analysis_params_str = f"{sub_str}_subs_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit"   
+               
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
         for roi in rois:
@@ -666,7 +599,7 @@ def main(args):
                     window_size=args.window_size,
                     step_size=args.step_size,
                     sampling_rate=args.sampling_rate,
-                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}_{roi}',
+                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}',
                     roi=roi,
                     save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
                     timestamp=args.timestamp,
@@ -674,8 +607,9 @@ def main(args):
                     colors=colors,
                     linestyles=linestyles,
                     single_column=False,
-                    ylim=(0.4, 0.75),
-                    show_chance_level=False # The pooled shuffle line is the new chance level   
+                    ylim=(0.2, 0.8),
+                    show_chance_level=False, # The pooled shuffle line is the new chance level 
+                    filename_suffix=analysis_params_str  
                 )    
                  
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
@@ -754,7 +688,7 @@ def main(args):
                 window_size=args.window_size,
                 step_size=args.step_size,
                 sampling_rate=args.sampling_rate,
-                comparison_name=f'bootstrap_LWPC_comparison_{roi}_{unit}',
+                comparison_name=f'bootstrap_LWPC_comparison',
                 roi=roi,
                 save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
                 timestamp=args.timestamp,
@@ -762,10 +696,284 @@ def main(args):
                 colors=lwpc_colors,
                 linestyles=lwpc_linestyles,
                 single_column=False,
-                ylim=(0.4, 0.75),
+                ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 significance_y_position=0.72,
                 show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+            
+    if args.conditions == experiment_conditions.stimulus_lwps_conditions:
+        print(f"\n--- Running LWPS Comparison Statistics (s25_vs_r25 vs s75_vs_r75) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        lwps_colors = {
+            's25_vs_r25': '#0173B2',  # Blue
+            's75_vs_r75': '#DE8F05',  # Orange
+          'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        lwps_linestyles = {
+            's25_vs_r25': '-',  # Solid
+            's75_vs_r75': '-',  # Solid
+            'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+        
+        # Perform the statistical comparison between the two true accuracy distributions
+        lwps_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=args.bootstraps, 
+            condition_comparison_1='s25_vs_r25',
+            condition_comparison_2='s75_vs_r75', 
+            rois=rois, 
+            stat_func=args.stat_func, 
+            unit_of_analysis=args.unit_of_analysis,
+            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
+            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
+            n_perm=args.n_cluster_perms, 
+            tails=2, 
+            axis=0, 
+            random_state=args.random_state, 
+            n_jobs=args.n_jobs
+        )
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}) or roi not in lwpc_comparison_stats:
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            lwps_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['lwps_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    lwps_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_lwps_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # --- Get data for plotting from the main stats dictionary ---
+            s25_vs_r25_stats = all_bootstrap_stats['s25_vs_r25'][roi]
+            s75_vs_r75_stats = all_bootstrap_stats['s75_vs_r75'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = s25_vs_r25_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['s25_vs_r25'][roi]['time_window_centers']
+            
+            # Get the significance clusters from our new comparison
+            significant_clusters_lwps, _ = lwps_comparison_stats[roi]
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's25_vs_r25': s25_vs_r25_stats[f'{unit}_true_accs'],
+                    's75_vs_r75': s75_vs_r75_stats[f'{unit}_true_accs'],
+                    'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_lwps,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPS_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPS_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=lwps_colors,
+                linestyles=lwps_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Switch Type Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+            
+    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        print(f"\n--- Running congruency by switch proportion Comparison Statistics (c_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        congruency_by_switch_proportion_colors = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05',  # Orange
+          'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        congruency_by_switch_proportion_linestyles = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+            'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+        
+        # Perform the statistical comparison between the two true accuracy distributions
+        congruency_by_switch_proportion_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=args.bootstraps, 
+            condition_comparison_1='c_in_25switchBlock_vs_i_in_25switchBlock',
+            condition_comparison_2='c_in_75switchBlock_vs_i_in_75switchBlock', 
+            rois=rois, 
+            stat_func=args.stat_func, 
+            unit_of_analysis=args.unit_of_analysis,
+            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
+            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
+            n_perm=args.n_cluster_perms, 
+            tails=2, 
+            axis=0, 
+            random_state=args.random_state, 
+            n_jobs=args.n_jobs
+        )
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('c_in_25switchBlock_vs_i_in_25switchBlock', {}) or roi not in congruency_by_switch_proportion_comparison_stats:
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # --- Get data for plotting from the main stats dictionary ---
+            c_in_25switchBlock_vs_i_in_25switchBlock_stats = all_bootstrap_stats['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]
+            c_in_75switchBlock_vs_i_in_75switchBlock_stats = all_bootstrap_stats['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = c_in_25switchBlock_vs_i_in_25switchBlock_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
+            
+            # Get the significance clusters from our new comparison
+            significant_clusters_congruency_by_switch_proportion, _ = congruency_by_switch_proportion_comparison_stats[roi]
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_stats[f'{unit}_true_accs'],
+                    'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_stats[f'{unit}_true_accs'],
+                    'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_congruency_by_switch_proportion,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_congruency_by_switch_proportion_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "congruency_by_switch_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=congruency_by_switch_proportion_colors,
+                linestyles=congruency_by_switch_proportion_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Congruency Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+
+    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        print(f"\n--- Running switch_type_by_congruency_proportion Comparison Statistics (s_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        switch_type_by_congruency_proportion_colors = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05',  # Orange
+          'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        switch_type_by_congruency_proportion_linestyles = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+            'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+        
+        # Perform the statistical comparison between the two true accuracy distributions
+        switch_type_by_congruency_proportion_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=args.bootstraps, 
+            condition_comparison_1='s_in_25incongruentBlock_vs_r_in_25incongruentBlock',
+            condition_comparison_2='s_in_75incongruentBlock_vs_r_in_75incongruentBlock', 
+            rois=rois, 
+            stat_func=args.stat_func, 
+            unit_of_analysis=args.unit_of_analysis,
+            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
+            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
+            n_perm=args.n_cluster_perms, 
+            tails=2, 
+            axis=0, 
+            random_state=args.random_state, 
+            n_jobs=args.n_jobs
+        )
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('s_in_25incongruentBlock_vs_r_in_25incongruentBlock', {}) or roi not in switch_type_by_congruency_proportion_comparison_stats:
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # --- Get data for plotting from the main stats dictionary ---
+            s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
+            s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+            
+            # Get the significance clusters from our new comparison
+            significant_clusters_switch_type_by_congruency_proportion, _ = switch_type_by_congruency_proportion_comparison_stats[roi]
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats[f'{unit}_true_accs'],
+                    's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats[f'{unit}_true_accs'],
+                    'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_switch_type_by_congruency_proportion,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_switch_type_by_congruency_proportion_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "switch_type_by_congruency_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=switch_type_by_congruency_proportion_colors,
+                linestyles=switch_type_by_congruency_proportion_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Switch Type Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
             )
             
                  

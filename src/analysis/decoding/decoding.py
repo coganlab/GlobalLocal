@@ -1463,7 +1463,7 @@ def plot_accuracies_nature_style(
         ax.set_xticks(x_ticks)
         
         # CHANGED: Set specific y-ticks for consistency
-        y_ticks = np.arange(0.0, 1.01, 0.25)
+        y_ticks = np.linspace(ylim[0], ylim[1], num=5) 
         ax.set_yticks(y_ticks)
         ax.set_yticklabels([f'{y:.2f}' for y in y_ticks])
 
@@ -1512,9 +1512,6 @@ def plot_accuracies_nature_style(
                 filename_parts.append(roi)
             if filename_suffix:
                 filename_parts.append(filename_suffix)
-            
-            # Add format specifications
-            filename_parts.append('nature_style')
             
             filename = "_".join(filter(None, filename_parts)) + ".pdf"  # PDF for publication
             filepath = os.path.join(save_dir, filename)
