@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=run_power_traces
 #SBATCH --time=02:00:00
-#SBATCH --mem=400G
+#SBATCH --mem=50G
 
 #SBATCH --output=power_traces_%j.out
 #SBATCH --error=power_traces_%j.err
