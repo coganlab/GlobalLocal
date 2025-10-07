@@ -107,7 +107,7 @@ N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and tr
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_by_switch_proportion_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"

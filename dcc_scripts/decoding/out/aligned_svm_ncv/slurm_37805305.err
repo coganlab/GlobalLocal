@@ -1,0 +1,4 @@
+slurmstepd: error: container_p_join: open failed for /lstor/slurmjobs/37805305/.ns: No such file or directory
+slurmstepd: error: container_g_join failed: 37805305
+slurmstepd: error: exec_wait_signal_child: write(fd:20) to unblock task 0 failed
+slurmstepd: error: *** JOB 37805305 ON dcc-core-02 CANCELLED AT 2025-10-07T09:42:06 DUE TO JOB REQUEUE ***

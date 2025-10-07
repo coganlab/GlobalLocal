@@ -889,14 +889,14 @@ def main(args):
         print(f"\n--- Running switch_type_by_congruency_proportion Comparison Statistics (s_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         switch_type_by_congruency_proportion_colors = {
-            'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
-            'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05',  # Orange
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05',  # Orange
           'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         switch_type_by_congruency_proportion_linestyles = {
-            'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
-            'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
             'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
