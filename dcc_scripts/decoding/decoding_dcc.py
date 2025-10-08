@@ -737,7 +737,7 @@ def main(args):
         )
 
         for roi in rois:
-            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}) or roi not in lwpc_comparison_stats:
+            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}) or roi not in lwps_comparison_stats:
                 print(f"Skipping plot for ROI {roi} due to missing data.")
                 continue
 

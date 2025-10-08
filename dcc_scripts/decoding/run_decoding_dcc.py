@@ -81,7 +81,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 20
+BOOTSTRAPS = 70
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -95,7 +95,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across fold, repeat, or bootstrap
-UNIT_OF_ANALYSIS='repeat'
+UNIT_OF_ANALYSIS='bootstrap'
 
 # whether to store individual folds (true) or sum them within repeats (false)
 FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
