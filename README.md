@@ -43,7 +43,7 @@ Last edited: 01/16/2024
 
 ### Duke Compute Cluster
 1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal and then after logging in, open your shell's startup file by doing ```nano ~/.bashrc```, then add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file, and save/close it by pressing Ctrl+X.
-2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys
+2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode
    
 3. You can do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal to access the DCC.
    
