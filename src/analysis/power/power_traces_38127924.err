@@ -1,1 +1,859 @@
 [NbConvertApp] Converting notebook /hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.ipynb to notebook
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/bin/jupyter-nbconvert", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/application.py", line 280, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/traitlets/config/application.py", line 992, in launch_instance
+    app.start()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 412, in start
+    self.convert_notebooks()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 590, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 556, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 479, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 203, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 222, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 156, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 354, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)  # type:ignore[operator]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 173, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+if conditions == experiment_conditions.stimulus_conditions:
+    conditions_save_name = 'stimulus_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_experiment_conditions:
+    conditions_save_name = 'stimulus_experiment_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_main_effect_conditions:
+    conditions_save_name = 'stimulus_main_effect_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_lwpc_conditions:
+    conditions_save_name = 'stimulus_lwpc_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_lwps_conditions:
+    conditions_save_name = 'stimulus_lwps_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_big_letter_conditions:
+    conditions_save_name = 'stimulus_big_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_small_letter_conditions:
+    conditions_save_name = 'stimulus_small_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_task_conditions:
+    conditions_save_name = 'stimulus_task_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_congruency_conditions:
+    conditions_save_name = 'stimulus_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_switch_type_conditions:
+    conditions_save_name = 'stimulus_switch_type_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_err_corr_conditions:
+    conditions_save_name = 'stimulus_err_corr_conditions_sem_green' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_err_congruency_conditions:
+    conditions_save_name = 'stimulus_err_congruency_conditions_sem' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+    conditions_save_name = 'stimulus_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+
+
+elif conditions == experiment_conditions.response_conditions:
+    conditions_save_name = 'response_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_experiment_conditions:
+    conditions_save_name = 'response_experiment_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_big_letter_conditions:
+    conditions_save_name = 'response_big_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_small_letter_conditions:
+    conditions_save_name = 'response_small_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_task_conditions:
+    conditions_save_name = 'response_task_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_congruency_conditions:
+    conditions_save_name = 'response_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_switch_type_conditions:
+    conditions_save_name = 'response_switch_type_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_err_corr_conditions:
+    conditions_save_name = 'response_err_corr_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_err_congruency_conditions:
+    conditions_save_name = 'response_err_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_iR_cS_err_conditions:
+    conditions_save_name = 'response_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+
+# Assuming 'combined_data' is your DataFrame and 'subjects' is your list of subject IDs
+#subjects_mne_objects = utils.create_subjects_mne_objects_dict(subjects=subjects, epochs_root_file=epochs_root_file, conditions=conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=True, error_trials_only=False)
+#one without selecting only correct trials
+subjects_mne_objects = utils.create_subjects_mne_objects_dict(subjects=subjects, epochs_root_file=epochs_root_file, conditions=conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=False)
+------------------
+
+----- stdout -----
+Loading data for subject: D0057
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+449 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+449 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+19 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (19, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_err_iR: 19 valid trials out of 19
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+13 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (13, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 98.6
+    Max NaN count in a trial: 1282
+    Stimulus_err_cS: 13 valid trials out of 13
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+19 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (19, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_err_iR: 19 valid trials out of 19
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+13 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (13, 175, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 98.6
+    Max NaN count in a trial: 1282
+    Stimulus_err_cS: 13 valid trials out of 13
+Loading data for subject: D0059
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+8 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (8, 174, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_err_iR: 8 valid trials out of 8
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+12 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (12, 174, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 213.7
+    Max NaN count in a trial: 2564
+    Stimulus_err_cS: 12 valid trials out of 12
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+8 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (8, 174, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 0.0
+    Max NaN count in a trial: 0
+    Stimulus_err_iR: 8 valid trials out of 8
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+12 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (12, 174, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 213.7
+    Max NaN count in a trial: 2564
+    Stimulus_err_cS: 12 valid trials out of 12
+Loading data for subject: D0063
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+452 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+452 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+5 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (5, 235, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 512.8
+    Max NaN count in a trial: 1282
+    Stimulus_err_iR: 5 valid trials out of 5
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+51 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (51, 235, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 339.4
+    Max NaN count in a trial: 3846
+    Stimulus_err_cS: 51 valid trials out of 51
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+5 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (5, 235, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 512.8
+    Max NaN count in a trial: 1282
+    Stimulus_err_iR: 5 valid trials out of 5
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+51 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (51, 235, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 339.4
+    Max NaN count in a trial: 3846
+    Stimulus_err_cS: 51 valid trials out of 51
+----- stdout -----
+Loading data for subject: D0065
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+36 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (36, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 5199.2
+    Max NaN count in a trial: 82689
+    Stimulus_err_iR: 36 valid trials out of 36
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+66 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (66, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 7420.1
+    Max NaN count in a trial: 91022
+----- stdout -----
+    Stimulus_err_cS: 66 valid trials out of 66
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+Not setting metadata
+----- stdout -----
+36 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+    Original shape: (36, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 5199.2
+    Max NaN count in a trial: 82689
+    Stimulus_err_iR: 36 valid trials out of 36
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+66 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (66, 216, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 7420.1
+    Max NaN count in a trial: 91022
+    Stimulus_err_cS: 66 valid trials out of 66
+----- stdout -----
+Loading data for subject: D0069
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+37 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (37, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 658.3
+    Max NaN count in a trial: 8974
+    Stimulus_err_iR: 37 valid trials out of 37
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+57 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (57, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 303.6
+    Max NaN count in a trial: 2564
+    Stimulus_err_cS: 57 valid trials out of 57
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+37 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (37, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 658.3
+    Max NaN count in a trial: 8974
+    Stimulus_err_iR: 37 valid trials out of 37
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+57 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (57, 128, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 303.6
+    Max NaN count in a trial: 2564
+    Stimulus_err_cS: 57 valid trials out of 57
+----- stdout -----
+Loading data for subject: D0077
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+448 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+21 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (21, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 671.5
+    Max NaN count in a trial: 6410
+    Stimulus_err_iR: 21 valid trials out of 21
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+46 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (46, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 473.8
+    Max NaN count in a trial: 5128
+    Stimulus_err_cS: 46 valid trials out of 46
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+21 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (21, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 671.5
+    Max NaN count in a trial: 6410
+    Stimulus_err_iR: 21 valid trials out of 21
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+46 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (46, 131, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 473.8
+    Max NaN count in a trial: 5128
+    Stimulus_err_cS: 46 valid trials out of 46
+Loading data for subject: D0090
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+450 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+----- stdout -----
+    Found the data of interest:
+----- stdout -----
+        t =   -1000.00 ...    1500.00 ms
+----- stdout -----
+        0 CTF compensation matrices available
+----- stdout -----
+Not setting metadata
+----- stdout -----
+450 matching events found
+----- stdout -----
+No baseline correction applied
+----- stdout -----
+0 projection items activated
+----- stdout -----
+  Loading condition: Stimulus_err_iR with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/c25.0', 'Stimulus/Responded1.0/Accuracy0.0/c75.0'], 'responseType': 'err', 'congruency': 'i', 'switchType': 'r'}
+----- stdout -----
+Not setting metadata
+----- stdout -----
+11 matching events found
+----- stdout -----
+No baseline correction applied
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:422: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs)
+----- stdout -----
+    Original shape: (11, 157, 641)
+    Trials with all NaN values: 0
+    Average NaN count per trial: 233.1
+    Max NaN count in a trial: 1282
+    Stimulus_err_iR: 11 valid trials out of 11
+----- stdout -----
+  Loading condition: Stimulus_err_cS with parameters: {'BIDS_events': ['Stimulus/Responded1.0/Accuracy0.0/i25.0', 'Stimulus/Responded1.0/Accuracy0.0/i75.0'], 'responseType': 'err', 'congruency': 'c', 'switchType': 's'}
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mKeyError[0m                                  Traceback (most recent call last)
+Cell [0;32mIn[9], line 53[0m
+[1;32m     48[0m     conditions_save_name [38;5;241m=[39m [38;5;124m'[39m[38;5;124mresponse_err_iR_cS_conditions[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m epochs_root_file [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;28mstr[39m([38;5;28mlen[39m(subjects)) [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124msubjects[39m[38;5;124m'[39m
+[1;32m     50[0m [38;5;66;03m# Assuming 'combined_data' is your DataFrame and 'subjects' is your list of subject IDs[39;00m
+[1;32m     51[0m [38;5;66;03m#subjects_mne_objects = utils.create_subjects_mne_objects_dict(subjects=subjects, epochs_root_file=epochs_root_file, conditions=conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=True, error_trials_only=False)[39;00m
+[1;32m     52[0m [38;5;66;03m#one without selecting only correct trials[39;00m
+[0;32m---> 53[0m subjects_mne_objects [38;5;241m=[39m utils[38;5;241m.[39mcreate_subjects_mne_objects_dict(subjects[38;5;241m=[39msubjects, epochs_root_file[38;5;241m=[39mepochs_root_file, conditions[38;5;241m=[39mconditions, task[38;5;241m=[39m[38;5;124m"[39m[38;5;124mGlobalLocal[39m[38;5;124m"[39m, just_HG_ev1_rescaled[38;5;241m=[39m[38;5;28;01mTrue[39;00m, acc_trials_only[38;5;241m=[39m[38;5;28;01mFalse[39;00m)
+
+File [0;32m/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py:420[0m, in [0;36mcreate_subjects_mne_objects_dict[0;34m(subjects, epochs_root_file, conditions, task, just_HG_ev1_rescaled, LAB_root, acc_trials_only, error_trials_only)[0m
+[1;32m    418[0m combined_epochs [38;5;241m=[39m []
+[1;32m    419[0m [38;5;28;01mfor[39;00m event [38;5;129;01min[39;00m bids_events:
+[0;32m--> 420[0m     partial_event_epochs [38;5;241m=[39m mne_objects[mne_object][event]
+[1;32m    421[0m     combined_epochs[38;5;241m.[39mappend(partial_event_epochs)
+[1;32m    422[0m event_epochs [38;5;241m=[39m mne[38;5;241m.[39mconcatenate_epochs(combined_epochs)
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/mixin.py:148[0m, in [0;36mGetEpochsMixin.__getitem__[0;34m(self, item)[0m
+[1;32m     79[0m [38;5;28;01mdef[39;00m [38;5;21m__getitem__[39m(
+[1;32m     80[0m     [38;5;28mself[39m: Self,
+[1;32m     81[0m     item,
+[1;32m     82[0m ) [38;5;241m-[39m[38;5;241m>[39m Self:
+[1;32m     83[0m [38;5;250m    [39m[38;5;124;03m"""Return an Epochs object with a copied subset of epochs.[39;00m
+[1;32m     84[0m 
+[1;32m     85[0m [38;5;124;03m    Parameters[39;00m
+[0;32m   (...)[0m
+[1;32m    146[0m [38;5;124;03m       .. versionadded:: 0.16[39;00m
+[1;32m    147[0m [38;5;124;03m    """[39;00m
+[0;32m--> 148[0m     [38;5;28;01mreturn[39;00m [38;5;28mself[39m[38;5;241m.[39m_getitem(item)
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/mixin.py:209[0m, in [0;36mGetEpochsMixin._getitem[0;34m(***failed resolving arguments***)[0m
+[1;32m    206[0m     np[38;5;241m.[39mcopyto(inst[38;5;241m.[39m_data, [38;5;28mself[39m[38;5;241m.[39m_data, casting[38;5;241m=[39m[38;5;124m"[39m[38;5;124mno[39m[38;5;124m"[39m)
+[1;32m    207[0m [38;5;28;01mdel[39;00m [38;5;28mself[39m
+[0;32m--> 209[0m select [38;5;241m=[39m inst[38;5;241m.[39m_item_to_select(item)
+[1;32m    210[0m has_selection [38;5;241m=[39m [38;5;28mhasattr[39m(inst, [38;5;124m"[39m[38;5;124mselection[39m[38;5;124m"[39m)
+[1;32m    211[0m [38;5;28;01mif[39;00m has_selection:
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/mixin.py:160[0m, in [0;36mGetEpochsMixin._item_to_select[0;34m(self, item)[0m
+[1;32m    154[0m [38;5;66;03m# Convert string to indices[39;00m
+[1;32m    155[0m [38;5;28;01mif[39;00m (
+[1;32m    156[0m     [38;5;28misinstance[39m(item, ([38;5;28mlist[39m, [38;5;28mtuple[39m))
+[1;32m    157[0m     [38;5;129;01mand[39;00m [38;5;28mlen[39m(item) [38;5;241m>[39m [38;5;241m0[39m
+[1;32m    158[0m     [38;5;129;01mand[39;00m [38;5;28misinstance[39m(item[[38;5;241m0[39m], [38;5;28mstr[39m)
+[1;32m    159[0m ):
+[0;32m--> 160[0m     select [38;5;241m=[39m [38;5;28mself[39m[38;5;241m.[39m_keys_to_idx(item)
+[1;32m    161[0m [38;5;28;01melif[39;00m [38;5;28misinstance[39m(item, [38;5;28mslice[39m):
+[1;32m    162[0m     select [38;5;241m=[39m item
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/mixin.py:267[0m, in [0;36mGetEpochsMixin._keys_to_idx[0;34m(self, keys)[0m
+[1;32m    259[0m keys [38;5;241m=[39m keys [38;5;28;01mif[39;00m [38;5;28misinstance[39m(keys, ([38;5;28mlist[39m, [38;5;28mtuple[39m)) [38;5;28;01melse[39;00m [keys]
+[1;32m    260[0m [38;5;28;01mtry[39;00m:
+[1;32m    261[0m     [38;5;66;03m# Assume it's a condition name[39;00m
+[1;32m    262[0m     [38;5;28;01mreturn[39;00m np[38;5;241m.[39mwhere(
+[1;32m    263[0m         np[38;5;241m.[39many(
+[1;32m    264[0m             np[38;5;241m.[39marray(
+[1;32m    265[0m                 [
+[1;32m    266[0m                     [38;5;28mself[39m[38;5;241m.[39mevents[:, [38;5;241m2[39m] [38;5;241m==[39m [38;5;28mself[39m[38;5;241m.[39mevent_id[k]
+[0;32m--> 267[0m                     [38;5;28;01mfor[39;00m k [38;5;129;01min[39;00m match_event_names([38;5;28mself[39m[38;5;241m.[39mevent_id, keys)
+[1;32m    268[0m                 ]
+[1;32m    269[0m             ),
+[1;32m    270[0m             axis[38;5;241m=[39m[38;5;241m0[39m,
+[1;32m    271[0m         )
+[1;32m    272[0m     )[[38;5;241m0[39m]
+[1;32m    273[0m [38;5;28;01mexcept[39;00m [38;5;167;01mKeyError[39;00m [38;5;28;01mas[39;00m err:
+[1;32m    274[0m     [38;5;66;03m# Could we in principle use metadata with these Epochs and keys?[39;00m
+[1;32m    275[0m     [38;5;28;01mif[39;00m [38;5;28mlen[39m(keys) [38;5;241m!=[39m [38;5;241m1[39m [38;5;129;01mor[39;00m [38;5;28mself[39m[38;5;241m.[39mmetadata [38;5;129;01mis[39;00m [38;5;28;01mNone[39;00m:
+[1;32m    276[0m         [38;5;66;03m# If not, raise original error[39;00m
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/event.py:1651[0m, in [0;36mmatch_event_names[0;34m(event_names, keys, on_missing)[0m
+[1;32m   1644[0m     matches[38;5;241m.[39mextend(
+[1;32m   1645[0m         name
+[1;32m   1646[0m         [38;5;28;01mfor[39;00m name [38;5;129;01min[39;00m event_names
+[1;32m   1647[0m         [38;5;28;01mif[39;00m [38;5;28mset[39m(key[38;5;241m.[39msplit([38;5;124m"[39m[38;5;124m/[39m[38;5;124m"[39m))[38;5;241m.[39missubset(name[38;5;241m.[39msplit([38;5;124m"[39m[38;5;124m/[39m[38;5;124m"[39m))
+[1;32m   1648[0m     )
+[1;32m   1650[0m [38;5;28;01mif[39;00m [38;5;129;01mnot[39;00m matches:
+[0;32m-> 1651[0m     _on_missing(
+[1;32m   1652[0m         on_missing[38;5;241m=[39mon_missing,
+[1;32m   1653[0m         msg[38;5;241m=[39m[38;5;124mf[39m[38;5;124m'[39m[38;5;124mEvent name [39m[38;5;124m"[39m[38;5;132;01m{[39;00mkey[38;5;132;01m}[39;00m[38;5;124m"[39m[38;5;124m could not be found. The following events [39m[38;5;124m'[39m
+[1;32m   1654[0m         [38;5;124mf[39m[38;5;124m'[39m[38;5;124mare present in the data: [39m[38;5;132;01m{[39;00m[38;5;124m"[39m[38;5;124m, [39m[38;5;124m"[39m[38;5;241m.[39mjoin(event_names)[38;5;132;01m}[39;00m[38;5;124m'[39m,
+[1;32m   1655[0m         error_klass[38;5;241m=[39m[38;5;167;01mKeyError[39;00m,
+[1;32m   1656[0m     )
+[1;32m   1658[0m matches [38;5;241m=[39m [38;5;28msorted[39m([38;5;28mset[39m(matches))  [38;5;66;03m# deduplicate if necessary[39;00m
+[1;32m   1659[0m [38;5;28;01mreturn[39;00m matches
+
+File [0;32m~/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/check.py:1191[0m, in [0;36m_on_missing[0;34m(on_missing, msg, name, error_klass)[0m
+[1;32m   1189[0m on_missing [38;5;241m=[39m [38;5;124m"[39m[38;5;124mwarn[39m[38;5;124m"[39m [38;5;28;01mif[39;00m on_missing [38;5;241m==[39m [38;5;124m"[39m[38;5;124mwarning[39m[38;5;124m"[39m [38;5;28;01melse[39;00m on_missing
+[1;32m   1190[0m [38;5;28;01mif[39;00m on_missing [38;5;241m==[39m [38;5;124m"[39m[38;5;124mraise[39m[38;5;124m"[39m:
+[0;32m-> 1191[0m     [38;5;28;01mraise[39;00m error_klass(msg)
+[1;32m   1192[0m [38;5;28;01melif[39;00m on_missing [38;5;241m==[39m [38;5;124m"[39m[38;5;124mwarn[39m[38;5;124m"[39m:
+[1;32m   1193[0m     warn(msg)
+
+[0;31mKeyError[0m: 'Event name "Stimulus/Responded1.0/Accuracy0.0/i25.0" could not be found. The following events are present in the data: Stimulus/c25.0/n25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount337.0/BlockTrialCount1.0/ReactionTime816.0/Accuracy1.0/D90, Stimulus/c25.0/n75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount225.0/BlockTrialCount1.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount340.0/BlockTrialCount4.0/ReactionTime616.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount341.0/BlockTrialCount5.0/ReactionTime599.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount342.0/BlockTrialCount6.0/ReactionTime600.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount344.0/BlockTrialCount8.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount364.0/BlockTrialCount28.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount382.0/BlockTrialCount46.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount392.0/BlockTrialCount56.0/ReactionTime850.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount398.0/BlockTrialCount62.0/ReactionTime800.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount400.0/BlockTrialCount64.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount403.0/BlockTrialCount67.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount405.0/BlockTrialCount69.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount418.0/BlockTrialCount82.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount426.0/BlockTrialCount90.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount429.0/BlockTrialCount93.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount353.0/BlockTrialCount17.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount354.0/BlockTrialCount18.0/ReactionTime1583.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount357.0/BlockTrialCount21.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount361.0/BlockTrialCount25.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount367.0/BlockTrialCount31.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount368.0/BlockTrialCount32.0/ReactionTime949.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount375.0/BlockTrialCount39.0/ReactionTime1000.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount377.0/BlockTrialCount41.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount378.0/BlockTrialCount42.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount379.0/BlockTrialCount43.0/ReactionTime816.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount409.0/BlockTrialCount73.0/ReactionTime1799.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount410.0/BlockTrialCount74.0/ReactionTime733.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount435.0/BlockTrialCount99.0/ReactionTime1766.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount436.0/BlockTrialCount100.0/ReactionTime1566.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount438.0/BlockTrialCount102.0/ReactionTime1016.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount439.0/BlockTrialCount103.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount447.0/BlockTrialCount111.0/ReactionTime1649.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount339.0/BlockTrialCount3.0/ReactionTime700.0/Accuracy0.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount343.0/BlockTrialCount7.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount345.0/BlockTrialCount9.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount363.0/BlockTrialCount27.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount365.0/BlockTrialCount29.0/ReactionTime1067.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount381.0/BlockTrialCount45.0/ReactionTime716.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount383.0/BlockTrialCount47.0/ReactionTime816.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount399.0/BlockTrialCount63.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount401.0/BlockTrialCount65.0/ReactionTime650.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount404.0/BlockTrialCount68.0/ReactionTime1016.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount406.0/BlockTrialCount70.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount407.0/BlockTrialCount71.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount415.0/BlockTrialCount79.0/ReactionTime1100.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount425.0/BlockTrialCount89.0/ReactionTime1499.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount431.0/BlockTrialCount95.0/ReactionTime1066.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount443.0/BlockTrialCount107.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount444.0/BlockTrialCount108.0/ReactionTime1349.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount350.0/BlockTrialCount14.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount352.0/BlockTrialCount16.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount355.0/BlockTrialCount19.0/ReactionTime1000.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount369.0/BlockTrialCount33.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount370.0/BlockTrialCount34.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount374.0/BlockTrialCount38.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount387.0/BlockTrialCount51.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount390.0/BlockTrialCount54.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount394.0/BlockTrialCount58.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount422.0/BlockTrialCount86.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount423.0/BlockTrialCount87.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount433.0/BlockTrialCount97.0/ReactionTime1749.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount434.0/BlockTrialCount98.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/c25.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount448.0/BlockTrialCount112.0/ReactionTime950.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount257.0/BlockTrialCount33.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount282.0/BlockTrialCount58.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount237.0/BlockTrialCount13.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount244.0/BlockTrialCount20.0/ReactionTime1249.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount286.0/BlockTrialCount62.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount317.0/BlockTrialCount93.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount320.0/BlockTrialCount96.0/ReactionTime949.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount227.0/BlockTrialCount3.0/ReactionTime983.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount228.0/BlockTrialCount4.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount241.0/BlockTrialCount17.0/ReactionTime1666.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount272.0/BlockTrialCount48.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount281.0/BlockTrialCount57.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount296.0/BlockTrialCount72.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount305.0/BlockTrialCount81.0/ReactionTime1583.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount308.0/BlockTrialCount84.0/ReactionTime1566.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount325.0/BlockTrialCount101.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount230.0/BlockTrialCount6.0/ReactionTime633.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount247.0/BlockTrialCount23.0/ReactionTime799.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount267.0/BlockTrialCount43.0/ReactionTime1600.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount323.0/BlockTrialCount99.0/ReactionTime1066.0/Accuracy1.0/D90, Stimulus/c25.0/r75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount329.0/BlockTrialCount105.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount380.0/BlockTrialCount44.0/ReactionTime1650.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount385.0/BlockTrialCount49.0/ReactionTime766.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount395.0/BlockTrialCount59.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount414.0/BlockTrialCount78.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount420.0/BlockTrialCount84.0/ReactionTime733.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount428.0/BlockTrialCount92.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount347.0/BlockTrialCount11.0/ReactionTime2050.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount372.0/BlockTrialCount36.0/ReactionTime1683.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount386.0/BlockTrialCount50.0/ReactionTime1150.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount408.0/BlockTrialCount72.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount419.0/BlockTrialCount83.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount432.0/BlockTrialCount96.0/ReactionTime1549.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount393.0/BlockTrialCount57.0/ReactionTime1250.0/Accuracy0.0/D90, Stimulus/c25.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount446.0/BlockTrialCount110.0/ReactionTime1816.0/Accuracy0.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount391.0/BlockTrialCount55.0/ReactionTime2333.0/Accuracy0.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount362.0/BlockTrialCount26.0/ReactionTime1733.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount440.0/BlockTrialCount104.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount384.0/BlockTrialCount48.0/ReactionTime2216.0/Accuracy0.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount349.0/BlockTrialCount13.0/ReactionTime1816.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount366.0/BlockTrialCount30.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c25.0/s25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount427.0/BlockTrialCount91.0/ReactionTime1000.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount226.0/BlockTrialCount2.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount231.0/BlockTrialCount7.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount233.0/BlockTrialCount9.0/ReactionTime983.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount235.0/BlockTrialCount11.0/ReactionTime1166.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount248.0/BlockTrialCount24.0/ReactionTime900.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount265.0/BlockTrialCount41.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount269.0/BlockTrialCount45.0/ReactionTime1400.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount275.0/BlockTrialCount51.0/ReactionTime1084.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount284.0/BlockTrialCount60.0/ReactionTime799.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount291.0/BlockTrialCount67.0/ReactionTime1300.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount293.0/BlockTrialCount69.0/ReactionTime950.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount295.0/BlockTrialCount71.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount300.0/BlockTrialCount76.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount310.0/BlockTrialCount86.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount312.0/BlockTrialCount88.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount321.0/BlockTrialCount97.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount324.0/BlockTrialCount100.0/ReactionTime699.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount327.0/BlockTrialCount103.0/ReactionTime633.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount336.0/BlockTrialCount112.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded0.0/ParticipantResponsenan/CorrectResponse114.0/TrialCount290.0/BlockTrialCount66.0/ReactionTimenan/Accuracy0.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount232.0/BlockTrialCount8.0/ReactionTime1483.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount251.0/BlockTrialCount27.0/ReactionTime1833.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount262.0/BlockTrialCount38.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount266.0/BlockTrialCount42.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount279.0/BlockTrialCount55.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount285.0/BlockTrialCount61.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount294.0/BlockTrialCount70.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount303.0/BlockTrialCount79.0/ReactionTime1999.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount311.0/BlockTrialCount87.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount313.0/BlockTrialCount89.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount319.0/BlockTrialCount95.0/ReactionTime1166.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount328.0/BlockTrialCount104.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount335.0/BlockTrialCount111.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount333.0/BlockTrialCount109.0/ReactionTime1383.0/Accuracy0.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount318.0/BlockTrialCount94.0/ReactionTime1483.0/Accuracy0.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount250.0/BlockTrialCount26.0/ReactionTime1966.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount252.0/BlockTrialCount28.0/ReactionTime1666.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount256.0/BlockTrialCount32.0/ReactionTime1683.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount259.0/BlockTrialCount35.0/ReactionTime1733.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount261.0/BlockTrialCount37.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount278.0/BlockTrialCount54.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount287.0/BlockTrialCount63.0/ReactionTime1566.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount289.0/BlockTrialCount65.0/ReactionTime1133.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount298.0/BlockTrialCount74.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount302.0/BlockTrialCount78.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount314.0/BlockTrialCount90.0/ReactionTime1433.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount332.0/BlockTrialCount108.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount334.0/BlockTrialCount110.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount229.0/BlockTrialCount5.0/ReactionTime1733.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount236.0/BlockTrialCount12.0/ReactionTime1850.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount239.0/BlockTrialCount15.0/ReactionTime1250.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount246.0/BlockTrialCount22.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount249.0/BlockTrialCount25.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount258.0/BlockTrialCount34.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount260.0/BlockTrialCount36.0/ReactionTime1467.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount270.0/BlockTrialCount46.0/ReactionTime1267.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount276.0/BlockTrialCount52.0/ReactionTime817.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount288.0/BlockTrialCount64.0/ReactionTime1499.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount297.0/BlockTrialCount73.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount301.0/BlockTrialCount77.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount322.0/BlockTrialCount98.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c25.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount331.0/BlockTrialCount107.0/ReactionTime999.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount112.0/BlockTrialCount112.0/ReactionTime683.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount18.0/BlockTrialCount18.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount20.0/BlockTrialCount20.0/ReactionTime616.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount36.0/BlockTrialCount36.0/ReactionTime950.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount52.0/BlockTrialCount52.0/ReactionTime616.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount87.0/BlockTrialCount87.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount103.0/BlockTrialCount103.0/ReactionTime766.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount110.0/BlockTrialCount110.0/ReactionTime1133.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount24.0/BlockTrialCount24.0/ReactionTime1016.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount29.0/BlockTrialCount29.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount57.0/BlockTrialCount57.0/ReactionTime2399.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount98.0/BlockTrialCount98.0/ReactionTime650.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount99.0/BlockTrialCount99.0/ReactionTime599.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount16.0/BlockTrialCount16.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount21.0/BlockTrialCount21.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount40.0/BlockTrialCount40.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount41.0/BlockTrialCount41.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount67.0/BlockTrialCount67.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount93.0/BlockTrialCount93.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount61.0/BlockTrialCount61.0/ReactionTime800.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount83.0/BlockTrialCount83.0/ReactionTime949.0/Accuracy1.0/D90, Stimulus/c75.0/r25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount96.0/BlockTrialCount96.0/ReactionTime633.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount141.0/BlockTrialCount29.0/ReactionTime1200.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount199.0/BlockTrialCount87.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount122.0/BlockTrialCount10.0/ReactionTime1233.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount133.0/BlockTrialCount21.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount114.0/BlockTrialCount2.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/c75.0/r75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount219.0/BlockTrialCount107.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/c75.0/s25.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount86.0/BlockTrialCount86.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/c75.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount4.0/BlockTrialCount4.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c75.0/s25.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount49.0/BlockTrialCount49.0/ReactionTime1949.0/Accuracy0.0/D90, Stimulus/c75.0/s25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount30.0/BlockTrialCount30.0/ReactionTime1933.0/Accuracy1.0/D90, Stimulus/c75.0/s25.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount78.0/BlockTrialCount78.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/c75.0/s25.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount108.0/BlockTrialCount108.0/ReactionTime2316.0/Accuracy0.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount118.0/BlockTrialCount6.0/ReactionTime1650.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount134.0/BlockTrialCount22.0/ReactionTime1400.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount136.0/BlockTrialCount24.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount155.0/BlockTrialCount43.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount160.0/BlockTrialCount48.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount174.0/BlockTrialCount62.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount189.0/BlockTrialCount77.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount194.0/BlockTrialCount82.0/ReactionTime1000.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount207.0/BlockTrialCount95.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount151.0/BlockTrialCount39.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount156.0/BlockTrialCount44.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount184.0/BlockTrialCount72.0/ReactionTime1499.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount222.0/BlockTrialCount110.0/ReactionTime2066.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount132.0/BlockTrialCount20.0/ReactionTime1516.0/Accuracy0.0/D90, Stimulus/c75.0/s75.0/BigLetterh/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount182.0/BlockTrialCount70.0/ReactionTime1033.0/Accuracy0.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount143.0/BlockTrialCount31.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount178.0/BlockTrialCount66.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount196.0/BlockTrialCount84.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount201.0/BlockTrialCount89.0/ReactionTime1649.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount139.0/BlockTrialCount27.0/ReactionTime1766.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount190.0/BlockTrialCount78.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/c75.0/s75.0/BigLetters/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount214.0/BlockTrialCount102.0/ReactionTime1433.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount338.0/BlockTrialCount2.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount346.0/BlockTrialCount10.0/ReactionTime683.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount397.0/BlockTrialCount61.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount417.0/BlockTrialCount81.0/ReactionTime1549.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount442.0/BlockTrialCount106.0/ReactionTime549.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount445.0/BlockTrialCount109.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount351.0/BlockTrialCount15.0/ReactionTime1649.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount358.0/BlockTrialCount22.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount359.0/BlockTrialCount23.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount360.0/BlockTrialCount24.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount373.0/BlockTrialCount37.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount376.0/BlockTrialCount40.0/ReactionTime716.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount388.0/BlockTrialCount52.0/ReactionTime1316.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount389.0/BlockTrialCount53.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount411.0/BlockTrialCount75.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount437.0/BlockTrialCount101.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount396.0/BlockTrialCount60.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount402.0/BlockTrialCount66.0/ReactionTime1100.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount416.0/BlockTrialCount80.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount430.0/BlockTrialCount94.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount441.0/BlockTrialCount105.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount356.0/BlockTrialCount20.0/ReactionTime799.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount253.0/BlockTrialCount29.0/ReactionTime1133.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount254.0/BlockTrialCount30.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount268.0/BlockTrialCount44.0/ReactionTime1350.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount277.0/BlockTrialCount53.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount315.0/BlockTrialCount91.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount243.0/BlockTrialCount19.0/ReactionTime1983.0/Accuracy1.0/D90, Stimulus/i25.0/r75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount274.0/BlockTrialCount50.0/ReactionTime1966.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount371.0/BlockTrialCount35.0/ReactionTime1483.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount412.0/BlockTrialCount76.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount421.0/BlockTrialCount85.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount348.0/BlockTrialCount12.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount424.0/BlockTrialCount88.0/ReactionTime1916.0/Accuracy1.0/D90, Stimulus/i25.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount413.0/BlockTrialCount77.0/ReactionTime1600.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount238.0/BlockTrialCount14.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount245.0/BlockTrialCount21.0/ReactionTime1066.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount263.0/BlockTrialCount39.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount271.0/BlockTrialCount47.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount307.0/BlockTrialCount83.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount234.0/BlockTrialCount10.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount242.0/BlockTrialCount18.0/ReactionTime1683.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount283.0/BlockTrialCount59.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount292.0/BlockTrialCount68.0/ReactionTime1549.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount306.0/BlockTrialCount82.0/ReactionTime1250.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount309.0/BlockTrialCount85.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount316.0/BlockTrialCount92.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount240.0/BlockTrialCount16.0/ReactionTime1600.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount280.0/BlockTrialCount56.0/ReactionTime899.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount304.0/BlockTrialCount80.0/ReactionTime983.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount330.0/BlockTrialCount106.0/ReactionTime1966.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount255.0/BlockTrialCount31.0/ReactionTime1699.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount264.0/BlockTrialCount40.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount273.0/BlockTrialCount49.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount299.0/BlockTrialCount75.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i25.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount326.0/BlockTrialCount102.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/i75.0/n25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount1.0/BlockTrialCount1.0/ReactionTime1850.0/Accuracy1.0/D90, Stimulus/i75.0/n75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount113.0/BlockTrialCount1.0/ReactionTime1899.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount19.0/BlockTrialCount19.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount3.0/BlockTrialCount3.0/ReactionTime2133.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount31.0/BlockTrialCount31.0/ReactionTime1516.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount33.0/BlockTrialCount33.0/ReactionTime967.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount35.0/BlockTrialCount35.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount37.0/BlockTrialCount37.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount39.0/BlockTrialCount39.0/ReactionTime683.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount48.0/BlockTrialCount48.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount53.0/BlockTrialCount53.0/ReactionTime750.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount55.0/BlockTrialCount55.0/ReactionTime766.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount73.0/BlockTrialCount73.0/ReactionTime999.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount79.0/BlockTrialCount79.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount80.0/BlockTrialCount80.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount89.0/BlockTrialCount89.0/ReactionTime716.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount90.0/BlockTrialCount90.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount66.0/BlockTrialCount66.0/ReactionTime1099.0/Accuracy0.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount102.0/BlockTrialCount102.0/ReactionTime516.0/Accuracy0.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount75.0/BlockTrialCount75.0/ReactionTime949.0/Accuracy0.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount109.0/BlockTrialCount109.0/ReactionTime983.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount11.0/BlockTrialCount11.0/ReactionTime1883.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount23.0/BlockTrialCount23.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount25.0/BlockTrialCount25.0/ReactionTime683.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount26.0/BlockTrialCount26.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount45.0/BlockTrialCount45.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount46.0/BlockTrialCount46.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount58.0/BlockTrialCount58.0/ReactionTime1483.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount59.0/BlockTrialCount59.0/ReactionTime1766.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount60.0/BlockTrialCount60.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount69.0/BlockTrialCount69.0/ReactionTime799.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount71.0/BlockTrialCount71.0/ReactionTime1349.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount76.0/BlockTrialCount76.0/ReactionTime1117.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount77.0/BlockTrialCount77.0/ReactionTime816.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount84.0/BlockTrialCount84.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount105.0/BlockTrialCount105.0/ReactionTime1049.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount106.0/BlockTrialCount106.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount107.0/BlockTrialCount107.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount17.0/BlockTrialCount17.0/ReactionTime849.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount32.0/BlockTrialCount32.0/ReactionTime1233.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount34.0/BlockTrialCount34.0/ReactionTime1100.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount38.0/BlockTrialCount38.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount51.0/BlockTrialCount51.0/ReactionTime1966.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount54.0/BlockTrialCount54.0/ReactionTime700.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount6.0/BlockTrialCount6.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount81.0/BlockTrialCount81.0/ReactionTime1050.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount88.0/BlockTrialCount88.0/ReactionTime833.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount91.0/BlockTrialCount91.0/ReactionTime716.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount92.0/BlockTrialCount92.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded0.0/ParticipantResponsenan/CorrectResponse114.0/TrialCount9.0/BlockTrialCount9.0/ReactionTimenan/Accuracy0.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount10.0/BlockTrialCount10.0/ReactionTime1666.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount100.0/BlockTrialCount100.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount101.0/BlockTrialCount101.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount12.0/BlockTrialCount12.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount27.0/BlockTrialCount27.0/ReactionTime1149.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount28.0/BlockTrialCount28.0/ReactionTime983.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount62.0/BlockTrialCount62.0/ReactionTime750.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount63.0/BlockTrialCount63.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount64.0/BlockTrialCount64.0/ReactionTime966.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount70.0/BlockTrialCount70.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount85.0/BlockTrialCount85.0/ReactionTime1083.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount95.0/BlockTrialCount95.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount97.0/BlockTrialCount97.0/ReactionTime599.0/Accuracy1.0/D90, Stimulus/i75.0/r25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount8.0/BlockTrialCount8.0/ReactionTime2449.0/Accuracy0.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount126.0/BlockTrialCount14.0/ReactionTime1066.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount131.0/BlockTrialCount19.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount167.0/BlockTrialCount55.0/ReactionTime1566.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount192.0/BlockTrialCount80.0/ReactionTime883.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount209.0/BlockTrialCount97.0/ReactionTime683.0/Accuracy0.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount123.0/BlockTrialCount11.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount124.0/BlockTrialCount12.0/ReactionTime650.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount145.0/BlockTrialCount33.0/ReactionTime1100.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount149.0/BlockTrialCount37.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount169.0/BlockTrialCount57.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount180.0/BlockTrialCount68.0/ReactionTime866.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount185.0/BlockTrialCount73.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount206.0/BlockTrialCount94.0/ReactionTime1233.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount153.0/BlockTrialCount41.0/ReactionTime1966.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount158.0/BlockTrialCount46.0/ReactionTime1316.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount175.0/BlockTrialCount63.0/ReactionTime1699.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount176.0/BlockTrialCount64.0/ReactionTime1400.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount187.0/BlockTrialCount75.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount213.0/BlockTrialCount101.0/ReactionTime1133.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount148.0/BlockTrialCount36.0/ReactionTime1500.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount205.0/BlockTrialCount93.0/ReactionTime1833.0/Accuracy1.0/D90, Stimulus/i75.0/r75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount215.0/BlockTrialCount103.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount43.0/BlockTrialCount43.0/ReactionTime800.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount5.0/BlockTrialCount5.0/ReactionTime2316.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount65.0/BlockTrialCount65.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount72.0/BlockTrialCount72.0/ReactionTime1566.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount14.0/BlockTrialCount14.0/ReactionTime1716.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount22.0/BlockTrialCount22.0/ReactionTime1349.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount42.0/BlockTrialCount42.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount56.0/BlockTrialCount56.0/ReactionTime999.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount68.0/BlockTrialCount68.0/ReactionTime1699.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount104.0/BlockTrialCount104.0/ReactionTime1583.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount111.0/BlockTrialCount111.0/ReactionTime1299.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount13.0/BlockTrialCount13.0/ReactionTime1649.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount15.0/BlockTrialCount15.0/ReactionTime1583.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount2.0/BlockTrialCount2.0/ReactionTime1116.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount47.0/BlockTrialCount47.0/ReactionTime2083.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount50.0/BlockTrialCount50.0/ReactionTime1249.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount44.0/BlockTrialCount44.0/ReactionTime1433.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount7.0/BlockTrialCount7.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount74.0/BlockTrialCount74.0/ReactionTime1883.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount82.0/BlockTrialCount82.0/ReactionTime1233.0/Accuracy1.0/D90, Stimulus/i75.0/s25.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount94.0/BlockTrialCount94.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount128.0/BlockTrialCount16.0/ReactionTime1699.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount152.0/BlockTrialCount40.0/ReactionTime933.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount157.0/BlockTrialCount45.0/ReactionTime1733.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount164.0/BlockTrialCount52.0/ReactionTime1016.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount166.0/BlockTrialCount54.0/ReactionTime1216.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount181.0/BlockTrialCount69.0/ReactionTime1099.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount183.0/BlockTrialCount71.0/ReactionTime1316.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount186.0/BlockTrialCount74.0/ReactionTime1016.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount191.0/BlockTrialCount79.0/ReactionTime1266.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount210.0/BlockTrialCount98.0/ReactionTime916.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount216.0/BlockTrialCount104.0/ReactionTime1199.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount218.0/BlockTrialCount106.0/ReactionTime1416.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount221.0/BlockTrialCount109.0/ReactionTime999.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskg/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount223.0/BlockTrialCount111.0/ReactionTime1166.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded0.0/ParticipantResponsenan/CorrectResponse115.0/TrialCount117.0/BlockTrialCount5.0/ReactionTimenan/Accuracy0.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded0.0/ParticipantResponsenan/CorrectResponse115.0/TrialCount202.0/BlockTrialCount90.0/ReactionTimenan/Accuracy0.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount135.0/BlockTrialCount23.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount137.0/BlockTrialCount25.0/ReactionTime1200.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount144.0/BlockTrialCount32.0/ReactionTime1799.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount147.0/BlockTrialCount35.0/ReactionTime1483.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount159.0/BlockTrialCount47.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount161.0/BlockTrialCount49.0/ReactionTime1383.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount163.0/BlockTrialCount51.0/ReactionTime1183.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount177.0/BlockTrialCount65.0/ReactionTime1749.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount179.0/BlockTrialCount67.0/ReactionTime2066.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount188.0/BlockTrialCount76.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount193.0/BlockTrialCount81.0/ReactionTime1350.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount197.0/BlockTrialCount85.0/ReactionTime1649.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount211.0/BlockTrialCount99.0/ReactionTime649.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount217.0/BlockTrialCount105.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetterh/SmallLetters/Taskl/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount220.0/BlockTrialCount108.0/ReactionTime783.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount203.0/BlockTrialCount91.0/ReactionTime1749.0/Accuracy0.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse114.0/CorrectResponse115.0/TrialCount212.0/BlockTrialCount100.0/ReactionTime1049.0/Accuracy0.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount116.0/BlockTrialCount4.0/ReactionTime816.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount120.0/BlockTrialCount8.0/ReactionTime1283.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount125.0/BlockTrialCount13.0/ReactionTime2099.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount130.0/BlockTrialCount18.0/ReactionTime1599.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount138.0/BlockTrialCount26.0/ReactionTime1683.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount140.0/BlockTrialCount28.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount146.0/BlockTrialCount34.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount150.0/BlockTrialCount38.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount162.0/BlockTrialCount50.0/ReactionTime1683.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount170.0/BlockTrialCount58.0/ReactionTime1366.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount172.0/BlockTrialCount60.0/ReactionTime1399.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount198.0/BlockTrialCount86.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount115.0/BlockTrialCount3.0/ReactionTime1533.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount119.0/BlockTrialCount7.0/ReactionTime1616.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount121.0/BlockTrialCount9.0/ReactionTime1749.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount127.0/BlockTrialCount15.0/ReactionTime1633.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount129.0/BlockTrialCount17.0/ReactionTime1600.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount142.0/BlockTrialCount30.0/ReactionTime1333.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount154.0/BlockTrialCount42.0/ReactionTime1449.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount165.0/BlockTrialCount53.0/ReactionTime1499.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount168.0/BlockTrialCount56.0/ReactionTime1899.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount171.0/BlockTrialCount59.0/ReactionTime1466.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount173.0/BlockTrialCount61.0/ReactionTime1033.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount195.0/BlockTrialCount83.0/ReactionTime1866.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount200.0/BlockTrialCount88.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount204.0/BlockTrialCount92.0/ReactionTime1550.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse114.0/CorrectResponse114.0/TrialCount208.0/BlockTrialCount96.0/ReactionTime666.0/Accuracy1.0/D90, Stimulus/i75.0/s75.0/BigLetters/SmallLetterh/Taskl/TargetLetterh/Responded1.0/ParticipantResponse115.0/CorrectResponse114.0/TrialCount224.0/BlockTrialCount112.0/ReactionTime1400.0/Accuracy0.0/D90'
+
