@@ -47,7 +47,8 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# remove D0110 because of low error trials
+SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'

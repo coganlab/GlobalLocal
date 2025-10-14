@@ -1,0 +1,8 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 248, in <module>
+    run_analysis()
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 168, in run_analysis
+    stat_func=STAT_FUNC,
+              ^^^^^^^^^
+NameError: name 'STAT_FUNC' is not defined
