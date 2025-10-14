@@ -57,17 +57,17 @@ TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = False
 
 # Statistical parameters
-# Choose your stat function here
-STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
+# Choose your stat function here - DEPRECATED, DO PAIRED T TEST OF DIFFERENCE AGAINST ZERO NOW FOR LWPC, LWPS, ETC. 
+# STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
 
-if STAT_FUNC_CHOICE == 'mean_diff':
-    STAT_FUNC = mean_diff
-    STAT_FUNC_STR = 'mean_diff'
-elif STAT_FUNC_CHOICE == 'ttest':
-    # STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+# if STAT_FUNC_CHOICE == 'mean_diff':
+#     STAT_FUNC = mean_diff
+#     STAT_FUNC_STR = 'mean_diff'
+# elif STAT_FUNC_CHOICE == 'ttest':
+#     # STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+#     STAT_FUNC = partial(ttest_rel, nan_policy='omit')
 
-    STAT_FUNC_STR = 'ttest'
+#     STAT_FUNC_STR = 'ttest'
     
 # old stat params for time_perm_cluster
 # P_THRESH = 0.05
@@ -143,16 +143,16 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 5
-# N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 5
+N_CLUSTER_PERMS= 5
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""

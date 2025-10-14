@@ -193,10 +193,6 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
         os.makedirs(condition_save_dir, exist_ok=True)
 
         for roi in rois:
-            condition_roi_stat_func_save_dir = os.path.join(condition_save_dir, f"{roi}", f"{args.stat_func_str}")
-            os.makedirs(condition_roi_stat_func_save_dir, exist_ok=True)
-            print(f"accuracies save dir directory created or already exists at: {condition_roi_stat_func_save_dir}")
-            
             results_for_this_bootstrap[condition_comparison][roi] = {}
             results_for_this_bootstrap[condition_comparison][roi]['strings_to_find'] = strings_to_find
 
@@ -653,7 +649,7 @@ def main(args):
             )
             
             # 1. Get the pooled data using your existing helper function
-            pooled_c25_accs, pooled_c75_accs = get_pooled_accuracy_distributions_for_comparison(
+            pooled_c25_vs_i25_accs, pooled_c75_vs_i75_accs = get_pooled_accuracy_distributions_for_comparison(
                 time_window_decoding_results=time_window_decoding_results,
                 n_bootstraps=args.bootstraps,
                 condition_comparison_1='c25_vs_i25',
@@ -667,8 +663,8 @@ def main(args):
             mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
             
             significant_clusters_lwpc = do_mne_paired_cluster_test(
-                accuracies1=pooled_c25_accs,
-                accuracies2=pooled_c75_accs,
+                accuracies1=pooled_c25_vs_i25_accs,
+                accuracies2=pooled_c75_vs_i75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
                 n_perm=args.n_cluster_perms,
                 tails=mne_tails,
@@ -725,27 +721,9 @@ def main(args):
             's75_vs_r75': '-',  # Solid
             'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
-        
-        # Perform the statistical comparison between the two true accuracy distributions
-        lwps_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
-            time_window_decoding_results=time_window_decoding_results, 
-            n_bootstraps=args.bootstraps, 
-            condition_comparison_1='s25_vs_r25',
-            condition_comparison_2='s75_vs_r75', 
-            rois=rois, 
-            stat_func=args.stat_func, 
-            unit_of_analysis=args.unit_of_analysis,
-            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
-            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
-            n_perm=args.n_cluster_perms, 
-            tails=2, 
-            axis=0, 
-            random_state=args.random_state, 
-            n_jobs=args.n_jobs
-        )
 
         for roi in rois:
-            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}) or roi not in lwps_comparison_stats:
+            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}):
                 print(f"Skipping plot for ROI {roi} due to missing data.")
                 continue
 
@@ -763,6 +741,29 @@ def main(args):
                 lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            # 1. Get the pooled data using your existing helper function
+            pooled_s25_vs_r25_accs, pooled_s75_vs_r75_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='s25_vs_r25',
+                condition_comparison_2='s75_vs_r75',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new MNE-based paired cluster test
+            # MNE uses `tail=0` for a two-tailed test.
+            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
+            
+            significant_clusters_lwps = do_mne_paired_cluster_test(
+                accuracies1=pooled_s25_vs_r25_accs,
+                accuracies2=pooled_s75_vs_r75_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                n_perm=args.n_cluster_perms,
+                tails=mne_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
             # --- Get data for plotting from the main stats dictionary ---
             s25_vs_r25_stats = all_bootstrap_stats['s25_vs_r25'][roi]
             s75_vs_r75_stats = all_bootstrap_stats['s75_vs_r75'][roi]
@@ -771,9 +772,6 @@ def main(args):
             unit = s25_vs_r25_stats['unit_of_analysis']
             
             time_window_centers = time_window_decoding_results[0]['s25_vs_r25'][roi]['time_window_centers']
-            
-            # Get the significance clusters from our new comparison
-            significant_clusters_lwps, _ = lwps_comparison_stats[roi]
             
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
@@ -817,24 +815,6 @@ def main(args):
             'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
-        # Perform the statistical comparison between the two true accuracy distributions
-        congruency_by_switch_proportion_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
-            time_window_decoding_results=time_window_decoding_results, 
-            n_bootstraps=args.bootstraps, 
-            condition_comparison_1='c_in_25switchBlock_vs_i_in_25switchBlock',
-            condition_comparison_2='c_in_75switchBlock_vs_i_in_75switchBlock', 
-            rois=rois, 
-            stat_func=args.stat_func, 
-            unit_of_analysis=args.unit_of_analysis,
-            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
-            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
-            n_perm=args.n_cluster_perms, 
-            tails=2, 
-            axis=0, 
-            random_state=args.random_state, 
-            n_jobs=args.n_jobs
-        )
-
         for roi in rois:
             if roi not in all_bootstrap_stats.get('c_in_25switchBlock_vs_i_in_25switchBlock', {}) or roi not in congruency_by_switch_proportion_comparison_stats:
                 print(f"Skipping plot for ROI {roi} due to missing data.")
@@ -854,6 +834,30 @@ def main(args):
                 congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            # 1. Get the pooled data using your existing helper function
+            pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs, pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='c_in_25switchBlock_vs_i_in_25switchBlock',
+                condition_comparison_2='c_in_75switchBlock_vs_i_in_75switchBlock',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new MNE-based paired cluster test
+            # MNE uses `tail=0` for a two-tailed test.
+            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
+            
+            significant_clusters_congruency_by_switch_proportion = do_mne_paired_cluster_test(
+                accuracies1=pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs,
+                accuracies2=pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                n_perm=args.n_cluster_perms,
+                tails=mne_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
             # --- Get data for plotting from the main stats dictionary ---
             c_in_25switchBlock_vs_i_in_25switchBlock_stats = all_bootstrap_stats['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]
             c_in_75switchBlock_vs_i_in_75switchBlock_stats = all_bootstrap_stats['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]
@@ -862,9 +866,6 @@ def main(args):
             unit = c_in_25switchBlock_vs_i_in_25switchBlock_stats['unit_of_analysis']
             
             time_window_centers = time_window_decoding_results[0]['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
-            
-            # Get the significance clusters from our new comparison
-            significant_clusters_congruency_by_switch_proportion, _ = congruency_by_switch_proportion_comparison_stats[roi]
             
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
@@ -907,24 +908,6 @@ def main(args):
             's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
             'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
-        
-        # Perform the statistical comparison between the two true accuracy distributions
-        switch_type_by_congruency_proportion_comparison_stats = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
-            time_window_decoding_results=time_window_decoding_results, 
-            n_bootstraps=args.bootstraps, 
-            condition_comparison_1='s_in_25incongruentBlock_vs_r_in_25incongruentBlock',
-            condition_comparison_2='s_in_75incongruentBlock_vs_r_in_75incongruentBlock', 
-            rois=rois, 
-            stat_func=args.stat_func, 
-            unit_of_analysis=args.unit_of_analysis,
-            p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
-            p_cluster=args.p_thresh_for_time_perm_cluster_stats,
-            n_perm=args.n_cluster_perms, 
-            tails=2, 
-            axis=0, 
-            random_state=args.random_state, 
-            n_jobs=args.n_jobs
-        )
 
         for roi in rois:
             if roi not in all_bootstrap_stats.get('s_in_25incongruentBlock_vs_r_in_25incongruentBlock', {}) or roi not in switch_type_by_congruency_proportion_comparison_stats:
@@ -945,6 +928,30 @@ def main(args):
                 switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            # 1. Get the pooled data using your existing helper function
+            pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs, pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='s_in_25incongruentBlock_vs_r_in_25incongruentBlock',
+                condition_comparison_2='s_in_75incongruentBlock_vs_r_in_75incongruentBlock',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new MNE-based paired cluster test
+            # MNE uses `tail=0` for a two-tailed test.
+            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
+            
+            significant_clusters_switch_type_by_congruency_proportion = do_mne_paired_cluster_test(
+                accuracies1=pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs,
+                accuracies2=pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                n_perm=args.n_cluster_perms,
+                tails=mne_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
             # --- Get data for plotting from the main stats dictionary ---
             s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
             s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
@@ -953,9 +960,6 @@ def main(args):
             unit = s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats['unit_of_analysis']
             
             time_window_centers = time_window_decoding_results[0]['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
-            
-            # Get the significance clusters from our new comparison
-            significant_clusters_switch_type_by_congruency_proportion, _ = switch_type_by_congruency_proportion_comparison_stats[roi]
             
             plot_accuracies_nature_style(
                 time_points=time_window_centers,
