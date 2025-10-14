@@ -70,36 +70,38 @@ response_err_congruency_conditions = {
 }
 
 # incongruent-repeat errors vs switch-congruent errors
-stimulus_iR_cS_err_conditions = {
-    "Stimulus_err_iR": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/c25.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0"],
+stimulus_iS_cR_err_conditions = {
+    "Stimulus_err_iS": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/i25.0/s25.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0/s75.0",
+            "Stimulus/Responded1.0/Accuracy0.0/i25.0/s75.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0/s25.0"],
         "responseType" : "err", 
         "congruency" : "i", 
-        "switchType" : "r"
+        "switchType" : "s"
 
     },
-    "Stimulus_err_cS": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/i25.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0"],
+    "Stimulus_err_cR": {
+        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/c25.0/r25.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0/r75.0",
+            "Stimulus/Responded1.0/Accuracy0.0/c25.0/r75.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0/r25.0"],
         "responseType" : "err",
         "congruency" : "c", 
-        "switchType" : "s"
+        "switchType" : "r"
     }
 }
 
 # incongruent-repeat errors vs switch-congruent errors
-response_iR_cS_err_conditions = {
-    "Stimulus_err_iR": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/c25.0/r25.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0/r75.0"],
+response_iS_cR_err_conditions = {
+    "Stimulus_err_iS": {
+        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/i25.0/s25.0", "Response/Responded1.0/Accuracy0.0/i75.0/s25.0"],
         "responseType" : "err", 
-        "congruency" : "i",
-        "switchType" : "r"
+        "congruency" : "i", 
+        "switchType" : "s"
 
     },
-    "Stimulus_err_cS": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/i25.0/s25.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0/s75.0"],
+    "Stimulus_err_cR": {
+        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/c25.0/r25.0", "Response/Responded1.0/Accuracy0.0/c75.0/r25.0"],
         "responseType" : "err",
-        "congruency" : "c",
-        "switchType" : "s"
+        "congruency" : "c", 
+        "switchType" : "r"
     }
 }
 
