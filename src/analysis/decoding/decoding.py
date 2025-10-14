@@ -23,9 +23,12 @@ if project_root not in sys.path:
 import mne
 import numpy as np
 import pandas as pd
+from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
 from scipy.stats import norm # also from scipy.stats
+from scipy.stats import t
+
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
 
@@ -2909,3 +2912,70 @@ def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
         stats[roi] = significant_clusters, p_values
         
     return stats
+
+def do_mne_paired_cluster_test(
+    accuracies1: np.ndarray,
+    accuracies2: np.ndarray,
+    p_thresh: float = 0.05,
+    n_perm: int = 1000,
+    tails: int = 0, # MNE: 0 for two-tail, 1 for right-tail, -1 for left-tail
+    random_state: int = 42,
+    n_jobs: int = -1
+) -> np.ndarray:
+    """
+    Performs a paired-sample cluster permutation test using MNE.
+
+    It tests the difference (accuracies1 - accuracies2) against zero.
+
+    Args:
+        accuracies1: Data for condition 1, shape (n_samples, n_times).
+        accuracies2: Data for condition 2, shape (n_samples, n_times).
+        p_thresh: The p-value threshold for forming clusters.
+        n_perm: The number of permutations.
+        tails: 0 for two-tailed, 1 for one-tailed (1 > 2), -1 for one-tailed (1 < 2).
+        random_state: Seed for the random number generator.
+        n_jobs: Number of jobs for parallel processing.
+
+    Returns:
+        A boolean mask of shape (n_times,) indicating significant time points.
+    """
+    if accuracies1.shape != accuracies2.shape:
+        raise ValueError("Accuracy arrays must have the same shape for a paired test.")
+    
+    print("🔬 Running MNE paired (one-sample on differences) cluster permutation test...")
+
+    # Step 1: Calculate the difference for each paired sample
+    differences = accuracies1 - accuracies2
+    n_samples = differences.shape[0]
+
+    if n_samples < 2:
+        print("⚠️ Warning: Not enough samples to run stats. Returning no significant clusters.")
+        return np.zeros(differences.shape[1], dtype=bool)
+
+    # Step 2: Calculate the t-statistic threshold from the p-value
+    # For a two-tailed test, we divide the p-value by 2
+    p_val_for_t = p_thresh / 2 if tails == 0 else p_thresh
+    degrees_of_freedom = n_samples - 1
+    t_threshold = t.ppf(1 - p_val_for_t, df=degrees_of_freedom)
+
+    # Step 3: Run the MNE one-sample cluster test
+    t_obs, clusters, cluster_p_values, H0 = permutation_cluster_1samp_test(
+        X=differences,
+        threshold=t_threshold,
+        n_permutations=n_perm,
+        tail=tails,
+        n_jobs=n_jobs,
+        seed=random_state,
+        verbose=False
+    )
+
+    # Step 4: Create a boolean mask from the significant clusters
+    significant_clusters_mask = np.zeros(differences.shape[1], dtype=bool)
+    for i_cluster, p_val in enumerate(cluster_p_values):
+        if p_val < p_thresh:
+            cluster_indices = clusters[i_cluster][0]
+            significant_clusters_mask[cluster_indices] = True
+            
+    print(f"Found {len(cluster_p_values[cluster_p_values < p_thresh])} significant cluster(s).")
+    
+    return significant_clusters_mask

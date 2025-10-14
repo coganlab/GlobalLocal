@@ -9,7 +9,7 @@ import sys
 import os
 import numpy as np
 from functools import partial
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
 from ieeg.calc.fast import mean_diff
@@ -64,7 +64,9 @@ if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
     STAT_FUNC_STR = 'mean_diff'
 elif STAT_FUNC_CHOICE == 'ttest':
-    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    # STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+
     STAT_FUNC_STR = 'ttest'
     
 # old stat params for time_perm_cluster
@@ -81,7 +83,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 70
+BOOTSTRAPS = 20
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -95,7 +97,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across fold, repeat, or bootstrap
-UNIT_OF_ANALYSIS='bootstrap'
+UNIT_OF_ANALYSIS='repeat'
 
 # whether to store individual folds (true) or sum them within repeats (false)
 FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
@@ -107,15 +109,15 @@ N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and tr
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
