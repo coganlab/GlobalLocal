@@ -9,7 +9,7 @@ import sys
 import os
 import numpy as np
 from functools import partial
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
 from ieeg.calc.fast import mean_diff
@@ -57,15 +57,17 @@ TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = False
 
 # Statistical parameters
-# Choose your stat function here
-STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
+# Choose your stat function here - DEPRECATED, DO PAIRED T TEST OF DIFFERENCE AGAINST ZERO NOW FOR LWPC, LWPS, ETC. 
+# STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
 
-if STAT_FUNC_CHOICE == 'mean_diff':
-    STAT_FUNC = mean_diff
-    STAT_FUNC_STR = 'mean_diff'
-elif STAT_FUNC_CHOICE == 'ttest':
-    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-    STAT_FUNC_STR = 'ttest'
+# if STAT_FUNC_CHOICE == 'mean_diff':
+#     STAT_FUNC = mean_diff
+#     STAT_FUNC_STR = 'mean_diff'
+# elif STAT_FUNC_CHOICE == 'ttest':
+#     # STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+#     STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+
+#     STAT_FUNC_STR = 'ttest'
     
 # old stat params for time_perm_cluster
 # P_THRESH = 0.05
@@ -107,15 +109,15 @@ N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and tr
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
 # ROI dictionary
@@ -141,16 +143,16 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 5
-# N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 5
+N_CLUSTER_PERMS= 5
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
