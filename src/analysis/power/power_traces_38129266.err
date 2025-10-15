@@ -1,0 +1,121 @@
+[NbConvertApp] Converting notebook /hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.ipynb to notebook
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/bin/jupyter-nbconvert", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/application.py", line 280, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/traitlets/config/application.py", line 992, in launch_instance
+    app.start()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 412, in start
+    self.convert_notebooks()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 590, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 556, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 479, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 203, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 222, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 156, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 354, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)  # type:ignore[operator]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 173, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+if conditions == experiment_conditions.stimulus_conditions:
+    conditions_save_name = 'stimulus_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_experiment_conditions:
+    conditions_save_name = 'stimulus_experiment_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_main_effect_conditions:
+    conditions_save_name = 'stimulus_main_effect_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_lwpc_conditions:
+    conditions_save_name = 'stimulus_lwpc_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_lwps_conditions:
+    conditions_save_name = 'stimulus_lwps_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_big_letter_conditions:
+    conditions_save_name = 'stimulus_big_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_small_letter_conditions:
+    conditions_save_name = 'stimulus_small_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_task_conditions:
+    conditions_save_name = 'stimulus_task_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_congruency_conditions:
+    conditions_save_name = 'stimulus_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_switch_type_conditions:
+    conditions_save_name = 'stimulus_switch_type_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_err_corr_conditions:
+    conditions_save_name = 'stimulus_err_corr_conditions_sem_green' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_err_congruency_conditions:
+    conditions_save_name = 'stimulus_err_congruency_conditions_sem' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+    conditions_save_name = 'stimulus_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+
+
+elif conditions == experiment_conditions.response_conditions:
+    conditions_save_name = 'response_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_experiment_conditions:
+    conditions_save_name = 'response_experiment_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_big_letter_conditions:
+    conditions_save_name = 'response_big_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_small_letter_conditions:
+    conditions_save_name = 'response_small_letter_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_task_conditions:
+    conditions_save_name = 'response_task_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_congruency_conditions:
+    conditions_save_name = 'response_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_switch_type_conditions:
+    conditions_save_name = 'response_switch_type_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_err_corr_conditions:
+    conditions_save_name = 'response_err_corr_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_err_congruency_conditions:
+    conditions_save_name = 'response_err_congruency_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+elif conditions == experiment_conditions.response_iR_cS_err_conditions:
+    conditions_save_name = 'response_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+
+# Assuming 'combined_data' is your DataFrame and 'subjects' is your list of subject IDs
+#subjects_mne_objects = utils.create_subjects_mne_objects_dict(subjects=subjects, epochs_root_file=epochs_root_file, conditions=conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=True, error_trials_only=False)
+#one without selecting only correct trials
+subjects_mne_objects = utils.create_subjects_mne_objects_dict(subjects=subjects, epochs_root_file=epochs_root_file, conditions=conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=False)
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAttributeError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[9], line 25[0m
+[1;32m     23[0m [38;5;28;01melif[39;00m conditions [38;5;241m==[39m experiment_conditions[38;5;241m.[39mstimulus_err_congruency_conditions:
+[1;32m     24[0m     conditions_save_name [38;5;241m=[39m [38;5;124m'[39m[38;5;124mstimulus_err_congruency_conditions_sem[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m epochs_root_file [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;28mstr[39m([38;5;28mlen[39m(subjects)) [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124msubjects[39m[38;5;124m'[39m
+[0;32m---> 25[0m [38;5;28;01melif[39;00m conditions [38;5;241m==[39m experiment_conditions[38;5;241m.[39mstimulus_iR_cS_err_conditions:
+[1;32m     26[0m     conditions_save_name [38;5;241m=[39m [38;5;124m'[39m[38;5;124mstimulus_err_iR_cS_conditions[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m epochs_root_file [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;28mstr[39m([38;5;28mlen[39m(subjects)) [38;5;241m+[39m [38;5;124m'[39m[38;5;124m_[39m[38;5;124m'[39m [38;5;241m+[39m [38;5;124m'[39m[38;5;124msubjects[39m[38;5;124m'[39m
+[1;32m     29[0m [38;5;28;01melif[39;00m conditions [38;5;241m==[39m experiment_conditions[38;5;241m.[39mresponse_conditions:
+
+[0;31mAttributeError[0m: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_iR_cS_err_conditions'
+
