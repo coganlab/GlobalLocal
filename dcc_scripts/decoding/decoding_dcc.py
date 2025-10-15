@@ -106,7 +106,8 @@ from src.analysis.decoding.decoding import (
     compute_pooled_bootstrap_statistics,
     do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions,
     do_mne_paired_cluster_test,
-    get_pooled_accuracy_distributions_for_comparison
+    get_pooled_accuracy_distributions_for_comparison,
+    get_time_averaged_confusion_matrix
 )
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
@@ -117,7 +118,12 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
     bootstrap_random_state = args.random_state + bootstrap_idx if args.random_state is not None else None
     
     # this dictionary will store all results for this single bootstrap
-    results_for_this_bootstrap = {}
+    results_for_this_bootstrap = {
+        'time_window_results': {},
+        'time_averaged_cms': {},
+        'cats_by_roi': {}
+    }
+    
     print(f"\n{'='*20}) PROCESSING BOOTSTRAP {bootstrap_idx+1}/{args.bootstraps} {'='*20}\n")
     
     # 1. Generate data for THIS bootstrap sample inside the worker
@@ -160,12 +166,39 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
     # Directory to save confusion matrices
     cm_save_dir = os.path.join(save_dir, "confusion_matrices")
     os.makedirs(cm_save_dir, exist_ok=True)
-
-    folds_info_str = 'folds_as_samples' if args.folds_as_samples else 'repeats_as_samples'
     
+    # --- 1. Calculate Time-Averaged CMs (using raw counts) ---
+    for condition_comparison, strings_to_find in condition_comparisons.items():
+        results_for_this_bootstrap['time_averaged_cms'][condition_comparison] = {}
+        for roi in rois:
+            # Get the 'cats' dictionary for this ROI
+            _, _, cats = concatenate_conditions_by_string(
+                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs
+            )
+            
+            ## FIX: Store the 'cats' dictionary for this ROI so it can be used for plotting later.
+            if roi not in results_for_this_bootstrap['cats_by_roi']:
+                results_for_this_bootstrap['cats_by_roi'][roi] = cats
+                
+            # Get the raw-count confusion matrix
+            cm = get_time_averaged_confusion_matrix(
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                roi=roi,
+                strings_to_find=strings_to_find,
+                cats=cats,
+                n_splits=args.n_splits,
+                n_repeats=args.n_repeats,
+                obs_axs=args.obs_axs,
+                balance_method=args.balance_method,
+                explained_variance=args.explained_variance,
+                random_state=args.random_state + bootstrap_idx
+            )
+            if cm is not None:
+                results_for_this_bootstrap['time_averaged_cms'][condition_comparison][roi] = cm
+
     for condition_comparison, strings_to_find in condition_comparisons.items():
         
-        results_for_this_bootstrap[condition_comparison] = {}
+        results_for_this_bootstrap['time_window_results'][condition_comparison] = {}
         
         # Get confusion matrices for each ROI
         cm_true_per_roi, cm_shuffle_per_roi = get_confusion_matrices_for_rois_time_window_decoding_jim(
@@ -193,8 +226,8 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
         os.makedirs(condition_save_dir, exist_ok=True)
 
         for roi in rois:
-            results_for_this_bootstrap[condition_comparison][roi] = {}
-            results_for_this_bootstrap[condition_comparison][roi]['strings_to_find'] = strings_to_find
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi] = {}
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['strings_to_find'] = strings_to_find
 
             cm_true = cm_true_per_roi[roi]['cm_true']
             cm_shuffle = cm_shuffle_per_roi[roi]['cm_shuffle']
@@ -203,11 +236,11 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             step_size = cm_true_per_roi[roi]['step_size']
 
             # store cm outputs and windowing parameters
-            results_for_this_bootstrap[condition_comparison][roi]['cm_true'] = cm_true
-            results_for_this_bootstrap[condition_comparison][roi]['cm_shuffle'] = cm_shuffle
-            results_for_this_bootstrap[condition_comparison][roi]['time_window_centers'] = time_window_centers
-            results_for_this_bootstrap[condition_comparison][roi]['window_size'] = window_size
-            results_for_this_bootstrap[condition_comparison][roi]['step_size'] = step_size
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['cm_true'] = cm_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['cm_shuffle'] = cm_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['time_window_centers'] = time_window_centers
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['window_size'] = window_size
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['step_size'] = step_size
             
             # Compute accuracies
             accuracies_true, accuracies_shuffle = compute_accuracies(cm_true, cm_shuffle)
@@ -217,17 +250,17 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             mean_accuracies_shuffle = np.mean(accuracies_shuffle, axis=1, keepdims=True) 
             
             # store accuracies - TODO: average across bootstraps somehow for these
-            results_for_this_bootstrap[condition_comparison][roi]['accuracies_true'] = accuracies_true
-            results_for_this_bootstrap[condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
-            results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
-            results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['accuracies_true'] = accuracies_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
     # lwpc
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
-        results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'] = {}
+        results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['c25_vs_i25'][roi]['time_window_centers']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['c25_vs_i25'][roi]['time_window_centers']
             
             # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
@@ -246,14 +279,14 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            results_for_this_bootstrap['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
     # lwps
     if args.conditions == experiment_conditions.stimulus_lwps_conditions:   
-        results_for_this_bootstrap['lwps_shuffle_accs_across_pooled_conditions'] = {}
+        results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['s25_vs_r25'][roi]['time_window_centers']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['s25_vs_r25'][roi]['time_window_centers']
             
             # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
@@ -272,14 +305,14 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            results_for_this_bootstrap['lwps_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
     # congruency by switch proportion
     if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:   
-        results_for_this_bootstrap['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
+        results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
             
             # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['c_in'], ['i_in']]
@@ -302,10 +335,10 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
     # switch type by congruency proportion
     if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:   
-        results_for_this_bootstrap['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
+        results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
           
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
             
             # get s vs r pooled shuffle distribution
             strings_to_find_pooled = [['s_in'], ['r_in']]
@@ -444,20 +477,6 @@ def main(args):
                 total_dropped += len(elec_list)
     print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
     print("-------------------------------------\n")
-    
-    roi_bootstrapped_labeled_arrays = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
-        rois=rois,
-        subjects_data_objects=subjects_mne_objects,
-        condition_names=condition_names,
-        subjects=args.subjects,
-        electrodes_per_subject_roi=electrodes,
-        n_bootstraps=args.bootstraps,
-        chans_axs=1,
-        time_axs=2,
-        freq_axs=None, # Set to 3 if using TFR data
-        random_state=args.random_state,
-        n_jobs=-1 
-    )
             
     condition_comparisons = {}
 
@@ -545,8 +564,60 @@ def main(args):
     )
 
     # reconstruct the main results dictionary from the list returned by the parallel jobs
-    time_window_decoding_results = {i: result for i, result in enumerate(bootstrap_results_list) if result is not None}
-    
+    time_window_decoding_results = {i: result['time_window_results'] for i, result in enumerate(bootstrap_results_list) if result is not None}
+    time_averaged_cms_list = [result['time_averaged_cms'] for result in bootstrap_results_list if result]
+
+    ## FIX: Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
+    ## This is necessary to get the correct labels for plotting the confusion matrices.
+    cats_by_roi = {}
+    first_valid_result = next((res for res in bootstrap_results_list if res), None)
+    if first_valid_result:
+        cats_by_roi = first_valid_result.get('cats_by_roi', {})
+
+    # --- Step 1: Aggregate and Plot Time-Averaged CMs ---
+    print("\n📊 Aggregating and plotting time-averaged confusion matrices...")
+    for condition_comparison in condition_comparisons.keys():
+        for roi in rois:
+            # Collect all raw CMs for this specific condition/ROI
+            raw_cms = [
+                boot_result[condition_comparison][roi] 
+                for boot_result in time_averaged_cms_list 
+                if condition_comparison in boot_result and roi in boot_result[condition_comparison]
+            ]
+
+            if not raw_cms:
+                continue
+
+            # Sum, normalize, and plot (same logic as before)
+            total_cm_counts = np.sum(np.array(raw_cms), axis=0)
+            row_sums = total_cm_counts.sum(axis=1)[:, np.newaxis]
+            row_sums[row_sums == 0] = 1 
+            normalized_cm = total_cm_counts.astype('float') / row_sums
+            
+            ## FIX: This check now correctly uses the `cats_by_roi` dictionary retrieved from the bootstrap results.
+            if roi in cats_by_roi:
+                display_labels = [str(key) for key in cats_by_roi[roi].keys()]
+            else:
+                print(f"Warning: 'cats' dictionary not found for ROI {roi}. Skipping CM plot.")
+                continue
+
+            # Plotting logic
+            fig, ax = plt.subplots()
+            disp = ConfusionMatrixDisplay(confusion_matrix=normalized_cm, display_labels=display_labels)
+            disp.plot(ax=ax, im_kw={"vmin": 0, "vmax": 1}, colorbar=True)
+            ax.set_title(f'{roi} - {condition_comparison}\n(Counts summed across {args.bootstraps} bootstraps)')
+
+            filename = (
+                f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_'
+                f'time_averaged_confusion_matrix.png'
+            )
+            plot_save_path = os.path.join(save_dir, roi, condition_comparison)
+            os.makedirs(plot_save_path, exist_ok=True)
+            plt.savefig(os.path.join(plot_save_path, filename))
+            plt.close()
+            print(f"✅ Saved summed & normalized CM for {roi} to {plot_save_path}")
+
+            
     if not time_window_decoding_results:
         print("\n✗ Analysis failed: No bootstrap samples were successfully processed.")
         return
@@ -816,7 +887,7 @@ def main(args):
         }
         
         for roi in rois:
-            if roi not in all_bootstrap_stats.get('c_in_25switchBlock_vs_i_in_25switchBlock', {}) or roi not in congruency_by_switch_proportion_comparison_stats:
+            if roi not in all_bootstrap_stats.get('c_in_25switchBlock_vs_i_in_25switchBlock', {}):
                 print(f"Skipping plot for ROI {roi} due to missing data.")
                 continue
 
@@ -910,7 +981,7 @@ def main(args):
         }
 
         for roi in rois:
-            if roi not in all_bootstrap_stats.get('s_in_25incongruentBlock_vs_r_in_25incongruentBlock', {}) or roi not in switch_type_by_congruency_proportion_comparison_stats:
+            if roi not in all_bootstrap_stats.get('s_in_25incongruentBlock_vs_r_in_25incongruentBlock', {}):
                 print(f"Skipping plot for ROI {roi} due to missing data.")
                 continue
 

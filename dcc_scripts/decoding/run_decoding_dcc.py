@@ -165,8 +165,6 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
-        stat_func=STAT_FUNC,
-        stat_func_str=STAT_FUNC_STR,
         n_jobs=N_JOBS,
         tails=TAILS,
         n_splits=N_SPLITS,

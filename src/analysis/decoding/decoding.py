@@ -2979,3 +2979,29 @@ def do_mne_paired_cluster_test(
     print(f"Found {len(cluster_p_values[cluster_p_values < p_thresh])} significant cluster(s).")
     
     return significant_clusters_mask
+
+# In your decoding.py file, update this function
+
+def get_time_averaged_confusion_matrix(
+    roi_labeled_arrays, roi, strings_to_find, n_splits, n_repeats,
+    obs_axs, balance_method, explained_variance, random_state, cats
+):
+    """
+    Computes a single time-averaged confusion matrix for one bootstrap sample.
+    Returns the RAW COUNTS instead of a normalized matrix.
+    """
+    concatenated_data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+    )
+
+    if concatenated_data.size == 0:
+        return None
+
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+    
+    # Key Change: Set normalize=None to get raw counts
+    # The result will be shape (n_repeats, n_classes, n_classes)
+    cm_repeats = decoder.cv_cm_jim(concatenated_data, labels, normalize=None, obs_axs=obs_axs)
+    
+    # Sum across all repeats to get a single count matrix for this bootstrap
+    return np.sum(cm_repeats, axis=0)
