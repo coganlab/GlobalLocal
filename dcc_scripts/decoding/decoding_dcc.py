@@ -517,9 +517,6 @@ def main(args):
         
         condition_comparisons['s25_vs_r75'] = ['s25', 'r75'] # control comparisons for lwps, think more about how to interpret these
         condition_comparisons['s75_vs_r25'] = ['s75', 'r25']
-        
-        condition_comparisons['s25_vs_r25'] = ['s25', 'r25'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
-        condition_comparisons['s75_vs_r75'] = ['s75', 'r75'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
 
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
         condition_comparisons['c_in_25switchBlock_vs_i_in_25switchBlock'] = ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_25switchBlock']
@@ -609,7 +606,7 @@ def main(args):
                 f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_'
                 f'time_averaged_confusion_matrix.png'
             )
-            plot_save_path = os.path.join(save_dir, roi, condition_comparison)
+            plot_save_path = os.path.join(save_dir, condition_comparison, roi)
             os.makedirs(plot_save_path, exist_ok=True)
             plt.savefig(os.path.join(plot_save_path, filename))
             plt.close()
