@@ -140,13 +140,13 @@ plotting_parameters = {
     "color": "black",
     "line_style": "-", 
 },
-"Stimulus_err_iR": {
-    "condition_parameter": "err-iR",
+"Stimulus_err_iS": {
+    "condition_parameter": "err-iS",
     "color": "black",
     "line_style": "-", 
 },
-"Stimulus_err_cS": {
-    "condition_parameter": "err-cS",
+"Stimulus_err_cR": {
+    "condition_parameter": "err-cR",
     "color": "black",
     "line_style": "-", 
 },

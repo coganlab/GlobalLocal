@@ -128,3 +128,27 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+[Parallel(n_jobs=-1)]: Done   2 out of  20 | elapsed: 13.0min remaining: 117.3min
+[Parallel(n_jobs=-1)]: Done   5 out of  20 | elapsed: 13.1min remaining: 39.4min
+[Parallel(n_jobs=-1)]: Done   8 out of  20 | elapsed: 14.5min remaining: 21.8min
+[Parallel(n_jobs=-1)]: Done  11 out of  20 | elapsed: 14.6min remaining: 11.9min
+[Parallel(n_jobs=-1)]: Done  14 out of  20 | elapsed: 14.6min remaining:  6.3min
+[Parallel(n_jobs=-1)]: Done  17 out of  20 | elapsed: 14.6min remaining:  2.6min
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed: 14.7min finished
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
