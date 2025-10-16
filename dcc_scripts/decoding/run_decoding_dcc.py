@@ -48,7 +48,8 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
-SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'
@@ -56,23 +57,6 @@ TASK = 'GlobalLocal'
 # Trial selection
 # switched to False for err-corr decoding
 ACC_TRIALS_ONLY = False
-
-# Statistical parameters
-# Choose your stat function here - DEPRECATED, DO PAIRED T TEST OF DIFFERENCE AGAINST ZERO NOW FOR LWPC, LWPS, ETC. 
-STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
-
-if STAT_FUNC_CHOICE == 'mean_diff':
-    STAT_FUNC = mean_diff
-    STAT_FUNC_STR = 'mean_diff'
-elif STAT_FUNC_CHOICE == 'ttest':
-    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
-
-STAT_FUNC_STR = 'ttest'
-    
-# old stat params for time_perm_cluster
-# P_THRESH = 0.05
-# N_PERM = 100
 
 # Parallel processing
 N_JOBS = -1 
@@ -107,15 +91,19 @@ FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
 PERCENTILE=95
 CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+
+# additional parameters for permutation cluster stats
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
+P_CLUSTER = 0.05
+CLUSTER_TAILS = 2
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
@@ -141,9 +129,9 @@ ROIS_DICT = {
 }
 
 # which electrodes to use (all or sig)
-ELECTRODES = 'all'
+# ELECTRODES = 'all'
 
-# # # testing params (comment out)
+# # # # testing params (comment out)
 # SUBJECTS = ['D0103']
 # N_SPLITS = 2
 # N_REPEATS = 2
@@ -166,8 +154,6 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
-        stat_func=STAT_FUNC,
-        stat_func_str=STAT_FUNC_STR,
         n_jobs=N_JOBS,
         tails=TAILS,
         n_splits=N_SPLITS,
@@ -194,9 +180,11 @@ def run_analysis():
         cluster_percentile=CLUSTER_PERCENTILE,
         n_cluster_perms=N_CLUSTER_PERMS,
         n_shuffle_perms=N_SHUFFLE_PERMS,
-        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS
+        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
+        p_cluster=P_CLUSTER,
+        cluster_tails=CLUSTER_TAILS
     )
-    
+
     # Print configuration summary
     print("=" * 70)
     print("BANDPASS FILTERED DECODING ANALYSIS")
@@ -220,10 +208,10 @@ def run_analysis():
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
     
-    # print("Time Perm Cluster Statistical Parameters:")
-    # print(f"  Cluster Perms:     {N_PERM}")
-    # print(f"  P-value Threshold: {P_THRESH}")
-    # print(f"  Tails:             {TAILS}")
+    print("Perm Cluster Statistical Parameters:")
+    print(f"  P-value Threshold: {P_THRESH_FOR_TIME_PERM_CLUSTER_STATS}")
+    print(f"  P cluster: {P_CLUSTER}")
+    print(f"  Tails:             {CLUSTER_TAILS}")
 
     print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     

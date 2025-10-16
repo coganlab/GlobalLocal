@@ -26,8 +26,7 @@ import pandas as pd
 from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
-from scipy.stats import norm # also from scipy.stats
-from scipy.stats import t
+from scipy.stats import norm, t # also from scipy.stats
 
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
@@ -2979,3 +2978,186 @@ def do_mne_paired_cluster_test(
     print(f"Found {len(cluster_p_values[cluster_p_values < p_thresh])} significant cluster(s).")
     
     return significant_clusters_mask
+
+# In your decoding.py file, update this function
+
+def get_time_averaged_confusion_matrix(
+    roi_labeled_arrays, roi, strings_to_find, n_splits, n_repeats,
+    obs_axs, balance_method, explained_variance, random_state, cats
+):
+    """
+    Computes a single time-averaged confusion matrix for one bootstrap sample.
+    Returns the RAW COUNTS instead of a normalized matrix.
+    """
+    concatenated_data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+    )
+
+    if concatenated_data.size == 0:
+        return None
+
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+    
+    # Key Change: Set normalize=None to get raw counts
+    # The result will be shape (n_repeats, n_classes, n_classes)
+    cm_repeats = decoder.cv_cm_jim(concatenated_data, labels, normalize=None, obs_axs=obs_axs)
+    
+    # Sum across all repeats to get a single count matrix for this bootstrap
+    return np.sum(cm_repeats, axis=0)
+
+def _run_single_permutation(differences: np.ndarray, t_thresh: float, tails: int, seed: int) -> int:
+    """
+    Execute a single permutation for the cluster test and return the max cluster duration.
+
+    This is the core "worker" function that will be parallelized by joblib. It takes the
+    pre-calculated differences, randomly flips their signs, computes a t-statistic,
+    finds clusters, and returns the duration of the largest cluster found in this single
+    permutation.
+
+    Parameters
+    ----------
+    differences : np.ndarray
+        The paired differences between two conditions, shape (n_samples, n_times).
+    t_thresh : float
+        The t-value threshold for forming clusters.
+    tails : int
+        Specifies the type of test (1 for one-tailed, 2 for two-tailed).
+    seed : int
+        A unique seed for the random number generator to ensure independent permutations.
+
+    Returns
+    -------
+    int
+        The maximum cluster duration (number of consecutive time points) found in this permutation.
+        Returns 0 if no clusters are found.
+    """
+    rng = np.random.default_rng(seed)
+    n_samples = differences.shape[0]
+
+    # Permute by randomly flipping the sign of the difference for each sample
+    sign_flips = rng.choice([-1, 1], size=(n_samples, 1))
+    perm_diffs = differences * sign_flips
+    
+    # Calculate t-statistic for the permuted data, handling potential division by zero
+    std_perm = np.std(perm_diffs, axis=0, ddof=1)
+    # Prevent division by zero if std is 0 for a time point
+    std_perm[std_perm == 0] = 1 
+    t_perm = np.mean(perm_diffs, axis=0) / (std_perm / np.sqrt(n_samples))
+    
+    if tails == 2:
+        perm_sig_points = np.abs(t_perm) > t_thresh
+    else:
+        perm_sig_points = t_perm > t_thresh
+    
+    perm_labeled, n_perm_clusters = label(perm_sig_points)
+    
+    if n_perm_clusters > 0:
+        perm_cluster_durations = np.array([np.sum(perm_labeled == i) for i in range(1, n_perm_clusters + 1)])
+        return np.max(perm_cluster_durations)
+    else:
+        return 0
+    
+def cluster_perm_paired_ttest_by_duration(
+    accuracies1: np.ndarray,
+    accuracies2: np.ndarray,
+    p_thresh: float = 0.05,
+    p_cluster: float = 0.05,
+    n_perm: int = 1000,
+    tails: int = 2, # 2 for two-tailed, 1 for one-tailed (1 > 2)
+    random_state: int = 42,
+    n_jobs: int = -1 # Number of jobs for parallel processing
+) -> np.ndarray:
+    """
+    Perform a parallelized paired-sample cluster permutation test using cluster duration.
+
+    This function tests for significant differences between two paired conditions over time.
+    It uses a non-parametric approach based on cluster mass, where the "mass" is defined as
+    the duration (number of consecutive time points) of a cluster.
+
+    The process is as follows:
+    1.  Calculate observed t-statistics for the difference between `accuracies1` and `accuracies2`.
+    2.  Identify contiguous clusters where the t-statistic exceeds a threshold (`p_thresh`).
+    3.  Calculate the duration of these observed clusters.
+    4.  Build a null distribution of the *maximum* cluster duration by running permutations in parallel.
+        In each permutation, the signs of the differences are randomly flipped.
+    5.  Compare the observed cluster durations to this null distribution. A cluster is considered
+        significant if its duration exceeds the threshold defined by `p_cluster` (e.g., the 95th
+        percentile) of the null distribution.
+
+    Parameters
+    ----------
+    accuracies1 : np.ndarray
+        Data for the first condition, with shape (n_samples, n_times).
+    accuracies2 : np.ndarray
+        Data for the second condition, with shape (n_samples, n_times). Must be paired with `accuracies1`.
+    p_thresh : float, optional
+        The p-value used to set the initial t-statistic threshold for forming clusters. Default is 0.05.
+    p_cluster : float, optional
+        The p-value for determining the final significance of a cluster. An observed cluster is
+        significant if its duration is greater than the `(1 - p_cluster)` percentile of the
+        null distribution of maximum cluster durations. Default is 0.05.
+    n_perm : int, optional
+        The number of permutations to run to build the null distribution. Default is 1000.
+    tails : int, optional
+        The type of test to perform:
+        - 2: two-tailed test (accuracies1 != accuracies2)
+        - 1: one-tailed test (accuracies1 > accuracies2)
+        Default is 2.
+    random_state : int, optional
+        Seed for the random number generator to ensure reproducibility. Default is 42.
+    n_jobs : int, optional
+        The number of CPU cores to use for parallelizing the permutation loop.
+        -1 means using all available cores. Default is -1.
+
+    Returns
+    -------
+    np.ndarray
+        A boolean mask of shape (n_times,) where `True` indicates that a time point
+        belongs to a statistically significant cluster.
+    """
+    rng = np.random.default_rng(random_state)
+    n_samples, n_times = accuracies1.shape
+    
+    # --- Step 1: Calculate observed clusters ---
+    differences = accuracies1 - accuracies2
+    std_diff = np.std(differences, axis=0, ddof=1)
+    std_diff[std_diff == 0] = 1 # Prevent division by zero
+    t_obs = np.mean(differences, axis=0) / (std_diff / np.sqrt(n_samples))
+    
+    df = n_samples - 1
+    p_for_t = p_thresh / 2 if tails == 2 else p_thresh
+    t_thresh = t.ppf(1 - p_for_t, df=df)
+    
+    if tails == 2:
+        significant_points = np.abs(t_obs) > t_thresh
+    else:
+        significant_points = t_obs > t_thresh
+        
+    labeled_clusters, n_clusters = label(significant_points)
+    
+    if n_clusters == 0:
+        print("No clusters found in observed data.")
+        return np.zeros(n_times, dtype=bool)
+        
+    observed_cluster_durations = np.array([np.sum(labeled_clusters == i) for i in range(1, n_clusters + 1)])
+
+    # --- Step 2: Build null distribution in PARALLEL ---
+    print(f"🚀 Building null distribution with {n_perm} permutations across {n_jobs} jobs...")
+    
+    # Generate independent seeds for each permutation job for reproducibility
+    seeds = rng.integers(low=0, high=2**32-1, size=n_perm)
+
+    max_perm_durations = Parallel(n_jobs=n_jobs, verbose=10)(
+        delayed(_run_single_permutation)(differences, t_thresh, tails, seed) for seed in seeds
+    )
+
+    # --- Step 3: Determine significance ---
+    critical_duration = np.percentile(max_perm_durations, 100 * (1 - p_cluster))
+    
+    final_sig_mask = np.zeros(n_times, dtype=bool)
+    for i in range(1, n_clusters + 1):
+        if observed_cluster_durations[i-1] > critical_duration:
+            final_sig_mask[labeled_clusters == i] = True
+            
+    print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
+    return final_sig_mask

@@ -276,3 +276,5 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+/var/spool/slurmd/job38099783/slurm_script: line 13: 743700 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py
+slurmstepd: error: Detected 1 oom_kill event in StepId=38099783.batch. Some of the step tasks have been OOM Killed.
