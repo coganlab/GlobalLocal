@@ -108,7 +108,7 @@ from src.analysis.decoding.decoding import (
     do_mne_paired_cluster_test,
     get_pooled_accuracy_distributions_for_comparison,
     get_time_averaged_confusion_matrix,
-    cluster_perm_test_by_duration
+    cluster_perm_paired_ttest_by_duration
 )
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
@@ -726,7 +726,7 @@ def main(args):
             )
 
             # 2. Run the new paired cluster test
-            significant_clusters_lwpc = cluster_perm_test_by_duration(
+            significant_clusters_lwpc = cluster_perm_paired_ttest_by_duration(
                 accuracies1=pooled_c25_vs_i25_accs,
                 accuracies2=pooled_c75_vs_i75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
@@ -817,7 +817,7 @@ def main(args):
             )
 
             # 2. Run the new paired cluster test
-            significant_clusters_lwps = cluster_perm_test_by_duration(
+            significant_clusters_lwps = cluster_perm_paired_ttest_by_duration(
                 accuracies1=pooled_s25_vs_r25_accs,
                 accuracies2=pooled_s75_vs_r75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
@@ -909,7 +909,7 @@ def main(args):
             )
 
             # 2. Run the new paired cluster test
-            significant_clusters_congruency_by_switch_proportion = cluster_perm_test_by_duration(
+            significant_clusters_congruency_by_switch_proportion = cluster_perm_paired_ttest_by_duration(
                 accuracies1=pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs,
                 accuracies2=pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
@@ -1001,7 +1001,7 @@ def main(args):
             )
             
             # 2. Run the new paired cluster test
-            significant_clusters_congruency_by_switch_proportion = cluster_perm_test_by_duration(
+            significant_clusters_congruency_by_switch_proportion = cluster_perm_paired_ttest_by_duration(
                 accuracies1=pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs,
                 accuracies2=pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,

@@ -276,3 +276,4 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+slurmstepd: error: *** JOB 38254612 ON dcc-core-30 CANCELLED AT 2025-10-16T11:00:45 ***

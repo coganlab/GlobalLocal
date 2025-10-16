@@ -131,20 +131,20 @@ No baseline correction applied
 
 --- Summary of Dropped Electrodes ---
 ROI: lpfc
-  - Subject D0069: Dropped 1 electrode(s)
-  - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0121: Dropped 61 electrode(s)
   - Subject D0117: Dropped 11 electrode(s)
-  - Subject D0090: Dropped 8 electrode(s)
   - Subject D0102: Dropped 5 electrode(s)
   - Subject D0110: Dropped 5 electrode(s)
-  - Subject D0121: Dropped 61 electrode(s)
+  - Subject D0116: Dropped 30 electrode(s)
+  - Subject D0090: Dropped 8 electrode(s)
   - Subject D0057: Dropped 17 electrode(s)
+  - Subject D0071: Dropped 13 electrode(s)
+  - Subject D0063: Dropped 36 electrode(s)
+  - Subject D0069: Dropped 1 electrode(s)
+  - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0059: Dropped 5 electrode(s)
   - Subject D0094: Dropped 28 electrode(s)
   - Subject D0065: Dropped 9 electrode(s)
-  - Subject D0063: Dropped 36 electrode(s)
-  - Subject D0116: Dropped 30 electrode(s)
-  - Subject D0071: Dropped 13 electrode(s)
-  - Subject D0059: Dropped 5 electrode(s)
 Total electrodes dropped across all subjects/ROIs: 254
 -------------------------------------
 
@@ -431,6 +431,6 @@ time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5
 
 -------------------- PARALLEL BOOTSTRAPPING COMPLETE ====================
 
-Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/task/lpfc/20251016_104723_bootstrap_true_vs_shuffle_task_lpfc_1_subs_all_elecs_2boots_2splits_2reps_repeat_unit.pdf
+Saved Nature-style plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/task/lpfc/20251016_105835_bootstrap_true_vs_shuffle_task_lpfc_1_subs_all_elecs_2boots_2splits_2reps_repeat_unit.pdf
 
 ✓ Analysis completed successfully!

@@ -98,7 +98,7 @@ P_CLUSTER = 0.05
 CLUSTER_TAILS = 2
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_task_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -129,19 +129,19 @@ ROIS_DICT = {
 }
 
 # which electrodes to use (all or sig)
-ELECTRODES = 'all'
+# ELECTRODES = 'all'
 
-# # # testing params (comment out)
-SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 2
-N_PERM = 5
-N_CLUSTER_PERMS= 5
-BOOTSTRAPS = 2
-N_JOBS = 1
-ROIS_DICT = {
-  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# # # # testing params (comment out)
+# SUBJECTS = ['D0103']
+# N_SPLITS = 2
+# N_REPEATS = 2
+# N_PERM = 5
+# N_CLUSTER_PERMS= 5
+# BOOTSTRAPS = 2
+# N_JOBS = 1
+# ROIS_DICT = {
+#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
