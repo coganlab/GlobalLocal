@@ -48,7 +48,8 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
-SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'
@@ -90,10 +91,14 @@ FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
 PERCENTILE=95
 CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+
+# additional parameters for permutation cluster stats
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
+P_CLUSTER = 0.05
+CLUSTER_TAILS = 2
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwps_conditions
+CONDITIONS = experiment_conditions.stimulus_task_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -127,16 +132,16 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 5
-# N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 5
+N_CLUSTER_PERMS= 5
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -175,9 +180,11 @@ def run_analysis():
         cluster_percentile=CLUSTER_PERCENTILE,
         n_cluster_perms=N_CLUSTER_PERMS,
         n_shuffle_perms=N_SHUFFLE_PERMS,
-        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS
+        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
+        p_cluster=P_CLUSTER,
+        cluster_tails=CLUSTER_TAILS
     )
-    
+
     # Print configuration summary
     print("=" * 70)
     print("BANDPASS FILTERED DECODING ANALYSIS")
@@ -201,10 +208,10 @@ def run_analysis():
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
     
-    # print("Time Perm Cluster Statistical Parameters:")
-    # print(f"  Cluster Perms:     {N_PERM}")
-    # print(f"  P-value Threshold: {P_THRESH}")
-    # print(f"  Tails:             {TAILS}")
+    print("Perm Cluster Statistical Parameters:")
+    print(f"  P-value Threshold: {P_THRESH_FOR_TIME_PERM_CLUSTER_STATS}")
+    print(f"  P cluster: {P_CLUSTER}")
+    print(f"  Tails:             {CLUSTER_TAILS}")
 
     print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     

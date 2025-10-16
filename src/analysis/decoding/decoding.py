@@ -26,8 +26,7 @@ import pandas as pd
 from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
-from scipy.stats import norm # also from scipy.stats
-from scipy.stats import t
+from scipy.stats import norm, t # also from scipy.stats
 
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
@@ -3005,3 +3004,90 @@ def get_time_averaged_confusion_matrix(
     
     # Sum across all repeats to get a single count matrix for this bootstrap
     return np.sum(cm_repeats, axis=0)
+
+def cluster_perm_test_by_duration(
+    accuracies1: np.ndarray,
+    accuracies2: np.ndarray,
+    p_thresh: float = 0.05,
+    p_cluster: float = 0.05,
+    n_perm: int = 1000,
+    tails: int = 2, # 2 for two-tailed, 1 for one-tailed (1 > 2)
+    random_state: int = 42
+) -> np.ndarray:
+    """
+    Performs a paired-sample cluster permutation test using cluster duration as the statistic.
+
+    Args:
+        accuracies1 (np.ndarray): Data for condition 1, shape (n_samples, n_times).
+        accuracies2 (np.ndarray): Data for condition 2, shape (n_samples, n_times).
+        p_thresh (float): The p-value threshold for forming initial clusters.
+        p_cluster (float): The final p-value for assessing cluster significance.
+        n_perm (int): The number of permutations.
+        tails (int): 2 for two-tailed, 1 for one-tailed (accuracies1 > accuracies2).
+        random_state (int): Seed for the random number generator.
+
+    Returns:
+        np.ndarray: A boolean mask of shape (n_times,) indicating significant time points.
+    """
+    rng = np.random.default_rng(random_state)
+    n_samples, n_times = accuracies1.shape
+    
+    # --- Step 1: Calculate observed clusters from the real data ---
+    differences = accuracies1 - accuracies2
+    # Paired t-test: t = mean(diff) / (std(diff) / sqrt(n))
+    t_obs = np.mean(differences, axis=0) / (np.std(differences, axis=0, ddof=1) / np.sqrt(n_samples))
+    
+    # Convert p-value threshold to a t-value threshold
+    df = n_samples - 1
+    p_for_t = p_thresh / 2 if tails == 2 else p_thresh
+    t_thresh = t.ppf(1 - p_for_t, df=df)
+    
+    # Find clusters in the real data
+    if tails == 2:
+        significant_points = np.abs(t_obs) > t_thresh
+    else: # One-tailed test (accuracies1 > accuracies2)
+        significant_points = t_obs > t_thresh
+        
+    labeled_clusters, n_clusters = label(significant_points)
+    
+    if n_clusters == 0:
+        print("No clusters found in observed data.")
+        return np.zeros(n_times, dtype=bool)
+        
+    observed_cluster_durations = np.array([np.sum(labeled_clusters == i) for i in range(1, n_clusters + 1)])
+
+    # --- Step 2: Build null distribution of MAXIMUM cluster durations ---
+    max_perm_durations = []
+    for _ in range(n_perm):
+        # Permute by randomly flipping the sign of the difference for each sample
+        sign_flips = rng.choice([-1, 1], size=(n_samples, 1))
+        perm_diffs = differences * sign_flips
+        
+        # Calculate t-statistic for the permuted data
+        t_perm = np.mean(perm_diffs, axis=0) / (np.std(perm_diffs, axis=0, ddof=1) / np.sqrt(n_samples))
+        
+        if tails == 2:
+            perm_sig_points = np.abs(t_perm) > t_thresh
+        else:
+            perm_sig_points = t_perm > t_thresh
+        
+        perm_labeled, n_perm_clusters = label(perm_sig_points)
+        
+        if n_perm_clusters > 0:
+            perm_cluster_durations = np.array([np.sum(perm_labeled == i) for i in range(1, n_perm_clusters + 1)])
+            max_perm_durations.append(np.max(perm_cluster_durations))
+        else:
+            max_perm_durations.append(0)
+
+    # --- Step 3: Determine significance of observed clusters ---
+    # Find the critical duration threshold from the null distribution
+    critical_duration = np.percentile(max_perm_durations, 100 * (1 - p_cluster))
+    
+    # Create the final mask
+    final_sig_mask = np.zeros(n_times, dtype=bool)
+    for i in range(1, n_clusters + 1):
+        if observed_cluster_durations[i-1] > critical_duration:
+            final_sig_mask[labeled_clusters == i] = True
+            
+    print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
+    return final_sig_mask

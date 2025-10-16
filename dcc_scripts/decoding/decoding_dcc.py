@@ -107,7 +107,8 @@ from src.analysis.decoding.decoding import (
     do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions,
     do_mne_paired_cluster_test,
     get_pooled_accuracy_distributions_for_comparison,
-    get_time_averaged_confusion_matrix
+    get_time_averaged_confusion_matrix,
+    cluster_perm_test_by_duration
 )
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
@@ -724,16 +725,14 @@ def main(args):
                 unit_of_analysis=args.unit_of_analysis
             )
 
-            # 2. Run the new MNE-based paired cluster test
-            # MNE uses `tail=0` for a two-tailed test.
-            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
-            
-            significant_clusters_lwpc = do_mne_paired_cluster_test(
+            # 2. Run the new paired cluster test
+            significant_clusters_lwpc = cluster_perm_test_by_duration(
                 accuracies1=pooled_c25_vs_i25_accs,
                 accuracies2=pooled_c75_vs_i75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
                 n_perm=args.n_cluster_perms,
-                tails=mne_tails,
+                tails=args.cluster_tails,
                 random_state=args.random_state,
                 n_jobs=args.n_jobs
             )
@@ -817,19 +816,18 @@ def main(args):
                 unit_of_analysis=args.unit_of_analysis
             )
 
-            # 2. Run the new MNE-based paired cluster test
-            # MNE uses `tail=0` for a two-tailed test.
-            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
-            
-            significant_clusters_lwps = do_mne_paired_cluster_test(
+            # 2. Run the new paired cluster test
+            significant_clusters_lwps = cluster_perm_test_by_duration(
                 accuracies1=pooled_s25_vs_r25_accs,
                 accuracies2=pooled_s75_vs_r75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
                 n_perm=args.n_cluster_perms,
-                tails=mne_tails,
+                tails=args.cluster_tails,
                 random_state=args.random_state,
                 n_jobs=args.n_jobs
             )
+            
             # --- Get data for plotting from the main stats dictionary ---
             s25_vs_r25_stats = all_bootstrap_stats['s25_vs_r25'][roi]
             s75_vs_r75_stats = all_bootstrap_stats['s75_vs_r75'][roi]
@@ -910,16 +908,14 @@ def main(args):
                 unit_of_analysis=args.unit_of_analysis
             )
 
-            # 2. Run the new MNE-based paired cluster test
-            # MNE uses `tail=0` for a two-tailed test.
-            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
-            
-            significant_clusters_congruency_by_switch_proportion = do_mne_paired_cluster_test(
+            # 2. Run the new paired cluster test
+            significant_clusters_congruency_by_switch_proportion = cluster_perm_test_by_duration(
                 accuracies1=pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs,
                 accuracies2=pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
                 n_perm=args.n_cluster_perms,
-                tails=mne_tails,
+                tails=args.cluster_tails,
                 random_state=args.random_state,
                 n_jobs=args.n_jobs
             )
@@ -1003,21 +999,19 @@ def main(args):
                 roi=roi,
                 unit_of_analysis=args.unit_of_analysis
             )
-
-            # 2. Run the new MNE-based paired cluster test
-            # MNE uses `tail=0` for a two-tailed test.
-            mne_tails = 0 if args.tails == 2 else (1 if args.tails == 1 else -1)
             
-            significant_clusters_switch_type_by_congruency_proportion = do_mne_paired_cluster_test(
+            # 2. Run the new paired cluster test
+            significant_clusters_congruency_by_switch_proportion = cluster_perm_test_by_duration(
                 accuracies1=pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs,
                 accuracies2=pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
                 n_perm=args.n_cluster_perms,
-                tails=mne_tails,
+                tails=args.cluster_tails,
                 random_state=args.random_state,
                 n_jobs=args.n_jobs
             )
-            
+
             # --- Get data for plotting from the main stats dictionary ---
             s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
             s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
