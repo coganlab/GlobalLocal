@@ -129,7 +129,7 @@ ROIS_DICT = {
 }
 
 # which electrodes to use (all or sig)
-# ELECTRODES = 'all'
+ELECTRODES = 'all'
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
