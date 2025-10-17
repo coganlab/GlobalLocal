@@ -72,36 +72,63 @@ response_err_congruency_conditions = {
 # incongruent-repeat errors vs switch-congruent errors
 stimulus_iS_cR_err_conditions = {
     "Stimulus_err_iS": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/i25.0/s25.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0/s75.0",
-            "Stimulus/Responded1.0/Accuracy0.0/i25.0/s75.0", "Stimulus/Responded1.0/Accuracy0.0/i75.0/s25.0"],
+        "BIDS_events": ["Stimulus/Accuracy0.0/i25.0/s25.0", "Stimulus/Accuracy0.0/i75.0/s75.0",
+            "Stimulus/Accuracy0.0/i25.0/s75.0", "Stimulus/Accuracy0.0/i75.0/s25.0"],
         "responseType" : "err", 
         "congruency" : "i", 
         "switchType" : "s"
 
     },
     "Stimulus_err_cR": {
-        "BIDS_events": ["Stimulus/Responded1.0/Accuracy0.0/c25.0/r25.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0/r75.0",
-            "Stimulus/Responded1.0/Accuracy0.0/c25.0/r75.0", "Stimulus/Responded1.0/Accuracy0.0/c75.0/r25.0"],
+        "BIDS_events": ["Stimulus/Accuracy0.0/c25.0/r25.0", "Stimulus/Accuracy0.0/c75.0/r75.0",
+            "Stimulus/Accuracy0.0/c25.0/r75.0", "Stimulus/Accuracy0.0/c75.0/r25.0"],
         "responseType" : "err",
         "congruency" : "c", 
         "switchType" : "r"
     }
 }
 
-# incongruent-repeat errors vs switch-congruent errors
 response_iS_cR_err_conditions = {
-    "Stimulus_err_iS": {
-        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/i25.0/s25.0", "Response/Responded1.0/Accuracy0.0/i75.0/s25.0"],
+    "Response_err_iS": {
+        "BIDS_events": ["Response/Accuracy0.0/i25.0/s25.0", "Response/Accuracy0.0/i75.0/s75.0",
+            "Response/Accuracy0.0/i25.0/s75.0", "Response/Accuracy0.0/i75.0/s25.0"],
         "responseType" : "err", 
         "congruency" : "i", 
         "switchType" : "s"
 
     },
-    "Stimulus_err_cR": {
-        "BIDS_events": ["Response/Responded1.0/Accuracy0.0/c25.0/r25.0", "Response/Responded1.0/Accuracy0.0/c75.0/r25.0"],
+    "Response_err_cR": {
+        "BIDS_events": ["Response/Accuracy0.0/c25.0/r25.0", "Response/Accuracy0.0/c75.0/r75.0",
+            "Response/Accuracy0.0/c25.0/r75.0", "Response/Accuracy0.0/c75.0/r25.0"],
         "responseType" : "err",
         "congruency" : "c", 
         "switchType" : "r"
+    }
+}
+
+stimulus_inc_switch_err_conditions = {
+    "Stimulus_inc_err": {
+        "BIDS_events": ["Stimulus/Accuracy0.0/i25.0", "Stimulus/Accuracy0.0/i75.0"],
+        "responseType" : "err", 
+        "congruency" : "i", 
+    },
+    "Stimulus_switch_err": {
+        "BIDS_events": ["Stimulus/Accuracy0.0/s25.0", "Stimulus/Accuracy0.0/s75.0"],
+        "responseType" : "err",
+        "switchType" : "s"
+    }
+}
+
+response_inc_switch_err_conditions = {
+    "Response_inc_err": {
+        "BIDS_events": ["Response/Accuracy0.0/i25.0", "Response/Accuracy0.0/i75.0"],
+        "responseType" : "err", 
+        "congruency" : "i", 
+    },
+    "Response_switch_err": {
+        "BIDS_events": ["Response/Accuracy0.0/s25.0", "Response/Accuracy0.0/s75.0"],
+        "responseType" : "err",
+        "switchType" : "s"
     }
 }
 
