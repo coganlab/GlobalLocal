@@ -772,6 +772,46 @@ def main(args):
                 filename_suffix=analysis_params_str  
             )
             
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for LWPC in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            lwpc_differences = pooled_c25_vs_i25_accs - pooled_c75_vs_i75_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(lwpc_differences, axis=0)
+            std_diff = np.std(lwpc_differences, axis=0)
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c25_vs_i25_minus_c75_vs_i75': lwpc_differences
+                },
+                significant_clusters=significant_clusters_lwpc, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPC_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'Difference': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'Difference': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+            
     if args.conditions == experiment_conditions.stimulus_lwps_conditions:
         print(f"\n--- Running LWPS Comparison Statistics (s25_vs_r25 vs s75_vs_r75) using '{args.unit_of_analysis}' as unit of analysis ---")
         

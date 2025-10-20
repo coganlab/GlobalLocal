@@ -1,0 +1,289 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:442: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 30 concurrent workers.
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+[Parallel(n_jobs=-1)]: Done   1 tasks      | elapsed: 257.7min
