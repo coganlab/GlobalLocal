@@ -1,0 +1,86 @@
+[NbConvertApp] Converting notebook /hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.ipynb to notebook
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/bin/jupyter-nbconvert", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/application.py", line 280, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/traitlets/config/application.py", line 992, in launch_instance
+    app.start()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 412, in start
+    self.convert_notebooks()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 590, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 556, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 479, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 203, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 222, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 156, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 354, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)  # type:ignore[operator]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 173, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+task='GlobalLocal'
+conditions = experiment_conditions.stimulus_iR_cS_err_conditions # set this to whichever conditions you're running
+stimulus_locked = True  #toggle
+response_locked = not stimulus_locked
+
+if stimulus_locked:
+    # epochs_root_file = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+    # epochs_root_file = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10"
+    epochs_root_file = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+    # epochs_root_file = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_0.0-30.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+    # epochs_root_file = "Stimulus_100sec_within1-101sec_experimentStartBase_decFactor_8_outliers_10_passband_70-150_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+
+elif response_locked:
+    # epochs_root_file = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind"
+    epochs_root_file = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
+
+condition_names = [condition for condition in conditions.keys()]
+
+print("load epochs")
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAttributeError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[8], line 2[0m
+[1;32m      1[0m task[38;5;241m=[39m[38;5;124m'[39m[38;5;124mGlobalLocal[39m[38;5;124m'[39m
+[0;32m----> 2[0m conditions [38;5;241m=[39m experiment_conditions[38;5;241m.[39mstimulus_iR_cS_err_conditions [38;5;66;03m# set this to whichever conditions you're running[39;00m
+[1;32m      3[0m stimulus_locked [38;5;241m=[39m [38;5;28;01mTrue[39;00m  [38;5;66;03m#toggle[39;00m
+[1;32m      4[0m response_locked [38;5;241m=[39m [38;5;129;01mnot[39;00m stimulus_locked
+
+[0;31mAttributeError[0m: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_iR_cS_err_conditions'
+

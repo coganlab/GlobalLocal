@@ -106,6 +106,43 @@ response_iS_cR_err_conditions = {
     }
 }
 
+#inc-repeat versus congruent-switch errors
+stimulus_iR_cS_err_conditions = {
+    "Stimulus_err_iR": {
+        "BIDS_events": ["Stimulus/Accuracy0.0/i25.0/r25.0", "Stimulus/Accuracy0.0/i75.0/r75.0",
+            "Stimulus/Accuracy0.0/i25.0/r75.0", "Stimulus/Accuracy0.0/i75.0/r25.0"],
+        "responseType" : "err", 
+        "congruency" : "i", 
+        "switchType" : "r"
+
+    },
+    "Stimulus_err_cS": {
+        "BIDS_events": ["Stimulus/Accuracy0.0/c25.0/s25.0", "Stimulus/Accuracy0.0/c75.0/s75.0",
+            "Stimulus/Accuracy0.0/c25.0/s75.0", "Stimulus/Accuracy0.0/c75.0/s25.0"],
+        "responseType" : "err",
+        "congruency" : "c", 
+        "switchType" : "s"
+    }
+}
+
+response_iR_cS_err_conditions = {
+    "Response_err_iS": {
+        "BIDS_events": ["Response/Accuracy0.0/i25.0/s25.0", "Response/Accuracy0.0/i75.0/s75.0",
+            "Response/Accuracy0.0/i25.0/s75.0", "Response/Accuracy0.0/i75.0/s25.0"],
+        "responseType" : "err", 
+        "congruency" : "i", 
+        "switchType" : "s"
+
+    },
+    "Response_err_cR": {
+        "BIDS_events": ["Response/Accuracy0.0/c25.0/r25.0", "Response/Accuracy0.0/c75.0/r75.0",
+            "Response/Accuracy0.0/c25.0/r75.0", "Response/Accuracy0.0/c75.0/r25.0"],
+        "responseType" : "err",
+        "congruency" : "c", 
+        "switchType" : "r"
+    }
+}
+
 stimulus_inc_switch_err_conditions = {
     "Stimulus_inc_err": {
         "BIDS_events": ["Stimulus/Accuracy0.0/i25.0", "Stimulus/Accuracy0.0/i75.0"],
