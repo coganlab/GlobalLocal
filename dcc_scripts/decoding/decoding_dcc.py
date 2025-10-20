@@ -332,7 +332,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            results_for_this_bootstrap['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
     # switch type by congruency proportion
     if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:   
@@ -358,7 +358,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            results_for_this_bootstrap['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
     return results_for_this_bootstrap
 
@@ -1001,7 +1001,7 @@ def main(args):
             )
             
             # 2. Run the new paired cluster test
-            significant_clusters_congruency_by_switch_proportion = cluster_perm_paired_ttest_by_duration(
+            significant_clusters_switch_type_by_congruency_proportion = cluster_perm_paired_ttest_by_duration(
                 accuracies1=pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs,
                 accuracies2=pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
