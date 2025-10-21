@@ -3005,19 +3005,21 @@ def get_time_averaged_confusion_matrix(
     # Sum across all repeats to get a single count matrix for this bootstrap
     return np.sum(cm_repeats, axis=0)
 
-def _run_single_permutation(differences: np.ndarray, t_thresh: float, tails: int, seed: int) -> int:
+def _run_single_permutation(differences: np.ndarray, se_diff: np.ndarray, t_thresh: float, tails: int, seed: int) -> int:
     """
-    Execute a single permutation for the cluster test and return the max cluster duration.
+    Execute a single null permutation for the cluster paired perm t-test and return the max cluster duration.
 
     This is the core "worker" function that will be parallelized by joblib. It takes the
     pre-calculated differences, randomly flips their signs, computes a t-statistic,
     finds clusters, and returns the duration of the largest cluster found in this single
-    permutation.
+    permutation. 10/21/25 - Uses the same standard error as the true accuracy difference distribution to kep the noise identical.
 
     Parameters
     ----------
     differences : np.ndarray
         The paired differences between two conditions, shape (n_samples, n_times).
+    se_diff : np.ndarray
+        precomputed standard error from the true accuracy difference distribution
     t_thresh : float
         The t-value threshold for forming clusters.
     tails : int
@@ -3038,11 +3040,13 @@ def _run_single_permutation(differences: np.ndarray, t_thresh: float, tails: int
     sign_flips = rng.choice([-1, 1], size=(n_samples, 1))
     perm_diffs = differences * sign_flips
     
-    # Calculate t-statistic for the permuted data, handling potential division by zero
-    std_perm = np.std(perm_diffs, axis=0, ddof=1)
-    # Prevent division by zero if std is 0 for a time point
-    std_perm[std_perm == 0] = 1 
-    t_perm = np.mean(perm_diffs, axis=0) / (std_perm / np.sqrt(n_samples))
+    # # Calculate t-statistic for the permuted data, handling potential division by zero
+    # std_perm = np.std(perm_diffs, axis=0, ddof=1)
+    # # Prevent division by zero if std is 0 for a time point
+    # std_perm[std_perm == 0] = 1 
+    
+    # calculate t-statistic using the same standard error as the true differencce
+    t_perm = np.mean(perm_diffs, axis=0) / se_diff
     
     if tails == 2:
         perm_sig_points = np.abs(t_perm) > t_thresh
@@ -3122,7 +3126,9 @@ def cluster_perm_paired_ttest_by_duration(
     differences = accuracies1 - accuracies2
     std_diff = np.std(differences, axis=0, ddof=1)
     std_diff[std_diff == 0] = 1 # Prevent division by zero
-    t_obs = np.mean(differences, axis=0) / (std_diff / np.sqrt(n_samples))
+    se_diff = std_diff / np.sqrt(n_samples)
+    
+    t_obs = np.mean(differences, axis=0) / se_diff
     
     df = n_samples - 1
     p_for_t = p_thresh / 2 if tails == 2 else p_thresh
@@ -3148,7 +3154,7 @@ def cluster_perm_paired_ttest_by_duration(
     seeds = rng.integers(low=0, high=2**32-1, size=n_perm)
 
     max_perm_durations = Parallel(n_jobs=n_jobs, verbose=10)(
-        delayed(_run_single_permutation)(differences, t_thresh, tails, seed) for seed in seeds
+        delayed(_run_single_permutation)(differences, se_diff, t_thresh, tails, seed) for seed in seeds
     )
 
     # --- Step 3: Determine significance ---

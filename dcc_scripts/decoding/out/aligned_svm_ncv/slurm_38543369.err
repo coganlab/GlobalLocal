@@ -154,3 +154,9 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
 [Parallel(n_jobs=-1)]: Done  11 out of  20 | elapsed: 274.7min remaining: 224.8min
 [Parallel(n_jobs=-1)]: Done  14 out of  20 | elapsed: 275.9min remaining: 118.2min
 [Parallel(n_jobs=-1)]: Done  17 out of  20 | elapsed: 277.2min remaining: 48.9min
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed: 280.2min finished
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
