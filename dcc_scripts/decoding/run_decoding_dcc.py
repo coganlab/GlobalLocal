@@ -68,7 +68,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 60
+BOOTSTRAPS = 20
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -82,7 +82,7 @@ TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across fold, repeat, or bootstrap
-UNIT_OF_ANALYSIS='bootstrap'
+UNIT_OF_ANALYSIS='repeat'
 
 # whether to store individual folds (true) or sum them within repeats (false)
 FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
@@ -93,8 +93,8 @@ CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # additional parameters for permutation cluster stats
-P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.01
-P_CLUSTER = 0.01
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
+P_CLUSTER = 0.05
 CLUSTER_TAILS = 2
 
 # Condition selection

@@ -801,8 +801,8 @@ def main(args):
                 save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
                 timestamp=args.timestamp,
                 p_thresh=args.percentile,
-                colors={'Difference': '#404040'}, # Just one color (e.g., dark gray)
-                linestyles={'Difference': '-'},
+                colors={'c25_vs_i25_minus_c75_vs_i75': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'c25_vs_i25_minus_c75_vs_i75': '-'},
                 single_column=False,
                 ylim=diff_ylim, # Use new centered ylim
                 ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)", # New label
@@ -903,6 +903,45 @@ def main(args):
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str  
             )
+             # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for LWPS in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            lwps_differences = pooled_s25_vs_r25_accs - pooled_s75_vs_r75_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(lwps_differences, axis=0)
+            std_diff = np.std(lwps_differences, axis=0)
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's25_vs_r25_minus_s75_vs_r75': lwps_differences
+                },
+                significant_clusters=significant_clusters_lwps, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPS_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPS_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'s25_vs_r25_minus_s75_vs_r75': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'s25_vs_r25_minus_s75_vs_r75': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (s25 vs r25 - s75 vs r75)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
             
     if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
         print(f"\n--- Running congruency by switch proportion Comparison Statistics (c_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
@@ -994,6 +1033,47 @@ def main(args):
                 significance_y_position=0.72,
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str  
+            )
+            
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for congruency by switch prop in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            congruency_by_switch_proportion_differences = pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs - pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(congruency_by_switch_proportion_differences, axis=0)
+            std_diff = np.std(congruency_by_switch_proportion_differences, axis=0)
+            
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': congruency_by_switch_proportion_differences
+                },
+                significant_clusters=significant_clusters_congruency_by_switch_proportion, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_congruency_by_switch_proportion_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "congruency_by_switch_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (c_in_25switchBlock vs i_in_25switchBlock - c_in_75switchBlock vs i_in_75switchBlock)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
             )
 
     if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
@@ -1087,6 +1167,48 @@ def main(args):
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str  
             )
+
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for switch type by congruency proportion in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            switch_type_by_congruency_proportion_differences = pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs - pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(switch_type_by_congruency_proportion_differences, axis=0)
+            std_diff = np.std(switch_type_by_congruency_proportion_differences, axis=0)
+            
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': switch_type_by_congruency_proportion_differences
+                },
+                significant_clusters=significant_clusters_switch_type_by_congruency_proportion, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_switch_type_by_congruency_proportion_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "switch_type_by_congruency_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (s_in_25incongruentBlock vs r_in_25incongruentBlock - s_in_75incongruentBlock vs r_in_75incongruentBlock)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+
             
                  
 if __name__ == "__main__":
