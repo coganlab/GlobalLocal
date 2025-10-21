@@ -1,0 +1,5 @@
+usage: sig_test.py [-h] [--match_col MATCH_COL] [-o OUT_PERPAIR]
+                   [-O OUT_OVERALL] [-f OUT_FIG] [--alpha ALPHA]
+                   [--annotate_top ANNOTATE_TOP]
+                   fileA fileB
+sig_test.py: error: unrecognized arguments: --fileA --fileB
