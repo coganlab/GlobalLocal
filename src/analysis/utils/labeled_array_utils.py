@@ -659,6 +659,9 @@ def make_np_array_with_nan_trials_removed_for_each_channel(
                 all_channels_in_roi.append(channel) 
             
             for condition_name in condition_names:
+                
+                print(f"ROI {roi}: Processing condition {condition_name} for subject {sub}, electrode {electrode}")
+
                 if condition_name not in subjects_data_objects.get(sub, {}):
                     continue
                 
@@ -679,10 +682,13 @@ def make_np_array_with_nan_trials_removed_for_each_channel(
                 valid_trials_mask = ~np.isnan(np_array_for_this_sub_and_cond_and_elec).any(axis=tuple(range(1, np_array_for_this_sub_and_cond_and_elec.ndim)))
                 nan_removed_data_dict[condition_name][channel] = np_array_for_this_sub_and_cond_and_elec[valid_trials_mask]
                 
+    print(f"ROI {roi}: Final conditions in nan_removed_data_dict: {list(nan_removed_data_dict.keys())}")
+
     if not all_channels_in_roi:
         print(f" No valid channels found for ROI: {roi}. Skipping.")
         return {}, []
     else:
+        
         return nan_removed_data_dict, all_channels_in_roi
 
 def subsample_to_min_trials_per_condition(roi, nan_removed_data_dict, condition_names):
@@ -778,17 +784,20 @@ def make_bootstrapped_labeled_arrays_for_roi(
             concatenated_chans = np.stack(resampled_channels_for_condition, axis=chans_axs)
             bootstrapped_conditions_data[condition_name] = concatenated_chans
             
+        print(f"Built bootstrapped_conditions_data with conditions: {list(bootstrapped_conditions_data.keys())}")
+    
         if not bootstrapped_conditions_data:
             raise ValueError(f"Warning: unable to create bootstrapped conditions data on iteration {i}")
     
         # make the LabeledArray for this bootstrap
         bootstrapped_labeled_array = LabeledArray.from_dict(bootstrapped_conditions_data)
-        
+        print(f"Bootstrap {i}: LabeledArray has conditions: {list(bootstrapped_labeled_array.keys())}")
+
         # Add labels
-        bootstrapped_labeled_array.labels[chans_axs+1] = np.array(all_channels_in_roi) # channel axis
-        bootstrapped_labeled_array.labels[time_axs+1] = np.array([str(t) for t in sample_times]) # time axis
+        bootstrapped_labeled_array.labels[chans_axs+1].values = np.array(all_channels_in_roi) # channel axis
+        bootstrapped_labeled_array.labels[time_axs+1].values = np.array([str(t) for t in sample_times]) # time axis
         if freq_axs is not None and data_type == 'EpochsTFR' and sample_freqs is not None:
-            bootstrapped_labeled_array.labels[freq_axs+1] = np.array([str(f) for f in sample_freqs]) # freq axis
+            bootstrapped_labeled_array.labels[freq_axs+1].values = np.array([str(f) for f in sample_freqs]) # freq axis
         
         bootstrapped_roi_arrays.append(bootstrapped_labeled_array)
     

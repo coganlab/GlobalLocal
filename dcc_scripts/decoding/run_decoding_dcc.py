@@ -9,7 +9,7 @@ import sys
 import os
 import numpy as np
 from functools import partial
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
 from ieeg.calc.fast import mean_diff
@@ -47,7 +47,9 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-SUBJECTS = ['D0057','D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# remove D0110 because of low error trials
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'
@@ -56,32 +58,17 @@ TASK = 'GlobalLocal'
 # switched to False for err-corr decoding
 ACC_TRIALS_ONLY = True
 
-# Statistical parameters
-# Choose your stat function here
-STAT_FUNC_CHOICE = 'ttest' # 'ttest' or 'mean_diff'
-
-if STAT_FUNC_CHOICE == 'mean_diff':
-    STAT_FUNC = mean_diff
-    STAT_FUNC_STR = 'mean_diff'
-elif STAT_FUNC_CHOICE == 'ttest':
-    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
-    STAT_FUNC_STR = 'ttest'
-    
-# old stat params for time_perm_cluster
-# P_THRESH = 0.05
-# N_PERM = 100
-
 # Parallel processing
-N_JOBS = -1
+N_JOBS = -1 
 
 # Decoding parameters
 N_SPLITS = 5
-N_REPEATS = 50
+N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.8
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 100
+BOOTSTRAPS = 20
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -92,17 +79,26 @@ STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
+N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
-# whether to do stats across folds (true) or repeats (false)
-FOLDS_AS_SAMPLES = True
+# whether to do stats across fold, repeat, or bootstrap
+UNIT_OF_ANALYSIS='repeat'
+
+# whether to store individual folds (true) or sum them within repeats (false)
+FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
 
 # percentile stats parameters
-PERCENTILE=95,
-CLUSTER_PERCENTILE=95,
-N_CLUSTER_PERMS=200
+PERCENTILE=95
+CLUSTER_PERCENTILE=95
+N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+
+# additional parameters for permutation cluster stats
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
+P_CLUSTER = 0.05
+CLUSTER_TAILS = 2
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -124,26 +120,32 @@ EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_
 # }
 
 # adding parietal, dlpfc, acc for err-corr decoding
+# ROIS_DICT = {
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+#     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+#     'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
+# }
+
 ROIS_DICT = {
     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-    'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-    'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
 }
 
 # which electrodes to use (all or sig)
 ELECTRODES = 'all'
 
-# # testing params (comment out)
+# # # # testing params (comment out)
 # SUBJECTS = ['D0103']
 # N_SPLITS = 2
 # N_REPEATS = 2
 # N_PERM = 5
 # N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2 
+# BOOTSTRAPS = 2
+# N_JOBS = 1
 # ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
 
 def run_analysis():
@@ -157,10 +159,6 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
-        stat_func=STAT_FUNC,
-        stat_func_str=STAT_FUNC_STR,
-        p_thresh=P_THRESH,
-        n_perm=N_PERM,
         n_jobs=N_JOBS,
         tails=TAILS,
         n_splits=N_SPLITS,
@@ -182,11 +180,16 @@ def run_analysis():
         sampling_rate=SAMPLING_RATE,
         first_time_point=FIRST_TIME_POINT,
         folds_as_samples=FOLDS_AS_SAMPLES,
+        unit_of_analysis=UNIT_OF_ANALYSIS,
         percentile=PERCENTILE,
         cluster_percentile=CLUSTER_PERCENTILE,
-        n_cluster_perms=N_CLUSTER_PERMS
+        n_cluster_perms=N_CLUSTER_PERMS,
+        n_shuffle_perms=N_SHUFFLE_PERMS,
+        p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
+        p_cluster=P_CLUSTER,
+        cluster_tails=CLUSTER_TAILS
     )
-    
+
     # Print configuration summary
     print("=" * 70)
     print("BANDPASS FILTERED DECODING ANALYSIS")
@@ -194,8 +197,6 @@ def run_analysis():
     print(f"Subjects:          {SUBJECTS}")
     print(f"Conditions:        {list(CONDITIONS.keys())}")
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
-    print(f"Permutations:      {N_PERM}")
-    print(f"P-threshold:       {P_THRESH}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
@@ -206,18 +207,18 @@ def run_analysis():
     print("-" * 70)
     print("Decoding Parameters:")
     print(f"  CV Splits/Repeats: {N_SPLITS}/{N_REPEATS}")
-    print(f"  Shuffle Permutations: {N_PERM}")
     print(f"  Balance Method:    {BALANCE_METHOD}")
     print(f"  Explained Variance:{EXPLAINED_VARIANCE}")
     print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")
     print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
-    # print("Time Perm Cluster Statistical Parameters:")
-    # print(f"  Cluster Perms:     {N_PERM}")
-    # print(f"  P-value Threshold: {P_THRESH}")
-    # print(f"  Tails:             {TAILS}")
+    
+    print("Perm Cluster Statistical Parameters:")
+    print(f"  P-value Threshold: {P_THRESH_FOR_TIME_PERM_CLUSTER_STATS}")
+    print(f"  P cluster: {P_CLUSTER}")
+    print(f"  Tails:             {CLUSTER_TAILS}")
 
-    print(f" folds as samples (use folds as unit of statistical analysis or use repeats instead): {FOLDS_AS_SAMPLES}")
+    print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     
     print("Percentile Statistical Parameters:")
     print(f"  Percentile: {PERCENTILE}")

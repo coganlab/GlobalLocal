@@ -23,13 +23,17 @@ if project_root not in sys.path:
 import mne
 import numpy as np
 import pandas as pd
+from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
-from scipy.stats import norm # also from scipy.stats
+from scipy.stats import norm, t # also from scipy.stats
+
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
+
+# import matplotlib
+# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
-from matplotlib import pyplot # Note: matplotlib.pyplot is typically imported as plt. This is redundant if plt is already imported.
 
 # scikit-learn imports
 from sklearn.model_selection import cross_val_score, StratifiedKFold
@@ -100,6 +104,30 @@ def concatenate_and_balance_data_for_decoding(
     """
     rng = np.random.RandomState(random_state)
 
+    # ==================== NEW DEBUGGING BLOCK ====================
+    print("\n" + "="*20 + " DEBUGGING " + "="*20)
+    # Check what the main roi_labeled_arrays dictionary contains
+    print(f"Top-level keys in roi_labeled_arrays: {list(roi_labeled_arrays.keys())}")
+    
+    # Check the specific ROI we are trying to access
+    if roi in roi_labeled_arrays:
+        la = roi_labeled_arrays[roi]
+        print(f"Data for ROI '{roi}' found.")
+        print(f"Object type for this ROI is: {type(la)}")
+        
+        # This is the most important check: what are the actual condition keys?
+        if hasattr(la, 'keys'):
+            print(f"Actual condition keys in the LabeledArray: {list(la.keys())}")
+        else:
+            print("Object is not a LabeledArray or dictionary-like object.")
+            
+    else:
+        print(f"!!!!!!!!!! CRITICAL ERROR: ROI '{roi}' NOT FOUND IN THE DATA !!!!!!!!!!!")
+    
+    print(f"The code is searching for strings: {strings_to_find}")
+    print("="*51 + "\n")
+    # =============================================================
+    
     # Concatenate the trials and get labels
     concatenated_data, labels, cats = concatenate_conditions_by_string(
         roi_labeled_arrays, roi, strings_to_find, obs_axs
@@ -1437,7 +1465,7 @@ def plot_accuracies_nature_style(
         ax.set_xticks(x_ticks)
         
         # CHANGED: Set specific y-ticks for consistency
-        y_ticks = np.arange(0.0, 1.01, 0.25)
+        y_ticks = np.linspace(ylim[0], ylim[1], num=5) 
         ax.set_yticks(y_ticks)
         ax.set_yticklabels([f'{y:.2f}' for y in y_ticks])
 
@@ -1486,9 +1514,6 @@ def plot_accuracies_nature_style(
                 filename_parts.append(roi)
             if filename_suffix:
                 filename_parts.append(filename_suffix)
-            
-            # Add format specifications
-            filename_parts.append('nature_style')
             
             filename = "_".join(filter(None, filename_parts)) + ".pdf"  # PDF for publication
             filepath = os.path.join(save_dir, filename)
@@ -2608,72 +2633,537 @@ def get_max_perm_cluster_lengths_based_on_percentile(
         
     return max_perm_cluster_lengths
 
-def compute_pooled_bootstrap_statistics(time_window_decoding_results, n_bootstraps,
-                                        condition_comparisons, rois,
-                                        percentile=95, cluster_percentile=95,
-                                        n_cluster_perms=1000, random_state=42):
+def compute_pooled_bootstrap_statistics(
+    time_window_decoding_results, 
+    n_bootstraps,
+    condition_comparisons, 
+    rois,
+    percentile=95, 
+    cluster_percentile=95,
+    n_cluster_perms=1000, 
+    random_state=42, 
+    unit_of_analysis='bootstrap'
+):
     """
-    Pool all bootstrap samples together and run statistics once on the pooled data.
+    Pool samples and run statistics based on the specified unit of analysis.
+    
+    Parameters
+    ----------
+    time_window_decoding_results : dict
+        Dictionary with bootstrap indices as keys, containing decoding results
+    n_bootstraps : int
+        Number of bootstrap samples
+    condition_comparisons : dict
+        Dictionary of condition comparisons to analyze
+    rois : list
+        List of ROIs to process
+    percentile : float
+        Percentile threshold for pointwise significance
+    cluster_percentile : float
+        Percentile threshold for cluster-level correction
+    n_cluster_perms : int
+        Number of permutations for cluster correction
+    random_state : int
+        Random seed for reproducibility
+    unit_of_analysis : str
+        'bootstrap': Average within each bootstrap (across repeats/folds)
+        'repeat': Each repeat is a sample (average across folds only)
+        'fold': Each fold is a sample (no averaging)
+        
+    Returns
+    -------
+    pooled_stats : dict
+        Nested dictionary with statistics for each condition comparison and ROI
     """
+    
     pooled_stats = {}
     
     for condition_comparison in condition_comparisons.keys():
         pooled_stats[condition_comparison] = {}
         
         for roi in rois:
-            # collect ALL accuracies from all bootstraps
-            all_true_accs = [] # will be (n_bootstraps * (n_folds or n_repeats), n_windows)
-            all_shuffle_accs = []
+            # Collect all accuracies across bootstraps
+            all_true_accuracies = []  # Will collect based on unit_of_analysis
+            all_shuffle_accuracies = []
             
+            # First, gather raw data from all bootstraps
             for b_idx in range(n_bootstraps):
-                if condition_comparison in time_window_decoding_results[b_idx]:
-                    if roi in time_window_decoding_results[b_idx][condition_comparison]:
-                        # get the raw accuracies (not averaged)
-                        true_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_true']
-                        shuffle_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_shuffle']
+                if (condition_comparison in time_window_decoding_results[b_idx] and 
+                    roi in time_window_decoding_results[b_idx][condition_comparison]):
+                    
+                    # Get raw accuracies - shape: (n_windows, n_repeats_or_folds)
+                    true_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_true']
+                    shuffle_acc = time_window_decoding_results[b_idx][condition_comparison][roi]['accuracies_shuffle']
+                    
+                    if unit_of_analysis == 'bootstrap':
+                        # Average across repeats/folds for this bootstrap
+                        # Result: one value per bootstrap
+                        bootstrap_mean_true = np.mean(true_acc, axis=1)  # (n_windows,)
+                        bootstrap_mean_shuffle = np.mean(shuffle_acc, axis=1)
                         
-                        # each is (n_windows, n_repeats or n_folds), transpose to (n_repeats or n_folds, n_windows)
-                        all_true_accs.append(true_acc.T)
-                        all_shuffle_accs.append(shuffle_acc.T)
+                        all_true_accuracies.append(bootstrap_mean_true)
+                        all_shuffle_accuracies.append(bootstrap_mean_shuffle)
                         
-            if all_true_accs:
-                # concatenate all bootstraps
-                pooled_true = np.vstack(all_true_accs) # (n_bootstraps * (n_folds or n_repeats), n_windows)
-                pooled_shuffle = np.vstack(all_shuffle_accs)
-                
-                # take mean across all samples for the "series" and distribution
-                mean_pooled_true = np.mean(pooled_true, axis=0, keepdims=True) # (1, n_windows)
-                
-                mean_pooled_shuffle = np.mean(pooled_shuffle, axis=0, keepdims=True) # (1, n_windows)
-
-                # Run significance test on pooled data
-                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
-                significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
-                    series=mean_pooled_true,
-                    distribution=pooled_shuffle,
-                    time_points=time_window_centers,
-                    percentile=percentile,
-                    cluster_percentile=cluster_percentile,
-                    n_cluster_perms=n_cluster_perms,
-                    random_state=random_state
-                )  
-                
-                # convert to boolean mask
-                significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
-                for start_idx, end_idx in significant_cluster_indices:
-                    significant_clusters[start_idx:end_idx+1] = True
-                
-                pooled_stats[condition_comparison][roi] = {
-                    'pooled_true': pooled_true,
-                    'mean_true': mean_pooled_true,
-                    'std_true': np.std(pooled_true, axis=0),
-                    'pooled_shuffle': pooled_shuffle,
-                    'mean_shuffle': mean_pooled_shuffle,
-                    'std_shuffle': np.std(pooled_shuffle, axis=0),
-                    'significant_clusters': significant_clusters,
-                    'n_samples': pooled_true.shape[0]
-                }   
-                  
-    return pooled_stats         
-
+                    elif unit_of_analysis == 'repeat':
+                        # Keep repeats separate (assuming folds were already summed/averaged)
+                        # Each repeat becomes a separate sample
+                        # true_acc shape should be (n_windows, n_repeats) if folds_as_samples=False
+                        for rep_idx in range(true_acc.shape[1]):
+                            all_true_accuracies.append(true_acc[:, rep_idx])
+                            all_shuffle_accuracies.append(shuffle_acc[:, rep_idx])
+                            
+                    elif unit_of_analysis == 'fold':
+                        # Keep all folds as separate samples
+                        # true_acc shape should be (n_windows, n_repeats*n_folds) if folds_as_samples=True
+                        for sample_idx in range(true_acc.shape[1]):
+                            all_true_accuracies.append(true_acc[:, sample_idx])
+                            all_shuffle_accuracies.append(shuffle_acc[:, sample_idx])
+                    
+                    else:
+                        raise ValueError(f"Invalid unit_of_analysis: {unit_of_analysis}")
             
+            if not all_true_accuracies:
+                print(f"Warning: No data for {condition_comparison} - {roi}")
+                continue
+            
+            # Stack all samples - shape: (n_samples, n_windows)
+            true_accs_stacked = np.vstack(all_true_accuracies)
+            shuffle_accs_stacked = np.vstack(all_shuffle_accuracies)
+            
+            # Compute mean across samples for the "series" to test
+            mean_true_accs = np.mean(true_accs_stacked, axis=0, keepdims=True)  # (1, n_windows)
+            mean_shuffle_accs = np.mean(shuffle_accs_stacked, axis=0, keepdims=True)
+            
+            # Run significance test using percentile-based cluster correction
+            time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+            
+            significant_cluster_indices = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                series=mean_true_accs,
+                distribution=shuffle_accs_stacked,  # Use full distribution for comparison
+                time_points=time_window_centers,
+                percentile=percentile,
+                cluster_percentile=cluster_percentile,
+                n_cluster_perms=n_cluster_perms,
+                random_state=random_state
+            )
+            
+            # Convert cluster indices to boolean mask
+            significant_clusters = np.zeros(len(time_window_centers), dtype=bool)
+            for start_idx, end_idx in significant_cluster_indices:
+                significant_clusters[start_idx:end_idx+1] = True
+            
+            # Store results with clear naming
+            pooled_stats[condition_comparison][roi] = {
+                f'{unit_of_analysis}_true_accs': true_accs_stacked,  # All samples
+                f'mean_true_across_{unit_of_analysis}s': mean_true_accs,
+                f'std_true_across_{unit_of_analysis}s': np.std(true_accs_stacked, axis=0),
+                f'{unit_of_analysis}_shuffle_accs': shuffle_accs_stacked,  # All samples
+                f'mean_shuffle_across_{unit_of_analysis}s': mean_shuffle_accs,
+                f'std_shuffle_across_{unit_of_analysis}s': np.std(shuffle_accs_stacked, axis=0),
+                'significant_clusters': significant_clusters,
+                f'n_{unit_of_analysis}_samples': true_accs_stacked.shape[0],
+                'unit_of_analysis': unit_of_analysis
+            }
+    
+    return pooled_stats        
+
+
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(
+    time_window_decoding_results, n_bootstraps, 
+    condition_comparison_1, condition_comparison_2, roi, 
+    stat_func, unit_of_analysis,
+    p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1
+):
+    
+    # Use the new, flexible data extraction function
+    pooled_cond1_accs, pooled_cond2_accs = get_pooled_accuracy_distributions_for_comparison(
+        time_window_decoding_results,
+        n_bootstraps,
+        condition_comparison_1,
+        condition_comparison_2,
+        roi,
+        unit_of_analysis
+    )
+    
+    # Handle cases with no data
+    if pooled_cond1_accs.size == 0 or pooled_cond2_accs.size == 0:
+        print(f"Warning: Insufficient data for LWPC comparison in ROI {roi}. Skipping stats.")
+        # Return a correctly shaped empty result
+        time_points_len = len(time_window_decoding_results[0][condition_comparison_1][roi]['time_window_centers'])
+        return np.zeros(time_points_len, dtype=bool), np.array([])
+        
+    significant_clusters, p_values = time_perm_cluster(
+        pooled_cond1_accs,
+        pooled_cond2_accs,
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=tails,
+        axis=axis, # Samples are on axis 0, time on axis 1
+        stat_func=stat_func,
+        n_jobs=n_jobs,
+        seed=random_state
+    )
+    
+    return significant_clusters, p_values
+
+def get_pooled_accuracy_distributions_for_comparison(
+    time_window_decoding_results: dict,
+    n_bootstraps: int,
+    condition_comparison_1: str,
+    condition_comparison_2: str,
+    roi: str,
+    unit_of_analysis: str
+) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Pools accuracy samples for two conditions based on the specified unit of analysis.
+
+    This function iterates through all bootstrap results and collects accuracy time-series.
+    The level of granularity (pooling bootstrap means, repeats, or folds) is
+    determined by the `unit_of_analysis` parameter.
+
+    Parameters
+    ----------
+    time_window_decoding_results : dict
+        The main results dictionary from the parallel bootstrap processing.
+    n_bootstraps : int
+        The total number of bootstraps run.
+    condition_comparison_1 : str
+        The name of the first condition to pool (e.g., 'c25_vs_i25').
+    condition_comparison_2 : str
+        The name of the second condition to pool (e.g., 'c75_vs_i75').
+    roi : str
+        The Region of Interest to process.
+    unit_of_analysis : str
+        The sampling unit ('bootstrap', 'repeat', or 'fold').
+
+    Returns
+    -------
+    tuple[np.ndarray, np.ndarray]
+        A tuple containing two numpy arrays:
+        - The first array has shape (n_samples, n_windows) for condition 1.
+        - The second array has shape (n_samples, n_windows) for condition 2.
+        Returns empty arrays if data is not found.
+    """
+    all_cond1_accuracies = []
+    all_cond2_accuracies = []
+
+    for b_idx in range(n_bootstraps):
+        # Ensure data exists for this bootstrap, ROI, and both conditions
+        if (b_idx in time_window_decoding_results and
+            condition_comparison_1 in time_window_decoding_results[b_idx] and
+            roi in time_window_decoding_results[b_idx][condition_comparison_1] and
+            condition_comparison_2 in time_window_decoding_results[b_idx] and
+            roi in time_window_decoding_results[b_idx][condition_comparison_2]):
+
+            # Get the raw accuracies for this bootstrap. Shape: (n_windows, n_repeats_or_folds)
+            acc1 = time_window_decoding_results[b_idx][condition_comparison_1][roi]['accuracies_true']
+            acc2 = time_window_decoding_results[b_idx][condition_comparison_2][roi]['accuracies_true']
+
+            if unit_of_analysis == 'bootstrap':
+                # Average across repeats/folds to get a single time-series per bootstrap
+                all_cond1_accuracies.append(np.mean(acc1, axis=1)) # Shape: (n_windows,)
+                all_cond2_accuracies.append(np.mean(acc2, axis=1))
+            elif unit_of_analysis in ['repeat', 'fold']:
+                # Treat each repeat or fold as an independent sample
+                # Loop through the samples dimension (axis=1)
+                for sample_idx in range(acc1.shape[1]):
+                    all_cond1_accuracies.append(acc1[:, sample_idx])
+                    all_cond2_accuracies.append(acc2[:, sample_idx])
+            else:
+                raise ValueError(f"Invalid unit_of_analysis: '{unit_of_analysis}'")
+
+    if not all_cond1_accuracies or not all_cond2_accuracies:
+        return np.array([]), np.array([])
+
+    # Stack all collected samples into a 2D array (n_samples, n_windows)
+    pooled_cond1_accs = np.vstack(all_cond1_accuracies)
+    pooled_cond2_accs = np.vstack(all_cond2_accuracies)
+
+    return pooled_cond1_accs, pooled_cond2_accs
+
+def do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions(
+    time_window_decoding_results, n_bootstraps, 
+    condition_comparison_1, condition_comparison_2, rois, 
+    stat_func, unit_of_analysis,
+    p_thresh=0.05, p_cluster=0.05, n_perm=500, tails=2, axis=0, random_state=42, n_jobs=-1
+):
+    stats = {}
+    
+    for roi in rois:
+        significant_clusters, p_values = do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions_for_one_roi(
+            time_window_decoding_results=time_window_decoding_results, 
+            n_bootstraps=n_bootstraps, 
+            condition_comparison_1=condition_comparison_1, 
+            condition_comparison_2=condition_comparison_2, 
+            roi=roi, 
+            stat_func=stat_func,
+            unit_of_analysis=unit_of_analysis,
+            p_thresh=p_thresh,
+            p_cluster=p_cluster, 
+            n_perm=n_perm, 
+            tails=tails, 
+            axis=axis, 
+            random_state=random_state, 
+            n_jobs=n_jobs
+        )
+        
+        stats[roi] = significant_clusters, p_values
+        
+    return stats
+
+def do_mne_paired_cluster_test(
+    accuracies1: np.ndarray,
+    accuracies2: np.ndarray,
+    p_thresh: float = 0.05,
+    n_perm: int = 1000,
+    tails: int = 0, # MNE: 0 for two-tail, 1 for right-tail, -1 for left-tail
+    random_state: int = 42,
+    n_jobs: int = -1
+) -> np.ndarray:
+    """
+    Performs a paired-sample cluster permutation test using MNE.
+
+    It tests the difference (accuracies1 - accuracies2) against zero.
+
+    Args:
+        accuracies1: Data for condition 1, shape (n_samples, n_times).
+        accuracies2: Data for condition 2, shape (n_samples, n_times).
+        p_thresh: The p-value threshold for forming clusters.
+        n_perm: The number of permutations.
+        tails: 0 for two-tailed, 1 for one-tailed (1 > 2), -1 for one-tailed (1 < 2).
+        random_state: Seed for the random number generator.
+        n_jobs: Number of jobs for parallel processing.
+
+    Returns:
+        A boolean mask of shape (n_times,) indicating significant time points.
+    """
+    if accuracies1.shape != accuracies2.shape:
+        raise ValueError("Accuracy arrays must have the same shape for a paired test.")
+    
+    print("🔬 Running MNE paired (one-sample on differences) cluster permutation test...")
+
+    # Step 1: Calculate the difference for each paired sample
+    differences = accuracies1 - accuracies2
+    n_samples = differences.shape[0]
+
+    if n_samples < 2:
+        print("⚠️ Warning: Not enough samples to run stats. Returning no significant clusters.")
+        return np.zeros(differences.shape[1], dtype=bool)
+
+    # Step 2: Calculate the t-statistic threshold from the p-value
+    # For a two-tailed test, we divide the p-value by 2
+    p_val_for_t = p_thresh / 2 if tails == 0 else p_thresh
+    degrees_of_freedom = n_samples - 1
+    t_threshold = t.ppf(1 - p_val_for_t, df=degrees_of_freedom)
+
+    # Step 3: Run the MNE one-sample cluster test
+    t_obs, clusters, cluster_p_values, H0 = permutation_cluster_1samp_test(
+        X=differences,
+        threshold=t_threshold,
+        n_permutations=n_perm,
+        tail=tails,
+        n_jobs=n_jobs,
+        seed=random_state,
+        verbose=False
+    )
+
+    # Step 4: Create a boolean mask from the significant clusters
+    significant_clusters_mask = np.zeros(differences.shape[1], dtype=bool)
+    for i_cluster, p_val in enumerate(cluster_p_values):
+        if p_val < p_thresh:
+            cluster_indices = clusters[i_cluster][0]
+            significant_clusters_mask[cluster_indices] = True
+            
+    print(f"Found {len(cluster_p_values[cluster_p_values < p_thresh])} significant cluster(s).")
+    
+    return significant_clusters_mask
+
+# In your decoding.py file, update this function
+
+def get_time_averaged_confusion_matrix(
+    roi_labeled_arrays, roi, strings_to_find, n_splits, n_repeats,
+    obs_axs, balance_method, explained_variance, random_state, cats
+):
+    """
+    Computes a single time-averaged confusion matrix for one bootstrap sample.
+    Returns the RAW COUNTS instead of a normalized matrix.
+    """
+    concatenated_data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+    )
+
+    if concatenated_data.size == 0:
+        return None
+
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+    
+    # Key Change: Set normalize=None to get raw counts
+    # The result will be shape (n_repeats, n_classes, n_classes)
+    cm_repeats = decoder.cv_cm_jim(concatenated_data, labels, normalize=None, obs_axs=obs_axs)
+    
+    # Sum across all repeats to get a single count matrix for this bootstrap
+    return np.sum(cm_repeats, axis=0)
+
+def _run_single_permutation(differences: np.ndarray, se_diff: np.ndarray, t_thresh: float, tails: int, seed: int) -> int:
+    """
+    Execute a single null permutation for the cluster paired perm t-test and return the max cluster duration.
+
+    This is the core "worker" function that will be parallelized by joblib. It takes the
+    pre-calculated differences, randomly flips their signs, computes a t-statistic,
+    finds clusters, and returns the duration of the largest cluster found in this single
+    permutation. 10/21/25 - Uses the same standard error as the true accuracy difference distribution to kep the noise identical.
+
+    Parameters
+    ----------
+    differences : np.ndarray
+        The paired differences between two conditions, shape (n_samples, n_times).
+    se_diff : np.ndarray
+        precomputed standard error from the true accuracy difference distribution
+    t_thresh : float
+        The t-value threshold for forming clusters.
+    tails : int
+        Specifies the type of test (1 for one-tailed, 2 for two-tailed).
+    seed : int
+        A unique seed for the random number generator to ensure independent permutations.
+
+    Returns
+    -------
+    int
+        The maximum cluster duration (number of consecutive time points) found in this permutation.
+        Returns 0 if no clusters are found.
+    """
+    rng = np.random.default_rng(seed)
+    n_samples = differences.shape[0]
+
+    # Permute by randomly flipping the sign of the difference for each sample
+    sign_flips = rng.choice([-1, 1], size=(n_samples, 1))
+    perm_diffs = differences * sign_flips
+    
+    # # Calculate t-statistic for the permuted data, handling potential division by zero
+    # std_perm = np.std(perm_diffs, axis=0, ddof=1)
+    # # Prevent division by zero if std is 0 for a time point
+    # std_perm[std_perm == 0] = 1 
+    
+    # calculate t-statistic using the same standard error as the true differencce
+    t_perm = np.mean(perm_diffs, axis=0) / se_diff
+    
+    if tails == 2:
+        perm_sig_points = np.abs(t_perm) > t_thresh
+    else:
+        perm_sig_points = t_perm > t_thresh
+    
+    perm_labeled, n_perm_clusters = label(perm_sig_points)
+    
+    if n_perm_clusters > 0:
+        perm_cluster_durations = np.array([np.sum(perm_labeled == i) for i in range(1, n_perm_clusters + 1)])
+        return np.max(perm_cluster_durations)
+    else:
+        return 0
+    
+def cluster_perm_paired_ttest_by_duration(
+    accuracies1: np.ndarray,
+    accuracies2: np.ndarray,
+    p_thresh: float = 0.05,
+    p_cluster: float = 0.05,
+    n_perm: int = 1000,
+    tails: int = 2, # 2 for two-tailed, 1 for one-tailed (1 > 2)
+    random_state: int = 42,
+    n_jobs: int = -1 # Number of jobs for parallel processing
+) -> np.ndarray:
+    """
+    Perform a parallelized paired-sample cluster permutation test using cluster duration.
+
+    This function tests for significant differences between two paired conditions over time.
+    It uses a non-parametric approach based on cluster mass, where the "mass" is defined as
+    the duration (number of consecutive time points) of a cluster.
+
+    The process is as follows:
+    1.  Calculate observed t-statistics for the difference between `accuracies1` and `accuracies2`.
+    2.  Identify contiguous clusters where the t-statistic exceeds a threshold (`p_thresh`).
+    3.  Calculate the duration of these observed clusters.
+    4.  Build a null distribution of the *maximum* cluster duration by running permutations in parallel.
+        In each permutation, the signs of the differences are randomly flipped.
+    5.  Compare the observed cluster durations to this null distribution. A cluster is considered
+        significant if its duration exceeds the threshold defined by `p_cluster` (e.g., the 95th
+        percentile) of the null distribution.
+
+    Parameters
+    ----------
+    accuracies1 : np.ndarray
+        Data for the first condition, with shape (n_samples, n_times).
+    accuracies2 : np.ndarray
+        Data for the second condition, with shape (n_samples, n_times). Must be paired with `accuracies1`.
+    p_thresh : float, optional
+        The p-value used to set the initial t-statistic threshold for forming clusters. Default is 0.05.
+    p_cluster : float, optional
+        The p-value for determining the final significance of a cluster. An observed cluster is
+        significant if its duration is greater than the `(1 - p_cluster)` percentile of the
+        null distribution of maximum cluster durations. Default is 0.05.
+    n_perm : int, optional
+        The number of permutations to run to build the null distribution. Default is 1000.
+    tails : int, optional
+        The type of test to perform:
+        - 2: two-tailed test (accuracies1 != accuracies2)
+        - 1: one-tailed test (accuracies1 > accuracies2)
+        Default is 2.
+    random_state : int, optional
+        Seed for the random number generator to ensure reproducibility. Default is 42.
+    n_jobs : int, optional
+        The number of CPU cores to use for parallelizing the permutation loop.
+        -1 means using all available cores. Default is -1.
+
+    Returns
+    -------
+    np.ndarray
+        A boolean mask of shape (n_times,) where `True` indicates that a time point
+        belongs to a statistically significant cluster.
+    """
+    rng = np.random.default_rng(random_state)
+    n_samples, n_times = accuracies1.shape
+    
+    # --- Step 1: Calculate observed clusters ---
+    differences = accuracies1 - accuracies2
+    std_diff = np.std(differences, axis=0, ddof=1)
+    std_diff[std_diff == 0] = 1 # Prevent division by zero
+    se_diff = std_diff / np.sqrt(n_samples)
+    
+    t_obs = np.mean(differences, axis=0) / se_diff
+    
+    df = n_samples - 1
+    p_for_t = p_thresh / 2 if tails == 2 else p_thresh
+    t_thresh = t.ppf(1 - p_for_t, df=df)
+    
+    if tails == 2:
+        significant_points = np.abs(t_obs) > t_thresh
+    else:
+        significant_points = t_obs > t_thresh
+        
+    labeled_clusters, n_clusters = label(significant_points)
+    
+    if n_clusters == 0:
+        print("No clusters found in observed data.")
+        return np.zeros(n_times, dtype=bool)
+        
+    observed_cluster_durations = np.array([np.sum(labeled_clusters == i) for i in range(1, n_clusters + 1)])
+
+    # --- Step 2: Build null distribution in PARALLEL ---
+    print(f"🚀 Building null distribution with {n_perm} permutations across {n_jobs} jobs...")
+    
+    # Generate independent seeds for each permutation job for reproducibility
+    seeds = rng.integers(low=0, high=2**32-1, size=n_perm)
+
+    max_perm_durations = Parallel(n_jobs=n_jobs, verbose=10)(
+        delayed(_run_single_permutation)(differences, se_diff, t_thresh, tails, seed) for seed in seeds
+    )
+
+    # --- Step 3: Determine significance ---
+    critical_duration = np.percentile(max_perm_durations, 100 * (1 - p_cluster))
+    
+    final_sig_mask = np.zeros(n_times, dtype=bool)
+    for i in range(1, n_clusters + 1):
+        if observed_cluster_durations[i-1] > critical_duration:
+            final_sig_mask[labeled_clusters == i] = True
+            
+    print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
+    return final_sig_mask

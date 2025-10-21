@@ -131,14 +131,44 @@ plotting_parameters = {
     "line_style": "-", 
 },
 "Stimulus_err_inc": {
-    "condition_parameter": "error",
+    "condition_parameter": "err-inc",
     "color": "black",
     "line_style": "--",
 },
 "Stimulus_err_con": {
-    "condition_parameter": "correct",
+    "condition_parameter": "err-con",
     "color": "black",
     "line_style": "-", 
+},
+"Stimulus_err_iS": {
+    "condition_parameter": "err-iS",
+    "color": "black",
+    "line_style": "-", 
+},
+"Stimulus_err_cR": {
+    "condition_parameter": "err-cR",
+    "color": "black",
+    "line_style": "--", 
+},
+"Stimulus_err_iR": {
+    "condition_parameter": "err-iR",
+    "color": "black",
+    "line_style": "-", 
+},
+"Stimulus_err_cS": {
+    "condition_parameter": "err-cS",
+    "color": "black",
+    "line_style": "--", 
+},
+"Stimulus_inc_err": {
+    "condition_parameter": "err-inc",
+    "color": "black",
+    "line_style": "-",
+},
+"Stimulus_switch_err": {
+    "condition_parameter": "err-switch",
+    "color": "black",
+    "line_style": "-",
 },
 'Stimulus_i75-Stimulus_c75': {
     "condition_parameter": "i75-c75",

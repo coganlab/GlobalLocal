@@ -1,5 +1,7 @@
 import sys
 import os
+from mne.stats import permutation_cluster_1samp_test
+from scipy.stats import t
 
 print(sys.path)
 
@@ -47,6 +49,8 @@ from src.analysis.utils.general_utils import (
     find_difference_between_two_electrode_lists
 )
 
+# import matplotlib
+# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
 
 from pandas import read_csv
@@ -54,7 +58,7 @@ import scipy.stats as stats
 from joblib import Parallel, delayed
 
 from scipy.ndimage import label
-from scipy.stats import norm, ttest_ind
+from scipy.stats import norm, ttest_ind, ttest_rel
 
 from functools import partial
 import json
@@ -99,36 +103,103 @@ from src.analysis.decoding.decoding import (
     plot_accuracies_nature_style,
     make_pooled_shuffle_distribution,
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
-    compute_pooled_bootstrap_statistics
+    compute_pooled_bootstrap_statistics,
+    do_time_perm_cluster_comparing_two_true_bootstrap_accuracy_distributions,
+    do_mne_paired_cluster_test,
+    get_pooled_accuracy_distributions_for_comparison,
+    get_time_averaged_confusion_matrix,
+    cluster_perm_paired_ttest_by_duration
 )
-def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays, condition_comparisons, elec_string_to_add_to_filename, save_dir):
+def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
-    Processes a single bootstrap sample for decoding. This is a helper function designed to be called in parallel by joblib.
+    Generates and processes a single bootstrap sample.
+    This function is designed to be called in parallel by joblib.
     """
     # use a unique random state for each bootstrap to ensure independent and reproducible results
     bootstrap_random_state = args.random_state + bootstrap_idx if args.random_state is not None else None
     
     # this dictionary will store all results for this single bootstrap
-    results_for_this_bootstrap = {}
+    results_for_this_bootstrap = {
+        'time_window_results': {},
+        'time_averaged_cms': {},
+        'cats_by_roi': {}
+    }
+    
     print(f"\n{'='*20}) PROCESSING BOOTSTRAP {bootstrap_idx+1}/{args.bootstraps} {'='*20}\n")
     
-    # get the specific LabeledArray dict for this bootstrap iteration
+    # 1. Generate data for THIS bootstrap sample inside the worker
+    # We set n_bootstraps=1 because this function handles one bootstrap.
+    # We set n_jobs=1 to avoid nested parallelism, which is inefficient and can cause issues.
+    print(f"Bootstrap {bootstrap_idx + 1}: Generating data sample...")
+
+    roi_labeled_arrays_this_bootstrap_list = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
+        rois=rois,
+        subjects_data_objects=subjects_mne_objects,
+        condition_names=condition_names,
+        subjects=args.subjects,
+        electrodes_per_subject_roi=electrodes,
+        n_bootstraps=1,  # Generate only one sample
+        chans_axs=args.chans_axs,
+        time_axs=args.time_axs,
+        freq_axs=None,
+        random_state=bootstrap_random_state, # Unique seed
+        n_jobs=1  # Run ROI generation serially within this worker
+    )
+
+    # Extract the single LabeledArray from the list returned for each ROI
     roi_labeled_arrays_this_bootstrap = {
-        roi: bootstraps[bootstrap_idx]
-        for roi, bootstraps in roi_bootstrapped_labeled_arrays.items()
-        if bootstrap_idx < len(bootstraps)
+        roi: arrays[0] for roi, arrays in roi_labeled_arrays_this_bootstrap_list.items() if arrays
     }
+
+    # Add debugging
+    print(f"\nBootstrap {bootstrap_idx + 1}: Extracted labeled arrays for ROIs:")
+    for roi, labeled_array in roi_labeled_arrays_this_bootstrap.items():
+        if labeled_array is not None:
+            print(f"  ROI {roi}: conditions = {list(labeled_array.keys())}")
+        else:
+            print(f"  ROI {roi}: labeled_array is None")
+        
+    if not roi_labeled_arrays_this_bootstrap:
+        print(f"Warning: No data generated for bootstrap {bootstrap_idx + 1}. Skipping.")
+        return None
         
     # Main code
     # Directory to save confusion matrices
     cm_save_dir = os.path.join(save_dir, "confusion_matrices")
     os.makedirs(cm_save_dir, exist_ok=True)
-
-    folds_info_str = 'folds_as_samples' if args.folds_as_samples else 'repeats_as_samples'
     
+    # --- 1. Calculate Time-Averaged CMs (using raw counts) ---
+    for condition_comparison, strings_to_find in condition_comparisons.items():
+        results_for_this_bootstrap['time_averaged_cms'][condition_comparison] = {}
+        for roi in rois:
+            # Get the 'cats' dictionary for this ROI
+            _, _, cats = concatenate_conditions_by_string(
+                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs
+            )
+            
+            ## FIX: Store the 'cats' dictionary for this ROI so it can be used for plotting later.
+            if roi not in results_for_this_bootstrap['cats_by_roi']:
+                results_for_this_bootstrap['cats_by_roi'][roi] = cats
+                
+            # Get the raw-count confusion matrix
+            cm = get_time_averaged_confusion_matrix(
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                roi=roi,
+                strings_to_find=strings_to_find,
+                cats=cats,
+                n_splits=args.n_splits,
+                n_repeats=args.n_repeats,
+                obs_axs=args.obs_axs,
+                balance_method=args.balance_method,
+                explained_variance=args.explained_variance,
+                random_state=args.random_state + bootstrap_idx
+            )
+            if cm is not None:
+                results_for_this_bootstrap['time_averaged_cms'][condition_comparison][roi] = cm
+
     for condition_comparison, strings_to_find in condition_comparisons.items():
         
-        results_for_this_bootstrap[condition_comparison] = {}
+        results_for_this_bootstrap['time_window_results'][condition_comparison] = {}
         
         # Get confusion matrices for each ROI
         cm_true_per_roi, cm_shuffle_per_roi = get_confusion_matrices_for_rois_time_window_decoding_jim(
@@ -145,7 +216,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
             random_state=bootstrap_random_state,
             window_size=args.window_size,
             step_size=args.step_size,
-            n_perm=args.n_perm,
+            n_perm=args.n_shuffle_perms,
             sampling_rate=args.sampling_rate,
             first_time_point=-1,
             folds_as_samples=args.folds_as_samples
@@ -156,12 +227,8 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
         os.makedirs(condition_save_dir, exist_ok=True)
 
         for roi in rois:
-            condition_roi_stat_func_save_dir = os.path.join(condition_save_dir, f"{roi}", f"{args.stat_func_str}")
-            os.makedirs(condition_roi_stat_func_save_dir, exist_ok=True)
-            print(f"accuracies save dir directory created or already exists at: {condition_roi_stat_func_save_dir}")
-            
-            results_for_this_bootstrap[condition_comparison][roi] = {}
-            results_for_this_bootstrap[condition_comparison][roi]['strings_to_find'] = strings_to_find
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi] = {}
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['strings_to_find'] = strings_to_find
 
             cm_true = cm_true_per_roi[roi]['cm_true']
             cm_shuffle = cm_shuffle_per_roi[roi]['cm_shuffle']
@@ -169,12 +236,12 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
             window_size = cm_true_per_roi[roi]['window_size']
             step_size = cm_true_per_roi[roi]['step_size']
 
-            # store cm outputs nd windowing parameters
-            results_for_this_bootstrap[condition_comparison][roi]['cm_true'] = cm_true
-            results_for_this_bootstrap[condition_comparison][roi]['cm_shuffle'] = cm_shuffle
-            results_for_this_bootstrap[condition_comparison][roi]['time_window_centers'] = time_window_centers
-            results_for_this_bootstrap[condition_comparison][roi]['window_size'] = window_size
-            results_for_this_bootstrap[condition_comparison][roi]['step_size'] = step_size
+            # store cm outputs and windowing parameters
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['cm_true'] = cm_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['cm_shuffle'] = cm_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['time_window_centers'] = time_window_centers
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['window_size'] = window_size
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['step_size'] = step_size
             
             # Compute accuracies
             accuracies_true, accuracies_shuffle = compute_accuracies(cm_true, cm_shuffle)
@@ -184,17 +251,17 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
             mean_accuracies_shuffle = np.mean(accuracies_shuffle, axis=1, keepdims=True) 
             
             # store accuracies - TODO: average across bootstraps somehow for these
-            results_for_this_bootstrap[condition_comparison][roi]['accuracies_true'] = accuracies_true
-            results_for_this_bootstrap[condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
-            results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
-            results_for_this_bootstrap[condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['accuracies_true'] = accuracies_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['accuracies_shuffle'] = accuracies_shuffle
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
+            results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
-    # do lwpc comparison 
-    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:       
+    # lwpc
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
+        results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'] = {}
+          
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['c25_vs_i25'][roi]['time_window_centers']
-            c25_vs_i25_acc = results_for_this_bootstrap['c25_vs_i25'][roi]['accuracies_true']
-            c75_vs_i75_acc = results_for_this_bootstrap['c75_vs_i75'][roi]['accuracies_true']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['c25_vs_i25'][roi]['time_window_centers']
             
             # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
@@ -205,7 +272,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -213,33 +280,16 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 step_size=args.step_size
             )
             
-            # For LWPC comparisons - this is not used here but just leave as a placeholder for now, and pull it into the main function once i figure out the stats for these
-            accuracies_dict = {
-                'c25_vs_i25': c25_vs_i25_acc,
-                'c75_vs_i75': c75_vs_i75_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
-            }
+            results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
-            colors = {
-                'c25_vs_i25': '#0173B2',  # Blue
-                'c75_vs_i75': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
-            }
-            
-            linestyles = {
-                'c25_vs_i25': '-',  # Solid
-                'c75_vs_i75': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
-            }
-
-    # do lwps comparison 
-    if args.conditions == experiment_conditions.stimulus_lwps_conditions:       
+    # lwps
+    if args.conditions == experiment_conditions.stimulus_lwps_conditions:   
+        results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'] = {}
+          
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['s25_vs_r25'][roi]['time_window_centers']
-            s25_vs_r25_acc = results_for_this_bootstrap['s25_vs_r25'][roi]['accuracies_true']
-            s75_vs_r75_acc = results_for_this_bootstrap['s75_vs_r75'][roi]['accuracies_true']
-
-            # get s vs r pooled shuffle distribution
+            time_window_centers = results_for_this_bootstrap['time_window_results']['s25_vs_r25'][roi]['time_window_centers']
+            
+            # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
             
             accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
@@ -248,41 +298,24 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
                 window_size=args.window_size,
                 step_size=args.step_size
             )
-            # Plot accuracies comparing s25_vs_r25 and s75_vs_r75 for this condition comparison and roi
-            # For LWPS comparisons
-            accuracies_dict = {
-                's25_vs_r25': s25_vs_r25_acc,
-                's75_vs_r75': s75_vs_r75_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
-            }
+            
+            results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
 
-            colors = {
-                's25_vs_r25': '#0173B2',  # Blue
-                's75_vs_r75': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
-            }
-            
-            linestyles = {
-                's25_vs_r25': '-',  # Solid
-                's75_vs_r75': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
-            }
-            
-    # do congruency by switch proportion comparison 
-    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:       
+    # congruency by switch proportion
+    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:   
+        results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
-            c_in_25switchBlock_vs_i_in_25switchBlock_acc = results_for_this_bootstrap['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['accuracies_true']
-            c_in_75switchBlock_vs_i_in_75switchBlock_acc = results_for_this_bootstrap['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]['accuracies_true']
+            time_window_centers = results_for_this_bootstrap['time_window_results']['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
             
-            # get i vs c pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all i trials nad all c trials
+            # get i vs c pooled shuffle distribution
             strings_to_find_pooled = [['c_in'], ['i_in']]
             
             accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
@@ -291,40 +324,24 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
                 window_size=args.window_size,
                 step_size=args.step_size
             )
-            # Plot accuracies for this condition comparison and roi
-            accuracies_dict = {
-                'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_acc,
-                'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
-            }
-
-            colors = {
-                'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
-                'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
-            }
             
-            linestyles = {
-                'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
-                'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
-            }
-
-    # do switch type by congruency proportion comparison 
-    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:       
+            results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            
+    # switch type by congruency proportion
+    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:   
+        results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
         for roi in rois:
-            time_window_centers = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
-            s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc = results_for_this_bootstrap['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['accuracies_true']
-            s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc = results_for_this_bootstrap['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]['accuracies_true']
-               
-            # get s vs r pooled shuffle distribution - i think this can just be the same as before, it just needs to grab all s trials nad all r trials
+            time_window_centers = results_for_this_bootstrap['time_window_results']['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+            
+            # get s vs r pooled shuffle distribution
             strings_to_find_pooled = [['s_in'], ['r_in']]
             
             accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
@@ -333,7 +350,7 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 strings_to_find_pooled=strings_to_find_pooled,
                 explained_variance=args.explained_variance,
                 n_splits=args.n_splits,
-                n_perm=args.n_perm,
+                n_perm=args.n_shuffle_perms,
                 random_state=bootstrap_random_state,
                 balance_method='subsample', # Subsampling is recommended for pooling
                 obs_axs=args.obs_axs,
@@ -341,28 +358,9 @@ def process_bootstrap(bootstrap_idx, args, rois, roi_bootstrapped_labeled_arrays
                 step_size=args.step_size
             )
             
-            # Plot accuracies comparing c25_vs_i25 and c75_vs_i75 for this condition comparison and roi
-            # For LWPC comparisons
-            accuracies_dict = {
-                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_acc,
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_acc,
-                'pooled_shuffle': accuracies_shuffle_pooled
-            }
-
-            colors = {
-                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05' ,   # Orange
-                'pooled_shuffle': '#949494'  # Gray
-            }
+            results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
-            linestyles = {
-                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
-                'pooled_shuffle': '--'                       # Dashed
-            }
-
     return results_for_this_bootstrap
-
 
 def main(args):
     # Determine LAB_root based on the operating system and environment
@@ -410,8 +408,6 @@ def main(args):
         conditions_save_name = 'stimulus_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
         conditions_save_name = 'stimulus_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
-        conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
         conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
@@ -480,20 +476,6 @@ def main(args):
                 total_dropped += len(elec_list)
     print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
     print("-------------------------------------\n")
-    
-    roi_bootstrapped_labeled_arrays = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
-        rois=rois,
-        subjects_data_objects=subjects_mne_objects,
-        condition_names=condition_names,
-        subjects=args.subjects,
-        electrodes_per_subject_roi=electrodes,
-        n_bootstraps=args.bootstraps,
-        chans_axs=1,
-        time_axs=2,
-        freq_axs=None, # Set to 3 if using TFR data
-        random_state=args.random_state,
-        n_jobs=-1 
-    )
             
     condition_comparisons = {}
 
@@ -536,9 +518,6 @@ def main(args):
         
         condition_comparisons['s25_vs_r75'] = ['s25', 'r75'] # control comparisons for lwps, think more about how to interpret these
         condition_comparisons['s75_vs_r25'] = ['s75', 'r25']
-        
-        condition_comparisons['s25_vs_r25'] = ['s25', 'r25'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
-        condition_comparisons['s75_vs_r75'] = ['s75', 'r75'] # these cross-block comparisons let me decode if there's pre-trial information about the switch proportion
 
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
         condition_comparisons['c_in_25switchBlock_vs_i_in_25switchBlock'] = ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_25switchBlock']
@@ -561,45 +540,88 @@ def main(args):
     other_string_to_add = (
         f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}"
     )
-    
-    # make a dict to store the final statistical results (e.g., significance masks) for each comparison and ROI, aggregated across all bootstraps
-    aggregated_bootstrap_stats_results = {}
-    for roi in rois:
-        # Initialize keys for all possible comparisons
-        for condition_comparison in condition_comparisons.keys():
-            aggregated_bootstrap_stats_results[(condition_comparison, roi)] = []
-        # Add special comparison keys
-        if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-            aggregated_bootstrap_stats_results[('lwpc', roi)] = []    # loop over each bootstrap sample
-        if args.conditions == experiment_conditions.stimulus_lwps_conditions:
-            aggregated_bootstrap_stats_results[('lwps', roi)] = []
-        if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-            aggregated_bootstrap_stats_results[('congruency_by_switch_proportion', roi)] = []
-        if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-            aggregated_bootstrap_stats_results[('switch_type_by_congruency_proportion', roi)] = []
             
     time_window_decoding_results = {}     
      
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
     # use joblib to run the bootstrap processing in parallel
-    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10)(
+    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
         delayed(process_bootstrap)(
             bootstrap_idx,
+            subjects_mne_objects,
             args,
             rois,
-            roi_bootstrapped_labeled_arrays,
+            condition_names,
+            electrodes,
             condition_comparisons,
             save_dir
         ) for bootstrap_idx in range(args.bootstraps)
     )
-    
+
     # reconstruct the main results dictionary from the list returned by the parallel jobs
-    time_window_decoding_results = {i: result for i, result in enumerate(bootstrap_results_list)}
+    time_window_decoding_results = {i: result['time_window_results'] for i, result in enumerate(bootstrap_results_list) if result is not None}
+    time_averaged_cms_list = [result['time_averaged_cms'] for result in bootstrap_results_list if result]
+
+    ## FIX: Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
+    ## This is necessary to get the correct labels for plotting the confusion matrices.
+    cats_by_roi = {}
+    first_valid_result = next((res for res in bootstrap_results_list if res), None)
+    if first_valid_result:
+        cats_by_roi = first_valid_result.get('cats_by_roi', {})
+
+    # --- Step 1: Aggregate and Plot Time-Averaged CMs ---
+    print("\n📊 Aggregating and plotting time-averaged confusion matrices...")
+    for condition_comparison in condition_comparisons.keys():
+        for roi in rois:
+            # Collect all raw CMs for this specific condition/ROI
+            raw_cms = [
+                boot_result[condition_comparison][roi] 
+                for boot_result in time_averaged_cms_list 
+                if condition_comparison in boot_result and roi in boot_result[condition_comparison]
+            ]
+
+            if not raw_cms:
+                continue
+
+            # Sum, normalize, and plot (same logic as before)
+            total_cm_counts = np.sum(np.array(raw_cms), axis=0)
+            row_sums = total_cm_counts.sum(axis=1)[:, np.newaxis]
+            row_sums[row_sums == 0] = 1 
+            normalized_cm = total_cm_counts.astype('float') / row_sums
+            
+            ## FIX: This check now correctly uses the `cats_by_roi` dictionary retrieved from the bootstrap results.
+            if roi in cats_by_roi:
+                display_labels = [str(key) for key in cats_by_roi[roi].keys()]
+            else:
+                print(f"Warning: 'cats' dictionary not found for ROI {roi}. Skipping CM plot.")
+                continue
+
+            # Plotting logic
+            fig, ax = plt.subplots()
+            disp = ConfusionMatrixDisplay(confusion_matrix=normalized_cm, display_labels=display_labels)
+            disp.plot(ax=ax, im_kw={"vmin": 0, "vmax": 1}, colorbar=True)
+            ax.set_title(f'{roi} - {condition_comparison}\n(Counts summed across {args.bootstraps} bootstraps)')
+
+            filename = (
+                f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_'
+                f'time_averaged_confusion_matrix.png'
+            )
+            plot_save_path = os.path.join(save_dir, condition_comparison, roi)
+            os.makedirs(plot_save_path, exist_ok=True)
+            plt.savefig(os.path.join(plot_save_path, filename))
+            plt.close()
+            print(f"✅ Saved summed & normalized CM for {roi} to {plot_save_path}")
+
+            
+    if not time_window_decoding_results:
+        print("\n✗ Analysis failed: No bootstrap samples were successfully processed.")
+        return
+    
     print(f"\n{'-'*20} PARALLEL BOOTSTRAPPING COMPLETE {'='*20}\n")
- 
+    
     # after all bootstraps complete, run pooled statistics
-    pooled_bootstrap_stats = compute_pooled_bootstrap_statistics(
+    all_bootstrap_stats = compute_pooled_bootstrap_statistics(
         time_window_decoding_results,
         args.bootstraps,
         condition_comparisons,
@@ -607,38 +629,44 @@ def main(args):
         percentile=args.percentile,
         cluster_percentile=args.cluster_percentile,
         n_cluster_perms=args.n_cluster_perms,
-        random_state=args.random_state
+        random_state=args.random_state,
+        unit_of_analysis=args.unit_of_analysis
     )
                 
     # define color and linestyle for plotting true vs shuffle
     colors = {
-    'true': '#0173B2',  # Blue
-    'shuffle': '#949494'  # Gray
+        'true': '#0173B2',  # Blue
+        'shuffle': '#949494'  # Gray
     }
     
     linestyles = {
         'true': '-',
         'shuffle': '--'
     }  
-                  
+    sub_str = str(len(args.subjects))
+    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit"   
+               
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
         for roi in rois:
-            if roi in pooled_bootstrap_stats[condition_comparison]:
-                stats = pooled_bootstrap_stats[condition_comparison][roi] 
+            if roi in all_bootstrap_stats[condition_comparison]:
+                stats = all_bootstrap_stats[condition_comparison][roi] 
                 time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
-
+                
+                # extract the correct keys based on unit_of_analysis
+                unit = stats['unit_of_analysis']
+                
                 plot_accuracies_nature_style(
                     time_points=time_window_centers,
                     accuracies_dict={
-                        'true': stats['pooled_true'],
-                        'shuffle': stats['pooled_shuffle']
+                        'true': stats[f'{unit}_true_accs'], # use the full distribution
+                        'shuffle': stats[f'{unit}_shuffle_accs']
                     },
                     significant_clusters=stats['significant_clusters'],
                     window_size=args.window_size,
                     step_size=args.step_size,
                     sampling_rate=args.sampling_rate,
-                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}_{roi}',
+                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}',
                     roi=roi,
                     save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
                     timestamp=args.timestamp,
@@ -646,11 +674,543 @@ def main(args):
                     colors=colors,
                     linestyles=linestyles,
                     single_column=False,
-                    ylim=(0.4, 0.75),
-                    show_chance_level=False # The pooled shuffle line is the new chance level
-                    
-                )     
+                    ylim=(0.2, 0.8),
+                    show_chance_level=False, # The pooled shuffle line is the new chance level 
+                    filename_suffix=analysis_params_str  
+                )    
+                 
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+        print(f"\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        lwpc_colors = {
+            'c25_vs_i25': '#0173B2',  # Blue
+            'c75_vs_i75': '#DE8F05',  # Orange
+          'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        lwpc_linestyles = {
+            'c25_vs_i25': '-',  # Solid
+            'c75_vs_i75': '-',  # Solid
+            'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+        
+        # Perform the statistical comparison between the two true accuracy distributions
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('c25_vs_i25', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['lwpc_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+
+            # Stack all samples from all bootstraps
+            stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
             
+            # 1. Get the pooled data using your existing helper function
+            pooled_c25_vs_i25_accs, pooled_c75_vs_i75_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='c25_vs_i25',
+                condition_comparison_2='c75_vs_i75',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new paired cluster test
+            significant_clusters_lwpc = cluster_perm_paired_ttest_by_duration(
+                accuracies1=pooled_c25_vs_i25_accs,
+                accuracies2=pooled_c75_vs_i75_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                n_perm=args.n_cluster_perms,
+                tails=args.cluster_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            # --- Get data for plotting from the main stats dictionary ---
+            c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
+            c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = c25_vs_i25_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c25_vs_i25': c25_vs_i25_stats[f'{unit}_true_accs'],
+                    'c75_vs_i75': c75_vs_i75_stats[f'{unit}_true_accs'],
+                    'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_lwpc,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPC_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=lwpc_colors,
+                linestyles=lwpc_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Congruency Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+            
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for LWPC in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            lwpc_differences = pooled_c25_vs_i25_accs - pooled_c75_vs_i75_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(lwpc_differences, axis=0)
+            std_diff = np.std(lwpc_differences, axis=0)
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c25_vs_i25_minus_c75_vs_i75': lwpc_differences
+                },
+                significant_clusters=significant_clusters_lwpc, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPC_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'c25_vs_i25_minus_c75_vs_i75': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'c25_vs_i25_minus_c75_vs_i75': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+            
+    if args.conditions == experiment_conditions.stimulus_lwps_conditions:
+        print(f"\n--- Running LWPS Comparison Statistics (s25_vs_r25 vs s75_vs_r75) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        lwps_colors = {
+            's25_vs_r25': '#0173B2',  # Blue
+            's75_vs_r75': '#DE8F05',  # Orange
+          'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        lwps_linestyles = {
+            's25_vs_r25': '-',  # Solid
+            's75_vs_r75': '-',  # Solid
+            'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('s25_vs_r25', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            lwps_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['lwps_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    lwps_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_lwps_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # 1. Get the pooled data using your existing helper function
+            pooled_s25_vs_r25_accs, pooled_s75_vs_r75_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='s25_vs_r25',
+                condition_comparison_2='s75_vs_r75',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new paired cluster test
+            significant_clusters_lwps = cluster_perm_paired_ttest_by_duration(
+                accuracies1=pooled_s25_vs_r25_accs,
+                accuracies2=pooled_s75_vs_r75_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                n_perm=args.n_cluster_perms,
+                tails=args.cluster_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
+            # --- Get data for plotting from the main stats dictionary ---
+            s25_vs_r25_stats = all_bootstrap_stats['s25_vs_r25'][roi]
+            s75_vs_r75_stats = all_bootstrap_stats['s75_vs_r75'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = s25_vs_r25_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['s25_vs_r25'][roi]['time_window_centers']
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's25_vs_r25': s25_vs_r25_stats[f'{unit}_true_accs'],
+                    's75_vs_r75': s75_vs_r75_stats[f'{unit}_true_accs'],
+                    'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_lwps,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPS_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPS_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=lwps_colors,
+                linestyles=lwps_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Switch Type Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+             # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for LWPS in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            lwps_differences = pooled_s25_vs_r25_accs - pooled_s75_vs_r75_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(lwps_differences, axis=0)
+            std_diff = np.std(lwps_differences, axis=0)
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's25_vs_r25_minus_s75_vs_r75': lwps_differences
+                },
+                significant_clusters=significant_clusters_lwps, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_LWPS_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "LWPS_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'s25_vs_r25_minus_s75_vs_r75': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'s25_vs_r25_minus_s75_vs_r75': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (s25 vs r25 - s75 vs r75)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+            
+    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        print(f"\n--- Running congruency by switch proportion Comparison Statistics (c_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        congruency_by_switch_proportion_colors = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05',  # Orange
+          'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        congruency_by_switch_proportion_linestyles = {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+            'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+        
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('c_in_25switchBlock_vs_i_in_25switchBlock', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # 1. Get the pooled data using your existing helper function
+            pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs, pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='c_in_25switchBlock_vs_i_in_25switchBlock',
+                condition_comparison_2='c_in_75switchBlock_vs_i_in_75switchBlock',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new paired cluster test
+            significant_clusters_congruency_by_switch_proportion = cluster_perm_paired_ttest_by_duration(
+                accuracies1=pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs,
+                accuracies2=pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                n_perm=args.n_cluster_perms,
+                tails=args.cluster_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
+            # --- Get data for plotting from the main stats dictionary ---
+            c_in_25switchBlock_vs_i_in_25switchBlock_stats = all_bootstrap_stats['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]
+            c_in_75switchBlock_vs_i_in_75switchBlock_stats = all_bootstrap_stats['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = c_in_25switchBlock_vs_i_in_25switchBlock_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c_in_25switchBlock_vs_i_in_25switchBlock': c_in_25switchBlock_vs_i_in_25switchBlock_stats[f'{unit}_true_accs'],
+                    'c_in_75switchBlock_vs_i_in_75switchBlock': c_in_75switchBlock_vs_i_in_75switchBlock_stats[f'{unit}_true_accs'],
+                    'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_congruency_by_switch_proportion,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_congruency_by_switch_proportion_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "congruency_by_switch_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=congruency_by_switch_proportion_colors,
+                linestyles=congruency_by_switch_proportion_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Congruency Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+            
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for congruency by switch prop in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            congruency_by_switch_proportion_differences = pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs - pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(congruency_by_switch_proportion_differences, axis=0)
+            std_diff = np.std(congruency_by_switch_proportion_differences, axis=0)
+            
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': congruency_by_switch_proportion_differences
+                },
+                significant_clusters=significant_clusters_congruency_by_switch_proportion, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_congruency_by_switch_proportion_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "congruency_by_switch_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (c_in_25switchBlock vs i_in_25switchBlock - c_in_75switchBlock vs i_in_75switchBlock)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+
+    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        print(f"\n--- Running switch_type_by_congruency_proportion Comparison Statistics (s_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        switch_type_by_congruency_proportion_colors = {
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05',  # Orange
+          'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        switch_type_by_congruency_proportion_linestyles = {
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
+            'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('s_in_25incongruentBlock_vs_r_in_25incongruentBlock', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            # 1. Get the pooled data using your existing helper function
+            pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs, pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='s_in_25incongruentBlock_vs_r_in_25incongruentBlock',
+                condition_comparison_2='s_in_75incongruentBlock_vs_r_in_75incongruentBlock',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+            
+            # 2. Run the new paired cluster test
+            significant_clusters_switch_type_by_congruency_proportion = cluster_perm_paired_ttest_by_duration(
+                accuracies1=pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs,
+                accuracies2=pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                n_perm=args.n_cluster_perms,
+                tails=args.cluster_tails,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+
+            # --- Get data for plotting from the main stats dictionary ---
+            s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
+            s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
+            
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_in_25incongruentBlock_vs_r_in_25incongruentBlock': s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats[f'{unit}_true_accs'],
+                    's_in_75incongruentBlock_vs_r_in_75incongruentBlock': s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats[f'{unit}_true_accs'],
+                    'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Use the newly computed clusters for significance bars
+                significant_clusters=significant_clusters_switch_type_by_congruency_proportion,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_switch_type_by_congruency_proportion_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "switch_type_by_congruency_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=switch_type_by_congruency_proportion_colors,
+                linestyles=switch_type_by_congruency_proportion_linestyles,
+                single_column=False,
+                ylim=(0.2, 0.8),
+                ylabel="Switch Type Decoding Accuracy",
+                significance_y_position=0.72,
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str  
+            )
+
+            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+            print(f"Plotting accuracy DIFFERENCE for switch type by congruency proportion in {roi}...")
+            
+            # 1. Calculate the difference array (this is what the t-test was run on)
+            switch_type_by_congruency_proportion_differences = pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs - pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs
+            
+            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
+            mean_diff = np.mean(switch_type_by_congruency_proportion_differences, axis=0)
+            std_diff = np.std(switch_type_by_congruency_proportion_differences, axis=0)
+            
+            # Find the max extent of the error bar from 0
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
+            # Handle case where there's no variance, set a default small range
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+
+            plot_accuracies_nature_style(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': switch_type_by_congruency_proportion_differences
+                },
+                significant_clusters=significant_clusters_switch_type_by_congruency_proportion, # Use the same sig clusters
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_switch_type_by_congruency_proportion_ACC_DIFFERENCE_plot', # New name
+                roi=roi,
+                save_dir=os.path.join(save_dir, "switch_type_by_congruency_proportion_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#404040'}, # Just one color (e.g., dark gray)
+                linestyles={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-'},
+                single_column=False,
+                ylim=diff_ylim, # Use new centered ylim
+                ylabel="Accuracy Difference (s_in_25incongruentBlock vs r_in_25incongruentBlock - s_in_75incongruentBlock vs r_in_75incongruentBlock)", # New label
+                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
+                show_chance_level=True, # Show the zero line
+                chance_level=0, # Set chance (null hypothesis) to 0
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+            )
+
+            
+                 
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
     # Since your run script calls main() directly, this block won't be executed

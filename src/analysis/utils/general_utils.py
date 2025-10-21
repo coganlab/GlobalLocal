@@ -113,7 +113,8 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
 
         ch_type = filt.get_channel_types(only_data_chs=True)[0]
         good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
-
+        
+        # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
             default_dict = gen_labels(good.info, sub='D107A')
         else:
@@ -398,86 +399,98 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
 
     for sub in subjects:
         print(f"Loading data for subject: {sub}")
-        sub_mne_objects = {}
+        
+        # This dictionary will be populated for the subject
+        # Structure: sub_mne_objects[condition_name][mne_object_type]
+        sub_mne_objects = {cond: {} for cond in conditions.keys()}
 
         mne_objects = load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=just_HG_ev1_rescaled, LAB_root=LAB_root)
-        for mne_object in mne_objects.keys():
-            if acc_trials_only == True:
-                mne_objects[mne_object] = mne_objects[mne_object]["Accuracy1.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
-            elif error_trials_only == True:
-                mne_objects[mne_object] = mne_objects[mne_object]["Accuracy0.0"] # this needs to be done for all the epochs objects I think. So loop over them. Unless it's set to just_HG_ev1_rescaled.
+        
+        # Loop through each MNE object type (e.g., 'HG_ev1_power_rescaled')
+        for mne_object_type, epochs_obj in mne_objects.items():
             
+            # Filter for accuracy first before looping through conditions
+            processed_epochs = epochs_obj
+            if acc_trials_only:
+                processed_epochs = epochs_obj["Accuracy1.0"]
+            elif error_trials_only:
+                processed_epochs = epochs_obj["Accuracy0.0"]
+
+            # Now, process each experimental condition
             for condition_name, condition_parameters in conditions.items():
-                print(f"  Loading condition: {condition_name} with parameters: {condition_parameters}")
-                # Get BIDS events from the conditions, and remove it so it doesn't complicate future analyses.
+                print(f"  Loading condition: {condition_name}")
+                
                 bids_events = condition_parameters.get("BIDS_events")
-                if bids_events is None:
-                    print(f"Warning: condition {condition_name} is missing 'BIDS_events'. Fix this!")
-                # if multiple bids events are part of this condition, concatenate their epochs. Otherwise just grab epochs.
+                if not bids_events:
+                    print(f"    Warning: Condition '{condition_name}' is missing 'BIDS_events'. Skipping.")
+                    continue
+
+                event_epochs = None  # Initialize to None
+
                 if isinstance(bids_events, list):
-                    combined_epochs = []
+                    combined_epochs_list = []
                     for event in bids_events:
-                        partial_event_epochs = mne_objects[mne_object][event]
-                        combined_epochs.append(partial_event_epochs)
-                    event_epochs = mne.concatenate_epochs(combined_epochs)
-                else:
-                    event_epochs = mne_objects[mne_object][bids_events]
+                        try:
+                            partial_epochs = processed_epochs[event]
+                            if len(partial_epochs) > 0: # Ensure the event has trials
+                                combined_epochs_list.append(partial_epochs)
+                        except KeyError:
+                            print(f"    - Event '{event}' not found for subject {sub}. Skipping.")
+                    
+                    # **FIX 1: Only concatenate if the list is not empty**
+                    if combined_epochs_list:
+                        event_epochs = mne.concatenate_epochs(combined_epochs_list)
+                    else:
+                        print(f"    Warning: No trials found for any event in {bids_events}. Skipping condition '{condition_name}'.")
+                        continue
+                else: # It's a single event string
+                    # **FIX 2: Handle single missing event gracefully**
+                    try:
+                        event_epochs = processed_epochs[bids_events]
+                        if len(event_epochs) == 0: # Check if the resulting epochs object is empty
+                            print(f"    Warning: Event '{bids_events}' has no trials. Skipping condition '{condition_name}'.")
+                            continue
+                    except KeyError:
+                        print(f"    Warning: Event '{bids_events}' not found. Skipping condition '{condition_name}'.")
+                        continue
+                
+                # If we've successfully created event_epochs, add it to our dictionary
+                sub_mne_objects[condition_name][mne_object_type] = event_epochs
 
-                sub_mne_objects[condition_name] = {}
-                sub_mne_objects[condition_name][mne_object] = event_epochs
-
-                # create evoked objects for each condition (mean and standard error) using nanmean and nanstd
-                # Get the epochs data
+                # --- Create evoked objects (mean and standard error) ---
                 epochs_data = event_epochs.get_data()
-                print(f"    Original shape: {epochs_data.shape}")
-
-                # DEBUGGING: Check NaN statistics
-                nan_count_per_trial = np.sum(np.isnan(epochs_data), axis=(1, 2))
-                fully_nan_trials = np.all(np.isnan(epochs_data), axis=(1, 2))
-
-                print(f"    Trials with all NaN values: {np.sum(fully_nan_trials)}")
-                print(f"    Average NaN count per trial: {np.mean(nan_count_per_trial):.1f}")
-                print(f"    Max NaN count in a trial: {np.max(nan_count_per_trial)}")
-
-                # DEBUGGING: Check if specific channels have many NaNs
-                nan_per_channel = np.sum(np.isnan(epochs_data), axis=(0, 2))
-                high_nan_channels = np.where(nan_per_channel > 0.5 * epochs_data.shape[0] * epochs_data.shape[2])[0]
-                if len(high_nan_channels) > 0:
-                    print(f"    Channels with >50% NaN: {[event_epochs.ch_names[i] for i in high_nan_channels]}")
-
-                # Check how many trials have valid data (not all NaN)
-                # A trial is valid if at least one channel has non-NaN data
+                
                 valid_trials_mask = ~np.all(np.isnan(epochs_data), axis=(1, 2))
                 n_valid_trials = np.sum(valid_trials_mask)
 
                 print(f"    {condition_name}: {n_valid_trials} valid trials out of {len(event_epochs)}")
 
-                # Compute the nanmean across trials
+                if n_valid_trials == 0:
+                    print(f"    No valid (non-NaN) trials to average for {condition_name}. Skipping evoked creation.")
+                    continue
+
+                # Compute and store the mean
                 data_nanmean = np.nanmean(epochs_data, axis=0)
-                evoked_avg = event_epochs.average()  # Create template
+                evoked_avg = event_epochs.average()
                 evoked_avg.data = data_nanmean
                 evoked_avg.nave = n_valid_trials
-                sub_mne_objects[condition_name][mne_object + '_avg'] = evoked_avg
+                sub_mne_objects[condition_name][mne_object_type + '_avg'] = evoked_avg
 
-                # Compute the standard error across trials using nanstd
-                # Calculate valid trials per channel-timepoint
+                # Compute and store the standard error
                 n_valid_per_channel_time = np.sum(~np.isnan(epochs_data), axis=0)
-
-                # Avoid division by zero or sqrt of negative numbers
                 n_valid_per_channel_time = np.maximum(n_valid_per_channel_time, 1)
-
-                # Calculate standard error
                 std_err_data = np.nanstd(epochs_data, axis=0, ddof=1) / np.sqrt(n_valid_per_channel_time)
-
-                # Handle cases where all values are NaN - TODO: hmm is this line necessary? 8/21/25
                 std_err_data = np.nan_to_num(std_err_data, nan=0.0)
-
-                evoked_std_err = event_epochs.average()  # Create template
+                
+                evoked_std_err = event_epochs.average()
                 evoked_std_err.data = std_err_data
                 evoked_std_err.nave = int(np.mean(n_valid_per_channel_time))
-                sub_mne_objects[condition_name][mne_object + '_std_err'] = evoked_std_err
-                 
-            subjects_mne_objects[sub] = sub_mne_objects
+                sub_mne_objects[condition_name][mne_object_type + '_std_err'] = evoked_std_err
+
+        # Clean up conditions that ended up with no data at all
+        final_sub_mne_objects = {cond: data for cond, data in sub_mne_objects.items() if data}
+        if final_sub_mne_objects:
+            subjects_mne_objects[sub] = final_sub_mne_objects
 
     return subjects_mne_objects
     

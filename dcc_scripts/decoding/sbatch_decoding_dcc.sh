@@ -3,8 +3,8 @@
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 20
-#SBATCH --mem=150G
-#SBATCH --time=96:00:00  # 48 hours (adjust based on your needs)
+#SBATCH --mem=130G
+#SBATCH --time=120:00:00  # 48 hours (adjust based on your needs)
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
