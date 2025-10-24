@@ -415,7 +415,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             ax.fill_between(times, ci_data[0], ci_data[1],
                            alpha=0.3, color=color, linewidth=0)
 
-    for cluster in clusters:
+    for cluster in significant_clusters:
         start_idx, end_idx = cluster
         start_time = time_points[start_idx] - (window_duration / 2)
         end_time = time_points[end_idx] + (window_duration / 2)
