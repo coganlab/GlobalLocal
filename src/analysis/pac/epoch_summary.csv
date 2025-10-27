@@ -1,2 +1,2 @@
 subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
-D0063,"stimulus_i_(-0.5, 0.0)",168,2048.0,234,-0.5,0.0,"LOF1,LOF2,LOF3"
+D0063,"stimulus_c_(-0.5, 0.0)",221,2048.0,232,-0.5,0.0,"LOF1,LOF2,LOF3"
