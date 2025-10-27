@@ -442,27 +442,29 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             end_idx = len(list(significant_clusters)) - 1
             clusters.append((start_idx, end_idx))
         return clusters
+    
+    if significant_clusters is not None:
 
-    clusters = find_clusters(significant_clusters)
+        clusters = find_clusters(significant_clusters)
 
-    # # Determine y position for the bars
-    # max_y = np.max(mean_true_accuracy + se_true_accuracy)
-    # min_y = np.min(mean_shuffle_accuracy - se_shuffle_accuracy)
-    # y_bar = max_y + 0.02  # Adjust as needed
-    # plt.ylim([min_y, y_bar + 0.05])  # Adjust ylim to accommodate the bars
+        # # Determine y position for the bars
+        # max_y = np.max(mean_true_accuracy + se_true_accuracy)
+        # min_y = np.min(mean_shuffle_accuracy - se_shuffle_accuracy)
+        # y_bar = max_y + 0.02  # Adjust as needed
+        # plt.ylim([min_y, y_bar + 0.05])  # Adjust ylim to accommodate the bars
 
-    # Set y_bar to a fixed value within the y-axis limits
-    y_bar = 0.95  # Fixed value near the top of the y-axis
+        # Set y_bar to a fixed value within the y-axis limits
+        y_bar = 0.95  # Fixed value near the top of the y-axis
 
-    # Plot horizontal bars and asterisks for significant clusters
-    for cluster in clusters:
-        start_idx, end_idx = cluster
-        start_time = times[start_idx] - (window_duration / 2)
-        end_time = times[end_idx] + (window_duration / 2)
-        plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)
-        # Place an asterisk at the center of the bar
-        center_time = (start_time + end_time) / 2
-        plt.text(center_time, y_bar + 0.01, '*', ha='center', va='bottom', fontsize=14)
+        # Plot horizontal bars and asterisks for significant clusters
+        for cluster in clusters:
+            start_idx, end_idx = cluster
+            start_time = times[start_idx] - (window_duration / 2)
+            end_time = times[end_idx] + (window_duration / 2)
+            plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)
+            # Place an asterisk at the center of the bar
+            center_time = (start_time + end_time) / 2
+            plt.text(center_time, y_bar + 0.01, '*', ha='center', va='bottom', fontsize=14)
 
     # Customize plot
     text_color = "#002060"
