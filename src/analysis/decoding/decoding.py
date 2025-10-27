@@ -3167,3 +3167,449 @@ def cluster_perm_paired_ttest_by_duration(
             
     print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
     return final_sig_mask
+
+def run_two_one_tailed_tests_with_time_perm_cluster(
+    accuracies1, accuracies2, 
+    p_thresh=0.025, p_cluster=0.025, stat_func=None,
+    permutation_type='independent',
+    n_perm=100, random_state=42, n_jobs=-1
+):
+    """
+    Run two one-tailed tests using time_perm_cluster function.
+    
+    Parameters:
+    -----------
+    accuracies1, accuracies2 : arrays of shape (n_samples, n_times)
+        The accuracy distributions to compare
+        
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html#permutation-test
+    """
+    # Two one-tailed tests
+    
+    # Test 1: accuracies1 > accuracies2 (tails=1 for greater)
+    sig_mask_positive, p_obs_positive = time_perm_cluster(
+        sig1=accuracies1,
+        sig2=accuracies2,
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=1,  # One-tailed test for sig1 > sig2
+        axis=0,   # Observations/samples axis
+        stat_func=stat_func,
+        permutation_type=permutation_type,  # Do 'samples' for paired samples, and 'independent' for independent t-tests
+        n_jobs=n_jobs,
+        seed=random_state,
+        verbose=40
+    )
+    
+    # Test 2: accuracies2 > accuracies1 (still tails=1, but swap inputs)
+    sig_mask_negative, p_obs_negative = time_perm_cluster(
+        sig1=accuracies2,  # Swapped
+        sig2=accuracies1,  # Swapped
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=1,  # One-tailed test for sig1 > sig2 (now acc2 > acc1)
+        axis=0,
+        stat_func=stat_func,
+        permutation_type=permutation_type,  # Do 'samples' for paired samples, and 'independent' for independent t-tests
+        n_jobs=n_jobs,
+        seed=random_state + 1 if random_state else None,
+        verbose=40
+    )
+    
+    return sig_mask_positive, sig_mask_negative, p_obs_positive, p_obs_negative
+
+
+def plot_accuracies_with_multiple_sig_clusters(
+    time_points: np.ndarray,
+    accuracies_dict: Dict[str, np.ndarray],
+    significance_clusters_dict: Dict[str, Dict],
+    window_size: Optional[int] = None,
+    step_size: Optional[int] = None,
+    sampling_rate: float = 256,
+    comparison_name: str = "",
+    roi: str = "",
+    save_dir: str = ".",
+    timestamp: Optional[str] = None,
+    p_thresh: float = 0.05,
+    colors: Optional[Dict[str, str]] = None,
+    linestyles: Optional[Dict[str, str]] = None,
+    title: Optional[str] = None,
+    ylabel: str = "Accuracy",
+    ylim: Tuple[float, float] = (0.0, 1.0),
+    xlim: Tuple[float, float] = (-0.5, 1.5),
+    single_column: bool = True,
+    show_legend: bool = True,
+    show_chance_level: bool = True,
+    chance_level: float = 0.5,
+    filename_suffix: str = "",
+    return_fig: bool = False,
+    samples_axis: int = 0,
+    # New parameters for multiple significance clusters
+    sig_bar_height: float = 0.02,  # Height of significance bars as fraction of y-range
+    sig_bar_spacing: float = 0.01,  # Spacing between different significance bars as fraction of y-range
+    sig_bar_colors: Optional[Dict[str, str]] = None,
+    sig_bar_labels: Optional[Dict[str, str]] = None,
+    sig_bar_base_position: Optional[float] = None,  # Base y-position for significance bars (default: 0.9 of y-range)
+    show_sig_legend: bool = False,  # Whether to show legend for significance bars
+    sig_marker_style: str = "*",  # Marker style for significance ('*', '**', '***', or custom)
+):
+    """
+    Enhanced wrapper for plotting accuracies with multiple significance clusters.
+    
+    This function extends plot_accuracies_nature_style to handle multiple significance
+    clusters from different comparisons (e.g., different directions in LWPC).
+    
+    Parameters
+    ----------
+    time_points : np.ndarray
+        Time points for x-axis.
+    accuracies_dict : Dict[str, np.ndarray]
+        Dictionary mapping condition names to accuracy arrays.
+    significance_clusters_dict : Dict[str, Dict]
+        Dictionary mapping cluster names to cluster information.
+        Each entry should have:
+        - 'clusters': np.ndarray or List[bool] - Boolean mask of significant time points
+        - 'label': str (optional) - Label for this cluster in legend
+        - 'color': str (optional) - Color for significance bar
+        - 'marker': str (optional) - Marker style ('*', '**', etc.)
+        - 'position_offset': float (optional) - Additional offset from base position
+    sig_bar_height : float
+        Height of each significance bar as fraction of y-range.
+    sig_bar_spacing : float
+        Vertical spacing between different significance bars as fraction of y-range.
+    sig_bar_colors : Dict[str, str]
+        Dictionary mapping cluster names to colors (overrides individual settings).
+    sig_bar_labels : Dict[str, str]
+        Dictionary mapping cluster names to labels for legend.
+    sig_bar_base_position : float
+        Base y-position for significance bars (default: 0.9 of y-range from bottom).
+    show_sig_legend : bool
+        Whether to show a separate legend for significance bars.
+    sig_marker_style : str
+        Default marker style for significance indicators.
+    
+    Other parameters are passed through to the original plot_accuracies_nature_style function.
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure (if return_fig=True)
+        The figure object.
+        
+    Examples
+    --------
+    # Example with LWPC having significant clusters for two directions
+    significance_clusters_dict = {
+        'lwpc_direction1': {
+            'clusters': sig_mask_direction1,
+            'label': 'LWPC >',
+            'color': 'red',
+            'marker': '*'
+        },
+        'lwpc_direction2': {
+            'clusters': sig_mask_direction2,
+            'label': 'LWPC <',
+            'color': 'blue',
+            'marker': '**'
+        }
+    }
+    
+    plot_accuracies_with_multiple_sig_clusters(
+        time_points=time_window_centers,
+        accuracies_dict=accuracies_dict,
+        significance_clusters_dict=significance_clusters_dict,
+        sig_bar_spacing=0.015,
+        show_sig_legend=True,
+        # ... other parameters
+    )
+    """
+    
+    # Import the original NATURE_STYLE (you'll need to adjust this import based on your setup)
+    NATURE_STYLE = {
+        'figure.figsize': (89/25.4, 89/25.4),
+        'font.size': 7,
+        'axes.labelsize': 7,
+        'axes.titlesize': 7,
+        'xtick.labelsize': 6,
+        'ytick.labelsize': 6,
+        'legend.fontsize': 6,
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+        'axes.linewidth': 0.5,
+        'axes.spines.top': False,
+        'axes.spines.right': False,
+        'xtick.major.width': 0.5,
+        'ytick.major.width': 0.5,
+        'xtick.major.size': 2,
+        'ytick.major.size': 2,
+        'lines.linewidth': 1,
+        'lines.markersize': 3,
+        'legend.frameon': False,
+        'legend.columnspacing': 0.5,
+        'legend.handlelength': 1,
+        'savefig.dpi': 300,
+        'savefig.bbox': 'tight',
+        'savefig.pad_inches': 0.05
+    }
+    
+    # Apply Nature style settings
+    with plt.rc_context(NATURE_STYLE):
+        # Set figure size based on column width
+        if single_column:
+            fig_width = 89 / 25.4  # 89mm to inches
+            fig_height = fig_width * 0.7  # Aspect ratio
+        else:
+            fig_width = 183 / 25.4  # 183mm to inches
+            fig_height = fig_width * 0.4
+        
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        
+        # Define Nature-appropriate colors if not provided
+        if colors is None:
+            nature_colors = [
+                '#0173B2',  # Blue
+                '#DE8F05',  # Orange
+                '#029E73',  # Green
+                '#CC78BC',  # Light purple
+                '#ECE133',  # Yellow
+                '#56B4E9',  # Light blue
+                '#F0E442',  # Light yellow
+                '#949494',  # Gray
+            ]
+            colors = {}
+            for i, label in enumerate(accuracies_dict.keys()):
+                colors[label] = nature_colors[i % len(nature_colors)]
+        
+        # Plot each accuracy time series
+        for i, (label, accuracies) in enumerate(accuracies_dict.items()):
+            # Compute statistics
+            if accuracies.ndim == 2:
+                n_samples = accuracies.shape[samples_axis]
+                mean_accuracy = np.mean(accuracies, axis=samples_axis)
+                std_accuracy = np.std(accuracies, axis=samples_axis)
+                sem_accuracy = std_accuracy / np.sqrt(n_samples)
+            else:
+                mean_accuracy = accuracies
+                std_accuracy = np.zeros_like(accuracies)
+                sem_accuracy = np.zeros_like(accuracies)
+                print(f"⚠️ Warning: Accuracy data for '{label}' is 1D. Cannot compute SEM; plotting without error bars.")
+
+            # Get color and linestyle
+            color = colors.get(label, '#0173B2') if colors else '#0173B2'
+            linestyle = linestyles.get(label, '-') if linestyles else '-'
+            
+            # Plot mean line with higher contrast
+            ax.plot(time_points, mean_accuracy, 
+                    label=label, 
+                    color=color, 
+                    linestyle=linestyle,
+                    linewidth=1,
+                    zorder=3)
+            
+            # Plot SEM as shaded area
+            ax.fill_between(
+                time_points,
+                mean_accuracy - std_accuracy,
+                mean_accuracy + std_accuracy,
+                alpha=0.25,  # Lighter shading for Nature style
+                color=color,
+                linewidth=0,
+                zorder=1
+            )
+        
+        # Add chance level line if requested
+        if show_chance_level:
+            ax.axhline(y=chance_level, 
+                      color='#666666', 
+                      linestyle='--', 
+                      linewidth=0.5,
+                      zorder=2,
+                      label='Chance')
+        
+        # Add stimulus onset line
+        ax.axvline(x=0, 
+                  color='#666666', 
+                  linestyle='-', 
+                  linewidth=0.5,
+                  alpha=0.5,
+                  zorder=2)
+        
+        # =================================================================
+        # ENHANCED SECTION: Handle multiple significance clusters
+        # =================================================================
+        if significance_clusters_dict:
+            y_range = ylim[1] - ylim[0]
+            
+            # Calculate base position for significance bars
+            if sig_bar_base_position is None:
+                sig_bar_base_position = ylim[0] + y_range * 0.9
+            
+            # Track lines for significance legend
+            sig_legend_elements = []
+            
+            # Process each set of significant clusters
+            for cluster_idx, (cluster_name, cluster_info) in enumerate(significance_clusters_dict.items()):
+                # Extract cluster information
+                if isinstance(cluster_info, dict):
+                    clusters_mask = cluster_info.get('clusters')
+                    cluster_label = cluster_info.get('label', cluster_name)
+                    cluster_color = cluster_info.get('color', 'black')
+                    cluster_marker = cluster_info.get('marker', sig_marker_style)
+                    position_offset = cluster_info.get('position_offset', 0)
+                else:
+                    # If just a boolean array is provided
+                    clusters_mask = cluster_info
+                    cluster_label = cluster_name
+                    cluster_color = 'black'
+                    cluster_marker = sig_marker_style
+                    position_offset = 0
+                
+                # Override with global settings if provided
+                if sig_bar_colors and cluster_name in sig_bar_colors:
+                    cluster_color = sig_bar_colors[cluster_name]
+                if sig_bar_labels and cluster_name in sig_bar_labels:
+                    cluster_label = sig_bar_labels[cluster_name]
+                
+                # Skip if no significant clusters
+                if clusters_mask is None or not np.any(clusters_mask):
+                    continue
+                
+                # Calculate y-position for this set of clusters
+                y_position = sig_bar_base_position + (cluster_idx * (sig_bar_height + sig_bar_spacing) * y_range) + position_offset
+                
+                # Find contiguous clusters
+                clusters = find_contiguous_clusters(clusters_mask)
+                
+                # Draw each cluster
+                for start_idx, end_idx in clusters:
+                    # Calculate time range
+                    if window_size:
+                        window_duration = window_size / sampling_rate / 2
+                    else:
+                        window_duration = 0
+                    
+                    start_time = time_points[start_idx] - window_duration
+                    end_time = time_points[end_idx] + window_duration
+                    
+                    # Draw significance bar
+                    line = ax.plot([start_time, end_time], 
+                                  [y_position, y_position],
+                                  color=cluster_color, 
+                                  linewidth=1.5,
+                                  solid_capstyle='butt',
+                                  alpha=0.8)[0]
+                    
+                    # Add significance marker
+                    center_time = (start_time + end_time) / 2
+                    ax.text(center_time, 
+                           y_position + y_range * 0.01, 
+                           cluster_marker, 
+                           ha='center', 
+                           va='bottom', 
+                           fontsize=8,
+                           fontweight='bold',
+                           color=cluster_color)
+                
+                # Add to legend elements (only once per cluster type)
+                if show_sig_legend and clusters:
+                    from matplotlib.lines import Line2D
+                    sig_legend_elements.append(
+                        Line2D([0], [0], color=cluster_color, linewidth=1.5, 
+                              label=cluster_label, alpha=0.8)
+                    )
+        
+        # Set labels
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_ylabel(ylabel, fontsize=7)
+        
+        # Set axis limits
+        ax.set_ylim(ylim)
+        ax.set_xlim(xlim)
+        
+        # Configure ticks
+        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        
+        # Set specific x-ticks for clarity
+        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        ax.set_xticks(x_ticks)
+        
+        # Set specific y-ticks for consistency
+        y_ticks = np.linspace(ylim[0], ylim[1], num=5) 
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels([f'{y:.2f}' for y in y_ticks])
+
+        # Configure legends
+        if show_legend:
+            # Main legend for accuracy lines
+            main_legend = ax.legend(
+                loc='upper right',
+                fontsize=6,
+                frameon=False,
+                handlelength=1,
+                handletextpad=0.5,
+                borderpad=0.2,
+                columnspacing=0.5
+            )
+            if len(accuracies_dict) > 1:
+                for line in main_legend.get_lines():
+                    line.set_linewidth(1.5)
+            
+            # Add significance legend if requested
+            if show_sig_legend and sig_legend_elements:
+                sig_legend = ax.legend(
+                    handles=sig_legend_elements,
+                    loc='upper left',
+                    fontsize=6,
+                    frameon=False,
+                    handlelength=1,
+                    handletextpad=0.5,
+                    borderpad=0.2,
+                    title='Significance',
+                    title_fontsize=6
+                )
+                # Add back the main legend (matplotlib removes it when adding second legend)
+                ax.add_artist(main_legend)
+
+        # Add title only if specified
+        if title:
+            ax.set_title(title, fontsize=7, pad=3)
+        
+        # Remove top and right spines (Nature style)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        # Make remaining spines thinner
+        ax.spines['left'].set_linewidth(0.5)
+        ax.spines['bottom'].set_linewidth(0.5)
+        
+        # Tight layout
+        plt.tight_layout(pad=0.5)
+        
+        if return_fig:
+            return fig
+        else:
+            # Create filename
+            timestamp_str = f"{timestamp}_" if timestamp else ""
+            
+            filename_parts = [timestamp_str.rstrip('_')]
+            if comparison_name:
+                filename_parts.append(comparison_name)
+            if roi:
+                filename_parts.append(roi)
+            if filename_suffix:
+                filename_parts.append(filename_suffix)
+            
+            filename = "_".join(filter(None, filename_parts)) + ".pdf"
+            filepath = os.path.join(save_dir, filename)
+            
+            # Ensure save directory exists
+            os.makedirs(save_dir, exist_ok=True)
+            
+            # Save in multiple formats
+            plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.eps'), format='eps', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            
+            plt.close(fig)
+            print(f"Saved Nature-style plot with multiple significance clusters to: {filepath}")

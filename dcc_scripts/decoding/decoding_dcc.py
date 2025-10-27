@@ -100,6 +100,7 @@ from src.analysis.decoding.decoding import (
     get_confusion_matrices_for_rois_time_window_decoding_jim,
     compute_accuracies,
     plot_true_vs_shuffle_accuracies,
+    plot_accuracies_with_multiple_sig_clusters,
     plot_accuracies_nature_style,
     make_pooled_shuffle_distribution,
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
@@ -108,7 +109,8 @@ from src.analysis.decoding.decoding import (
     do_mne_paired_cluster_test,
     get_pooled_accuracy_distributions_for_comparison,
     get_time_averaged_confusion_matrix,
-    cluster_perm_paired_ttest_by_duration
+    cluster_perm_paired_ttest_by_duration,
+    run_two_one_tailed_tests_with_time_perm_cluster
 )
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
@@ -726,16 +728,33 @@ def main(args):
             )
 
             # 2. Run the new paired cluster test
-            significant_clusters_lwpc = cluster_perm_paired_ttest_by_duration(
+            sig_clusters_lwpc_25_over_75, sig_clusters_lwpc_75_over_25, _, _ = run_two_one_tailed_tests_with_time_perm_cluster(
                 accuracies1=pooled_c25_vs_i25_accs,
                 accuracies2=pooled_c75_vs_i75_accs,
                 p_thresh=args.p_thresh_for_time_perm_cluster_stats,
                 p_cluster=args.p_cluster,
+                stat_func=args.stat_func,
+                permutation_type=args.permutation_type,
                 n_perm=args.n_cluster_perms,
-                tails=args.cluster_tails,
                 random_state=args.random_state,
                 n_jobs=args.n_jobs
             )
+            
+            significance_clusters_lwpc_comparison = {
+                '25_over_75': {
+                    'clusters': sig_clusters_lwpc_25_over_75,
+                    'label': '25% > 75% I',
+                    'color': lwpc_colors['c25_vs_i25'], # Blue
+                    'marker': '*' 
+                },
+                '75_over_25': {
+                    'clusters': sig_clusters_lwpc_75_over_25,
+                    'label': '75% > 25% I',
+                    'color': lwpc_colors['c75_vs_i75'], # Orange
+                    'marker': '*'
+                }
+            }
+            
             # --- Get data for plotting from the main stats dictionary ---
             c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
             c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
@@ -745,15 +764,15 @@ def main(args):
             
             time_window_centers = time_window_decoding_results[0]['c25_vs_i25'][roi]['time_window_centers']
             
-            plot_accuracies_nature_style(
+            plot_accuracies_with_multiple_sig_clusters(
                 time_points=time_window_centers,
                 accuracies_dict={
                     'c25_vs_i25': c25_vs_i25_stats[f'{unit}_true_accs'],
                     'c75_vs_i75': c75_vs_i75_stats[f'{unit}_true_accs'],
                     'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
                 },
-                # Use the newly computed clusters for significance bars
-                significant_clusters=significant_clusters_lwpc,
+                # Pass the new dictionary here
+                significance_clusters_dict=significance_clusters_lwpc_comparison,
                 window_size=args.window_size,
                 step_size=args.step_size,
                 sampling_rate=args.sampling_rate,
@@ -767,9 +786,14 @@ def main(args):
                 single_column=False,
                 ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
-                significance_y_position=0.72,
                 show_chance_level=False, # The pooled shuffle line is our chance level
-                filename_suffix=analysis_params_str  
+                filename_suffix=analysis_params_str,
+                
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=True,
+                sig_bar_base_position=0.72, # Set base y-position for the bars
+                sig_bar_spacing=0.015,       # Vertical spacing between bars
+                sig_bar_height=0.01          # Height of the bars
             )
             
             # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---

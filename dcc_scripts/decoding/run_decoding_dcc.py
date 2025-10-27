@@ -65,7 +65,7 @@ N_JOBS = -1
 N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
-EXPLAINED_VARIANCE = 0.8
+EXPLAINED_VARIANCE = 0.80
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
@@ -93,9 +93,22 @@ CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # additional parameters for permutation cluster stats
+STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+
+if STAT_FUNC_CHOICE == 'mean_diff':
+    STAT_FUNC = mean_diff
+    STAT_FUNC_STR = 'mean_diff'
+elif STAT_FUNC_CHOICE == 'ttest_ind':
+    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    STAT_FUNC_STR = 'ttest_ind'
+elif STAT_FUNC_CHOICE == 'ttest_rel':
+    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+    STAT_FUNC_STR = 'ttest_rel'
+    
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 P_CLUSTER = 0.05
-CLUSTER_TAILS = 2
+PERMUTATION_TYPE = 'independent'
+# CLUSTER_TAILS = 2
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
@@ -137,11 +150,11 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
+# SUBJECTS = ['D0103', 'D0057']
 # N_SPLITS = 2
 # N_REPEATS = 2
-# N_PERM = 5
-# N_CLUSTER_PERMS= 5
+# N_PERM = 2
+# N_CLUSTER_PERMS= 2
 # BOOTSTRAPS = 2
 # N_JOBS = 1
 # ROIS_DICT = {
@@ -187,7 +200,10 @@ def run_analysis():
         n_shuffle_perms=N_SHUFFLE_PERMS,
         p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
         p_cluster=P_CLUSTER,
-        cluster_tails=CLUSTER_TAILS
+        stat_func=STAT_FUNC,
+        permutation_type=PERMUTATION_TYPE,
+        stat_func_str=STAT_FUNC_STR
+        # cluster_tails=CLUSTER_TAILS,
     )
 
     # Print configuration summary
@@ -216,7 +232,9 @@ def run_analysis():
     print("Perm Cluster Statistical Parameters:")
     print(f"  P-value Threshold: {P_THRESH_FOR_TIME_PERM_CLUSTER_STATS}")
     print(f"  P cluster: {P_CLUSTER}")
-    print(f"  Tails:             {CLUSTER_TAILS}")
+    print(f"  Stat Func: {STAT_FUNC_STR}")
+    print(f"  Permutation Type: {PERMUTATION_TYPE}")
+    # print(f"  Tails:             {CLUSTER_TAILS}")
 
     print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     
