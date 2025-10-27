@@ -316,7 +316,7 @@ def create_roi_grand_average(subjects_mne_objects, subjects, roi, electrodes_per
 
     return grand_averages_electrodes
 
-def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None, time_points=None, window_size=None, sampling_rate=None, 
+def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None, window_size=None, sampling_rate=None, 
                             save_dir=None, show_std=True, show_sem=False, show_ci=False, ci=0.95, figsize=(12, 8), x_label='Time (s)', ylim=None, y_label='Power (z)', axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
     """
     Custom plot with standard deviation or standard error shading.
@@ -508,7 +508,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     return fig
 
 def plot_power_traces_for_all_rois(evks_dict_elecs, rois, 
-                                  condition_names, conditions_save_name, plotting_parameters, significant_clusters=None, save_dir=None,
+                                  condition_names, conditions_save_name, plotting_parameters, save_dir=None,
                                   error_type='std', figsize=(12, 8), x_label='Time (s)', y_label='Power (z)',
                                   axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
     """
