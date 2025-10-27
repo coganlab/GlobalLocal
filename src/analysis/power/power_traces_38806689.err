@@ -1,0 +1,109 @@
+[NbConvertApp] Converting notebook /hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.ipynb to notebook
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/bin/jupyter-nbconvert", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/application.py", line 280, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/traitlets/config/application.py", line 992, in launch_instance
+    app.start()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 412, in start
+    self.convert_notebooks()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 590, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 556, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 479, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 203, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 222, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 156, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 354, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)  # type:ignore[operator]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 173, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+
+if conditions == experiment_conditions.stimulus_lwpc_conditions:
+    subtraction_pairs = [("Stimulus_i75", "Stimulus_c75"), ("Stimulus_i25", "Stimulus_c25")]
+    subtraction_pairs_condition_names = ['-'.join(pair) for pair in subtraction_pairs]
+    subtraction_pairs_conditions_save_name = 'stimulus_i75-c75_vs_i25-c25' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+    subtracted_evks_dict_sig_elecs = create_subtracted_evokeds_dict(evks_dict_sig_elecs, subtraction_pairs, rois)
+    subtracted_evks_dict_all_elecs = create_subtracted_evokeds_dict(evks_dict_all_elecs, subtraction_pairs, rois)
+
+elif conditions == experiment_conditions.stimulus_lwps_conditions:
+    subtraction_pairs = [("Stimulus_s75", "Stimulus_r75"), ("Stimulus_s25", "Stimulus_r25")]
+    subtraction_pairs_condition_names = ['-'.join(pair) for pair in subtraction_pairs]
+    subtraction_pairs_conditions_save_name = 'stimulus_s75-r75_vs_s25-r25' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+    subtracted_evks_dict_sig_elecs = create_subtracted_evokeds_dict(evks_dict_sig_elecs, subtraction_pairs, rois)
+    subtracted_evks_dict_all_elecs = create_subtracted_evokeds_dict(evks_dict_all_elecs, subtraction_pairs, rois)
+
+elif conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+    raise NotImplementedError("this condition hasn't been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction")
+
+elif conditions == experiment_conditions.stimulus_congruency_effect_by_switch_proportion_conditions:
+    raise NotImplementedError("this condition hasn't been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction")
+else:
+    raise ValueError('tbh this should be a function, but for now, you cant plot subtracted evokeds for non subtraction conditions')    
+    
+plot_power_traces_for_all_rois(
+    subtracted_evks_dict_all_elecs, rois, subtraction_pairs_condition_names, subtraction_pairs_conditions_save_name, plot_params,
+    save_dir=save_dir,
+    error_type='sem', figsize=(12, 8), 
+    x_label='Time from Stimulus Onset (s)', 
+    y_label='Power (z)',
+    font_size=35, title_font_size=40, save_name_suffix='all_elecs'
+)
+
+plot_power_traces_for_all_rois(
+    subtracted_evks_dict_sig_elecs, rois, subtraction_pairs_condition_names, subtraction_pairs_conditions_save_name, plot_params,
+    save_dir=save_dir,
+    error_type='sem', figsize=(12, 8), 
+    x_label='Time from Stimulus Onset (s)', 
+    y_label='Power (z)',
+    font_size=35, title_font_size=40, save_name_suffix='sig_elecs'
+)
+
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mAttributeError[0m                            Traceback (most recent call last)
+Cell [0;32mIn[20], line 18[0m
+[1;32m     15[0m [38;5;28;01melif[39;00m conditions [38;5;241m==[39m experiment_conditions[38;5;241m.[39mstimulus_switch_type_by_congruency_proportion_conditions:
+[1;32m     16[0m     [38;5;28;01mraise[39;00m [38;5;167;01mNotImplementedError[39;00m([38;5;124m"[39m[38;5;124mthis condition hasn[39m[38;5;124m'[39m[38;5;124mt been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction[39m[38;5;124m"[39m)
+[0;32m---> 18[0m [38;5;28;01melif[39;00m conditions [38;5;241m==[39m experiment_conditions[38;5;241m.[39mstimulus_congruency_effect_by_switch_proportion_conditions:
+[1;32m     19[0m     [38;5;28;01mraise[39;00m [38;5;167;01mNotImplementedError[39;00m([38;5;124m"[39m[38;5;124mthis condition hasn[39m[38;5;124m'[39m[38;5;124mt been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction[39m[38;5;124m"[39m)
+[1;32m     20[0m [38;5;28;01melse[39;00m:
+
+[0;31mAttributeError[0m: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_congruency_effect_by_switch_proportion_conditions'
+

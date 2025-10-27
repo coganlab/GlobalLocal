@@ -3,6 +3,19 @@ import mne
 import matplotlib.pyplot as plt
 import os
 from typing import Union, List, Sequence
+import logging
+
+#to save print statements while on cluster
+PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
+
+LOG_DIR = os.path.join(PROJECT_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True) 
+
+log_file_path = os.path.join(LOG_DIR, 'power_traces_debug.log')
+logging.basicConfig(filename='power_traces_debug.log', 
+                    level=logging.DEBUG, 
+                    format='%(asctime)s - %(message)s',
+                    filemode='w')
 
 def combine_single_channel_evokeds(single_channel_evokeds, ch_type='seeg'):
     """
@@ -416,8 +429,6 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             ax.fill_between(times, ci_data[0], ci_data[1],
                            alpha=0.3, color=color, linewidth=0)
 
-   # Compute window duration
-    window_duration = window_size / sampling_rate
 
    # Get the number of timepoints
     time_axis_length = times
@@ -443,7 +454,14 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             clusters.append((start_idx, end_idx))
         return clusters
     
+    logging.debug(f"--- For ROI: {roi} --- significant_clusters is: {significant_clusters}")
+
     if significant_clusters is not None:
+
+        logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
+
+         # Compute window duration
+        window_duration = window_size / sampling_rate
 
         clusters = find_clusters(significant_clusters)
 
