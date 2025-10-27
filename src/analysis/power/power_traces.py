@@ -508,7 +508,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     return fig
 
 def plot_power_traces_for_all_rois(evks_dict_elecs, rois, 
-                                  condition_names, conditions_save_name, plotting_parameters, save_dir=None,
+                                  condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None, save_dir=None,
                                   error_type='std', figsize=(12, 8), x_label='Time (s)', y_label='Power (z)',
                                   axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
     """
@@ -556,7 +556,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         if error_type == 'std':
             # Use custom function for standard deviation
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None,
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None,
                 save_dir=save_dir,
                 show_std=True, show_sem=False, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
@@ -565,7 +565,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         elif error_type == 'sem':
             # Use custom function for standard error
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None,
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None,
                 save_dir=save_dir,
                 show_std=False, show_sem=True, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
@@ -574,7 +574,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         elif error_type == 'ci':
             # Use MNE function with 95% CI
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None,
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=True, ci=0.95, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
@@ -583,7 +583,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         else:
             # No error bars
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None,
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=False, ci=None, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
                 x_label=x_label, y_label=y_label,
