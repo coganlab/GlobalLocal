@@ -33,9 +33,7 @@ import mne
 
 import numpy as np
 import pandas as pd
-from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
-from ieeg.calc.mat import LabeledArray, combine
 from ieeg.calc.fast import mean_diff
 
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
@@ -77,7 +75,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from ieeg.decoding.decoders import PcaLdaClassification
+from ieeg.decoding.models import PcaLdaClassification
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
 
@@ -540,7 +538,7 @@ def main(args):
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
     other_string_to_add = (
-        f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}"
+        f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}_ev_{args.explained_variance}"
     )
             
     time_window_decoding_results = {}     
@@ -606,7 +604,7 @@ def main(args):
             ax.set_title(f'{roi} - {condition_comparison}\n(Counts summed across {args.bootstraps} bootstraps)')
 
             filename = (
-                f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_'
+                f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_ev_{args.explained_variance}'
                 f'time_averaged_confusion_matrix.png'
             )
             plot_save_path = os.path.join(save_dir, condition_comparison, roi)
@@ -646,7 +644,7 @@ def main(args):
         'shuffle': '--'
     }  
     sub_str = str(len(args.subjects))
-    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit"   
+    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
                
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
@@ -675,7 +673,7 @@ def main(args):
                     p_thresh=args.percentile,
                     colors=colors,
                     linestyles=linestyles,
-                    single_column=False,
+                    single_column=args.single_column,
                     ylim=(0.2, 0.8),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
@@ -783,7 +781,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors=lwpc_colors,
                 linestyles=lwpc_linestyles,
-                single_column=False,
+                single_column=args.single_column,
                 ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
@@ -795,47 +793,49 @@ def main(args):
                 sig_bar_spacing=0.015,       # Vertical spacing between bars
                 sig_bar_height=0.01          # Height of the bars
             )
-            
-            # --- PLOT THE DIFFERENCE (WHAT THE STATS ARE TESTING) ---
+
             print(f"Plotting accuracy DIFFERENCE for LWPC in {roi}...")
             
-            # 1. Calculate the difference array (this is what the t-test was run on)
             lwpc_differences = pooled_c25_vs_i25_accs - pooled_c75_vs_i75_accs
             
-            # 2. Find a sensible y-limit, e.g., the max absolute mean difference + std
             mean_diff = np.mean(lwpc_differences, axis=0)
             std_diff = np.std(lwpc_differences, axis=0)
-            # Find the max extent of the error bar from 0
-            max_abs_val = np.max(np.abs(mean_diff) + std_diff) 
-            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2) # Add 20% padding
-            # Handle case where there's no variance, set a default small range
-            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1) 
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff)  
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2)
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1)  
 
-            plot_accuracies_nature_style(
+            # 5. REPLACE the second plot call as well
+            plot_accuracies_with_multiple_sig_clusters(
                 time_points=time_window_centers,
                 accuracies_dict={
                     'c25_vs_i25_minus_c75_vs_i75': lwpc_differences
                 },
-                significant_clusters=significant_clusters_lwpc, # Use the same sig clusters
+                # Pass the same dictionary here
+                significance_clusters_dict=significance_clusters_lwpc_comparison,
                 window_size=args.window_size,
                 step_size=args.step_size,
                 sampling_rate=args.sampling_rate,
-                comparison_name=f'bootstrap_LWPC_ACC_DIFFERENCE_plot', # New name
+                comparison_name=f'bootstrap_LWPC_ACC_DIFFERENCE_plot',
                 roi=roi,
                 save_dir=os.path.join(save_dir, "LWPC_comparison", f"{roi}"),
                 timestamp=args.timestamp,
                 p_thresh=args.percentile,
-                colors={'c25_vs_i25_minus_c75_vs_i75': '#404040'}, # Just one color (e.g., dark gray)
+                colors={'c25_vs_i25_minus_c75_vs_i75': '#404040'},
                 linestyles={'c25_vs_i25_minus_c75_vs_i75': '-'},
-                single_column=False,
-                ylim=diff_ylim, # Use new centered ylim
-                ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)", # New label
-                significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
-                show_chance_level=True, # Show the zero line
-                chance_level=0, # Set chance (null hypothesis) to 0
-                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE"
+                single_column=args.single_column,
+                ylim=diff_ylim,
+                ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)",
+                show_chance_level=True,
+                chance_level=0,
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
+                
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=False, # No legend needed for sig bars on diff plot
+                sig_bar_base_position=diff_ylim[1] * 0.8, # Base y-position
+                sig_bar_spacing=0.015,
+                sig_bar_height=0.01
             )
-            
+                
     if args.conditions == experiment_conditions.stimulus_lwps_conditions:
         print(f"\n--- Running LWPS Comparison Statistics (s25_vs_r25 vs s75_vs_r75) using '{args.unit_of_analysis}' as unit of analysis ---")
         
@@ -920,7 +920,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors=lwps_colors,
                 linestyles=lwps_linestyles,
-                single_column=False,
+                single_column=args.single_column,
                 ylim=(0.2, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 significance_y_position=0.72,
@@ -958,7 +958,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors={'s25_vs_r25_minus_s75_vs_r75': '#404040'}, # Just one color (e.g., dark gray)
                 linestyles={'s25_vs_r25_minus_s75_vs_r75': '-'},
-                single_column=False,
+                single_column=args.single_column,
                 ylim=diff_ylim, # Use new centered ylim
                 ylabel="Accuracy Difference (s25 vs r25 - s75 vs r75)", # New label
                 significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
@@ -1051,7 +1051,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors=congruency_by_switch_proportion_colors,
                 linestyles=congruency_by_switch_proportion_linestyles,
-                single_column=False,
+                single_column=args.single_column,
                 ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 significance_y_position=0.72,
@@ -1091,7 +1091,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '#404040'}, # Just one color (e.g., dark gray)
                 linestyles={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '-'},
-                single_column=False,
+                single_column=args.single_column,
                 ylim=diff_ylim, # Use new centered ylim
                 ylabel="Accuracy Difference (c_in_25switchBlock vs i_in_25switchBlock - c_in_75switchBlock vs i_in_75switchBlock)", # New label
                 significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position
@@ -1184,7 +1184,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors=switch_type_by_congruency_proportion_colors,
                 linestyles=switch_type_by_congruency_proportion_linestyles,
-                single_column=False,
+                single_column=args.single_column,
                 ylim=(0.2, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 significance_y_position=0.72,
@@ -1224,7 +1224,7 @@ def main(args):
                 p_thresh=args.percentile,
                 colors={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#404040'}, # Just one color (e.g., dark gray)
                 linestyles={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-'},
-                single_column=False,
+                single_column=args.single_column,
                 ylim=diff_ylim, # Use new centered ylim
                 ylabel="Accuracy Difference (s_in_25incongruentBlock vs r_in_25incongruentBlock - s_in_75incongruentBlock vs r_in_75incongruentBlock)", # New label
                 significance_y_position=diff_ylim[1] * 0.8, # Adjust sig bar position

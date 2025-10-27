@@ -10,7 +10,6 @@ from ieeg.io import raw_from_layout, get_data
 from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
-#from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster, window_averaged_shuffle, find_outliers
 from ieeg.viz.mri import gen_labels
 import matplotlib.pyplot as plt

@@ -54,10 +54,8 @@ from ieeg.io import raw_from_layout, get_data
 from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
-from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
-from ieeg.calc.mat import LabeledArray, combine
-from ieeg.decoding.decoders import PcaLdaClassification
+from ieeg.decoding.models import PcaLdaClassification
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
 from ieeg.viz.parula import parula_map
@@ -77,10 +75,6 @@ from src.analysis.utils.labeled_array_utils import (
 from src.analysis.utils.general_utils import * # This is generally discouraged.
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
 import gc
-# ---- Potentially Unused or Redundant ----
-# from pandas import read_csv # pandas is already imported as pd, use pd.read_csv
-# from os.path import join, expanduser, basename # os.path is available via 'import os'
-# from joblib import Parallel, delayed # joblib is already imported
 
 def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
@@ -1266,12 +1260,12 @@ from operator import itemgetter
 # Nature journal style settings
 NATURE_STYLE = {
     'figure.figsize': (89/25.4, 89/25.4),  # 89mm (single column) converted to inches
-    'font.size': 7,
-    'axes.labelsize': 7,
-    'axes.titlesize': 7,
-    'xtick.labelsize': 6,
-    'ytick.labelsize': 6,
-    'legend.fontsize': 6,
+    'font.size': 24,
+    'axes.labelsize': 24,
+    'axes.titlesize': 24,
+    'xtick.labelsize': 24,
+    'ytick.labelsize': 24,
+    'legend.fontsize': 24,
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
     'axes.linewidth': 0.5,
@@ -3328,12 +3322,12 @@ def plot_accuracies_with_multiple_sig_clusters(
     # Import the original NATURE_STYLE (you'll need to adjust this import based on your setup)
     NATURE_STYLE = {
         'figure.figsize': (89/25.4, 89/25.4),
-        'font.size': 7,
-        'axes.labelsize': 7,
-        'axes.titlesize': 7,
-        'xtick.labelsize': 6,
-        'ytick.labelsize': 6,
-        'legend.fontsize': 6,
+        'font.size': 24,
+        'axes.labelsize': 24,
+        'axes.titlesize': 24,
+        'xtick.labelsize': 24,
+        'ytick.labelsize': 24,
+        'legend.fontsize': 24,
         'font.family': 'sans-serif',
         'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
         'axes.linewidth': 0.5,
@@ -3358,7 +3352,7 @@ def plot_accuracies_with_multiple_sig_clusters(
         # Set figure size based on column width
         if single_column:
             fig_width = 89 / 25.4  # 89mm to inches
-            fig_height = fig_width * 0.7  # Aspect ratio
+            fig_height = fig_width * 0.8  # Aspect ratio
         else:
             fig_width = 183 / 25.4  # 183mm to inches
             fig_height = fig_width * 0.4

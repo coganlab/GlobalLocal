@@ -29,7 +29,7 @@ import pandas as pd
 import scipy.stats as stats
 from joblib import Parallel, delayed
 import matplotlib.pyplot as plt
-from ieeg.calc.mat import LabeledArray
+from ieeg.arrays.label import LabeledArray
 
 def detect_data_type(subjects_data_objects):
     """

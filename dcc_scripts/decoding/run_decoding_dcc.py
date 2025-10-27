@@ -65,7 +65,7 @@ N_JOBS = -1
 N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
-EXPLAINED_VARIANCE = 0.80
+EXPLAINED_VARIANCE = 0.99
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
@@ -110,6 +110,9 @@ P_CLUSTER = 0.05
 PERMUTATION_TYPE = 'independent'
 # CLUSTER_TAILS = 2
 
+# plotting
+SINGLE_COLUMN = True
+
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
@@ -150,7 +153,7 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103', 'D0057']
+# SUBJECTS = ['D0103']
 # N_SPLITS = 2
 # N_REPEATS = 2
 # N_PERM = 2
@@ -202,7 +205,8 @@ def run_analysis():
         p_cluster=P_CLUSTER,
         stat_func=STAT_FUNC,
         permutation_type=PERMUTATION_TYPE,
-        stat_func_str=STAT_FUNC_STR
+        stat_func_str=STAT_FUNC_STR,
+        single_column=SINGLE_COLUMN,
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -243,6 +247,10 @@ def run_analysis():
     print(f"  Cluster Percentile: {CLUSTER_PERCENTILE}")
     print(f"  N Cluster Perms: {N_CLUSTER_PERMS}")
     print("=" * 70)
+    print("=" * 70)
+    
+    print("plotting params")
+    print(f" single column figure: {SINGLE_COLUMN}")
     print("=" * 70)
     
     # Run the analysis

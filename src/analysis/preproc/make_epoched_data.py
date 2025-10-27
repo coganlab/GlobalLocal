@@ -9,7 +9,6 @@
 # ### working version 12/1/23
 
 # %% [markdown]
-# ### try gregs suggestion of using make_data_same to destroy the fixation cross
 
 # %% [markdown]
 # use window stats with perm testing (0 to 0.5, 0.5 to 1, 0 to 1 sec relative to stim onset)
@@ -42,7 +41,6 @@ from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
 import mne
 import numpy as np
-from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
 from ieeg.calc.fast import mean_diff
 from ieeg.viz.mri import gen_labels
