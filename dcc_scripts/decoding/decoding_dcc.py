@@ -414,6 +414,8 @@ def main(args):
         conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+        conditions_save_name = 'stimulus_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
     
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
@@ -435,6 +437,8 @@ def main(args):
         conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif conditions == experiment_conditions.response_iR_cS_err_conditions:
+        conditions_save_name = 'response_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
     
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
@@ -499,6 +503,10 @@ def main(args):
         condition_comparisons['switchType'] = [['Stimulus_r'], ['Stimulus_s']]
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
         condition_comparisons['responseType'] = [['Stimulus_err'], ['Stimulus_corr']]
+    elif args.conditions == experiment_conditions.stimulus_iR_cS_conditions:
+        condition_comparisons['responseType'] = [['Stimulus_err'], ['Stimulus_corr']]
+        condition_comparisons['congruency'] = [['c25', 'c75'], ['i25', 'i75']]
+        condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
         
     # 8/26/25 changes that should probably first involve an ANOVA between all four comparisons - note that this will be underpowered since I'm subsampling to the 25% condition
     # hm i think i should probably trial match too, so the c75 vs i75 would have to be subsampled to the c25 vs i25 trial counts. Ugh that loses sooooo many trials (50%). Rerun make epoched data with more stringent nan criteria so that i don't lose so many trials.
