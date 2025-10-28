@@ -1,0 +1,3484 @@
+[NbConvertApp] Converting notebook /hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.ipynb to notebook
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/bin/jupyter-nbconvert", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/application.py", line 280, in launch_instance
+    super().launch_instance(argv=argv, **kwargs)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/traitlets/config/application.py", line 992, in launch_instance
+    app.start()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 412, in start
+    self.convert_notebooks()
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 590, in convert_notebooks
+    self.convert_single_notebook(notebook_filename)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 556, in convert_single_notebook
+    output, resources = self.export_single_notebook(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/nbconvertapp.py", line 479, in export_single_notebook
+    output, resources = self.exporter.from_filename(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 203, in from_filename
+    return self.from_file(f, resources=resources, **kw)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 222, in from_file
+    return self.from_notebook_node(
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/notebook.py", line 36, in from_notebook_node
+    nb_copy, resources = super().from_notebook_node(nb, resources, **kw)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 156, in from_notebook_node
+    nb_copy, resources = self._preprocess(nb_copy, resources)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/exporters/exporter.py", line 354, in _preprocess
+    nbc, resc = preprocessor(nbc, resc)  # type:ignore[operator]
+                ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/base.py", line 48, in __call__
+    return self.preprocess(nb, resources)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 102, in preprocess
+    self.preprocess_cell(cell, resources, index)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbconvert/preprocessors/execute.py", line 123, in preprocess_cell
+    cell = self.execute_cell(cell, index, store_history=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/jupyter_core/utils/__init__.py", line 173, in wrapped
+    return loop.run_until_complete(inner)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/asyncio/base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 1058, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/nbclient/client.py", line 914, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+save_dir = os.path.join(save_dir_root, epochs_root_file)
+
+evks_dict_sig_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
+    subjects_mne_objects, subjects, rois, condition_names, 
+    sig_electrodes_per_subject_roi
+) 
+
+evks_dict_all_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
+    subjects_mne_objects, subjects, rois, condition_names, 
+    all_electrodes_per_subject_roi
+)
+
+plot_power_traces_for_all_rois(
+    evks_dict_all_elecs, rois, condition_names, conditions_save_name, plot_params, significant_clusters,
+    time_points, window_size, sampling_rate, 
+    save_dir=save_dir,
+    error_type='sem', figsize=(12, 8), 
+    x_label='Time from Stimulus Onset (s)', 
+    y_label='Power (z)',
+    axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix='all_elecs'
+)
+
+plot_power_traces_for_all_rois(
+    evks_dict_sig_elecs, rois, condition_names, conditions_save_name, plot_params, significant_clusters,
+    time_points, window_size, sampling_rate,
+    save_dir=save_dir,
+    error_type='sem', figsize=(12, 8), 
+    x_label='Time from Stimulus Onset (s)', 
+    y_label='Power (z)',axis_font_size=35, tick_font_size=24,
+    title_font_size=40, save_name_suffix='sig_elecs'
+)
+------------------
+
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM8', 'RAI6', 'LFAM9'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM8', 'LFAM9'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM8', 'RAI6', 'LFAM9'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM8', 'LFAM9'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stdout -----
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+----- stderr -----
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM10', 'RAMF10', 'RAI6', 'RIA12', 'RAMF13', 'RIA5', 'RAI11', 'LFO16', 'RIA16', 'RAI14', 'RMSF12', 'RIA6', 'LASF10', 'LAI8', 'LFO15', 'LFAM9', 'RIA15', 'RAI15', 'LFO13', 'RFO14', 'RIA13', 'RFAI3', 'LFOP15', 'LFAI4', 'RASF16', 'RFOA16', 'RIA11', 'RASF15', 'RAMF14', 'RAMF11', 'RFMM12', 'LFO12', 'RAMF12', 'RMSF11', 'RAI16', 'RIA14', 'LFAM8', 'LAI7', 'LFAM11', 'LFAM12', 'LFMI5', 'RAI12', 'RFMM11'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'RTPI1', 'RTPI2', 'RPIT1'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM10', 'RAMF10', 'RIA12', 'RAMF13', 'RAI11', 'RIA16', 'RAI14', 'RMSF12', 'LASF10', 'LFAM9', 'RIA15', 'RAI15', 'RIA13', 'RASF16', 'RFOA16', 'RIA11', 'RASF15', 'RAMF14', 'RAMF11', 'RFMM12', 'RAMF12', 'RMSF11', 'RAI16', 'RIA14', 'LFAM8', 'LFAM11', 'LFAM12', 'RAI12', 'RFMM11'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'RMSF5', 'RFOA8', 'RFOA9', 'RFOA5', 'RFOA7', 'RMSF4', 'LFMM1', 'RFMM1', 'RFAM1', 'RAMF1'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM10', 'RAMF10', 'RAI6', 'RIA12', 'RAMF13', 'RIA5', 'RAI11', 'LFO16', 'RIA16', 'RAI14', 'RMSF12', 'RIA6', 'LASF10', 'LAI8', 'LFO15', 'LFAM9', 'RIA15', 'RAI15', 'LFO13', 'RFO14', 'RIA13', 'RFAI3', 'LFOP15', 'LFAI4', 'RASF16', 'RFOA16', 'RIA11', 'RASF15', 'RAMF14', 'RAMF11', 'RFMM12', 'LFO12', 'RAMF12', 'RMSF11', 'RAI16', 'RIA14', 'LFAM8', 'LAI7', 'LFAM11', 'LFAM12', 'LFMI5', 'RAI12', 'RFMM11'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'RTPI1', 'RTPI2', 'RPIT1'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'LFAM10', 'RAMF10', 'RIA12', 'RAMF13', 'RAI11', 'RIA16', 'RAI14', 'RMSF12', 'LASF10', 'LFAM9', 'RIA15', 'RAI15', 'RIA13', 'RASF16', 'RFOA16', 'RIA11', 'RASF15', 'RAMF14', 'RAMF11', 'RFMM12', 'RAMF12', 'RMSF11', 'RAI16', 'RIA14', 'LFAM8', 'LFAM11', 'LFAM12', 'RAI12', 'RFMM11'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py:39: RuntimeWarning: Channel names are not unique, found duplicates for: {'RMSF5', 'RFOA8', 'RFOA9', 'RFOA5', 'RFOA7', 'RMSF4', 'LFMM1', 'RFMM1', 'RFAM1', 'RAMF1'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+------------------
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mNameError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[19], line 15[0m
+[1;32m      3[0m evks_dict_sig_elecs [38;5;241m=[39m make_multi_channel_evokeds_for_all_conditions_and_rois(
+[1;32m      4[0m     subjects_mne_objects, subjects, rois, condition_names, 
+[1;32m      5[0m     sig_electrodes_per_subject_roi
+[1;32m      6[0m ) 
+[1;32m      8[0m evks_dict_all_elecs [38;5;241m=[39m make_multi_channel_evokeds_for_all_conditions_and_rois(
+[1;32m      9[0m     subjects_mne_objects, subjects, rois, condition_names, 
+[1;32m     10[0m     all_electrodes_per_subject_roi
+[1;32m     11[0m )
+[1;32m     13[0m plot_power_traces_for_all_rois(
+[1;32m     14[0m     evks_dict_all_elecs, rois, condition_names, conditions_save_name, plot_params, significant_clusters,
+[0;32m---> 15[0m     time_points, window_size, sampling_rate, 
+[1;32m     16[0m     save_dir[38;5;241m=[39msave_dir,
+[1;32m     17[0m     error_type[38;5;241m=[39m[38;5;124m'[39m[38;5;124msem[39m[38;5;124m'[39m, figsize[38;5;241m=[39m([38;5;241m12[39m, [38;5;241m8[39m), 
+[1;32m     18[0m     x_label[38;5;241m=[39m[38;5;124m'[39m[38;5;124mTime from Stimulus Onset (s)[39m[38;5;124m'[39m, 
+[1;32m     19[0m     y_label[38;5;241m=[39m[38;5;124m'[39m[38;5;124mPower (z)[39m[38;5;124m'[39m,
+[1;32m     20[0m     axis_font_size[38;5;241m=[39m[38;5;241m35[39m, tick_font_size[38;5;241m=[39m[38;5;241m24[39m, title_font_size[38;5;241m=[39m[38;5;241m40[39m, save_name_suffix[38;5;241m=[39m[38;5;124m'[39m[38;5;124mall_elecs[39m[38;5;124m'[39m
+[1;32m     21[0m )
+[1;32m     23[0m plot_power_traces_for_all_rois(
+[1;32m     24[0m     evks_dict_sig_elecs, rois, condition_names, conditions_save_name, plot_params, significant_clusters,
+[1;32m     25[0m     time_points, window_size, sampling_rate,
+[0;32m   (...)[0m
+[1;32m     30[0m     title_font_size[38;5;241m=[39m[38;5;241m40[39m, save_name_suffix[38;5;241m=[39m[38;5;124m'[39m[38;5;124msig_elecs[39m[38;5;124m'[39m
+[1;32m     31[0m )
+
+[0;31mNameError[0m: name 'time_points' is not defined
+
