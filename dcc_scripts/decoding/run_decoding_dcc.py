@@ -56,7 +56,7 @@ TASK = 'GlobalLocal'
 
 # Trial selection
 # switched to False for err-corr decoding
-ACC_TRIALS_ONLY = True
+ACC_TRIALS_ONLY = False
 
 # Parallel processing
 N_JOBS = -1 
