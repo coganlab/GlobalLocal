@@ -502,11 +502,10 @@ def main(args):
     elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
         condition_comparisons['switchType'] = [['Stimulus_r'], ['Stimulus_s']]
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
-        condition_comparisons['responseType'] = [['Stimulus_err'], ['Stimulus_corr']]
+        condition_comparisons['err_vs_corr'] = [['Stimulus_err'], ['Stimulus_corr']]
     elif args.conditions == experiment_conditions.stimulus_iR_cS_conditions:
-        condition_comparisons['responseType'] = [['Stimulus_err'], ['Stimulus_corr']]
-        condition_comparisons['congruency'] = [['c25', 'c75'], ['i25', 'i75']]
-        condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
+        condition_comparisons['iR_err_vs_cS_err'] = [['Stimulus_err_iR'], ['Stimulus_err_cS']]
+
         
     # 8/26/25 changes that should probably first involve an ANOVA between all four comparisons - note that this will be underpowered since I'm subsampling to the 25% condition
     # hm i think i should probably trial match too, so the c75 vs i75 would have to be subsampled to the c25 vs i25 trial counts. Ugh that loses sooooo many trials (50%). Rerun make epoched data with more stringent nan criteria so that i don't lose so many trials.
