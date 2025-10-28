@@ -414,8 +414,8 @@ def main(args):
         conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
-        conditions_save_name = 'stimulus_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+        conditions_save_name = 'stimulus_err_iR_cS_err_conditions' +  '_' + str(len(args.subjects)) + '_' + 'subjects'
     
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
@@ -437,8 +437,8 @@ def main(args):
         conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif conditions == experiment_conditions.response_iR_cS_err_conditions:
-        conditions_save_name = 'response_err_iR_cS_conditions' + '_' + epochs_root_file + '_' + str(len(subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_iR_cS_err_conditions:
+        conditions_save_name = 'response_err_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
