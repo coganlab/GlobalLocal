@@ -10,8 +10,8 @@ Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFact
 Electrodes (all or sig):       all
 ----------------------------------------------------------------------
 Perm Cluster Statistical Parameters:
-  P-value Threshold: 0.025
-  P cluster: 0.025
+  P-value Threshold: 0.05
+  P cluster: 0.05
   Stat Func: ttest_ind
   Permutation Type: independent
   Number of Permutations: 2
@@ -96,20 +96,20 @@ No baseline correction applied
 
 --- Summary of Dropped Electrodes ---
 ROI: lpfc
-  - Subject D0069: Dropped 1 electrode(s)
-  - Subject D0071: Dropped 13 electrode(s)
-  - Subject D0065: Dropped 9 electrode(s)
-  - Subject D0094: Dropped 28 electrode(s)
   - Subject D0057: Dropped 17 electrode(s)
-  - Subject D0102: Dropped 5 electrode(s)
-  - Subject D0059: Dropped 5 electrode(s)
-  - Subject D0117: Dropped 11 electrode(s)
-  - Subject D0116: Dropped 30 electrode(s)
-  - Subject D0121: Dropped 61 electrode(s)
-  - Subject D0063: Dropped 36 electrode(s)
   - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0071: Dropped 13 electrode(s)
+  - Subject D0069: Dropped 1 electrode(s)
+  - Subject D0063: Dropped 36 electrode(s)
+  - Subject D0094: Dropped 28 electrode(s)
   - Subject D0090: Dropped 8 electrode(s)
+  - Subject D0116: Dropped 30 electrode(s)
+  - Subject D0065: Dropped 9 electrode(s)
+  - Subject D0059: Dropped 5 electrode(s)
   - Subject D0110: Dropped 5 electrode(s)
+  - Subject D0102: Dropped 5 electrode(s)
+  - Subject D0121: Dropped 61 electrode(s)
+  - Subject D0117: Dropped 11 electrode(s)
 Total electrodes dropped across all subjects/ROIs: 254
 -------------------------------------
 
@@ -159,5 +159,8 @@ NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
 NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
 NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
 NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Saved plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/lpfc_stimulus_congruency_conditions_1_subjects_all_elecs_sem_shading.png
 
-✗ Analysis failed with error: unsupported operand type(s) for /: 'NoneType' and 'int'
+All plots saved to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+
+✗ Analysis failed with error: tbh this should be a function, but for now, you cant plot subtracted evokeds for non subtraction conditions

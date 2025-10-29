@@ -13,11 +13,7 @@
 Traceback (most recent call last):
   File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 188, in run_analysis
     main(args)
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 272, in main
-    plot_power_traces_for_all_rois(
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py", line 603, in plot_power_traces_for_all_rois
-    plot_power_trace_for_roi(
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py", line 465, in plot_power_trace_for_roi
-    window_duration = window_size / sampling_rate
-                      ~~~~~~~~~~~~^~~~~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'NoneType' and 'int'
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 298, in main
+    elif args.conditions == experiment_conditions.stimulus_congruency_effect_by_switch_proportion_conditions:
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_congruency_effect_by_switch_proportion_conditions'

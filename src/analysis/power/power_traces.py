@@ -461,9 +461,6 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
 
         # logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
 
-         # Compute window duration
-        window_duration = window_size / sampling_rate
-
         clusters = find_clusters(significant_clusters)
 
         # # Determine y position for the bars
@@ -479,6 +476,9 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         for cluster in clusters:
             start_idx, end_idx = cluster
             
+            if window_size is None:
+                window_size = 0 # set to zero for point-wise analysis
+                
             if window_size is None or window_size == 0:
                 # Point-wise analysis: Bar spans the centers of the first/last points
                 start_time = times[start_idx]

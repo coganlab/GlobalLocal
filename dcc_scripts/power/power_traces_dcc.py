@@ -263,7 +263,7 @@ def main(args):
     elif args.statistical_method == 'anova':
         raise NotImplementedError("ANOVA statistical method not yet implemented for power traces.")
     
-# now let's plot results
+    # now let's plot results
     evks_dict_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
         subjects_mne_objects, args.subjects, rois, condition_names, 
         electrodes
@@ -295,14 +295,13 @@ def main(args):
 
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
         raise NotImplementedError("this condition hasn't been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction")
-    elif args.conditions == experiment_conditions.stimulus_congruency_effect_by_switch_proportion_conditions:
+    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
         raise NotImplementedError("this condition hasn't been made yet, also it would require reworking my create_subtracted_evokeds_dict to take in a tuple of lists of conditions for the subtraction")
-    else:
-        raise ValueError('tbh this should be a function, but for now, you cant plot subtracted evokeds for non subtraction conditions')    
-        
-    plot_power_traces_for_all_rois(
-        subtracted_evks_dict_elecs, rois, subtraction_pairs_condition_names, subtraction_pairs_conditions_save_name, plot_params,
-        save_dir=save_dir,
+
+    if subtracted_evks_dict_elecs is not None:
+        plot_power_traces_for_all_rois(
+            subtracted_evks_dict_elecs, rois, subtraction_pairs_condition_names, subtraction_pairs_conditions_save_name, plot_params,
+            save_dir=save_dir,
         window_size=args.window_size, sampling_rate=args.sampling_rate,
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 

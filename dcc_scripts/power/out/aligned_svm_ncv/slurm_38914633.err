@@ -13,11 +13,6 @@
 Traceback (most recent call last):
   File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 188, in run_analysis
     main(args)
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 272, in main
-    plot_power_traces_for_all_rois(
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py", line 603, in plot_power_traces_for_all_rois
-    plot_power_trace_for_roi(
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py", line 465, in plot_power_trace_for_roi
-    window_duration = window_size / sampling_rate
-                      ~~~~~~~~~~~~^~~~~~~~~~~~~~~
-TypeError: unsupported operand type(s) for /: 'NoneType' and 'int'
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 301, in main
+    raise ValueError('tbh this should be a function, but for now, you cant plot subtracted evokeds for non subtraction conditions')
+ValueError: tbh this should be a function, but for now, you cant plot subtracted evokeds for non subtraction conditions
