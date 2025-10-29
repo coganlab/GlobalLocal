@@ -1,8 +1,8 @@
 
 #!/usr/bin/env python
 """
-Submit script for james sun cluster decoding analysis.
-This sets up input args for and calls james_sun_cluster_decoding_dcc.py
+Submit script for power traces analysis.
+This sets up input args for and calls power_traces_dcc.py
 Should be wrapped in an sbatch script for cluster submission.
 """
 import sys
@@ -38,7 +38,7 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 # Import after path is set up
-from dcc_scripts.decoding.decoding_dcc import main
+from dcc_scripts.power.power_traces_dcc import main
 from src.analysis.config import experiment_conditions
 
 # ============================================================================
@@ -55,42 +55,16 @@ SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D010
 TASK = 'GlobalLocal'
 
 # Trial selection
-# switched to False for err-corr decoding
+# switch to False for err-corr 
 ACC_TRIALS_ONLY = True
 
 # Parallel processing
 N_JOBS = -1 
 
-# Decoding parameters
-N_SPLITS = 5
-N_REPEATS = 5
-RANDOM_STATE = 42
-EXPLAINED_VARIANCE = 0.90
-BALANCE_METHOD = 'subsample'
-NORMALIZE = 'true'
-BOOTSTRAPS = 20
-OBS_AXS = 0
-CHANS_AXS = 1
-TIME_AXS = -1
-
-# Time-windowed decoding parameters
-WINDOW_SIZE = 32  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
-STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
-SAMPLING_RATE = 256 # Sampling rate of the data in Hz
-FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
-TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
-N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
-
-# whether to do stats across fold, repeat, or bootstrap
-UNIT_OF_ANALYSIS='repeat'
-
-# whether to store individual folds (true) or sum them within repeats (false)
-FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
-
-# percentile stats parameters
-PERCENTILE=95
-CLUSTER_PERCENTILE=95
-N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+# stats
+STATISTICAL_METHOD = 'time_perm_cluster' # 'time_perm_cluster' or 'anova'
+SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
+WINDOW_SIZE = None # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 
 # additional parameters for permutation cluster stats
 STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
@@ -108,14 +82,11 @@ elif STAT_FUNC_CHOICE == 'ttest_rel':
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.025
 P_CLUSTER = 0.025
 PERMUTATION_TYPE = 'independent'
-# CLUSTER_TAILS = 2
-
-# plotting
-SINGLE_COLUMN = True
-SHOW_LEGEND = False
-
+N_PERM = 100
+TAILS=1
+# ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwps_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
 #EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -154,11 +125,8 @@ ELECTRODES = 'all'
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
 # N_PERM = 2
 # N_CLUSTER_PERMS= 2
-# BOOTSTRAPS = 2
 # N_JOBS = 1
 # ROIS_DICT = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
@@ -176,39 +144,21 @@ def run_analysis():
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,
         n_jobs=N_JOBS,
-        tails=TAILS,
-        n_splits=N_SPLITS,
-        n_repeats=N_REPEATS,
-        random_state=RANDOM_STATE,
         task=TASK,
         conditions=CONDITIONS,
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
-        explained_variance=EXPLAINED_VARIANCE,
-        balance_method=BALANCE_METHOD,
-        bootstraps=BOOTSTRAPS,
-        obs_axs=OBS_AXS,
-        chans_axs=CHANS_AXS,
-        time_axs=TIME_AXS,
-        window_size=WINDOW_SIZE,
-        step_size=STEP_SIZE,
-        sampling_rate=SAMPLING_RATE,
-        first_time_point=FIRST_TIME_POINT,
-        folds_as_samples=FOLDS_AS_SAMPLES,
-        unit_of_analysis=UNIT_OF_ANALYSIS,
-        percentile=PERCENTILE,
-        cluster_percentile=CLUSTER_PERCENTILE,
-        n_cluster_perms=N_CLUSTER_PERMS,
-        n_shuffle_perms=N_SHUFFLE_PERMS,
         p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
         p_cluster=P_CLUSTER,
         stat_func=STAT_FUNC,
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
-        single_column=SINGLE_COLUMN,
-        show_legend=SHOW_LEGEND
-        # cluster_tails=CLUSTER_TAILS,
+        statistical_method=STATISTICAL_METHOD,
+        sampling_rate=SAMPLING_RATE,
+        window_size=WINDOW_SIZE,
+        n_perm=N_PERM,
+        tails=TAILS    
     )
 
     # Print configuration summary
@@ -220,18 +170,6 @@ def run_analysis():
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
-    print(f"Explained variance: {EXPLAINED_VARIANCE}")
-    print(f"Balance method:     {BALANCE_METHOD}")
-    print(f"Obs axs:            {OBS_AXS}")
-    print(f"Chans axs:          {CHANS_AXS}")
-    print(f"Time axs:           {TIME_AXS}")
-    print("-" * 70)
-    print("Decoding Parameters:")
-    print(f"  CV Splits/Repeats: {N_SPLITS}/{N_REPEATS}")
-    print(f"  Balance Method:    {BALANCE_METHOD}")
-    print(f"  Explained Variance:{EXPLAINED_VARIANCE}")
-    print(f"  Window/Step (samp):{WINDOW_SIZE}/{STEP_SIZE}")
-    print(f"  Sampling Rate (Hz):{SAMPLING_RATE}")
     print("-" * 70)
     
     print("Perm Cluster Statistical Parameters:")
@@ -239,21 +177,11 @@ def run_analysis():
     print(f"  P cluster: {P_CLUSTER}")
     print(f"  Stat Func: {STAT_FUNC_STR}")
     print(f"  Permutation Type: {PERMUTATION_TYPE}")
-    # print(f"  Tails:             {CLUSTER_TAILS}")
+    print(f"  Number of Permutations: {N_PERM}")
+    print(f"  Tails: {TAILS}")
+    print("=" * 70)
 
-    print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
-    
-    print("Percentile Statistical Parameters:")
-    print(f"  Percentile: {PERCENTILE}")
-    print(f"  Cluster Percentile: {CLUSTER_PERCENTILE}")
-    print(f"  N Cluster Perms: {N_CLUSTER_PERMS}")
-    print("=" * 70)
-    print("=" * 70)
-    
-    print("plotting params")
-    print(f" single column figure: {SINGLE_COLUMN}")
-    print(f" show legend: {SHOW_LEGEND}")
-    print("=" * 70)
+
     
     # Run the analysis
     print("\nStarting analysis...")
