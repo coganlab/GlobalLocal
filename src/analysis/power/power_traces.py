@@ -4,18 +4,19 @@ import matplotlib.pyplot as plt
 import os
 from typing import Union, List, Sequence
 import logging
+from ieeg.calc.stats import time_perm_cluster
 
 #to save print statements while on cluster
-PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
+# PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
 
-LOG_DIR = os.path.join(PROJECT_DIR, 'logs')
-os.makedirs(LOG_DIR, exist_ok=True) 
+# LOG_DIR = os.path.join(PROJECT_DIR, 'logs')
+# os.makedirs(LOG_DIR, exist_ok=True) 
 
-log_file_path = os.path.join(LOG_DIR, 'power_traces_debug.log')
-logging.basicConfig(filename='power_traces_debug.log', 
-                    level=logging.DEBUG, 
-                    format='%(asctime)s - %(message)s',
-                    filemode='w')
+# log_file_path = os.path.join(LOG_DIR, 'power_traces_debug.log')
+# logging.basicConfig(filename='power_traces_debug.log', 
+#                     level=logging.DEBUG, 
+#                     format='%(asctime)s - %(message)s',
+#                     filemode='w')
 
 def combine_single_channel_evokeds(single_channel_evokeds, ch_type='seeg'):
     """
@@ -329,8 +330,13 @@ def create_roi_grand_average(subjects_mne_objects, subjects, roi, electrodes_per
 
     return grand_averages_electrodes
 
-def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None, window_size=None, sampling_rate=None, 
-                            save_dir=None, show_std=True, show_sem=False, show_ci=False, ci=0.95, figsize=(12, 8), x_label='Time (s)', ylim=None, y_label='Power (z)', axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
+def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, 
+                             plotting_parameters, significant_clusters=None, 
+                             window_size=None, sampling_rate=None, save_dir=None, 
+                             show_std=True, show_sem=False, show_ci=False, ci=0.95, 
+                             figsize=(12, 8), x_label='Time (s)', ylim=None, 
+                             y_label='Power (z)', axis_font_size=12, tick_font_size=12, 
+                             title_font_size=14, save_name_suffix=None, show_legend=True):
     """
     Custom plot with standard deviation or standard error shading.
     
@@ -454,14 +460,11 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             clusters.append((start_idx, end_idx))
         return clusters
     
-    logging.debug(f"--- For ROI: {roi} --- significant_clusters is: {significant_clusters}")
+    # logging.debug(f"--- For ROI: {roi} --- significant_clusters is: {significant_clusters}")
 
     if significant_clusters is not None:
 
-        logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
-
-         # Compute window duration
-        window_duration = window_size / sampling_rate
+        # logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
 
         clusters = find_clusters(significant_clusters)
 
@@ -477,9 +480,21 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         # Plot horizontal bars and asterisks for significant clusters
         for cluster in clusters:
             start_idx, end_idx = cluster
-            start_time = times[start_idx] - (window_duration / 2)
-            end_time = times[end_idx] + (window_duration / 2)
-            plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)
+            
+            if window_size is None:
+                window_size = 0 # set to zero for point-wise analysis
+                
+            if window_size is None or window_size == 0:
+                # Point-wise analysis: Bar spans the centers of the first/last points
+                start_time = times[start_idx]
+                end_time = times[end_idx]
+            else:
+                # Windowed analysis: Bar spans the outer edges of the first/last windows
+                window_duration = window_size / sampling_rate
+                start_time = times[start_idx] - (window_duration / 2)
+                end_time = times[end_idx] + (window_duration / 2)
+                
+            plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)  
             # Place an asterisk at the center of the bar
             center_time = (start_time + end_time) / 2
             plt.text(center_time, y_bar + 0.01, '*', ha='center', va='bottom', fontsize=14)
@@ -527,10 +542,12 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     plt.close()
     return fig
 
-def plot_power_traces_for_all_rois(evks_dict_elecs, rois, 
-                                  condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None, save_dir=None,
-                                  error_type='std', figsize=(12, 8), x_label='Time (s)', y_label='Power (z)',
-                                  axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
+def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, conditions_save_name,
+                                   plotting_parameters, window_size=None, sampling_rate=None, 
+                                   significant_clusters=None, save_dir=None, error_type='std', 
+                                   figsize=(12, 8), x_label='Time (s)', y_label='Power (z)', 
+                                   ylim=None, axis_font_size=12, tick_font_size=12, title_font_size=14, 
+                                   save_name_suffix=None, show_legend=True):
     """
     Plot power traces for each ROI comparing the specified conditions
     
@@ -581,13 +598,14 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         if error_type == 'std':
             # Use custom function for standard deviation
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, 
-                significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir,
-                show_std=True, show_sem=False, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, 
+                window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
+                save_dir=save_dir, show_std=True, show_sem=False, axis_font_size=axis_font_size, 
+                tick_font_size=tick_font_size, x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
+            
         elif error_type == 'sem':
             # Use custom function for standard error
             plot_power_trace_for_roi(
@@ -595,8 +613,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=True, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
         elif error_type == 'ci':
             # Use MNE function with 95% CI
@@ -605,8 +624,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=True, ci=0.95, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
         else:
             # No error bars
@@ -614,8 +634,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=False, ci=None, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
     
     if save_dir:
@@ -679,7 +700,7 @@ def time_perm_cluster_between_two_evokeds(evoked_cond1, evoked_cond2, p_thresh=0
                                        p_cluster=0.05, n_perm=1000, tails=1, 
                                        axis=0, stat_func=None, ignore_adjacency=None, 
                                        permutation_type='independent', vectorized=True, 
-                                       n_jobs=-1, seed=None, verbose):
+                                       n_jobs=-1, seed=None, verbose=None):
     """
     Finds significant clusters across time between two evoked objects
     

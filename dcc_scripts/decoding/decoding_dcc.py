@@ -449,7 +449,7 @@ def main(args):
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
       
-    subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
+    subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task=args.task, just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
     
     # determine which electrodes to use (all electrodes or just the task-significant ones)
     if args.electrodes == 'all':
@@ -692,7 +692,7 @@ def main(args):
                     linestyles=linestyles,
                     single_column=args.single_column,
                     show_legend=args.show_legend,
-                    ylim=(0.2, 0.8),
+                    ylim=(0.3, 0.8),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
                 )    
@@ -805,7 +805,7 @@ def main(args):
                 linestyles=lwpc_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -966,7 +966,7 @@ def main(args):
                 linestyles=lwps_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -1126,7 +1126,7 @@ def main(args):
                 linestyles=congruency_by_switch_proportion_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -1285,7 +1285,7 @@ def main(args):
                 linestyles=switch_type_by_congruency_proportion_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
