@@ -640,6 +640,9 @@ def main(args):
         unit_of_analysis=args.unit_of_analysis
     )
     
+    sub_str = str(len(args.subjects))
+    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
+               
     master_results = {
         'stats': all_bootstrap_stats,
         'metadata': {
@@ -660,9 +663,6 @@ def main(args):
         'shuffle': '--'
     }  
     
-    sub_str = str(len(args.subjects))
-    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
-               
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
         for roi in rois:
@@ -1251,7 +1251,10 @@ def main(args):
                     'marker': '*'
                 }
             }
-
+            if roi not in master_results['comparison_clusters']:
+                master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['switch_type_by_congruency_proportion'] = significance_clusters_switch_type_by_congruency_proportion_comparison
+                    
             # --- Get data for plotting from the main stats dictionary ---
             s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
             s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
@@ -1337,7 +1340,26 @@ def main(args):
             )
 
             
-                 
+
+# --- Save all results to a single file ---
+    results_filename = f"{args.timestamp}_MASTER_RESULTS_{analysis_params_str}.pkl"
+    results_save_path = os.path.join(save_dir, results_filename)
+    
+    # Try to grab time_window_centers and add to metadata
+    try:
+        first_comp = list(time_window_decoding_results[0].keys())[0]
+        first_roi = list(time_window_decoding_results[0][first_comp].keys())[0]
+        twc = time_window_decoding_results[0][first_comp][first_roi]['time_window_centers']
+        master_results['metadata']['time_window_centers'] = twc
+    except Exception as e:
+        print(f"Warning: Could not save time_window_centers to metadata. {e}")
+
+    print(f"\n💾 Saving all statistical results to: {results_save_path}")
+    with open(results_save_path, 'wb') as f:
+        pickle.dump(master_results, f)
+
+    print("\n✅ Analysis and saving complete.")
+                  
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
     # Since your run script calls main() directly, this block won't be executed
