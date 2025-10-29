@@ -279,6 +279,9 @@ def main(args):
         axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
     )
     
+    # init subtracted evokeds dict
+    subtracted_evks_dict_elecs = None
+    
     # subtract conditions from each other for lwpc, lwps, and cross-construct comparisons
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
         subtraction_pairs = [("Stimulus_i75", "Stimulus_c75"), ("Stimulus_i25", "Stimulus_c25")]
