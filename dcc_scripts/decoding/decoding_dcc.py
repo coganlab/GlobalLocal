@@ -503,7 +503,7 @@ def main(args):
         condition_comparisons['switchType'] = [['Stimulus_r'], ['Stimulus_s']]
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
         condition_comparisons['err_vs_corr'] = [['Stimulus_err'], ['Stimulus_corr']]
-    elif args.conditions == experiment_conditions.stimulus_iR_cS_conditions:
+    elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
         condition_comparisons['iR_err_vs_cS_err'] = [['Stimulus_err_iR'], ['Stimulus_err_cS']]
 
         
