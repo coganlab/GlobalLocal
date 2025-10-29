@@ -65,7 +65,7 @@ N_JOBS = -1
 N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
-EXPLAINED_VARIANCE = 0.95
+EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
@@ -105,16 +105,17 @@ elif STAT_FUNC_CHOICE == 'ttest_rel':
     STAT_FUNC = partial(ttest_rel, nan_policy='omit')
     STAT_FUNC_STR = 'ttest_rel'
     
-P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
-P_CLUSTER = 0.05
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.025
+P_CLUSTER = 0.025
 PERMUTATION_TYPE = 'independent'
 # CLUSTER_TAILS = 2
 
 # plotting
 SINGLE_COLUMN = True
+SHOW_LEGEND = False
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
+CONDITIONS = experiment_conditions.stimulus_lwps_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -145,8 +146,7 @@ EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_
 # }
 
 ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 }
 
 # which electrodes to use (all or sig)
@@ -207,6 +207,7 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         single_column=SINGLE_COLUMN,
+        show_legend=SHOW_LEGEND
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -251,6 +252,7 @@ def run_analysis():
     
     print("plotting params")
     print(f" single column figure: {SINGLE_COLUMN}")
+    print(f" show legend: {SHOW_LEGEND}")
     print("=" * 70)
     
     # Run the analysis

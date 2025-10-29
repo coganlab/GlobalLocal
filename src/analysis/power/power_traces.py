@@ -675,5 +675,33 @@ def create_subtracted_evokeds_dict(evks_dict, subtraction_pairs, rois):
 
     return subtracted_evokeds_dict
 
+def time_perm_cluster_between_two_evokeds(evoked_cond1, evoked_cond2, p_thresh=0.05, 
+                                       p_cluster=0.05, n_perm=1000, tails=1, 
+                                       axis=0, stat_func=None, ignore_adjacency=None, 
+                                       permutation_type='independent', vectorized=True, 
+                                       n_jobs=-1, seed=None, verbose):
+    """
+    Finds significant clusters across time between two evoked objects
+    
+    https://ieeg-pipelines.readthedocs.io/en/latest/references/ieeg.calc.stats.time_perm_cluster.html
+    """
+    data1 = evoked_cond1.data
+    data2 = evoked_cond2.data
+
+    clusters, p_obs = time_perm_cluster(data1, data2,
+                                    p_thresh=p_thresh,
+                                    p_cluster=p_cluster,
+                                    n_perm=n_perm,
+                                    tails=tails,
+                                    axis=axis,        
+                                    stat_func=stat_func,  
+                                    ignore_adjacency=ignore_adjacency,
+                                    permutation_type=permutation_type,
+                                    vectorized=vectorized,
+                                    n_jobs=n_jobs,
+                                    seed=seed,
+                                    verbose=verbose)
+    
+    return clusters, p_obs
     
     
