@@ -330,8 +330,13 @@ def create_roi_grand_average(subjects_mne_objects, subjects, roi, electrodes_per
 
     return grand_averages_electrodes
 
-def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, plotting_parameters, significant_clusters=None, window_size=None, sampling_rate=None, 
-                            save_dir=None, show_std=True, show_sem=False, show_ci=False, ci=0.95, figsize=(12, 8), x_label='Time (s)', ylim=None, y_label='Power (z)', axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
+def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name, 
+                             plotting_parameters, significant_clusters=None, 
+                             window_size=None, sampling_rate=None, save_dir=None, 
+                             show_std=True, show_sem=False, show_ci=False, ci=0.95, 
+                             figsize=(12, 8), x_label='Time (s)', ylim=None, 
+                             y_label='Power (z)', axis_font_size=12, tick_font_size=12, 
+                             title_font_size=14, save_name_suffix=None, show_legend=True):
     """
     Custom plot with standard deviation or standard error shading.
     
@@ -537,10 +542,12 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     plt.close()
     return fig
 
-def plot_power_traces_for_all_rois(evks_dict_elecs, rois, 
-                                  condition_names, conditions_save_name, plotting_parameters, window_size=None, sampling_rate=None, significant_clusters=None, save_dir=None,
-                                  error_type='std', figsize=(12, 8), x_label='Time (s)', y_label='Power (z)',
-                                  axis_font_size=12, tick_font_size=12, title_font_size=14, save_name_suffix=None):
+def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, conditions_save_name,
+                                   plotting_parameters, window_size=None, sampling_rate=None, 
+                                   significant_clusters=None, save_dir=None, error_type='std', 
+                                   figsize=(12, 8), x_label='Time (s)', y_label='Power (z)', 
+                                   ylim=None, axis_font_size=12, tick_font_size=12, title_font_size=14, 
+                                   save_name_suffix=None, show_legend=True):
     """
     Plot power traces for each ROI comparing the specified conditions
     
@@ -591,13 +598,14 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
         if error_type == 'std':
             # Use custom function for standard deviation
             plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, 
-                significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir,
-                show_std=True, show_sem=False, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, 
+                window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
+                save_dir=save_dir, show_std=True, show_sem=False, axis_font_size=axis_font_size, 
+                tick_font_size=tick_font_size, x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
+            
         elif error_type == 'sem':
             # Use custom function for standard error
             plot_power_trace_for_roi(
@@ -605,8 +613,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=True, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
         elif error_type == 'ci':
             # Use MNE function with 95% CI
@@ -615,8 +624,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=True, ci=0.95, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
         else:
             # No error bars
@@ -624,8 +634,9 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois,
                 evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
                 save_dir=save_dir,
                 show_std=False, show_sem=False, show_ci=False, ci=None, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label,
-                title_font_size=title_font_size, figsize=figsize, save_name_suffix=save_name_suffix
+                x_label=x_label, y_label=y_label, ylim=ylim,
+                title_font_size=title_font_size, figsize=figsize, 
+                save_name_suffix=save_name_suffix, show_legend=show_legend
             )
     
     if save_dir:

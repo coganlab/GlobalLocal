@@ -692,7 +692,7 @@ def main(args):
                     linestyles=linestyles,
                     single_column=args.single_column,
                     show_legend=args.show_legend,
-                    ylim=(0.2, 0.8),
+                    ylim=(0.3, 0.8),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
                 )    
@@ -805,7 +805,7 @@ def main(args):
                 linestyles=lwpc_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -966,7 +966,7 @@ def main(args):
                 linestyles=lwps_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -1126,7 +1126,7 @@ def main(args):
                 linestyles=congruency_by_switch_proportion_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,
@@ -1285,7 +1285,7 @@ def main(args):
                 linestyles=switch_type_by_congruency_proportion_linestyles,
                 single_column=args.single_column,
                 show_legend=args.show_legend,
-                ylim=(0.2, 0.8),
+                ylim=(0.3, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
                 filename_suffix=analysis_params_str,

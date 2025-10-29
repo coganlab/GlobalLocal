@@ -254,6 +254,7 @@ def main(args):
                                                                  axis=0, stat_func=args.stat_func, ignore_adjacency=None, 
                                                                  permutation_type=args.permutation_type, vectorized=True, 
                                                                  n_jobs=args.n_jobs, seed=None, verbose=True)
+
                 significant_clusters[roi] = mask_roi
                 p_values_dict[roi] = p_values
             except KeyError:
@@ -275,7 +276,7 @@ def main(args):
         save_dir=save_dir,
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 
-        y_label='Power (z)',
+        y_label='Power (z)', ylim=args.ylim,
         axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
     )
     

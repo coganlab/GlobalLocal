@@ -82,11 +82,12 @@ elif STAT_FUNC_CHOICE == 'ttest_rel':
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 P_CLUSTER = 0.05
 PERMUTATION_TYPE = 'independent'
-N_PERM = 100
+N_PERM = 500
 TAILS=1
+
 # ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+CONDITIONS = experiment_conditions.stimulus_switch_type_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -123,6 +124,10 @@ ROIS_DICT = {
 # which electrodes to use (all or sig)
 ELECTRODES = 'sig'
 
+# plotting
+YLIM = (-0.1,0.5)
+SHOW_LEGEND = False
+
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
 # N_PERM = 2
@@ -157,7 +162,9 @@ def run_analysis():
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         n_perm=N_PERM,
-        tails=TAILS    
+        tails=TAILS,
+        ylim=YLIM,
+        show_legend=SHOW_LEGEND
     )
 
     # Print configuration summary
@@ -180,6 +187,10 @@ def run_analysis():
     print(f"  Tails: {TAILS}")
     print("=" * 70)
 
+    print('plotting parameters:')
+    print(f'  y limits: {YLIM}')
+    print(f'  show legend: {SHOW_LEGEND}')
+    print("=" * 70)
 
     
     # Run the analysis
