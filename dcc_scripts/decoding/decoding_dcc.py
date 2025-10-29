@@ -639,7 +639,19 @@ def main(args):
         random_state=args.random_state,
         unit_of_analysis=args.unit_of_analysis
     )
-                
+    
+    sub_str = str(len(args.subjects))
+    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
+               
+    master_results = {
+        'stats': all_bootstrap_stats,
+        'metadata': {
+            'args': vars(args), # Save all arguments from the run
+            'analysis_params_str': analysis_params_str
+        },
+        'comparison_clusters': {} # We will populate this in the loops below
+    }
+       
     # define color and linestyle for plotting true vs shuffle
     colors = {
         'true': '#0173B2',  # Blue
@@ -650,9 +662,7 @@ def main(args):
         'true': '-',
         'shuffle': '--'
     }  
-    sub_str = str(len(args.subjects))
-    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
-               
+    
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
         for roi in rois:
@@ -681,6 +691,7 @@ def main(args):
                     colors=colors,
                     linestyles=linestyles,
                     single_column=args.single_column,
+                    show_legend=args.show_legend,
                     ylim=(0.2, 0.8),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
@@ -760,6 +771,10 @@ def main(args):
                 }
             }
             
+            if roi not in master_results['comparison_clusters']:
+                    master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['lwpc'] = significance_clusters_lwpc_comparison
+        
             # --- Get data for plotting from the main stats dictionary ---
             c25_vs_i25_stats = all_bootstrap_stats['c25_vs_i25'][roi]
             c75_vs_i75_stats = all_bootstrap_stats['c75_vs_i75'][roi]
@@ -789,6 +804,7 @@ def main(args):
                 colors=lwpc_colors,
                 linestyles=lwpc_linestyles,
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
@@ -830,6 +846,7 @@ def main(args):
                 colors={'c25_vs_i25_minus_c75_vs_i75': '#404040'},
                 linestyles={'c25_vs_i25_minus_c75_vs_i75': '-'},
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=diff_ylim,
                 ylabel="Accuracy Difference (c25 vs i25 - c75 vs i75)",
                 show_chance_level=True,
@@ -915,6 +932,10 @@ def main(args):
                 }
             }
             
+            if roi not in master_results['comparison_clusters']:
+                    master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['lwps'] = significance_clusters_lwps_comparison
+        
             # --- Get data for plotting from the main stats dictionary ---
             s25_vs_r25_stats = all_bootstrap_stats['s25_vs_r25'][roi]
             s75_vs_r75_stats = all_bootstrap_stats['s75_vs_r75'][roi]
@@ -944,6 +965,7 @@ def main(args):
                 colors=lwps_colors,
                 linestyles=lwps_linestyles,
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=(0.2, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
@@ -985,6 +1007,7 @@ def main(args):
                 colors={'s25_vs_r25_minus_s75_vs_r75': '#404040'},
                 linestyles={'s25_vs_r25_minus_s75_vs_r75': '-'},
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=diff_ylim,
                 ylabel="Accuracy Difference (s25 vs r25 - s75 vs r75)",
                 show_chance_level=True,
@@ -1069,6 +1092,10 @@ def main(args):
                 }
             }
             
+            if roi not in master_results['comparison_clusters']:
+                    master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['congruency_by_switch_proportion'] = significance_clusters_congruency_by_switch_proportion_comparison
+        
             # --- Get data for plotting from the main stats dictionary ---
             c_in_25switchBlock_vs_i_in_25switchBlock_stats = all_bootstrap_stats['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]
             c_in_75switchBlock_vs_i_in_75switchBlock_stats = all_bootstrap_stats['c_in_75switchBlock_vs_i_in_75switchBlock'][roi]
@@ -1098,6 +1125,7 @@ def main(args):
                 colors=congruency_by_switch_proportion_colors,
                 linestyles=congruency_by_switch_proportion_linestyles,
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=(0.2, 0.8),
                 ylabel="Congruency Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
@@ -1139,6 +1167,7 @@ def main(args):
                 colors={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '#404040'},
                 linestyles={'c_in_25switchBlock_vs_i_in_25switchBlock_minus_c_in_75switchBlock_vs_i_in_75switchBlock': '-'},
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=diff_ylim,
                 ylabel="Accuracy Difference (c_in_25switchBlock_vs_i_in_25switchBlock - c_in_75switchBlock_vs_i_in_75switchBlock)",
                 show_chance_level=True,
@@ -1222,7 +1251,10 @@ def main(args):
                     'marker': '*'
                 }
             }
-
+            if roi not in master_results['comparison_clusters']:
+                master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['switch_type_by_congruency_proportion'] = significance_clusters_switch_type_by_congruency_proportion_comparison
+                    
             # --- Get data for plotting from the main stats dictionary ---
             s_in_25incongruentBlock_vs_r_in_25incongruentBlock_stats = all_bootstrap_stats['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]
             s_in_75incongruentBlock_vs_r_in_75incongruentBlock_stats = all_bootstrap_stats['s_in_75incongruentBlock_vs_r_in_75incongruentBlock'][roi]
@@ -1252,6 +1284,7 @@ def main(args):
                 colors=switch_type_by_congruency_proportion_colors,
                 linestyles=switch_type_by_congruency_proportion_linestyles,
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=(0.2, 0.8),
                 ylabel="Switch Type Decoding Accuracy",
                 show_chance_level=False, # The pooled shuffle line is our chance level
@@ -1293,6 +1326,7 @@ def main(args):
                 colors={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#404040'},
                 linestyles={'s_in_25incongruentBlock_vs_r_in_25incongruentBlock_minus_s_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-'},
                 single_column=args.single_column,
+                show_legend=args.show_legend,
                 ylim=diff_ylim,
                 ylabel="Accuracy Difference (s_in_25incongruentBlock_vs_r_in_25incongruentBlock - s_in_75incongruentBlock_vs_r_in_75incongruentBlock)",
                 show_chance_level=True,
@@ -1306,7 +1340,26 @@ def main(args):
             )
 
             
-                 
+
+# --- Save all results to a single file ---
+    results_filename = f"{args.timestamp}_MASTER_RESULTS_{analysis_params_str}.pkl"
+    results_save_path = os.path.join(save_dir, results_filename)
+    
+    # Try to grab time_window_centers and add to metadata
+    try:
+        first_comp = list(time_window_decoding_results[0].keys())[0]
+        first_roi = list(time_window_decoding_results[0][first_comp].keys())[0]
+        twc = time_window_decoding_results[0][first_comp][first_roi]['time_window_centers']
+        master_results['metadata']['time_window_centers'] = twc
+    except Exception as e:
+        print(f"Warning: Could not save time_window_centers to metadata. {e}")
+
+    print(f"\n💾 Saving all statistical results to: {results_save_path}")
+    with open(results_save_path, 'wb') as f:
+        pickle.dump(master_results, f)
+
+    print("\n✅ Analysis and saving complete.")
+                  
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
     # Since your run script calls main() directly, this block won't be executed
