@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import os
 from typing import Union, List, Sequence
 import logging
+from ieeg.calc.stats import time_perm_cluster
 
 #to save print statements while on cluster
 # PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 

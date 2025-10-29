@@ -79,8 +79,8 @@ elif STAT_FUNC_CHOICE == 'ttest_rel':
     STAT_FUNC = partial(ttest_rel, nan_policy='omit')
     STAT_FUNC_STR = 'ttest_rel'
     
-P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.025
-P_CLUSTER = 0.025
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
+P_CLUSTER = 0.05
 PERMUTATION_TYPE = 'independent'
 N_PERM = 100
 TAILS=1
@@ -124,13 +124,12 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_PERM = 2
-# N_CLUSTER_PERMS= 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_PERM = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
