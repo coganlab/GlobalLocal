@@ -229,11 +229,10 @@ def main(args):
     sampling_rate = args.sampling_rate
     window_size = args.window_size
 
-    evks_dict_sig_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
+    evks_dict_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
         subjects_mne_objects, args.subjects, rois, condition_names, 
-        sig_electrodes_per_subject_roi
+        electrodes
     ) 
-    
     
     if args.statistical_method == 'time_perm_cluster':
         print("\nRunning statistical tests comparing TWO conditions")
@@ -247,8 +246,8 @@ def main(args):
         for roi in rois:
             print(f"-- Processing ROI: {roi} --")
             try:
-                evoked_cond1_this_roi = evks_dict_sig_elecs[condition1_name][roi]
-                evoked_cond2_this_roi = evks_dict_sig_elecs[condition2_name][roi]
+                evoked_cond1_this_roi = evks_dict_elecs[condition1_name][roi]
+                evoked_cond2_this_roi = evks_dict_elecs[condition2_name][roi]
                 
                 mask_roi, p_values = time_perm_cluster_between_two_evokeds(evoked_cond1_this_roi, evoked_cond2_this_roi, p_thresh=args.p_thresh_for_time_perm_cluster_stats, 
                                                                  p_cluster=args.p_cluster, n_perm=args.n_perm, tails=args.tails, 

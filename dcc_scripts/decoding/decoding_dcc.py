@@ -449,7 +449,7 @@ def main(args):
     rois = list(args.rois_dict.keys())
     all_electrodes_per_subject_roi, sig_electrodes_per_subject_roi = make_sig_electrodes_per_subject_and_roi_dict(args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
       
-    subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task="GlobalLocal", just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
+    subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task=args.task, just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
     
     # determine which electrodes to use (all electrodes or just the task-significant ones)
     if args.electrodes == 'all':
