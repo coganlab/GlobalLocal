@@ -1,0 +1,4 @@
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 59
+    >>>>>>> 96f1dc1ab9b754f426e70b5fde7f9e398dc903e5
+             ^
+SyntaxError: invalid decimal literal
