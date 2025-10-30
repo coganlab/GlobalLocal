@@ -50,6 +50,13 @@ LAB_ROOT = None  # Will be determined automatically in main()
 # remove D0110 because of low error trials
 # SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
 SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+<<<<<<< HEAD
+=======
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# subjects for err/corr
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+
+>>>>>>> 24914ad137ad313b884410858d182324803810e7
 
 # task
 TASK = 'GlobalLocal'
