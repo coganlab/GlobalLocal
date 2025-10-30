@@ -48,10 +48,15 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
+<<<<<<< HEAD
+# SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+=======
 SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 # subjects for err/corr
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+>>>>>>> 96f1dc1ab9b754f426e70b5fde7f9e398dc903e5
 
 # task
 TASK = 'GlobalLocal'
@@ -127,7 +132,7 @@ ROIS_DICT = {
 ELECTRODES = 'sig'
 
 # plotting
-YLIM = (-0.1,0.5)
+YLIM = (-0.1,0.35)
 SHOW_LEGEND = False
 
 # # # # testing params (comment out)
