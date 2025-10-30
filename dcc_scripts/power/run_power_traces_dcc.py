@@ -48,22 +48,20 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
-# SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-<<<<<<< HEAD
-=======
+# subjects list for iR/cS
+SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 # subjects for err/corr
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 
->>>>>>> 24914ad137ad313b884410858d182324803810e7
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
 # switch to False for err-corr 
-ACC_TRIALS_ONLY = True
+ACC_TRIALS_ONLY = False
 
 # Parallel processing
 N_JOBS = -1 
@@ -74,7 +72,7 @@ SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = None # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 
 # additional parameters for permutation cluster stats
-STAT_FUNC_CHOICE = 'ttest_rel' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
@@ -88,18 +86,18 @@ elif STAT_FUNC_CHOICE == 'ttest_rel':
     
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 P_CLUSTER = 0.05
-PERMUTATION_TYPE = 'samples'
+PERMUTATION_TYPE = 'independent'
 N_PERM = 500
 TAILS=1
 
 # ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_switch_type_conditions
+CONDITIONS = experiment_conditions.stimulus_iR_cS_err_conditions
 
 # Epochs file selection
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+#EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
+EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"

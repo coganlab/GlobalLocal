@@ -108,6 +108,8 @@ def main(args):
         conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+        conditions_save_name = 'stimulus_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
@@ -129,6 +131,8 @@ def main(args):
         conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
         conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_iR_cS_err_conditions:
+        conditions_save_name = 'response_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     
     # Get data layout
     layout = get_data(args.task, root=LAB_root)
