@@ -12,8 +12,8 @@ Electrodes (all or sig):       sig
 Perm Cluster Statistical Parameters:
   P-value Threshold: 0.05
   P cluster: 0.05
-  Stat Func: ttest_ind
-  Permutation Type: independent
+  Stat Func: ttest_rel
+  Permutation Type: samples
   Number of Permutations: 500
   Tails: 1
 ======================================================================

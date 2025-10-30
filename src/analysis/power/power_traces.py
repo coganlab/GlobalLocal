@@ -475,7 +475,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         # plt.ylim([min_y, y_bar + 0.05])  # Adjust ylim to accommodate the bars
 
         # Set y_bar to a fixed value within the y-axis limits
-        y_bar = 0.95  # Fixed value near the top of the y-axis
+        y_bar = 0.3  # Fixed value near the top of the y-axis
 
         # Plot horizontal bars and asterisks for significant clusters
         for cluster in clusters:
@@ -513,19 +513,20 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     # Set title
     title = f'{roi.upper()}'
 
-    if show_std:
-        title += ' (±1 SD)'
-    elif show_sem:
-        title += ' (±1 SEM)'
-    elif show_ci:
-        title += f' ({ci*100}% CI)'
+    # if show_std:
+    #     title += ' (±1 SD)'
+    # elif show_sem:
+    #     title += ' (±1 SEM)'
+    # elif show_ci:
+    #     title += f' ({ci*100}% CI)'
 
     ax.set_title(title, fontsize=title_font_size, fontweight='bold', color=text_color)
     
     if ylim:
         ax.set_ylim(ylim)
-    
-    ax.legend(loc='best', framealpha=0.95)
+        
+    if show_legend:
+        ax.legend(loc='best', framealpha=0.95)
     #ax.grid(False, alpha=0.3, linestyle='--')
     
     plt.tight_layout()

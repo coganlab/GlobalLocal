@@ -696,7 +696,60 @@ def main(args):
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
                 )    
-                 
+              
+    print("\n📊 Extracting and plotting pooled CM traces for debugging...")
+    
+    # 1. Extract the pooled traces
+    pooled_cm_traces = extract_pooled_cm_traces(
+        time_window_decoding_results=time_window_decoding_results,
+        n_bootstraps=args.bootstraps,
+        condition_comparisons=condition_comparisons,
+        rois=rois,
+        unit_of_analysis=args.unit_of_analysis,
+        cats_by_roi=cats_by_roi
+    )
+    
+    # 2. Plot the traces for each comparison and ROI
+    for condition_comparison, roi_data in pooled_cm_traces.items():
+        for roi, traces_dict in roi_data.items():
+            if not traces_dict:
+                continue # Skip if no data
+                
+            # Get time points from one of the results
+            time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+            
+            # Define custom colors and linestyles for your 2x2 case
+            # This is an example for c25 vs i25
+            trace_colors = {
+                'True: c25, Pred: c25': '#0173B2', # Dark Blue (TP c25)
+                'True: c25, Pred: i25': '#56B4E9', # Light Blue (FN c25)
+                'True: i25, Pred: i25': '#DE8F05', # Dark Orange (TP i25)
+                'True: i25, Pred: c25': '#CC78BC', # Pink/Purple (FN i25)
+            }
+            trace_linestyles = {
+                'True: c25, Pred: c25': '-', # Solid for TP
+                'True: c25, Pred: i25': '--',# Dashed for FN
+                'True: i25, Pred: i25': '-', # Solid for TP
+                'True: i25, Pred: c25': '--',# Dashed for FN
+            }
+            
+            # You might need to adjust the labels for other comparisons, but this will work for 2-class
+            
+            plot_cm_traces_nature_style(
+                time_points=time_window_centers,
+                cm_traces_dict=traces_dict,
+                comparison_name=f'DEBUG_CM_Traces_{condition_comparison}',
+                roi=roi,
+                save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                timestamp=args.timestamp,
+                colors=trace_colors,
+                linestyles=trace_linestyles,
+                single_column=args.single_column,
+                show_legend=True,
+                ylabel="Mean Trial Count",
+                filename_suffix=analysis_params_str
+            )
+               
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
         print(f"\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) using '{args.unit_of_analysis}' as unit of analysis ---")
         

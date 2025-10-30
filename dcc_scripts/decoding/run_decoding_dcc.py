@@ -48,13 +48,8 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
-<<<<<<< HEAD
-SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
-#SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-=======
-# SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
+# SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
 SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
->>>>>>> ee20008ea4347831ce039965e09a3ff493820394
 
 # task
 TASK = 'GlobalLocal'
