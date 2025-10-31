@@ -4112,6 +4112,7 @@ def plot_pca_over_time(
     plt.tight_layout(rect=[0, 0, 1, 0.98])
     plt.show()
     
+# need to get time window by time window version next. Also this is untested rn. 10/31/25.
 def plot_high_dim_decision_slice(
     fitted_pipeline: Pipeline,
     X_data: np.ndarray,
