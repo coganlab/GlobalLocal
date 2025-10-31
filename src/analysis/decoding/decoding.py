@@ -40,9 +40,11 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.base import BaseEstimator
+from sklearn.decomposition import PCA
 
 # Other third-party
 from tqdm import tqdm 
@@ -56,7 +58,7 @@ from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
 from ieeg.calc.stats import time_perm_cluster
-from ieeg.decoding.models import PcaLdaClassification
+from ieeg.decoding.models import PcaLdaClassification, PcaEstimateDecoder
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
 from ieeg.viz.parula import parula_map
@@ -76,6 +78,9 @@ from src.analysis.utils.labeled_array_utils import (
 from src.analysis.utils.general_utils import * # This is generally discouraged.
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
 import gc
+
+# plotting
+import seaborn as sns
 
 def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
@@ -3664,7 +3669,7 @@ def extract_pooled_cm_traces(
 
             # Get the class labels from the 'cats' dictionary
             cats = cats_by_roi[roi]
-            class_labels = [str(key) for key in cats.keys()]
+            class_labels = [key[0] if isinstance(key, tuple) and len(key) == 1 else str(key) for key in cats.keys()]
             n_classes = len(class_labels)
             
             # Create trace labels, e.g., "True: c25, Pred: i25"
@@ -3902,3 +3907,311 @@ def plot_cm_traces_nature_style(
             
             plt.close(fig)
             print(f"Saved CM trace plot to: {filepath}")
+            
+            
+def plot_static_pca_projection(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    save_dir: None,
+    obs_axs: int = 0,
+    random_state: int = 42,
+    
+):
+    """
+    Visualizes the first two principal components of the full, flattened dataset.
+    
+    This helps to see if the data is linearly separable at a global level.
+    """
+    print(f"--- Generating Static PCA Plot for ROI: {roi} ---")
+    
+    # 1. Get and balance data.
+    # We MUST use 'subsample' because PCA cannot handle NaNs.
+    # This function (with 'subsample') conveniently gives us a clean, NaN-free dataset.
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays,
+        roi,
+        strings_to_find,
+        obs_axs=obs_axs,
+        balance_method='subsample', # Critical: removes NaN trials
+        random_state=random_state
+    )
+    
+    if data.size == 0:
+        print(f"Warning: No valid data for {roi} after balancing. Skipping plot.")
+        return
+
+    # 2. Reshape for PCA
+    # Input shape is (n_trials, n_channels, n_timepoints)
+    # We need (n_trials, n_features), where features = channels * timepoints
+    n_trials = data.shape[0]
+    data_flat = data.reshape(n_trials, -1)
+    
+    print(f"Data shape for PCA: {data_flat.shape}")
+
+    # 3. Standardize the data (crucial for PCA)
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data_flat)
+
+    # 4. Run PCA
+    pca = PCA(n_components=2)
+    pc_scores = pca.fit_transform(data_scaled)
+    
+    print(f"Explained variance by PC1: {pca.explained_variance_ratio_[0]:.2%}")
+    print(f"Explained variance by PC2: {pca.explained_variance_ratio_[1]:.2%}")
+
+    # 5. Plot
+    
+    # Get human-readable labels from 'cats'
+    # 'cats' maps {('c25',): 0, ('i25',): 1}
+    # We want {0: 'c25', 1: 'i25'}
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in labels]
+    
+    df = pd.DataFrame({
+        'PC1': pc_scores[:, 0],
+        'PC2': pc_scores[:, 1],
+        'Condition': display_labels
+    })
+
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(
+        data=df,
+        x='PC1',
+        y='PC2',
+        hue='Condition',
+        palette='deep',
+        alpha=0.7,
+        s=50
+    )
+    
+    plt.title(f"Static PCA Projection for {roi}\n(Conditions: {', '.join(label_map.values())})")
+    plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%} variance)")
+    plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)")
+    plt.legend(title="Condition")
+    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    
+    if save_dir:
+        plt.savefig(os.path.join(save_dir, f"static_pca_{roi}.pdf"))
+    else:
+        plt.show()
+        
+def plot_pca_over_time(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    window_size: int,
+    step_size: int,
+    sampling_rate: float,
+    first_time_point: float,
+    obs_axs: int = 0,
+    random_state: int = 42
+):
+    """
+    Visualizes the first two principal components in a sliding window over time.
+    
+    This creates a grid of plots showing how the data's geometry evolves.
+    """
+    print(f"--- Generating Dynamic PCA Plot for ROI: {roi} ---")
+
+    # 1. Get and balance data (use 'subsample' to remove NaNs)
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays,
+        roi,
+        strings_to_find,
+        obs_axs=obs_axs,
+        balance_method='subsample', # Must use subsample
+        random_state=random_state
+    )
+    
+    if data.size == 0:
+        print(f"Warning: No valid data for {roi} after balancing. Skipping plot.")
+        return
+
+    # 2. Window the data
+    # Input shape: (n_trials, n_channels, n_timepoints)
+    # We want to window along the time axis (-1)
+    # Resulting shape (assuming insert_at=0): (n_windows, n_trials, n_channels, window_size)
+    windowed_data = windower(
+        data,
+        window_size=window_size,
+        axis=-1,
+        step_size=step_size,
+        insert_at=0
+    )
+    
+    n_windows, n_trials, _, _ = windowed_data.shape
+    
+    # 3. Get time points for plot titles
+    first_sample = first_time_point * sampling_rate
+    start_times = [first_sample + step_size * i for i in range(n_windows)]
+    time_window_centers = [
+        (start + window_size / 2) / sampling_rate
+        for start in start_times
+    ]
+
+    # 4. Get display labels
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in labels]
+
+    # 5. Create grid of plots
+    n_cols = 5  # Adjust as needed
+    n_rows = int(np.ceil(n_windows / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 4, n_rows * 4), squeeze=False)
+    axes = axes.flatten()
+
+    for win_idx in range(n_windows):
+        ax = axes[win_idx]
+        
+        # 6. Get data for this window and flatten
+        # Shape: (n_trials, n_channels, window_size)
+        window_data = windowed_data[win_idx]
+        # Shape: (n_trials, n_channels * window_size)
+        window_flat = window_data.reshape(n_trials, -1)
+
+        # 7. Standardize AND PCA (fit_transform on *this window's data*)
+        scaler = StandardScaler()
+        data_scaled = scaler.fit_transform(window_flat)
+        
+        pca = PCA(n_components=2)
+        pc_scores = pca.fit_transform(data_scaled)
+
+        # 8. Plot this window
+        df = pd.DataFrame({
+            'PC1': pc_scores[:, 0],
+            'PC2': pc_scores[:, 1],
+            'Condition': display_labels
+        })
+        
+        sns.scatterplot(
+            data=df,
+            x='PC1',
+            y='PC2',
+            hue='Condition',
+            palette='deep',
+            alpha=0.7,
+            ax=ax,
+            legend= (win_idx == 0) # Only show legend on the first plot
+        )
+        
+        var1 = pca.explained_variance_ratio_[0]
+        var2 = pca.explained_variance_ratio_[1]
+        
+        ax.set_title(f"Time: {time_window_centers[win_idx]:.2f} s\n(Var: {var1+var2:.1%})")
+        ax.set_xlabel(f"PC1 ({var1:.1%})")
+        ax.set_ylabel(f"PC2 ({var2:.1%})")
+
+    # Clean up empty subplots
+    for i in range(n_windows, len(axes)):
+        fig.delaxes(axes[i])
+
+    fig.suptitle(f"PCA Over Time for {roi} (Conditions: {', '.join(label_map.values())})", fontsize=16, y=1.02)
+    plt.tight_layout(rect=[0, 0, 1, 0.98])
+    plt.show()
+    
+def plot_high_dim_decision_slice(
+    fitted_pipeline: Pipeline,
+    X_data: np.ndarray,
+    y_labels: np.ndarray,
+    cats: dict,
+    roi: str,
+    save_dir: str
+):
+    """
+    Visualizes a 2D slice (PC1 vs PC2) of a high-dimensional classifier's
+    decision boundary.
+
+    Parameters:
+    - fitted_pipeline: A *pre-fitted* sklearn Pipeline (Scaler -> PCA -> CLF).
+    - X_data: The raw, balanced, NaN-free data used for fitting (n_trials, n_features_flat).
+    - y_labels: The labels for X_data (n_trials,).
+    - cats: The 'cats' dictionary mapping labels to names.
+    - roi: The name of the ROI for the plot title.
+    """
+    
+    # 1. Get the fitted components from the pipeline
+    scaler = fitted_pipeline.named_steps['scaler']
+    pca = fitted_pipeline.named_steps['pca']
+    clf = fitted_pipeline.named_steps['clf']
+    
+    # 2. Get the PC scores for the *actual* data
+    X_scaled = scaler.transform(X_data)
+    X_pc_all = pca.transform(X_scaled)
+    
+    X_pc_2D = X_pc_all[:, 0:2] # Get just PC1 and PC2 for the scatter plot
+    
+    # Get human-readable labels
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in y_labels]
+    display_labels_str = str(display_labels)
+    
+    df = pd.DataFrame({
+        'PC1': X_pc_2D[:, 0],
+        'PC2': X_pc_2D[:, 1],
+        'Condition': display_labels
+    })
+
+    plt.figure(figsize=(10, 8))
+    ax = plt.gca()
+    
+    # 3. Plot the scatter of real data points
+    sns.scatterplot(
+        data=df,
+        x='PC1',
+        y='PC2',
+        hue='Condition',
+        palette='deep',
+        alpha=0.7,
+        s=50,
+        ax=ax
+    )
+    
+    # 4. Create the 2D grid
+    x_min, x_max = X_pc_2D[:, 0].min() - 1, X_pc_2D[:, 0].max() + 1
+    y_min, y_max = X_pc_2D[:, 1].min() - 1, X_pc_2D[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100), 
+                         np.linspace(y_min, y_max, 100))
+    
+    # 5. Create the high-dimensional grid (2D slice)
+    # We create vectors of zeros for all other PC components
+    n_components_total = pca.n_components_
+    grid_points_high_dim = np.zeros((xx.ravel().shape[0], n_components_total))
+    
+    # Set the first two columns to our 2D grid values
+    grid_points_high_dim[:, 0] = xx.ravel()
+    grid_points_high_dim[:, 1] = yy.ravel()
+    
+    # 6. Get predictions from the *high-D classifier*
+    # The classifier was trained on PC space, so we feed it our high-D PC vectors
+    Z = clf.decision_function(grid_points_high_dim)
+    Z = Z.reshape(xx.shape)
+    
+    # 7. Plot the decision boundary and shaded regions
+    ax.contourf(xx, yy, Z, cmap='RdBu_r', alpha=0.3, 
+                levels=np.linspace(Z.min(), Z.max(), 3))
+    ax.contour(xx, yy, Z, colors='k', levels=[0], linestyles=['--'], linewidths=2)
+    
+    # 8. Add info
+    clf_name = clf.__class__.__name__
+    var1 = pca.explained_variance_ratio_[0]
+    var2 = pca.explained_variance_ratio_[1]
+    var_total = np.sum(pca.explained_variance_ratio_)
+
+    ax.set_title(f"{clf_name} Decision Boundary on 2D Slice for {roi}\n"
+                 f"Using {n_components_total} PCs (Total Var: {var_total:.1%})")
+    ax.set_xlabel(f"PC1 ({var1:.1%})")
+    ax.set_ylabel(f"PC2 ({var2:.1%})")
+    
+    safe_roi_str = roi.replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_")
+    filename = f'debug_pca_hyperplane_{safe_roi_str}.pdf'
+    filepath = os.path.join(save_dir, filename)
+    print(f"Saving debug PCA plot to: {filepath}")
+    
+    # Ensure the save directory exists
+    os.makedirs(save_dir, exist_ok=True)
+
+    plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
+    plt.close(fig) # Close the figure to free memory

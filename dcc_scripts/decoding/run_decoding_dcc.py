@@ -131,9 +131,10 @@ PERMUTATION_TYPE = 'independent'
 # plotting
 SINGLE_COLUMN = True
 SHOW_LEGEND = False
+RUN_VISUALIZATION_DEBUG = True # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions
+CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -171,16 +172,16 @@ ROIS_DICT = {
 ELECTRODES = 'all'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 2
-# N_CLUSTER_PERMS= 2
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 2
+N_CLUSTER_PERMS= 2
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -227,7 +228,8 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         single_column=SINGLE_COLUMN,
-        show_legend=SHOW_LEGEND
+        show_legend=SHOW_LEGEND,
+        run_visualization_debug=RUN_VISUALIZATION_DEBUG
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -274,6 +276,7 @@ def run_analysis():
     print("plotting params")
     print(f" single column figure: {SINGLE_COLUMN}")
     print(f" show legend: {SHOW_LEGEND}")
+    print(f" run visualization debugging of first two PCs and decision boundary: {RUN_VISUALIZATION_DEBUG}")
     print("=" * 70)
     
     # Run the analysis

@@ -108,8 +108,12 @@ from src.analysis.decoding.decoding import (
     get_pooled_accuracy_distributions_for_comparison,
     get_time_averaged_confusion_matrix,
     cluster_perm_paired_ttest_by_duration,
-    run_two_one_tailed_tests_with_time_perm_cluster
+    run_two_one_tailed_tests_with_time_perm_cluster,
+    extract_pooled_cm_traces,
+    plot_cm_traces_nature_style,
+    plot_high_dim_decision_slice
 )
+
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
     Generates and processes a single bootstrap sample.
@@ -554,6 +558,99 @@ def main(args):
      
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
+    if args.run_visualization_debug:
+        print(f"\n{'='*20} 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) {'='*20}\n")
+        
+        # 1. Define the visualization pairs for each condition set
+        viz_pairs = []
+        if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+            print("Setting up LWPC visualization pairs...")
+            viz_pairs = [(['c25'], ['i25']), (['c75'], ['i75'])]
+        elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
+            print("Setting up LWPS visualization pairs...")
+            viz_pairs = [(['s25'], ['r25']), (['s75'], ['r75'])]
+        elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+            print("Setting up Congruency x Switch Prop. visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_c_in_25switchBlock'], ['Stimulus_i_in_25switchBlock']),
+                (['Stimulus_c_in_75switchBlock'], ['Stimulus_i_in_75switchBlock'])
+            ]
+        elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+            print("Setting up Switch Type x Congruency Prop. visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_s_in_25incongruentBlock'], ['Stimulus_r_in_25incongruentBlock']),
+                (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
+            ]
+        
+        if not viz_pairs:
+            print("Warning: No visualization pairs defined for the current condition set. Skipping debug plots.")
+        else:
+            # 2. Get the single data sample for visualization
+            print("Generating LabeledArray data for visualization (n_bootstraps=1)...")
+            roi_labeled_arrays_viz = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
+                rois=rois,
+                subjects_data_objects=subjects_mne_objects,
+                condition_names=condition_names, # This is already defined in main()
+                subjects=args.subjects,
+                electrodes_per_subject_roi=electrodes, # This is already defined in main()
+                n_bootstraps=1,
+                chans_axs=args.chans_axs,
+                time_axs=args.time_axs,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            roi_labeled_arrays_viz = {roi: arrs[0] for roi, arrs in roi_labeled_arrays_viz.items() if arrs}
+
+            # 3. Loop through ROIs and Pairs and plot
+            for roi in rois:
+                if roi not in roi_labeled_arrays_viz:
+                    print(f"Skipping visualization for {roi}: No data found.")
+                    continue
+                    
+                for pair in viz_pairs:
+                    viz_strings = pair
+                    pair_name = f"{viz_strings[0][0]}_vs_{viz_strings[1][0]}"
+                    print(f"\n--- Plotting for ROI: {roi}, Pair: {pair_name} ---")
+
+                    try:
+                        # 4. Get balanced data and 'cats'
+                        data, labels, cats = concatenate_and_balance_data_for_decoding(
+                            roi_labeled_arrays_viz, roi, viz_strings, args.obs_axs,
+                            balance_method='subsample', # Must use subsample for this viz
+                            random_state=args.random_state
+                        )
+                        if data.size == 0:
+                            print("No data after balancing. Skipping plot.")
+                            continue
+                            
+                        data_flat = data.reshape(data.shape[0], -1)
+
+                        # 5. Create and FIT the FULL pipeline
+                        # This uses the *exact* classifier and PCA settings from your args
+                        full_pipeline = Pipeline([
+                            ('scaler', StandardScaler()),
+                            ('pca', PCA(n_components=args.explained_variance)), 
+                            ('clf', args.clf_model) 
+                        ])
+                        
+                        print(f"Fitting pipeline for {pair_name}...")
+                        full_pipeline.fit(data_flat, labels)
+                        print("Fit complete.")
+
+                        # 6. Call the plotting function
+                        plot_high_dim_decision_slice(
+                            fitted_pipeline=full_pipeline,
+                            X_data=data_flat,
+                            y_labels=labels,
+                            cats=cats,
+                            roi=f"{roi} ({pair_name})", # Add pair info to title,
+                            save_dir=save_dir
+                        )
+                    except Exception as e:
+                        print(f"!! FAILED to generate plot for {roi} - {pair_name}: {e}")
+                        
+        print(f"\n{'='*20} ✅ VISUALIZATION DEBUG COMPLETE {'='*20}\n")
+        
     # use joblib to run the bootstrap processing in parallel
     bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
         delayed(process_bootstrap)(
