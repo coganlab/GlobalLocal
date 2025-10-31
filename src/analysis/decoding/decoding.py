@@ -42,6 +42,7 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 # Other third-party
 from tqdm import tqdm 
@@ -356,10 +357,19 @@ def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
                 l = 1 - l
             arr[i] = l * arr[choice1] + (1 - l) * arr[choice2]
 
-class Decoder(PcaLdaClassification, MinimumNaNSplit):
-    def __init__(self, categories: dict, *args, n_splits: int = 5, n_repeats: int = 10,
-                 oversample: bool = True, max_features: int = float("inf"), **kwargs):
-        PcaLdaClassification.__init__(self, *args, **kwargs)
+class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
+    def __init__(self, categories: dict,
+                 explained_variance: float = 0.8,
+                 n_splits: int = 5, n_repeats: int = 10,
+                 oversample: bool = True, max_features: int = float("inf"), 
+                 clf: BaseEstimator = LinearDiscriminantAnalysis(),
+                 clf_params: dict = None):
+        
+        PcaEstimateDecoder.__init__(self, 
+                                    explained_variance=explained_variance,
+                                    clf=clf,
+                                    clf_params=clf_params)
+        
         MinimumNaNSplit.__init__(self, n_splits, n_repeats)
         if not oversample:
             self.oversample = lambda x, func, axis: x
@@ -1003,7 +1013,8 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 # And maybe return just accuracies, which I can then call this entire function separately for true and shuffled.
 # ALSO STORE THE SHUFFLED OUTPUT IN A NUMPY ARRAY SO I DON'T HAVE TO MAKE IT EVERY TIME
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
-    roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
+    roi_labeled_arrays, rois, condition_comparison, strings_to_find, clf=None, 
+    n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
     step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False
 ):
@@ -1125,8 +1136,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_perm)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
@@ -2976,7 +2987,7 @@ def do_mne_paired_cluster_test(
 # In your decoding.py file, update this function
 
 def get_time_averaged_confusion_matrix(
-    roi_labeled_arrays, roi, strings_to_find, n_splits, n_repeats,
+    roi_labeled_arrays, roi, strings_to_find, clf, n_splits, n_repeats,
     obs_axs, balance_method, explained_variance, random_state, cats
 ):
     """
@@ -2990,7 +3001,7 @@ def get_time_averaged_confusion_matrix(
     if concatenated_data.size == 0:
         return None
 
-    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, clf=clf)
     
     # Key Change: Set normalize=None to get raw counts
     # The result will be shape (n_repeats, n_classes, n_classes)

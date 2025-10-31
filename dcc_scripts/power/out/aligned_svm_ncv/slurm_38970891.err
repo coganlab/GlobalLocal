@@ -1,4 +1,3 @@
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
 /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
   event_epochs = mne.concatenate_epochs(combined_epochs_list)
 /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
@@ -127,39 +126,41 @@ Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-le
   event_epochs = mne.concatenate_epochs(combined_epochs_list)
 /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
   event_epochs = mne.concatenate_epochs(combined_epochs_list)
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 20 concurrent workers.
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
-[Parallel(n_jobs=-1)]: Done   2 out of  20 | elapsed: 223.3min remaining: 2009.4min
-[Parallel(n_jobs=-1)]: Done   5 out of  20 | elapsed: 228.6min remaining: 685.8min
-[Parallel(n_jobs=-1)]: Done   8 out of  20 | elapsed: 231.0min remaining: 346.5min
-[Parallel(n_jobs=-1)]: Done  11 out of  20 | elapsed: 237.1min remaining: 194.0min
-[Parallel(n_jobs=-1)]: Done  14 out of  20 | elapsed: 243.5min remaining: 104.4min
-[Parallel(n_jobs=-1)]: Done  17 out of  20 | elapsed: 260.3min remaining: 45.9min
-[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed: 263.5min finished
-The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py:441: RuntimeWarning: Concatenation of Annotations within Epochs is not supported yet. All annotations will be dropped.
+  event_epochs = mne.concatenate_epochs(combined_epochs_list)
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py:53: RuntimeWarning: Channel names are not unique, found duplicates for: {'RIA12', 'RIA5', 'RFMM12', 'RAMF13', 'RFMM11', 'LFAM8', 'LFAM9', 'LAI7', 'RIA11', 'RFO14', 'RIA6', 'RAI6', 'LFAM10'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py:53: RuntimeWarning: Channel names are not unique, found duplicates for: {'RIA12', 'RIA5', 'RFMM12', 'RAMF13', 'RFMM11', 'LFAM8', 'LFAM9', 'LAI7', 'RIA11', 'RFO14', 'RIA6', 'RAI6', 'LFAM10'}. Applying running numbers for duplicates.
+  info = mne.create_info(
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: divide by zero encountered in divide
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py:1081: RuntimeWarning: invalid value encountered in scalar multiply
+  var *= np.divide(n, n-ddof)  # to avoid error on division by zero
 Traceback (most recent call last):
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 261, in run_analysis
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 199, in run_analysis
     main(args)
-  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 703, in main
-    pooled_cm_traces = extract_pooled_cm_traces(
-                       ^^^^^^^^^^^^^^^^^^^^^^^^
-NameError: name 'extract_pooled_cm_traces' is not defined
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 254, in main
+    mask_roi, p_values = time_perm_cluster_between_two_evokeds(evoked_cond1_this_roi, evoked_cond2_this_roi, p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/power/power_traces.py", line 713, in time_perm_cluster_between_two_evokeds
+    clusters, p_obs = time_perm_cluster(data1, data2,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/calc/stats.py", line 574, in time_perm_cluster
+    return _proc(0, sig1, sig2)[1:]
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/calc/stats.py", line 565, in _proc
+    p_perm = proportion(diff, tail=tails, axis=axis)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/calc/stats.py", line 700, in proportion
+    return _comp_by_sort(val, axis=axis)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/calc/stats.py", line 708, in _comp_by_sort
+    sorted_indices = diff.argsort(axis=axis, stable=False)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argsort() got an unexpected keyword argument 'stable'

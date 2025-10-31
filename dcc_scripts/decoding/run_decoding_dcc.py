@@ -14,6 +14,9 @@ from types import SimpleNamespace
 from datetime import datetime
 from ieeg.calc.fast import mean_diff
 
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.svm import SVC
+
 # ============================================================================
 # PATH SETUP
 # ============================================================================
@@ -61,7 +64,22 @@ ACC_TRIALS_ONLY = True
 # Parallel processing
 N_JOBS = -1 
 
-# Decoding parameters
+
+# DECODING PARAMETERS
+# First, choose your classifier
+MODEL_CHOICE = 'LDA'  # Options: 'LDA', 'SVC'
+
+if MODEL_CHOICE == 'LDA':
+    CLF_MODEL = LinearDiscriminantAnalysis()
+    CLF_MODEL_STR = 'LDA'
+elif MODEL_CHOICE == 'SVC':
+    # You can configure your model here
+    CLF_MODEL = SVC(C=1.0, kernel='linear', probability=False)
+    CLF_MODEL_STR = 'SVC_C1_linear'
+else:
+    raise ValueError(f"Unknown MODEL_CHOICE: {MODEL_CHOICE}")
+
+# Then, choose your decoding parameters
 N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
@@ -185,6 +203,8 @@ def run_analysis():
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
+        clf_model=CLF_MODEL,           
+        clf_model_str=CLF_MODEL_STR,  
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
         bootstraps=BOOTSTRAPS,
@@ -227,6 +247,7 @@ def run_analysis():
     print(f"Time axs:           {TIME_AXS}")
     print("-" * 70)
     print("Decoding Parameters:")
+    print(f"Classifier Model:   {CLF_MODEL_STR}")
     print(f"  CV Splits/Repeats: {N_SPLITS}/{N_REPEATS}")
     print(f"  Balance Method:    {BALANCE_METHOD}")
     print(f"  Explained Variance:{EXPLAINED_VARIANCE}")

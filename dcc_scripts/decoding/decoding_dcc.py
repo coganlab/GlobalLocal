@@ -187,12 +187,13 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 roi=roi,
                 strings_to_find=strings_to_find,
                 cats=cats,
+                clf=args.clf_model,
                 n_splits=args.n_splits,
                 n_repeats=args.n_repeats,
                 obs_axs=args.obs_axs,
                 balance_method=args.balance_method,
                 explained_variance=args.explained_variance,
-                random_state=args.random_state + bootstrap_idx
+                random_state=args.random_state + bootstrap_idx,
             )
             if cm is not None:
                 results_for_this_bootstrap['time_averaged_cms'][condition_comparison][roi] = cm
@@ -211,6 +212,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             n_repeats=args.n_repeats,
             obs_axs=args.obs_axs,
             time_axs=-1,
+            clf=args.clf_model,
             balance_method=args.balance_method,
             explained_variance=args.explained_variance,
             random_state=bootstrap_random_state,
@@ -570,7 +572,7 @@ def main(args):
     time_window_decoding_results = {i: result['time_window_results'] for i, result in enumerate(bootstrap_results_list) if result is not None}
     time_averaged_cms_list = [result['time_averaged_cms'] for result in bootstrap_results_list if result]
 
-    ## FIX: Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
+    ## Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
     ## This is necessary to get the correct labels for plotting the confusion matrices.
     cats_by_roi = {}
     first_valid_result = next((res for res in bootstrap_results_list if res), None)
@@ -641,8 +643,11 @@ def main(args):
     )
     
     sub_str = str(len(args.subjects))
-    analysis_params_str = f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_{args.unit_of_analysis}_unit_ev_{args.explained_variance}"   
-               
+    analysis_params_str = (
+            f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
+            f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
+            f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
+        )               
     master_results = {
         'stats': all_bootstrap_stats,
         'metadata': {
