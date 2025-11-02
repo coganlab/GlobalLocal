@@ -5,8 +5,10 @@ Contact: Jim Zhang and Raphael Geddert
 jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
+### Initial Preprocessing (getting the EDF, aligning triggers with events)
+1.	<img width="1360" height="614" alt="image" src="https://github.com/user-attachments/assets/70a10f46-2a2c-4111-8991-943cb3e05f25" />
 
-### BIDS Coding (makes BIDS files)
+### BIDS Coding (makes BIDS files after initial preprocessing)
 1. Run makeTrials_GL.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject. Need to add makeTrials_GL.m to path as well as MATLAB-env folder (/Users/jinjiang-macair/Documents/MATLAB/MATLAB-env). If MATLAB-env isn't there, you can clone it from https://github.com/coganlab/MATLAB-env
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch). Steps 3-5 go into detail on how to do this.
 3. To install dependencies, need to ```conda create env environment.yml``` on Mac if not already created, and give it an environment name. Or do ```conda env create -f environment.yml``` from the envs folder if on Windows.
@@ -56,11 +58,11 @@ Last edited: 01/16/2024
   
 # **Analysis Steps**
 
-### Preprocessing
-1.	<img width="1360" height="614" alt="image" src="https://github.com/user-attachments/assets/70a10f46-2a2c-4111-8991-943cb3e05f25" />
-2. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
-3. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
-4. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
+### Post-BIDS Preprocessing
+1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
+2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
+3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
+4. 
 ### Wavelets
 1. Run make_wavelets.ipynb to make wavelet tfr files (mne.TimeFrequency.EpochsTFR), saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5')
 2. Run plot_wavelets.ipynb to make wavelet plots for each electrode
