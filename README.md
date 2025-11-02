@@ -6,7 +6,11 @@ jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
 ### Initial Preprocessing (getting the EDF, aligning triggers with events)
-1.	<img width="1360" height="614" alt="image" src="https://github.com/user-attachments/assets/70a10f46-2a2c-4111-8991-943cb3e05f25" />
+1. Nicole wrote docs on this in Box/CoganLab/CRS Resources/Preprocessing. Focus on Global Local Preprocessing and BIDS Guide
+2. Data is in Box/CoganLab/ECoG_TaskData. TaskUploadDir is where the edfs are (made by cropping Natus recording) using the start and stop times of the experiment. Cogan_Task_Data is where the behavioral data is, sorted by subject
+3. Copy the data (both behavioral and EDF) into Box/CoganLab/D_Data/GlobalLocal. Behavioral data needs to be copied and renamed using the D###_behavioralData format into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. EDF needs to be copied into Box/CoganLab/D_Data/GlobalLocal/EDFs
+4. Ecog_preprocessing.m script. For each subject, need to note their neural_chan_index, trigger_chan_index, and mic_chan_index. This can be gotten by running edfread_fast and grabbing the labels: X = edfread_fast(edf_filename), Labels = x.label
+5. Exclude the EEG channels as well as the channels that start with C, EKG, Event, TRIG, OSAT, PR, Pleth
 
 ### BIDS Coding (makes BIDS files after initial preprocessing)
 1. Run makeTrials_GL.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject. Need to add makeTrials_GL.m to path as well as MATLAB-env folder (/Users/jinjiang-macair/Documents/MATLAB/MATLAB-env). If MATLAB-env isn't there, you can clone it from https://github.com/coganlab/MATLAB-env
