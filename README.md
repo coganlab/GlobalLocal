@@ -57,20 +57,7 @@ Last edited: 01/16/2024
 # **Analysis Steps**
 
 ### Preprocessing
-1.	• Nicole wrote docs on this in Box/CoganLab/CRS Resources/Preprocessing
-		○ Focus on Global Local Preprocessing and BIDS Guide
-	• Data is in Box/CoganLab/ECoG_TaskData
-		○ TaskUploadDir is where the edfs are (made by cropping Natus recording) using the start and stop times of the experiment
-		○ Cogan_Task_Data is where the behavioral data is, sorted by subject
-	• Copy the data (both behavioral and EDF) into Box/CoganLab/D_Data/GlobalLocal
-		○ Behavioral data needs to be copied and renamed using the D###_behavioralData format into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies
-		○ EDF needs to be copied into Box/CoganLab/D_Data/GlobalLocal/EDFs
-	• Ecog_preprocessing.m script
-		○ For each subject, need to note their neural_chan_index, trigger_chan_index, and mic_chan_index
-			§ This can be gotten by running edfread_fast and grabbing the labels
-				□ X = edfread_fast(edf_filename)
-				□ Labels = x.label
-Exclude the EEG channels as well as the channels that start with C, EKG, Event, TRIG, OSAT, PR, Pleth<img width="1360" height="614" alt="image" src="https://github.com/user-attachments/assets/70a10f46-2a2c-4111-8991-943cb3e05f25" />
+1.	<img width="1360" height="614" alt="image" src="https://github.com/user-attachments/assets/70a10f46-2a2c-4111-8991-943cb3e05f25" />
 2. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
 3. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 4. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
