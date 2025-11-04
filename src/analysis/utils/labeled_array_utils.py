@@ -29,7 +29,7 @@ import pandas as pd
 import scipy.stats as stats
 from joblib import Parallel, delayed
 import matplotlib.pyplot as plt
-from ieeg.calc.mat import LabeledArray
+from ieeg.arrays.label import LabeledArray
 
 def detect_data_type(subjects_data_objects):
     """
@@ -775,6 +775,12 @@ def make_bootstrapped_labeled_arrays_for_roi(
             for channel in all_channels_in_roi:
                 channel_data = nan_removed_data_dict[condition_name][channel]
                 
+                if len(channel_data) < n_samples:
+                     print(f"PROBLEM FOUND: Channel {channel} has only {len(channel_data)} trials for {condition_name}, needs {n_samples}")
+                     # You might want to 'continue' or handle this case explicitly
+                     # For now, just finding it is key.
+                     import pdb; pdb.set_trace() # Force a stop if this happens
+                     
                 # randomly subsample trials *without* replacement down to the channel with the fewest good trials for this roi and condition
                 sample_indices = rng.choice(len(channel_data), size=n_samples, replace=False) 
                 resampled_channels_for_condition.append(channel_data[sample_indices])
@@ -782,6 +788,15 @@ def make_bootstrapped_labeled_arrays_for_roi(
             # Stack the resampled channels along the channel axis
             # this makes a dense array for this condition: (trials, channels, time) or (trials, channels, freqs, time)
             concatenated_chans = np.stack(resampled_channels_for_condition, axis=chans_axs)
+            if condition_name == "Stimulus_i_in_25switchBlock": # <-- ADD THIS CHECK
+                        # <<< SET BREAKPOINT HERE (3c) >>>
+                        # Inspect specifically for the problematic condition:
+                        #   - np.sum(np.isnan(concatenated_chans)) 
+                        # Do NaNs appear right after stacking for *this* condition?
+                        if np.isnan(concatenated_chans).any():
+                            print(f"NANS APPEARED after stacking for {condition_name}!")
+                            import pdb; pdb.set_trace() # Force a stop
+                   
             bootstrapped_conditions_data[condition_name] = concatenated_chans
             
         print(f"Built bootstrapped_conditions_data with conditions: {list(bootstrapped_conditions_data.keys())}")

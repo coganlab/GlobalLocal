@@ -1,0 +1,1281 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0103']
+Conditions:        ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+  CV Splits/Repeats: 2/2
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):32/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 2
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0103
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s25
+Not setting metadata
+54 matching events found
+No baseline correction applied
+    Stimulus_s25: 54 valid trials out of 54
+  Loading condition: Stimulus_s75
+Not setting metadata
+166 matching events found
+No baseline correction applied
+    Stimulus_s75: 166 valid trials out of 166
+  Loading condition: Stimulus_r25
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Stimulus_r25: 168 valid trials out of 168
+  Loading condition: Stimulus_r75
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Stimulus_r75: 56 valid trials out of 56
+  Loading condition: Stimulus_s25
+Not setting metadata
+54 matching events found
+No baseline correction applied
+    Stimulus_s25: 54 valid trials out of 54
+  Loading condition: Stimulus_s75
+Not setting metadata
+166 matching events found
+No baseline correction applied
+    Stimulus_s75: 166 valid trials out of 166
+  Loading condition: Stimulus_r25
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Stimulus_r25: 168 valid trials out of 168
+  Loading condition: Stimulus_r75
+Not setting metadata
+56 matching events found
+No baseline correction applied
+    Stimulus_r75: 56 valid trials out of 56
+
+--- Summary of Dropped Electrodes ---
+ROI: lpfc
+  - Subject D0094: Dropped 28 electrode(s)
+  - Subject D0116: Dropped 30 electrode(s)
+  - Subject D0102: Dropped 5 electrode(s)
+  - Subject D0121: Dropped 61 electrode(s)
+  - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0065: Dropped 9 electrode(s)
+  - Subject D0057: Dropped 17 electrode(s)
+  - Subject D0071: Dropped 13 electrode(s)
+  - Subject D0117: Dropped 11 electrode(s)
+  - Subject D0063: Dropped 36 electrode(s)
+  - Subject D0069: Dropped 1 electrode(s)
+  - Subject D0110: Dropped 5 electrode(s)
+  - Subject D0090: Dropped 8 electrode(s)
+  - Subject D0059: Dropped 5 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 254
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (2 samples across 1 jobs) ====================
+
+
+====================) PROCESSING BOOTSTRAP 1/2 ====================
+
+Bootstrap 1: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAI4
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+condition 'Stimulus_s25': subsampling to 54 trials
+condition 'Stimulus_s75': subsampling to 166 trials
+condition 'Stimulus_r25': subsampling to 168 trials
+condition 'Stimulus_r75': subsampling to 56 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+
+Bootstrap 1: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 168 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 56
+  Subsampled condition 0: 166 -> 56
+
+Final balanced data shape: (112, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 226/336 (67.3%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 226/336 (67.3%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 67.26%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 110/336 (32.7%)
+  New data shape: (110, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 56 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 2/336 (0.6%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 2/336 (0.6%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 0.60%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 334/336 (99.4%)
+  New data shape: (334, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 166
+  Subsampled condition 1: 168 -> 166
+
+Final balanced data shape: (332, 11, 641)
+============================================================
+
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 168 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 56
+  Subsampled condition 0: 166 -> 56
+
+Final balanced data shape: (112, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 226/336 (67.3%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 226/336 (67.3%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 67.26%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 110/336 (32.7%)
+  New data shape: (110, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 56 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 2/336 (0.6%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 2/336 (0.6%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 0.60%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 334/336 (99.4%)
+  New data shape: (334, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 166
+  Subsampled condition 1: 168 -> 166
+
+Final balanced data shape: (332, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Generating pooled shuffle distribution for ROI: lpfc...
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: [['s25', 's75'], ['r25', 'r75']]
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (672, 11, 641)
+  Trials: 672
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 228/672 (33.9%)
+  Trials with outlier NaNs (sparse): 0/672 (0.0%)
+  Trials with missing channel NaNs (dense): 228/672 (33.9%)
+  Trials with both types: 0/672 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  ['s25', 's75']: 116/336 trials with NaNs (34.5%)
+  ['r25', 'r75']: 112/336 trials with NaNs (33.3%)
+
+After removing NaN trials:
+  Trials kept: 444/672 (66.1%)
+  New data shape: (444, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s25', 's75']: 220 trials
+  Condition ['r25', 'r75']: 224 trials
+
+Subsampling to min trial count: 220
+  Subsampled condition 1: 224 -> 220
+
+Final balanced data shape: (440, 11, 641)
+============================================================
+
+
+====================) PROCESSING BOOTSTRAP 2/2 ====================
+
+Bootstrap 2: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM8
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM9
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI13
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI14
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAM15
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI4
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI7
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI8
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LAI18
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFO15
+ROI lpfc: Processing condition Stimulus_s25 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_s75 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_r25 for subject D0103, electrode LFAI4
+ROI lpfc: Processing condition Stimulus_r75 for subject D0103, electrode LFAI4
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+condition 'Stimulus_s25': subsampling to 54 trials
+condition 'Stimulus_s75': subsampling to 166 trials
+condition 'Stimulus_r25': subsampling to 168 trials
+condition 'Stimulus_r75': subsampling to 56 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+
+Bootstrap 2: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 168 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 56
+  Subsampled condition 0: 166 -> 56
+
+Final balanced data shape: (112, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 226/336 (67.3%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 226/336 (67.3%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 67.26%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 110/336 (32.7%)
+  New data shape: (110, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 56 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 2/336 (0.6%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 2/336 (0.6%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 0.60%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 334/336 (99.4%)
+  New data shape: (334, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 166
+  Subsampled condition 1: 168 -> 166
+
+Final balanced data shape: (332, 11, 641)
+============================================================
+
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 168 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 114/336 (33.9%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 114/336 (33.9%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 222/336 (66.1%)
+  New data shape: (222, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 56
+  Subsampled condition 0: 166 -> 56
+
+Final balanced data shape: (112, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s25', 'r75']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 226/336 (67.3%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 226/336 (67.3%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 67.26%
+
+--- NaN Impact by Condition ---
+  s25: 114/168 trials with NaNs (67.9%)
+  r75: 112/168 trials with NaNs (66.7%)
+
+After removing NaN trials:
+  Trials kept: 110/336 (32.7%)
+  New data shape: (110, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s25: 54 trials
+  Condition r75: 56 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 56 -> 54
+
+Final balanced data shape: (108, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Processing ROI: lpfc
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: ['s75', 'r25']
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (336, 11, 641)
+  Trials: 336
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 2/336 (0.6%)
+  Trials with outlier NaNs (sparse): 0/336 (0.0%)
+  Trials with missing channel NaNs (dense): 2/336 (0.6%)
+  Trials with both types: 0/336 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 0.60%
+
+--- NaN Impact by Condition ---
+  s75: 2/168 trials with NaNs (1.2%)
+  r25: 0/168 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 334/336 (99.4%)
+  New data shape: (334, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition s75: 166 trials
+  Condition r25: 168 trials
+
+Subsampling to min trial count: 166
+  Subsampled condition 1: 168 -> 166
+
+Final balanced data shape: (332, 11, 641)
+============================================================
+
+start times are: [-256, -240, -224, -208, -192, -176, -160, -144, -128, -112, -96, -80, -64, -48, -32, -16, 0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 176, 192, 208, 224, 240, 256, 272, 288, 304, 320, 336, 352]
+Effective window size: 32
+Effective step size: 16
+Number of windows: 39
+time_window_centers are: [-0.9375, -0.875, -0.8125, -0.75, -0.6875, -0.625, -0.5625, -0.5, -0.4375, -0.375, -0.3125, -0.25, -0.1875, -0.125, -0.0625, 0.0, 0.0625, 0.125, 0.1875, 0.25, 0.3125, 0.375, 0.4375, 0.5, 0.5625, 0.625, 0.6875, 0.75, 0.8125, 0.875, 0.9375, 1.0, 1.0625, 1.125, 1.1875, 1.25, 1.3125, 1.375, 1.4375]
+Generating pooled shuffle distribution for ROI: lpfc...
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s25', 'Stimulus_s75', 'Stimulus_r25', 'Stimulus_r75']
+The code is searching for strings: [['s25', 's75'], ['r25', 'r75']]
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (672, 11, 641)
+  Trials: 672
+  Channels: 11
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/11
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 228/672 (33.9%)
+  Trials with outlier NaNs (sparse): 0/672 (0.0%)
+  Trials with missing channel NaNs (dense): 228/672 (33.9%)
+  Trials with both types: 0/672 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 11.0
+  Max missing channels in a trial: 11
+
+Overall NaN Percentage: 33.93%
+
+--- NaN Impact by Condition ---
+  ['s25', 's75']: 116/336 trials with NaNs (34.5%)
+  ['r25', 'r75']: 112/336 trials with NaNs (33.3%)
+
+After removing NaN trials:
+  Trials kept: 444/672 (66.1%)
+  New data shape: (444, 11, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['s25', 's75']: 220 trials
+  Condition ['r25', 'r75']: 224 trials
+
+Subsampling to min trial count: 220
+  Subsampled condition 1: 224 -> 220
+
+Final balanced data shape: (440, 11, 641)
+============================================================
+
+
+📊 Aggregating and plotting time-averaged confusion matrices...
+✅ Saved summed & normalized CM for lpfc to /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r25/lpfc
+✅ Saved summed & normalized CM for lpfc to /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s75_vs_r75/lpfc
+✅ Saved summed & normalized CM for lpfc to /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s25_vs_r75/lpfc
+✅ Saved summed & normalized CM for lpfc to /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/s75_vs_r25/lpfc
+
+-------------------- PARALLEL BOOTSTRAPPING COMPLETE ====================
+
+
+✗ Analysis failed with error: cannot access local variable 'analysis_params_str' where it is not associated with a value

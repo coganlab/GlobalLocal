@@ -14,6 +14,9 @@ from types import SimpleNamespace
 from datetime import datetime
 from ieeg.calc.fast import mean_diff
 
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.svm import SVC
+
 # ============================================================================
 # PATH SETUP
 # ============================================================================
@@ -48,7 +51,7 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
 # remove D0110 because of low error trials
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
 SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
@@ -61,11 +64,26 @@ ACC_TRIALS_ONLY = True
 # Parallel processing
 N_JOBS = -1 
 
-# Decoding parameters
+
+# DECODING PARAMETERS
+# First, choose your classifier
+MODEL_CHOICE = 'LDA'  # Options: 'LDA', 'SVC'
+
+if MODEL_CHOICE == 'LDA':
+    CLF_MODEL = LinearDiscriminantAnalysis()
+    CLF_MODEL_STR = 'LDA'
+elif MODEL_CHOICE == 'SVC':
+    # You can configure your model here
+    CLF_MODEL = SVC(C=1.0, kernel='linear', probability=False)
+    CLF_MODEL_STR = 'SVC_C1_linear'
+else:
+    raise ValueError(f"Unknown MODEL_CHOICE: {MODEL_CHOICE}")
+
+# Then, choose your decoding parameters
 N_SPLITS = 5
 N_REPEATS = 5
 RANDOM_STATE = 42
-EXPLAINED_VARIANCE = 0.8
+EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
@@ -74,7 +92,7 @@ CHANS_AXS = 1
 TIME_AXS = -1
 
 # Time-windowed decoding parameters
-WINDOW_SIZE = 32  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
+WINDOW_SIZE = 64  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
 STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
@@ -93,9 +111,27 @@ CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # additional parameters for permutation cluster stats
-P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
-P_CLUSTER = 0.05
-CLUSTER_TAILS = 2
+STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+
+if STAT_FUNC_CHOICE == 'mean_diff':
+    STAT_FUNC = mean_diff
+    STAT_FUNC_STR = 'mean_diff'
+elif STAT_FUNC_CHOICE == 'ttest_ind':
+    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    STAT_FUNC_STR = 'ttest_ind'
+elif STAT_FUNC_CHOICE == 'ttest_rel':
+    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+    STAT_FUNC_STR = 'ttest_rel'
+    
+P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.025
+P_CLUSTER = 0.025
+PERMUTATION_TYPE = 'independent'
+# CLUSTER_TAILS = 2
+
+# plotting
+SINGLE_COLUMN = True
+SHOW_LEGEND = False
+RUN_VISUALIZATION_DEBUG = True # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection
 CONDITIONS = experiment_conditions.stimulus_lwpc_conditions
@@ -129,24 +165,23 @@ EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_
 # }
 
 ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 }
 
 # which electrodes to use (all or sig)
 ELECTRODES = 'all'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 2
-# N_PERM = 5
-# N_CLUSTER_PERMS= 5
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 2
+N_PERM = 2
+N_CLUSTER_PERMS= 2
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -169,6 +204,8 @@ def run_analysis():
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
+        clf_model=CLF_MODEL,           
+        clf_model_str=CLF_MODEL_STR,  
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
         bootstraps=BOOTSTRAPS,
@@ -187,7 +224,13 @@ def run_analysis():
         n_shuffle_perms=N_SHUFFLE_PERMS,
         p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
         p_cluster=P_CLUSTER,
-        cluster_tails=CLUSTER_TAILS
+        stat_func=STAT_FUNC,
+        permutation_type=PERMUTATION_TYPE,
+        stat_func_str=STAT_FUNC_STR,
+        single_column=SINGLE_COLUMN,
+        show_legend=SHOW_LEGEND,
+        run_visualization_debug=RUN_VISUALIZATION_DEBUG
+        # cluster_tails=CLUSTER_TAILS,
     )
 
     # Print configuration summary
@@ -206,6 +249,7 @@ def run_analysis():
     print(f"Time axs:           {TIME_AXS}")
     print("-" * 70)
     print("Decoding Parameters:")
+    print(f"Classifier Model:   {CLF_MODEL_STR}")
     print(f"  CV Splits/Repeats: {N_SPLITS}/{N_REPEATS}")
     print(f"  Balance Method:    {BALANCE_METHOD}")
     print(f"  Explained Variance:{EXPLAINED_VARIANCE}")
@@ -216,7 +260,9 @@ def run_analysis():
     print("Perm Cluster Statistical Parameters:")
     print(f"  P-value Threshold: {P_THRESH_FOR_TIME_PERM_CLUSTER_STATS}")
     print(f"  P cluster: {P_CLUSTER}")
-    print(f"  Tails:             {CLUSTER_TAILS}")
+    print(f"  Stat Func: {STAT_FUNC_STR}")
+    print(f"  Permutation Type: {PERMUTATION_TYPE}")
+    # print(f"  Tails:             {CLUSTER_TAILS}")
 
     print(f" unit of analysis for stats (bootstrap, repeat, or fold): {UNIT_OF_ANALYSIS}")
     
@@ -225,6 +271,12 @@ def run_analysis():
     print(f"  Cluster Percentile: {CLUSTER_PERCENTILE}")
     print(f"  N Cluster Perms: {N_CLUSTER_PERMS}")
     print("=" * 70)
+    print("=" * 70)
+    
+    print("plotting params")
+    print(f" single column figure: {SINGLE_COLUMN}")
+    print(f" show legend: {SHOW_LEGEND}")
+    print(f" run visualization debugging of first two PCs and decision boundary: {RUN_VISUALIZATION_DEBUG}")
     print("=" * 70)
     
     # Run the analysis

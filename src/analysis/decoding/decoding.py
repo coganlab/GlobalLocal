@@ -40,8 +40,11 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.base import BaseEstimator
+from sklearn.decomposition import PCA
 
 # Other third-party
 from tqdm import tqdm 
@@ -54,10 +57,8 @@ from ieeg.io import raw_from_layout, get_data
 from ieeg.timefreq.utils import crop_pad
 from ieeg.timefreq import gamma
 from ieeg.calc.scaling import rescale
-from ieeg.calc.reshape import make_data_same
 from ieeg.calc.stats import time_perm_cluster
-from ieeg.calc.mat import LabeledArray, combine
-from ieeg.decoding.decoders import PcaLdaClassification
+from ieeg.decoding.models import PcaLdaClassification, PcaEstimateDecoder
 from ieeg.calc.oversample import MinimumNaNSplit
 from ieeg.calc.fast import mixup
 from ieeg.viz.parula import parula_map
@@ -77,10 +78,9 @@ from src.analysis.utils.labeled_array_utils import (
 from src.analysis.utils.general_utils import * # This is generally discouraged.
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
 import gc
-# ---- Potentially Unused or Redundant ----
-# from pandas import read_csv # pandas is already imported as pd, use pd.read_csv
-# from os.path import join, expanduser, basename # os.path is available via 'import os'
-# from joblib import Parallel, delayed # joblib is already imported
+
+# plotting
+import seaborn as sns
 
 def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
@@ -362,10 +362,19 @@ def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
                 l = 1 - l
             arr[i] = l * arr[choice1] + (1 - l) * arr[choice2]
 
-class Decoder(PcaLdaClassification, MinimumNaNSplit):
-    def __init__(self, categories: dict, *args, n_splits: int = 5, n_repeats: int = 10,
-                 oversample: bool = True, max_features: int = float("inf"), **kwargs):
-        PcaLdaClassification.__init__(self, *args, **kwargs)
+class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
+    def __init__(self, categories: dict,
+                 explained_variance: float = 0.8,
+                 n_splits: int = 5, n_repeats: int = 10,
+                 oversample: bool = True, max_features: int = float("inf"), 
+                 clf: BaseEstimator = LinearDiscriminantAnalysis(),
+                 clf_params: dict = None):
+        
+        PcaEstimateDecoder.__init__(self, 
+                                    explained_variance=explained_variance,
+                                    clf=clf,
+                                    clf_params=clf_params)
+        
         MinimumNaNSplit.__init__(self, n_splits, n_repeats)
         if not oversample:
             self.oversample = lambda x, func, axis: x
@@ -1009,7 +1018,8 @@ def get_and_plot_confusion_matrix_for_rois_jim(
 # And maybe return just accuracies, which I can then call this entire function separately for true and shuffled.
 # ALSO STORE THE SHUFFLED OUTPUT IN A NUMPY ARRAY SO I DON'T HAVE TO MAKE IT EVERY TIME
 def get_confusion_matrices_for_rois_time_window_decoding_jim(
-    roi_labeled_arrays, rois, condition_comparison, strings_to_find, n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
+    roi_labeled_arrays, rois, condition_comparison, strings_to_find, clf=None, 
+    n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
     step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False
 ):
@@ -1131,18 +1141,18 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_perm)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
-            concatenated_data, labels, normalize='true', obs_axs=obs_axs, time_axs=time_axs,
+            concatenated_data, labels, normalize=None, obs_axs=obs_axs, time_axs=time_axs,
             window=effective_window_size, step_size=effective_step_size, shuffle=False, folds_as_samples=folds_as_samples
         )
 
         # Run decoding with shuffled labels
         cm_shuffle = decoder_shuffle.cv_cm_jim_window_shuffle(
-            concatenated_data, labels, normalize='true', obs_axs=obs_axs, time_axs=time_axs,
+            concatenated_data, labels, normalize=None, obs_axs=obs_axs, time_axs=time_axs,
             window=effective_window_size, step_size=effective_step_size, shuffle=True, folds_as_samples=folds_as_samples
         )
 
@@ -1266,12 +1276,12 @@ from operator import itemgetter
 # Nature journal style settings
 NATURE_STYLE = {
     'figure.figsize': (89/25.4, 89/25.4),  # 89mm (single column) converted to inches
-    'font.size': 7,
-    'axes.labelsize': 7,
-    'axes.titlesize': 7,
-    'xtick.labelsize': 6,
-    'ytick.labelsize': 6,
-    'legend.fontsize': 6,
+    'font.size': 24,
+    'axes.labelsize': 24,
+    'axes.titlesize': 24,
+    'xtick.labelsize': 24,
+    'ytick.labelsize': 24,
+    'legend.fontsize': 24,
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
     'axes.linewidth': 0.5,
@@ -2982,7 +2992,7 @@ def do_mne_paired_cluster_test(
 # In your decoding.py file, update this function
 
 def get_time_averaged_confusion_matrix(
-    roi_labeled_arrays, roi, strings_to_find, n_splits, n_repeats,
+    roi_labeled_arrays, roi, strings_to_find, clf, n_splits, n_repeats,
     obs_axs, balance_method, explained_variance, random_state, cats
 ):
     """
@@ -2996,7 +3006,7 @@ def get_time_averaged_confusion_matrix(
     if concatenated_data.size == 0:
         return None
 
-    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, clf=clf)
     
     # Key Change: Set normalize=None to get raw counts
     # The result will be shape (n_repeats, n_classes, n_classes)
@@ -3167,3 +3177,1042 @@ def cluster_perm_paired_ttest_by_duration(
             
     print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
     return final_sig_mask
+
+def run_two_one_tailed_tests_with_time_perm_cluster(
+    accuracies1, accuracies2, 
+    p_thresh=0.025, p_cluster=0.025, stat_func=None,
+    permutation_type='independent',
+    n_perm=100, random_state=42, n_jobs=-1
+):
+    """
+    Run two one-tailed tests using time_perm_cluster function.
+    
+    Parameters:
+    -----------
+    accuracies1, accuracies2 : arrays of shape (n_samples, n_times)
+        The accuracy distributions to compare
+        
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.permutation_test.html#permutation-test
+    """
+    # Two one-tailed tests
+    
+    # Test 1: accuracies1 > accuracies2 (tails=1 for greater)
+    sig_mask_positive, p_obs_positive = time_perm_cluster(
+        sig1=accuracies1,
+        sig2=accuracies2,
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=1,  # One-tailed test for sig1 > sig2
+        axis=0,   # Observations/samples axis
+        stat_func=stat_func,
+        permutation_type=permutation_type,  # Do 'samples' for paired samples, and 'independent' for independent t-tests
+        n_jobs=n_jobs,
+        seed=random_state,
+        verbose=40
+    )
+    
+    # Test 2: accuracies2 > accuracies1 (still tails=1, but swap inputs)
+    sig_mask_negative, p_obs_negative = time_perm_cluster(
+        sig1=accuracies2,  # Swapped
+        sig2=accuracies1,  # Swapped
+        p_thresh=p_thresh,
+        p_cluster=p_cluster,
+        n_perm=n_perm,
+        tails=1,  # One-tailed test for sig1 > sig2 (now acc2 > acc1)
+        axis=0,
+        stat_func=stat_func,
+        permutation_type=permutation_type,  # Do 'samples' for paired samples, and 'independent' for independent t-tests
+        n_jobs=n_jobs,
+        seed=random_state + 1 if random_state else None,
+        verbose=40
+    )
+    
+    return sig_mask_positive, sig_mask_negative, p_obs_positive, p_obs_negative
+
+
+def plot_accuracies_with_multiple_sig_clusters(
+    time_points: np.ndarray,
+    accuracies_dict: Dict[str, np.ndarray],
+    significance_clusters_dict: Dict[str, Dict],
+    window_size: Optional[int] = None,
+    step_size: Optional[int] = None,
+    sampling_rate: float = 256,
+    comparison_name: str = "",
+    roi: str = "",
+    save_dir: str = ".",
+    timestamp: Optional[str] = None,
+    p_thresh: float = 0.05,
+    colors: Optional[Dict[str, str]] = None,
+    linestyles: Optional[Dict[str, str]] = None,
+    title: Optional[str] = None,
+    ylabel: str = "Accuracy",
+    ylim: Tuple[float, float] = (0.0, 1.0),
+    xlim: Tuple[float, float] = (-0.5, 1.5),
+    single_column: bool = True,
+    show_legend: bool = True,
+    show_chance_level: bool = True,
+    chance_level: float = 0.5,
+    filename_suffix: str = "",
+    return_fig: bool = False,
+    samples_axis: int = 0,
+    # New parameters for multiple significance clusters
+    sig_bar_height: float = 0.02,  # Height of significance bars as fraction of y-range
+    sig_bar_spacing: float = 0.01,  # Spacing between different significance bars as fraction of y-range
+    sig_bar_colors: Optional[Dict[str, str]] = None,
+    sig_bar_labels: Optional[Dict[str, str]] = None,
+    sig_bar_base_position: Optional[float] = None,  # Base y-position for significance bars (default: 0.9 of y-range)
+    show_sig_legend: bool = False,  # Whether to show legend for significance bars
+    sig_marker_style: str = "*",  # Marker style for significance ('*', '**', '***', or custom)
+):
+    """
+    Enhanced wrapper for plotting accuracies with multiple significance clusters.
+    
+    This function extends plot_accuracies_nature_style to handle multiple significance
+    clusters from different comparisons (e.g., different directions in LWPC).
+    
+    Parameters
+    ----------
+    time_points : np.ndarray
+        Time points for x-axis.
+    accuracies_dict : Dict[str, np.ndarray]
+        Dictionary mapping condition names to accuracy arrays.
+    significance_clusters_dict : Dict[str, Dict]
+        Dictionary mapping cluster names to cluster information.
+        Each entry should have:
+        - 'clusters': np.ndarray or List[bool] - Boolean mask of significant time points
+        - 'label': str (optional) - Label for this cluster in legend
+        - 'color': str (optional) - Color for significance bar
+        - 'marker': str (optional) - Marker style ('*', '**', etc.)
+        - 'position_offset': float (optional) - Additional offset from base position
+    sig_bar_height : float
+        Height of each significance bar as fraction of y-range.
+    sig_bar_spacing : float
+        Vertical spacing between different significance bars as fraction of y-range.
+    sig_bar_colors : Dict[str, str]
+        Dictionary mapping cluster names to colors (overrides individual settings).
+    sig_bar_labels : Dict[str, str]
+        Dictionary mapping cluster names to labels for legend.
+    sig_bar_base_position : float
+        Base y-position for significance bars (default: 0.9 of y-range from bottom).
+    show_sig_legend : bool
+        Whether to show a separate legend for significance bars.
+    sig_marker_style : str
+        Default marker style for significance indicators.
+    
+    Other parameters are passed through to the original plot_accuracies_nature_style function.
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure (if return_fig=True)
+        The figure object.
+        
+    Examples
+    --------
+    # Example with LWPC having significant clusters for two directions
+    significance_clusters_dict = {
+        'lwpc_direction1': {
+            'clusters': sig_mask_direction1,
+            'label': 'LWPC >',
+            'color': 'red',
+            'marker': '*'
+        },
+        'lwpc_direction2': {
+            'clusters': sig_mask_direction2,
+            'label': 'LWPC <',
+            'color': 'blue',
+            'marker': '**'
+        }
+    }
+    
+    plot_accuracies_with_multiple_sig_clusters(
+        time_points=time_window_centers,
+        accuracies_dict=accuracies_dict,
+        significance_clusters_dict=significance_clusters_dict,
+        sig_bar_spacing=0.015,
+        show_sig_legend=True,
+        # ... other parameters
+    )
+    """
+    
+    # Import the original NATURE_STYLE (you'll need to adjust this import based on your setup)
+    NATURE_STYLE = {
+        'figure.figsize': (89/25.4, 89/25.4),
+        'font.size': 24,
+        'axes.labelsize': 24,
+        'axes.titlesize': 24,
+        'xtick.labelsize': 24,
+        'ytick.labelsize': 24,
+        'legend.fontsize': 24,
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+        'axes.linewidth': 0.5,
+        'axes.spines.top': False,
+        'axes.spines.right': False,
+        'xtick.major.width': 0.5,
+        'ytick.major.width': 0.5,
+        'xtick.major.size': 2,
+        'ytick.major.size': 2,
+        'lines.linewidth': 1,
+        'lines.markersize': 3,
+        'legend.frameon': False,
+        'legend.columnspacing': 0.5,
+        'legend.handlelength': 1,
+        'savefig.dpi': 300,
+        'savefig.bbox': 'tight',
+        'savefig.pad_inches': 0.05
+    }
+    
+    # Apply Nature style settings
+    with plt.rc_context(NATURE_STYLE):
+        # Set figure size based on column width
+        if single_column:
+            fig_width = 89 / 25.4  # 89mm to inches
+            fig_height = fig_width * 0.8  # Aspect ratio
+        else:
+            fig_width = 183 / 25.4  # 183mm to inches
+            fig_height = fig_width * 0.4
+        
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        
+        # Define Nature-appropriate colors if not provided
+        if colors is None:
+            nature_colors = [
+                '#0173B2',  # Blue
+                '#DE8F05',  # Orange
+                '#029E73',  # Green
+                '#CC78BC',  # Light purple
+                '#ECE133',  # Yellow
+                '#56B4E9',  # Light blue
+                '#F0E442',  # Light yellow
+                '#949494',  # Gray
+            ]
+            colors = {}
+            for i, label in enumerate(accuracies_dict.keys()):
+                colors[label] = nature_colors[i % len(nature_colors)]
+        
+        # Plot each accuracy time series
+        for i, (label, accuracies) in enumerate(accuracies_dict.items()):
+            # Compute statistics
+            if accuracies.ndim == 2:
+                n_samples = accuracies.shape[samples_axis]
+                mean_accuracy = np.mean(accuracies, axis=samples_axis)
+                std_accuracy = np.std(accuracies, axis=samples_axis)
+                sem_accuracy = std_accuracy / np.sqrt(n_samples)
+            else:
+                mean_accuracy = accuracies
+                std_accuracy = np.zeros_like(accuracies)
+                sem_accuracy = np.zeros_like(accuracies)
+                print(f"⚠️ Warning: Accuracy data for '{label}' is 1D. Cannot compute SEM; plotting without error bars.")
+
+            # Get color and linestyle
+            color = colors.get(label, '#0173B2') if colors else '#0173B2'
+            linestyle = linestyles.get(label, '-') if linestyles else '-'
+            
+            # Plot mean line with higher contrast
+            ax.plot(time_points, mean_accuracy, 
+                    label=label, 
+                    color=color, 
+                    linestyle=linestyle,
+                    linewidth=1,
+                    zorder=3)
+            
+            # Plot SEM as shaded area
+            ax.fill_between(
+                time_points,
+                mean_accuracy - std_accuracy,
+                mean_accuracy + std_accuracy,
+                alpha=0.25,  # Lighter shading for Nature style
+                color=color,
+                linewidth=0,
+                zorder=1
+            )
+        
+        # Add chance level line if requested
+        if show_chance_level:
+            ax.axhline(y=chance_level, 
+                      color='#666666', 
+                      linestyle='--', 
+                      linewidth=0.5,
+                      zorder=2,
+                      label='Chance')
+        
+        # Add stimulus onset line
+        ax.axvline(x=0, 
+                  color='#666666', 
+                  linestyle='-', 
+                  linewidth=0.5,
+                  alpha=0.5,
+                  zorder=2)
+        
+        # =================================================================
+        # ENHANCED SECTION: Handle multiple significance clusters
+        # =================================================================
+        if significance_clusters_dict:
+            y_range = ylim[1] - ylim[0]
+            
+            # Calculate base position for significance bars
+            if sig_bar_base_position is None:
+                sig_bar_base_position = ylim[0] + y_range * 0.9
+            
+            # Track lines for significance legend
+            sig_legend_elements = []
+            
+            # Process each set of significant clusters
+            for cluster_idx, (cluster_name, cluster_info) in enumerate(significance_clusters_dict.items()):
+                # Extract cluster information
+                if isinstance(cluster_info, dict):
+                    clusters_mask = cluster_info.get('clusters')
+                    cluster_label = cluster_info.get('label', cluster_name)
+                    cluster_color = cluster_info.get('color', 'black')
+                    cluster_marker = cluster_info.get('marker', sig_marker_style)
+                    position_offset = cluster_info.get('position_offset', 0)
+                else:
+                    # If just a boolean array is provided
+                    clusters_mask = cluster_info
+                    cluster_label = cluster_name
+                    cluster_color = 'black'
+                    cluster_marker = sig_marker_style
+                    position_offset = 0
+                
+                # Override with global settings if provided
+                if sig_bar_colors and cluster_name in sig_bar_colors:
+                    cluster_color = sig_bar_colors[cluster_name]
+                if sig_bar_labels and cluster_name in sig_bar_labels:
+                    cluster_label = sig_bar_labels[cluster_name]
+                
+                # Skip if no significant clusters
+                if clusters_mask is None or not np.any(clusters_mask):
+                    continue
+                
+                # Calculate y-position for this set of clusters
+                y_position = sig_bar_base_position + (cluster_idx * (sig_bar_height + sig_bar_spacing) * y_range) + position_offset
+                
+                # Find contiguous clusters
+                clusters = find_contiguous_clusters(clusters_mask)
+                
+                # Draw each cluster
+                for start_idx, end_idx in clusters:
+                    # Calculate time range
+                    if window_size:
+                        window_duration = window_size / sampling_rate / 2
+                    else:
+                        window_duration = 0
+                    
+                    start_time = time_points[start_idx] - window_duration
+                    end_time = time_points[end_idx] + window_duration
+                    
+                    # Draw significance bar
+                    line = ax.plot([start_time, end_time], 
+                                  [y_position, y_position],
+                                  color=cluster_color, 
+                                  linewidth=1.5,
+                                  solid_capstyle='butt',
+                                  alpha=0.8)[0]
+                    
+                    # Add significance marker
+                    center_time = (start_time + end_time) / 2
+                    ax.text(center_time, 
+                           y_position + y_range * 0.01, 
+                           cluster_marker, 
+                           ha='center', 
+                           va='bottom', 
+                           fontsize=8,
+                           fontweight='bold',
+                           color=cluster_color)
+                
+                # Add to legend elements (only once per cluster type)
+                if show_sig_legend and clusters:
+                    from matplotlib.lines import Line2D
+                    sig_legend_elements.append(
+                        Line2D([0], [0], color=cluster_color, linewidth=1.5, 
+                              label=cluster_label, alpha=0.8)
+                    )
+        
+        # Set labels
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_ylabel(ylabel, fontsize=7)
+        
+        # Set axis limits
+        ax.set_ylim(ylim)
+        ax.set_xlim(xlim)
+        
+        # Configure ticks
+        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        
+        # Set specific x-ticks for clarity
+        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        ax.set_xticks(x_ticks)
+        
+        # Set specific y-ticks for consistency
+        y_ticks = np.linspace(ylim[0], ylim[1], num=5) 
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels([f'{y:.2f}' for y in y_ticks])
+
+        # Configure legends
+        if show_legend:
+            # Main legend for accuracy lines
+            main_legend = ax.legend(
+                loc='upper right',
+                fontsize=6,
+                frameon=False,
+                handlelength=1,
+                handletextpad=0.5,
+                borderpad=0.2,
+                columnspacing=0.5
+            )
+            if len(accuracies_dict) > 1:
+                for line in main_legend.get_lines():
+                    line.set_linewidth(1.5)
+            
+            # Add significance legend if requested
+            if show_sig_legend and sig_legend_elements:
+                sig_legend = ax.legend(
+                    handles=sig_legend_elements,
+                    loc='upper left',
+                    fontsize=6,
+                    frameon=False,
+                    handlelength=1,
+                    handletextpad=0.5,
+                    borderpad=0.2,
+                    title='Significance',
+                    title_fontsize=6
+                )
+                # Add back the main legend (matplotlib removes it when adding second legend)
+                ax.add_artist(main_legend)
+
+        # Add title only if specified
+        if title:
+            ax.set_title(title, fontsize=7, pad=3)
+        
+        # Remove top and right spines (Nature style)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        # Make remaining spines thinner
+        ax.spines['left'].set_linewidth(0.5)
+        ax.spines['bottom'].set_linewidth(0.5)
+        
+        # Tight layout
+        plt.tight_layout(pad=0.5)
+        
+        if return_fig:
+            return fig
+        else:
+            # Create filename
+            timestamp_str = f"{timestamp}_" if timestamp else ""
+            
+            filename_parts = [timestamp_str.rstrip('_')]
+            if comparison_name:
+                filename_parts.append(comparison_name)
+            if roi:
+                filename_parts.append(roi)
+            if filename_suffix:
+                filename_parts.append(filename_suffix)
+            
+            filename = "_".join(filter(None, filename_parts)) + ".pdf"
+            filepath = os.path.join(save_dir, filename)
+            
+            # Ensure save directory exists
+            os.makedirs(save_dir, exist_ok=True)
+            
+            # Save in multiple formats
+            plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.eps'), format='eps', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            
+            plt.close(fig)
+            print(f"Saved Nature-style plot with multiple significance clusters to: {filepath}")
+            
+def extract_pooled_cm_traces(
+    time_window_decoding_results: dict,
+    n_bootstraps: int,
+    condition_comparisons: dict,
+    rois: list,
+    unit_of_analysis: str,
+    cats_by_roi: dict
+) -> dict:
+    """
+    Pools raw confusion matrix cell counts across bootstraps based on the unit of analysis.
+
+    Parameters
+    ----------
+    time_window_decoding_results : dict
+        The main results dictionary from the parallel bootstrap processing.
+    n_bootstraps : int
+        The total number of bootstraps run.
+    condition_comparisons : dict
+        Dictionary of condition comparisons to analyze.
+    rois : list
+        List of ROIs to process.
+    unit_of_analysis : str
+        The sampling unit ('bootstrap', 'repeat', or 'fold').
+    cats_by_roi : dict
+        Dictionary from bootstrap results containing the 'cats' for each ROI.
+
+    Returns
+    -------
+    dict
+        A nested dictionary: 
+        {condition_comparison: {roi: {trace_label: pooled_trace_array}}}
+        where pooled_trace_array has shape (n_samples, n_windows).
+    """
+    pooled_traces = {}
+
+    for condition_comparison, strings_to_find in condition_comparisons.items():
+        pooled_traces[condition_comparison] = {}
+        
+        for roi in rois:
+            if roi not in cats_by_roi:
+                print(f"Warning: 'cats' not found for ROI {roi}, skipping CM trace extraction.")
+                continue
+
+            # Get the class labels from the 'cats' dictionary
+            cats = cats_by_roi[roi]
+            class_labels = [key[0] if isinstance(key, tuple) and len(key) == 1 else str(key) for key in cats.keys()]
+            n_classes = len(class_labels)
+            
+            # Create trace labels, e.g., "True: c25, Pred: i25"
+            trace_labels = []
+            for true_idx in range(n_classes):
+                for pred_idx in range(n_classes):
+                    label = f"True: {class_labels[true_idx]}, Pred: {class_labels[pred_idx]}"
+                    trace_labels.append(label)
+
+            # This list will hold arrays for each trace, e.g., all_trace_lists[0] is for 'True: c25, Pred: c25'
+            all_trace_lists = [[] for _ in trace_labels]
+
+            for b_idx in range(n_bootstraps):
+                if (b_idx in time_window_decoding_results and
+                    condition_comparison in time_window_decoding_results[b_idx] and
+                    roi in time_window_decoding_results[b_idx][condition_comparison]):
+                    
+                    # Get raw CMs - shape: (n_windows, n_samples_per_boot, n_classes, n_classes)
+                    cm_raw = time_window_decoding_results[b_idx][condition_comparison][roi]['cm_true']
+                    
+                    n_windows, n_samples_per_boot, _, _ = cm_raw.shape
+
+                    # This will hold traces for *this bootstrap*
+                    # List of arrays, each shape (n_samples_per_boot, n_windows)
+                    boot_traces_T = []
+                    for true_idx in range(n_classes):
+                        for pred_idx in range(n_classes):
+                            # Extract trace: (n_windows, n_samples_per_boot)
+                            trace = cm_raw[:, :, true_idx, pred_idx]
+                            # Transpose to (n_samples_per_boot, n_windows)
+                            boot_traces_T.append(trace.T)
+                    
+                    if unit_of_analysis == 'bootstrap':
+                        # Average across samples for this bootstrap
+                        for i in range(len(trace_labels)):
+                            mean_trace = np.mean(boot_traces_T[i], axis=0) # Shape: (n_windows,)
+                            all_trace_lists[i].append(mean_trace)
+                    
+                    elif unit_of_analysis in ['repeat', 'fold']:
+                        # Append each sample individually
+                        for i in range(len(trace_labels)):
+                            for sample_idx in range(n_samples_per_boot):
+                                all_trace_lists[i].append(boot_traces_T[i][sample_idx, :]) # Shape: (n_windows,)
+                    else:
+                         raise ValueError(f"Invalid unit_of_analysis: '{unit_of_analysis}'")
+
+            if not all_trace_lists[0]:
+                print(f"Warning: No CM traces found for {condition_comparison} - {roi}")
+                pooled_traces[condition_comparison][roi] = {}
+                continue
+
+            # Stack all collected samples
+            roi_traces_dict = {}
+            for i, label in enumerate(trace_labels):
+                # Stack to get (n_total_samples, n_windows)
+                pooled_array = np.vstack(all_trace_lists[i])
+                roi_traces_dict[label] = pooled_array
+            
+            pooled_traces[condition_comparison][roi] = roi_traces_dict
+
+    return pooled_traces
+
+
+def plot_cm_traces_nature_style(
+    time_points: np.ndarray,
+    cm_traces_dict: Dict[str, np.ndarray],
+    comparison_name: str = "",
+    roi: str = "",
+    save_dir: str = ".",
+    timestamp: Optional[str] = None,
+    colors: Optional[Dict[str, str]] = None,
+    linestyles: Optional[Dict[str, str]] = None,
+    title: Optional[str] = None,
+    ylabel: str = "Mean Trial Count",
+    ylim: Optional[Tuple[float, float]] = None, # Make ylim optional
+    xlim: Tuple[float, float] = (-0.5, 1.5),
+    single_column: bool = True,
+    show_legend: bool = True,
+    filename_suffix: str = "",
+    return_fig: bool = False,
+    samples_axis=0
+):
+    """
+    Plots raw confusion matrix traces over time in Nature journal style.
+    
+    This is adapted from plot_accuracies_nature_style to plot
+    mean counts (e.g., TP, FN) instead of accuracies.
+    """
+    
+    # Apply Nature style settings
+    with plt.rc_context(NATURE_STYLE):
+        if single_column:
+            fig_width = 89 / 25.4  # 89mm to inches
+            fig_height = fig_width * 0.7  # Aspect ratio
+        else:
+            fig_width = 183 / 25.4 # 183mm to inches
+            fig_height = fig_width * 0.4
+        
+        fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+        
+        # Define Nature-appropriate colors if not provided
+        if colors is None:
+            # Differentiate True vs. Predicted
+            # Example: True c25 -> blues, True i25 -> oranges
+            colors = {}
+            if any('c25' in k for k in cm_traces_dict.keys()):
+                colors['True: c25, Pred: c25'] = '#0173B2' # Dark Blue (TP)
+                colors['True: c25, Pred: i25'] = '#56B4E9' # Light Blue (FN)
+                colors['True: i25, Pred: i25'] = '#DE8F05' # Dark Orange (TP)
+                colors['True: i25, Pred: c25'] = '#CC78BC' # Light Purple (FN) # Using purple for i25->c25 FP
+            else:
+                # Fallback
+                nature_colors = ['#0173B2', '#56B4E9', '#DE8F05', '#CC78BC']
+                for i, label in enumerate(cm_traces_dict.keys()):
+                    colors[label] = nature_colors[i % len(nature_colors)]
+
+        if linestyles is None:
+             linestyles = {}
+             # Example: Solid for "correct" prediction (TP), dashed for "incorrect" (FN/FP)
+             for label in cm_traces_dict.keys():
+                 if 'c25, Pred: c25' in label or 'i25, Pred: i25' in label:
+                     linestyles[label] = '-' # Solid for TP
+                 else:
+                     linestyles[label] = '--' # Dashed for FN/FP
+        
+        max_y_val = 0 # For setting ylim automatically
+
+        # Plot each trace
+        for i, (label, traces) in enumerate(cm_traces_dict.items()):
+            if traces.ndim == 2:
+                n_samples = traces.shape[samples_axis]
+                mean_trace = np.mean(traces, axis=samples_axis)
+                std_trace = np.std(traces, axis=samples_axis)
+            else:
+                mean_trace = traces
+                std_trace = np.zeros_like(traces)
+                print(f"⚠️ Warning: Trace data for '{label}' is 1D. Cannot compute STD.")
+
+            max_y_val = max(max_y_val, np.max(mean_trace + std_trace))
+
+            color = colors.get(label, '#949494') # Default to gray
+            linestyle = linestyles.get(label, '-')
+            
+            ax.plot(time_points, mean_trace,  
+                    label=label,  
+                    color=color,  
+                    linestyle=linestyle,
+                    linewidth=1,
+                    zorder=3)
+            
+            ax.fill_between(
+                time_points,
+                mean_trace - std_trace,
+                mean_trace + std_trace,
+                alpha=0.25,
+                color=color,
+                linewidth=0,
+                zorder=1
+            )
+        
+        # Add stimulus onset line
+        ax.axvline(x=0,  
+                    color='#666666',  
+                    linestyle='-',  
+                    linewidth=0.5,
+                    alpha=0.5,
+                    zorder=2)
+        
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_ylabel(ylabel, fontsize=7)
+        
+        # Set axis limits
+        if ylim is None:
+            ax.set_ylim(0, max_y_val * 1.15) # Auto-scale from 0
+        else:
+            ax.set_ylim(ylim)
+        ax.set_xlim(xlim)
+        
+        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        
+        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        ax.set_xticks(x_ticks)
+        
+        # Auto-set y-ticks
+        if ylim is None:
+            y_ticks = np.linspace(0, max_y_val * 1.1, num=5)
+        else:
+            y_ticks = np.linspace(ylim[0], ylim[1], num=5)
+        ax.set_yticks(y_ticks)
+        ax.set_yticklabels([f'{y:.1f}' for y in y_ticks]) # Use 1 decimal place for counts
+
+        if show_legend:
+            legend = ax.legend(
+                loc='upper right',
+                fontsize=5, # Smaller fontsize for more labels
+                frameon=False,
+                handlelength=1.5,
+                handletextpad=0.5,
+                borderpad=0.2,
+                columnspacing=0.5
+            )
+            for line in legend.get_lines():
+                line.set_linewidth(1.5)
+
+        if title:
+            ax.set_title(title, fontsize=7, pad=3)
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['left'].set_linewidth(0.5)
+        ax.spines['bottom'].set_linewidth(0.5)
+        
+        plt.tight_layout(pad=0.5)
+        
+        if return_fig:
+            return fig
+        else:
+            timestamp_str = f"{timestamp}_" if timestamp else ""
+            
+            filename_parts = [timestamp_str.rstrip('_')]
+            if comparison_name:
+                filename_parts.append(comparison_name)
+            if roi:
+                filename_parts.append(roi)
+            if filename_suffix:
+                filename_parts.append(filename_suffix)
+            
+            filename = "_".join(filter(None, filename_parts)) + "_CM_Traces.pdf" # Add suffix
+            filepath = os.path.join(save_dir, filename)
+            
+            os.makedirs(save_dir, exist_ok=True)
+            
+            plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            plt.savefig(filepath.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight', pad_inches=0.05)
+            
+            plt.close(fig)
+            print(f"Saved CM trace plot to: {filepath}")
+            
+            
+def plot_static_pca_projection(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    save_dir: None,
+    obs_axs: int = 0,
+    random_state: int = 42,
+    
+):
+    """
+    Visualizes the first two principal components of the full, flattened dataset.
+    
+    This helps to see if the data is linearly separable at a global level.
+    """
+    print(f"--- Generating Static PCA Plot for ROI: {roi} ---")
+    
+    # 1. Get and balance data.
+    # We MUST use 'subsample' because PCA cannot handle NaNs.
+    # This function (with 'subsample') conveniently gives us a clean, NaN-free dataset.
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays,
+        roi,
+        strings_to_find,
+        obs_axs=obs_axs,
+        balance_method='subsample', # Critical: removes NaN trials
+        random_state=random_state
+    )
+    
+    if data.size == 0:
+        print(f"Warning: No valid data for {roi} after balancing. Skipping plot.")
+        return
+
+    # 2. Reshape for PCA
+    # Input shape is (n_trials, n_channels, n_timepoints)
+    # We need (n_trials, n_features), where features = channels * timepoints
+    n_trials = data.shape[0]
+    data_flat = data.reshape(n_trials, -1)
+    
+    print(f"Data shape for PCA: {data_flat.shape}")
+
+    # 3. Standardize the data (crucial for PCA)
+    scaler = StandardScaler()
+    data_scaled = scaler.fit_transform(data_flat)
+
+    # 4. Run PCA
+    pca = PCA(n_components=2)
+    pc_scores = pca.fit_transform(data_scaled)
+    
+    print(f"Explained variance by PC1: {pca.explained_variance_ratio_[0]:.2%}")
+    print(f"Explained variance by PC2: {pca.explained_variance_ratio_[1]:.2%}")
+
+    # 5. Plot
+    
+    # Get human-readable labels from 'cats'
+    # 'cats' maps {('c25',): 0, ('i25',): 1}
+    # We want {0: 'c25', 1: 'i25'}
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in labels]
+    
+    df = pd.DataFrame({
+        'PC1': pc_scores[:, 0],
+        'PC2': pc_scores[:, 1],
+        'Condition': display_labels
+    })
+
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(
+        data=df,
+        x='PC1',
+        y='PC2',
+        hue='Condition',
+        palette='deep',
+        alpha=0.7,
+        s=50
+    )
+    
+    plt.title(f"Static PCA Projection for {roi}\n(Conditions: {', '.join(label_map.values())})")
+    plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%} variance)")
+    plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)")
+    plt.legend(title="Condition")
+    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    
+    if save_dir:
+        plt.savefig(os.path.join(save_dir, f"static_pca_{roi}.pdf"))
+    else:
+        plt.show()
+        
+def plot_pca_over_time(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    window_size: int,
+    step_size: int,
+    sampling_rate: float,
+    first_time_point: float,
+    obs_axs: int = 0,
+    random_state: int = 42
+):
+    """
+    Visualizes the first two principal components in a sliding window over time.
+    
+    This creates a grid of plots showing how the data's geometry evolves.
+    """
+    print(f"--- Generating Dynamic PCA Plot for ROI: {roi} ---")
+
+    # 1. Get and balance data (use 'subsample' to remove NaNs)
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays,
+        roi,
+        strings_to_find,
+        obs_axs=obs_axs,
+        balance_method='subsample', # Must use subsample
+        random_state=random_state
+    )
+    
+    if data.size == 0:
+        print(f"Warning: No valid data for {roi} after balancing. Skipping plot.")
+        return
+
+    # 2. Window the data
+    # Input shape: (n_trials, n_channels, n_timepoints)
+    # We want to window along the time axis (-1)
+    # Resulting shape (assuming insert_at=0): (n_windows, n_trials, n_channels, window_size)
+    windowed_data = windower(
+        data,
+        window_size=window_size,
+        axis=-1,
+        step_size=step_size,
+        insert_at=0
+    )
+    
+    n_windows, n_trials, _, _ = windowed_data.shape
+    
+    # 3. Get time points for plot titles
+    first_sample = first_time_point * sampling_rate
+    start_times = [first_sample + step_size * i for i in range(n_windows)]
+    time_window_centers = [
+        (start + window_size / 2) / sampling_rate
+        for start in start_times
+    ]
+
+    # 4. Get display labels
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in labels]
+
+    # 5. Create grid of plots
+    n_cols = 5  # Adjust as needed
+    n_rows = int(np.ceil(n_windows / n_cols))
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(n_cols * 4, n_rows * 4), squeeze=False)
+    axes = axes.flatten()
+
+    for win_idx in range(n_windows):
+        ax = axes[win_idx]
+        
+        # 6. Get data for this window and flatten
+        # Shape: (n_trials, n_channels, window_size)
+        window_data = windowed_data[win_idx]
+        # Shape: (n_trials, n_channels * window_size)
+        window_flat = window_data.reshape(n_trials, -1)
+
+        # 7. Standardize AND PCA (fit_transform on *this window's data*)
+        scaler = StandardScaler()
+        data_scaled = scaler.fit_transform(window_flat)
+        
+        pca = PCA(n_components=2)
+        pc_scores = pca.fit_transform(data_scaled)
+
+        # 8. Plot this window
+        df = pd.DataFrame({
+            'PC1': pc_scores[:, 0],
+            'PC2': pc_scores[:, 1],
+            'Condition': display_labels
+        })
+        
+        sns.scatterplot(
+            data=df,
+            x='PC1',
+            y='PC2',
+            hue='Condition',
+            palette='deep',
+            alpha=0.7,
+            ax=ax,
+            legend= (win_idx == 0) # Only show legend on the first plot
+        )
+        
+        var1 = pca.explained_variance_ratio_[0]
+        var2 = pca.explained_variance_ratio_[1]
+        
+        ax.set_title(f"Time: {time_window_centers[win_idx]:.2f} s\n(Var: {var1+var2:.1%})")
+        ax.set_xlabel(f"PC1 ({var1:.1%})")
+        ax.set_ylabel(f"PC2 ({var2:.1%})")
+
+    # Clean up empty subplots
+    for i in range(n_windows, len(axes)):
+        fig.delaxes(axes[i])
+
+    fig.suptitle(f"PCA Over Time for {roi} (Conditions: {', '.join(label_map.values())})", fontsize=16, y=1.02)
+    plt.tight_layout(rect=[0, 0, 1, 0.98])
+    plt.show()
+    
+# need to get time window by time window version next. Also this is untested rn. 10/31/25.
+def plot_high_dim_decision_slice(
+    fitted_pipeline: Pipeline,
+    X_data: np.ndarray,
+    y_labels: np.ndarray,
+    cats: dict,
+    roi: str,
+    save_dir: str
+):
+    """
+    Visualizes a 2D slice (PC1 vs PC2) of a high-dimensional classifier's
+    decision boundary.
+
+    Parameters:
+    - fitted_pipeline: A *pre-fitted* sklearn Pipeline (Scaler -> PCA -> CLF).
+    - X_data: The raw, balanced, NaN-free data used for fitting (n_trials, n_features_flat).
+    - y_labels: The labels for X_data (n_trials,).
+    - cats: The 'cats' dictionary mapping labels to names.
+    - roi: The name of the ROI for the plot title.
+    """
+    
+    # 1. Get the fitted components from the pipeline
+    scaler = fitted_pipeline.named_steps['scaler']
+    pca = fitted_pipeline.named_steps['pca']
+    clf = fitted_pipeline.named_steps['clf']
+    
+    # 2. Get the PC scores for the *actual* data
+    X_scaled = scaler.transform(X_data)
+    X_pc_all = pca.transform(X_scaled)
+    
+    X_pc_2D = X_pc_all[:, 0:2] # Get just PC1 and PC2 for the scatter plot
+    
+    # Get human-readable labels
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    display_labels = [label_map[l] for l in y_labels]
+    display_labels_str = str(display_labels)
+    
+    df = pd.DataFrame({
+        'PC1': X_pc_2D[:, 0],
+        'PC2': X_pc_2D[:, 1],
+        'Condition': display_labels
+    })
+
+    plt.figure(figsize=(10, 8))
+    ax = plt.gca()
+    
+    # 3. Plot the scatter of real data points
+    sns.scatterplot(
+        data=df,
+        x='PC1',
+        y='PC2',
+        hue='Condition',
+        palette='deep',
+        alpha=0.7,
+        s=50,
+        ax=ax
+    )
+    
+    # 4. Create the 2D grid
+    x_min, x_max = X_pc_2D[:, 0].min() - 1, X_pc_2D[:, 0].max() + 1
+    y_min, y_max = X_pc_2D[:, 1].min() - 1, X_pc_2D[:, 1].max() + 1
+    xx, yy = np.meshgrid(np.linspace(x_min, x_max, 100), 
+                         np.linspace(y_min, y_max, 100))
+    
+    # 5. Create the high-dimensional grid (2D slice)
+    # We create vectors of zeros for all other PC components
+    n_components_total = pca.n_components_
+    grid_points_high_dim = np.zeros((xx.ravel().shape[0], n_components_total))
+    
+    # Set the first two columns to our 2D grid values
+    grid_points_high_dim[:, 0] = xx.ravel()
+    grid_points_high_dim[:, 1] = yy.ravel()
+    
+    # 6. Get predictions from the *high-D classifier*
+    # The classifier was trained on PC space, so we feed it our high-D PC vectors
+    Z = clf.decision_function(grid_points_high_dim)
+    Z = Z.reshape(xx.shape)
+    
+    # 7. Plot the decision boundary and shaded regions
+    ax.contourf(xx, yy, Z, cmap='RdBu_r', alpha=0.3, 
+                levels=np.linspace(Z.min(), Z.max(), 3))
+    ax.contour(xx, yy, Z, colors='k', levels=[0], linestyles=['--'], linewidths=2)
+    
+    # 8. Add info
+    clf_name = clf.__class__.__name__
+    var1 = pca.explained_variance_ratio_[0]
+    var2 = pca.explained_variance_ratio_[1]
+    var_total = np.sum(pca.explained_variance_ratio_)
+
+    ax.set_title(f"{clf_name} Decision Boundary on 2D Slice for {roi}\n"
+                 f"Using {n_components_total} PCs (Total Var: {var_total:.1%})")
+    ax.set_xlabel(f"PC1 ({var1:.1%})")
+    ax.set_ylabel(f"PC2 ({var2:.1%})")
+    
+    safe_roi_str = roi.replace(" ", "_").replace("(", "").replace(")", "").replace("/", "_")
+    filename = f'debug_pca_hyperplane_{safe_roi_str}.pdf'
+    filepath = os.path.join(save_dir, filename)
+    print(f"Saving debug PCA plot to: {filepath}")
+    
+    # Ensure the save directory exists
+    os.makedirs(save_dir, exist_ok=True)
+
+    plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
+    plt.close(fig) # Close the figure to free memory

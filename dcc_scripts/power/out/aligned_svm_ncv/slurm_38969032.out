@@ -1,0 +1,1280 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+Conditions:        ['Stimulus_i', 'Stimulus_c']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       sig
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.05
+  P cluster: 0.05
+  Stat Func: ttest_rel
+  Permutation Type: samples
+  Number of Permutations: 500
+  Tails: 1
+======================================================================
+plotting parameters:
+  y limits: (-0.1, 0.35)
+  show legend: False
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0065
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+Loaded significant channels for subject D0100
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0107A
+Loaded significant channels for subject D0110
+Loaded significant channels for subject D0116
+Loaded significant channels for subject D0117
+Loaded significant channels for subject D0121
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RPI15', 'RPI14', 'RAMF13', 'RAMF14', 'RAIF12']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMSF5', 'LPSF12', 'RAMF12', 'RAMF13', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF13', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIP14', 'RIP15', 'RIP16']
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11', 'RIA12']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LFPI10', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14', 'RFAM15']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10', 'LINS4', 'LINS5']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM10', 'LFAM11', 'LAI12', 'LAI16', 'LAI7', 'RFOA15', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI14', 'RAI16']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RMOF15', 'RINSA15', 'RLOF10', 'RINSA14']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFP17', 'LFPS1', 'LFPS2', 'LFA7', 'LFA8', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM12', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS7', 'LFMI4']
+Loading data for subject: D0057
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+207 matching events found
+No baseline correction applied
+    Stimulus_i: 207 valid trials out of 207
+  Loading condition: Stimulus_c
+Not setting metadata
+198 matching events found
+No baseline correction applied
+    Stimulus_c: 198 valid trials out of 198
+  Loading condition: Stimulus_i
+Not setting metadata
+207 matching events found
+No baseline correction applied
+    Stimulus_i: 207 valid trials out of 207
+  Loading condition: Stimulus_c
+Not setting metadata
+198 matching events found
+No baseline correction applied
+    Stimulus_c: 198 valid trials out of 198
+Loading data for subject: D0059
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Stimulus_i: 211 valid trials out of 211
+  Loading condition: Stimulus_c
+Not setting metadata
+216 matching events found
+No baseline correction applied
+    Stimulus_c: 216 valid trials out of 216
+  Loading condition: Stimulus_i
+Not setting metadata
+211 matching events found
+No baseline correction applied
+    Stimulus_i: 211 valid trials out of 211
+  Loading condition: Stimulus_c
+Not setting metadata
+216 matching events found
+No baseline correction applied
+    Stimulus_c: 216 valid trials out of 216
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Stimulus_i: 168 valid trials out of 168
+  Loading condition: Stimulus_c
+Not setting metadata
+221 matching events found
+No baseline correction applied
+    Stimulus_c: 221 valid trials out of 221
+  Loading condition: Stimulus_i
+Not setting metadata
+168 matching events found
+No baseline correction applied
+    Stimulus_i: 168 valid trials out of 168
+  Loading condition: Stimulus_c
+Not setting metadata
+221 matching events found
+No baseline correction applied
+    Stimulus_c: 221 valid trials out of 221
+Loading data for subject: D0065
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+139 matching events found
+No baseline correction applied
+    Stimulus_i: 139 valid trials out of 139
+  Loading condition: Stimulus_c
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Stimulus_c: 177 valid trials out of 177
+  Loading condition: Stimulus_i
+Not setting metadata
+139 matching events found
+No baseline correction applied
+    Stimulus_i: 139 valid trials out of 139
+  Loading condition: Stimulus_c
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Stimulus_c: 177 valid trials out of 177
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+153 matching events found
+No baseline correction applied
+    Stimulus_i: 153 valid trials out of 153
+  Loading condition: Stimulus_c
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Stimulus_c: 177 valid trials out of 177
+  Loading condition: Stimulus_i
+Not setting metadata
+153 matching events found
+No baseline correction applied
+    Stimulus_i: 153 valid trials out of 153
+  Loading condition: Stimulus_c
+Not setting metadata
+177 matching events found
+No baseline correction applied
+    Stimulus_c: 177 valid trials out of 177
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+216 matching events found
+No baseline correction applied
+    Stimulus_i: 216 valid trials out of 216
+  Loading condition: Stimulus_c
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_c: 213 valid trials out of 213
+  Loading condition: Stimulus_i
+Not setting metadata
+216 matching events found
+No baseline correction applied
+    Stimulus_i: 216 valid trials out of 216
+  Loading condition: Stimulus_c
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_c: 213 valid trials out of 213
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+169 matching events found
+No baseline correction applied
+    Stimulus_i: 169 valid trials out of 169
+  Loading condition: Stimulus_c
+Not setting metadata
+186 matching events found
+No baseline correction applied
+    Stimulus_c: 186 valid trials out of 186
+  Loading condition: Stimulus_i
+Not setting metadata
+169 matching events found
+No baseline correction applied
+    Stimulus_i: 169 valid trials out of 169
+  Loading condition: Stimulus_c
+Not setting metadata
+186 matching events found
+No baseline correction applied
+    Stimulus_c: 186 valid trials out of 186
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_i: 213 valid trials out of 213
+  Loading condition: Stimulus_c
+Not setting metadata
+214 matching events found
+No baseline correction applied
+    Stimulus_c: 214 valid trials out of 214
+  Loading condition: Stimulus_i
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_i: 213 valid trials out of 213
+  Loading condition: Stimulus_c
+Not setting metadata
+214 matching events found
+No baseline correction applied
+    Stimulus_c: 214 valid trials out of 214
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+169 matching events found
+No baseline correction applied
+    Stimulus_i: 169 valid trials out of 169
+  Loading condition: Stimulus_c
+Not setting metadata
+209 matching events found
+No baseline correction applied
+    Stimulus_c: 209 valid trials out of 209
+  Loading condition: Stimulus_i
+Not setting metadata
+169 matching events found
+No baseline correction applied
+    Stimulus_i: 169 valid trials out of 169
+  Loading condition: Stimulus_c
+Not setting metadata
+209 matching events found
+No baseline correction applied
+    Stimulus_c: 209 valid trials out of 209
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+204 matching events found
+No baseline correction applied
+    Stimulus_i: 204 valid trials out of 204
+  Loading condition: Stimulus_c
+Not setting metadata
+217 matching events found
+No baseline correction applied
+    Stimulus_c: 217 valid trials out of 217
+  Loading condition: Stimulus_i
+Not setting metadata
+204 matching events found
+No baseline correction applied
+    Stimulus_i: 204 valid trials out of 204
+  Loading condition: Stimulus_c
+Not setting metadata
+217 matching events found
+No baseline correction applied
+    Stimulus_c: 217 valid trials out of 217
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_i: 106 valid trials out of 106
+  Loading condition: Stimulus_c
+Not setting metadata
+193 matching events found
+No baseline correction applied
+    Stimulus_c: 193 valid trials out of 193
+  Loading condition: Stimulus_i
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_i: 106 valid trials out of 106
+  Loading condition: Stimulus_c
+Not setting metadata
+193 matching events found
+No baseline correction applied
+    Stimulus_c: 193 valid trials out of 193
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Stimulus_i: 159 valid trials out of 159
+  Loading condition: Stimulus_c
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Stimulus_c: 200 valid trials out of 200
+  Loading condition: Stimulus_i
+Not setting metadata
+159 matching events found
+No baseline correction applied
+    Stimulus_i: 159 valid trials out of 159
+  Loading condition: Stimulus_c
+Not setting metadata
+200 matching events found
+No baseline correction applied
+    Stimulus_c: 200 valid trials out of 200
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+181 matching events found
+No baseline correction applied
+    Stimulus_i: 181 valid trials out of 181
+  Loading condition: Stimulus_c
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_c: 213 valid trials out of 213
+  Loading condition: Stimulus_i
+Not setting metadata
+181 matching events found
+No baseline correction applied
+    Stimulus_i: 181 valid trials out of 181
+  Loading condition: Stimulus_c
+Not setting metadata
+213 matching events found
+No baseline correction applied
+    Stimulus_c: 213 valid trials out of 213
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Stimulus_i: 219 valid trials out of 219
+  Loading condition: Stimulus_c
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Stimulus_c: 220 valid trials out of 220
+  Loading condition: Stimulus_i
+Not setting metadata
+219 matching events found
+No baseline correction applied
+    Stimulus_i: 219 valid trials out of 219
+  Loading condition: Stimulus_c
+Not setting metadata
+220 matching events found
+No baseline correction applied
+    Stimulus_c: 220 valid trials out of 220
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+188 matching events found
+No baseline correction applied
+    Stimulus_i: 188 valid trials out of 188
+  Loading condition: Stimulus_c
+Not setting metadata
+222 matching events found
+No baseline correction applied
+    Stimulus_c: 222 valid trials out of 222
+  Loading condition: Stimulus_i
+Not setting metadata
+188 matching events found
+No baseline correction applied
+    Stimulus_i: 188 valid trials out of 188
+  Loading condition: Stimulus_c
+Not setting metadata
+222 matching events found
+No baseline correction applied
+    Stimulus_c: 222 valid trials out of 222
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+121 matching events found
+No baseline correction applied
+    Stimulus_i: 121 valid trials out of 121
+  Loading condition: Stimulus_c
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Stimulus_c: 162 valid trials out of 162
+  Loading condition: Stimulus_i
+Not setting metadata
+121 matching events found
+No baseline correction applied
+    Stimulus_i: 121 valid trials out of 121
+  Loading condition: Stimulus_c
+Not setting metadata
+162 matching events found
+No baseline correction applied
+    Stimulus_c: 162 valid trials out of 162
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_i
+Not setting metadata
+194 matching events found
+No baseline correction applied
+    Stimulus_i: 194 valid trials out of 194
+  Loading condition: Stimulus_c
+Not setting metadata
+206 matching events found
+No baseline correction applied
+    Stimulus_c: 206 valid trials out of 206
+  Loading condition: Stimulus_i
+Not setting metadata
+194 matching events found
+No baseline correction applied
+    Stimulus_i: 194 valid trials out of 194
+  Loading condition: Stimulus_c
+Not setting metadata
+206 matching events found
+No baseline correction applied
+    Stimulus_c: 206 valid trials out of 206
+
+--- Summary of Dropped Electrodes ---
+ROI: lpfc
+  - Subject D0071: Dropped 1 electrode(s)
+  - Subject D0107A: Dropped 1 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 2
+-------------------------------------
+
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+
+Running statistical tests comparing TWO conditions
+-- Processing ROI: lpfc --
+stat_func returns a tuple. Taking the first element
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Saved plot to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit/lpfc_stimulus_congruency_conditions_17_subjects_sig_elecs_sem_shading.png
+
+All plots saved to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+
+✓ Analysis completed successfully!

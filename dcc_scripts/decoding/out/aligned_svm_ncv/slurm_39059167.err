@@ -1,0 +1,10 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 44, in <module>
+    from dcc_scripts.decoding.decoding_dcc import main
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 93, in <module>
+    from src.analysis.decoding.decoding import (
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 360, in <module>
+    class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
+                  ^^^^^^^^^^^^^^^^^^
+NameError: name 'PcaEstimateDecoder' is not defined

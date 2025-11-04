@@ -3,13 +3,13 @@
 
 #  congruency
 stimulus_congruency_conditions = {
+     "Stimulus_i": {
+        "BIDS_events": ["Stimulus/i25.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
+        "congruency": "i"
+    },
     "Stimulus_c": {
         "BIDS_events": ["Stimulus/c25.0/Accuracy1.0", "Stimulus/c75.0/Accuracy1.0"],
         "congruency": "c"
-    },
-    "Stimulus_i": {
-        "BIDS_events": ["Stimulus/i25.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
-        "congruency": "i"
     }
 }
 
@@ -171,13 +171,13 @@ response_inc_switch_err_conditions = {
 
 # switch type
 stimulus_switch_type_conditions = {
-    "Stimulus_r": {
-        "BIDS_events": ["Stimulus/r25.0/Accuracy1.0", "Stimulus/r75.0/Accuracy1.0"],
-        "switchType": "r"
-    },
     "Stimulus_s": {        
         "BIDS_events": ["Stimulus/s25.0/Accuracy1.0", "Stimulus/s75.0/Accuracy1.0"],
         "switchType": "s"
+    },
+    "Stimulus_r": {
+        "BIDS_events": ["Stimulus/r25.0/Accuracy1.0", "Stimulus/r75.0/Accuracy1.0"],
+        "switchType": "r"
     }
 }
 
@@ -561,25 +561,25 @@ stimulus_task_conditions = {
 
 # congruency
 response_congruency_conditions = {
-    "Response_c": {
-        "BIDS_events": ["Response/c25.0", "Response/c75.0"],
-        "congruency": "c"
-    },
     "Response_i": {
         "BIDS_events": ["Response/i25.0", "Response/i75.0"],
         "congruency": "i"
+    },
+    "Response_c": {
+        "BIDS_events": ["Response/c25.0", "Response/c75.0"],
+        "congruency": "c"
     }
 }
 
 # switch type
 response_switch_type_conditions = {
-    "Response_r": {
-        "BIDS_events": ["Response/r25.0", "Response/r75.0"],
-        "switchType": "r"
-    },
     "Response_s": {        
         "BIDS_events": ["Response/s25.0", "Response/s75.0"],
         "switchType": "s"
+    },
+    "Response_r": {
+        "BIDS_events": ["Response/r25.0", "Response/r75.0"],
+        "switchType": "r"
     }
 }
 
