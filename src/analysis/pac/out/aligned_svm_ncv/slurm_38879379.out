@@ -1,0 +1,5 @@
+Subject D0065: loading epochs...
+  Epoch file not found for stimulus_s_(-0.5, 0.0): /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_stimulus_s_(-0.5, 0.0)_ev1-epo.fif
+Epoch summary saved.
+Skipping D0065: no stimulus_s_(-0.5, 0.0) epochs
+Saved coherence summary to ./coherence_D0065_lpfc_stimulus_s_(-0.5, 0.0)_summary.csv

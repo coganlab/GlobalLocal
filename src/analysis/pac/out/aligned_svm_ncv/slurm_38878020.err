@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 185, in <module>
+    coh_dict = compute_coherence_batch(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 96, in compute_coherence_batch
+    u_inds, v_inds = zip(*idx_pairs)
+    ^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 2, got 0)

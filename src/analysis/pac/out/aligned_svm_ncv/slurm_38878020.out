@@ -1,0 +1,15 @@
+Subject D0057: loading epochs...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_stimulus_i_(-0.5, 0.0)_ev1-epo.fif ...
+    Found the data of interest:
+        t =    -500.00 ...       0.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+207 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 207 epochs for stimulus_i_(-0.5, 0.0) (RAI1,RAI2,RAI3...)
+Epoch summary saved.
+Processing subject D0057...
+Using ROIs: ['G_and_S_cingul-Ant', 'G_and_S_cingul-Mid-Ant']
+Computing coherence for D0057, 1 channels, 0 pairs
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
