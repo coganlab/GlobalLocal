@@ -1,0 +1,15 @@
+/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py:12: UserWarning: A NumPy version >=1.22.4 and <1.29.0 is required for this version of SciPy (detected version 2.3.4)
+  from scipy.stats import ttest_ind, ttest_rel
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 12, in <module>
+    from scipy.stats import ttest_ind, ttest_rel
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/__init__.py", line 605, in <module>
+    from ._stats_py import *
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/stats/_stats_py.py", line 37, in <module>
+    from scipy.spatial.distance import cdist
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/spatial/__init__.py", line 110, in <module>
+    from ._kdtree import *
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/spatial/_kdtree.py", line 4, in <module>
+    from ._ckdtree import cKDTree, cKDTreeNode
+  File "_ckdtree.pyx", line 1, in init scipy.spatial._ckdtree
+ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject

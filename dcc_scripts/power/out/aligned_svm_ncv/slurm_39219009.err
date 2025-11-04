@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 41, in <module>
+    from dcc_scripts.power.power_traces_dcc import main
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 44, in <module>
+    import statsmodels.api as sm
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/statsmodels/api.py", line 78, in <module>
+    from . import datasets, distributions, iolib, regression, robust, tools
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/statsmodels/distributions/__init__.py", line 7, in <module>
+    from .discrete import (
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/statsmodels/distributions/discrete.py", line 5, in <module>
+    from scipy._lib._util import _lazywhere
+ImportError: cannot import name '_lazywhere' from 'scipy._lib._util' (/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/scipy/_lib/_util.py)

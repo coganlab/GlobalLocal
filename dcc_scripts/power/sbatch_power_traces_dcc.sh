@@ -6,8 +6,15 @@
 #SBATCH --mem=30G
 #SBATCH --time=120:00:00  # 48 hours (adjust based on your needs)
 
+unset PYTHONPATH
+
 source $(conda info --base)/etc/profile.d/conda.sh
 
 conda activate ieeg # make sure this works
 
-python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py
+CONDA_ENV_PY="/hpc/home/$USER/miniconda3/envs/ieeg/bin/python"
+SCRIPT_TO_RUN="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py"
+
+$CONDA_ENV_PY $SCRIPT_TO_RUN
+
+#python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py
