@@ -1,0 +1,6 @@
+--- sbatch: Running script with: /hpc/home/etb28/miniconda3/envs/ieeg/bin/python -u ---
+--- STARTING ENVIRONMENT CHECK ---
+Python Executable: /hpc/home/etb28/miniconda3/envs/ieeg/bin/python
+NumPy Version: 1.26.4
+NumPy Path: /hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/numpy/__init__.py
+--- END ENVIRONMENT CHECK ---
