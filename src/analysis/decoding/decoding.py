@@ -1433,14 +1433,9 @@ def plot_accuracies_nature_style(
                 significance_y_position = ylim[0] + y_range * 0.95
             
             for start_idx, end_idx in clusters:
-                # Calculate time range
-                if window_size:
-                    window_duration = window_size / sampling_rate / 2
-                else:
-                    window_duration = 0
                 
-                start_time = time_points[start_idx] - window_duration
-                end_time = time_points[end_idx] + window_duration
+                start_time = time_points[start_idx]
+                end_time = time_points[end_idx]
                 
                 # Draw significance bar
                 ax.plot([start_time, end_time], 
@@ -3493,14 +3488,9 @@ def plot_accuracies_with_multiple_sig_clusters(
                 
                 # Draw each cluster
                 for start_idx, end_idx in clusters:
-                    # Calculate time range
-                    if window_size:
-                        window_duration = window_size / sampling_rate / 2
-                    else:
-                        window_duration = 0
                     
-                    start_time = time_points[start_idx] - window_duration
-                    end_time = time_points[end_idx] + window_duration
+                    start_time = time_points[start_idx]
+                    end_time = time_points[end_idx]
                     
                     # Draw significance bar
                     line = ax.plot([start_time, end_time], 

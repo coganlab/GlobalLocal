@@ -72,7 +72,7 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import Pipeline, make_pipeline
 
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from ieeg.decoding.models import PcaLdaClassification
@@ -566,22 +566,25 @@ def main(args):
         if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
             print("Setting up LWPC visualization pairs...")
             viz_pairs = [(['c25'], ['i25']), (['c75'], ['i75'])]
+            condition_comparison = 'LWPC_comparison'
         elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
             print("Setting up LWPS visualization pairs...")
             viz_pairs = [(['s25'], ['r25']), (['s75'], ['r75'])]
+            condition_comparison = 'LWPS_comparison'
         elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
             print("Setting up Congruency x Switch Prop. visualization pairs...")
             viz_pairs = [
                 (['Stimulus_c_in_25switchBlock'], ['Stimulus_i_in_25switchBlock']),
                 (['Stimulus_c_in_75switchBlock'], ['Stimulus_i_in_75switchBlock'])
             ]
+            condition_comparison = 'congruency_by_switch_proportion_comparison'
         elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
             print("Setting up Switch Type x Congruency Prop. visualization pairs...")
             viz_pairs = [
                 (['Stimulus_s_in_25incongruentBlock'], ['Stimulus_r_in_25incongruentBlock']),
                 (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
             ]
-        
+            condition_comparison = 'switch_type_by_congruency_proportion_comparison'
         if not viz_pairs:
             print("Warning: No visualization pairs defined for the current condition set. Skipping debug plots.")
         else:
@@ -644,7 +647,7 @@ def main(args):
                             y_labels=labels,
                             cats=cats,
                             roi=f"{roi} ({pair_name})", # Add pair info to title,
-                            save_dir=save_dir
+                            save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}")
                         )
                     except Exception as e:
                         print(f"!! FAILED to generate plot for {roi} - {pair_name}: {e}")
@@ -856,14 +859,14 @@ def main(args):
         print(f"\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         lwpc_colors = {
-            'c25_vs_i25': '#0173B2',  # Blue
-            'c75_vs_i75': '#DE8F05',  # Orange
+            'c25_vs_i25': '#FF7E79',
+            'c75_vs_i75': '#FF7E79', 
           'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         lwpc_linestyles = {
             'c25_vs_i25': '-',  # Solid
-            'c75_vs_i75': '-',  # Solid
+            'c75_vs_i75': '--',  # dashed
             'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
@@ -888,6 +891,12 @@ def main(args):
                 lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['lwpc'] = stacked_lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps
+
             # 1. Get the pooled data using your existing helper function
             pooled_c25_vs_i25_accs, pooled_c75_vs_i75_accs = get_pooled_accuracy_distributions_for_comparison(
                 time_window_decoding_results=time_window_decoding_results,
@@ -921,7 +930,7 @@ def main(args):
                 '75_over_25': {
                     'clusters': sig_clusters_lwpc_75_over_25,
                     'label': '75% > 25% I',
-                    'color': lwpc_colors['c75_vs_i75'], # Orange
+                    'color': lwpc_colors['c75_vs_i75'], # blue
                     'marker': '*'
                 }
             }
@@ -1019,8 +1028,8 @@ def main(args):
         print(f"\n--- Running LWPS Comparison Statistics (s25_vs_r25 vs s75_vs_r75) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         lwps_colors = {
-            's25_vs_r25': '#0173B2',  # Blue
-            's75_vs_r75': '#DE8F05',  # Orange
+            's25_vs_r25': '#05B0F0',  
+            's75_vs_r75': '#05B0F0',  
           'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
@@ -1049,6 +1058,12 @@ def main(args):
                 lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['lwps'] = stacked_lwps_shuffle_accs_across_pooled_conditions_across_bootstraps
+
             # 1. Get the pooled data using your existing helper function
             pooled_s25_vs_r25_accs, pooled_s75_vs_r75_accs = get_pooled_accuracy_distributions_for_comparison(
                 time_window_decoding_results=time_window_decoding_results,
@@ -1179,14 +1194,14 @@ def main(args):
         print(f"\n--- Running congruency by switch proportion Comparison Statistics (c_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         congruency_by_switch_proportion_colors = {
-            'c_in_25switchBlock_vs_i_in_25switchBlock': '#0173B2',  # Blue
-            'c_in_75switchBlock_vs_i_in_75switchBlock': '#DE8F05',  # Orange
+            'c_in_25switchBlock_vs_i_in_25switchBlock': '#05B0F0',
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '#05B0F0',  
           'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         congruency_by_switch_proportion_linestyles = {
             'c_in_25switchBlock_vs_i_in_25switchBlock': '-',  # Solid
-            'c_in_75switchBlock_vs_i_in_75switchBlock': '-',  # Solid
+            'c_in_75switchBlock_vs_i_in_75switchBlock': '--', 
             'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
         
@@ -1209,6 +1224,12 @@ def main(args):
                 congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['congruency_by_switch_proportion'] = stacked_congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+
             # 1. Get the pooled data using your existing helper function
             pooled_c_in_25switchBlock_vs_i_in_25switchBlock_accs, pooled_c_in_75switchBlock_vs_i_in_75switchBlock_accs = get_pooled_accuracy_distributions_for_comparison(
                 time_window_decoding_results=time_window_decoding_results,
@@ -1339,14 +1360,14 @@ def main(args):
         print(f"\n--- Running switch_type_by_congruency_proportion Comparison Statistics (s_in_25switchBlock_vs_i_in_25switchBlock vs c_in_75switchBlock_vs_i_in_75switchBlock) using '{args.unit_of_analysis}' as unit of analysis ---")
         
         switch_type_by_congruency_proportion_colors = {
-            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#0173B2',  # Blue
-            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#DE8F05',  # Orange
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#FF7E79',
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#FF7E79',  
           'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
         }
         
         switch_type_by_congruency_proportion_linestyles = {
             's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',  # Solid
-            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',  # Solid
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '--',  # Solid
             'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
 
@@ -1369,6 +1390,12 @@ def main(args):
                 switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
             )
             
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['switch_type_by_congruency_proportion'] = stacked_switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps
+
             # 1. Get the pooled data using your existing helper function
             pooled_s_in_25incongruentBlock_vs_r_in_25incongruentBlock_accs, pooled_s_in_75incongruentBlock_vs_r_in_75incongruentBlock_accs = get_pooled_accuracy_distributions_for_comparison(
                 time_window_decoding_results=time_window_decoding_results,
