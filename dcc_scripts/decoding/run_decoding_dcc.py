@@ -50,16 +50,17 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-# remove D0110 because of low error trials
+# subjects for err-corr
+SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 # SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
 # switched to False for err-corr decoding
-ACC_TRIALS_ONLY = True
+ACC_TRIALS_ONLY = False
 
 # Parallel processing
 N_JOBS = -1 

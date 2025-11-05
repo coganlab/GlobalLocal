@@ -127,7 +127,7 @@ ROIS_DICT = {
 ELECTRODES = 'sig'
 
 # plotting
-YLIM = (-0.1,0.35)
+YLIM = (-0.1,0.45)
 SHOW_LEGEND = False
 
 # # # # testing params (comment out)
