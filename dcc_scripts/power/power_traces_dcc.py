@@ -283,7 +283,8 @@ def main(args):
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 
         y_label='Power (z)', ylim=args.ylim,
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
+        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
+        show_legend=args.show_legend
     )
     
     # init subtracted evokeds dict
@@ -315,7 +316,8 @@ def main(args):
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 
         y_label='Power (z)',
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
+        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
+        show_legend=args.show_legend
     )
 
 if __name__ == "__main__":
