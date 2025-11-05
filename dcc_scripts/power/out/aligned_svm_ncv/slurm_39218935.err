@@ -1,0 +1,78 @@
+
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.3.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+Traceback (most recent call last):  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 15, in <module>
+    from ieeg.calc.fast import mean_diff
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/__init__.py", line 4, in <module>
+    from mne.epochs import BaseEpochs
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/epochs.py", line 64, in <module>
+    from .bem import _check_origin
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/bem.py", line 72, in <module>
+    from .viz.misc import plot_bem
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/misc.py", line 47, in <module>
+    from .utils import (
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/utils.py", line 61, in <module>
+    from .ui_events import ColormapRange, publish, subscribe
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/ui_events.py", line 24, in <module>
+    from matplotlib.colors import Colormap
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/__init__.py", line 161, in <module>
+    from . import _api, _version, cbook, _docstring, rcsetup
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/rcsetup.py", line 27, in <module>
+    from matplotlib.colors import Colormap, is_color_like
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/colors.py", line 57, in <module>
+    from matplotlib import _api, _cm, cbook, scale
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/scale.py", line 22, in <module>
+    from matplotlib.ticker import (
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/ticker.py", line 143, in <module>
+    from matplotlib import transforms as mtransforms
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/transforms.py", line 49, in <module>
+    from matplotlib._path import (
+Traceback (most recent call last):
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/numpy/core/_multiarray_umath.py", line 46, in __getattr__
+    raise ImportError(msg)
+ImportError: 
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.3.4 as it may crash. To support both 1.x and 2.x
+versions of NumPy, modules must be compiled with NumPy 2.0.
+Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+
+If you are a user of the module, the easiest solution will be to
+downgrade to 'numpy<2' or try to upgrade the affected module.
+We expect that some modules will need time to support NumPy 2.
+
+
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 15, in <module>
+    from ieeg.calc.fast import mean_diff
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/__init__.py", line 4, in <module>
+    from mne.epochs import BaseEpochs
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/epochs.py", line 64, in <module>
+    from .bem import _check_origin
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/bem.py", line 72, in <module>
+    from .viz.misc import plot_bem
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/misc.py", line 47, in <module>
+    from .utils import (
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/utils.py", line 61, in <module>
+    from .ui_events import ColormapRange, publish, subscribe
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/viz/ui_events.py", line 24, in <module>
+    from matplotlib.colors import Colormap
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/__init__.py", line 161, in <module>
+    from . import _api, _version, cbook, _docstring, rcsetup
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/rcsetup.py", line 27, in <module>
+    from matplotlib.colors import Colormap, is_color_like
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/colors.py", line 57, in <module>
+    from matplotlib import _api, _cm, cbook, scale
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/scale.py", line 22, in <module>
+    from matplotlib.ticker import (
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/ticker.py", line 143, in <module>
+    from matplotlib import transforms as mtransforms
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/matplotlib/transforms.py", line 49, in <module>
+    from matplotlib._path import (
+ImportError: numpy.core.multiarray failed to import

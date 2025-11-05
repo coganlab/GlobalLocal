@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from itertools import combinations
 from mne_connectivity import spectral_connectivity_time
 
-def find_roi_names(part):
+def find_roi_names(part, subj, roi_json):
     rois_dict = {
     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
@@ -19,17 +19,19 @@ def find_roi_names(part):
     roi_list=rois_dict[part[0]]#for now only one part at a time
     print(f"Using ROIs: {roi_list}")
     # Load ROI mapping
-    with open(args.roi_json, 'r') as f:
+    with open(roi_json, 'r') as f:
         roi_data = json.load(f)
 
     # Gather channels from specified ROIs
     chs = []
+    # Safely handle missing subj or filtROI_dict entries
+    filt = roi_data.get(subj, {}).get('filtROI_dict', {})
     for roi in roi_list:
-        for key in roi_data[subj]['filtROI_dict']:
+        for key, val in filt.items():
             if roi in key:
-                chs.extend(roi_data[subj]['filtROI_dict'][key])
+                chs.extend(val)
     chs = list(dict.fromkeys(chs))  # de-duplicate
-    print(f"Computing coherence for {subj}, {len(chs)} channels, {len(chs)*(len(chs)-1)//2} pairs")
+    print(f"Found {len(chs)} ROI channels for {subj}")
     return chs
 
 
@@ -88,11 +90,19 @@ def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
     Compute coherence for all pairs of channels in `chs` at once.
     Returns a dict mapping (ch1,ch2) -> mean coherence value.
     """
-    # Pick only ROI channels to speed up computation
-    epochs_roi = epochs.copy().pick_channels(chs)
+    # Keep only channels that actually exist in the epochs
+    present = set(epochs.ch_names)
+    chs_present = [ch for ch in chs if ch in present]
+    missing = [ch for ch in chs if ch not in present]
+    if missing:
+        print(f"Warning: {len(missing)} ROI channels missing from epochs and will be skipped: {missing[:10]}{'...' if len(missing)>10 else ''}")
+    if len(chs_present) < 2:
+        print("Not enough ROI channels present to compute pairwise coherence — skipping.")
+        return {}
+    epochs_roi = epochs.copy().pick_channels(chs_present)
 
-    # Build all unique channel index pairs
-    idx_pairs = list(combinations(range(len(chs)), 2))
+    # Build all unique channel index pairs for present channels
+    idx_pairs = list(combinations(range(len(chs_present)), 2))
     u_inds, v_inds = zip(*idx_pairs)
 
     # Batch compute coherence with average across epochs
@@ -118,7 +128,7 @@ def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
     # Build result dict
     coherence_dict = {}
     for (i, j), val in zip(idx_pairs, mean_vals):
-        ch1, ch2 = chs[i], chs[j]
+        ch1, ch2 = chs_present[i], chs_present[j]
         coherence_dict[(ch1, ch2)] = val
     return coherence_dict
 
@@ -181,7 +191,7 @@ if __name__ == '__main__':
             print(f"Skipping {subj}: no {args.event} epochs")
             continue
         print(f"Processing subject {subj}...")
-        chs = find_roi_names(args.part)
+        chs = find_roi_names(args.part, subj, args.roi_json)
         coh_dict = compute_coherence_batch(
             epochs, chs, freqs, n_cycles,
             args.fmin, args.fmax, args.n_jobs

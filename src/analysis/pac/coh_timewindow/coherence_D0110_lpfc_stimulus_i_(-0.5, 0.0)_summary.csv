@@ -1,0 +1,11 @@
+subject,event,ch1,ch2,coh_mean
+D0110,"stimulus_i_(-0.5, 0.0)",LOF15,LASF10,
+D0110,"stimulus_i_(-0.5, 0.0)",LOF15,LOF13,0.569917511055786
+D0110,"stimulus_i_(-0.5, 0.0)",LOF15,LINS4,0.5153255447638889
+D0110,"stimulus_i_(-0.5, 0.0)",LOF15,LINS5,0.5233874496097901
+D0110,"stimulus_i_(-0.5, 0.0)",LASF10,LOF13,
+D0110,"stimulus_i_(-0.5, 0.0)",LASF10,LINS4,
+D0110,"stimulus_i_(-0.5, 0.0)",LASF10,LINS5,
+D0110,"stimulus_i_(-0.5, 0.0)",LOF13,LINS4,0.5305245566662729
+D0110,"stimulus_i_(-0.5, 0.0)",LOF13,LINS5,0.5409378213136035
+D0110,"stimulus_i_(-0.5, 0.0)",LINS4,LINS5,0.6805748898002577

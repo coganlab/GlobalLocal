@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 185, in <module>
+    coh_dict = compute_coherence_batch(
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py", line 92, in compute_coherence_batch
+    epochs_roi = epochs.copy().pick_channels(chs)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-132>", line 12, in pick_channels
+  File "<decorator-gen-131>", line 5, in pick_channels
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/channels/channels.py", line 477, in pick_channels
+    picks = pick_channels(self.info["ch_names"], ch_names, ordered=ordered)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<decorator-gen-7>", line 12, in pick_channels
+  File "/hpc/group/coganlab/rl330/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/_fiff/pick.py", line 306, in pick_channels
+    raise ValueError(
+ValueError: Missing channels from ch_names required by include:
+['RIP15', 'RIA14']

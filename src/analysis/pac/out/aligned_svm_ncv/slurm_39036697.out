@@ -1,0 +1,16 @@
+Subject D0100: loading epochs...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_stimulus_c_(-0.5, 0.0)_ev1-epo.fif ...
+    Found the data of interest:
+        t =    -500.00 ...       0.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+217 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 217 epochs for stimulus_c_(-0.5, 0.0) (LTMM1,LTMM2,LTMM6...)
+Epoch summary saved.
+Processing subject D0100...
+Using ROIs: ['G_front_inf-Opercular', 'G_front_inf-Orbital', 'G_front_inf-Triangul', 'G_front_middle', 'G_front_sup', 'Lat_Fis-ant-Horizont', 'Lat_Fis-ant-Vertical', 'S_circular_insula_ant', 'S_circular_insula_sup', 'S_front_inf', 'S_front_middle', 'S_front_sup']
+Found 0 ROI channels for D0100
+Not enough ROI channels present to compute pairwise coherence — skipping.
+Saved coherence summary to ./coherence_D0100_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv

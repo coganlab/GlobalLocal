@@ -5,8 +5,14 @@ Contact: Jim Zhang and Raphael Geddert
 jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
+### Initial Preprocessing (getting the EDF, aligning triggers with events)
+1. Nicole wrote docs on this in Box/CoganLab/CRS Resources/Preprocessing. Focus on Global Local Preprocessing and BIDS Guide
+2. Data is in Box/CoganLab/ECoG_TaskData. TaskUploadDir is where the edfs are (made by cropping Natus recording) using the start and stop times of the experiment. Cogan_Task_Data is where the behavioral data is, sorted by subject
+3. Copy the data (both behavioral and EDF) into Box/CoganLab/D_Data/GlobalLocal. Behavioral data needs to be copied and renamed using the D###_behavioralData format into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. EDF needs to be copied into Box/CoganLab/D_Data/GlobalLocal/EDFs
+4. Ecog_preprocessing.m script. For each subject, need to note their neural_chan_index, trigger_chan_index, and mic_chan_index. This can be gotten by running edfread_fast and grabbing the labels: X = edfread_fast(edf_filename), Labels = x.label
+5. Exclude the EEG channels as well as the channels that start with C, EKG, Event, TRIG, OSAT, PR, Pleth
 
-### BIDS Coding (makes BIDS files)
+### BIDS Coding (makes BIDS files after initial preprocessing)
 1. Run makeTrials_GL.m (/Users/jinjiang-macair/Library/CloudStorage/Box-Box/CoganLab/D_Data/GlobalLocal/makeTrials_GL.m) with the subject id (D##) and date (YYMMDD) to create a Trials.mat file for that subject. Need to add makeTrials_GL.m to path as well as MATLAB-env folder (/Users/jinjiang-macair/Documents/MATLAB/MATLAB-env). If MATLAB-env isn't there, you can clone it from https://github.com/coganlab/MATLAB-env
 2. Run BIDS_convert_wsl.sh (within BIDS_coding repository, global local branch). Steps 3-5 go into detail on how to do this.
 3. To install dependencies, need to ```conda create env environment.yml``` on Mac if not already created, and give it an environment name. Or do ```conda env create -f environment.yml``` from the envs folder if on Windows.
@@ -56,10 +62,11 @@ Last edited: 01/16/2024
   
 # **Analysis Steps**
 
-### Preprocessing
+### Post-BIDS Preprocessing
 1. Run first three cells of plot_clean.ipynb to do line-noise filtering (for new subjects, will need to run this twice and exclude the eeg channels from the RuntimeWarning). Or just run src/analysis/preproc/plot_clean.py and pass in the subjects. (i.e., python plot_clean.py --subjects D0057 D0059)
 2. Copy Trials.csv from Box/CoganLab/D_Data/GlobalLocal/D### for newly run subjects into Box/CoganLab/D_Data/GlobalLocal/rawDataCopies. Rename as D###_behavioralData.csv.
 3. Run makeRawBehavioralData.ipynb to generate accuracy arrays for newly run subjects
+4. 
 ### Wavelets
 1. Run make_wavelets.ipynb to make wavelet tfr files (mne.TimeFrequency.EpochsTFR), saved to filename = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subj, f'{output_name}-tfr.h5')
 2. Run plot_wavelets.ipynb to make wavelet plots for each electrode
