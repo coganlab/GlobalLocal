@@ -31,8 +31,8 @@ from scipy.stats import norm, t # also from scipy.stats
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
 
-# import matplotlib
-# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
+import matplotlib
+matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
 
 # scikit-learn imports
@@ -1141,8 +1141,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={})
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={})
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
@@ -1878,7 +1878,7 @@ def decode_on_sig_tfr_clusters(
     )
     
     # Step 3: Decode
-    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample)
+    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample, clf_params={})
     
     # Handle NaN filling using existing mixup2 function
     mixup2(arr=X_train_masked, labels=y_train, obs_axs=obs_axs, alpha=alpha, seed=seed)

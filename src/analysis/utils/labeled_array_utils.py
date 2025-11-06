@@ -660,8 +660,6 @@ def make_np_array_with_nan_trials_removed_for_each_channel(
             
             for condition_name in condition_names:
                 
-                print(f"ROI {roi}: Processing condition {condition_name} for subject {sub}, electrode {electrode}")
-
                 if condition_name not in subjects_data_objects.get(sub, {}):
                     continue
                 

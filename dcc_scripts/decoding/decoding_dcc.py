@@ -47,8 +47,8 @@ from src.analysis.utils.general_utils import (
     find_difference_between_two_electrode_lists
 )
 
-# import matplotlib
-# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
+import matplotlib
+matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
 
 from pandas import read_csv

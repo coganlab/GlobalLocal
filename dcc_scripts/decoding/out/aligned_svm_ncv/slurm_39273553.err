@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 44, in <module>
+    from dcc_scripts.decoding.decoding_dcc import main
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 51, in <module>
+    matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
+    ^^^^^^^^^^
+NameError: name 'matplotlib' is not defined

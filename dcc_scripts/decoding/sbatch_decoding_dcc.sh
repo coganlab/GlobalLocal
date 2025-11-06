@@ -8,6 +8,6 @@
 
 source $(conda info --base)/etc/profile.d/conda.sh
 
-conda activate ieeg # make sure this works
+conda activate ieeg # make sure this works - UPDATE TO ieeg_fresh 11/6/25
 
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py
