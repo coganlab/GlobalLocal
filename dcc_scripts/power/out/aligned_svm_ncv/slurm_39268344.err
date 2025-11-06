@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 41, in <module>
+    from dcc_scripts.power.power_traces_dcc import main
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 43, in <module>
+    from statsmodels.stats.multitest import multipletests
+ModuleNotFoundError: No module named 'statsmodels'
