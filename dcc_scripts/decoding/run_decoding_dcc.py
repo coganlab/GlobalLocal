@@ -66,7 +66,6 @@ ACC_TRIALS_ONLY = False
 # Parallel processing
 N_JOBS = -1 
 
-
 # DECODING PARAMETERS
 # First, choose your classifier
 MODEL_CHOICE = 'LDA'  # Options: 'LDA', 'SVC'

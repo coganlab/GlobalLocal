@@ -387,7 +387,7 @@ def main(args):
                 LAB_root = os.path.join(HOME, "CoganLab")
     else:
         LAB_root = args.LAB_root
-
+    print('LAB_root: ', LAB_root)
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
     subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
