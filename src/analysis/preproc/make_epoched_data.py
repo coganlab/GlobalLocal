@@ -56,6 +56,58 @@ from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean
 
+# Add this fixed version of crop_empty_data at the top of your script, after the imports
+def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s"):
+    """Fixed version of crop_empty_data that handles MNE compatibility issues."""
+    from ieeg.timefreq.utils import to_samples
+    
+    crop_list = []
+    start_pad = to_samples(start_pad, raw.info['sfreq']) / raw.info['sfreq']
+    end_pad = to_samples(end_pad, raw.info['sfreq']) / raw.info['sfreq']
+    
+    # split annotations into blocks
+    annot = raw.annotations.copy()
+    block_idx = [idx + 1 for idx, val in
+                 enumerate(annot) if bound in val['description']]
+    block_annot = [annot[i: j] for i, j in
+                   zip([0] + block_idx, block_idx +
+                       ([len(annot)] if block_idx[-1] != len(annot) else []))]
+    
+    for block_an in block_annot:
+        # remove boundary events from annotations
+        no_bound = None
+        for an in block_an:
+            if bound not in an['description']:
+                # FIX: Handle the extras field compatibility issue
+                an_dict = {}
+                an_dict['onset'] = an['onset']
+                an_dict['duration'] = an['duration']
+                an_dict['description'] = an['description']
+                if 'ch_names' in an:
+                    an_dict['ch_names'] = an['ch_names']
+                # Don't include 'extras' field to avoid compatibility issues
+                
+                if no_bound is None:
+                    no_bound = mne.Annotations(**an_dict)
+                else:
+                    # Don't include orig_time in append
+                    no_bound.append(onset=an_dict['onset'],
+                                  duration=an_dict['duration'],
+                                  description=an_dict['description'])
+        
+        # Skip if block is all boundary events
+        if no_bound is None:
+            continue
+        
+        # get start and stop time from raw.annotations onset attribute
+        t_min = max(0, no_bound.onset[0] - start_pad)
+        t_max = no_bound.onset[-1] + end_pad
+        
+        # create new cropped raw file
+        crop_list.append(raw.copy().crop(tmin=t_min, tmax=t_max))
+    
+    return mne.concatenate_raws(crop_list)
+
 def trial_ieeg_rand_offset(raw: mne.io.Raw, event: str | list[str, ...], within_times: tuple[float,float], times_length: float, pad_length: float,
                verbose=None, **kwargs) -> mne.Epochs:
     """Epochs data from a mne Raw iEEG instance.
@@ -183,8 +235,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
-
-    good = crop_empty_data(filt)
+    
+    print("Use my new crop empty data function that gets rid of the mne annotations extras dict")
+    good = crop_empty_data_fixed(filt)
     # %%
 
     print(f"good channels before dropping bads: {len(good.ch_names)}")

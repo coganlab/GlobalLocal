@@ -276,3 +276,18 @@ Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-lea
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
+[Parallel(n_jobs=-1)]: Done   2 out of  20 | elapsed: 1346.4min remaining: 12117.8min
+[Parallel(n_jobs=-1)]: Done   5 out of  20 | elapsed: 1365.4min remaining: 4096.2min
+[Parallel(n_jobs=-1)]: Done   8 out of  20 | elapsed: 1378.1min remaining: 2067.1min
+[Parallel(n_jobs=-1)]: Done  11 out of  20 | elapsed: 1388.0min remaining: 1135.6min
+[Parallel(n_jobs=-1)]: Done  14 out of  20 | elapsed: 1409.6min remaining: 604.1min
+[Parallel(n_jobs=-1)]: Done  17 out of  20 | elapsed: 1430.8min remaining: 252.5min
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed: 1473.9min finished
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.

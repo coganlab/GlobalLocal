@@ -1,0 +1,53 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
+Conditions:        ['Stimulus_err_iR', 'Stimulus_err_cS']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+Classifier Model:   LDA
+  CV Splits/Repeats: 5/5
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 200
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+ run visualization debugging of first two PCs and decision boundary: True
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /hpc/home/jz421/CoganLab/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+
+✗ Analysis failed with error: 'dataset_description.json' is missing from project root. Every valid BIDS dataset must have this file.
+Example contents of 'dataset_description.json': 
+{"Name": "Example dataset", "BIDSVersion": "1.0.2"}

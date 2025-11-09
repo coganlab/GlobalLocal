@@ -136,11 +136,7 @@ SHOW_LEGEND = False
 RUN_VISUALIZATION_DEBUG = True # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection
-<<<<<<< HEAD
-CONDITIONS = experiment_conditions.stimulus_congruency_by_switch_proportion_conditions
-=======
 CONDITIONS = experiment_conditions.stimulus_iR_cS_err_conditions
->>>>>>> 7794da8cefb257602be5fc6b839ce9761edac231
 
 # Epochs file selection
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"

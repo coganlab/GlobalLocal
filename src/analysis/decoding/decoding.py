@@ -76,7 +76,7 @@ from src.analysis.utils.labeled_array_utils import (
 # utils imports
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
 from src.analysis.utils.general_utils import * # This is generally discouraged.
-from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
+from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, windower # Explicit import is good
 import gc
 
 # plotting
@@ -807,31 +807,7 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
 
-def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
-             step_size: int = 1, insert_at: int = 0):
-    if window_size is None:
-        return x_data[np.newaxis, ...]  # Add a new axis for compatibility
 
-    axis = axis % x_data.ndim
-    data_length = x_data.shape[axis]
-    
-    # Compute the number of full steps (exclude remainder)
-    full_steps = (data_length - window_size) // step_size + 1
-
-    # Create the sliding window view for full windows
-    windowed = sliding_window_view(x_data, window_shape=window_size, axis=axis)
-    
-    # Apply step_size by slicing
-    if step_size > 1:
-        slicing = [slice(None)] * windowed.ndim
-        slicing[axis] = slice(0, None, step_size) # try 0, None, step_size for now, I think this should exclude the remainder..? Keep debugging with the bottom cell.
-        windowed = windowed[tuple(slicing)]
-    
-    # Move the window dimension to the desired location
-    if insert_at != axis:
-        windowed = np.moveaxis(windowed, axis, insert_at)
-    
-    return windowed
 
 # this is aaron's windower function. Replace with my windower that accounts for step size.
 # def windower(x_data: np.ndarray, window_size: int, axis: int = -1, insert_at: int = 0):
@@ -1455,7 +1431,7 @@ def plot_accuracies_nature_style(
                         fontweight='bold')
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -3520,7 +3496,7 @@ def plot_accuracies_with_multiple_sig_clusters(
                     )
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -3828,7 +3804,7 @@ def plot_cm_traces_nature_style(
                     alpha=0.5,
                     zorder=2)
         
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits

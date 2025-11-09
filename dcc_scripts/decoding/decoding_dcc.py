@@ -1035,7 +1035,7 @@ def main(args):
         
         lwps_linestyles = {
             's25_vs_r25': '-',  # Solid
-            's75_vs_r75': '-',  # Solid
+            's75_vs_r75': '--',  # dashed
             'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
         }
 
@@ -1103,7 +1103,7 @@ def main(args):
             }
             
             if roi not in master_results['comparison_clusters']:
-                    master_results['comparison_clusters'][roi] = {}
+                master_results['comparison_clusters'][roi] = {}
             master_results['comparison_clusters'][roi]['lwps'] = significance_clusters_lwps_comparison
         
             # --- Get data for plotting from the main stats dictionary ---

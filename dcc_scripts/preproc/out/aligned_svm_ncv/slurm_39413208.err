@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 426, in <module>
+    main(subjects=args.subjects, 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 381, in main
+    bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 185, in bandpass_and_epoch_and_find_task_significant_electrodes
+    os.makedirs(save_dir)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133'

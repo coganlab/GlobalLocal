@@ -19,6 +19,7 @@ from statsmodels.stats.multitest import multipletests
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
+from numpy.lib.stride_tricks import as_strided, sliding_window_view
 
 def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
@@ -2048,3 +2049,29 @@ def find_difference_between_two_electrode_lists(
                 in_2_not_1[roi][sub] = diff_2_not_1
                 
     return in_1_not_2, in_2_not_1
+
+def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
+             step_size: int = 1, insert_at: int = 0):
+    if window_size is None:
+        return x_data[np.newaxis, ...]  # Add a new axis for compatibility
+
+    axis = axis % x_data.ndim
+    data_length = x_data.shape[axis]
+    
+    # Compute the number of full steps (exclude remainder)
+    full_steps = (data_length - window_size) // step_size + 1
+
+    # Create the sliding window view for full windows
+    windowed = sliding_window_view(x_data, window_shape=window_size, axis=axis)
+    
+    # Apply step_size by slicing
+    if step_size > 1:
+        slicing = [slice(None)] * windowed.ndim
+        slicing[axis] = slice(0, None, step_size) # try 0, None, step_size for now, I think this should exclude the remainder..? Keep debugging with the bottom cell.
+        windowed = windowed[tuple(slicing)]
+    
+    # Move the window dimension to the desired location
+    if insert_at != axis:
+        windowed = np.moveaxis(windowed, axis, insert_at)
+    
+    return windowed

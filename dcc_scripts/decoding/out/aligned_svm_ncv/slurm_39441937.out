@@ -1,0 +1,783 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
+Conditions:        ['Stimulus_err_iS', 'Stimulus_err_cR']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+Classifier Model:   LDA
+  CV Splits/Repeats: 5/5
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 200
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+ run visualization debugging of first two PCs and decision boundary: True
+======================================================================
+
+Starting analysis...
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False
+Loaded significant channels for subject D0065
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0121
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RASF14']
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14', 'RFAM15']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFO9', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS7', 'LFPS6', 'LFMI4', 'LFMI5']
+Loading data for subject: D0065
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0065/D0065_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 45 valid trials out of 45
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r75.0' not found for subject D0065. Skipping.
+Not setting metadata
+12 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 12 valid trials out of 12
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+45 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 45 valid trials out of 45
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r75.0' not found for subject D0065. Skipping.
+Not setting metadata
+12 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 12 valid trials out of 12
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+44 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 44 valid trials out of 44
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+13 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 13 valid trials out of 13
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+44 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 44 valid trials out of 44
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+13 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 13 valid trials out of 13
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 36 valid trials out of 36
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+13 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 13 valid trials out of 13
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+36 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 36 valid trials out of 36
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+13 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 13 valid trials out of 13
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+67 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 67 valid trials out of 67
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r25.0' not found for subject D0102. Skipping.
+Not setting metadata
+10 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 10 valid trials out of 10
+  Loading condition: Stimulus_err_iS
+Not setting metadata
+67 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 67 valid trials out of 67
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r25.0' not found for subject D0102. Skipping.
+Not setting metadata
+10 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 10 valid trials out of 10
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+    - Event 'Stimulus/Accuracy0.0/i25.0/s25.0' not found for subject D0103. Skipping.
+Not setting metadata
+42 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 42 valid trials out of 42
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+8 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 8 valid trials out of 8
+  Loading condition: Stimulus_err_iS
+    - Event 'Stimulus/Accuracy0.0/i25.0/s25.0' not found for subject D0103. Skipping.
+Not setting metadata
+42 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 42 valid trials out of 42
+  Loading condition: Stimulus_err_cR
+Not setting metadata
+8 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 8 valid trials out of 8
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_err_iS
+    - Event 'Stimulus/Accuracy0.0/i25.0/s25.0' not found for subject D0121. Skipping.
+    - Event 'Stimulus/Accuracy0.0/i75.0/s25.0' not found for subject D0121. Skipping.
+Not setting metadata
+16 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 16 valid trials out of 16
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r75.0' not found for subject D0121. Skipping.
+Not setting metadata
+6 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 6 valid trials out of 6
+  Loading condition: Stimulus_err_iS
+    - Event 'Stimulus/Accuracy0.0/i25.0/s25.0' not found for subject D0121. Skipping.
+    - Event 'Stimulus/Accuracy0.0/i75.0/s25.0' not found for subject D0121. Skipping.
+Not setting metadata
+16 matching events found
+No baseline correction applied
+    Stimulus_err_iS: 16 valid trials out of 16
+  Loading condition: Stimulus_err_cR
+    - Event 'Stimulus/Accuracy0.0/c75.0/r75.0' not found for subject D0121. Skipping.
+Not setting metadata
+6 matching events found
+No baseline correction applied
+    Stimulus_err_cR: 6 valid trials out of 6
+
+--- Summary of Dropped Electrodes ---
+ROI: lpfc
+  - Subject D0116: Dropped 30 electrode(s)
+  - Subject D0059: Dropped 5 electrode(s)
+  - Subject D0057: Dropped 17 electrode(s)
+  - Subject D0117: Dropped 11 electrode(s)
+  - Subject D0090: Dropped 8 electrode(s)
+  - Subject D0110: Dropped 5 electrode(s)
+  - Subject D0063: Dropped 36 electrode(s)
+  - Subject D0071: Dropped 13 electrode(s)
+  - Subject D0107A: Dropped 25 electrode(s)
+  - Subject D0094: Dropped 28 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 178
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (20 samples across -1 jobs) ====================
+
+
+==================== 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) ====================
+
+Warning: No visualization pairs defined for the current condition set. Skipping debug plots.
+
+==================== ✅ VISUALIZATION DEBUG COMPLETE ====================
+
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+📊 Aggregating and plotting time-averaged confusion matrices...
+
+-------------------- PARALLEL BOOTSTRAPPING COMPLETE ====================
+
+
+📊 Extracting and plotting pooled CM traces for debugging...
+Warning: Could not save time_window_centers to metadata. list index out of range
+
+💾 Saving all statistical results to: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False/20251108_192052_MASTER_RESULTS_6_subs_all_elecs_LDA_20boots_5splits_5reps_repeat_unit_ev_0.9.pkl
+
+✅ Analysis and saving complete.
+
+✓ Analysis completed successfully!
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 1/20 ====================
+
+Bootstrap 1: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 1: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 2/20 ====================
+
+Bootstrap 2: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 2: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 3/20 ====================
+
+Bootstrap 3: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 3: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 4/20 ====================
+
+Bootstrap 4: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 4: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 5/20 ====================
+
+Bootstrap 5: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 5: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 6/20 ====================
+
+Bootstrap 6: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 6: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 7/20 ====================
+
+Bootstrap 7: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 7: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 8/20 ====================
+
+Bootstrap 8: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 8: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 9/20 ====================
+
+Bootstrap 9: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 9: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 11/20 ====================
+
+Bootstrap 11: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 11: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 10/20 ====================
+
+Bootstrap 10: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 10: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 12/20 ====================
+
+Bootstrap 12: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 12: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 13/20 ====================
+
+Bootstrap 13: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 13: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 14/20 ====================
+
+Bootstrap 14: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 14: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 15/20 ====================
+
+Bootstrap 15: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 15: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 16/20 ====================
+
+Bootstrap 16: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 16: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 17/20 ====================
+
+Bootstrap 17: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 17: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 18/20 ====================
+
+Bootstrap 18: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 18: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 20/20 ====================
+
+Bootstrap 20: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 20: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+====================) PROCESSING BOOTSTRAP 19/20 ====================
+
+Bootstrap 19: Generating data sample...
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_err_iS', 'Stimulus_err_cR']
+condition 'Stimulus_err_iS': subsampling to 16 trials
+condition 'Stimulus_err_cR': subsampling to 6 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_err_iS', 'Stimulus_err_cR']
+
+Bootstrap 19: Extracted labeled arrays for ROIs:
+  ROI lpfc: conditions = ['Stimulus_err_iS', 'Stimulus_err_cR']
