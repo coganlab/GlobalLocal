@@ -1,0 +1,6 @@
+/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/sig_test.py:124: SmallSampleWarning: After omitting NaNs, one or more sample arguments is too small; all returned values will be NaN. See documentation for sample size requirements.
+  t_stat, p_val = stats.ttest_rel(x, y, nan_policy='omit')
+/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/sig_test.py:129: RuntimeWarning: Mean of empty slice
+  'mean_A': float(np.nanmean(x)) if n_pairs>0 else np.nan,
+/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/sig_test.py:131: RuntimeWarning: Mean of empty slice
+  'mean_diff': float(np.nanmean(x-y)) if n_pairs>0 else np.nan,

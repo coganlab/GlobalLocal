@@ -1,2 +1,2 @@
 subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
-D0121,"stimulus_c_(-0.5, 0.0)",206,2048.0,199,-0.5,0.0,"LTP1,LTP2,LTP3"
+D0057,"stimulus_s_(0.0, 0.5)",189,2048.0,175,0.0,0.5,"RAI1,RAI2,RAI3"

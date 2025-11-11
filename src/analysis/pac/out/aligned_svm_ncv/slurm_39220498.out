@@ -1,0 +1,11 @@
+Trying file for subject D0065: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0065_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Loaded 36 rows for subject D0065 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0065_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Successfully loaded data for 1 subjects: D0065
+Trying file for subject D0065: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0065_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Loaded 36 rows for subject D0065 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0065_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Successfully loaded data for 1 subjects: D0065
+A: loaded subjects: D0065 (total rows: 36)
+B: loaded subjects: D0065 (total rows: 36)
+per-pair results -> perpair_results.csv
+overall results -> overall_results.csv
+figure -> ttest_across_pairs.png

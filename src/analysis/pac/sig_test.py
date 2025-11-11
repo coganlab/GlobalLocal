@@ -16,19 +16,97 @@ def build_filename(subject, region, condition, tstart, tend):
     """
     Build filename like:
     coherence_D0063_acc_stimulus_c_(-0.5, 0.0)_summary.csv
+    
+    Args:
+        subject: A single subject ID (string)
+        region: Brain region
+        condition: Experimental condition
+        tstart: Start time
+        tend: End time
+    Returns:
+        Full path to the file
     """
+    # Ensure subject is a single string, not a list or joined string
+    if isinstance(subject, (list, tuple)):
+        raise ValueError("Subject should be a single ID string, not a list or tuple")
+    
+    # Remove any spaces that might be in the subject ID
+    subject = str(subject).strip()
+    
     # keep time formatting similar to example: "(-0.5, 0.0)"
     tstart_s = str(tstart)
     tend_s = str(tend)
     fname = f"coherence_{subject}_{region}_{condition}_({tstart_s}, {tend_s})_summary.csv"
     return os.path.join(BASE_DIR, fname)
 
+def load_multiple_subjects_data(subjects, region, condition, tstart, tend):
+    """
+    Load data for multiple subjects and combine them.
+    
+    Args:
+        subjects: List of subject IDs (e.g., ['D0057', 'D0059', 'D0063'])
+        region: Brain region
+        condition: Experimental condition
+        tstart: Start time
+        tend: End time
+        
+    Returns:
+        Combined DataFrame with an additional 'subject' column
+    """
+    all_data = []
+    found_subjects = []
+    
+    # Process each subject individually
+    for subject in subjects:
+        # Clean the subject ID (remove any extra spaces)
+        subject = str(subject).strip()
+        try:
+            filepath = build_filename(subject, region, condition, tstart, tend)
+            print(f"Trying file for subject {subject}: {filepath}")
+            if os.path.exists(filepath):
+                df = load_csv(filepath)
+                nrows = len(df.index)
+                print(f"Loaded {nrows} rows for subject {subject} from {filepath}")
+                df['subject'] = subject  # Add subject identifier
+                all_data.append(df)
+                found_subjects.append(subject)
+            else:
+                print(f"Warning: File not found for subject {subject}: {filepath}")
+        except Exception as e:
+            print(f"Error processing subject {subject}: {str(e)}")
+    
+    if not all_data:
+        raise SystemExit("No valid data files found for any subject")
+    
+    if len(found_subjects) != len(subjects):
+        missing = set(subjects) - set(found_subjects)
+        print(f"Warning: Data missing for subjects: {', '.join(missing)}")
+    
+    combined_data = pd.concat(all_data, ignore_index=True)
+    print(f"Successfully loaded data for {len(found_subjects)} subjects: {', '.join(found_subjects)}")
+    # also return found_subjects so caller can report which were used
+    return combined_data, found_subjects
+
 def perpair_means(df):
-    # 聚合每个 (ch1,ch2)：若有多行则取均值，并记录样本数
-    g = df.groupby(['ch1','ch2'], as_index=False).agg(
-        mean_coh=('coh_mean','mean'),
-        n=('coh_mean','size')
-    )
+    # 首先按被试和通道对进行分组，计算每个被试的每对通道的平均值
+    if 'subject' in df.columns:
+        g = df.groupby(['subject', 'ch1', 'ch2'], as_index=False).agg(
+            mean_coh=('coh_mean', 'mean'),
+            n=('coh_mean', 'size')
+        )
+        # 然后对所有被试的同一对通道取平均
+        g = g.groupby(['ch1', 'ch2'], as_index=False).agg(
+            mean_coh=('mean_coh', 'mean'),
+            n=('n', 'sum'),
+            n_subjects=('subject', 'nunique')
+        )
+    else:
+        # 保持原有的行为，用于向后兼容
+        g = df.groupby(['ch1','ch2'], as_index=False).agg(
+            mean_coh=('coh_mean','mean'),
+            n=('coh_mean','size')
+        )
+        g['n_subjects'] = 1
     return g
 
 def compute_perpair_and_overall(A, B):
@@ -138,12 +216,21 @@ def get_built_or_explicit_file(explicit, subj, region, cond, tstart, tend):
         return None
     return build_filename(subj, region, cond, tstart, tend)
 
-def make_label(subj, region, cond, tstart, tend, fname):
+def make_label(subj, region, cond, tstart, tend, fname=None):
         if subj or region or cond:
-            parts = [p for p in [subj, region, cond] if p]
+            # Handle list of subjects
+            if isinstance(subj, list):
+                if len(subj) <= 3:
+                    subj_str = '+'.join(subj)  # 显示所有被试ID（当数量较少时）
+                else:
+                    subj_str = f"{len(subj)} subjects ({subj[0]}...{subj[-1]})"  # 显示首尾被试ID和总数
+            else:
+                subj_str = str(subj)
+            
+            parts = [p for p in [subj_str, region, cond] if p]
             time_part = f"({tstart}, {tend})" if (tstart is not None and tend is not None) else ""
             return "_".join(parts) + ("\n" + time_part if time_part else "")
-        return os.path.basename(fname)
+        return os.path.basename(fname) if fname else "Unknown"
 
 def main():
     p = argparse.ArgumentParser(description="paired test across channel-pairs (use pairs as samples)")
@@ -154,14 +241,16 @@ def main():
     p.add_argument('fileB_pos', nargs='?', help=argparse.SUPPRESS)
 
     # component-based construction for file A
-    p.add_argument('--subjA', help='subject for A e.g. D0063')
+    # allow either a single occurrence with multiple values or repeated --subjA flags
+    p.add_argument('--subjA', nargs='+', action='append', help='one or more subjects for A e.g. D0063 D0064 (can repeat)')
     p.add_argument('--regionA', help='brain region for A e.g. acc')
     p.add_argument('--condA', help='condition for A e.g. stimulus_c')
     p.add_argument('--tstartA', help='time window start for A e.g. -0.5')
     p.add_argument('--tendA', help='time window end for A e.g. 0.0')
 
     # component-based construction for file B
-    p.add_argument('--subjB', help='subject for B')
+    # allow either a single occurrence with multiple values or repeated --subjB flags
+    p.add_argument('--subjB', nargs='+', action='append', help='one or more subjects for B (can repeat)')
     p.add_argument('--regionB', help='brain region for B')
     p.add_argument('--condB', help='condition for B')
     p.add_argument('--tstartB', help='time window start for B')
@@ -174,40 +263,80 @@ def main():
     p.add_argument('--annotate_top', type=int, default=10)
     args = p.parse_args()
 
-    # determine fileA/fileB: explicit argument (cli) has priority; otherwise positional; otherwise built from components
-    fileA_explicit = args.opt_fileA if args.opt_fileA else args.fileA_pos
-    fileB_explicit = args.opt_fileB if args.opt_fileB else args.fileB_pos
+    # normalize subjA/subjB: argparse with action='append' + nargs='+' gives list-of-lists
+    def _flatten_subj(x):
+        if x is None:
+            return None
+        # x can be [['D0057','D0059']] or [['D0057'], ['D0059']] or ['D0057','D0059']
+        if isinstance(x, list):
+            # if inner elements are lists, flatten
+            if any(isinstance(el, (list, tuple)) for el in x):
+                flat = []
+                for el in x:
+                    if isinstance(el, (list, tuple)):
+                        flat.extend([str(s).strip() for s in el])
+                    else:
+                        flat.append(str(el).strip())
+                return [s for s in flat if s]
+            else:
+                return [str(s).strip() for s in x if s]
+        # otherwise, return as single-element list
+        return [str(x).strip()]
 
-    fileA = get_built_or_explicit_file(
-        fileA_explicit,
-        args.subjA, args.regionA, args.condA, args.tstartA, args.tendA
-    )
-    fileB = get_built_or_explicit_file(
-        fileB_explicit,
-        args.subjB, args.regionB, args.condB, args.tstartB, args.tendB
-    )
+    args.subjA = _flatten_subj(args.subjA)
+    args.subjB = _flatten_subj(args.subjB)
 
-    if not fileA or not fileB:
-        raise SystemExit("必须提供两个输入文件：要么显式路径（位置参数或 --fileA/--fileB），要么为 A/B 两个文件分别提供 --subjX --regionX --condX --tstartX --tendX。")
+    # 处理输入：优先使用显式文件路径，否则使用组件构建方式
+    if args.opt_fileA or args.fileA_pos:
+        A = load_csv(args.opt_fileA if args.opt_fileA else args.fileA_pos)
+        foundA = None
+    elif args.subjA and args.regionA and args.condA and args.tstartA and args.tendA:
+        A, foundA = load_multiple_subjects_data(
+            args.subjA, args.regionA, args.condA, args.tstartA, args.tendA
+        )
+    else:
+        raise SystemExit("必须为 A 提供显式文件路径或完整的组件参数（subjects, region, condition, tstart, tend）")
 
-    # sanity: if built path, show which file used
-    if (not os.path.isabs(fileA)) and fileA.startswith(BASE_DIR):
-        pass
-    # load
-    if not os.path.exists(fileA):
-        raise SystemExit(f"输入文件 A 未找到: {fileA}")
-    if not os.path.exists(fileB):
-        raise SystemExit(f"输入文件 B 未找到: {fileB}")
-
-    A = load_csv(fileA); B = load_csv(fileB)
+    if args.opt_fileB or args.fileB_pos:
+        B = load_csv(args.opt_fileB if args.opt_fileB else args.fileB_pos)
+        foundB = None
+    elif args.subjB and args.regionB and args.condB and args.tstartB and args.tendB:
+        B, foundB = load_multiple_subjects_data(
+            args.subjB, args.regionB, args.condB, args.tstartB, args.tendB
+        )
+    else:
+        raise SystemExit("必须为 B 提供显式文件路径或完整的组件参数（subjects, region, condition, tstart, tend）")
     for col in ['ch1','ch2','coh_mean']:
         if col not in A.columns or col not in B.columns:
             raise SystemExit(f"两个文件都必须包含列: ch1, ch2, coh_mean")
 
-    labelA = make_label(args.subjA, args.regionA, args.condA, args.tstartA, args.tendA, fileA)
-    labelB = make_label(args.subjB, args.regionB, args.condB, args.tstartB, args.tendB, fileB)
+    labelA = make_label(args.subjA, args.regionA, args.condA, args.tstartA, args.tendA)
+    labelB = make_label(args.subjB, args.regionB, args.condB, args.tstartB, args.tendB)
+
+    # report what was loaded
+    if isinstance(foundA, list):
+        print(f"A: loaded subjects: {', '.join(foundA)} (total rows: {len(A)})")
+    else:
+        print(f"A: loaded explicit file (total rows: {len(A)})")
+
+    if isinstance(foundB, list):
+        print(f"B: loaded subjects: {', '.join(foundB)} (total rows: {len(B)})")
+    else:
+        print(f"B: loaded explicit file (total rows: {len(B)})")
 
     perpair_df, overall = compute_perpair_and_overall(A, B)
+    
+    # Add number of subjects to the results
+    if 'subject' in A.columns:
+        overall['n_subjects_A'] = A['subject'].nunique()
+    else:
+        overall['n_subjects_A'] = 1
+        
+    if 'subject' in B.columns:
+        overall['n_subjects_B'] = B['subject'].nunique()
+    else:
+        overall['n_subjects_B'] = 1
+    
     perpair_df.to_csv(args.out_perpair, index=False)
     pd.DataFrame([overall]).to_csv(args.out_overall, index=False)
     plot_results(perpair_df, overall, args.out_fig, labelA=labelA, labelB=labelB, alpha=args.alpha, annotate_top=args.annotate_top)
