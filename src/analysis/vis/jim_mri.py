@@ -3,6 +3,7 @@ import os.path as op
 from collections import OrderedDict
 from collections.abc import Iterable, Sequence
 from functools import singledispatch
+import re
 
 import mne
 import nibabel as nib
@@ -429,24 +430,31 @@ def pick_no_wm(picks: list[str], labels: OrderedDict[str: list[str]]) -> list:
 
 
 def get_sub(inst: Signal | mne.Info | str) -> str:
-    """Gets the subject from the instance
-
-    Parameters
-    ----------
-    inst : Signal
-        The instance to get the subject from
-
-    Returns
-    -------
-    str
-        The subject"""
+    """Gets the subject from the instance"""
     if isinstance(inst, Signal):
         inst = inst.info
     elif isinstance(inst, str):
-        try: 
-            return f"{inst[0]}{int(inst[1:])}"
-        except ValueError:
+        
+        # Regex to separate D, leading zeros, numbers, and any trailing letters
+        # e.g. 'D0107A' -> ('D', '0', '107', 'A')
+        # e.g. 'D0057'  -> ('D', '00', '57', '')
+        match = re.match(r'^(D)(0*)(\d+)([A-Za-z]*)$', inst)
+
+        if match:
+            # We have a match
+            prefix, zeros, numbers, letters = match.groups()
+            
+            # Convert numbers to int and back to str to remove leading zeros
+            # int('0107') -> 107 -> '107'
+            formatted_numbers = str(int(numbers)) 
+            
+            # Reconstruct the ID
+            # 'D' + '107' + 'A' -> 'D107A'
+            return f"{prefix}{formatted_numbers}{letters}"
+        else:
+            # Doesn't match the 'D' pattern (e.g., 'fsaverage'), return it as-is
             return inst
+            
     out_str = inst['subject_info']['his_id'][4:]
     if len(out_str) == 1:
         return out_str
