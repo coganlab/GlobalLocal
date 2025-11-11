@@ -1,0 +1,49 @@
+['/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+--------- PARSED ARGUMENTS ---------
+args.subjects: ['D0137']
+args.task: GlobalLocal
+args.times: [-1.0, 1.5]
+args.within_base_times: [-1.0, 0.0]
+args.baseline_event: Stimulus
+args.base_times_length: 0.5
+args.pad_length: 0.5
+args.LAB_root: /cwork/jz421
+args.channels: None
+args.dec_factor: 8
+args.outlier_policy: drop
+args.outliers: 10
+args.threshold_percent: 5.0
+args.passband: [70.0, 150.0]
+======================================================================
+epoching data for subject: D0137
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/ieeg/sub-D0137_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info

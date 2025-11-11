@@ -1,0 +1,42 @@
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0137_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0137_task-GlobalLocal_acq-01_run-01_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0137_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0137_task-GlobalLocal_acq-01_run-02_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0137_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0137_task-GlobalLocal_acq-01_run-03_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any electrodes.tsv associated with sub-D0137_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*electrodes.tsv"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Did not find any coordsystem.json associated with sub-D0137_task-GlobalLocal_acq-01_run-04_desc-clean.
+
+The search_str was "/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0137/**/ieeg/sub-D0137*coordsystem.json"
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 426, in <module>
+    main(subjects=args.subjects, 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 381, in main
+    bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 185, in bandpass_and_epoch_and_find_task_significant_electrodes
+    os.makedirs(save_dir)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0137'

@@ -51,7 +51,9 @@ from src.analysis.config.plotting_parameters import plotting_parameters as plot_
 import src.analysis.utils.general_utils as utils # import utils functions one by one by name
 from src.analysis.power.power_traces import make_multi_channel_evokeds_for_all_conditions_and_rois, \
                                             plot_power_traces_for_all_rois, create_subtracted_evokeds_dict, \
-                                            time_perm_cluster_between_two_evokeds
+                                            time_perm_cluster_between_two_evokeds, process_windowed_data_for_anova, \
+                                            create_windowed_anova_dataframe, perform_windowed_anova, \
+                                            apply_fdr_correction_to_windowed_results
 
 # %% [markdown]
 # get lab root for save dir
@@ -265,10 +267,47 @@ def main(args):
                 p_values_dict[roi] = p_values
             except KeyError:
                 print(f"   Skipping ROI {roi}: Missing prepared evoked data for one or both conditions.")
-
+        
     elif args.statistical_method == 'anova':
-        raise NotImplementedError("ANOVA statistical method not yet implemented for power traces.")
-    
+        # Process windowed data
+        windowed_data = process_windowed_data_for_anova(
+            subjects_mne_objects, condition_names, rois, subjects,
+            electrodes, window_size=args.window_size,
+            step_size=args.step_size, sampling_rate=args.sampling_rate
+        )
+        
+        # Create DataFrame
+        df_windowed = create_windowed_anova_dataframe(
+            windowed_data, conditions, rois, electrodes,
+            times=evoked.times,  # Get times from any evoked object
+            window_size=args.window_size,
+            step_size=args.step_size,
+            sampling_rate=args.sampling_rate
+        )
+        
+        # Perform within-electrode ANOVA
+        within_results = perform_windowed_anova(
+            df_windowed, conditions, rois, save_dir,
+            f'{conditions_save_name}_windowed',
+            anova_type='within_electrode'
+        )
+        
+        # Perform across-electrode ANOVA
+        across_results = perform_windowed_anova(
+            df_windowed, conditions, rois, save_dir,
+            f'{conditions_save_name}_windowed',
+            anova_type='across_electrode'
+        )
+        
+        # Apply FDR correction
+        if args.apply_fdr:
+            within_results_corrected = apply_fdr_correction_to_windowed_results(
+                within_results, alpha=args.fdr_alpha
+            )
+            across_results_corrected = apply_fdr_correction_to_windowed_results(
+                across_results, alpha=args.fdr_alpha
+            )
+            
     # now let's plot results
     evks_dict_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
         subjects_mne_objects, args.subjects, rois, condition_names, 
@@ -283,7 +322,8 @@ def main(args):
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 
         y_label='Power (z)', ylim=args.ylim,
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
+        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
+        show_legend=args.show_legend
     )
     
     # init subtracted evokeds dict
@@ -315,7 +355,8 @@ def main(args):
         error_type='sem', figsize=(12, 8), 
         x_label='Time from Stimulus Onset (s)', 
         y_label='Power (z)',
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename
+        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
+        show_legend=args.show_legend
     )
 
 if __name__ == "__main__":

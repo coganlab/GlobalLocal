@@ -47,9 +47,15 @@ from src.analysis.config import experiment_conditions
 LAB_ROOT = None  # Will be determined automatically in main()
 
 # Subject configuration
-# remove D0110 because of low error trials
-# SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
+# subjects for iR-cS err
+SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
+# subjetcs for err-corr
+# SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
+<<<<<<< HEAD
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+=======
 SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+>>>>>>> 7530fd293d7935518503f9ff2c33c2cfa4bb4dbf
 
 # task
 TASK = 'GlobalLocal'
@@ -64,8 +70,15 @@ N_JOBS = -1
 # stats
 STATISTICAL_METHOD = 'time_perm_cluster' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
-WINDOW_SIZE = None # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
+WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
+STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
+APPLY_FDR = True # Apply FDR correction to p-values for ANOVA, since we can't do cluster correction here (or I at least can't think of a way to do cluster-correction for ANOVA)
+FDR_ALPHA=0.05 # FDR alpha for ANOVA
 
+if STATISTICAL_METHOD == 'time_perm_cluster':
+    WINDOW_SIZE = None
+    STEP_SIZE = None
+    
 # additional parameters for permutation cluster stats
 STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
 
@@ -87,7 +100,7 @@ TAILS=2
 
 # ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+CONDITIONS = experiment_conditions.stimulus_iR_cS_err_conditions
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -125,7 +138,7 @@ ROIS_DICT = {
 ELECTRODES = 'sig'
 
 # plotting
-YLIM = (-0.1,0.35)
+YLIM = (-0.1,0.45)
 SHOW_LEGEND = False
 
 # # # # testing params (comment out)
@@ -159,8 +172,11 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
+        apply_fdr=APPLY_FDR,
+        fdr_alpha=FDR_ALPHA,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
+        step_size=STEP_SIZE,
         n_perm=N_PERM,
         tails=TAILS,
         ylim=YLIM,
@@ -187,6 +203,13 @@ def run_analysis():
     print(f"  Tails: {TAILS}")
     print("=" * 70)
 
+    print("ANOVA Parameters:")
+    print(f"  Window Size: {WINDOW_SIZE}")
+    print(f"  Step Size: {STEP_SIZE}")
+    print(f"  Apply FDR: {APPLY_FDR}")
+    print(f"  FDR alpha: {FDR_ALPHA}")
+    print("=" * 70)
+    
     print('plotting parameters:')
     print(f'  y limits: {YLIM}')
     print(f'  show legend: {SHOW_LEGEND}')

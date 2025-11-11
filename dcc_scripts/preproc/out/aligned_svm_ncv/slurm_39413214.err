@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 426, in <module>
+    main(subjects=args.subjects, 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 381, in main
+    bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 187, in bandpass_and_epoch_and_find_task_significant_electrodes
+    good = crop_empty_data(filt)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/navigate.py", line 72, in crop_empty_data
+    no_bound = mne.Annotations(**an)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/annotations.py", line 394, in __init__
+    _check_o_d_s_c_e(onset, duration, description, ch_names, extras)
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/annotations.py", line 202, in _check_o_d_s_c_e
+    extras = _validate_extras(extras, len(onset))
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/annotations.py", line 149, in _validate_extras
+    _validate_type(extras, (None, list, _AnnotationsExtrasList), "extras")
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/mne/utils/check.py", line 645, in _validate_type
+    raise TypeError(
+TypeError: extras must be an instance of None, list, or _AnnotationsExtrasList, got <class 'mne.annotations._AnnotationsExtrasDict'> instead.

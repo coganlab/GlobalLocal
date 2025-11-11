@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 44, in <module>
+    from dcc_scripts.decoding.decoding_dcc import main
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 40, in <module>
+    from src.analysis.utils.general_utils import *
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py", line 18, in <module>
+    from statsmodels.stats.multitest import multipletests
+ModuleNotFoundError: No module named 'statsmodels'

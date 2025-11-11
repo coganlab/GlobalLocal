@@ -1,11 +1,40 @@
+import sys
+import os
+print(sys.path)
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+# Get the absolute path to the directory containing the current script
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    current_script_dir = os.getcwd()
+
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)  # insert at the beginning to prioritize it
+
 import numpy as np
 import mne
 import matplotlib.pyplot as plt
-import os
 from typing import Union, List, Sequence
 import logging
 from ieeg.calc.stats import time_perm_cluster
-
+from numpy.lib.stride_tricks import sliding_window_view
+from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, \
+                                            identify_bad_channels_by_trial_nan_rate, \
+                                            impute_trial_nans_by_channel_mean, \
+                                            create_subjects_mne_objects_dict, \
+                                            filter_electrode_lists_against_subjects_mne_objects, \
+                                            find_difference_between_two_electrode_lists,
+                                            windower
+                                            
 #to save print statements while on cluster
 # PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
 
@@ -726,4 +755,256 @@ def time_perm_cluster_between_two_evokeds(evoked_cond1, evoked_cond2, p_thresh=0
     
     return clusters, p_obs
     
+
+def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois, subjects, 
+                                    electrodes_per_subject_roi, window_size=64, 
+                                    step_size=16, sampling_rate=256):
+    """
+    Process data with sliding windows for ANOVA analysis.
     
+    Parameters:
+    -----------
+    window_size : int or None
+        Size of window in samples. If None, uses full epoch.
+    step_size : int
+        Step size for sliding window in samples.
+    """
+    windowed_data = {}
+    
+    for condition_name in condition_names:
+        windowed_data[condition_name] = {}
+        
+        for roi in rois:
+            roi_data_list = []
+            
+            for sub in subjects:
+                electrodes = electrodes_per_subject_roi[roi].get(sub, [])
+                if not electrodes:
+                    continue
+                
+                # Get epochs for this condition
+                epochs = subjects_mne_objects[sub][condition_name]['HG_ev1_power_rescaled'].copy()
+                epochs = epochs.pick_channels(electrodes)
+                
+                # Get data: (n_trials, n_channels, n_times)
+                data = epochs.get_data()
+                
+                # Apply windowing to each channel and trial
+                # windower expects data with time axis last by default
+                windowed_trials = []
+                for trial in data:
+                    trial_windowed = windower(trial, window_size=window_size, 
+                                             axis=-1, step_size=step_size, insert_at=0)
+                    # Shape: (n_windows, n_channels, window_size)
+                    windowed_trials.append(trial_windowed)
+                
+                windowed_trials = np.array(windowed_trials)
+                # Shape: (n_trials, n_windows, n_channels, window_size)
+                
+                # Average within each window
+                windowed_avg = np.mean(windowed_trials, axis=-1)
+                # Shape: (n_trials, n_windows, n_channels)
+                
+                roi_data_list.append(windowed_avg)
+            
+            windowed_data[condition_name][roi] = roi_data_list
+    
+    return windowed_data
+
+def create_windowed_anova_dataframe(windowed_data, conditions, rois, 
+                                    electrodes_per_subject_roi, times, 
+                                    window_size=None, step_size=1, sampling_rate=256):
+    """
+    Create DataFrame for windowed ANOVA analysis.
+    """
+    data_for_anova = []
+    
+    # Calculate window centers for time labels
+    if window_size is not None:
+        window_duration = window_size / sampling_rate
+        n_windows = len(range(0, len(times) - window_size + 1, step_size))
+        window_centers = []
+        for i in range(n_windows):
+            start_idx = i * step_size
+            center_idx = start_idx + window_size // 2
+            if center_idx < len(times):
+                window_centers.append(times[center_idx])
+            else:
+                window_centers.append(times[-1])
+    else:
+        window_centers = [np.mean(times)]  # Single window for full epoch
+    
+    for condition_name, condition_parameters in conditions.items():
+        for roi in rois:
+            subjects_with_data = [s for s in electrodes_per_subject_roi[roi].keys()]
+            
+            for sub_idx, subject_data in enumerate(windowed_data[condition_name][roi]):
+                subject_id = subjects_with_data[sub_idx]
+                electrodes = electrodes_per_subject_roi[roi][subject_id]
+                
+                # subject_data shape: (n_trials, n_windows, n_channels)
+                for trial_idx in range(subject_data.shape[0]):
+                    for window_idx in range(subject_data.shape[1]):
+                        for electrode_idx, electrode_name in enumerate(electrodes):
+                            activity = subject_data[trial_idx, window_idx, electrode_idx]
+                            
+                            data_dict = {
+                                'SubjectID': subject_id,
+                                'Electrode': electrode_name,
+                                'ROI': roi,
+                                'WindowCenter': window_centers[window_idx],
+                                'WindowIndex': window_idx,
+                                'Trial': trial_idx + 1,
+                                'Activity': activity
+                            }
+                            
+                            data_dict.update(condition_parameters)
+                            data_for_anova.append(data_dict)
+    
+    return pd.DataFrame(data_for_anova)
+
+def perform_windowed_anova(df, conditions, rois, save_dir, save_name, 
+                           anova_type='within_electrode'):
+    """
+    Perform ANOVA for each time window.
+    
+    Parameters:
+    -----------
+    anova_type : str
+        'within_electrode' or 'across_electrode'
+    """
+    results_by_window = {}
+    
+    # Get unique window indices
+    window_indices = df['WindowIndex'].unique()
+    
+    for window_idx in window_indices:
+        df_window = df[df['WindowIndex'] == window_idx]
+        window_center = df_window['WindowCenter'].iloc[0]
+        
+        if anova_type == 'within_electrode':
+            # Perform within-electrode ANOVA for this window
+            results = []
+            
+            for subject_id in df_window['SubjectID'].unique():
+                for electrode in df_window['Electrode'].unique():
+                    for roi in df_window['ROI'].unique():
+                        df_filtered = df_window[
+                            (df_window['SubjectID'] == subject_id) & 
+                            (df_window['Electrode'] == electrode) & 
+                            (df_window['ROI'] == roi)
+                        ]
+                        
+                        if df_filtered.empty or len(df_filtered) < 2:
+                            continue
+                        
+                        # Build formula
+                        condition_keys = [k for k in conditions[next(iter(conditions))].keys() 
+                                        if k != 'BIDS_events']
+                        formula = 'Activity ~ ' + ' * '.join([f'C({k})' for k in condition_keys])
+                        
+                        try:
+                            model = ols(formula, data=df_filtered).fit()
+                            anova_results = anova_lm(model, typ=2)
+                            
+                            # Store significant effects
+                            sig_effects = anova_results[anova_results['PR(>F)'] < 0.05]
+                            if not sig_effects.empty:
+                                results.append({
+                                    'SubjectID': subject_id,
+                                    'Electrode': electrode,
+                                    'ROI': roi,
+                                    'Effects': sig_effects
+                                })
+                        except:
+                            continue
+            
+            results_by_window[window_center] = results
+            
+        elif anova_type == 'across_electrode':
+            # Perform across-electrode ANOVA for this window
+            for roi in rois:
+                df_roi = df_window[df_window['ROI'] == roi]
+                
+                if df_roi.empty:
+                    continue
+                
+                # Average across trials for each electrode
+                df_averaged = df_roi.groupby(
+                    ['SubjectID', 'Electrode', 'ROI'] + 
+                    list(conditions[next(iter(conditions))].keys())
+                )['Activity'].mean().reset_index()
+                
+                # Build formula
+                condition_keys = [k for k in conditions[next(iter(conditions))].keys() 
+                                if k != 'BIDS_events']
+                formula = 'Activity ~ ' + ' * '.join([f'C({k})' for k in condition_keys])
+                
+                model = ols(formula, data=df_averaged).fit()
+                anova_results = anova_lm(model, typ=2)
+                
+                results_by_window[window_center] = {roi: anova_results}
+    
+    # Save results
+    results_file = os.path.join(save_dir, f'{save_name}_windowed_anova_{anova_type}.json')
+    
+    # Convert results to serializable format
+    serializable_results = {}
+    for window, result in results_by_window.items():
+        serializable_results[str(window)] = str(result)
+    
+    with open(results_file, 'w') as f:
+        json.dump(serializable_results, f, indent=4)
+    
+    return results_by_window
+
+def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
+    """
+    Apply FDR correction across all windows and effects.
+    """
+    # Collect all p-values
+    all_pvalues = []
+    pvalue_info = []  # Track where each p-value comes from
+    
+    for window, results in results_by_window.items():
+        if isinstance(results, list):  # within-electrode results
+            for result in results:
+                effects_df = result.get('Effects', pd.DataFrame())
+                if not effects_df.empty:
+                    for idx, row in effects_df.iterrows():
+                        all_pvalues.append(row['PR(>F)'])
+                        pvalue_info.append({
+                            'window': window,
+                            'subject': result['SubjectID'],
+                            'electrode': result['Electrode'],
+                            'effect': idx
+                        })
+        else:  # across-electrode results
+            for roi, anova_table in results.items():
+                for idx, row in anova_table.iterrows():
+                    all_pvalues.append(row['PR(>F)'])
+                    pvalue_info.append({
+                        'window': window,
+                        'roi': roi,
+                        'effect': idx
+                    })
+    
+    # Apply FDR correction
+    if all_pvalues:
+        rejected, corrected_pvalues, _, _ = multipletests(
+            all_pvalues, alpha=alpha, method='fdr_bh'
+        )
+        
+        # Create corrected results structure
+        corrected_results = {}
+        for i, info in enumerate(pvalue_info):
+            window = info['window']
+            if window not in corrected_results:
+                corrected_results[window] = []
+            
+            if rejected[i]:  # Only keep significant after correction
+                info['corrected_pvalue'] = corrected_pvalues[i]
+                info['original_pvalue'] = all_pvalues[i]
+                corrected_results[window].append(info)
+    
+    return corrected_results

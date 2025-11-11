@@ -31,8 +31,8 @@ from scipy.stats import norm, t # also from scipy.stats
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
 
-# import matplotlib
-# matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
+import matplotlib
+matplotlib.use('Agg') # <-- ADD THIS AND THE ABOVE LINE FOR DEBUGGING
 import matplotlib.pyplot as plt
 
 # scikit-learn imports
@@ -76,7 +76,7 @@ from src.analysis.utils.labeled_array_utils import (
 # utils imports
 # TODO: hmm fix these utils imports, import the funcs individually. 6/1/25.
 from src.analysis.utils.general_utils import * # This is generally discouraged.
-from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict # Explicit import is good
+from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, windower # Explicit import is good
 import gc
 
 # plotting
@@ -807,31 +807,7 @@ def flatten_features(arr: np.ndarray, obs_axs: int = -2) -> np.ndarray:
         out = arr.copy()
     return out.reshape(out.shape[0], -1)
 
-def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
-             step_size: int = 1, insert_at: int = 0):
-    if window_size is None:
-        return x_data[np.newaxis, ...]  # Add a new axis for compatibility
 
-    axis = axis % x_data.ndim
-    data_length = x_data.shape[axis]
-    
-    # Compute the number of full steps (exclude remainder)
-    full_steps = (data_length - window_size) // step_size + 1
-
-    # Create the sliding window view for full windows
-    windowed = sliding_window_view(x_data, window_shape=window_size, axis=axis)
-    
-    # Apply step_size by slicing
-    if step_size > 1:
-        slicing = [slice(None)] * windowed.ndim
-        slicing[axis] = slice(0, None, step_size) # try 0, None, step_size for now, I think this should exclude the remainder..? Keep debugging with the bottom cell.
-        windowed = windowed[tuple(slicing)]
-    
-    # Move the window dimension to the desired location
-    if insert_at != axis:
-        windowed = np.moveaxis(windowed, axis, insert_at)
-    
-    return windowed
 
 # this is aaron's windower function. Replace with my windower that accounts for step size.
 # def windower(x_data: np.ndarray, window_size: int, axis: int = -1, insert_at: int = 0):
@@ -1141,8 +1117,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={})
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={})
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
@@ -1433,14 +1409,9 @@ def plot_accuracies_nature_style(
                 significance_y_position = ylim[0] + y_range * 0.95
             
             for start_idx, end_idx in clusters:
-                # Calculate time range
-                if window_size:
-                    window_duration = window_size / sampling_rate / 2
-                else:
-                    window_duration = 0
                 
-                start_time = time_points[start_idx] - window_duration
-                end_time = time_points[end_idx] + window_duration
+                start_time = time_points[start_idx]
+                end_time = time_points[end_idx]
                 
                 # Draw significance bar
                 ax.plot([start_time, end_time], 
@@ -1460,7 +1431,7 @@ def plot_accuracies_nature_style(
                         fontweight='bold')
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -1883,7 +1854,7 @@ def decode_on_sig_tfr_clusters(
     )
     
     # Step 3: Decode
-    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample)
+    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample, clf_params={})
     
     # Handle NaN filling using existing mixup2 function
     mixup2(arr=X_train_masked, labels=y_train, obs_axs=obs_axs, alpha=alpha, seed=seed)
@@ -3493,14 +3464,9 @@ def plot_accuracies_with_multiple_sig_clusters(
                 
                 # Draw each cluster
                 for start_idx, end_idx in clusters:
-                    # Calculate time range
-                    if window_size:
-                        window_duration = window_size / sampling_rate / 2
-                    else:
-                        window_duration = 0
                     
-                    start_time = time_points[start_idx] - window_duration
-                    end_time = time_points[end_idx] + window_duration
+                    start_time = time_points[start_idx]
+                    end_time = time_points[end_idx]
                     
                     # Draw significance bar
                     line = ax.plot([start_time, end_time], 
@@ -3530,7 +3496,7 @@ def plot_accuracies_with_multiple_sig_clusters(
                     )
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -3838,7 +3804,7 @@ def plot_cm_traces_nature_style(
                     alpha=0.5,
                     zorder=2)
         
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=7)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits

@@ -1,0 +1,60 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+Conditions:        ['Stimulus_c_in_25switchBlock', 'Stimulus_c_in_75switchBlock', 'Stimulus_i_in_25switchBlock', 'Stimulus_i_in_75switchBlock']
+ROIs:              ['lpfc', 'occ']
+Epochs file:       Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+Classifier Model:   LDA
+  CV Splits/Repeats: 5/5
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 200
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+ run visualization debugging of first two PCs and decision boundary: True
+======================================================================
+
+Starting analysis...
+LAB_root:  /cwork/jz421
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+
+✗ Analysis failed with error: [Errno 2] No such file or directory: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/sig_chans_D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit.json'

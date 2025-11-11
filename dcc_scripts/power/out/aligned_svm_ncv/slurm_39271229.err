@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 92, in <module>
+    CONDITIONS = experiment_conditions.stimulus_iR_cS_conditions
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_iR_cS_conditions'. Did you mean: 'stimulus_iR_cS_err_conditions'?

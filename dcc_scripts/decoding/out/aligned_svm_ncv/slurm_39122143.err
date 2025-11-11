@@ -1,0 +1,24 @@
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 285, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 453, in main
+    sig_chans_per_subject = get_sig_chans_per_subject(args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1322, in get_sig_chans_per_subject
+    sig_chans_per_subject[sub] = get_sig_chans(sub, task, epochs_root_file, LAB_root)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/utils/general_utils.py", line 1298, in get_sig_chans
+    layout = get_data(task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 382, in get_data
+    return BIDSLayout(BIDS_root, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/bids/layout/layout.py", line 135, in __init__
+    root, description = validate_root(root, validate)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/bids/layout/validation.py", line 75, in validate_root
+    raise BIDSValidationError(
+bids.exceptions.BIDSValidationError: 'dataset_description.json' is missing from project root. Every valid BIDS dataset must have this file.
+Example contents of 'dataset_description.json': 
+{"Name": "Example dataset", "BIDSVersion": "1.0.2"}
