@@ -364,8 +364,60 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 step_size=args.step_size
             )
             
-            results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+            results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
             
+    # task by congruency
+    if args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:   
+        results_for_this_bootstrap['time_window_results']['task_by_congruency_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['time_window_results']['i_taskG_vs_i_taskL'][roi]['time_window_centers']
+            
+            # get task G vs task L pooled shuffle distribution across c and i - i think this is right..
+            strings_to_find_pooled = [['taskG'], ['taskL']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            
+            results_for_this_bootstrap['time_window_results']['task_by_congruency_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+    
+    # task by switch type
+    if args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:   
+        results_for_this_bootstrap['time_window_results']['task_by_switch_type_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['time_window_results']['s_taskG_vs_s_taskL'][roi]['time_window_centers']
+            
+            # get task G vs task L pooled shuffle distribution across s and r - i think this is right..
+            strings_to_find_pooled = [['taskG'], ['taskL']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            
+            results_for_this_bootstrap['time_window_results']['task_by_switch_type_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+                   
     return results_for_this_bootstrap
 
 def main(args):
@@ -422,7 +474,10 @@ def main(args):
         conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
         conditions_save_name = 'stimulus_iR_cS_err_conditions' +  '_' + str(len(args.subjects)) + '_' + 'subjects'
-    
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+        conditions_save_name = 'stimulus_task_by_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+        conditions_save_name = 'stimulus_task_by_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_experiment_conditions:
@@ -511,7 +566,18 @@ def main(args):
         condition_comparisons['err_vs_corr'] = [['Stimulus_err'], ['Stimulus_corr']]
     elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
         condition_comparisons['iR_err_vs_cS_err'] = [['Stimulus_err_iR'], ['Stimulus_err_cS']]
-
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+        condition_comparisons['c_taskG_vs_c_taskL'] = ['Stimulus_c_taskG', 'Stimulus_c_taskL']
+        condition_comparisons['i_taskG_vs_i_taskL'] = ['Stimulus_i_taskG', 'Stimulus_i_taskL']
+        
+        condition_comparisons['c_taskG_vs_i_taskG'] = ['Stimulus_c_taskG', 'Stimulus_i_taskG']
+        condition_comparisons['c_taskL_vs_i_taskL'] = ['Stimulus_c_taskL', 'Stimulus_i_taskL']
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+        condition_comparisons['r_taskG_vs_r_taskL'] = ['Stimulus_r_taskG', 'Stimulus_r_taskL']
+        condition_comparisons['s_taskG_vs_s_taskL'] = ['Stimulus_s_taskG', 'Stimulus_s_taskL']
+        
+        condition_comparisons['r_taskG_vs_s_taskG'] = ['Stimulus_r_taskG', 'Stimulus_s_taskG']
+        condition_comparisons['r_taskL_vs_s_taskL'] = ['Stimulus_r_taskL', 'Stimulus_s_taskL']
         
     # 8/26/25 changes that should probably first involve an ANOVA between all four comparisons - note that this will be underpowered since I'm subsampling to the 25% condition
     # hm i think i should probably trial match too, so the c75 vs i75 would have to be subsampled to the c25 vs i25 trial counts. Ugh that loses sooooo many trials (50%). Rerun make epoched data with more stringent nan criteria so that i don't lose so many trials.
@@ -585,6 +651,20 @@ def main(args):
                 (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
             ]
             condition_comparison = 'switch_type_by_congruency_proportion_comparison'
+        elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+            print("Setting up Task by Congruency visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_i_taskG'], ['Stimulus_i_taskL']),
+                (['Stimulus_c_taskG'], ['Stimulus_c_taskL'])
+            ]
+            condition_comparison = 'task_by_congruency_comparison'
+        elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+            print("Setting up Task by Switch Type visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_s_taskG'], ['Stimulus_s_taskL']),
+                (['Stimulus_r_taskG'], ['Stimulus_r_taskL'])
+            ]
+            condition_comparison = 'task_by_switch_type_comparison'
         if not viz_pairs:
             print("Warning: No visualization pairs defined for the current condition set. Skipping debug plots.")
         else:
@@ -823,21 +903,45 @@ def main(args):
             # Get time points from one of the results
             time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
             
-            # Define custom colors and linestyles for your 2x2 case
-            # This is an example for c25 vs i25
-            trace_colors = {
-                'True: c25, Pred: c25': '#0173B2', # Dark Blue (TP c25)
-                'True: c25, Pred: i25': '#56B4E9', # Light Blue (FN c25)
-                'True: i25, Pred: i25': '#DE8F05', # Dark Orange (TP i25)
-                'True: i25, Pred: c25': '#CC78BC', # Pink/Purple (FN i25)
-            }
-            trace_linestyles = {
-                'True: c25, Pred: c25': '-', # Solid for TP
-                'True: c25, Pred: i25': '--',# Dashed for FN
-                'True: i25, Pred: i25': '-', # Solid for TP
-                'True: i25, Pred: c25': '--',# Dashed for FN
-            }
+            # --- Dynamically define colors and linestyles based on user's request ---
             
+            # 1. Define the desired colors
+            color_correct = 'green' # Green for correct prediction
+            color_incorrect = 'red' # Red for incorrect prediction
+            
+            # 2. Infer the two class labels from the trace dictionary keys
+            labels = set()
+            for key in traces_dict.keys():
+                try:
+                    parts = key.split(',')
+                    true_part = parts[0].replace('True: ', '').strip()
+                    pred_part = parts[1].replace('Pred: ', '').strip()
+                    labels.add(true_part)
+                    labels.add(pred_part)
+                except Exception:
+                    continue # Skip malformed keys if any
+            
+            if len(labels) == 2:
+                # Sort labels to get a consistent order (e.g., label1, label2)
+                label1, label2 = sorted(list(labels))
+                
+                # 3. Build the dictionaries based on your logic:
+                #    - Color: Green for correct (True == Pred), Red for incorrect (True != Pred)
+                #    - Style: Solid for Predicted Class 1, Dotted for Predicted Class 2
+                
+                trace_colors = {
+                    f'True: {label1}, Pred: {label1}': color_correct,   # TP1 (Correct)
+                    f'True: {label1}, Pred: {label2}': color_incorrect, # FN1 (Incorrect)
+                    f'True: {label2}, Pred: {label2}': color_correct,   # TP2 (Correct)
+                    f'True: {label2}, Pred: {label1}': color_incorrect, # FN2 (Incorrect)
+                }
+                
+                trace_linestyles = {
+                    f'True: {label1}, Pred: {label1}': '-',   # Predicted Class 1 (Solid)
+                    f'True: {label1}, Pred: {label2}': '--',   # Predicted Class 2 (dashed)
+                    f'True: {label2}, Pred: {label2}': '--',   # Predicted Class 2 (dashed)
+                    f'True: {label2}, Pred: {label1}': '-',   # Predicted Class 1 (Solid)
+                }
             # You might need to adjust the labels for other comparisons, but this will work for 2-class
             
             plot_cm_traces_nature_style(
@@ -854,6 +958,7 @@ def main(args):
                 ylabel="Mean Trial Count",
                 filename_suffix=analysis_params_str
             )
+            
                
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
         print(f"\n--- Running LWPC Comparison Statistics (c25_vs_i25 vs c75_vs_i75) using '{args.unit_of_analysis}' as unit of analysis ---")
@@ -1520,6 +1625,339 @@ def main(args):
                 sig_bar_spacing=0.015,
                 sig_bar_height=0.01
             )
+            
+    if args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+        print(f"\n--- Running task by congruency Comparison Statistics (c_taskG_vs_c_taskL vs i_taskG_vs_i_taskL) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        task_by_congruency_colors = {
+            'c_taskG_vs_c_taskL': '#05B0F0',  
+            'i_taskG_vs_i_taskL': '#05B0F0',  
+          'task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        task_by_congruency_linestyles = {
+            'c_taskG_vs_c_taskL': '-',  # Solid
+            'i_taskG_vs_i_taskL': '--',  # dashed
+            'task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('c_taskG_vs_c_taskL', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['task_by_congruency_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['lwps'] = task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps
+
+            # 1. Get the pooled data using your existing helper function
+            pooled_c_taskG_vs_c_taskL_accs, pooled_i_taskG_vs_i_taskL_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='c_taskG_vs_c_taskL',
+                condition_comparison_2='i_taskG_vs_i_taskL',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new paired cluster test
+            sig_clusters_c_taskG_vs_c_taskL, sig_clusters_i_taskG_vs_i_taskL, _, _ = run_two_one_tailed_tests_with_time_perm_cluster(
+                accuracies1=pooled_c_taskG_vs_c_taskL_accs,
+                accuracies2=pooled_i_taskG_vs_i_taskL_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                stat_func=args.stat_func,
+                permutation_type=args.permutation_type,
+                n_perm=args.n_cluster_perms,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
+            significance_clusters_task_by_congruency_comparison = {
+                'c_taskG_vs_c_taskL': {
+                    'clusters': sig_clusters_c_taskG_vs_c_taskL,
+                    'label': 'c_taskG_vs_c_taskL',
+                    'color': task_by_congruency_colors['c_taskG_vs_c_taskL'], # Blue
+                    'marker': '*' 
+                },
+                'i_taskG_vs_i_taskL': {
+                    'clusters': sig_clusters_i_taskG_vs_i_taskL,
+                    'label': 'i_taskG_vs_i_taskL',
+                    'color': task_by_congruency_colors['i_taskG_vs_i_taskL'], # Orange
+                    'marker': '*'
+                }
+            }
+            
+            if roi not in master_results['comparison_clusters']:
+                master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['task_by_congruency'] = significance_clusters_task_by_congruency_comparison
+        
+            # --- Get data for plotting from the main stats dictionary ---
+            c_taskG_vs_c_taskL_stats = all_bootstrap_stats['c_taskG_vs_c_taskL'][roi]
+            i_taskG_vs_i_taskL_stats = all_bootstrap_stats['i_taskG_vs_i_taskL'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = c_taskG_vs_c_taskL_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['c_taskG_vs_c_taskL'][roi]['time_window_centers']
+            
+            plot_accuracies_with_multiple_sig_clusters(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'c_taskG_vs_c_taskL': c_taskG_vs_c_taskL_stats[f'{unit}_true_accs'],
+                    'i_taskG_vs_i_taskL': i_taskG_vs_i_taskL_stats[f'{unit}_true_accs'],
+                    'task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Pass the new dictionary here
+                significance_clusters_dict=significance_clusters_lwps_comparison,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_task_by_congruency_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "task_by_congruency_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=lwps_colors,
+                linestyles=lwps_linestyles,
+                single_column=args.single_column,
+                show_legend=args.show_legend,
+                ylim=(0.3, 0.8),
+                ylabel="Task Decoding Accuracy",
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str,
+                
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=True,
+                sig_bar_base_position=0.72, # Set base y-position for the bars
+                sig_bar_spacing=0.015,       # Vertical spacing between bars
+                sig_bar_height=0.01          # Height of the bars
+            )
+
+            print(f"Plotting accuracy DIFFERENCE for task by congruency in {roi}...i-c")
+            
+            task_by_congruency_differences = pooled_i_taskG_vs_i_taskL_accs - pooled_c_taskG_vs_c_taskL_accs
+            
+            mean_diff = np.mean(task_by_congruency_differences, axis=0)
+            std_diff = np.std(task_by_congruency_differences, axis=0)
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff)  
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2)
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1)  
+
+            # 5. REPLACE the second plot call as well
+            plot_accuracies_with_multiple_sig_clusters(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    'i_taskG_vs_i_taskL_minus_c_taskG_vs_c_taskL': task_by_congruency_differences
+                },
+                # Pass the same dictionary here
+                significance_clusters_dict=significance_clusters_task_by_congruency_comparison,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_task_by_congruency_ACC_DIFFERENCE_plot',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "task_by_congruency_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'i_taskG_vs_i_taskL_minus_c_taskG_vs_c_taskL': '#404040'},
+                linestyles={'i_taskG_vs_i_taskL_minus_c_taskG_vs_c_taskL': '-'},
+                single_column=args.single_column,
+                show_legend=args.show_legend,
+                ylim=diff_ylim,
+                ylabel="Accuracy Difference (i_taskG_vs_i_taskL - c_taskG_vs_c_taskL)",
+                show_chance_level=True,
+                chance_level=0,
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=False, # No legend needed for sig bars on diff plot
+                sig_bar_base_position=diff_ylim[1] * 0.8, # Base y-position
+                sig_bar_spacing=0.015,
+                sig_bar_height=0.01
+            )
+
+    if args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+        print(f"\n--- Running task by switch type Comparison Statistics (s_taskG_vs_s_taskL vs r_taskG_vs_r_taskL) using '{args.unit_of_analysis}' as unit of analysis ---")
+        
+        task_by_switch_type_colors = {
+            's_taskG_vs_s_taskL': '#05B0F0',  
+            'r_taskG_vs_r_taskL': '#05B0F0',  
+          'task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'  # Gray
+        }
+        
+        task_by_switch_type_linestyles = {
+            's_taskG_vs_s_taskL': '-',  # Solid
+            'r_taskG_vs_r_taskL': '--',  # dashed
+            'task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'  # Dashed
+        }
+
+        for roi in rois:
+            if roi not in all_bootstrap_stats.get('s_taskG_vs_s_taskL', {}):
+                print(f"Skipping plot for ROI {roi} due to missing data.")
+                continue
+
+            # --- Pool the pooled shuffle distributions from each bootstrap ---
+            task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps = []
+            for b_idx in range(args.bootstraps):
+                if b_idx in time_window_decoding_results:
+                    shuffle_data = time_window_decoding_results[b_idx]['task_by_switch_type_shuffle_accs_across_pooled_conditions'][roi]
+                    # Depending on folds_as_samples, shuffle_data might be (n_windows, n_perms*n_splits)
+                    # We transpose to (n_samples, n_windows) to be consistent
+                    task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps.append(shuffle_data.T)
+        
+            # Stack all samples from all bootstraps
+            stacked_task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps = np.vstack(
+                task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps
+            )
+            
+            if 'pooled_shuffles' not in master_results['stats']:
+                master_results['stats']['pooled_shuffles'] = {}
+            if roi not in master_results['stats']['pooled_shuffles']:
+                master_results['stats']['pooled_shuffles'][roi] = {}
+            master_results['stats']['pooled_shuffles'][roi]['task_by_switch_type'] = task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps
+
+            # 1. Get the pooled data using your existing helper function
+            pooled_s_taskG_vs_s_taskL_accs, pooled_r_taskG_vs_r_taskL_accs = get_pooled_accuracy_distributions_for_comparison(
+                time_window_decoding_results=time_window_decoding_results,
+                n_bootstraps=args.bootstraps,
+                condition_comparison_1='s_taskG_vs_s_taskL',
+                condition_comparison_2='r_taskG_vs_r_taskL',
+                roi=roi,
+                unit_of_analysis=args.unit_of_analysis
+            )
+
+            # 2. Run the new paired cluster test
+            sig_clusters_s_taskG_vs_s_taskL, sig_clusters_r_taskG_vs_r_taskL, _, _ = run_two_one_tailed_tests_with_time_perm_cluster(
+                accuracies1=pooled_s_taskG_vs_s_taskL_accs,
+                accuracies2=pooled_r_taskG_vs_r_taskL_accs,
+                p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                p_cluster=args.p_cluster,
+                stat_func=args.stat_func,
+                permutation_type=args.permutation_type,
+                n_perm=args.n_cluster_perms,
+                random_state=args.random_state,
+                n_jobs=args.n_jobs
+            )
+            
+            significance_clusters_task_by_switch_type_comparison = {
+                's_taskG_vs_s_taskL': {
+                    'clusters': sig_clusters_s_taskG_vs_s_taskL,
+                    'label': 's_taskG_vs_s_taskL',
+                    'color': task_by_switch_type_colors['s_taskG_vs_s_taskL'], # Blue
+                    'marker': '*' 
+                },
+                'r_taskG_vs_r_taskL': {
+                    'clusters': sig_clusters_r_taskG_vs_r_taskL,
+                    'label': 'r_taskG_vs_r_taskL',
+                    'color': task_by_switch_type_colors['r_taskG_vs_r_taskL'], # Orange
+                    'marker': '*'
+                }
+            }
+            
+            if roi not in master_results['comparison_clusters']:
+                master_results['comparison_clusters'][roi] = {}
+            master_results['comparison_clusters'][roi]['task_by_switch_type'] = significance_clusters_task_by_switch_type_comparison
+        
+            # --- Get data for plotting from the main stats dictionary ---
+            s_taskG_vs_s_taskL_stats = all_bootstrap_stats['s_taskG_vs_s_taskL'][roi]
+            r_taskG_vs_r_taskL_stats = all_bootstrap_stats['r_taskG_vs_r_taskL'][roi]
+            
+            # This ensures the plot's lines/error bars match the unit of analysis
+            unit = s_taskG_vs_s_taskL_stats['unit_of_analysis']
+            
+            time_window_centers = time_window_decoding_results[0]['s_taskG_vs_s_taskL'][roi]['time_window_centers']
+            
+            plot_accuracies_with_multiple_sig_clusters(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_taskG_vs_s_taskL': s_taskG_vs_s_taskL_stats[f'{unit}_true_accs'],
+                    'r_taskG_vs_r_taskL': r_taskG_vs_r_taskL_stats[f'{unit}_true_accs'],
+                    'task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps
+                },
+                # Pass the new dictionary here
+                significance_clusters_dict=significance_clusters_task_by_switch_type_comparison,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_task_by_switch_type_comparison',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "task_by_switch_type_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors=task_by_switch_type_colors,
+                linestyles=task_by_switch_type_linestyles,
+                single_column=args.single_column,
+                show_legend=args.show_legend,
+                ylim=(0.3, 0.8),
+                ylabel="Task Decoding Accuracy",
+                show_chance_level=False, # The pooled shuffle line is our chance level
+                filename_suffix=analysis_params_str,
+                
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=True,
+                sig_bar_base_position=0.72, # Set base y-position for the bars
+                sig_bar_spacing=0.015,       # Vertical spacing between bars
+                sig_bar_height=0.01          # Height of the bars
+            )
+
+            print(f"Plotting accuracy DIFFERENCE for task by switch type in {roi}...s_taskG_vs_s_taskL-r_taskG_vs_r_taskL")
+            
+            task_by_switch_type_differences = pooled_s_taskG_vs_s_taskL_accs - pooled_r_taskG_vs_r_taskL_accs
+            
+            mean_diff = np.mean(task_by_switch_type_differences, axis=0)
+            std_diff = np.std(task_by_switch_type_differences, axis=0)
+            max_abs_val = np.max(np.abs(mean_diff) + std_diff)  
+            diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2)
+            if diff_ylim[0] == 0: diff_ylim = (-0.1, 0.1)  
+
+            # 5. REPLACE the second plot call as well
+            plot_accuracies_with_multiple_sig_clusters(
+                time_points=time_window_centers,
+                accuracies_dict={
+                    's_taskG_vs_s_taskL_minus_r_taskG_vs_r_taskL': task_by_switch_type_differences
+                },
+                # Pass the same dictionary here
+                significance_clusters_dict=significance_clusters_task_by_switch_type_comparison,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                comparison_name=f'bootstrap_task_by_switch_type_ACC_DIFFERENCE_plot',
+                roi=roi,
+                save_dir=os.path.join(save_dir, "task_by_switch_type_comparison", f"{roi}"),
+                timestamp=args.timestamp,
+                p_thresh=args.percentile,
+                colors={'s_taskG_vs_s_taskL_minus_r_taskG_vs_r_taskL': '#404040'},
+                linestyles={'s_taskG_vs_s_taskL_minus_r_taskG_vs_r_taskL': '-'},
+                single_column=args.single_column,
+                show_legend=args.show_legend,
+                ylim=diff_ylim,
+                ylabel="Accuracy Difference (s_taskG_vs_s_taskL - r_taskG_vs_r_taskL)",
+                show_chance_level=True,
+                chance_level=0,
+                filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
+                # Add new parameters for multi-cluster plotting
+                show_sig_legend=False, # No legend needed for sig bars on diff plot
+                sig_bar_base_position=diff_ylim[1] * 0.8, # Base y-position
+                sig_bar_spacing=0.015,
+                sig_bar_height=0.01
+            )
+
 
             
 

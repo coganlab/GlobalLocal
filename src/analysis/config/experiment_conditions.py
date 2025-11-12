@@ -1,6 +1,52 @@
 # TODO: Add /Accuracy1.0 to all of these if I want to exclude error trials. I think that's good, right..?
 # This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
 
+stimulus_task_by_congruency_conditions = {
+    "Stimulus_i_taskG": {
+        "BIDS_events": ["Stimulus/i25.0/Taskg", "Stimulus/i75.0/Taskg"],
+        "congruency": "i",
+        "task": "g"
+    },
+    "Stimulus_i_taskL": {
+        "BIDS_events": ["Stimulus/i25.0/Taskl", "Stimulus/i75.0/Taskl"],
+        "congruency": "i",
+        "task": "l"
+    },
+    "Stimulus_c_taskG": {
+        "BIDS_events": ["Stimulus/c25.0/Taskg", "Stimulus/c75.0/Taskg"],
+        "congruency": "c",
+        "task": "g"
+    },
+    "Stimulus_c_taskL": {
+        "BIDS_events": ["Stimulus/c25.0/Taskl", "Stimulus/c75.0/Taskl"],
+        "congruency": "c",
+        "task": "l"
+    }
+}
+
+stimulus_task_by_switch_type_conditions = {
+    "Stimulus_s_taskG": {
+        "BIDS_events": ["Stimulus/s25.0/Taskg", "Stimulus/s75.0/Taskg"],
+        "switchType": "s",
+        "task": "g"
+    },
+    "Stimulus_s_taskL": {
+        "BIDS_events": ["Stimulus/s25.0/Taskl", "Stimulus/s75.0/Taskl"],
+        "switchType": "s",
+        "task": "l"
+    },
+    "Stimulus_r_taskG": {
+        "BIDS_events": ["Stimulus/r25.0/Taskg", "Stimulus/r75.0/Taskg"],
+        "switchType": "r",
+        "task": "g"
+    },
+    "Stimulus_r_taskL": {
+        "BIDS_events": ["Stimulus/r25.0/Taskl", "Stimulus/r75.0/Taskl"],
+        "switchType": "r",
+        "task": "l"
+    }
+}
+
 #  congruency
 stimulus_congruency_conditions = {
      "Stimulus_i": {

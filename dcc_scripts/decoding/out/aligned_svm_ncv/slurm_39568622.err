@@ -172,3 +172,12 @@ Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-lea
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
+[Parallel(n_jobs=-1)]: Done   2 out of  20 | elapsed: 960.8min remaining: 8647.6min
+[Parallel(n_jobs=-1)]: Done   5 out of  20 | elapsed: 975.6min remaining: 2926.8min
+[Parallel(n_jobs=-1)]: Done   8 out of  20 | elapsed: 982.2min remaining: 1473.3min
+[Parallel(n_jobs=-1)]: Done  11 out of  20 | elapsed: 989.2min remaining: 809.3min
+[Parallel(n_jobs=-1)]: Done  14 out of  20 | elapsed: 990.7min remaining: 424.6min
+[Parallel(n_jobs=-1)]: Done  17 out of  20 | elapsed: 995.9min remaining: 175.7min
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed: 1001.9min finished
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
+The PostScript backend does not support transparency; partially transparent artists will be rendered opaque.
