@@ -418,7 +418,59 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             )
             
             results_for_this_bootstrap['time_window_results']['task_by_switch_type_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
-                   
+      
+    # task by congruency proportion
+    if args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:   
+        results_for_this_bootstrap['time_window_results']['task_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['time_window_results']['taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock'][roi]['time_window_centers']
+            
+            # get task G vs task L pooled shuffle distribution across 25% and 75% I
+            strings_to_find_pooled = [['taskG'], ['taskL']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            
+            results_for_this_bootstrap['time_window_results']['task_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled         
+             
+    # task by switch proportion
+    if args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:   
+        results_for_this_bootstrap['time_window_results']['task_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
+          
+        for roi in rois:
+            time_window_centers = results_for_this_bootstrap['time_window_results']['taskG_in_25switchBlock_vs_taskL_in_25switchBlock'][roi]['time_window_centers']
+            
+            # get task G vs task L pooled shuffle distribution across 25% and 75% I
+            strings_to_find_pooled = [['taskG'], ['taskL']]
+            
+            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+                roi=roi,
+                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
+                strings_to_find_pooled=strings_to_find_pooled,
+                explained_variance=args.explained_variance,
+                n_splits=args.n_splits,
+                n_perm=args.n_shuffle_perms,
+                random_state=bootstrap_random_state,
+                balance_method='subsample', # Subsampling is recommended for pooling
+                obs_axs=args.obs_axs,
+                window_size=args.window_size,
+                step_size=args.step_size
+            )
+            
+            results_for_this_bootstrap['time_window_results']['task_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled         
+               
     return results_for_this_bootstrap
 
 def main(args):
@@ -479,6 +531,11 @@ def main(args):
         conditions_save_name = 'stimulus_task_by_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
         conditions_save_name = 'stimulus_task_by_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+        conditions_save_name = 'stimulus_task_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+        conditions_save_name = 'stimulus_task_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+        
     elif args.conditions == experiment_conditions.response_conditions:
         conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_experiment_conditions:
@@ -501,7 +558,7 @@ def main(args):
         conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.response_iR_cS_err_conditions:
         conditions_save_name = 'response_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    
+        
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
@@ -618,6 +675,22 @@ def main(args):
         condition_comparisons['s_in_25incongruentBlock_vs_s_in_75incongruentBlock'] = ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock'] 
         condition_comparisons['r_in_25incongruentBlock_vs_r_in_75incongruentBlock'] = ['Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
 
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+        condition_comparisons['taskG_in_25incongruentBlock_vs_taskG_in_75incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock']
+        condition_comparisons['taskL_in_25incongruentBlock_vs_taskL_in_75incongruentBlock'] = ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock']
+        condition_comparisons['taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock']
+        condition_comparisons['taskG_in_75incongruentBlock_vs_taskL_in_25incongruentBlock'] = ['Stimulus_taskG_in_75incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock'] 
+        condition_comparisons['taskG_in_25incongruentBlock_vs_taskL_in_75incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock'] 
+        condition_comparisons['taskL_in_25incongruentBlock_vs_taskG_in_75incongruentBlock'] = ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock']
+
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+        condition_comparisons['taskG_in_25switchBlock_vs_taskG_in_75switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock']
+        condition_comparisons['taskL_in_25switchBlock_vs_taskL_in_75switchBlock'] = ['Stimulus_taskL_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock']
+        condition_comparisons['taskG_in_25switchBlock_vs_taskL_in_25switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_25switchBlock']
+        condition_comparisons['taskG_in_75switchBlock_vs_taskL_in_25switchBlock'] = ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_25switchBlock'] 
+        condition_comparisons['taskG_in_25switchBlock_vs_taskL_in_75switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock'] 
+        condition_comparisons['taskL_in_25switchBlock_vs_taskG_in_75switchBlock'] = ['Stimulus_taskL_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock']
+
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
     other_string_to_add = (
@@ -669,6 +742,20 @@ def main(args):
                 (['Stimulus_r_taskG'], ['Stimulus_r_taskL'])
             ]
             condition_comparison = 'task_by_switch_type_comparison'
+        elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+            print("Setting up Task by Congruency Proportion visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_taskG_in_25incongruentBlock'], ['Stimulus_taskL_in_25incongruentBlock']),
+                (['Stimulus_taskG_in_75incongruentBlock'], ['Stimulus_taskL_in_75incongruentBlock'])
+            ]
+            condition_comparison = 'task_by_congruency_proportion_comparison'
+        elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+            print("Setting up Task by Switch Proportion visualization pairs...")
+            viz_pairs = [
+                (['Stimulus_taskG_in_25switchBlock'], ['Stimulus_taskL_in_25switchBlock']),
+                (['Stimulus_taskG_in_75switchBlock'], ['Stimulus_taskL_in_75switchBlock'])
+            ]
+            condition_comparison = 'task_by_switch_proportion_comparison'
         if not viz_pairs:
             print("Warning: No visualization pairs defined for the current condition set. Skipping debug plots.")
         else:
@@ -1129,6 +1216,64 @@ def main(args):
             ylabel="Task Decoding Accuracy",
             significance_label_1='Task (S) > Task (R)',
             significance_label_2='Task (R) > Task (S)',
+            time_window_decoding_results=time_window_decoding_results,
+            all_bootstrap_stats=all_bootstrap_stats,
+            master_results=master_results,
+            args=args,
+            rois=rois,
+            save_dir=save_dir,
+            analysis_params_str=analysis_params_str
+        )
+
+    # Task by congruency proportion
+    if args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+        run_context_comparison_analysis(
+            condition_name='task_by_congruency_proportion',
+            condition_comparison_1='taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock',
+            condition_comparison_2='taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock',
+            pooled_shuffle_key='task_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+            colors={
+                'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '#05B0F0',
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '#05B0F0',
+                'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'
+            },
+            linestyles={
+                'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '-',
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '--',
+                'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'
+            },
+            ylabel="Task Decoding Accuracy",
+            significance_label_1='Task (25% I) > Task (75% I)',
+            significance_label_2='Task (75% I) > Task (25% I)',
+            time_window_decoding_results=time_window_decoding_results,
+            all_bootstrap_stats=all_bootstrap_stats,
+            master_results=master_results,
+            args=args,
+            rois=rois,
+            save_dir=save_dir,
+            analysis_params_str=analysis_params_str
+        )
+        
+    # Task by switch proportion
+    if args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+        run_context_comparison_analysis(
+            condition_name='task_by_switch_proportion',
+            condition_comparison_1='taskG_in_25switchBlock_vs_taskL_in_25switchBlock',
+            condition_comparison_2='taskG_in_75switchBlock_vs_taskL_in_75switchBlock',
+            pooled_shuffle_key='task_by_switch_proportion_shuffle_accs_across_pooled_conditions',
+            colors={
+                'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '#05B0F0',
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '#05B0F0',
+                'task_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494'
+            },
+            linestyles={
+                'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '-',
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '--',
+                'task_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--'
+            },
+            ylabel="Task Decoding Accuracy",
+            significance_label_1='Task (25% S) > Task (75% S)',
+            significance_label_2='Task (75% S) > Task (25% S)',
             time_window_decoding_results=time_window_decoding_results,
             all_bootstrap_stats=all_bootstrap_stats,
             master_results=master_results,
