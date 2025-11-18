@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 479, in <module>
+    main(subjects=args.subjects, 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 434, in main
+    bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 232, in bandpass_and_epoch_and_find_task_significant_electrodes
+    layout = get_data(task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 382, in get_data
+    return BIDSLayout(BIDS_root, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/bids/layout/layout.py", line 187, in __init__
+    _indexer(self)
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/bids/layout/index.py", line 152, in __call__
+    all_bfs, all_tag_dicts = self._index_dir(self._layout._root, self._config)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/bids/layout/index.py", line 201, in _index_dir
+    if config_file.exists():
+       ^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/pathlib.py", line 1235, in exists
+    self.stat()
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/pathlib.py", line 1013, in stat
+    return os.stat(self, follow_symlinks=follow_symlinks)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/layout_config.json'

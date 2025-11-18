@@ -1,0 +1,24 @@
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (228) does not match the number of channels in the raw data file (227). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/var/spool/slurmd/job39833600/slurm_script: line 44: 3846770 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/preproc/make_epoched_data.py --subjects "${subject}" --task "${task}" --times ${times} --within_base_times ${within_base_times} --baseline_event "${baseline_event}" --base_times_length ${base_times_length} --pad_length ${pad_length} --LAB_root "${LAB_root}" --channels "${channels}" --dec_factor ${dec_factor} --outlier_policy "${outlier_policy}" --outliers ${outliers} --threshold_percent ${threshold_percent} --passband ${passband}
+slurmstepd: error: Detected 1 oom_kill event in StepId=39833600.batch. Some of the step tasks have been OOM Killed.

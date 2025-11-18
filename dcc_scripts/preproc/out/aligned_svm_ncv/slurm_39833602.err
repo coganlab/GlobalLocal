@@ -1,0 +1,14 @@
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 479, in <module>
+    main(subjects=args.subjects, 
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 434, in main
+    bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/preproc/make_epoched_data.py", line 237, in bandpass_and_epoch_and_find_task_significant_electrodes
+    os.makedirs(save_dir)
+  File "<frozen os>", line 225, in makedirs
+FileExistsError: [Errno 17] File exists: '/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A'

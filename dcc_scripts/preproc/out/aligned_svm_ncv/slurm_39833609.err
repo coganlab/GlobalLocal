@@ -1,0 +1,10 @@
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: There are channels without locations (n/a) that are not marked as bad: ['LLeSL11', 'LLeSL12']
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: There are channels without locations (n/a) that are not marked as bad: ['LLeSL11', 'LLeSL12']
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: There are channels without locations (n/a) that are not marked as bad: ['LLeSL11', 'LLeSL12']
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: There are channels without locations (n/a) that are not marked as bad: ['LLeSL11', 'LLeSL12']
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/var/spool/slurmd/job39833609/slurm_script: line 44: 2752521 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/preproc/make_epoched_data.py --subjects "${subject}" --task "${task}" --times ${times} --within_base_times ${within_base_times} --baseline_event "${baseline_event}" --base_times_length ${base_times_length} --pad_length ${pad_length} --LAB_root "${LAB_root}" --channels "${channels}" --dec_factor ${dec_factor} --outlier_policy "${outlier_policy}" --outliers ${outliers} --threshold_percent ${threshold_percent} --passband ${passband}
+slurmstepd: error: Detected 1 oom_kill event in StepId=39833609.batch. Some of the step tasks have been OOM Killed.
