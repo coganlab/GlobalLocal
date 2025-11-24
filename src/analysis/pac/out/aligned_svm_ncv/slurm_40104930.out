@@ -1,0 +1,14 @@
+Including --perm_trials --n_perm 200 in command
+Trying file for subject D0057: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_c_(0.0, 0.5)_summary.csv
+Loaded 136 rows for subject D0057 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_c_(0.0, 0.5)_summary.csv
+Successfully loaded data for 1 subjects: D0057
+Trying file for subject D0057: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_i_(0.0, 0.5)_summary.csv
+Loaded 136 rows for subject D0057 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_i_(0.0, 0.5)_summary.csv
+Successfully loaded data for 1 subjects: D0057
+A: loaded subjects: D0057 (total rows: 136)
+B: loaded subjects: D0057 (total rows: 136)
+Loading per-trial pkls for A and B (this may take a bit)...
+Permutation results appended; significant pairs saved to perpair_results_perm_significant.csv
+per-pair results -> perpair_results.csv
+overall results -> overall_results.csv
+figure -> ttest_across_pairs.png

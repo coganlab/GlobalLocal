@@ -36,6 +36,11 @@ condB=${8:-stimulus_i}
 tstartB=${9:-0.0}
 tendB=${10:-0.5}
 
+# Optional: enable permutation test using per-trial pkls and set number of permutations
+# Usage: pass 11th arg as 'true' to enable, and 12th arg to set n_perm (default 200)
+perm_trials_flag=${11:-true}
+n_perm=${12:-200}
+
 source $(conda info --base)/etc/profile.d/conda.sh
 conda activate ieeg # make sure this works
 
@@ -50,6 +55,13 @@ for subj in "${subjB[@]}"; do
 done
 
 
-python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/sig_test.py \
-    $subjA_args --regionA "$regionA" --condA "$condA" --tstartA "$tstartA" --tendA "$tendA" \
-    $subjB_args --regionB "$regionB" --condB "$condB" --tstartB "$tstartB" --tendB "$tendB"
+cmd=(python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/sig_test.py)
+cmd+=( $subjA_args --regionA "$regionA" --condA "$condA" --tstartA "$tstartA" --tendA "$tendA" )
+cmd+=( $subjB_args --regionB "$regionB" --condB "$condB" --tstartB "$tstartB" --tendB "$tendB" )
+
+if [ "$perm_trials_flag" = "true" ] || [ "$perm_trials_flag" = "1" ]; then
+    echo "Including --perm_trials --n_perm ${n_perm} in command"
+    cmd+=( --perm_trials --n_perm ${n_perm} )
+fi
+
+"${cmd[@]}"

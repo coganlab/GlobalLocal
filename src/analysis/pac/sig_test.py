@@ -88,20 +88,17 @@ def load_multiple_subjects_data(subjects, region, condition, tstart, tend):
     return combined_data, found_subjects
 
 def perpair_means(df):
-    # 首先按被试和通道对进行分组，计算每个被试的每对通道的平均值
     if 'subject' in df.columns:
         g = df.groupby(['subject', 'ch1', 'ch2'], as_index=False).agg(
             mean_coh=('coh_mean', 'mean'),
             n=('coh_mean', 'size')
         )
-        # 然后对所有被试的同一对通道取平均
         g = g.groupby(['ch1', 'ch2'], as_index=False).agg(
             mean_coh=('mean_coh', 'mean'),
             n=('n', 'sum'),
             n_subjects=('subject', 'nunique')
         )
     else:
-        # 保持原有的行为，用于向后兼容
         g = df.groupby(['ch1','ch2'], as_index=False).agg(
             mean_coh=('coh_mean','mean'),
             n=('coh_mean','size')
@@ -114,7 +111,7 @@ def compute_perpair_and_overall(A, B):
     Bagg = perpair_means(B)
     merged = pd.merge(Aagg, Bagg, on=['ch1','ch2'], how='inner', suffixes=('_A','_B'))
     if merged.empty:
-        raise SystemExit("没有匹配的 (ch1,ch2) 对 —— 无法进行 across-pairs 检验。")
+        raise SystemExit("no matching channel pairs between A and B")
     merged['mean_diff'] = merged['mean_coh_A'] - merged['mean_coh_B']
     # overall paired t-test across pairs
     x = merged['mean_coh_A'].values
@@ -152,8 +149,15 @@ def plot_results(perpair_df, overall_res, out_fig, labelA='A', labelB='B', alpha
     dfp = dfp.sort_values('mean_diff', key=lambda s: np.abs(s), ascending=False).reset_index(drop=True)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 7), gridspec_kw={'height_ratios': [2, 2]})
+    # If permutation significance column exists, color significant pairs differently
+    if 'perm_significant' in dfp.columns:
+        sig_mask = dfp['perm_significant'].astype(bool).values
+        colors = ['C3' if sig else 'gray' for sig in sig_mask]
+    else:
+        sig_mask = np.zeros(len(dfp), dtype=bool)
+        colors = ['gray'] * len(dfp)
 
-    bars = ax1.bar(range(len(dfp)), dfp['mean_diff'], color='gray')
+    bars = ax1.bar(range(len(dfp)), dfp['mean_diff'], color=colors)
     ax1.set_ylabel('mean_A - mean_B (per pair)')
 
     # annotate only the single pair with the largest absolute difference
@@ -173,14 +177,35 @@ def plot_results(perpair_df, overall_res, out_fig, labelA='A', labelB='B', alpha
 
     ax1.axhline(0, color='black', linewidth=0.6)
 
+    # add legend for significance if present
+    if sig_mask.any():
+        ax1.plot([], [], color='C3', label='perm-significant (p<{:.3f})'.format(alpha))
+        ax1.plot([], [], color='gray', label='not significant')
+        ax1.legend(loc='upper right', fontsize=8)
+
     # overall paired scatter across pairs (same as before)
     x = perpair_df['mean_A'].values
     y = perpair_df['mean_B'].values
     n = len(x)
-    ax2.plot([0]*n, x, 'o', color='C0', label=labelA)
-    ax2.plot([1]*n, y, 'o', color='C1', label=labelB)
-    for xi, yi in zip(x, y):
-        ax2.plot([0,1],[xi, yi], color='gray', linewidth=0.6, alpha=0.6)
+    # For scatter plot, mark significant pairs with a thicker/different marker
+    if 'perm_significant' in perpair_df.columns:
+        sig_idx = perpair_df['perm_significant'].astype(bool).values
+    else:
+        sig_idx = np.zeros(len(perpair_df), dtype=bool)
+
+    # plot non-significant points
+    ax2.plot([0]*n, x, 'o', color='C0', label=labelA, markersize=5, alpha=0.8)
+    ax2.plot([1]*n, y, 'o', color='C1', label=labelB, markersize=5, alpha=0.8)
+    for i, (xi, yi) in enumerate(zip(x, y)):
+        lw = 1.5 if sig_idx[i] else 0.6
+        col = 'C3' if sig_idx[i] else 'gray'
+        ax2.plot([0,1],[xi, yi], color=col, linewidth=lw, alpha=0.7)
+    # overlay larger markers for significant points
+    if sig_idx.any():
+        ax2.plot([0]*n, x, 'o', color='C0', markersize=0)  # ensure legend entry
+        ax2.plot([1]*n, y, 'o', color='C1', markersize=0)
+        ax2.scatter(np.zeros_like(x[sig_idx]), x[sig_idx], s=40, facecolors='none', edgecolors='C3', label='perm-significant')
+        ax2.scatter(np.ones_like(y[sig_idx]), y[sig_idx], s=40, facecolors='none', edgecolors='C3')
     ax2.set_xlim(-0.5,1.5)
     ax2.set_xticks([0,1]); ax2.set_xticklabels([labelA, labelB])
     title = f"across-pairs paired (n_pairs={overall_res['n_pairs']})"
@@ -221,9 +246,9 @@ def make_label(subj, region, cond, tstart, tend, fname=None):
             # Handle list of subjects
             if isinstance(subj, list):
                 if len(subj) <= 3:
-                    subj_str = '+'.join(subj)  # 显示所有被试ID（当数量较少时）
+                    subj_str = '+'.join(subj)
                 else:
-                    subj_str = f"{len(subj)} subjects ({subj[0]}...{subj[-1]})"  # 显示首尾被试ID和总数
+                    subj_str = f"{len(subj)} subjects ({subj[0]}...{subj[-1]})" 
             else:
                 subj_str = str(subj)
             
@@ -261,6 +286,10 @@ def main():
     p.add_argument('-f','--out_fig', default='ttest_across_pairs.png')
     p.add_argument('--alpha', type=float, default=0.05)
     p.add_argument('--annotate_top', type=int, default=10)
+    p.add_argument('--perm_trials', action='store_true',
+                   help='If set, read per-trial pkl files and run permutation test per pair')
+    p.add_argument('--n_perm', type=int, default=200,
+                   help='Number of permutations when --perm_trials is enabled')
     args = p.parse_args()
 
     # normalize subjA/subjB: argparse with action='append' + nargs='+' gives list-of-lists
@@ -286,7 +315,6 @@ def main():
     args.subjA = _flatten_subj(args.subjA)
     args.subjB = _flatten_subj(args.subjB)
 
-    # 处理输入：优先使用显式文件路径，否则使用组件构建方式
     if args.opt_fileA or args.fileA_pos:
         A = load_csv(args.opt_fileA if args.opt_fileA else args.fileA_pos)
         foundA = None
@@ -295,7 +323,7 @@ def main():
             args.subjA, args.regionA, args.condA, args.tstartA, args.tendA
         )
     else:
-        raise SystemExit("必须为 A 提供显式文件路径或完整的组件参数（subjects, region, condition, tstart, tend）")
+        raise SystemExit("must provide explicit file path or full component parameters (subjects, region, condition, tstart, tend) for A")
 
     if args.opt_fileB or args.fileB_pos:
         B = load_csv(args.opt_fileB if args.opt_fileB else args.fileB_pos)
@@ -305,10 +333,10 @@ def main():
             args.subjB, args.regionB, args.condB, args.tstartB, args.tendB
         )
     else:
-        raise SystemExit("必须为 B 提供显式文件路径或完整的组件参数（subjects, region, condition, tstart, tend）")
+        raise SystemExit("must provide explicit file path or full component parameters (subjects, region, condition, tstart, tend) for B")
     for col in ['ch1','ch2','coh_mean']:
         if col not in A.columns or col not in B.columns:
-            raise SystemExit(f"两个文件都必须包含列: ch1, ch2, coh_mean")
+            raise SystemExit(f"need column: ch1, ch2, coh_mean")
 
     labelA = make_label(args.subjA, args.regionA, args.condA, args.tstartA, args.tendA)
     labelB = make_label(args.subjB, args.regionB, args.condB, args.tstartB, args.tendB)
@@ -325,6 +353,113 @@ def main():
         print(f"B: loaded explicit file (total rows: {len(B)})")
 
     perpair_df, overall = compute_perpair_and_overall(A, B)
+
+    # If requested, run permutation test using per-trial pickle files produced by theta_connect
+    if args.perm_trials:
+        def pkl_path_from_summary(csv_path):
+            if csv_path.endswith('_summary.csv'):
+                return csv_path.replace('_summary.csv', '_trials.pkl')
+            # fallback: append
+            return csv_path + '_trials.pkl'
+
+        def load_trials_for_subjects(subjects, region, cond, tstart, tend):
+            """Load trial-level mean values (mean across frequencies) for each (ch1,ch2).
+
+            Returns a dict mapping (ch1,ch2) -> list of trial-mean scalars (may span subjects)
+            """
+            trials_map = {}
+            if subjects is None:
+                return trials_map
+            for subj in subjects:
+                subj = str(subj).strip()
+                try:
+                    csvp = build_filename(subj, region, cond, tstart, tend)
+                    pklp = pkl_path_from_summary(csvp)
+                    if not os.path.exists(pklp):
+                        print(f"Warning: pkl not found for {subj}: {pklp}")
+                        continue
+                    d = pd.read_pickle(pklp)
+                    # d expected: rows per (ch1,ch2) with column 'coh_trials'
+                    for _, row in d.iterrows():
+                        key = (row['ch1'], row['ch2'])
+                        coh_trials = row.get('coh_trials')
+                        if coh_trials is None:
+                            continue
+                        arr = np.array(coh_trials)
+                        # heuristics: determine trial axis
+                        if arr.ndim == 1:
+                            # single-spectrum -> treat as one trial
+                            trial_vals = np.atleast_1d(arr.mean())
+                        elif arr.ndim == 2:
+                            # guess trials are along axis 0 if first dim >= second dim
+                            if arr.shape[0] >= arr.shape[1]:
+                                # (n_trials, n_freqs)
+                                trial_means = arr.mean(axis=1)
+                            else:
+                                # (n_freqs, n_times) or (n_freqs, n_trials)
+                                # interpret second axis as trials
+                                trial_means = arr.mean(axis=0)
+                            trial_vals = trial_means
+                        else:
+                            # collapse all but one axis then take mean per trial-like axis
+                            # fallback: mean across last axis
+                            trial_vals = arr.mean(axis=-1).ravel()
+
+                        trials_map.setdefault(key, []).extend(list(np.atleast_1d(trial_vals)))
+                except Exception as e:
+                    print(f"Error reading pkl for {subj}: {e}")
+            return trials_map
+
+        print("Loading per-trial pkls for A and B (this may take a bit)...")
+        trials_A = load_trials_for_subjects(args.subjA, args.regionA, args.condA, args.tstartA, args.tendA) if args.subjA else {}
+        trials_B = load_trials_for_subjects(args.subjB, args.regionB, args.condB, args.tstartB, args.tendB) if args.subjB else {}
+
+        # perform permutation per pair
+        perm_pvals = []
+        perm_sign = []
+        perm_nA = []
+        perm_nB = []
+        rng = np.random.default_rng()
+        for _, row in perpair_df.iterrows():
+            key = (row['ch1'], row['ch2'])
+            valsA = np.array(trials_A.get(key, []), dtype=float)
+            valsB = np.array(trials_B.get(key, []), dtype=float)
+            nA = len(valsA)
+            nB = len(valsB)
+            perm_nA.append(nA)
+            perm_nB.append(nB)
+            if nA == 0 or nB == 0:
+                perm_pvals.append(np.nan)
+                perm_sign.append(False)
+                continue
+            obs_diff = float(np.nanmean(valsA) - np.nanmean(valsB))
+            pooled = np.concatenate([valsA, valsB])
+            n = len(pooled)
+            if n <= 1:
+                perm_pvals.append(np.nan)
+                perm_sign.append(False)
+                continue
+            perm_diffs = []
+            for _ in range(args.n_perm):
+                perm = rng.permutation(pooled)
+                g1 = perm[:nA]
+                g2 = perm[nA: nA + nB]
+                perm_diffs.append(np.nanmean(g1) - np.nanmean(g2))
+            perm_diffs = np.array(perm_diffs)
+            # two-sided p-value: proportion of perm diffs with abs >= abs(obs)
+            pval = np.mean(np.abs(perm_diffs) >= abs(obs_diff))
+            perm_pvals.append(float(pval))
+            perm_sign.append(bool(pval < args.alpha))
+
+        perpair_df['perm_nA'] = perm_nA
+        perpair_df['perm_nB'] = perm_nB
+        perpair_df['perm_pval'] = perm_pvals
+        perpair_df['perm_significant'] = perm_sign
+        # save separate list of significant pairs
+        sig_pairs = perpair_df[perpair_df['perm_significant']]
+        sig_out = os.path.splitext(args.out_perpair)[0] + '_perm_significant.csv'
+        sig_pairs.to_csv(sig_out, index=False)
+        print(f"Permutation results appended; significant pairs saved to {sig_out}")
     
     # Add number of subjects to the results
     if 'subject' in A.columns:
@@ -347,4 +482,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-# ...existing code...

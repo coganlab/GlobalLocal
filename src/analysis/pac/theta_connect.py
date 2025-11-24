@@ -87,8 +87,8 @@ def load_epochs(subjects,
 
 def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
     """
-    Compute coherence for all pairs of channels in `chs` at once.
-    Returns a dict mapping (ch1,ch2) -> mean coherence value.
+    Compute coherence for all pairs of channels in `chs` for each trial.
+    Returns a dict mapping (ch1,ch2) -> array of coherence values (n_trials, n_freqs).
     """
     # Keep only channels that actually exist in the epochs
     present = set(epochs.ch_names)
@@ -105,7 +105,7 @@ def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
     idx_pairs = list(combinations(range(len(chs_present)), 2))
     u_inds, v_inds = zip(*idx_pairs)
 
-    # Batch compute coherence with average across epochs
+    # Batch compute coherence WITHOUT averaging across epochs
     con_all = spectral_connectivity_time(
         epochs_roi,
         mode='multitaper',
@@ -114,22 +114,19 @@ def compute_coherence_batch(epochs, chs, freqs, n_cycles, fmin, fmax, n_jobs):
         freqs=freqs,
         sfreq=epochs_roi.info['sfreq'],
         n_cycles=n_cycles,
-        average=True,
+        average=False,  # Changed to False
         n_jobs=n_jobs,
         fmin=fmin,
         fmax=fmax
     )
-    # Data: shape can be (n_pairs, n_freqs, n_times) or (n_pairs, n_freqs)
+    # Data shape: (n_pairs, n_freqs, n_times)
     data_all = con_all.get_data()
-    # Flatten freq and time dims if present, then mean per pair
-    reshaped = data_all.reshape(data_all.shape[0], -1)
-    mean_vals = reshaped.mean(axis=1)
 
-    # Build result dict
+    # Build result dict: (ch1, ch2) -> (n_trials, n_freqs) array
     coherence_dict = {}
-    for (i, j), val in zip(idx_pairs, mean_vals):
+    for (i, j), data in zip(idx_pairs, data_all):
         ch1, ch2 = chs_present[i], chs_present[j]
-        coherence_dict[(ch1, ch2)] = val
+        coherence_dict[(ch1, ch2)] = data  # Keep all trial data
     return coherence_dict
 
 
@@ -197,18 +194,24 @@ if __name__ == '__main__':
             args.fmin, args.fmax, args.n_jobs
         )
 
-        # Build summary and optional plotting
-        for (ch1, ch2), mean_val in coh_dict.items():
+        # Build summary with per-trial data
+        for (ch1, ch2), coh_trials in coh_dict.items():  # coh_trials: (n_trials, n_freqs)
+            mean_val = coh_trials.mean(axis=0)  # Mean across trials: (n_freqs,)
+            
             rec = {'subject': subj, 'event': args.event,
                    'ch1': ch1, 'ch2': ch2,
-                   'coh_mean': mean_val}
+                   'coh_mean': mean_val.mean(),  # Mean across freq too
+                   'coh_trials': coh_trials}  # Store full trial data
             all_records.append(rec)
-            if args.plot:
-                # Detailed spectrum plotting skipped for speed
-                pass
 
-    # Save summary CSV
+    # Save summary CSV and pickle for detailed data
     df_sum = pd.DataFrame(all_records)
     csv_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.part[0]}_{args.event}_summary.csv')
-    df_sum.to_csv(csv_path, index=False)
+    df_sum[['subject', 'event', 'ch1', 'ch2', 'coh_mean']].to_csv(csv_path, index=False)
+    
+    # Save full trial data as pickle for later analysis
+    pkl_path = os.path.join(args.output_dir, f'coherence_{subj}_{args.part[0]}_{args.event}_trials.pkl')
+    pd.to_pickle(df_sum, pkl_path)
+    
     print(f"Saved coherence summary to {csv_path}")
+    print(f"Saved full trial data to {pkl_path}")
