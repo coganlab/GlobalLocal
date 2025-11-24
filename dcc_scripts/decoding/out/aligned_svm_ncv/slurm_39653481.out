@@ -1,0 +1,1548 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+Conditions:        ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+ROIs:              ['lpfc', 'occ']
+Epochs file:       Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+Classifier Model:   LDA
+  CV Splits/Repeats: 5/5
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 200
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+ run visualization debugging of first two PCs and decision boundary: True
+======================================================================
+
+Starting analysis...
+LAB_root:  /cwork/jz421
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+Loaded significant channels for subject D0100
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0107A
+Loaded significant channels for subject D0110
+Loaded significant channels for subject D0116
+Loaded significant channels for subject D0117
+Loaded significant channels for subject D0121
+Loaded significant channels for subject D0130
+Loaded significant channels for subject D0133
+Loaded significant channels for subject D0134
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RAMF10', 'RAMF11', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF14', 'RAI4', 'RAI5', 'RAI10', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LOF8']
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA16', 'RIP14', 'RIP16']
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LIA16', 'LIA11', 'LIA12', 'LIA13']
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFAM15', 'RFAI2', 'RFAI3']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM9', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LOF15']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA14', 'LFOA17', 'LFOA18', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMI4']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RMOF15', 'RINSA3', 'RINSA14']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA15', 'LFO14', 'LFO15', 'LFO16', 'LFPS1', 'LFPS2', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAM9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM12', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS10', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS7', 'LFPS9', 'LFPS10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+For subject D0057, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPIT1']
+For subject D0059, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LPT13']
+For subject D0063, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RMMT1', 'RMMT2']
+For subject D0065, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RPMT1', 'RPIT1', 'RPIT2']
+For subject D0069, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0071, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI1', 'RO1', 'RO2', 'RO10']
+For subject D0077, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI2', 'ROPI5', 'ROPI6', 'ROPI8', 'ROPM9', 'ROPM11', 'ROPM12', 'ROPM1', 'ROPM8']
+For subject D0090, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPO1', 'RTPI1', 'RTPI2']
+For subject D0094, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0100, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTOJ1', 'LTPI1', 'LOAI1', 'LOPI1', 'LOPI4', 'LOPM1', 'LTOJ3', 'LTOJ4', 'LOMM3', 'LOMM4', 'LOMM5', 'LOPM2', 'LTOJ13', 'LOAI12', 'LOAI13', 'LOAI14', 'LOAI15', 'LOMI8', 'LOMI9', 'LOMI11', 'LOMI12', 'LOPI9', 'LOPI10', 'LOAM15', 'LOMM15', 'LOPM10', 'LOMS13', 'LOMS14', 'LOMS15', 'LOPS9', 'LOPS11', 'LOPS12', 'LPPI14', 'LPPI15', 'LOMM13', 'LOMM14', 'LOMS11', 'LOMS12', 'LOPM8', 'LOPM9', 'LPPI7', 'LPPI8', 'LPPI9']
+For subject D0102, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTAI6', 'RTPI1']
+For subject D0103, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['LTLI3', 'LTPI2', 'LTPI3', 'LTPI4']
+For subject D0107A, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: ['RTPI3']
+For subject D0110, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0116, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0117, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+For subject D0121, G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes are: []
+Subject D0057 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RPIT1']
+Subject D0059 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0063 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0065 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0069 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0071 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RO1']
+Subject D0077 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['ROPM1']
+Subject D0090 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPO1']
+Subject D0094 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0100 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LOAI1', 'LOPI1', 'LOPI4', 'LOMM4', 'LOMM5', 'LOPM10', 'LOPM9']
+Subject D0102 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0103 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['LTPI2']
+Subject D0107A significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: ['RTPI3']
+Subject D0110 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0116 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0117 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Subject D0121 significant G_cuneus, G_and_S_occipital_inf, G_occipital_middle, G_occipital_sup, G_oc-temp_lat-fusifor, G_oc-temp_med-Lingual, Pole_occipital, S_calcarine, S_oc_middle_and_Lunatus, S_oc_sup_and_transversal, S_occipital_ant electrodes: []
+Loading data for subject: D0057
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+449 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+83 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 83 valid trials out of 83
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+83 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 83 valid trials out of 83
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 110 valid trials out of 110
+Loading data for subject: D0059
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 105 valid trials out of 105
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 105 valid trials out of 105
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+99 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 99 valid trials out of 99
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+99 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 99 valid trials out of 99
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+71 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 71 valid trials out of 71
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 72 valid trials out of 72
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 93 valid trials out of 93
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+92 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 92 valid trials out of 92
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+71 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 71 valid trials out of 71
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 72 valid trials out of 72
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 93 valid trials out of 93
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+92 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 92 valid trials out of 92
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 108 valid trials out of 108
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 108 valid trials out of 108
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 110 valid trials out of 110
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+75 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 75 valid trials out of 75
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 94 valid trials out of 94
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+75 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 75 valid trials out of 75
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 94 valid trials out of 94
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 111 valid trials out of 111
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 111 valid trials out of 111
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 106 valid trials out of 106
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+79 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 79 valid trials out of 79
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 93 valid trials out of 93
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+79 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 79 valid trials out of 79
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+103 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 103 valid trials out of 103
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+93 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 93 valid trials out of 93
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+451 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+109 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 109 valid trials out of 109
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+92 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 92 valid trials out of 92
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 111 valid trials out of 111
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+109 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 109 valid trials out of 109
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+92 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 92 valid trials out of 92
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+111 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 111 valid trials out of 111
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 102 valid trials out of 102
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+79 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 79 valid trials out of 79
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+54 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 54 valid trials out of 54
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 94 valid trials out of 94
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 72 valid trials out of 72
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+79 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 79 valid trials out of 79
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+54 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 54 valid trials out of 54
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 94 valid trials out of 94
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 72 valid trials out of 72
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+64 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 64 valid trials out of 64
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+90 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 90 valid trials out of 90
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+64 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 64 valid trials out of 64
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+90 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 90 valid trials out of 90
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+452 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+87 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 87 valid trials out of 87
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+100 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 100 valid trials out of 100
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+87 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 87 valid trials out of 87
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+101 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 101 valid trials out of 101
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+100 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 100 valid trials out of 100
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 105 valid trials out of 105
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 108 valid trials out of 108
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+112 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 105 valid trials out of 105
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+110 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 110 valid trials out of 110
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 108 valid trials out of 108
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+112 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 112 valid trials out of 112
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+96 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 96 valid trials out of 96
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 107 valid trials out of 107
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 105 valid trials out of 105
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+98 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 98 valid trials out of 98
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+96 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 96 valid trials out of 96
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 107 valid trials out of 107
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+105 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 105 valid trials out of 105
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+70 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 70 valid trials out of 70
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 55 valid trials out of 55
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+84 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 84 valid trials out of 84
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 72 valid trials out of 72
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+70 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 70 valid trials out of 70
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+55 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 55 valid trials out of 55
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+84 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 84 valid trials out of 84
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+72 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 72 valid trials out of 72
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+96 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 96 valid trials out of 96
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+96 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 96 valid trials out of 96
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 102 valid trials out of 102
+Loading data for subject: D0130
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+448 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 107 valid trials out of 107
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 107 valid trials out of 107
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+97 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 97 valid trials out of 97
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+106 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 106 valid trials out of 106
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 107 valid trials out of 107
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+107 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 107 valid trials out of 107
+Loading data for subject: D0133
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+454 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+454 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+88 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 88 valid trials out of 88
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+104 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 104 valid trials out of 104
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 94 valid trials out of 94
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+85 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 85 valid trials out of 85
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+88 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 88 valid trials out of 88
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+104 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 104 valid trials out of 104
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+94 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 94 valid trials out of 94
+Loading data for subject: D0134
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Not setting metadata
+450 matching events found
+No baseline correction applied
+0 projection items activated
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+100 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 100 valid trials out of 100
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+109 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 109 valid trials out of 109
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 108 valid trials out of 108
+  Loading condition: Stimulus_s_in_25incongruentBlock
+Not setting metadata
+100 matching events found
+No baseline correction applied
+    Stimulus_s_in_25incongruentBlock: 100 valid trials out of 100
+  Loading condition: Stimulus_s_in_75incongruentBlock
+Not setting metadata
+102 matching events found
+No baseline correction applied
+    Stimulus_s_in_75incongruentBlock: 102 valid trials out of 102
+  Loading condition: Stimulus_r_in_25incongruentBlock
+Not setting metadata
+109 matching events found
+No baseline correction applied
+    Stimulus_r_in_25incongruentBlock: 109 valid trials out of 109
+  Loading condition: Stimulus_r_in_75incongruentBlock
+Not setting metadata
+108 matching events found
+No baseline correction applied
+    Stimulus_r_in_75incongruentBlock: 108 valid trials out of 108
+
+--- Summary of Dropped Electrodes ---
+ROI: occ
+  - Subject D0065: Dropped 3 electrode(s)
+  - Subject D0100: Dropped 1 electrode(s)
+ROI: lpfc
+  - Subject D0071: Dropped 2 electrode(s)
+  - Subject D0107A: Dropped 1 electrode(s)
+  - Subject D0121: Dropped 2 electrode(s)
+  - Subject D0065: Dropped 9 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 18
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (20 samples across -1 jobs) ====================
+
+
+==================== 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) ====================
+
+Setting up Switch Type x Congruency Prop. visualization pairs...
+Generating LabeledArray data for visualization (n_bootstraps=1)...
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: occ with NaN trials removed within each channel
+ROI occ: Final conditions in nan_removed_data_dict: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+condition 'Stimulus_s_in_25incongruentBlock': subsampling to 75 trials
+condition 'Stimulus_s_in_75incongruentBlock': subsampling to 54 trials
+condition 'Stimulus_r_in_25incongruentBlock': subsampling to 94 trials
+condition 'Stimulus_r_in_75incongruentBlock': subsampling to 72 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+condition 'Stimulus_s_in_25incongruentBlock': subsampling to 70 trials
+condition 'Stimulus_s_in_75incongruentBlock': subsampling to 54 trials
+condition 'Stimulus_r_in_25incongruentBlock': subsampling to 84 trials
+condition 'Stimulus_r_in_75incongruentBlock': subsampling to 72 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+--- Plotting for ROI: lpfc, Pair: Stimulus_s_in_25incongruentBlock_vs_Stimulus_r_in_25incongruentBlock ---
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc', 'occ']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+The code is searching for strings: (['Stimulus_s_in_25incongruentBlock'], ['Stimulus_r_in_25incongruentBlock'])
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (168, 251, 641)
+  Trials: 168
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 14/168 (8.3%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 14/168 (8.3%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 8.33%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_s_in_25incongruentBlock']: 14/84 trials with NaNs (16.7%)
+  ['Stimulus_r_in_25incongruentBlock']: 0/84 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 154/168 (91.7%)
+  New data shape: (154, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_s_in_25incongruentBlock']: 70 trials
+  Condition ['Stimulus_r_in_25incongruentBlock']: 84 trials
+
+Subsampling to min trial count: 70
+  Subsampled condition 1: 84 -> 70
+
+Final balanced data shape: (140, 251, 641)
+============================================================
+
+!! FAILED to generate plot for lpfc - Stimulus_s_in_25incongruentBlock_vs_Stimulus_r_in_25incongruentBlock: name 'PCA' is not defined
+
+--- Plotting for ROI: lpfc, Pair: Stimulus_s_in_75incongruentBlock_vs_Stimulus_r_in_75incongruentBlock ---
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc', 'occ']
+Data for ROI 'lpfc' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+The code is searching for strings: (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
+===================================================
+
+
+============================================================
+ROI: lpfc
+============================================================
+Initial concatenated data shape: (168, 251, 641)
+  Trials: 168
+  Channels: 251
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/251
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 42/168 (25.0%)
+  Trials with outlier NaNs (sparse): 0/168 (0.0%)
+  Trials with missing channel NaNs (dense): 42/168 (25.0%)
+  Trials with both types: 0/168 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 251.0
+  Max missing channels in a trial: 251
+
+Overall NaN Percentage: 25.00%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_s_in_75incongruentBlock']: 30/84 trials with NaNs (35.7%)
+  ['Stimulus_r_in_75incongruentBlock']: 12/84 trials with NaNs (14.3%)
+
+After removing NaN trials:
+  Trials kept: 126/168 (75.0%)
+  New data shape: (126, 251, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_s_in_75incongruentBlock']: 54 trials
+  Condition ['Stimulus_r_in_75incongruentBlock']: 72 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 72 -> 54
+
+Final balanced data shape: (108, 251, 641)
+============================================================
+
+!! FAILED to generate plot for lpfc - Stimulus_s_in_75incongruentBlock_vs_Stimulus_r_in_75incongruentBlock: name 'PCA' is not defined
+
+--- Plotting for ROI: occ, Pair: Stimulus_s_in_25incongruentBlock_vs_Stimulus_r_in_25incongruentBlock ---
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc', 'occ']
+Data for ROI 'occ' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+The code is searching for strings: (['Stimulus_s_in_25incongruentBlock'], ['Stimulus_r_in_25incongruentBlock'])
+===================================================
+
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 19/188 (10.1%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 19/188 (10.1%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 10.11%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_s_in_25incongruentBlock']: 19/94 trials with NaNs (20.2%)
+  ['Stimulus_r_in_25incongruentBlock']: 0/94 trials with NaNs (0.0%)
+
+After removing NaN trials:
+  Trials kept: 169/188 (89.9%)
+  New data shape: (169, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_s_in_25incongruentBlock']: 75 trials
+  Condition ['Stimulus_r_in_25incongruentBlock']: 94 trials
+
+Subsampling to min trial count: 75
+  Subsampled condition 1: 94 -> 75
+
+Final balanced data shape: (150, 69, 641)
+============================================================
+
+!! FAILED to generate plot for occ - Stimulus_s_in_25incongruentBlock_vs_Stimulus_r_in_25incongruentBlock: name 'PCA' is not defined
+
+--- Plotting for ROI: occ, Pair: Stimulus_s_in_75incongruentBlock_vs_Stimulus_r_in_75incongruentBlock ---
+
+==================== DEBUGGING ====================
+Top-level keys in roi_labeled_arrays: ['lpfc', 'occ']
+Data for ROI 'occ' found.
+Object type for this ROI is: <class 'ieeg.arrays.label.LabeledArray'>
+Actual condition keys in the LabeledArray: ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+The code is searching for strings: (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
+===================================================
+
+
+============================================================
+ROI: occ
+============================================================
+Initial concatenated data shape: (188, 69, 641)
+  Trials: 188
+  Channels: 69
+  Time points: 641
+
+--- Detailed NaN Analysis ---
+
+Missing Channels (all NaN across all trials): 0/69
+
+Trial-level NaN Statistics:
+  Trials with ANY NaN: 62/188 (33.0%)
+  Trials with outlier NaNs (sparse): 0/188 (0.0%)
+  Trials with missing channel NaNs (dense): 62/188 (33.0%)
+  Trials with both types: 0/188 (0.0%)
+
+Missing Channel Statistics (for affected trials):
+  Mean missing channels per affected trial: 69.0
+  Max missing channels in a trial: 69
+
+Overall NaN Percentage: 32.98%
+
+--- NaN Impact by Condition ---
+  ['Stimulus_s_in_75incongruentBlock']: 40/94 trials with NaNs (42.6%)
+  ['Stimulus_r_in_75incongruentBlock']: 22/94 trials with NaNs (23.4%)
+
+After removing NaN trials:
+  Trials kept: 126/188 (67.0%)
+  New data shape: (126, 69, 641)
+
+--- Final Trial Counts by Condition ---
+  Condition ['Stimulus_s_in_75incongruentBlock']: 54 trials
+  Condition ['Stimulus_r_in_75incongruentBlock']: 72 trials
+
+Subsampling to min trial count: 54
+  Subsampled condition 1: 72 -> 54
+
+Final balanced data shape: (108, 69, 641)
+============================================================
+
+!! FAILED to generate plot for occ - Stimulus_s_in_75incongruentBlock_vs_Stimulus_r_in_75incongruentBlock: name 'PCA' is not defined
+
+==================== ✅ VISUALIZATION DEBUG COMPLETE ====================
+
+
+✗ Analysis failed with error: 'switch_type_by_congruency_shuffle_accs_across_pooled_conditions'
