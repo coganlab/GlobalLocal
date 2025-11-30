@@ -209,7 +209,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     """
     print("=" * 70)
     print(f'epoching data for subject: {sub}')
-    
+
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
         HOME = os.path.expanduser("~")
@@ -242,12 +242,16 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
     print(f"good channels before dropping bads: {len(good.ch_names)}")
     print(f"filt channels before dropping bads: {len(filt.ch_names)}")
+    all_channels_before_marker = good.ch_names.copy()
+    channels_to_drop = []
 
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
+    marker_bad_channels = good.info['bads'].copy()
+
     print("Bad channels in 'good':", good.info['bads'])
 
-    filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
-    good.drop_channels(good.info['bads'])
+    filt.drop_channels(marker_bad_channels)  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
+    good.drop_channels(marker_bad_channels)
 
     print("Bad channels in 'good' after dropping once:", good.info['bads'])
 
@@ -283,6 +287,24 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         outliers_to_nan(event_trials_qc, outliers=outliers)
         channels_to_drop = identify_bad_channels_by_trial_nan_rate(event_trials_qc, threshold_percent)
         print(f"Found {len(channels_to_drop)} bad Stimulus channels: {channels_to_drop}")
+
+        qc_summary = {
+            "subject": sub,
+            "n_total_channels_before_marker": len(all_channels_before_marker),
+            "channels_before_marker": all_channels_before_marker,
+            "n_bad_by_channel_outlier_marker": len(marker_bad_channels),
+            "bad_by_channel_outlier_marker": marker_bad_channels,
+            "n_bad_by_trial_outliers": len(channels_to_drop) if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else 0,
+            "bad_by_trial_outliers": channels_to_drop if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else [],
+            # channels after both drops = channels after marker - trial-outlier drops
+            "n_channels_after_all_drops": len(good.ch_names) - (len(channels_to_drop) if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else 0),
+        }
+
+        qc_filepath = os.path.join(save_dir, f"{sub}_channel_qc_summary.json")
+        with open(qc_filepath, "w") as f:
+            json.dump(qc_summary, f, indent=4)
+
+        print(f"Saved QC summary for {sub} to {qc_filepath}")
 
     # <<< Step 2: PROCESS the baseline ONCE >>>
     base_trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
@@ -327,10 +349,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         stat_func_for_filename = "custom_stat_func" # Fallback
         
     output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
-    
     for event in ["Stimulus", "Response"]:
         print(f"--- Processing Event: {event} ---")
-        output_name_event = f'{event}_{output_name_base}'
+        output_name_event = f'{event}_{times[0]}to{times[1]}sec_{output_name_base}'
+
         times_adj = [times[0] - pad_length, times[1] + pad_length]
         
         trials = trial_ieeg(good, event, times_adj, preload=True, reject_by_annotation=False)
@@ -449,7 +471,7 @@ if __name__ == "__main__":
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
     parser.add_argument('--channels', type=str, default=None, help='Channels to plot and get stats for. Default is all channels.')
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
-    parser.add_argument('--outlier_policy', type=str, default='nan', help='How to handle outlier values. Can set to nan, interpolate, or ignore.')
+    parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
     parser.add_argument('--threshold_percent', type=float, default=2.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')

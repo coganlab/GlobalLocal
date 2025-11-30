@@ -7,7 +7,7 @@ subjects=("D0057" "D0059" "D0063" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100
 
 # Define all arguments for the Python script
 TASK="GlobalLocal"
-TIMES="-1 4"
+TIMES="-1 1.5"
 WITHIN_BASE_TIMES="-1 0"
 BASELINE_EVENT="Stimulus"
 BASE_TIMES_LENGTH=0.5

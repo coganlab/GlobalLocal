@@ -115,6 +115,24 @@ from src.analysis.decoding.decoding import (
     run_context_comparison_analysis
 )
 
+def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, random_state):
+    """
+    Helper function to run make_pooled_shuffle_distribution with standard args.
+    """
+    return make_pooled_shuffle_distribution(
+        roi=roi,
+        roi_labeled_arrays=roi_labeled_arrays,
+        strings_to_find_pooled=strings_to_find,
+        explained_variance=args.explained_variance,
+        n_splits=args.n_splits,
+        n_perm=args.n_shuffle_perms,
+        random_state=random_state,
+        balance_method='subsample', # Subsampling is recommended for pooling
+        obs_axs=args.obs_axs,
+        window_size=args.window_size,
+        step_size=args.step_size
+    )
+    
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
     Generates and processes a single bootstrap sample.
@@ -263,215 +281,59 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_true'] = mean_accuracies_true
             results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
-    # lwpc
-    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:   
-        results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['c25_vs_i25'][roi]['time_window_centers']
-            
-            # get i vs c pooled shuffle distribution
-            strings_to_find_pooled = [['c25', 'c75'], ['i25', 'i75']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['lwpc_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+    # 1. Determine configuration based on experiment conditions
+    pooled_settings = None # Tuple of (Output Key Name, Strings to Find)
 
-    # lwps
-    if args.conditions == experiment_conditions.stimulus_lwps_conditions:   
-        results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['s25_vs_r25'][roi]['time_window_centers']
-            
-            # get i vs c pooled shuffle distribution
-            strings_to_find_pooled = [['s25', 's75'], ['r25', 'r75']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['lwps_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
+    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+        pooled_settings = ('lwpc_shuffle_accs_across_pooled_conditions', 
+                           [['c25', 'c75'], ['i25', 'i75']])
 
-    # congruency by switch proportion
-    if args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:   
-        results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['c_in_25switchBlock_vs_i_in_25switchBlock'][roi]['time_window_centers']
-            
-            # get i vs c pooled shuffle distribution
-            strings_to_find_pooled = [['c_in'], ['i_in']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
+    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
+        pooled_settings = ('lwps_shuffle_accs_across_pooled_conditions', 
+                           [['s25', 's75'], ['r25', 'r75']])
+
+    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        pooled_settings = ('congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions', 
+                           [['c_in'], ['i_in']])
+
+    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        pooled_settings = ('switch_type_by_congruency_shuffle_accs_across_pooled_conditions', 
+                           [['s_in'], ['r_in']])
+
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+        pooled_settings = ('task_by_congruency_shuffle_accs_across_pooled_conditions', 
+                           [['taskG'], ['taskL']])
+
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+        pooled_settings = ('task_by_switch_type_shuffle_accs_across_pooled_conditions', 
+                           [['taskG'], ['taskL']])
+
+    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+        pooled_settings = ('task_by_congruency_proportion_shuffle_accs_across_pooled_conditions', 
+                           [['taskG'], ['taskL']])
+
+    elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+        pooled_settings = ('task_by_switch_proportion_shuffle_accs_across_pooled_conditions', 
+                           [['taskG'], ['taskL']])
+
+    # 2. Execute logic if settings were found
+    if pooled_settings:
+        result_key, strings_to_find_pooled = pooled_settings
+        results_for_this_bootstrap['time_window_results'][result_key] = {}
+
+        for roi in rois:            
+            accuracies_shuffle_pooled = run_pooled_shuffle_for_roi(
                 roi=roi,
                 roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
+                strings_to_find=strings_to_find_pooled,
+                args=args,
+                random_state=bootstrap_random_state
             )
             
-            results_for_this_bootstrap['time_window_results']['congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
-            
-    # switch type by congruency proportion
-    if args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:   
-        results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['s_in_25incongruentBlock_vs_r_in_25incongruentBlock'][roi]['time_window_centers']
-            
-            # get s vs r pooled shuffle distribution
-            strings_to_find_pooled = [['s_in'], ['r_in']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['switch_type_by_congruency_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
-            
-    # task by congruency
-    if args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:   
-        results_for_this_bootstrap['time_window_results']['task_by_congruency_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['i_taskG_vs_i_taskL'][roi]['time_window_centers']
-            
-            # get task G vs task L pooled shuffle distribution across c and i - i think this is right..
-            strings_to_find_pooled = [['taskG'], ['taskL']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['task_by_congruency_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
-    
-    # task by switch type
-    if args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:   
-        results_for_this_bootstrap['time_window_results']['task_by_switch_type_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['s_taskG_vs_s_taskL'][roi]['time_window_centers']
-            
-            # get task G vs task L pooled shuffle distribution across s and r - i think this is right..
-            strings_to_find_pooled = [['taskG'], ['taskL']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['task_by_switch_type_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled
-      
-    # task by congruency proportion
-    if args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:   
-        results_for_this_bootstrap['time_window_results']['task_by_congruency_proportion_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock'][roi]['time_window_centers']
-            
-            # get task G vs task L pooled shuffle distribution across 25% and 75% I
-            strings_to_find_pooled = [['taskG'], ['taskL']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['task_by_congruency_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled         
-             
-    # task by switch proportion
-    if args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:   
-        results_for_this_bootstrap['time_window_results']['task_by_switch_proportion_shuffle_accs_across_pooled_conditions'] = {}
-          
-        for roi in rois:
-            time_window_centers = results_for_this_bootstrap['time_window_results']['taskG_in_25switchBlock_vs_taskL_in_25switchBlock'][roi]['time_window_centers']
-            
-            # get task G vs task L pooled shuffle distribution across 25% and 75% I
-            strings_to_find_pooled = [['taskG'], ['taskL']]
-            
-            accuracies_shuffle_pooled = make_pooled_shuffle_distribution(
-                roi=roi,
-                roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
-                strings_to_find_pooled=strings_to_find_pooled,
-                explained_variance=args.explained_variance,
-                n_splits=args.n_splits,
-                n_perm=args.n_shuffle_perms,
-                random_state=bootstrap_random_state,
-                balance_method='subsample', # Subsampling is recommended for pooling
-                obs_axs=args.obs_axs,
-                window_size=args.window_size,
-                step_size=args.step_size
-            )
-            
-            results_for_this_bootstrap['time_window_results']['task_by_switch_proportion_shuffle_accs_across_pooled_conditions'][roi] = accuracies_shuffle_pooled         
-               
+            results_for_this_bootstrap['time_window_results'][result_key][roi] = accuracies_shuffle_pooled
+
     return results_for_this_bootstrap
+
 
 def main(args):
     # Determine LAB_root based on the operating system and environment
@@ -681,7 +543,8 @@ def main(args):
         condition_comparisons['taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock']
         condition_comparisons['taskG_in_75incongruentBlock_vs_taskL_in_25incongruentBlock'] = ['Stimulus_taskG_in_75incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock'] 
         condition_comparisons['taskG_in_25incongruentBlock_vs_taskL_in_75incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock'] 
-        condition_comparisons['taskL_in_25incongruentBlock_vs_taskG_in_75incongruentBlock'] = ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock']
+        condition_comparisons['taskG_in_25incongruentBlock_vs_taskL_in_75incongruentBlock'] = ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock']
+        condition_comparisons['taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock'] = ['Stimulus_taskG_in_75incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock']
 
     elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
         condition_comparisons['taskG_in_25switchBlock_vs_taskG_in_75switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock']
@@ -689,7 +552,8 @@ def main(args):
         condition_comparisons['taskG_in_25switchBlock_vs_taskL_in_25switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_25switchBlock']
         condition_comparisons['taskG_in_75switchBlock_vs_taskL_in_25switchBlock'] = ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_25switchBlock'] 
         condition_comparisons['taskG_in_25switchBlock_vs_taskL_in_75switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock'] 
-        condition_comparisons['taskL_in_25switchBlock_vs_taskG_in_75switchBlock'] = ['Stimulus_taskL_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock']
+        condition_comparisons['taskG_in_25switchBlock_vs_taskL_in_75switchBlock'] = ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock']
+        condition_comparisons['taskG_in_75switchBlock_vs_taskL_in_75switchBlock'] = ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_75switchBlock']  # ADD THIS LINE
 
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
