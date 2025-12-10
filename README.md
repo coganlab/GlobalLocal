@@ -131,7 +131,7 @@ Number of Blocks (numBlocks) = 4
 
 Trials Per Block in Main Task (trialsPerBlock) = 112
 
-- This can be changed by increments of 16 trials. With a stiminterval of 1.5s, fixInterval of 0.5 seconds, trials run at longest for  3.4 seconds, so 128 trials x 4 blocks x 3.4 seconds = 29 minutes time spent performing main task (not including block breaks or instructions). This can be considerably shorter however, since trials proceed automatically when the participant responds. Assuming an average RT of ~1000 ms, experiment run time (not including breaks and instructions) = ~25 minutes.
+- This can be changed by increments of 16 trials. With a stiminterval of 1.5s, fixInterval of 0.5 seconds, trials run at longest for 3.4 seconds, so 112 trials x 4 blocks x 3.4 seconds = 25 minutes time spent performing main task (not including block breaks or instructions). This can be considerably shorter however, since trials proceed automatically when the participant responds. Assuming an average RT of ~1000 ms, experiment run time (not including breaks and instructions) = ~21 minutes.
 
 Practice Accuracy Cutoff (pracAccCutoff) = 75
 
