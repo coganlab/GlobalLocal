@@ -28,6 +28,9 @@ def prepare_data(raw_data):
     # Boolean for post-error
     df['is_post_error'] = df['prev_acc'] == 0
     df['is_post_correct'] = df['prev_acc'] == 1
+
+    df['total_subject_errors'] = df.groupby('subject_ID')['is_post_error'].transform('sum')
+    df = df[df['total_subject_errors'] >= 25]
     
     # Classify previous ERROR TYPE (only meaningful when prev_acc == 0)
     # iR (incongruent-repeat) = stability failure
