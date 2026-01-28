@@ -1,0 +1,19 @@
+Trying file for subject D0057: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Loaded 136 rows for subject D0057 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Trying file for subject D0059: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0059_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Loaded 10 rows for subject D0059 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0059_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Trying file for subject D0063: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0063_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Loaded 630 rows for subject D0063 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0063_lpfc_stimulus_c_(-0.5, 0.0)_summary.csv
+Successfully loaded data for 3 subjects: D0057, D0059, D0063
+Trying file for subject D0057: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Loaded 136 rows for subject D0057 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0057_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Trying file for subject D0059: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0059_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Loaded 10 rows for subject D0059 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0059_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Trying file for subject D0063: /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0063_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Loaded 630 rows for subject D0063 from /hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow/coherence_D0063_lpfc_stimulus_i_(-0.5, 0.0)_summary.csv
+Successfully loaded data for 3 subjects: D0057, D0059, D0063
+A: loaded subjects: D0057, D0059, D0063 (total rows: 776)
+B: loaded subjects: D0057, D0059, D0063 (total rows: 776)
+per-pair results -> perpair_results.csv
+overall results -> overall_results.csv
+figure -> ttest_across_pairs.png

@@ -1252,12 +1252,12 @@ from operator import itemgetter
 # Nature journal style settings
 NATURE_STYLE = {
     'figure.figsize': (89/25.4, 89/25.4),  # 89mm (single column) converted to inches
-    'font.size': 24,
-    'axes.labelsize': 24,
-    'axes.titlesize': 24,
-    'xtick.labelsize': 24,
-    'ytick.labelsize': 24,
-    'legend.fontsize': 24,
+    'font.size': 12,
+    'axes.labelsize': 12,
+    'axes.titlesize': 12,
+    'xtick.labelsize': 12,
+    'ytick.labelsize': 12,
+    'legend.fontsize': 12,
     'font.family': 'sans-serif',
     'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
     'axes.linewidth': 0.5,
@@ -1431,7 +1431,7 @@ def plot_accuracies_nature_style(
                         fontweight='bold')
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=12)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -3309,12 +3309,12 @@ def plot_accuracies_with_multiple_sig_clusters(
     # Import the original NATURE_STYLE (you'll need to adjust this import based on your setup)
     NATURE_STYLE = {
         'figure.figsize': (89/25.4, 89/25.4),
-        'font.size': 24,
-        'axes.labelsize': 24,
-        'axes.titlesize': 24,
-        'xtick.labelsize': 24,
-        'ytick.labelsize': 24,
-        'legend.fontsize': 24,
+        'font.size': 12,
+        'axes.labelsize': 12,
+        'axes.titlesize': 12,
+        'xtick.labelsize': 12,
+        'ytick.labelsize': 12,
+        'legend.fontsize': 12,
         'font.family': 'sans-serif',
         'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
         'axes.linewidth': 0.5,
@@ -3496,7 +3496,7 @@ def plot_accuracies_with_multiple_sig_clusters(
                     )
         
         # Set labels
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=12)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -3804,7 +3804,7 @@ def plot_cm_traces_nature_style(
                     alpha=0.5,
                     zorder=2)
         
-        ax.set_xlabel('Time from stimulus onset (s)', fontsize=24)
+        ax.set_xlabel('Time from stimulus onset (s)', fontsize=12)
         ax.set_ylabel(ylabel, fontsize=7)
         
         # Set axis limits
@@ -4182,3 +4182,205 @@ def plot_high_dim_decision_slice(
 
     plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
     plt.close(fig) # Close the figure to free memory
+    
+def run_context_comparison_analysis(
+    condition_name,
+    condition_comparison_1,
+    condition_comparison_2,
+    pooled_shuffle_key,
+    colors,
+    linestyles,
+    ylabel,
+    significance_label_1,
+    significance_label_2,
+    time_window_decoding_results,
+    all_bootstrap_stats,
+    master_results,
+    args,
+    rois,
+    save_dir,
+    analysis_params_str
+):
+    """
+    Run comparison analysis between two conditions with pooled shuffle distribution.
+    
+    Parameters
+    ----------
+    condition_name : str
+        Name of the overall comparison (e.g., 'LWPC', 'LWPS')
+    condition_comparison_1 : str
+        First condition comparison key (e.g., 'c25_vs_i25')
+    condition_comparison_2 : str
+        Second condition comparison key (e.g., 'c75_vs_i75')
+    pooled_shuffle_key : str
+        Key for accessing pooled shuffle data in results
+    colors : dict
+        Color mapping for plotting
+    linestyles : dict
+        Linestyle mapping for plotting
+    ylabel : str
+        Y-axis label for accuracy plots
+    significance_label_1 : str
+        Label for first significance cluster
+    significance_label_2 : str
+        Label for second significance cluster
+    time_window_decoding_results : dict
+        Results from time window decoding
+    all_bootstrap_stats : dict
+        Pooled bootstrap statistics
+    master_results : dict
+        Master results dictionary to update
+    args : SimpleNamespace
+        Arguments object
+    rois : list
+        List of ROIs to analyze
+    save_dir : str
+        Base save directory
+    analysis_params_str : str
+        String describing analysis parameters for filenames
+    """
+    
+    print(f"\n--- Running {condition_name} Comparison Statistics ({condition_comparison_1} vs {condition_comparison_2}) using '{args.unit_of_analysis}' as unit of analysis ---")
+    
+    for roi in rois:
+        if roi not in all_bootstrap_stats.get(condition_comparison_1, {}):
+            print(f"Skipping plot for ROI {roi} due to missing data.")
+            continue
+
+        # --- Pool the pooled shuffle distributions from each bootstrap ---
+        pooled_shuffle_accs = []
+        for b_idx in range(args.bootstraps):
+            if b_idx in time_window_decoding_results:
+                shuffle_data = time_window_decoding_results[b_idx][pooled_shuffle_key][roi]
+                pooled_shuffle_accs.append(shuffle_data.T)
+
+        # Stack all samples from all bootstraps
+        stacked_pooled_shuffle_accs = np.vstack(pooled_shuffle_accs)
+        
+        # Store in master results
+        if 'pooled_shuffles' not in master_results['stats']:
+            master_results['stats']['pooled_shuffles'] = {}
+        if roi not in master_results['stats']['pooled_shuffles']:
+            master_results['stats']['pooled_shuffles'][roi] = {}
+        master_results['stats']['pooled_shuffles'][roi][condition_name.lower()] = stacked_pooled_shuffle_accs
+
+        # 1. Get the pooled data using existing helper function
+        pooled_accs_1, pooled_accs_2 = get_pooled_accuracy_distributions_for_comparison(
+            time_window_decoding_results=time_window_decoding_results,
+            n_bootstraps=args.bootstraps,
+            condition_comparison_1=condition_comparison_1,
+            condition_comparison_2=condition_comparison_2,
+            roi=roi,
+            unit_of_analysis=args.unit_of_analysis
+        )
+
+        # 2. Run the paired cluster test
+        sig_clusters_1_over_2, sig_clusters_2_over_1, _, _ = run_two_one_tailed_tests_with_time_perm_cluster(
+            accuracies1=pooled_accs_1,
+            accuracies2=pooled_accs_2,
+            p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+            p_cluster=args.p_cluster,
+            stat_func=args.stat_func,
+            permutation_type=args.permutation_type,
+            n_perm=args.n_cluster_perms,
+            random_state=args.random_state,
+            n_jobs=args.n_jobs
+        )
+        
+        significance_clusters_comparison = {
+            '1_over_2': {
+                'clusters': sig_clusters_1_over_2,
+                'label': significance_label_1,
+                'color': colors[condition_comparison_1],
+                'marker': '*'
+            },
+            '2_over_1': {
+                'clusters': sig_clusters_2_over_1,
+                'label': significance_label_2,
+                'color': colors[condition_comparison_2],
+                'marker': '*'
+            }
+        }
+        
+        if roi not in master_results['comparison_clusters']:
+            master_results['comparison_clusters'][roi] = {}
+        master_results['comparison_clusters'][roi][condition_name.lower()] = significance_clusters_comparison
+    
+        # --- Get data for plotting from the main stats dictionary ---
+        stats_1 = all_bootstrap_stats[condition_comparison_1][roi]
+        stats_2 = all_bootstrap_stats[condition_comparison_2][roi]
+        
+        unit = stats_1['unit_of_analysis']
+        time_window_centers = time_window_decoding_results[0][condition_comparison_1][roi]['time_window_centers']
+        
+        # Main comparison plot
+        plot_accuracies_with_multiple_sig_clusters(
+            time_points=time_window_centers,
+            accuracies_dict={
+                condition_comparison_1: stats_1[f'{unit}_true_accs'],
+                condition_comparison_2: stats_2[f'{unit}_true_accs'],
+                f'{condition_name.lower()}_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_pooled_shuffle_accs
+            },
+            significance_clusters_dict=significance_clusters_comparison,
+            window_size=args.window_size,
+            step_size=args.step_size,
+            sampling_rate=args.sampling_rate,
+            comparison_name=f'bootstrap_{condition_name}_comparison',
+            roi=roi,
+            save_dir=os.path.join(save_dir, f"{condition_name}_comparison", f"{roi}"),
+            timestamp=args.timestamp,
+            p_thresh=args.percentile,
+            colors=colors,
+            linestyles=linestyles,
+            single_column=args.single_column,
+            show_legend=args.show_legend,
+            ylim=(0.3, 0.8),
+            ylabel=ylabel,
+            show_chance_level=False,
+            filename_suffix=analysis_params_str,
+            show_sig_legend=True,
+            sig_bar_base_position=0.72,
+            sig_bar_spacing=0.015,
+            sig_bar_height=0.01
+        )
+
+        # Difference plot
+        print(f"Plotting accuracy DIFFERENCE for {condition_name} in {roi}...")
+        
+        differences = pooled_accs_1 - pooled_accs_2
+        
+        mean_diff = np.mean(differences, axis=0)
+        std_diff = np.std(differences, axis=0)
+        max_abs_val = np.max(np.abs(mean_diff) + std_diff)
+        diff_ylim = (-max_abs_val * 1.2, max_abs_val * 1.2)
+        if diff_ylim[0] == 0: 
+            diff_ylim = (-0.1, 0.1)
+
+        diff_key = f'{condition_comparison_1}_minus_{condition_comparison_2}'
+        
+        plot_accuracies_with_multiple_sig_clusters(
+            time_points=time_window_centers,
+            accuracies_dict={diff_key: differences},
+            significance_clusters_dict=significance_clusters_comparison,
+            window_size=args.window_size,
+            step_size=args.step_size,
+            sampling_rate=args.sampling_rate,
+            comparison_name=f'bootstrap_{condition_name}_ACC_DIFFERENCE_plot',
+            roi=roi,
+            save_dir=os.path.join(save_dir, f"{condition_name}_comparison", f"{roi}"),
+            timestamp=args.timestamp,
+            p_thresh=args.percentile,
+            colors={diff_key: '#404040'},
+            linestyles={diff_key: '-'},
+            single_column=args.single_column,
+            show_legend=args.show_legend,
+            ylim=diff_ylim,
+            ylabel=f"Accuracy Difference ({condition_comparison_1.replace('_', ' ')} - {condition_comparison_2.replace('_', ' ')})",
+            show_chance_level=True,
+            chance_level=0,
+            filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
+            show_sig_legend=False,
+            sig_bar_base_position=diff_ylim[1] * 0.8,
+            sig_bar_spacing=0.015,
+            sig_bar_height=0.01
+        )
