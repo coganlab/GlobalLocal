@@ -1,2 +1,1 @@
-subject,event,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
-D0063,"stimulus_ci25_(-1.0, -0.5)",201,2048.0,232,-1.0,-0.5,"LOF1,LOF2,LOF3"
+

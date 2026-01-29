@@ -1,0 +1,13 @@
+Generated 5 windows: [(-1.0, -0.5), (-0.5, 0.0), (0.0, 0.5), (0.5, 1.0), (1.0, 1.5)]
+Subject D0137: loading epochs for condition stimulus_i...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0137/D0137_stimulus_i_full-epo.fif ...
+Isotrak not found
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+    Error loading epochs for D0137: can only convert an array of size 1 to a Python scalar
+Epoch summary saved.
+Skipping D0137: no epochs loaded
+Saved coherence summary to ./coh_timewindow/coherence_epochs_summary_D0137_lpfc_stimulus_i.csv
+Saved full per-trial data to ./coh_timewindow/coherence_epochs_full_D0137_lpfc_stimulus_i.pkl
+Done.

@@ -1,0 +1,2 @@
+/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/theta_connect.py:44: RuntimeWarning: Invalid tag with only 0/16 bytes at position 775166407
+  epochs = mne.read_epochs(eph_path, preload=True)
