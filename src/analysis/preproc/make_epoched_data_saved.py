@@ -297,24 +297,43 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         "stimulus_i": ["Stimulus/i25.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
         "stimulus_r": ["Stimulus/r25.0/Accuracy1.0", "Stimulus/r75.0/Accuracy1.0"],
         "stimulus_s": ["Stimulus/s25.0/Accuracy1.0", "Stimulus/s75.0/Accuracy1.0"],
+        "stimulus_ci25": ["Stimulus/c25.0/Accuracy1.0", "Stimulus/i25.0/Accuracy1.0"],
+        "stimulus_ci75": ["Stimulus/c75.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
     }
+    full_start = start  # e.g. -1.0
+    full_end = end      # e.g. 1.5
 
     for group_name, ev_list in groups.items():
-        for win in windows:
-            trials_ev = trial_ieeg(
-                good, ev_list,  
-                [win[0] - pad_length, win[1] + pad_length],
-                preload=True, reject_by_annotation=False
-            )
-            outliers_to_nan(trials_ev, outliers=outliers)
-            trials_ev.drop_channels(channels_to_drop, on_missing='ignore')
-            print(f"trial before crop_pad ({group_name} {win}): ", trials_ev.tmin, trials_ev.tmax)
-            crop_pad(trials_ev, f"{pad_length}s")
-            print(f"trial after crop_pad ({group_name} {win}): ", trials_ev.tmin, trials_ev.tmax)
+        # epoch once for the full time span (with pad added below)
+        trials_ev_full = trial_ieeg(
+            good, ev_list,
+            [full_start - pad_length, full_end + pad_length],
+            preload=True, reject_by_annotation=False
+        )
 
-            safe_event = sanitize_filename(group_name)
-            trials_ev.save(f'{save_dir}/{sub}_{safe_event}_{win}_ev1-epo.fif', overwrite=True)
-            print(f"Saved {group_name} trials for subject {sub} window {win} to {save_dir}/{sub}_{safe_event}_{win}_ev1-epo.fif")
+        # mark outliers and drop channels
+        outliers_to_nan(trials_ev_full, outliers=outliers)
+        trials_ev_full.drop_channels(channels_to_drop, on_missing='ignore')
+
+        # crop/pad to remove the pad (crop_pad expects a string like "0.5s")
+        crop_pad(trials_ev_full, f"{pad_length}s")
+
+        # optional: set a metadata field to record which group this is (useful later)
+        if trials_ev_full.metadata is None:
+            # create minimal metadata with group name per epoch
+            try:
+                n_epochs = len(trials_ev_full)
+                trials_ev_full.metadata = pd.DataFrame({
+                    'group': [group_name] * n_epochs
+                })
+            except Exception:
+                # metadata assignment is optional; ignore if not available
+                pass
+
+        safe_event = sanitize_filename(group_name)
+        out_fname = os.path.join(save_dir, f'{sub}_{safe_event}_full-epo.fif')
+        trials_ev_full.save(out_fname, overwrite=True)
+        print(f"Saved combined {group_name} (full times [{full_start},{full_end}]) for subject {sub} to {out_fname}")
 
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
@@ -323,8 +342,8 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        #subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D116', 'D117', 'D121']
-        subjects = ['D0063']# use one subject at a time to avoid the permission error
+        #subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D121', 'D137']
+        subjects = ['D0137']# use one subject at a time to avoid the permission error
     for sub in subjects:
         epoch_and_save(sub=sub, task=task, times=time_window,
                           within_base_times=within_base_times, base_times_length=base_times_length,
