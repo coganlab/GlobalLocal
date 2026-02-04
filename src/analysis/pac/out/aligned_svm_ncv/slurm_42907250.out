@@ -1,0 +1,2313 @@
+Generated 5 windows: [(-1.0, -0.5), (-0.5, 0.0), (0.0, 0.5), (0.5, 1.0), (1.0, 1.5)]
+Subject D0057: loading epochs for condition stimulus_c75...
+Reading /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_stimulus_c75_full-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 1 columns
+55 matching events found
+No baseline correction applied
+0 projection items activated
+    Loaded 55 epochs (RAI1,RAI2,RAI3...)
+Epoch summary saved.
+Processing subject D0057...
+Using ROIs: ['G_front_inf-Opercular', 'G_front_inf-Orbital', 'G_front_inf-Triangul', 'G_front_middle', 'G_front_sup', 'Lat_Fis-ant-Horizont', 'Lat_Fis-ant-Vertical', 'S_circular_insula_ant', 'S_circular_insula_sup', 'S_front_inf', 'S_front_middle', 'S_front_sup']
+Found 17 ROI channels for D0057
+  Window -1.0 to -0.5 s — cropping epochs and computing per-trial coherence...
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 1/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 11/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 21/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 31/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 41/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 51/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-1.000s..-0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 55/55
+n_epochs_window: 55
+example pair shape (should be (n_epochs, n_freqs)): (55, 3)
+  Window -0.5 to 0.0 s — cropping epochs and computing per-trial coherence...
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 1/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 11/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 21/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 31/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 41/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 51/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=-0.500s..0.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 55/55
+n_epochs_window: 55
+example pair shape (should be (n_epochs, n_freqs)): (55, 3)
+  Window 0.0 to 0.5 s — cropping epochs and computing per-trial coherence...
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 1/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 11/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 21/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 31/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 41/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 51/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.000s..0.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 55/55
+n_epochs_window: 55
+example pair shape (should be (n_epochs, n_freqs)): (55, 3)
+  Window 0.5 to 1.0 s — cropping epochs and computing per-trial coherence...
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 1/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 11/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 21/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 31/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 41/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 51/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=0.500s..1.000s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 55/55
+n_epochs_window: 55
+example pair shape (should be (n_epochs, n_freqs)): (55, 3)
+  Window 1.0 to 1.5 s — cropping epochs and computing per-trial coherence...
+NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 1/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 11/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 21/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 31/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 41/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 51/55
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+Connectivity computation...
+    computing connectivity for 136 connections
+    using t=1.000s..1.500s for estimation (1025 points)
+    frequencies: 4.0Hz..8.0Hz (3 points)
+    Using multitaper spectrum estimation with 7 DPSS windows
+    the following metrics will be computed: Coherence
+    computing cross-spectral density for epoch 1
+[Connectivity computation done]
+    processed epoch 55/55
+n_epochs_window: 55
+example pair shape (should be (n_epochs, n_freqs)): (55, 3)
+Saved coherence summary to ./coh_timewindow/coherence_epochs_summary_D0057_lpfc_stimulus_c75.csv
+Saved full per-trial data to ./coh_timewindow/coherence_epochs_full_D0057_lpfc_stimulus_c75.pkl
+Done.

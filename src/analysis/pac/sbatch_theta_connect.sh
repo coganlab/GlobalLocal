@@ -15,7 +15,7 @@ conda activate ieeg # make sure this works
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/theta_connect.py \
     --subject ${subject} \
     --bids_root /cwork/rl330/BIDS-1.1_GlobalLocal/BIDS \
-    --condition 'stimulus_i' \
+    --condition 'stimulus_c75' \
     --tmin -1.0 \
     --tmax 1.5 \
     --stepsize 0.5 \
