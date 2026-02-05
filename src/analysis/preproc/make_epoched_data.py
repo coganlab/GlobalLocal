@@ -357,7 +357,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         times_adj = [times[0] - pad_length, times[1] + pad_length]
         
         trials = trial_ieeg(good, event, times_adj, preload=True, reject_by_annotation=False)
-        trials.metadata = make_metadata_from_event_names(trials) # add metadata so we can grab specific trial types later
+        trials.metadata = make_metadata_from_event_names(trials) # add metadata so we can grab specific trial types later. Untested 2/5/26.
         trials.metadata = add_previous_trial_info(trials.metadata)
 
         if outlier_policy == 'drop':
