@@ -55,6 +55,7 @@ import pickle
 from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean
+from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 
 # Add this fixed version of crop_empty_data at the top of your script, after the imports
 def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s"):
@@ -356,7 +357,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         times_adj = [times[0] - pad_length, times[1] + pad_length]
         
         trials = trial_ieeg(good, event, times_adj, preload=True, reject_by_annotation=False)
-        
+        trials.metadata = make_metadata_from_event_names(trials) # add metadata so we can grab specific trial types later
+        trials.metadata = add_previous_trial_info(trials.metadata)
+
         if outlier_policy == 'drop':
             trials.drop_channels(channels_to_drop, on_missing='ignore')
         elif outlier_policy == 'nan':
