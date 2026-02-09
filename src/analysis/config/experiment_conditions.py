@@ -1,6 +1,12 @@
 # TODO: Add /Accuracy1.0 to all of these if I want to exclude error trials. I think that's good, right..?
 # This file contains the different conditions used in the experiment, split by what comparisons you want to make. stimulus_experiment_conditions and stimulus_conditions are most important i think.
 
+stimulus_all_conditions = {
+    "Stimulus": {
+        "BIDS_events": ["Stimulus"],
+    }
+}
+
 stimulus_task_by_congruency_conditions = {
     "Stimulus_i_taskG": {
         "BIDS_events": ["Stimulus/i25.0/Taskg", "Stimulus/i75.0/Taskg"],

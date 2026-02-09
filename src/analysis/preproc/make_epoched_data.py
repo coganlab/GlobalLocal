@@ -448,12 +448,12 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=5.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134', 'D0137']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
