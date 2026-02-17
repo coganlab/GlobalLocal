@@ -32,8 +32,8 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
                                             impute_trial_nans_by_channel_mean, \
                                             create_subjects_mne_objects_dict, \
                                             filter_electrode_lists_against_subjects_mne_objects, \
-                                            find_difference_between_two_electrode_lists,
-                                            windower
+                                            find_difference_between_two_electrode_lists
+                                            
                                             
 #to save print statements while on cluster
 # PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
@@ -1008,3 +1008,39 @@ def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
                 corrected_results[window].append(info)
     
     return corrected_results
+
+def get_metadata(subjects_mne_dict, query):
+    """
+    Retrieves trials based on a query. 
+    Handles chronological shifting internally to identify 'previous' trial states.
+    """
+    sliced_dict = {}
+    
+    for sub_id, epochs in subjects_mne_dict.items():
+        if epochs.metadata is None:
+            continue
+            
+        # 1. Create a temporary copy to avoid modifying the master metadata
+        temp_meta = epochs.metadata.copy()
+        
+        # 2. Perform the shifts while the data is still 'whole'
+        if 'prev_acc' not in temp_meta.columns:
+            temp_meta['prev_acc'] = temp_meta['acc'].shift(1)
+        
+        if 'prev_cong' not in temp_meta.columns:
+            temp_meta['prev_cong'] = temp_meta['congruency'].shift(1)
+
+        # 3. Select the indices that match your query
+        try:
+            matched_indices = temp_meta.query(query).index
+            
+            # Select the epochs that correspond to those indices
+            # .isin(matched_indices) handles the selection safely
+            sliced_dict[sub_id] = epochs[epochs.metadata.index.isin(matched_indices)]
+            
+            print(f"Subject {sub_id}: {len(sliced_dict[sub_id])} trials found for '{query}'")
+            
+        except Exception as e:
+            print(f"Query '{query}' failed for subject {sub_id}: {e}")
+            
+    return sliced_dict
