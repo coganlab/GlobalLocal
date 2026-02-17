@@ -302,6 +302,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         }
 
         qc_filepath = os.path.join(save_dir, f"{sub}_channel_qc_summary.json")
+        print(f"DEBUG: qc_filepath = '{qc_filepath}'")
         with open(qc_filepath, "w") as f:
             json.dump(qc_summary, f, indent=4)
 
@@ -448,7 +449,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=5.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', outliers=10, threshold_percent=5.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -476,7 +477,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
-    parser.add_argument('--threshold_percent', type=float, default=2.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
+    parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False, nan_policy='omit'), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
