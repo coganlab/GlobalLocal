@@ -1009,38 +1009,40 @@ def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
     
     return corrected_results
 
-def get_metadata(subjects_mne_dict, query):
-    """
-    Retrieves trials based on a query. 
-    Handles chronological shifting internally to identify 'previous' trial states.
-    """
+def get_metadata(subjects_mne_dict, query, mne_type='Stimulus', data_key='HG_ev1_rescaled'):
     sliced_dict = {}
     
-    for sub_id, epochs in subjects_mne_dict.items():
-        if epochs.metadata is None:
-            continue
-            
-        # 1. Create a temporary copy to avoid modifying the master metadata
-        temp_meta = epochs.metadata.copy()
+    for sub_id, stim_dict in subjects_mne_dict.items():
+        if mne_type not in stim_dict: continue
         
-        # 2. Perform the shifts while the data is still 'whole'
-        if 'prev_acc' not in temp_meta.columns:
-            temp_meta['prev_acc'] = temp_meta['acc'].shift(1)
+        actual_data_dict = stim_dict[mne_type]
+        epochs_obj = actual_data_dict.get(data_key)
         
-        if 'prev_cong' not in temp_meta.columns:
-            temp_meta['prev_cong'] = temp_meta['congruency'].shift(1)
-
-        # 3. Select the indices that match your query
-        try:
-            matched_indices = temp_meta.query(query).index
+        metadata = None
+        if hasattr(epochs_obj, 'metadata') and epochs_obj.metadata is not None:
+            metadata = epochs_obj.metadata
+        else:
+            # Look at siblings in the same Stimulus dictionary
+            for sibling_key in actual_data_dict.keys():
+                sibling_obj = actual_data_dict[sibling_key]
+                if hasattr(sibling_obj, 'metadata') and sibling_obj.metadata is not None:
+                    metadata = sibling_obj.metadata
+                    print(f"Sub {sub_id}: Borrowed metadata from {sibling_key}")
+                    break
+        
+        if metadata is not None:
+            temp_meta = metadata.copy()
+            if 'prev_acc' not in temp_meta.columns:
+                temp_meta['prev_acc'] = temp_meta['accuracy'].shift(1)
             
-            # Select the epochs that correspond to those indices
-            # .isin(matched_indices) handles the selection safely
-            sliced_dict[sub_id] = epochs[epochs.metadata.index.isin(matched_indices)]
-            
-            print(f"Subject {sub_id}: {len(sliced_dict[sub_id])} trials found for '{query}'")
-            
-        except Exception as e:
-            print(f"Query '{query}' failed for subject {sub_id}: {e}")
+            try:
+                matched_indices = temp_meta.query(query).index
+                # We apply the indices from the metadata to our HG epochs
+                sliced_dict[sub_id] = epochs_obj[metadata.index.isin(matched_indices)]
+                print(f"Sub {sub_id}: {len(sliced_dict[sub_id])} trials found.")
+            except Exception as e:
+                print(f"Query failed for {sub_id}: {e}")
+        else:
+            print(f"CRITICAL: No metadata found in ANY sibling for {sub_id}")
             
     return sliced_dict
