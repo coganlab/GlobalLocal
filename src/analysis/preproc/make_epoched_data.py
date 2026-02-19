@@ -380,6 +380,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         
         # Now extract gamma and proceed with analysis
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
+        HG_ev1.metadata = trials.metadata.copy()
         crop_pad(HG_ev1, pad_length_string)
         HG_ev1.decimate(dec_factor)
 
