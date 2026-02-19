@@ -380,12 +380,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         
         # Now extract gamma and proceed with analysis
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
-        print("After extract:", HG_ev1.metadata is not None) # debug print
-        HG_ev1.metadata = trials.metadata.copy()
         crop_pad(HG_ev1, pad_length_string)
-        print("After crop_pad:", HG_ev1.metadata is not None)
         HG_ev1.decimate(dec_factor)
-        print("after decimate:", HG_ev1.metadata is not None)
         # Square the data to get power from amplitude
         HG_ev1_power = HG_ev1.copy()
         HG_ev1_power._data = HG_ev1._data ** 2 # Square amplitude to get power
@@ -406,7 +402,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         # Save HG_ev1
         HG_ev1.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1-epo.fif', overwrite=True)
+        HG_ev1.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_metadata.csv', index=False)
+        
         HG_ev1_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power-epo.fif', overwrite=True)
+        HG_ev1_power.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_metadata.csv', index=False)
 
         # Save HG_base (the shuffled version)
         HG_base.save(f'{save_dir}/{sub}_{output_name_event}_HG_base-epo.fif', overwrite=True)
@@ -414,12 +413,15 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         # Save HG_ev1_rescaled
         HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
+        HG_ev1_rescaled.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled_metadata.csv', index=False)
+
         HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
+        HG_ev1_power_rescaled.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled_metadata.csv', index=False)
 
         # Save HG_ev1_evoke
         HG_ev1_evoke.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke-ave.fif', overwrite=True)
         HG_ev1_evoke_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power-ave.fif', overwrite=True)
-        
+
         # Save HG_ev1_evoke_rescaled
         HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_rescaled-ave.fif', overwrite=True)
         HG_ev1_evoke_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power_rescaled-ave.fif', overwrite=True)
