@@ -380,10 +380,12 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         
         # Now extract gamma and proceed with analysis
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
+        print("After extract:", HG_ev1.metadata is not None) # debug print
         HG_ev1.metadata = trials.metadata.copy()
         crop_pad(HG_ev1, pad_length_string)
+        print("After crop_pad:", HG_ev1.metadata is not None)
         HG_ev1.decimate(dec_factor)
-
+        print("after decimate:", HG_ev1.metadata is not None)
         # Square the data to get power from amplitude
         HG_ev1_power = HG_ev1.copy()
         HG_ev1_power._data = HG_ev1._data ** 2 # Square amplitude to get power
