@@ -21,6 +21,40 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from numpy.lib.stride_tricks import as_strided, sliding_window_view
 
+def get_default_LAB_root():
+    """Determine the default root directory for CoganLab data based on the current platform.
+
+    Resolves the path to the lab's shared data directory by detecting the
+    operating system and common mount points. Supports Windows (Box sync),
+    macOS (Box cloud storage), and Linux (Duke HPC /cwork or local fallback).
+
+    Parameters
+    ----------
+    LAB_root : str, optional
+        If provided, returned as-is (allows manual override). If None,
+        the path is auto-detected based on the current OS and environment.
+
+    Returns
+    -------
+    str
+        Absolute path to the lab data root directory.
+    """
+    
+    HOME = os.path.expanduser("~")
+    USER = os.path.basename(HOME)
+    
+    if os.name == 'nt':  # Windows
+        return os.path.join(HOME, "Box", "CoganLab")
+    elif sys.platform == 'darwin':  # macOS
+        return os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+    else:  # Linux (cluster)
+        # Check if we're on the cluster by looking for /cwork directory
+        if os.path.exists(f"/cwork/{USER}"):
+            return f"/cwork/{USER}"
+        else:
+            # Fallback for other Linux systems
+            return os.path.join(HOME, "CoganLab")
+
 def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
@@ -76,43 +110,14 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
     
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
 
     for sub in subjects:
         print(sub)
         layout = get_data(task, root=LAB_root)
-        filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
-                            extension='.edf', desc='clean', preload=False)
+        good = get_good_data(sub, layout)
 
-        good = crop_empty_data(filt)
-
-        good.info['bads'] = channel_outlier_marker(good, 3, 2)
-
-        # Drop the trigger channel if it exists 9/30
-        if 'Trigger' in good.ch_names:
-            good.drop_channels('Trigger')
-
-        filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
-        good.drop_channels(good.info['bads'])
-
-        good.load_data()
         channels = good.ch_names
-
-        ch_type = filt.get_channel_types(only_data_chs=True)[0]
-        good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
         
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
@@ -249,6 +254,17 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     return subjects_electrodes_to_ROIs_dict
 
+def _load_epochs_with_metadata(save_dir, sub, epochs_root_file, obj_name):
+    """Load an epochs .fif file and attach metadata from CSV if available"""
+    fif_path = f'{save_dir}/{sub}_{epochs_root_file}_{obj_name}-epo.fif'
+    csv_path = f'{save_dir}/{sub}_{epochs_root_file}_{obj_name}_metadata.csv'
+    
+    epochs = mne.read_epochs(fif_path)
+    if os.path.exists(csv_path):
+        epochs.metadata = pd.read_csv(csv_path)
+    
+    return epochs
+
 def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
     """
     Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
@@ -272,20 +288,7 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
 
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
                 
     # Get data layout
     layout = get_data(task, root=LAB_root)
@@ -299,32 +302,15 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
     mne_objects = {}
 
     if just_HG_ev1_rescaled:
-        # Define path and load only the rescaled high gamma epochs
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-
-        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
-        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
-        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
+        # Define path and load only the rescaled high gamma epochs, along with corresponding metadata
+        mne_objects['HG_ev1_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_rescaled')
+        mne_objects['HG_ev1_power_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_power_rescaled')
 
     else:
-        # Define file paths
-        HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
-        HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
-
-        # Load the objects
-        HG_ev1 = mne.read_epochs(HG_ev1_file)
-        HG_base = mne.read_epochs(HG_base_file)
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
-
-        mne_objects['HG_ev1'] = HG_ev1
-        mne_objects['HG_base'] = HG_base
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
+        mne_objects['HG_ev1'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1')
+        mne_objects['HG_ev1_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_rescaled')
+        mne_objects['HG_ev1_power_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_power_rescaled')
+        mne_objects['HG_base'] = mne.read_epochs(f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif')
 
     return mne_objects
 
@@ -1281,20 +1267,7 @@ def get_sig_chans(sub, task, epochs_root_file, LAB_root=None):
     """
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
     # Get data layout
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
@@ -1580,6 +1553,7 @@ def get_good_data(sub, layout):
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
 
     return good
+
 
 def count_electrodes_across_subjects(data, subjects):
     total_electrodes = 0
