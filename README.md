@@ -147,9 +147,9 @@ Practice Accuracy Cutoff (pracAccCutoff) = 75
 - Minimum accuracy percent (out of 100) needed to move on from one practice task to the next.
   
 blockTypes  
-A: 25% congruent, 25% switch  
-B: 25% congruent, 75% switch  
-C: 75% congruent, 25% switch  
-D: 75% congruent, 75% switch
+A: 25% congruent (or 75% incongruent), 25% switch  
+B: 25% congruent (or 75% incongruent), 75% switch  
+C: 75% congruent (or 25% incongruent), 25% switch  
+D: 75% congruent (or 25% incongruent), 75% switch
   
 BIDS EVENTS ARE SAVED IN TERMS OF INCONGRUENT PROPORTION, NOT CONGRUENT PROPORTION. So Stimulus/c25/s25 will grab the stimulus onsets of trials that are congruent and switch, in a 25% incongruent and 25% switch block. AKA a 75% congruent and 25% switch block.
