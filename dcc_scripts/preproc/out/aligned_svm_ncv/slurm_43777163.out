@@ -104,3 +104,34 @@ Using data from preloaded Raw for 448 events and 7169 original time points ...
 0 bad epochs dropped
 Adding metadata with 20 columns
 Replacing existing metadata with 29 columns
+Applying baseline correction (mode: zscore)
+Applying baseline correction (mode: zscore)
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Shape of HG_ev1._data: (448, 218, 641)
+Shape of HG_base._data: (448, 218, 129)
+stat_func returns a tuple. Taking the first element
