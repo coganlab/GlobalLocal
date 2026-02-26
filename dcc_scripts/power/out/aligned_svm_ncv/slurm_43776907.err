@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 220, in run_analysis
+    main(args)
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 144, in main
+    layout = get_data(args.task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 359, in get_data
+    scan = scandir(root)
+           ^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: '/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS'

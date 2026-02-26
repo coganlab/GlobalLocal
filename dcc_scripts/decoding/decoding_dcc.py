@@ -44,7 +44,8 @@ from src.analysis.utils.general_utils import (
     impute_trial_nans_by_channel_mean,
     create_subjects_mne_objects_dict,
     filter_electrode_lists_against_subjects_mne_objects,
-    find_difference_between_two_electrode_lists
+    find_difference_between_two_electrode_lists,
+    get_conditions_save_name
 )
 
 import matplotlib
@@ -948,22 +949,25 @@ def main(args):
                     f'True: {label2}, Pred: {label2}': '--',   # Predicted Class 2 (dashed)
                     f'True: {label2}, Pred: {label1}': '-',   # Predicted Class 1 (Solid)
                 }
+                
+                plot_cm_traces_nature_style(
+                    time_points=time_window_centers,
+                    cm_traces_dict=traces_dict,
+                    comparison_name=f'DEBUG_CM_Traces_{condition_comparison}',
+                    roi=roi,
+                    save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                    timestamp=args.timestamp,
+                    colors=trace_colors,
+                    linestyles=trace_linestyles,
+                    single_column=args.single_column,
+                    show_legend=True,
+                    ylabel="Mean Trial Count",
+                    filename_suffix=analysis_params_str
+                )
             # You might need to adjust the labels for other comparisons, but this will work for 2-class
-            
-            plot_cm_traces_nature_style(
-                time_points=time_window_centers,
-                cm_traces_dict=traces_dict,
-                comparison_name=f'DEBUG_CM_Traces_{condition_comparison}',
-                roi=roi,
-                save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
-                timestamp=args.timestamp,
-                colors=trace_colors,
-                linestyles=trace_linestyles,
-                single_column=args.single_column,
-                show_legend=True,
-                ylabel="Mean Trial Count",
-                filename_suffix=analysis_params_str
-            )
+            else:
+                print(f"Skipping plot for {condition_comparison}/{roi}: expected 2 labels, got {len(labels)} ({labels})")
+                continue
             
                
     # LWPC analysis

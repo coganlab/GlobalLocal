@@ -1,8 +1,27 @@
-import mne
 import sys
+import os
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+# Get the absolute path to the directory containing the current script
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    current_script_dir = os.getcwd()
+
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)  # insert at the beginning to prioritize it
+
+import mne
 import json
 import numpy as np
-import os
 import pandas as pd
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
     outliers_to_nan
@@ -20,6 +39,8 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from numpy.lib.stride_tricks import as_strided, sliding_window_view
+
+from src.analysis.config import experiment_conditions
 
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.
@@ -2049,3 +2070,64 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
         windowed = np.moveaxis(windowed, axis, insert_at)
     
     return windowed
+
+def get_conditions_save_name(conditions, experiment_conditions, n_subjects):
+    """
+    Map a conditions object to its save name string.
+    
+    Parameters
+    ----------
+    conditions : dict
+        The conditions object to map.
+    experiment_conditions : dict
+        The experiment conditions dictionary.
+    n_subjects : int
+        The number of subjects.
+    
+    Returns
+    -------
+    str
+        The save name string.
+    """
+    # Mapping the experiment_conditions objects to their base string names
+    CONDITIONS_MAP = [
+        # Stimulus Conditions
+        (experiment_conditions.stimulus_conditions, 'stimulus_conditions'),
+        (experiment_conditions.stimulus_main_effect_conditions, 'stimulus_main_effect_conditions'),
+        (experiment_conditions.stimulus_experiment_conditions, 'stimulus_experiment_conditions'),
+        (experiment_conditions.stimulus_lwpc_conditions, 'stimulus_lwpc_conditions'),
+        (experiment_conditions.stimulus_lwps_conditions, 'stimulus_lwps_conditions'),
+        (experiment_conditions.stimulus_big_letter_conditions, 'stimulus_big_letter_conditions'),
+        (experiment_conditions.stimulus_small_letter_conditions, 'stimulus_small_letter_conditions'),
+        (experiment_conditions.stimulus_task_conditions, 'stimulus_task_conditions'),
+        (experiment_conditions.stimulus_congruency_conditions, 'stimulus_congruency_conditions'),
+        (experiment_conditions.stimulus_switch_type_conditions, 'stimulus_switch_type_conditions'),
+        (experiment_conditions.stimulus_err_corr_conditions, 'stimulus_err_corr_conditions'),
+        (experiment_conditions.stimulus_congruency_by_switch_proportion_conditions, 'stimulus_congruency_by_switch_proportion_conditions'),
+        (experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions, 'stimulus_switch_type_by_congruency_proportion_conditions'),
+        (experiment_conditions.stimulus_iR_cS_err_conditions, 'stimulus_iR_cS_err_conditions'),
+        (experiment_conditions.stimulus_task_by_congruency_conditions, 'stimulus_task_by_congruency_conditions'),
+        (experiment_conditions.stimulus_task_by_switch_type_conditions, 'stimulus_task_by_switch_type_conditions'),
+        (experiment_conditions.stimulus_task_by_congruency_proportion_conditions, 'stimulus_task_by_congruency_proportion_conditions'),
+        (experiment_conditions.stimulus_task_by_switch_proportion_conditions, 'stimulus_task_by_switch_proportion_conditions'),
+        
+        # Response Conditions
+        (experiment_conditions.response_conditions, 'response_conditions'),
+        (experiment_conditions.response_experiment_conditions, 'response_experiment_conditions'),
+        (experiment_conditions.response_big_letter_conditions, 'response_big_letter_conditions'),
+        (experiment_conditions.response_small_letter_conditions, 'response_small_letter_conditions'),
+        (experiment_conditions.response_task_conditions, 'response_task_conditions'),
+        (experiment_conditions.response_congruency_conditions, 'response_congruency_conditions'),
+        (experiment_conditions.response_switch_type_conditions, 'response_switch_type_conditions'),
+        (experiment_conditions.response_err_corr_conditions, 'response_err_corr_conditions'),
+        (experiment_conditions.response_congruency_by_switch_proportion_conditions, 'response_congruency_by_switch_proportion_conditions'),
+        (experiment_conditions.response_switch_type_by_congruency_proportion_conditions, 'response_switch_type_by_congruency_proportion_conditions'),
+        (experiment_conditions.response_iR_cS_err_conditions, 'response_iR_cS_err_conditions')
+    ]
+
+    """Map a conditions object to its save name string."""
+    for cond, name in CONDITIONS_MAP:
+        if conditions == cond:
+            return f"{name}_{n_subjects}_subjects"
+
+    raise ValueError(f"Unknown conditions object: {conditions}")
