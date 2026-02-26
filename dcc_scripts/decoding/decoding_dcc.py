@@ -112,9 +112,11 @@ from src.analysis.decoding.decoding import (
     extract_pooled_cm_traces,
     plot_cm_traces_nature_style,
     plot_high_dim_decision_slice,
-    run_context_comparison_analysis
+    run_context_comparison_analysis,
+    plot_cross_block_overlay,
 )
 
+    
 def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, random_state):
     """
     Helper function to run make_pooled_shuffle_distribution with standard args.
@@ -282,46 +284,81 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             results_for_this_bootstrap['time_window_results'][condition_comparison][roi]['mean_accuracies_shuffle'] = mean_accuracies_shuffle
             
     # 1. Determine configuration based on experiment conditions
-    pooled_settings = None # Tuple of (Output Key Name, Strings to Find)
+    # pooled_settings is now a LIST of (key, strings_to_find) tuples
+    pooled_settings_list = []
 
     if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        pooled_settings = ('lwpc_shuffle_accs_across_pooled_conditions', 
-                           [['c25', 'c75'], ['i25', 'i75']])
+        pooled_settings_list.append(
+            ('lwpc_shuffle_accs_across_pooled_conditions',
+             [['c25', 'c75'], ['i25', 'i75']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
-        pooled_settings = ('lwps_shuffle_accs_across_pooled_conditions', 
-                           [['s25', 's75'], ['r25', 'r75']])
+        pooled_settings_list.append(
+            ('lwps_shuffle_accs_across_pooled_conditions',
+             [['s25', 's75'], ['r25', 'r75']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        pooled_settings = ('congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions', 
-                           [['c_in'], ['i_in']])
+        pooled_settings_list.append(
+            ('congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions',
+             [['c_in'], ['i_in']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        pooled_settings = ('switch_type_by_congruency_shuffle_accs_across_pooled_conditions', 
-                           [['s_in'], ['r_in']])
+        pooled_settings_list.append(
+            ('switch_type_by_congruency_shuffle_accs_across_pooled_conditions',
+             [['s_in'], ['r_in']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
-        pooled_settings = ('task_by_congruency_shuffle_accs_across_pooled_conditions', 
-                           [['taskG'], ['taskL']])
+        pooled_settings_list.append(
+            ('task_by_congruency_shuffle_accs_across_pooled_conditions',
+             [['taskG'], ['taskL']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
-        pooled_settings = ('task_by_switch_type_shuffle_accs_across_pooled_conditions', 
-                           [['taskG'], ['taskL']])
+        pooled_settings_list.append(
+            ('task_by_switch_type_shuffle_accs_across_pooled_conditions',
+             [['taskG'], ['taskL']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
-        pooled_settings = ('task_by_congruency_proportion_shuffle_accs_across_pooled_conditions', 
-                           [['taskG'], ['taskL']])
+        pooled_settings_list.append(
+            ('task_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+             [['taskG'], ['taskL']])
+        )
 
     elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
-        pooled_settings = ('task_by_switch_proportion_shuffle_accs_across_pooled_conditions', 
-                           [['taskG'], ['taskL']])
+        pooled_settings_list.append(
+            ('task_by_switch_proportion_shuffle_accs_across_pooled_conditions',
+             [['taskG'], ['taskL']])
+        )
 
-    # 2. Execute logic if settings were found
-    if pooled_settings:
+    elif args.conditions == experiment_conditions.stimulus_experiment_conditions:
+        # Pooled congruency shuffle: all congruent vs all incongruent across blocks
+        pooled_settings_list.append(
+            ('congruency_pooled_shuffle',
+             [['Stimulus_c25s25', 'Stimulus_c25s75', 'Stimulus_c25r25', 'Stimulus_c25r75',
+               'Stimulus_c75s25', 'Stimulus_c75s75', 'Stimulus_c75r25', 'Stimulus_c75r75'],
+              ['Stimulus_i25s25', 'Stimulus_i25s75', 'Stimulus_i25r25', 'Stimulus_i25r75',
+               'Stimulus_i75s25', 'Stimulus_i75s75', 'Stimulus_i75r25', 'Stimulus_i75r75']])
+        )
+        # Pooled switch type shuffle: all switch vs all repeat across blocks
+        pooled_settings_list.append(
+            ('switchType_pooled_shuffle',
+             [['Stimulus_i25s25', 'Stimulus_i25s75', 'Stimulus_i75s25', 'Stimulus_i75s75',
+               'Stimulus_c25s25', 'Stimulus_c25s75', 'Stimulus_c75s25', 'Stimulus_c75s75'],
+              ['Stimulus_i25r25', 'Stimulus_i25r75', 'Stimulus_i75r25', 'Stimulus_i75r75',
+               'Stimulus_c25r25', 'Stimulus_c25r75', 'Stimulus_c75r25', 'Stimulus_c75r75']])
+        )
+
+    # 2. Execute logic for ALL pooled settings
+    for pooled_settings in pooled_settings_list:
         result_key, strings_to_find_pooled = pooled_settings
         results_for_this_bootstrap['time_window_results'][result_key] = {}
 
-        for roi in rois:            
+        for roi in rois:
             accuracies_shuffle_pooled = run_pooled_shuffle_for_roi(
                 roi=roi,
                 roi_labeled_arrays=roi_labeled_arrays_this_bootstrap,
@@ -329,7 +366,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 args=args,
                 random_state=bootstrap_random_state
             )
-            
+
             results_for_this_bootstrap['time_window_results'][result_key][roi] = accuracies_shuffle_pooled
 
     return results_for_this_bootstrap
@@ -466,8 +503,22 @@ def main(args):
 
     # update these as needed!
     if args.conditions == experiment_conditions.stimulus_experiment_conditions:
-        condition_comparisons['congruency'] = [['c25', 'c75'], ['i25', 'i75']]
-        condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
+        # these are collapsed across blocks
+        # condition_comparisons['congruency'] = [['c25', 'c75'], ['i25', 'i75']]
+        # condition_comparisons['switchType'] = [['r25', 'r75'], ['s25', 's75']]
+        
+        # Congruency decoding within each block - for controlling for congruency by switch prop confound of decoding the block type rather than the congruency
+        condition_comparisons['congruency_in_i25s25_block'] = [['Stimulus_c25s25', 'Stimulus_c25r25'], ['Stimulus_i25s25', 'Stimulus_i25r25']]
+        condition_comparisons['congruency_in_i25s75_block'] = [['Stimulus_c25s75', 'Stimulus_c25r75'], ['Stimulus_i25s75', 'Stimulus_i25r75']]
+        condition_comparisons['congruency_in_i75s25_block'] = [['Stimulus_c75s25', 'Stimulus_c75r25'], ['Stimulus_i75s25', 'Stimulus_i75r25']]
+        condition_comparisons['congruency_in_i75s75_block'] = [['Stimulus_c75s75', 'Stimulus_c75r75'], ['Stimulus_i75s75', 'Stimulus_i75r75']]
+        
+        # Switch type decoding within each block
+        condition_comparisons['switchType_in_i25s25_block'] = [['Stimulus_i25s25', 'Stimulus_c25s25'], ['Stimulus_i25r25', 'Stimulus_c25r25']]
+        condition_comparisons['switchType_in_i25s75_block'] = [['Stimulus_i25s75', 'Stimulus_c25s75'], ['Stimulus_i25r75', 'Stimulus_c25r75']]
+        condition_comparisons['switchType_in_i75s25_block'] = [['Stimulus_i75s25', 'Stimulus_c75s25'], ['Stimulus_i75r25', 'Stimulus_c75r25']]
+        condition_comparisons['switchType_in_i75s75_block'] = [['Stimulus_i75s75', 'Stimulus_c75s75'], ['Stimulus_i75r75', 'Stimulus_c75r75']]
+        
     elif args.conditions == experiment_conditions.stimulus_conditions:
         condition_comparisons['BigLetter'] = ['bigS', 'bigH']
         condition_comparisons['SmallLetter'] = ['smallS', 'smallH']
@@ -837,7 +888,7 @@ def main(args):
                     filename_suffix=analysis_params_str  
                 )    
               
-    print("\n📊 Extracting and plotting pooled CM traces for debugging...")
+    print("\n Extracting and plotting pooled CM traces for debugging...")
     
     # 1. Extract the pooled traces
     pooled_cm_traces = extract_pooled_cm_traces(
@@ -1147,7 +1198,78 @@ def main(args):
             analysis_params_str=analysis_params_str
         )
 
-            
+    
+    # =============================================================================
+    # CROSS-BLOCK OVERLAY PLOTS (Congruency & Switch Type decoded within each block)
+    # =============================================================================
+    if args.conditions == experiment_conditions.stimulus_experiment_conditions:
+
+        plot_cross_block_overlay(
+            variable_name='congruency',
+            block_comparisons={
+                'Block A (25%I, 25%S)': 'congruency_in_i25s25_block',
+                'Block B (25%I, 75%S)': 'congruency_in_i25s75_block',
+                'Block C (75%I, 25%S)': 'congruency_in_i75s25_block',
+                'Block D (75%I, 75%S)': 'congruency_in_i75s75_block',
+            },
+            pooled_shuffle_key='congruency_pooled_shuffle',
+            colors={
+                'Block A (25%I, 25%S)': '#FF7E79',
+                'Block B (25%I, 75%S)': '#FF3333',
+                'Block C (75%I, 25%S)': '#FFB570',
+                'Block D (75%I, 75%S)': '#CC5500',
+                'Pooled shuffle': '#949494',
+            },
+            linestyles={
+                'Block A (25%I, 25%S)': '-',
+                'Block B (25%I, 75%S)': '--',
+                'Block C (75%I, 25%S)': '-',
+                'Block D (75%I, 75%S)': '--',
+                'Pooled shuffle': '--',
+            },
+            ylabel="Congruency Decoding Accuracy",
+            time_window_decoding_results=time_window_decoding_results,
+            all_bootstrap_stats=all_bootstrap_stats,
+            master_results=master_results,       # <-- ADDED
+            args=args,
+            rois=rois,
+            save_dir=save_dir,
+            analysis_params_str=analysis_params_str,
+        )
+
+        plot_cross_block_overlay(
+            variable_name='switchType',
+            block_comparisons={
+                'Block A (25%I, 25%S)': 'switchType_in_i25s25_block',
+                'Block B (25%I, 75%S)': 'switchType_in_i25s75_block',
+                'Block C (75%I, 25%S)': 'switchType_in_i75s25_block',
+                'Block D (75%I, 75%S)': 'switchType_in_i75s75_block',
+            },
+            pooled_shuffle_key='switchType_pooled_shuffle',
+            colors={
+                'Block A (25%I, 25%S)': '#56B4E9',
+                'Block B (25%I, 75%S)': '#0173B2',
+                'Block C (75%I, 25%S)': '#97D8C4',
+                'Block D (75%I, 75%S)': '#029E73',
+                'Pooled shuffle': '#949494',
+            },
+            linestyles={
+                'Block A (25%I, 25%S)': '-',
+                'Block B (25%I, 75%S)': '--',
+                'Block C (75%I, 25%S)': '-',
+                'Block D (75%I, 75%S)': '--',
+                'Pooled shuffle': '--',
+            },
+            ylabel="Switch Type Decoding Accuracy",
+            time_window_decoding_results=time_window_decoding_results,
+            all_bootstrap_stats=all_bootstrap_stats,
+            master_results=master_results,       # <-- ADDED
+            args=args,
+            rois=rois,
+            save_dir=save_dir,
+            analysis_params_str=analysis_params_str,
+        )
+                
     # --- Save all results to a single file ---
     results_filename = f"{args.timestamp}_MASTER_RESULTS_{analysis_params_str}.pkl"
     results_save_path = os.path.join(save_dir, results_filename)

@@ -4181,7 +4181,7 @@ def plot_high_dim_decision_slice(
     os.makedirs(save_dir, exist_ok=True)
 
     plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
-    plt.close(fig) # Close the figure to free memory
+    plt.close() # Close the figure to free memory
     
 def run_context_comparison_analysis(
     condition_name,
@@ -4384,3 +4384,87 @@ def run_context_comparison_analysis(
             sig_bar_spacing=0.015,
             sig_bar_height=0.01
         )
+
+def plot_cross_block_overlay(
+    variable_name,
+    block_comparisons,
+    pooled_shuffle_key,
+    colors,
+    linestyles,
+    ylabel,
+    time_window_decoding_results,
+    all_bootstrap_stats,
+    master_results,         
+    args,
+    rois,
+    save_dir,
+    analysis_params_str
+):
+    """
+    Overlay decoding accuracy from multiple blocks on a single plot,
+    and store pooled shuffle data in master_results for later re-plotting.
+    """
+    print(f"\n📊 Generating cross-block {variable_name.upper()} overlay plots...")
+
+    # Pool shuffle distributions across bootstraps
+    pooled_shuffle_by_roi = {}
+    for roi in rois:
+        shuffle_accs = []
+        for b_idx in range(args.bootstraps):
+            if (b_idx in time_window_decoding_results and
+                pooled_shuffle_key in time_window_decoding_results[b_idx] and
+                roi in time_window_decoding_results[b_idx][pooled_shuffle_key]):
+                shuffle_data = time_window_decoding_results[b_idx][pooled_shuffle_key][roi]
+                shuffle_accs.append(shuffle_data.T)
+        if shuffle_accs:
+            pooled_shuffle_by_roi[roi] = np.vstack(shuffle_accs)
+
+    # Store pooled shuffles in master_results for notebook re-plotting
+    if 'pooled_shuffles' not in master_results['stats']:
+        master_results['stats']['pooled_shuffles'] = {}
+    for roi, shuffle_data in pooled_shuffle_by_roi.items():
+        if roi not in master_results['stats']['pooled_shuffles']:
+            master_results['stats']['pooled_shuffles'][roi] = {}
+        master_results['stats']['pooled_shuffles'][roi][f'{variable_name}_cross_block'] = shuffle_data
+
+    # Plot
+    for roi in rois:
+        accuracies_dict = {}
+        for display_name, comp_key in block_comparisons.items():
+            if roi in all_bootstrap_stats.get(comp_key, {}):
+                unit = all_bootstrap_stats[comp_key][roi]['unit_of_analysis']
+                accuracies_dict[display_name] = all_bootstrap_stats[comp_key][roi][f'{unit}_true_accs']
+
+        if roi in pooled_shuffle_by_roi:
+            accuracies_dict['Pooled shuffle'] = pooled_shuffle_by_roi[roi]
+
+        if not accuracies_dict:
+            print(f"  Skipping ROI {roi}: no data for {variable_name} cross-block plot.")
+            continue
+
+        first_comp_key = list(block_comparisons.values())[0]
+        time_window_centers = time_window_decoding_results[0][first_comp_key][roi]['time_window_centers']
+
+        plot_accuracies_nature_style(
+            time_points=time_window_centers,
+            accuracies_dict=accuracies_dict,
+            significant_clusters=None,
+            window_size=args.window_size,
+            step_size=args.step_size,
+            sampling_rate=args.sampling_rate,
+            comparison_name=f'{variable_name}_decoding_across_blocks',
+            roi=roi,
+            save_dir=os.path.join(save_dir, f"cross_block_{variable_name}", roi),
+            timestamp=args.timestamp,
+            colors=colors,
+            linestyles=linestyles,
+            ylim=(0.3, 0.8),
+            show_chance_level=False,
+            show_legend=True,
+            ylabel=ylabel,
+            filename_suffix=analysis_params_str,
+            single_column=False,
+        )
+
+    print(f"✅ Cross-block {variable_name} overlay plots complete.")
+
