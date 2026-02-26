@@ -368,7 +368,8 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                  n_splits: int = 5, n_repeats: int = 10,
                  oversample: bool = True, max_features: int = float("inf"), 
                  clf: BaseEstimator = LinearDiscriminantAnalysis(),
-                 clf_params: dict = None):
+                 clf_params: dict = None,
+                 random_state: int = None):
         
         PcaEstimateDecoder.__init__(self, 
                                     explained_variance=explained_variance,
@@ -380,6 +381,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
             self.oversample = lambda x, func, axis: x
         self.categories = categories
         self.max_features = max_features
+        self.random_state = random_state
 
     def cv_cm_jim(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
@@ -955,7 +957,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         )
 
         # Create a Decoder and run cross-validation
-        decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats)
+        decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
 
         # Use the concatenated data for the decoder
         cm = decoder.cv_cm_jim(concatenated_data, labels, normalize='true', obs_axs=obs_axs)
@@ -1117,8 +1119,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={})
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={})
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={}, random_state=random_state)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={}, random_state=random_state)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(
@@ -1854,7 +1856,7 @@ def decode_on_sig_tfr_clusters(
     )
     
     # Step 3: Decode
-    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample, clf_params={})
+    decoder = Decoder(cats, explained_variance=explained_variance, n_splits=1, n_repeats=1, oversample=oversample, clf_params={}, random_state=seed)
     
     # Handle NaN filling using existing mixup2 function
     mixup2(arr=X_train_masked, labels=y_train, obs_axs=obs_axs, alpha=alpha, seed=seed)
@@ -2451,14 +2453,15 @@ def make_pooled_shuffle_distribution(
         explained_variance=explained_variance,
         oversample=True,
         n_splits=n_splits,
-        n_repeats=n_perm  # Use n_perm for repetitions
+        n_repeats=n_perm,  # Use n_perm for repetitions
+        random_state=random_state
     )
 
     # 3. Run the time-windowed decoding with shuffle=True
     cm_shuffle_pooled = decoder_shuffle_pooled.cv_cm_jim_window_shuffle(
         x_pooled,
         y_pooled,
-        normalize='true',
+        normalize=None, # FIXED: normalize should be None for shuffle 2/26/26.
         obs_axs=obs_axs,
         time_axs=-1,
         window=window_size,
@@ -2977,7 +2980,7 @@ def get_time_averaged_confusion_matrix(
     if concatenated_data.size == 0:
         return None
 
-    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, clf=clf)
+    decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, clf=clf, random_state=random_state)
     
     # Key Change: Set normalize=None to get raw counts
     # The result will be shape (n_repeats, n_classes, n_classes)

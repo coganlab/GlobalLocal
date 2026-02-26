@@ -2251,4 +2251,22 @@ def build_condition_comparisons(conditions, experiment_conditions):
             'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_75switchBlock']
         }
 
+    # 7. Block-specific Congruency and Switch Type
+    elif conditions == experiment_conditions.stimulus_congruency_blockA_conditions:
+        return {'Stimulus_c_blockA_vs_Stimulus_i_blockA': ['Stimulus_c_blockA', 'Stimulus_i_blockA']}
+    elif conditions == experiment_conditions.stimulus_congruency_blockB_conditions:
+        return {'Stimulus_c_blockB_vs_Stimulus_i_blockB': ['Stimulus_c_blockB', 'Stimulus_i_blockB']}
+    elif conditions == experiment_conditions.stimulus_congruency_blockC_conditions:
+        return {'Stimulus_c_blockC_vs_Stimulus_i_blockC': ['Stimulus_c_blockC', 'Stimulus_i_blockC']}
+    elif conditions == experiment_conditions.stimulus_congruency_blockD_conditions:
+        return {'Stimulus_c_blockD_vs_Stimulus_i_blockD': ['Stimulus_c_blockD', 'Stimulus_i_blockD']}
+    elif conditions == experiment_conditions.stimulus_switchType_blockA_conditions:
+        return {'Stimulus_s_blockA_vs_Stimulus_r_blockA': ['Stimulus_s_blockA', 'Stimulus_r_blockA']}
+    elif conditions == experiment_conditions.stimulus_switchType_blockB_conditions:
+        return {'Stimulus_s_blockB_vs_Stimulus_r_blockB': ['Stimulus_s_blockB', 'Stimulus_r_blockB']}
+    elif conditions == experiment_conditions.stimulus_switchType_blockC_conditions:
+        return {'Stimulus_s_blockC_vs_Stimulus_r_blockC': ['Stimulus_s_blockC', 'Stimulus_r_blockC']}
+    elif conditions == experiment_conditions.stimulus_switchType_blockD_conditions:
+        return {'Stimulus_s_blockD_vs_Stimulus_r_blockD': ['Stimulus_s_blockD', 'Stimulus_r_blockD']}
+    
     raise ValueError(f"No comparisons defined for {conditions}")

@@ -86,7 +86,7 @@ from src.analysis.decoding.process_bootstrap import process_bootstrap
 from src.analysis.decoding.run_visualization_debug import run_visualization_debug
 from src.analysis.decoding.run_debug_cm_traces import run_debug_cm_traces
 from src.analysis.decoding.run_aggregate_and_plot_time_averaged_cms import run_aggregate_and_plot_time_averaged_cms
-
+from src.analysis.decoding.run_context_comparisons import run_all_context_comparisons
 '''
 when adding a new condition to decoding - 
 1. update get_conditions_save_name. 
