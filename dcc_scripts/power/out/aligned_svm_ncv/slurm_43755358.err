@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 219, in run_analysis
+    main(args)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 144, in main
+    layout = get_data(args.task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 359, in get_data
+    scan = scandir(root)
+           ^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS'
