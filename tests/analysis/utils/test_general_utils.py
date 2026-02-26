@@ -29,7 +29,9 @@ from numpy.lib.stride_tricks import as_strided, sliding_window_view
 from src.analysis.config import experiment_conditions
 
 from src.analysis.utils.general_utils import (
-    get_conditions_save_name
+    get_conditions_save_name,
+    build_condition_comparisons
+
 )
 
 def test_get_conditions_save_name():
@@ -41,3 +43,13 @@ def test_get_conditions_save_name():
 def test_unknown_conditions_raises():
     with pytest.raises(ValueError):
         get_conditions_save_name("not_a_real_condition", experiment_conditions, 5)
+
+def test_build_condition_comparisons():
+    condition_comparisons = build_condition_comparisons(
+        experiment_conditions.stimulus_conditions, experiment_conditions
+    )
+    assert condition_comparisons == {
+        'BigLetter': ['bigS', 'bigH'],
+        'SmallLetter': ['smallS', 'smallH'],
+        'Task': ['taskG', 'taskL']
+    }

@@ -2045,6 +2045,23 @@ def find_difference_between_two_electrode_lists(
                 
     return in_1_not_2, in_2_not_1
 
+def print_summary_of_dropped_electrodes(raw_electrodes, filtered_electrodes):
+    '''
+    debug prints for looking at which electrodes got dropped
+    '''
+    dropped_electrodes, _ = find_difference_between_two_electrode_lists(raw_electrodes, filtered_electrodes)
+    print("\n--- Summary of Dropped Electrodes ---")
+    total_dropped = 0
+    for roi, sub_dict in dropped_electrodes.items():
+        if not sub_dict: continue # Skip ROIs with no dropped electrodes
+        print(f"ROI: {roi}")
+        for sub, elec_list in sub_dict.items():
+            if elec_list:
+                print(f"  - Subject {sub}: Dropped {len(elec_list)} electrode(s)")
+                total_dropped += len(elec_list)
+    print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
+    print("-------------------------------------\n")
+    
 def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
              step_size: int = 1, insert_at: int = 0):
     if window_size is None:
@@ -2131,3 +2148,107 @@ def get_conditions_save_name(conditions, experiment_conditions, n_subjects):
             return f"{name}_{n_subjects}_subjects"
 
     raise ValueError(f"Unknown conditions object: {conditions}")
+
+def build_condition_comparisons(conditions, experiment_conditions):
+    """
+    Return the condition_comparisons dict for a given conditions object.
+    This is primarily for setting up decoding comparisons.
+    """
+    
+    # 1. Basic Stimulus & Task Comparisons
+    if conditions == experiment_conditions.stimulus_conditions:
+        return {
+            'BigLetter': ['bigS', 'bigH'],
+            'SmallLetter': ['smallS', 'smallH'],
+            'Task': ['taskG', 'taskL']
+        }
+    elif conditions == experiment_conditions.stimulus_big_letter_conditions:
+        return {'BigLetter': ['bigS', 'bigH']}
+    elif conditions == experiment_conditions.stimulus_small_letter_conditions:
+        return {'SmallLetter': ['smallS', 'smallH']}
+    elif conditions == experiment_conditions.stimulus_task_conditions:
+        return {'Task': ['taskG', 'taskL']}
+
+    # 2. Congruency, Switch, and Error Comparisons
+    elif conditions == experiment_conditions.stimulus_congruency_conditions:
+        return {'congruency': [['Stimulus_c'], ['Stimulus_i']]}
+    elif conditions == experiment_conditions.stimulus_switch_type_conditions:
+        return {'switchType': [['Stimulus_r'], ['Stimulus_s']]}
+    elif conditions == experiment_conditions.stimulus_err_corr_conditions:
+        return {'err_vs_corr': [['Stimulus_err'], ['Stimulus_corr']]}
+    elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+        return {'iR_err_vs_cS_err': [['Stimulus_err_iR'], ['Stimulus_err_cS']]}
+
+    # 3. LWPC / LWPS (List-Wide Proportions)
+    elif conditions == experiment_conditions.stimulus_lwpc_conditions:
+        return {
+            'c25_vs_i25': ['c25', 'i25'],
+            'c75_vs_i75': ['c75', 'i75'],
+            'c25_vs_i75': ['c25', 'i75'],
+            'c75_vs_i25': ['c75', 'i25'],
+            'c25_vs_c75': ['c25', 'c75'],
+            'i25_vs_i75': ['i25', 'i75']
+        }
+    elif conditions == experiment_conditions.stimulus_lwps_conditions:
+        return {
+            's25_vs_r25': ['s25', 'r25'],
+            's75_vs_r75': ['s75', 'r75'],
+            's25_vs_r75': ['s25', 'r75'],
+            's75_vs_r25': ['s75', 'r25'],
+            's25_vs_s75': ['s25', 's75'],
+            'r25_vs_r75': ['r25', 'r75']
+        }
+
+    # 4. Interaction: Task by Congruency / Switch
+    elif conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
+        return {
+            'c_taskG_vs_c_taskL': ['Stimulus_c_taskG', 'Stimulus_c_taskL'],
+            'i_taskG_vs_i_taskL': ['Stimulus_i_taskG', 'Stimulus_i_taskL'],
+            'c_taskG_vs_i_taskG': ['Stimulus_c_taskG', 'Stimulus_i_taskG'],
+            'c_taskL_vs_i_taskL': ['Stimulus_c_taskL', 'Stimulus_i_taskL']
+        }
+    elif conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
+        return {
+            'r_taskG_vs_r_taskL': ['Stimulus_r_taskG', 'Stimulus_r_taskL'],
+            's_taskG_vs_s_taskL': ['Stimulus_s_taskG', 'Stimulus_s_taskL'],
+            'r_taskG_vs_s_taskG': ['Stimulus_r_taskG', 'Stimulus_s_taskG'],
+            'r_taskL_vs_s_taskL': ['Stimulus_r_taskL', 'Stimulus_s_taskL']
+        }
+
+    # 5. Proportion Interactions (Congruency/Switch by Block Proportion)
+    elif conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        return {
+            'c_in_25switchBlock_vs_i_in_25switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_25switchBlock'],
+            'c_in_75switchBlock_vs_i_in_75switchBlock': ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_75switchBlock'],
+            'c_in_25switchBlock_vs_i_in_75switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_75switchBlock'],
+            'c_in_75switchBlock_vs_i_in_25switchBlock': ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_25switchBlock'],
+            'c_in_25switchBlock_vs_c_in_75switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_c_in_75switchBlock'],
+            'i_in_25switchBlock_vs_i_in_75switchBlock': ['Stimulus_i_in_25switchBlock', 'Stimulus_i_in_75switchBlock']
+        }
+    elif conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        return {
+            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_25incongruentBlock'],
+            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_75incongruentBlock'],
+            's_in_25incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock'],
+            's_in_75incongruentBlock_vs_r_in_25incongruentBlock': ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock'],
+            's_in_25incongruentBlock_vs_s_in_75incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock'],
+            'r_in_25incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
+        }
+
+    # 6. Task by Proportion Blocks
+    elif conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
+        return {
+            'taskG_in_25incongruentBlock_vs_taskG_in_75incongruentBlock': ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock'],
+            'taskL_in_25incongruentBlock_vs_taskL_in_75incongruentBlock': ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock'],
+            'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock'],
+            'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': ['Stimulus_taskG_in_75incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock']
+        }
+    elif conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
+        return {
+            'taskG_in_25switchBlock_vs_taskG_in_75switchBlock': ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock'],
+            'taskL_in_25switchBlock_vs_taskL_in_75switchBlock': ['Stimulus_taskL_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock'],
+            'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_25switchBlock'],
+            'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_75switchBlock']
+        }
+
+    raise ValueError(f"No comparisons defined for {conditions}")

@@ -694,3 +694,645 @@ class TestConcatenateAndBalanceData:
         assert concatenated_data.shape[0] == 10
         assert np.all(labels == 0)  # All same label
         assert cats == {('cond1',): 0}
+ 
+
+"""
+End-to-end test for decoding_dcc.py main().
+
+Strategy:
+- Mock all external I/O (file loading, MNE objects, LAB_root paths)
+- Mock process_bootstrap to return realistic synthetic results
+- Let the real aggregation, CM normalization, statistics, plotting, and pickling run
+- Verify the full pipeline produces correct outputs without crashing
+"""
+
+import pytest
+import numpy as np
+import os
+import sys
+import pickle
+import tempfile
+import shutil
+from types import SimpleNamespace
+from unittest.mock import patch, MagicMock, Mock
+
+# Add project root
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
+
+
+# ---------------------------------------------------------------------------
+# Helpers to build synthetic bootstrap results
+# ---------------------------------------------------------------------------
+
+def _make_time_window_centers(n_windows=10):
+    """Simulate time window centers (in seconds)."""
+    return np.linspace(-0.2, 0.8, n_windows)
+
+
+def _make_fake_bootstrap_result(
+    condition_comparisons: dict,
+    rois: list,
+    cats_by_roi: dict,
+    n_windows: int = 10,
+    n_classes: int = 2,
+    n_folds: int = 4,
+    n_repeats: int = 2,
+    folds_as_samples: bool = False,
+):
+    """
+    Build a single bootstrap result dict matching the structure returned by
+    process_bootstrap().
+
+    Returns dict with keys: 'time_window_results', 'time_averaged_cms', 'cats_by_roi'
+    """
+    twc = _make_time_window_centers(n_windows)
+    time_window_results = {}
+    time_averaged_cms = {}
+
+    for comp_name in condition_comparisons:
+        time_window_results[comp_name] = {}
+        time_averaged_cms[comp_name] = {}
+
+        for roi in rois:
+            # Per-window accuracies: shape (n_folds * n_repeats,) per window  OR  (n_repeats,)
+            if folds_as_samples:
+                n_samples = n_folds * n_repeats
+            else:
+                n_samples = n_repeats
+
+            fold_accs = np.random.uniform(0.4, 0.8, size=(n_windows, n_samples))
+            fold_shuffle_accs = np.random.uniform(0.3, 0.6, size=(n_windows, n_samples))
+
+            # Confusion matrices per window: list of (n_classes, n_classes)
+            cms_per_window = [
+                np.random.randint(0, 10, size=(n_classes, n_classes)).astype(float)
+                for _ in range(n_windows)
+            ]
+            shuffle_cms_per_window = [
+                np.random.randint(0, 10, size=(n_classes, n_classes)).astype(float)
+                for _ in range(n_windows)
+            ]
+
+            time_window_results[comp_name][roi] = {
+                'time_window_centers': twc,
+                'fold_true_accs': fold_accs,
+                'fold_shuffle_accs': fold_shuffle_accs,
+                'repeat_true_accs': fold_accs[:, :n_repeats],   # simplified
+                'repeat_shuffle_accs': fold_shuffle_accs[:, :n_repeats],
+                'cms_per_window': cms_per_window,
+                'shuffle_cms_per_window': shuffle_cms_per_window,
+            }
+
+            # Time-averaged CM (raw counts)
+            time_averaged_cms[comp_name][roi] = np.random.randint(0, 20, size=(n_classes, n_classes))
+
+    return {
+        'time_window_results': time_window_results,
+        'time_averaged_cms': time_averaged_cms,
+        'cats_by_roi': cats_by_roi,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Fixtures
+# ---------------------------------------------------------------------------
+
+@pytest.fixture
+def tmp_save_dir():
+    """Provide a temporary directory tree that mimics LAB_root structure."""
+    d = tempfile.mkdtemp()
+    yield d
+    shutil.rmtree(d, ignore_errors=True)
+
+
+@pytest.fixture
+def default_args(tmp_save_dir):
+    """Build a minimal SimpleNamespace that mirrors what run_decoding.py passes to main()."""
+    return SimpleNamespace(
+        LAB_root=tmp_save_dir,
+        subjects=['D0079', 'D0080'],
+        task='GlobalLocal',
+        epochs_root_file='some_epochs',
+        conditions={
+            'bigS': {'event_id': 1},
+            'bigH': {'event_id': 2},
+        },
+        rois_dict={
+            'lpfc': ['LpFC_1', 'LpFC_2'],
+            'motor': ['Motor_1'],
+        },
+        electrodes='all',
+        acc_trials_only=True,
+        bootstraps=3,
+        n_jobs=1,
+        n_splits=4,
+        n_repeats=2,
+        folds_as_samples=False,
+        explained_variance=0.95,
+        window_size=50,
+        step_size=25,
+        sampling_rate=512,
+        percentile=95,
+        cluster_percentile=95,
+        n_cluster_perms=100,
+        random_state=42,
+        unit_of_analysis='repeat',
+        clf_model_str='PcaLda',
+        timestamp='20260226_TEST',
+        run_visualization_debug=False,
+        single_column=True,
+        show_legend=True,
+    )
+
+
+@pytest.fixture
+def cats_by_roi():
+    return {
+        'lpfc': {('bigS',): 0, ('bigH',): 1},
+        'motor': {('bigS',): 0, ('bigH',): 1},
+    }
+
+
+@pytest.fixture
+def condition_comparisons():
+    return {'bigS_vs_bigH': {'strings_to_find': ['bigS', 'bigH']}}
+
+
+# ---------------------------------------------------------------------------
+# Tests
+# ---------------------------------------------------------------------------
+
+class TestMainEndToEnd:
+    """
+    End-to-end tests for decoding_dcc.main().
+
+    All external I/O is mocked; the internal aggregation / statistics /
+    plotting / saving logic runs for real.
+    """
+
+    @patch('src.analysis.decoding.run_all_context_comparisons')
+    @patch('src.analysis.decoding.run_debug_cm_traces')
+    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
+    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
+    @patch('src.analysis.decoding.decoding_dcc.Parallel')
+    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
+    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
+    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
+    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
+    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    def test_main_runs_to_completion_and_saves_pickle(
+        self,
+        mock_get_cond_name,
+        mock_load_elec_dict,
+        mock_build_comps,
+        mock_sig_chans,
+        mock_make_sig_elecs,
+        mock_create_mne,
+        mock_filter_elecs,
+        mock_run_viz,
+        mock_parallel_cls,
+        mock_compute_stats,
+        mock_plot_acc,
+        mock_debug_cm,
+        mock_context_comps,
+        default_args,
+        cats_by_roi,
+        condition_comparisons,
+        tmp_save_dir,
+    ):
+        """
+        Verify that main() orchestrates the full pipeline:
+        1. loads config & electrodes
+        2. runs parallel bootstraps
+        3. aggregates CMs
+        4. computes pooled statistics
+        5. plots results
+        6. saves master pickle
+        """
+        rois = list(default_args.rois_dict.keys())
+        n_windows = 10
+
+        # --- stub simple helpers ---
+        mock_get_cond_name.return_value = 'bigS_vs_bigH'
+        mock_load_elec_dict.return_value = {
+            'D0079': {'LpFC_1': 'lpfc', 'LpFC_2': 'lpfc', 'Motor_1': 'motor'},
+            'D0080': {'LpFC_1': 'lpfc', 'Motor_1': 'motor'},
+        }
+        mock_build_comps.return_value = condition_comparisons
+        mock_sig_chans.return_value = {
+            'D0079': ['LpFC_1', 'Motor_1'],
+            'D0080': ['LpFC_1'],
+        }
+
+        all_elecs = {
+            'lpfc': {'D0079': ['LpFC_1', 'LpFC_2'], 'D0080': ['LpFC_1']},
+            'motor': {'D0079': ['Motor_1'], 'D0080': []},
+        }
+        sig_elecs = {
+            'lpfc': {'D0079': ['LpFC_1'], 'D0080': ['LpFC_1']},
+            'motor': {'D0079': ['Motor_1'], 'D0080': []},
+        }
+        mock_make_sig_elecs.return_value = (all_elecs, sig_elecs)
+        mock_create_mne.return_value = {'D0079': MagicMock(), 'D0080': MagicMock()}
+        mock_filter_elecs.return_value = all_elecs  # pass-through
+
+        # --- stub parallel bootstrap execution ---
+        fake_results = [
+            _make_fake_bootstrap_result(
+                condition_comparisons, rois, cats_by_roi, n_windows=n_windows,
+                folds_as_samples=default_args.folds_as_samples,
+                n_folds=default_args.n_splits,
+                n_repeats=default_args.n_repeats,
+            )
+            for _ in range(default_args.bootstraps)
+        ]
+
+        # Parallel(...)(...) should return the list directly
+        mock_parallel_instance = MagicMock()
+        mock_parallel_instance.__call__ = MagicMock(return_value=fake_results)
+        # joblib.Parallel returns a callable; Parallel(n_jobs=...)(delayed(...) for ...)
+        mock_parallel_cls.return_value = mock_parallel_instance
+
+        # --- stub pooled statistics ---
+        # Build a realistic stats dict so downstream plotting doesn't crash
+        fake_stats = {}
+        for comp in condition_comparisons:
+            fake_stats[comp] = {}
+            for roi in rois:
+                fake_stats[comp][roi] = {
+                    'unit_of_analysis': 'repeat',
+                    'repeat_true_accs': np.random.uniform(0.4, 0.8, size=(n_windows, default_args.bootstraps * default_args.n_repeats)),
+                    'repeat_shuffle_accs': np.random.uniform(0.3, 0.6, size=(n_windows, default_args.bootstraps * default_args.n_repeats)),
+                    'significant_clusters': [],
+                }
+        mock_compute_stats.return_value = fake_stats
+
+        # ---- RUN ----
+        from src.analysis.decoding.decoding_dcc import main
+        main(default_args)
+
+        # ---- ASSERTIONS ----
+
+        # 1. Config loaded
+        mock_load_elec_dict.assert_called_once()
+        mock_build_comps.assert_called_once()
+
+        # 2. Parallel bootstrapping invoked with correct count
+        mock_parallel_cls.assert_called_once()
+        # The __call__ on the Parallel instance should have been invoked once (the generator expression)
+        mock_parallel_instance.assert_called_once()
+
+        # 3. Pooled statistics computed
+        mock_compute_stats.assert_called_once()
+        stats_call_kwargs = mock_compute_stats.call_args
+        assert stats_call_kwargs[0][1] == default_args.bootstraps  # n_bootstraps arg
+
+        # 4. Plotting called for each (condition_comparison, roi) pair
+        expected_plot_calls = len(condition_comparisons) * len(rois)
+        assert mock_plot_acc.call_count == expected_plot_calls
+
+        # 5. Debug CM traces called
+        mock_debug_cm.assert_called_once()
+
+        # 6. Context comparisons called
+        mock_context_comps.assert_called_once()
+
+        # 7. Master pickle saved
+        # Find the pickle file in the save_dir tree
+        pkl_files = []
+        for root, dirs, files in os.walk(tmp_save_dir):
+            pkl_files.extend(
+                os.path.join(root, f) for f in files if f.endswith('.pkl')
+            )
+        assert len(pkl_files) == 1, f"Expected 1 pickle file, found {len(pkl_files)}: {pkl_files}"
+
+        with open(pkl_files[0], 'rb') as f:
+            saved = pickle.load(f)
+
+        assert 'stats' in saved
+        assert 'metadata' in saved
+        assert 'comparison_clusters' in saved
+        assert saved['metadata']['args']['bootstraps'] == default_args.bootstraps
+        assert 'time_window_centers' in saved['metadata']
+
+    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
+    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
+    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
+    @patch('src.analysis.decoding.decoding_dcc.Parallel')
+    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
+    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
+    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
+    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
+    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    def test_all_bootstraps_fail_gracefully(
+        self,
+        mock_get_cond_name,
+        mock_load_elec_dict,
+        mock_build_comps,
+        mock_sig_chans,
+        mock_make_sig_elecs,
+        mock_create_mne,
+        mock_filter_elecs,
+        mock_run_viz,
+        mock_parallel_cls,
+        mock_compute_stats,
+        mock_plot_acc,
+        mock_debug_cm,
+        mock_context_comps,
+        default_args,
+        condition_comparisons,
+        tmp_save_dir,
+    ):
+        """
+        When every bootstrap returns None, main() should print an error
+        message and return early without crashing.
+        """
+        mock_get_cond_name.return_value = 'bigS_vs_bigH'
+        mock_load_elec_dict.return_value = {
+            'D0079': {'LpFC_1': 'lpfc'},
+            'D0080': {'LpFC_1': 'lpfc'},
+        }
+        mock_build_comps.return_value = condition_comparisons
+        mock_sig_chans.return_value = {'D0079': ['LpFC_1'], 'D0080': ['LpFC_1']}
+
+        all_elecs = {'lpfc': {'D0079': ['LpFC_1'], 'D0080': ['LpFC_1']}, 'motor': {}}
+        mock_make_sig_elecs.return_value = (all_elecs, all_elecs)
+        mock_create_mne.return_value = {'D0079': MagicMock(), 'D0080': MagicMock()}
+        mock_filter_elecs.return_value = all_elecs
+
+        # All bootstraps return None (failure)
+        mock_parallel_instance = MagicMock()
+        mock_parallel_instance.__call__ = MagicMock(return_value=[None] * default_args.bootstraps)
+        mock_parallel_cls.return_value = mock_parallel_instance
+
+        from src.analysis.decoding.decoding_dcc import main
+        # Should not raise
+        main(default_args)
+
+        # Statistics and plotting should NOT have been called
+        mock_compute_stats.assert_not_called()
+        mock_plot_acc.assert_not_called()
+
+    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
+    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
+    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
+    @patch('src.analysis.decoding.decoding_dcc.Parallel')
+    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
+    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
+    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
+    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
+    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    def test_cm_aggregation_is_correct(
+        self,
+        mock_get_cond_name,
+        mock_load_elec_dict,
+        mock_build_comps,
+        mock_sig_chans,
+        mock_make_sig_elecs,
+        mock_create_mne,
+        mock_filter_elecs,
+        mock_run_viz,
+        mock_parallel_cls,
+        mock_compute_stats,
+        mock_plot_acc,
+        mock_debug_cm,
+        mock_context_comps,
+        default_args,
+        cats_by_roi,
+        condition_comparisons,
+        tmp_save_dir,
+    ):
+        """
+        Verify the time-averaged CM aggregation logic: raw count CMs from
+        each bootstrap are summed then row-normalized.
+        """
+        rois = list(default_args.rois_dict.keys())
+        comp_name = list(condition_comparisons.keys())[0]
+
+        # Create deterministic CMs so we can check the math
+        cm_boot0 = np.array([[8, 2], [3, 7]])
+        cm_boot1 = np.array([[6, 4], [1, 9]])
+        cm_boot2 = np.array([[10, 0], [5, 5]])
+        expected_sum = cm_boot0 + cm_boot1 + cm_boot2  # [[24,6],[9,21]]
+        row_sums = expected_sum.sum(axis=1)[:, np.newaxis]
+        expected_normalized = expected_sum / row_sums  # [[0.8,0.2],[0.3,0.7]]
+
+        def _make_result_with_cm(cm):
+            twc = _make_time_window_centers(5)
+            return {
+                'time_window_results': {
+                    comp_name: {
+                        roi: {
+                            'time_window_centers': twc,
+                            'repeat_true_accs': np.random.rand(5, 2),
+                            'repeat_shuffle_accs': np.random.rand(5, 2),
+                        }
+                        for roi in rois
+                    }
+                },
+                'time_averaged_cms': {
+                    comp_name: {roi: cm.copy() for roi in rois}
+                },
+                'cats_by_roi': cats_by_roi,
+            }
+
+        fake_results = [
+            _make_result_with_cm(cm_boot0),
+            _make_result_with_cm(cm_boot1),
+            _make_result_with_cm(cm_boot2),
+        ]
+
+        # Wire up mocks (same boilerplate)
+        mock_get_cond_name.return_value = 'bigS_vs_bigH'
+        mock_load_elec_dict.return_value = {'D0079': {'LpFC_1': 'lpfc'}, 'D0080': {'LpFC_1': 'lpfc'}}
+        mock_build_comps.return_value = condition_comparisons
+        mock_sig_chans.return_value = {'D0079': ['LpFC_1'], 'D0080': ['LpFC_1']}
+        all_elecs = {'lpfc': {'D0079': ['LpFC_1'], 'D0080': ['LpFC_1']}, 'motor': {}}
+        mock_make_sig_elecs.return_value = (all_elecs, all_elecs)
+        mock_create_mne.return_value = {'D0079': MagicMock(), 'D0080': MagicMock()}
+        mock_filter_elecs.return_value = all_elecs
+
+        mock_parallel_instance = MagicMock()
+        mock_parallel_instance.__call__ = MagicMock(return_value=fake_results)
+        mock_parallel_cls.return_value = mock_parallel_instance
+
+        fake_stats = {comp_name: {roi: {
+            'unit_of_analysis': 'repeat',
+            'repeat_true_accs': np.random.rand(5, 6),
+            'repeat_shuffle_accs': np.random.rand(5, 6),
+            'significant_clusters': [],
+        } for roi in rois}}
+        mock_compute_stats.return_value = fake_stats
+
+        # Capture the saved CM images to verify normalization
+        saved_cms = {}
+        original_savefig = __import__('matplotlib.pyplot', fromlist=['savefig']).savefig
+
+        import matplotlib.pyplot as _plt
+
+        _original_subplots = _plt.subplots
+        _captured_normalized_cms = []
+
+        # We'll check the normalized CM by intercepting ConfusionMatrixDisplay
+        with patch('src.analysis.decoding.decoding_dcc.ConfusionMatrixDisplay') as mock_cmd:
+            mock_disp = MagicMock()
+            mock_cmd.return_value = mock_disp
+            mock_disp.plot.return_value = mock_disp
+
+            from src.analysis.decoding.decoding_dcc import main
+            main(default_args)
+
+            # ConfusionMatrixDisplay was called once per (condition_comparison, roi) pair
+            # that had data. Check the normalized CM passed in.
+            for call_obj in mock_cmd.call_args_list:
+                cm_passed = call_obj[1].get('confusion_matrix', call_obj[0][0] if call_obj[0] else None)
+                if cm_passed is not None:
+                    _captured_normalized_cms.append(cm_passed)
+
+        # Each roi should have the same normalized CM
+        assert len(_captured_normalized_cms) >= 1
+        for cm in _captured_normalized_cms:
+            np.testing.assert_array_almost_equal(cm, expected_normalized, decimal=5)
+
+    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
+    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
+    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
+    @patch('src.analysis.decoding.decoding_dcc.Parallel')
+    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
+    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
+    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
+    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
+    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    def test_sig_electrodes_mode(
+        self,
+        mock_get_cond_name,
+        mock_load_elec_dict,
+        mock_build_comps,
+        mock_sig_chans,
+        mock_make_sig_elecs,
+        mock_create_mne,
+        mock_filter_elecs,
+        mock_run_viz,
+        mock_parallel_cls,
+        mock_compute_stats,
+        mock_plot_acc,
+        mock_debug_cm,
+        mock_context_comps,
+        default_args,
+        cats_by_roi,
+        condition_comparisons,
+        tmp_save_dir,
+    ):
+        """
+        When args.electrodes == 'sig', the pipeline should use sig_electrodes
+        and include 'sig_elecs' in the filename suffix.
+        """
+        default_args.electrodes = 'sig'
+        rois = list(default_args.rois_dict.keys())
+
+        mock_get_cond_name.return_value = 'bigS_vs_bigH'
+        mock_load_elec_dict.return_value = {'D0079': {'LpFC_1': 'lpfc'}}
+        mock_build_comps.return_value = condition_comparisons
+        mock_sig_chans.return_value = {'D0079': ['LpFC_1']}
+
+        all_elecs = {'lpfc': {'D0079': ['LpFC_1']}, 'motor': {}}
+        sig_elecs = {'lpfc': {'D0079': ['LpFC_1']}, 'motor': {}}
+        mock_make_sig_elecs.return_value = (all_elecs, sig_elecs)
+        mock_create_mne.return_value = {'D0079': MagicMock()}
+        # filter_electrode_lists should receive sig_elecs (not all_elecs)
+        mock_filter_elecs.return_value = sig_elecs
+
+        fake_results = [
+            _make_fake_bootstrap_result(
+                condition_comparisons, rois, cats_by_roi, n_windows=5,
+                n_folds=default_args.n_splits, n_repeats=default_args.n_repeats,
+            )
+            for _ in range(default_args.bootstraps)
+        ]
+        mock_parallel_instance = MagicMock()
+        mock_parallel_instance.__call__ = MagicMock(return_value=fake_results)
+        mock_parallel_cls.return_value = mock_parallel_instance
+
+        fake_stats = {list(condition_comparisons.keys())[0]: {roi: {
+            'unit_of_analysis': 'repeat',
+            'repeat_true_accs': np.random.rand(5, 6),
+            'repeat_shuffle_accs': np.random.rand(5, 6),
+            'significant_clusters': [],
+        } for roi in rois}}
+        mock_compute_stats.return_value = fake_stats
+
+        from src.analysis.decoding.decoding_dcc import main
+        main(default_args)
+
+        # filter_electrode_lists was called with sig_elecs
+        filter_call_args = mock_filter_elecs.call_args[0]
+        assert filter_call_args[1] is sig_elecs
+
+        # The pickle file should contain 'sig_elecs' in its name
+        pkl_files = []
+        for root, _, files in os.walk(tmp_save_dir):
+            pkl_files.extend(f for f in files if f.endswith('.pkl'))
+        assert len(pkl_files) == 1
+        assert 'sig_elecs' in pkl_files[0]
+
+    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
+    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
+    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
+    @patch('src.analysis.decoding.decoding_dcc.Parallel')
+    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
+    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
+    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
+    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
+    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
+    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
+    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    def test_invalid_electrodes_arg_raises(
+        self,
+        mock_get_cond_name,
+        mock_load_elec_dict,
+        mock_build_comps,
+        mock_sig_chans,
+        mock_make_sig_elecs,
+        mock_create_mne,
+        mock_filter_elecs,
+        mock_run_viz,
+        mock_parallel_cls,
+        mock_compute_stats,
+        mock_plot_acc,
+        mock_debug_cm,
+        mock_context_comps,
+        default_args,
+        condition_comparisons,
+        tmp_save_dir,
+    ):
+        """Setting electrodes to an invalid value should raise ValueError."""
+        default_args.electrodes = 'garbage'
+
+        mock_get_cond_name.return_value = 'bigS_vs_bigH'
+        mock_load_elec_dict.return_value = {'D0079': {'LpFC_1': 'lpfc'}}
+        mock_build_comps.return_value = condition_comparisons
+        mock_sig_chans.return_value = {'D0079': ['LpFC_1']}
+        all_elecs = {'lpfc': {'D0079': ['LpFC_1']}, 'motor': {}}
+        mock_make_sig_elecs.return_value = (all_elecs, all_elecs)
+        mock_create_mne.return_value = {'D0079': MagicMock()}
+
+        from src.analysis.decoding.decoding_dcc import main
+        with pytest.raises(ValueError, match="electrodes input must be set to all or sig"):
+            main(default_args)
