@@ -392,7 +392,6 @@ class TestIntegration:
     @pytest.mark.integration
     def test_full_pipeline_with_real_data(self, stat_func):
         """Test the full pipeline with realistic data structures."""
-        # Create realistic labeled array structure
         from unittest.mock import MagicMock
         
         roi_array = MagicMock()
@@ -418,13 +417,11 @@ class TestIntegration:
             
             # Make predict return predictions that match the test set size dynamically
             def dynamic_predict(X):
-                # Return predictions matching the size of the input
                 n_samples = X.shape[0]
                 return np.array([0, 1] * (n_samples // 2) + [0] * (n_samples % 2))
             
             mock_instance.predict.side_effect = dynamic_predict
             
-            # Unpack the tuple return value
             result, cats_dict, channel_masks = get_confusion_matrix_for_rois_tfr_cluster(
                 roi_labeled_arrays,
                 rois=['lpfc'],
@@ -459,7 +456,6 @@ class TestEdgeCases:
     def test_invalid_balance_method(self, sample_roi_labeled_arrays, mock_decoder, stat_func):
         """Test with invalid balance method."""
         with patch('src.analysis.decoding.decoding.concatenate_and_balance_data_for_decoding') as mock_concat:
-            # Make concatenate_and_balance_data_for_decoding raise an error for invalid method
             mock_concat.side_effect = ValueError("Invalid balance_method")
             
             with pytest.raises(ValueError, match="Invalid balance_method"):
@@ -530,14 +526,12 @@ class TestConcatenateAndBalanceData:
             random_state=42
         )
         
-        # Should remove all NaN trials first
-        assert concatenated_data.shape[0] == 38, "Balancing resulted in an incorrect number of trials"
-        assert np.sum(labels == 0) == 19
-        assert np.sum(labels == 1) == 19
-
-        assert np.any(np.isnan(concatenated_data)), "The partial-NaN trial was incorrectly droped)"
-        
-        # Check cats dictionary
+        # cond1: 20 trials, 2 with NaNs (partial + full) dropped → 18 valid
+        # cond2: 19 trials, all valid → subsampled to 18
+        assert concatenated_data.shape[0] == 36, "Balancing resulted in an incorrect number of trials"
+        assert np.sum(labels == 0) == 18
+        assert np.sum(labels == 1) == 18
+        assert not np.any(np.isnan(concatenated_data)), "All NaN trials should have been removed"
         assert cats == {('cond1',): 0, ('cond2',): 1}
     
     def test_pad_with_nans_method(self, mock_roi_labeled_arrays):
@@ -619,7 +613,6 @@ class TestConcatenateAndBalanceData:
     
     def test_reproducibility_with_random_state(self, mock_roi_labeled_arrays):
         """Test that random_state ensures reproducibility."""
-        # Run twice with same random state
         result1 = concatenate_and_balance_data_for_decoding(
             mock_roi_labeled_arrays,
             roi='roi1',
@@ -638,7 +631,6 @@ class TestConcatenateAndBalanceData:
             random_state=42
         )
         
-        # Should get identical results
         np.testing.assert_array_equal(result1[0], result2[0])  # data
         np.testing.assert_array_equal(result1[1], result2[1])  # labels
         assert result1[2] == result2[2]  # cats
@@ -647,7 +639,6 @@ class TestConcatenateAndBalanceData:
         """Test handling when a condition has all NaN trials."""
         mock_array = MagicMock()
         
-        # Create condition with all NaN trials
         cond1_data = np.full((10, 5, 100), np.nan)
         cond2_data = np.random.randn(10, 5, 100)
         
@@ -669,8 +660,6 @@ class TestConcatenateAndBalanceData:
         )
         
         # Should handle gracefully - cond1 has 0 valid trials
-        # So final data should be empty or raise an appropriate error
-        # This depends on your implementation details
         assert concatenated_data.shape[0] == 0  # No valid data to balance
     
     def test_single_condition(self):
@@ -690,9 +679,8 @@ class TestConcatenateAndBalanceData:
             random_state=42
         )
         
-        # Should return data for single condition
         assert concatenated_data.shape[0] == 10
-        assert np.all(labels == 0)  # All same label
+        assert np.all(labels == 0)
         assert cats == {('cond1',): 0}
  
 
@@ -754,7 +742,6 @@ def _make_fake_bootstrap_result(
         time_averaged_cms[comp_name] = {}
 
         for roi in rois:
-            # Per-window accuracies: shape (n_folds * n_repeats,) per window  OR  (n_repeats,)
             if folds_as_samples:
                 n_samples = n_folds * n_repeats
             else:
@@ -763,7 +750,6 @@ def _make_fake_bootstrap_result(
             fold_accs = np.random.uniform(0.4, 0.8, size=(n_windows, n_samples))
             fold_shuffle_accs = np.random.uniform(0.3, 0.6, size=(n_windows, n_samples))
 
-            # Confusion matrices per window: list of (n_classes, n_classes)
             cms_per_window = [
                 np.random.randint(0, 10, size=(n_classes, n_classes)).astype(float)
                 for _ in range(n_windows)
@@ -777,13 +763,12 @@ def _make_fake_bootstrap_result(
                 'time_window_centers': twc,
                 'fold_true_accs': fold_accs,
                 'fold_shuffle_accs': fold_shuffle_accs,
-                'repeat_true_accs': fold_accs[:, :n_repeats],   # simplified
+                'repeat_true_accs': fold_accs[:, :n_repeats],
                 'repeat_shuffle_accs': fold_shuffle_accs[:, :n_repeats],
                 'cms_per_window': cms_per_window,
                 'shuffle_cms_per_window': shuffle_cms_per_window,
             }
 
-            # Time-averaged CM (raw counts)
             time_averaged_cms[comp_name][roi] = np.random.randint(0, 20, size=(n_classes, n_classes))
 
     return {
@@ -859,6 +844,34 @@ def condition_comparisons():
 
 
 # ---------------------------------------------------------------------------
+# Helper: common mocks for all decoding_dcc.main() tests
+# ---------------------------------------------------------------------------
+# All patches target the name AS IMPORTED in decoding_dcc.py.
+# The module path prefix is 'src.analysis.decoding.decoding_dcc.' for names
+# imported at the top of that file.
+
+_UTILS = 'src.analysis.utils.general_utils'
+_DECODING = 'src.analysis.decoding.decoding'
+_DCC = 'dcc_scripts.decoding.decoding_dcc'  # the script being tested
+
+_COMMON_PATCHES = [
+    f'{_UTILS}.get_conditions_save_name',
+    f'{_UTILS}.load_subjects_electrodes_to_ROIs_dict',
+    f'{_UTILS}.build_condition_comparisons',
+    f'{_UTILS}.get_sig_chans_per_subject',
+    f'{_UTILS}.make_sig_electrodes_per_subject_and_roi_dict',
+    f'{_UTILS}.create_subjects_mne_objects_dict',
+    f'{_UTILS}.filter_electrode_lists_against_subjects_mne_objects',
+    f'{_DCC}.run_visualization_debug',
+    f'{_DCC}.Parallel',
+    f'{_DECODING}.compute_pooled_bootstrap_statistics',
+    f'{_DECODING}.plot_accuracies_nature_style',
+    f'{_DCC}.run_debug_cm_traces',
+    f'{_DCC}.run_all_context_comparisons',
+    f'{_DCC}.run_aggregate_and_plot_time_averaged_cms',
+]
+
+# ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
 
@@ -870,21 +883,24 @@ class TestMainEndToEnd:
     plotting / saving logic runs for real.
     """
 
-    @patch('src.analysis.decoding.run_all_context_comparisons')
-    @patch('src.analysis.decoding.run_debug_cm_traces')
-    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
-    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
-    @patch('src.analysis.decoding.decoding_dcc.Parallel')
-    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
-    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
-    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
-    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
-    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
+    @patch(f'{_DCC}.run_all_context_comparisons')
+    @patch(f'{_DCC}.run_debug_cm_traces')
+    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
+    @patch(f'{_DCC}.Parallel')
+    @patch(f'{_DCC}.run_visualization_debug')
+    @patch(f'{_DCC}.filter_electrode_lists_against_subjects_mne_objects')
+    @patch(f'{_DCC}.create_subjects_mne_objects_dict')
+    @patch(f'{_DCC}.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch(f'{_DCC}.get_sig_chans_per_subject')
+    @patch(f'{_DCC}.build_condition_comparisons')
+    @patch(f'{_DCC}.load_subjects_electrodes_to_ROIs_dict')
+    @patch(f'{_DCC}.get_conditions_save_name')
+    @patch(f'{_DCC}.print_summary_of_dropped_electrodes')
     def test_main_runs_to_completion_and_saves_pickle(
         self,
+        mock_print_summary,
         mock_get_cond_name,
         mock_load_elec_dict,
         mock_build_comps,
@@ -898,6 +914,7 @@ class TestMainEndToEnd:
         mock_plot_acc,
         mock_debug_cm,
         mock_context_comps,
+        mock_agg_cms,
         default_args,
         cats_by_roi,
         condition_comparisons,
@@ -950,14 +967,11 @@ class TestMainEndToEnd:
             for _ in range(default_args.bootstraps)
         ]
 
-        # Parallel(...)(...) should return the list directly
         mock_parallel_instance = MagicMock()
         mock_parallel_instance.__call__ = MagicMock(return_value=fake_results)
-        # joblib.Parallel returns a callable; Parallel(n_jobs=...)(delayed(...) for ...)
         mock_parallel_cls.return_value = mock_parallel_instance
 
         # --- stub pooled statistics ---
-        # Build a realistic stats dict so downstream plotting doesn't crash
         fake_stats = {}
         for comp in condition_comparisons:
             fake_stats[comp] = {}
@@ -982,26 +996,28 @@ class TestMainEndToEnd:
 
         # 2. Parallel bootstrapping invoked with correct count
         mock_parallel_cls.assert_called_once()
-        # The __call__ on the Parallel instance should have been invoked once (the generator expression)
         mock_parallel_instance.assert_called_once()
 
-        # 3. Pooled statistics computed
-        mock_compute_stats.assert_called_once()
-        stats_call_kwargs = mock_compute_stats.call_args
-        assert stats_call_kwargs[0][1] == default_args.bootstraps  # n_bootstraps arg
+        # 3. Aggregation of time-averaged CMs called
+        mock_agg_cms.assert_called_once()
 
-        # 4. Plotting called for each (condition_comparison, roi) pair
+        # 4. Pooled statistics computed
+        mock_compute_stats.assert_called_once()
+        stats_call_args = mock_compute_stats.call_args
+        # Second positional arg is n_bootstraps
+        assert stats_call_args[0][1] == default_args.bootstraps
+
+        # 5. Plotting called for each (condition_comparison, roi) pair
         expected_plot_calls = len(condition_comparisons) * len(rois)
         assert mock_plot_acc.call_count == expected_plot_calls
 
-        # 5. Debug CM traces called
+        # 6. Debug CM traces called
         mock_debug_cm.assert_called_once()
 
-        # 6. Context comparisons called
+        # 7. Context comparisons called
         mock_context_comps.assert_called_once()
 
-        # 7. Master pickle saved
-        # Find the pickle file in the save_dir tree
+        # 8. Master pickle saved
         pkl_files = []
         for root, dirs, files in os.walk(tmp_save_dir):
             pkl_files.extend(
@@ -1018,21 +1034,24 @@ class TestMainEndToEnd:
         assert saved['metadata']['args']['bootstraps'] == default_args.bootstraps
         assert 'time_window_centers' in saved['metadata']
 
-    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
-    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
-    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
-    @patch('src.analysis.decoding.decoding_dcc.Parallel')
-    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
-    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
-    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
-    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
-    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
+    @patch(f'{_DCC}.run_all_context_comparisons')
+    @patch(f'{_DCC}.run_debug_cm_traces')
+    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
+    @patch(f'{_DCC}.Parallel')
+    @patch(f'{_DCC}.run_visualization_debug')
+    @patch(f'{_DCC}.filter_electrode_lists_against_subjects_mne_objects')
+    @patch(f'{_DCC}.create_subjects_mne_objects_dict')
+    @patch(f'{_DCC}.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch(f'{_DCC}.get_sig_chans_per_subject')
+    @patch(f'{_DCC}.build_condition_comparisons')
+    @patch(f'{_DCC}.load_subjects_electrodes_to_ROIs_dict')
+    @patch(f'{_DCC}.get_conditions_save_name')
+    @patch(f'{_DCC}.print_summary_of_dropped_electrodes')
     def test_all_bootstraps_fail_gracefully(
         self,
+        mock_print_summary,
         mock_get_cond_name,
         mock_load_elec_dict,
         mock_build_comps,
@@ -1046,6 +1065,7 @@ class TestMainEndToEnd:
         mock_plot_acc,
         mock_debug_cm,
         mock_context_comps,
+        mock_agg_cms,
         default_args,
         condition_comparisons,
         tmp_save_dir,
@@ -1076,25 +1096,31 @@ class TestMainEndToEnd:
         # Should not raise
         main(default_args)
 
+        # run_aggregate_and_plot_time_averaged_cms IS called (it runs before the early-return check)
+        mock_agg_cms.assert_called_once()
+
         # Statistics and plotting should NOT have been called
         mock_compute_stats.assert_not_called()
         mock_plot_acc.assert_not_called()
 
-    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
-    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
-    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
-    @patch('src.analysis.decoding.decoding_dcc.Parallel')
-    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
-    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
-    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
-    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
-    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
+    @patch(f'{_DCC}.run_all_context_comparisons')
+    @patch(f'{_DCC}.run_debug_cm_traces')
+    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
+    @patch(f'{_DCC}.Parallel')
+    @patch(f'{_DCC}.run_visualization_debug')
+    @patch(f'{_DCC}.filter_electrode_lists_against_subjects_mne_objects')
+    @patch(f'{_DCC}.create_subjects_mne_objects_dict')
+    @patch(f'{_DCC}.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch(f'{_DCC}.get_sig_chans_per_subject')
+    @patch(f'{_DCC}.build_condition_comparisons')
+    @patch(f'{_DCC}.load_subjects_electrodes_to_ROIs_dict')
+    @patch(f'{_DCC}.get_conditions_save_name')
+    @patch(f'{_DCC}.print_summary_of_dropped_electrodes')
     def test_cm_aggregation_is_correct(
         self,
+        mock_print_summary,
         mock_get_cond_name,
         mock_load_elec_dict,
         mock_build_comps,
@@ -1108,6 +1134,7 @@ class TestMainEndToEnd:
         mock_plot_acc,
         mock_debug_cm,
         mock_context_comps,
+        mock_agg_cms,
         default_args,
         cats_by_roi,
         condition_comparisons,
@@ -1116,17 +1143,18 @@ class TestMainEndToEnd:
         """
         Verify the time-averaged CM aggregation logic: raw count CMs from
         each bootstrap are summed then row-normalized.
+        
+        NOTE: The actual aggregation now happens inside 
+        run_aggregate_and_plot_time_averaged_cms(), which we mock. This test
+        verifies the correct data is passed to that function.
         """
         rois = list(default_args.rois_dict.keys())
         comp_name = list(condition_comparisons.keys())[0]
 
-        # Create deterministic CMs so we can check the math
+        # Create deterministic CMs
         cm_boot0 = np.array([[8, 2], [3, 7]])
         cm_boot1 = np.array([[6, 4], [1, 9]])
         cm_boot2 = np.array([[10, 0], [5, 5]])
-        expected_sum = cm_boot0 + cm_boot1 + cm_boot2  # [[24,6],[9,21]]
-        row_sums = expected_sum.sum(axis=1)[:, np.newaxis]
-        expected_normalized = expected_sum / row_sums  # [[0.8,0.2],[0.3,0.7]]
 
         def _make_result_with_cm(cm):
             twc = _make_time_window_centers(5)
@@ -1153,7 +1181,7 @@ class TestMainEndToEnd:
             _make_result_with_cm(cm_boot2),
         ]
 
-        # Wire up mocks (same boilerplate)
+        # Wire up mocks
         mock_get_cond_name.return_value = 'bigS_vs_bigH'
         mock_load_elec_dict.return_value = {'D0079': {'LpFC_1': 'lpfc'}, 'D0080': {'LpFC_1': 'lpfc'}}
         mock_build_comps.return_value = condition_comparisons
@@ -1175,51 +1203,42 @@ class TestMainEndToEnd:
         } for roi in rois}}
         mock_compute_stats.return_value = fake_stats
 
-        # Capture the saved CM images to verify normalization
-        saved_cms = {}
-        original_savefig = __import__('matplotlib.pyplot', fromlist=['savefig']).savefig
+        from src.analysis.decoding.decoding_dcc import main
+        main(default_args)
 
-        import matplotlib.pyplot as _plt
+        # Verify run_aggregate_and_plot_time_averaged_cms received the correct
+        # list of time_averaged_cms (one per bootstrap)
+        mock_agg_cms.assert_called_once()
+        agg_call_args = mock_agg_cms.call_args
+        time_averaged_cms_list_arg = agg_call_args[0][0]  # first positional arg
+        
+        assert len(time_averaged_cms_list_arg) == 3  # 3 bootstraps
+        # Verify the CMs passed match what we created
+        for i, expected_cm in enumerate([cm_boot0, cm_boot1, cm_boot2]):
+            for roi in rois:
+                np.testing.assert_array_equal(
+                    time_averaged_cms_list_arg[i][comp_name][roi],
+                    expected_cm
+                )
 
-        _original_subplots = _plt.subplots
-        _captured_normalized_cms = []
-
-        # We'll check the normalized CM by intercepting ConfusionMatrixDisplay
-        with patch('src.analysis.decoding.decoding_dcc.ConfusionMatrixDisplay') as mock_cmd:
-            mock_disp = MagicMock()
-            mock_cmd.return_value = mock_disp
-            mock_disp.plot.return_value = mock_disp
-
-            from src.analysis.decoding.decoding_dcc import main
-            main(default_args)
-
-            # ConfusionMatrixDisplay was called once per (condition_comparison, roi) pair
-            # that had data. Check the normalized CM passed in.
-            for call_obj in mock_cmd.call_args_list:
-                cm_passed = call_obj[1].get('confusion_matrix', call_obj[0][0] if call_obj[0] else None)
-                if cm_passed is not None:
-                    _captured_normalized_cms.append(cm_passed)
-
-        # Each roi should have the same normalized CM
-        assert len(_captured_normalized_cms) >= 1
-        for cm in _captured_normalized_cms:
-            np.testing.assert_array_almost_equal(cm, expected_normalized, decimal=5)
-
-    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
-    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
-    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
-    @patch('src.analysis.decoding.decoding_dcc.Parallel')
-    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
-    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
-    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
-    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
-    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
+    @patch(f'{_DCC}.run_all_context_comparisons')
+    @patch(f'{_DCC}.run_debug_cm_traces')
+    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
+    @patch(f'{_DCC}.Parallel')
+    @patch(f'{_DCC}.run_visualization_debug')
+    @patch(f'{_DCC}.filter_electrode_lists_against_subjects_mne_objects')
+    @patch(f'{_DCC}.create_subjects_mne_objects_dict')
+    @patch(f'{_DCC}.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch(f'{_DCC}.get_sig_chans_per_subject')
+    @patch(f'{_DCC}.build_condition_comparisons')
+    @patch(f'{_DCC}.load_subjects_electrodes_to_ROIs_dict')
+    @patch(f'{_DCC}.get_conditions_save_name')
+    @patch(f'{_DCC}.print_summary_of_dropped_electrodes')
     def test_sig_electrodes_mode(
         self,
+        mock_print_summary,
         mock_get_cond_name,
         mock_load_elec_dict,
         mock_build_comps,
@@ -1233,6 +1252,7 @@ class TestMainEndToEnd:
         mock_plot_acc,
         mock_debug_cm,
         mock_context_comps,
+        mock_agg_cms,
         default_args,
         cats_by_roi,
         condition_comparisons,
@@ -1290,21 +1310,24 @@ class TestMainEndToEnd:
         assert len(pkl_files) == 1
         assert 'sig_elecs' in pkl_files[0]
 
-    @patch('src.analysis.decoding.decoding_dcc.run_all_context_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.run_debug_cm_traces')
-    @patch('src.analysis.decoding.decoding_dcc.plot_accuracies_nature_style')
-    @patch('src.analysis.decoding.decoding_dcc.compute_pooled_bootstrap_statistics')
-    @patch('src.analysis.decoding.decoding_dcc.Parallel')
-    @patch('src.analysis.decoding.decoding_dcc.run_visualization_debug')
-    @patch('src.analysis.decoding.decoding_dcc.filter_electrode_lists_against_subjects_mne_objects')
-    @patch('src.analysis.decoding.decoding_dcc.create_subjects_mne_objects_dict')
-    @patch('src.analysis.decoding.decoding_dcc.make_sig_electrodes_per_subject_and_roi_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_sig_chans_per_subject')
-    @patch('src.analysis.decoding.decoding_dcc.build_condition_comparisons')
-    @patch('src.analysis.decoding.decoding_dcc.load_subjects_electrodes_to_ROIs_dict')
-    @patch('src.analysis.decoding.decoding_dcc.get_conditions_save_name')
+    @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
+    @patch(f'{_DCC}.run_all_context_comparisons')
+    @patch(f'{_DCC}.run_debug_cm_traces')
+    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
+    @patch(f'{_DCC}.Parallel')
+    @patch(f'{_DCC}.run_visualization_debug')
+    @patch(f'{_DCC}.filter_electrode_lists_against_subjects_mne_objects')
+    @patch(f'{_DCC}.create_subjects_mne_objects_dict')
+    @patch(f'{_DCC}.make_sig_electrodes_per_subject_and_roi_dict')
+    @patch(f'{_DCC}.get_sig_chans_per_subject')
+    @patch(f'{_DCC}.build_condition_comparisons')
+    @patch(f'{_DCC}.load_subjects_electrodes_to_ROIs_dict')
+    @patch(f'{_DCC}.get_conditions_save_name')
+    @patch(f'{_DCC}.print_summary_of_dropped_electrodes')
     def test_invalid_electrodes_arg_raises(
         self,
+        mock_print_summary,
         mock_get_cond_name,
         mock_load_elec_dict,
         mock_build_comps,
@@ -1318,6 +1341,7 @@ class TestMainEndToEnd:
         mock_plot_acc,
         mock_debug_cm,
         mock_context_comps,
+        mock_agg_cms,
         default_args,
         condition_comparisons,
         tmp_save_dir,

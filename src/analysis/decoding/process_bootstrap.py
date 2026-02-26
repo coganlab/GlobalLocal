@@ -277,6 +277,39 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             ('switchType_pooled_shuffle',
              [['s25', 's75'], ['r25', 'r75']])
         )
+    elif args.conditions == experiment_conditions.stimulus_congruency_blockA_conditions:
+        pooled_settings_list.append(
+            ('congruency_blockA_shuffle', [['Stimulus_c'], ['Stimulus_i']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_congruency_blockB_conditions:
+        pooled_settings_list.append(
+            ('congruency_blockB_shuffle', [['Stimulus_c'], ['Stimulus_i']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_congruency_blockC_conditions:
+        pooled_settings_list.append(
+            ('congruency_blockC_shuffle', [['Stimulus_c'], ['Stimulus_i']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_congruency_blockD_conditions:
+        pooled_settings_list.append(
+            ('congruency_blockD_shuffle', [['Stimulus_c'], ['Stimulus_i']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_switchType_blockA_conditions:
+        pooled_settings_list.append(
+            ('switchType_blockA_shuffle', [['Stimulus_s'], ['Stimulus_r']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_switchType_blockB_conditions:
+        pooled_settings_list.append(
+            ('switchType_blockB_shuffle', [['Stimulus_s'], ['Stimulus_r']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_switchType_blockC_conditions:
+        pooled_settings_list.append(
+            ('switchType_blockC_shuffle', [['Stimulus_s'], ['Stimulus_r']])
+        )
+    elif args.conditions == experiment_conditions.stimulus_switchType_blockD_conditions:
+        pooled_settings_list.append(
+            ('switchType_blockD_shuffle', [['Stimulus_s'], ['Stimulus_r']])
+        )
+    
 
     # 2. Execute logic for ALL pooled settings
     for pooled_settings in pooled_settings_list:

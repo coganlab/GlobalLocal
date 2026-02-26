@@ -107,7 +107,7 @@ def main(args):
     subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
-    conditions_save_name = get_conditions_save_name(args.conditions, experiment_conditions, len(args.subjects)) # apparently this isn't even used and can be deleted along with its import...2/26/26. But still make sure to update it as you add new conditions.
+    conditions_save_name = args.condition_label # apparently this isn't even used and can be deleted...2/26/26. But still make sure to update get_conditions_save_name as you add new conditions.
     
     save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
