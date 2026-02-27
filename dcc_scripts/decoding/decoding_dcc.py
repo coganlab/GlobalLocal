@@ -32,6 +32,7 @@ from joblib import Parallel, delayed
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import get_comparisons
 
 from src.analysis.utils.general_utils import (
     make_or_load_subjects_electrodes_to_ROIs_dict,
@@ -44,7 +45,6 @@ from src.analysis.utils.general_utils import (
     print_summary_of_dropped_electrodes,
     get_conditions_save_name,
     get_default_LAB_root,
-    build_condition_comparisons,
     get_sig_chans_per_subject,
     make_sig_electrodes_per_subject_and_roi_dict,
 )
@@ -82,6 +82,7 @@ from src.analysis.decoding.decoding import (
     plot_cross_block_overlay,
 )
 
+
 from src.analysis.decoding.process_bootstrap import process_bootstrap
 from src.analysis.decoding.run_visualization_debug import run_visualization_debug
 from src.analysis.decoding.run_debug_cm_traces import run_debug_cm_traces
@@ -89,8 +90,8 @@ from src.analysis.decoding.run_aggregate_and_plot_time_averaged_cms import run_a
 from src.analysis.decoding.run_context_comparisons import run_all_context_comparisons
 '''
 when adding a new condition to decoding - 
-1. update get_conditions_save_name and build_condition_comparisons in src/analysis/utils/general_utils.py. 
-2. update src/analysis/decoding/process_bootstrap.py for the pooled_conditions. 
+1. update config/condition_registry.py and get_conditions_save_name in src/analysis/utils/general_utils.py 
+update get_conditions_save_name and build_condition_comparisons in 
 3. update src/analysis/decoding/run_visualization_debug.py for the new condition.
 4. update src/analysis/decoding/run_context_comparisons.py to include the new condition and comparisons if you want to compare both true vs. true and true vs. shuffle.
 
@@ -139,7 +140,7 @@ def main(args):
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
     
-    condition_comparisons = build_condition_comparisons(args.conditions, experiment_conditions) # make sure to edit this function as you add new condition comparisons
+    condition_comparisons = get_comparisons(args.conditions)
  
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25

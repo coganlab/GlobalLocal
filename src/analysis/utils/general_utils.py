@@ -42,6 +42,7 @@ from numpy.lib.stride_tricks import as_strided, sliding_window_view
 
 from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import CONDITION_REGISTRY
+from src.analysis.config.condition_registry import get_comparisons
 
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.
@@ -2107,167 +2108,15 @@ def get_conditions_save_name(conditions, experiment_conditions, n_subjects):
     str
         The save name string.
     """
-    # Mapping the experiment_conditions objects to their base string names
-    CONDITIONS_MAP = [
-        # Stimulus Conditions
-        (experiment_conditions.stimulus_conditions, 'stimulus_conditions'),
-        (experiment_conditions.stimulus_main_effect_conditions, 'stimulus_main_effect_conditions'),
-        (experiment_conditions.stimulus_experiment_conditions, 'stimulus_experiment_conditions'),
-        (experiment_conditions.stimulus_lwpc_conditions, 'stimulus_lwpc_conditions'),
-        (experiment_conditions.stimulus_lwps_conditions, 'stimulus_lwps_conditions'),
-        (experiment_conditions.stimulus_big_letter_conditions, 'stimulus_big_letter_conditions'),
-        (experiment_conditions.stimulus_small_letter_conditions, 'stimulus_small_letter_conditions'),
-        (experiment_conditions.stimulus_task_conditions, 'stimulus_task_conditions'),
-        (experiment_conditions.stimulus_congruency_conditions, 'stimulus_congruency_conditions'),
-        (experiment_conditions.stimulus_switch_type_conditions, 'stimulus_switch_type_conditions'),
-        (experiment_conditions.stimulus_err_corr_conditions, 'stimulus_err_corr_conditions'),
-        (experiment_conditions.stimulus_congruency_by_switch_proportion_conditions, 'stimulus_congruency_by_switch_proportion_conditions'),
-        (experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions, 'stimulus_switch_type_by_congruency_proportion_conditions'),
-        (experiment_conditions.stimulus_iR_cS_err_conditions, 'stimulus_iR_cS_err_conditions'),
-        (experiment_conditions.stimulus_task_by_congruency_conditions, 'stimulus_task_by_congruency_conditions'),
-        (experiment_conditions.stimulus_task_by_switch_type_conditions, 'stimulus_task_by_switch_type_conditions'),
-        (experiment_conditions.stimulus_task_by_congruency_proportion_conditions, 'stimulus_task_by_congruency_proportion_conditions'),
-        (experiment_conditions.stimulus_task_by_switch_proportion_conditions, 'stimulus_task_by_switch_proportion_conditions'),
-        
-        # Response Conditions
-        (experiment_conditions.response_conditions, 'response_conditions'),
-        (experiment_conditions.response_experiment_conditions, 'response_experiment_conditions'),
-        (experiment_conditions.response_big_letter_conditions, 'response_big_letter_conditions'),
-        (experiment_conditions.response_small_letter_conditions, 'response_small_letter_conditions'),
-        (experiment_conditions.response_task_conditions, 'response_task_conditions'),
-        (experiment_conditions.response_congruency_conditions, 'response_congruency_conditions'),
-        (experiment_conditions.response_switch_type_conditions, 'response_switch_type_conditions'),
-        (experiment_conditions.response_err_corr_conditions, 'response_err_corr_conditions'),
-        (experiment_conditions.response_congruency_by_switch_proportion_conditions, 'response_congruency_by_switch_proportion_conditions'),
-        (experiment_conditions.response_switch_type_by_congruency_proportion_conditions, 'response_switch_type_by_congruency_proportion_conditions'),
-        (experiment_conditions.response_iR_cS_err_conditions, 'response_iR_cS_err_conditions')
-    ]
-
-    """Map a conditions object to its save name string."""
-    for cond, name in CONDITIONS_MAP:
-        if conditions == cond:
-            return f"{name}_{n_subjects}_subjects"
+    for key, entry in CONDITION_REGISTRY.items():
+        if conditions == entry['conditions_obj']:
+            return f"{key}_{n_subjects}_subjects"
 
     raise ValueError(f"Unknown conditions object: {conditions}")
-
-def build_condition_comparisons(conditions, experiment_conditions):
+    
+def build_condition_comparisons(conditions, experiment_conditions=None):
     """
     Return the condition_comparisons dict for a given conditions object.
     This is primarily for setting up decoding comparisons.
-    """
-    
-    # 1. Basic Stimulus & Task Comparisons
-    if conditions == experiment_conditions.stimulus_conditions:
-        return {
-            'BigLetter': ['bigS', 'bigH'],
-            'SmallLetter': ['smallS', 'smallH'],
-            'Task': ['taskG', 'taskL']
-        }
-    elif conditions == experiment_conditions.stimulus_big_letter_conditions:
-        return {'BigLetter': ['bigS', 'bigH']}
-    elif conditions == experiment_conditions.stimulus_small_letter_conditions:
-        return {'SmallLetter': ['smallS', 'smallH']}
-    elif conditions == experiment_conditions.stimulus_task_conditions:
-        return {'Task': ['taskG', 'taskL']}
-
-    # 2. Congruency, Switch, and Error Comparisons
-    elif conditions == experiment_conditions.stimulus_congruency_conditions:
-        return {'congruency': [['Stimulus_c'], ['Stimulus_i']]}
-    elif conditions == experiment_conditions.stimulus_switch_type_conditions:
-        return {'switchType': [['Stimulus_r'], ['Stimulus_s']]}
-    elif conditions == experiment_conditions.stimulus_err_corr_conditions:
-        return {'err_vs_corr': [['Stimulus_err'], ['Stimulus_corr']]}
-    elif conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
-        return {'iR_err_vs_cS_err': [['Stimulus_err_iR'], ['Stimulus_err_cS']]}
-
-    # 3. LWPC / LWPS (List-Wide Proportions)
-    elif conditions == experiment_conditions.stimulus_lwpc_conditions:
-        return {
-            'c25_vs_i25': ['c25', 'i25'],
-            'c75_vs_i75': ['c75', 'i75'],
-            'c25_vs_i75': ['c25', 'i75'],
-            'c75_vs_i25': ['c75', 'i25'],
-            'c25_vs_c75': ['c25', 'c75'],
-            'i25_vs_i75': ['i25', 'i75']
-        }
-    elif conditions == experiment_conditions.stimulus_lwps_conditions:
-        return {
-            's25_vs_r25': ['s25', 'r25'],
-            's75_vs_r75': ['s75', 'r75'],
-            's25_vs_r75': ['s25', 'r75'],
-            's75_vs_r25': ['s75', 'r25'],
-            's25_vs_s75': ['s25', 's75'],
-            'r25_vs_r75': ['r25', 'r75']
-        }
-
-    # 4. Interaction: Task by Congruency / Switch
-    elif conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
-        return {
-            'c_taskG_vs_c_taskL': ['Stimulus_c_taskG', 'Stimulus_c_taskL'],
-            'i_taskG_vs_i_taskL': ['Stimulus_i_taskG', 'Stimulus_i_taskL'],
-            'c_taskG_vs_i_taskG': ['Stimulus_c_taskG', 'Stimulus_i_taskG'],
-            'c_taskL_vs_i_taskL': ['Stimulus_c_taskL', 'Stimulus_i_taskL']
-        }
-    elif conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
-        return {
-            'r_taskG_vs_r_taskL': ['Stimulus_r_taskG', 'Stimulus_r_taskL'],
-            's_taskG_vs_s_taskL': ['Stimulus_s_taskG', 'Stimulus_s_taskL'],
-            'r_taskG_vs_s_taskG': ['Stimulus_r_taskG', 'Stimulus_s_taskG'],
-            'r_taskL_vs_s_taskL': ['Stimulus_r_taskL', 'Stimulus_s_taskL']
-        }
-
-    # 5. Proportion Interactions (Congruency/Switch by Block Proportion)
-    elif conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        return {
-            'c_in_25switchBlock_vs_i_in_25switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_25switchBlock'],
-            'c_in_75switchBlock_vs_i_in_75switchBlock': ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_75switchBlock'],
-            'c_in_25switchBlock_vs_i_in_75switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_i_in_75switchBlock'],
-            'c_in_75switchBlock_vs_i_in_25switchBlock': ['Stimulus_c_in_75switchBlock', 'Stimulus_i_in_25switchBlock'],
-            'c_in_25switchBlock_vs_c_in_75switchBlock': ['Stimulus_c_in_25switchBlock', 'Stimulus_c_in_75switchBlock'],
-            'i_in_25switchBlock_vs_i_in_75switchBlock': ['Stimulus_i_in_25switchBlock', 'Stimulus_i_in_75switchBlock']
-        }
-    elif conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        return {
-            's_in_25incongruentBlock_vs_r_in_25incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_25incongruentBlock'],
-            's_in_75incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_75incongruentBlock'],
-            's_in_25incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock'],
-            's_in_75incongruentBlock_vs_r_in_25incongruentBlock': ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_25incongruentBlock'],
-            's_in_25incongruentBlock_vs_s_in_75incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_s_in_75incongruentBlock'],
-            'r_in_25incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_r_in_25incongruentBlock', 'Stimulus_r_in_75incongruentBlock']
-        }
-
-    # 6. Task by Proportion Blocks
-    elif conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
-        return {
-            'taskG_in_25incongruentBlock_vs_taskG_in_75incongruentBlock': ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock'],
-            'taskL_in_25incongruentBlock_vs_taskL_in_75incongruentBlock': ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock'],
-            'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskL_in_25incongruentBlock'],
-            'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': ['Stimulus_taskG_in_75incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock']
-        }
-    elif conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
-        return {
-            'taskG_in_25switchBlock_vs_taskG_in_75switchBlock': ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskG_in_75switchBlock'],
-            'taskL_in_25switchBlock_vs_taskL_in_75switchBlock': ['Stimulus_taskL_in_25switchBlock', 'Stimulus_taskL_in_75switchBlock'],
-            'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': ['Stimulus_taskG_in_25switchBlock', 'Stimulus_taskL_in_25switchBlock'],
-            'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': ['Stimulus_taskG_in_75switchBlock', 'Stimulus_taskL_in_75switchBlock']
-        }
-
-    # 7. Block-specific Congruency and Switch Type
-    elif conditions == experiment_conditions.stimulus_congruency_blockA_conditions:
-        return {'Stimulus_c_blockA_vs_Stimulus_i_blockA': ['Stimulus_c_blockA', 'Stimulus_i_blockA']}
-    elif conditions == experiment_conditions.stimulus_congruency_blockB_conditions:
-        return {'Stimulus_c_blockB_vs_Stimulus_i_blockB': ['Stimulus_c_blockB', 'Stimulus_i_blockB']}
-    elif conditions == experiment_conditions.stimulus_congruency_blockC_conditions:
-        return {'Stimulus_c_blockC_vs_Stimulus_i_blockC': ['Stimulus_c_blockC', 'Stimulus_i_blockC']}
-    elif conditions == experiment_conditions.stimulus_congruency_blockD_conditions:
-        return {'Stimulus_c_blockD_vs_Stimulus_i_blockD': ['Stimulus_c_blockD', 'Stimulus_i_blockD']}
-    elif conditions == experiment_conditions.stimulus_switchType_blockA_conditions:
-        return {'Stimulus_s_blockA_vs_Stimulus_r_blockA': ['Stimulus_s_blockA', 'Stimulus_r_blockA']}
-    elif conditions == experiment_conditions.stimulus_switchType_blockB_conditions:
-        return {'Stimulus_s_blockB_vs_Stimulus_r_blockB': ['Stimulus_s_blockB', 'Stimulus_r_blockB']}
-    elif conditions == experiment_conditions.stimulus_switchType_blockC_conditions:
-        return {'Stimulus_s_blockC_vs_Stimulus_r_blockC': ['Stimulus_s_blockC', 'Stimulus_r_blockC']}
-    elif conditions == experiment_conditions.stimulus_switchType_blockD_conditions:
-        return {'Stimulus_s_blockD_vs_Stimulus_r_blockD': ['Stimulus_s_blockD', 'Stimulus_r_blockD']}
-    
-    raise ValueError(f"No comparisons defined for {conditions}")
+    """    
+    return get_comparisons(conditions)

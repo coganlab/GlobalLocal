@@ -520,7 +520,61 @@ CONDITION_REGISTRY = {
             },
         ],
     },
+    
+    # =========================================================================
+    # 10. Main Effects (just names, no comparisons)
+    # =========================================================================
+    'stimulus_main_effect_conditions': {
+        'conditions_obj': experiment_conditions.stimulus_main_effect_conditions,
+        'comparisons': {},
+    },
+    'response_conditions': {
+        'conditions_obj': experiment_conditions.response_conditions,
+        'comparisons': {},
+    },
+    'response_experiment_conditions': {
+        'conditions_obj': experiment_conditions.response_experiment_conditions,
+        'comparisons': {},
+    },
+    'response_big_letter_conditions': {
+        'conditions_obj': experiment_conditions.response_big_letter_conditions,
+        'comparisons': {},
+    },
+    'response_small_letter_conditions': {
+        'conditions_obj': experiment_conditions.response_small_letter_conditions,
+        'comparisons': {},
+    },
+    'response_task_conditions': {
+        'conditions_obj': experiment_conditions.response_task_conditions,
+        'comparisons': {},
+    },
+    'response_congruency_conditions': {
+        'conditions_obj': experiment_conditions.response_congruency_conditions,
+        'comparisons': {},
+    },
+    'response_switch_type_conditions': {
+        'conditions_obj': experiment_conditions.response_switch_type_conditions,
+        'comparisons': {},
+    },
+    'response_err_corr_conditions': {
+        'conditions_obj': experiment_conditions.response_err_corr_conditions,
+        'comparisons': {},
+    },
+    'response_congruency_by_switch_proportion_conditions': {
+        'conditions_obj': experiment_conditions.response_congruency_by_switch_proportion_conditions,
+        'comparisons': {},
+    },
+    'response_switch_type_by_congruency_proportion_conditions': {
+        'conditions_obj': experiment_conditions.response_switch_type_by_congruency_proportion_conditions,
+        'comparisons': {},
+    },
+    'response_iR_cS_err_conditions': {
+        'conditions_obj': experiment_conditions.response_iR_cS_err_conditions,
+        'comparisons': {},
+    }
+
 }
+
 
 
 # =============================================================================

@@ -36,6 +36,8 @@ if project_root not in sys.path:
 
 import numpy as np
 from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import get_pooled_shuffle_settings
+
 from src.analysis.utils.labeled_array_utils import (
     make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel,
     concatenate_conditions_by_string,
@@ -46,6 +48,7 @@ from src.analysis.decoding.decoding import (
     get_time_averaged_confusion_matrix,
     make_pooled_shuffle_distribution,
 )
+
 
 def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, random_state):
     """
@@ -216,100 +219,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
     # 1. Determine configuration based on experiment conditions - make sure to update this as you add more conditions
     # pooled_settings is now a LIST of (key, strings_to_find) tuples
-    pooled_settings_list = []
-
-    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        pooled_settings_list.append(
-            ('lwpc_shuffle_accs_across_pooled_conditions',
-             [['c25', 'c75'], ['i25', 'i75']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
-        pooled_settings_list.append(
-            ('lwps_shuffle_accs_across_pooled_conditions',
-             [['s25', 's75'], ['r25', 'r75']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        pooled_settings_list.append(
-            ('congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions',
-             [['c_in'], ['i_in']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        pooled_settings_list.append(
-            ('switch_type_by_congruency_shuffle_accs_across_pooled_conditions',
-             [['s_in'], ['r_in']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
-        pooled_settings_list.append(
-            ('task_by_congruency_shuffle_accs_across_pooled_conditions',
-             [['taskG'], ['taskL']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
-        pooled_settings_list.append(
-            ('task_by_switch_type_shuffle_accs_across_pooled_conditions',
-             [['taskG'], ['taskL']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
-        pooled_settings_list.append(
-            ('task_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
-             [['taskG'], ['taskL']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
-        pooled_settings_list.append(
-            ('task_by_switch_proportion_shuffle_accs_across_pooled_conditions',
-             [['taskG'], ['taskL']])
-        )
-
-    elif args.conditions == experiment_conditions.stimulus_experiment_conditions:
-        # Pooled congruency shuffle: all congruent vs all incongruent across blocks
-        pooled_settings_list.append(
-            ('congruency_pooled_shuffle',
-             [['c25', 'c75'], ['i25', 'i75']])
-        )
-        # Pooled switch type shuffle: all switch vs all repeat across blocks
-        pooled_settings_list.append(
-            ('switchType_pooled_shuffle',
-             [['s25', 's75'], ['r25', 'r75']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_congruency_blockA_conditions:
-        pooled_settings_list.append(
-            ('congruency_blockA_shuffle', [['Stimulus_c'], ['Stimulus_i']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_congruency_blockB_conditions:
-        pooled_settings_list.append(
-            ('congruency_blockB_shuffle', [['Stimulus_c'], ['Stimulus_i']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_congruency_blockC_conditions:
-        pooled_settings_list.append(
-            ('congruency_blockC_shuffle', [['Stimulus_c'], ['Stimulus_i']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_congruency_blockD_conditions:
-        pooled_settings_list.append(
-            ('congruency_blockD_shuffle', [['Stimulus_c'], ['Stimulus_i']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_switchType_blockA_conditions:
-        pooled_settings_list.append(
-            ('switchType_blockA_shuffle', [['Stimulus_s'], ['Stimulus_r']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_switchType_blockB_conditions:
-        pooled_settings_list.append(
-            ('switchType_blockB_shuffle', [['Stimulus_s'], ['Stimulus_r']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_switchType_blockC_conditions:
-        pooled_settings_list.append(
-            ('switchType_blockC_shuffle', [['Stimulus_s'], ['Stimulus_r']])
-        )
-    elif args.conditions == experiment_conditions.stimulus_switchType_blockD_conditions:
-        pooled_settings_list.append(
-            ('switchType_blockD_shuffle', [['Stimulus_s'], ['Stimulus_r']])
-        )
-    
+    pooled_settings_list = get_pooled_shuffle_settings(args.conditions)
 
     # 2. Execute logic for ALL pooled settings
     for pooled_settings in pooled_settings_list:
