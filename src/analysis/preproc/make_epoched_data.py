@@ -55,6 +55,7 @@ import pickle
 from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean
+from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 
 # Add this fixed version of crop_empty_data at the top of your script, after the imports
 def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s"):
@@ -301,6 +302,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         }
 
         qc_filepath = os.path.join(save_dir, f"{sub}_channel_qc_summary.json")
+        print(f"DEBUG: qc_filepath = '{qc_filepath}'")
         with open(qc_filepath, "w") as f:
             json.dump(qc_summary, f, indent=4)
 
@@ -356,7 +358,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         times_adj = [times[0] - pad_length, times[1] + pad_length]
         
         trials = trial_ieeg(good, event, times_adj, preload=True, reject_by_annotation=False)
-        
+        trials.metadata = make_metadata_from_event_names(trials) # add metadata so we can grab specific trial types later. Untested 2/5/26.
+        trials.metadata = add_previous_trial_info(trials.metadata)
+
         if outlier_policy == 'drop':
             trials.drop_channels(channels_to_drop, on_missing='ignore')
         elif outlier_policy == 'nan':
@@ -378,7 +382,6 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
         crop_pad(HG_ev1, pad_length_string)
         HG_ev1.decimate(dec_factor)
-
         # Square the data to get power from amplitude
         HG_ev1_power = HG_ev1.copy()
         HG_ev1_power._data = HG_ev1._data ** 2 # Square amplitude to get power
@@ -399,7 +402,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         # Save HG_ev1
         HG_ev1.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1-epo.fif', overwrite=True)
+        HG_ev1.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_metadata.csv', index=False)
+        
         HG_ev1_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power-epo.fif', overwrite=True)
+        HG_ev1_power.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_metadata.csv', index=False)
 
         # Save HG_base (the shuffled version)
         HG_base.save(f'{save_dir}/{sub}_{output_name_event}_HG_base-epo.fif', overwrite=True)
@@ -407,12 +413,15 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         # Save HG_ev1_rescaled
         HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
+        HG_ev1_rescaled.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled_metadata.csv', index=False)
+
         HG_ev1_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled-epo.fif', overwrite=True)
+        HG_ev1_power_rescaled.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_rescaled_metadata.csv', index=False)
 
         # Save HG_ev1_evoke
         HG_ev1_evoke.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke-ave.fif', overwrite=True)
         HG_ev1_evoke_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power-ave.fif', overwrite=True)
-        
+
         # Save HG_ev1_evoke_rescaled
         HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_rescaled-ave.fif', overwrite=True)
         HG_ev1_evoke_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power_rescaled-ave.fif', overwrite=True)
@@ -445,12 +454,12 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_nan', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', outliers=10, threshold_percent=5.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134', 'D0137']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
@@ -473,7 +482,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
-    parser.add_argument('--threshold_percent', type=float, default=2.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
+    parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False, nan_policy='omit'), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()

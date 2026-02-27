@@ -32,8 +32,8 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
                                             impute_trial_nans_by_channel_mean, \
                                             create_subjects_mne_objects_dict, \
                                             filter_electrode_lists_against_subjects_mne_objects, \
-                                            find_difference_between_two_electrode_lists,
-                                            windower
+                                            find_difference_between_two_electrode_lists
+                                            
                                             
 #to save print statements while on cluster
 # PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
@@ -1008,3 +1008,4 @@ def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
                 corrected_results[window].append(info)
     
     return corrected_results
+

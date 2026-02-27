@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 219, in run_analysis
+    main(args)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 143, in main
+    layout = get_data(args.task, root=LAB_root)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 366, in get_data
+    assert len(ordered) > 0, FileNotFoundError(
+           ^^^^^^^^^^^^^^^^
+AssertionError: Could not find BIDS directory in /hpc/home/etb28/coganlab for task GlobalLocal

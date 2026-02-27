@@ -1,0 +1,3584 @@
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+
+WARNING: Keras package is not installed. You will be unable to useall neural net decoders
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+Conditions:        ['Stimulus_i25s25', 'Stimulus_i25s75', 'Stimulus_i75s25', 'Stimulus_i75s75', 'Stimulus_i25r25', 'Stimulus_i25r75', 'Stimulus_i75r25', 'Stimulus_i75r75', 'Stimulus_c25s25', 'Stimulus_c25s75', 'Stimulus_c75s25', 'Stimulus_c75s75', 'Stimulus_c25r25', 'Stimulus_c25r75', 'Stimulus_c75r25', 'Stimulus_c75r75']
+ROIs:              ['lpfc']
+Epochs file:       Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       all
+Explained variance: 0.9
+Balance method:     subsample
+Obs axs:            0
+Chans axs:          1
+Time axs:           -1
+----------------------------------------------------------------------
+Decoding Parameters:
+Classifier Model:   LDA
+  CV Splits/Repeats: 5/5
+  Balance Method:    subsample
+  Explained Variance:0.9
+  Window/Step (samp):64/16
+  Sampling Rate (Hz):256
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.025
+  P cluster: 0.025
+  Stat Func: ttest_ind
+  Permutation Type: independent
+ unit of analysis for stats (bootstrap, repeat, or fold): repeat
+Percentile Statistical Parameters:
+  Percentile: 95
+  Cluster Percentile: 95
+  N Cluster Perms: 200
+======================================================================
+======================================================================
+plotting params
+ single column figure: True
+ show legend: False
+ run visualization debugging of first two PCs and decision boundary: True
+======================================================================
+
+Starting analysis...
+LAB_root:  /cwork/jz421
+Loaded data from /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+Save directory created or already exists at: /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/decoding/figs/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Loaded significant channels for subject D0057
+Loaded significant channels for subject D0059
+Loaded significant channels for subject D0063
+Loaded significant channels for subject D0069
+Loaded significant channels for subject D0071
+Loaded significant channels for subject D0077
+Loaded significant channels for subject D0090
+Loaded significant channels for subject D0094
+Loaded significant channels for subject D0100
+Loaded significant channels for subject D0102
+Loaded significant channels for subject D0103
+Loaded significant channels for subject D0107A
+Loaded significant channels for subject D0110
+Loaded significant channels for subject D0116
+Loaded significant channels for subject D0117
+Loaded significant channels for subject D0121
+Loaded significant channels for subject D0130
+Loaded significant channels for subject D0133
+Loaded significant channels for subject D0134
+For subject D0057, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RAI6', 'RAI12', 'RAI13', 'RAI14', 'RAI15', 'RAI16', 'RPI15', 'RPI14', 'RAMF10', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RAIF11', 'RAIF12', 'RAIF13', 'RAIF14']
+For subject D0059, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+For subject D0063, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LASF11', 'LASF14', 'LASF15', 'LASF16', 'LMSF5', 'LMSF6', 'LMSF12', 'LPSF10', 'LPSF12', 'ROF16', 'RAI16', 'RAMF11', 'RAMF12', 'RAMF13', 'RAMF14', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RAI5', 'RAI10', 'RAI11', 'RASF15', 'RASF16', 'RMSF8', 'RMSF9', 'RMSF10', 'RMSF11', 'RMSF12', 'RMSF7', 'RAMF8', 'RAMF9', 'RAMF10', 'RMMF9', 'RMMF10']
+For subject D0065, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RASF13', 'RASF14', 'RASF15', 'RASF16', 'RMSF11', 'RMSF12', 'RMSF13', 'RMSF14', 'RI7']
+For subject D0069, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LOF8']
+For subject D0071, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA14', 'RIA16', 'RIP14', 'RIP15', 'RIP16']
+For subject D0077, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0090, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO15', 'RIA6', 'RIA11', 'RIA12', 'RIA14', 'RIA15', 'RIA16', 'RIP7']
+For subject D0094, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFO12', 'LFO13', 'LFO15', 'LFO16', 'LFAM8', 'LFAM9', 'LFAM10', 'LFAM13', 'LFAM14', 'LFPM10', 'LFPM11', 'LFPM12', 'LPAS1', 'LIA16', 'LFAI3', 'LFAI4', 'LFAI5', 'LFPI10', 'LPAI9', 'LPAI10', 'LIA4', 'LIA5', 'LFAI9', 'LFAI10', 'LIA11', 'LIA12', 'LIA13', 'LIA14']
+For subject D0100, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: []
+For subject D0102, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFO13', 'RFO14', 'RFAM15', 'RFAI2', 'RFAI3']
+For subject D0103, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LFAM15', 'LAI4', 'LAI7', 'LAI8', 'LAI18', 'LFO15', 'LFAI4']
+For subject D0107A, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RFOA16', 'RFOA17', 'RFOA18', 'RFAI3', 'RIA5', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM11', 'RFMM12', 'RFMM13', 'RFMM14', 'RFMM15', 'RFMM8', 'RIA12', 'RIA13', 'RIA14', 'RIA15', 'RIA16', 'RIA17', 'RIA18']
+For subject D0110, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LASF10', 'LOF13', 'LOF15', 'LINS4', 'LINS5']
+For subject D0116, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA14', 'LFOA17', 'LFOA18', 'LFOP15', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'LFMI5', 'LFMI6', 'RFOA14', 'RFOA15', 'RFOA16', 'RFOP15', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI14', 'RAI15', 'RAI16', 'RAI17', 'RFMI4']
+For subject D0117, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['RMOF15', 'RINSA15', 'RINSA16', 'RLOF10', 'RLOF11', 'RLOF16', 'RINSA3', 'RINSA11', 'RINSA12', 'RINSA13', 'RINSA14']
+For subject D0121, G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes are: ['LFOA15', 'LFOP12', 'LFO5', 'LFO6', 'LFO8', 'LFO9', 'LFO12', 'LFO13', 'LFO14', 'LFO15', 'LFO16', 'LFO17', 'LFO18', 'LFA1', 'LFA2', 'LFP16', 'LFP17', 'LFPS1', 'LFPS2', 'LFPP1', 'LFOP13', 'LFOP15', 'LFOP16', 'LFOP18', 'LFA7', 'LFA8', 'LFAS6', 'LFAM8', 'LFAM9', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFAM10', 'LFAM11', 'LFAM12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFAS7', 'LFAS8', 'LFAS9', 'LFAS10', 'LFMS7', 'LFMS9', 'LFMS10', 'LFMS11', 'LFMS12', 'LFPS6', 'LFPS7', 'LFPS9', 'LFPS10', 'LFPP7', 'LFPP9', 'LFPP10', 'LFMI4', 'LFMI5', 'LFMI8', 'LFMI9']
+Subject D0057 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RAI6', 'RPI15', 'RPI14', 'RAMF12', 'RAMF13', 'RAMF14']
+Subject D0059 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMMF9', 'LMMF11', 'LMMF10', 'LMMF12', 'LPSF16']
+Subject D0063 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LMSF5', 'LPSF12', 'RMMF13', 'RMMF14', 'RAI4', 'RAI6', 'RMMF10']
+Subject D0065 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0069 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0071 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO14', 'RFO16', 'RIA4', 'RIP6', 'RIA5', 'RIA11', 'RIA12', 'RIA13', 'RIA16', 'RIP16']
+Subject D0077 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0090 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RIA6', 'RIA11']
+Subject D0094 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LFAM10', 'LFPM10', 'LFPM11', 'LFPM12', 'LFPI10', 'LPAI10', 'LFAI9', 'LFAI10', 'LIA11']
+Subject D0100 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: []
+Subject D0102 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFO13', 'RFO14', 'RFAM15']
+Subject D0103 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFAM8', 'LFAM9', 'LAI13', 'LAI14', 'LAI4', 'LAI7', 'LAI8', 'LFAI4']
+Subject D0107A significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RFOA16', 'RFAI3', 'RIA6', 'RFAM7', 'RFAM9', 'RFAM10', 'RFAM11', 'RFAM12', 'RFMM9', 'RFMM8', 'RIA14']
+Subject D0110 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LASF10', 'LINS4']
+Subject D0116 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFOA18', 'LFAM10', 'LFAM11', 'LFMM14', 'LAI12', 'LAI16', 'LFAM12', 'LAI7', 'LAI8', 'LFMI3', 'RFOA14', 'RFOA16', 'RFMM10', 'RFMM11', 'RFMM12', 'RAI7', 'RAI11', 'RAI12', 'RAI15', 'RAI17']
+Subject D0117 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['RLOF10', 'RLOF11', 'RINSA3']
+Subject D0121 significant G_front_inf-Opercular, G_front_inf-Orbital, G_front_inf-Triangul, G_front_middle, G_front_sup, Lat_Fis-ant-Horizont, Lat_Fis-ant-Vertical, S_circular_insula_ant, S_circular_insula_sup, S_front_inf, S_front_middle, S_front_sup electrodes: ['LFPS1', 'LFPS2', 'LFPP1', 'LFA9', 'LFA10', 'LFA11', 'LFA12', 'LFMM8', 'LFMM9', 'LFMM10', 'LFMM11', 'LFMM12', 'LFPS6', 'LFMI4', 'LFMI5']
+Loading data for subject: D0057
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+449 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 14 valid trials out of 14
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 22 valid trials out of 22
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 63 valid trials out of 63
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 2 valid trials out of 2
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 59 valid trials out of 59
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+42 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 42 valid trials out of 42
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 24 valid trials out of 24
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 10 valid trials out of 10
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 14 valid trials out of 14
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 22 valid trials out of 22
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 63 valid trials out of 63
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 2 valid trials out of 2
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 59 valid trials out of 59
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+42 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 42 valid trials out of 42
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 24 valid trials out of 24
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 10 valid trials out of 10
+Loading data for subject: D0059
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0059/D0059_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 17 valid trials out of 17
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 58 valid trials out of 58
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+62 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 62 valid trials out of 62
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 55 valid trials out of 55
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 9 valid trials out of 9
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 17 valid trials out of 17
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 58 valid trials out of 58
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+62 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 62 valid trials out of 62
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 55 valid trials out of 55
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 9 valid trials out of 9
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+Loading data for subject: D0063
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0063/D0063_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 14 valid trials out of 14
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+45 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 4 valid trials out of 4
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 64 valid trials out of 64
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 14 valid trials out of 14
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+45 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 4 valid trials out of 4
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 52 valid trials out of 52
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 64 valid trials out of 64
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+Loading data for subject: D0069
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0069/D0069_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 2 valid trials out of 2
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+41 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 54 valid trials out of 54
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 12 valid trials out of 12
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+40 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 40 valid trials out of 40
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 58 valid trials out of 58
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 2 valid trials out of 2
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+41 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 41 valid trials out of 41
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 54 valid trials out of 54
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 12 valid trials out of 12
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+40 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 40 valid trials out of 40
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 58 valid trials out of 58
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+Loading data for subject: D0071
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0071/D0071_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 5 valid trials out of 5
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 59 valid trials out of 59
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 55 valid trials out of 55
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 6 valid trials out of 6
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 60 valid trials out of 60
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 5 valid trials out of 5
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 59 valid trials out of 59
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 55 valid trials out of 55
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 6 valid trials out of 6
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 60 valid trials out of 60
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 5 valid trials out of 5
+Loading data for subject: D0077
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0077/D0077_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 13 valid trials out of 13
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+45 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 16 valid trials out of 16
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 2 valid trials out of 2
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 55 valid trials out of 55
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 15 valid trials out of 15
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+41 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 41 valid trials out of 41
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 13 valid trials out of 13
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+45 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 45 valid trials out of 45
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 16 valid trials out of 16
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+2 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 2 valid trials out of 2
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 55 valid trials out of 55
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 15 valid trials out of 15
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+41 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 41 valid trials out of 41
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+Loading data for subject: D0090
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0090/D0090_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 57 valid trials out of 57
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 56 valid trials out of 56
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 57 valid trials out of 57
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+Loading data for subject: D0094
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0094/D0094_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 18 valid trials out of 18
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+34 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 34 valid trials out of 34
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 6 valid trials out of 6
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 18 valid trials out of 18
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+34 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 34 valid trials out of 34
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 56 valid trials out of 56
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 6 valid trials out of 6
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 20 valid trials out of 20
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+46 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 61 valid trials out of 61
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 21 valid trials out of 21
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+46 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 46 valid trials out of 46
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 61 valid trials out of 61
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+1 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 1 valid trials out of 1
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 10 valid trials out of 10
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 11 valid trials out of 11
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+25 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 25 valid trials out of 25
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+31 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 31 valid trials out of 31
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 13 valid trials out of 13
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+49 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 49 valid trials out of 49
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 60 valid trials out of 60
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 24 valid trials out of 24
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+1 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 1 valid trials out of 1
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 10 valid trials out of 10
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 11 valid trials out of 11
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+25 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 25 valid trials out of 25
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+31 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 31 valid trials out of 31
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 13 valid trials out of 13
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+49 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 49 valid trials out of 49
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 4 valid trials out of 4
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 14 valid trials out of 14
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 60 valid trials out of 60
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 24 valid trials out of 24
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 4 valid trials out of 4
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 13 valid trials out of 13
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+34 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 34 valid trials out of 34
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 55 valid trials out of 55
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 11 valid trials out of 11
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 57 valid trials out of 57
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 12 valid trials out of 12
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 58 valid trials out of 58
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+13 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 13 valid trials out of 13
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+34 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 34 valid trials out of 34
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 55 valid trials out of 55
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 11 valid trials out of 11
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 57 valid trials out of 57
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 12 valid trials out of 12
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+58 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 58 valid trials out of 58
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 6 valid trials out of 6
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+47 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 47 valid trials out of 47
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 11 valid trials out of 11
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 11 valid trials out of 11
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 57 valid trials out of 57
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 63 valid trials out of 63
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 7 valid trials out of 7
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 15 valid trials out of 15
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+47 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 47 valid trials out of 47
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 11 valid trials out of 11
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 11 valid trials out of 11
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 57 valid trials out of 57
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 63 valid trials out of 63
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 7 valid trials out of 7
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 22 valid trials out of 22
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 64 valid trials out of 64
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 9 valid trials out of 9
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 6 valid trials out of 6
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 19 valid trials out of 19
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 22 valid trials out of 22
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 64 valid trials out of 64
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 21 valid trials out of 21
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 5 valid trials out of 5
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+19 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 19 valid trials out of 19
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 9 valid trials out of 9
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 48 valid trials out of 48
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 60 valid trials out of 60
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 18 valid trials out of 18
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 61 valid trials out of 61
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+25 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 25 valid trials out of 25
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 64 valid trials out of 64
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 48 valid trials out of 48
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 15 valid trials out of 15
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 60 valid trials out of 60
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 18 valid trials out of 18
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 61 valid trials out of 61
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+25 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 25 valid trials out of 25
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+64 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 64 valid trials out of 64
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 3 valid trials out of 3
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+28 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 28 valid trials out of 28
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 48 valid trials out of 48
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 8 valid trials out of 8
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 14 valid trials out of 14
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+47 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 47 valid trials out of 47
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 11 valid trials out of 11
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 52 valid trials out of 52
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 14 valid trials out of 14
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 8 valid trials out of 8
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+28 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 28 valid trials out of 28
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 12 valid trials out of 12
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 48 valid trials out of 48
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 8 valid trials out of 8
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 14 valid trials out of 14
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+47 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 47 valid trials out of 47
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 11 valid trials out of 11
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 52 valid trials out of 52
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+14 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 14 valid trials out of 14
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 8 valid trials out of 8
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 8 valid trials out of 8
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 11 valid trials out of 11
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 24 valid trials out of 24
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+53 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 53 valid trials out of 53
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 16 valid trials out of 16
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 9 valid trials out of 9
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+53 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 18 valid trials out of 18
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 3 valid trials out of 3
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 9 valid trials out of 9
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+11 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 11 valid trials out of 11
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 24 valid trials out of 24
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+53 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 53 valid trials out of 53
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 16 valid trials out of 16
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 9 valid trials out of 9
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+53 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 53 valid trials out of 53
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 18 valid trials out of 18
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 59 valid trials out of 59
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 3 valid trials out of 3
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 17 valid trials out of 17
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 61 valid trials out of 61
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 23 valid trials out of 23
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+9 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 9 valid trials out of 9
+Loading data for subject: D0130
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 20 valid trials out of 20
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 18 valid trials out of 18
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 59 valid trials out of 59
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 17 valid trials out of 17
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 59 valid trials out of 59
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 15 valid trials out of 15
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 54 valid trials out of 54
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+8 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 8 valid trials out of 8
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 20 valid trials out of 20
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 18 valid trials out of 18
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 59 valid trials out of 59
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+17 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 17 valid trials out of 17
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+6 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 6 valid trials out of 6
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+59 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 59 valid trials out of 59
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+23 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 23 valid trials out of 23
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 15 valid trials out of 15
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 54 valid trials out of 54
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 63 valid trials out of 63
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 5 valid trials out of 5
+Loading data for subject: D0133
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+454 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+454 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 10 valid trials out of 10
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 54 valid trials out of 54
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 48 valid trials out of 48
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 52 valid trials out of 52
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 15 valid trials out of 15
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 57 valid trials out of 57
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 10 valid trials out of 10
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+3 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 3 valid trials out of 3
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 10 valid trials out of 10
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+12 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 12 valid trials out of 12
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+54 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 54 valid trials out of 54
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 22 valid trials out of 22
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 7 valid trials out of 7
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+48 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 48 valid trials out of 48
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 16 valid trials out of 16
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+52 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 52 valid trials out of 52
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+15 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 15 valid trials out of 15
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+57 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 57 valid trials out of 57
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+18 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 18 valid trials out of 18
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 20 valid trials out of 20
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+10 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 10 valid trials out of 10
+Loading data for subject: D0134
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 24 valid trials out of 24
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+62 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 62 valid trials out of 62
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s25
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_i25s25: 4 valid trials out of 4
+  Loading condition: Stimulus_i25s75
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i25s75: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s25
+Adding metadata with 29 columns
+16 matching events found
+No baseline correction applied
+    Stimulus_i75s25: 16 valid trials out of 16
+  Loading condition: Stimulus_i75s75
+Adding metadata with 29 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_i75s75: 55 valid trials out of 55
+  Loading condition: Stimulus_i25r25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_i25r25: 20 valid trials out of 20
+  Loading condition: Stimulus_i25r75
+Adding metadata with 29 columns
+5 matching events found
+No baseline correction applied
+    Stimulus_i25r75: 5 valid trials out of 5
+  Loading condition: Stimulus_i75r25
+Adding metadata with 29 columns
+61 matching events found
+No baseline correction applied
+    Stimulus_i75r25: 61 valid trials out of 61
+  Loading condition: Stimulus_i75r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_i75r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c25s25
+Adding metadata with 29 columns
+20 matching events found
+No baseline correction applied
+    Stimulus_c25s25: 20 valid trials out of 20
+  Loading condition: Stimulus_c25s75
+Adding metadata with 29 columns
+60 matching events found
+No baseline correction applied
+    Stimulus_c25s75: 60 valid trials out of 60
+  Loading condition: Stimulus_c75s25
+Adding metadata with 29 columns
+7 matching events found
+No baseline correction applied
+    Stimulus_c75s25: 7 valid trials out of 7
+  Loading condition: Stimulus_c75s75
+Adding metadata with 29 columns
+24 matching events found
+No baseline correction applied
+    Stimulus_c75s75: 24 valid trials out of 24
+  Loading condition: Stimulus_c25r25
+Adding metadata with 29 columns
+62 matching events found
+No baseline correction applied
+    Stimulus_c25r25: 62 valid trials out of 62
+  Loading condition: Stimulus_c25r75
+Adding metadata with 29 columns
+22 matching events found
+No baseline correction applied
+    Stimulus_c25r75: 22 valid trials out of 22
+  Loading condition: Stimulus_c75r25
+Adding metadata with 29 columns
+21 matching events found
+No baseline correction applied
+    Stimulus_c75r25: 21 valid trials out of 21
+  Loading condition: Stimulus_c75r75
+Adding metadata with 29 columns
+4 matching events found
+No baseline correction applied
+    Stimulus_c75r75: 4 valid trials out of 4
+
+--- Summary of Dropped Electrodes ---
+ROI: lpfc
+  - Subject D0065: Dropped 9 electrode(s)
+  - Subject D0121: Dropped 2 electrode(s)
+  - Subject D0071: Dropped 2 electrode(s)
+  - Subject D0107A: Dropped 1 electrode(s)
+Total electrodes dropped across all subjects/ROIs: 14
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (20 samples across -1 jobs) ====================
+
+
+==================== 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) ====================
+
+Warning: No visualization pairs defined for the current condition set. Skipping debug plots.
+
+==================== ✅ VISUALIZATION DEBUG COMPLETE ====================
+
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend

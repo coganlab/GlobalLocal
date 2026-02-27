@@ -1,24 +1,6 @@
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 227 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 225 annotation(s) that were outside data range.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (231) does not match the number of channels in the raw data file (230). Will not try to set channel names.
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
-  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
-/var/spool/slurmd/job39833599/slurm_script: line 44: 3167002 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/preproc/make_epoched_data.py --subjects "${subject}" --task "${task}" --times ${times} --within_base_times ${within_base_times} --baseline_event "${baseline_event}" --base_times_length ${base_times_length} --pad_length ${pad_length} --LAB_root "${LAB_root}" --channels "${channels}" --dec_factor ${dec_factor} --outlier_policy "${outlier_policy}" --outliers ${outliers} --threshold_percent ${threshold_percent} --passband ${passband}
-slurmstepd: error: Detected 1 oom_kill event in StepId=39833599.batch. Some of the step tasks have been OOM Killed.
+slurmstepd: error: slurm_send_node_msg: [socket:[964982318]] slurm_bufs_sendto(msg_type=REQUEST_UPDATE_NODE) failed: Unexpected missing socket error
+slurmstepd: error: unlink(/var/spool/slurmd/job39833599/slurm_script): Permission denied
+slurmstepd: error: container_p_join: open failed for /lstor/slurmjobs/39833599/.ns: No such file or directory
+slurmstepd: error: container_g_join failed: 39833599
+slurmstepd: error: rmdir(/var/spool/slurmd/job39833599): Directory not empty
+slurmstepd: error: exec_wait_signal_child: write(fd:21) to unblock task 0 failed

@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --output=out/aligned_svm_ncv/slurm_%j.out
-#SBATCH -e out/aligned_svm_ncv/slurm_%j.err
+#SBATCH --output=out/slurm_%j_%x.out
+#SBATCH -e out/slurm_%j_%x.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 20
-#SBATCH --mem=95G
-#SBATCH --time=120:00:00  # 48 hours (adjust based on your needs)
+#SBATCH --mem=150G
+#SBATCH --time=120:00:00
 
 source $(conda info --base)/etc/profile.d/conda.sh
+conda activate ieeg
 
-conda activate ieeg # make sure this works - UPDATE TO ieeg_fresh 11/6/25
-
+echo "Running condition: $CONDITION_NAME"
 python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py
