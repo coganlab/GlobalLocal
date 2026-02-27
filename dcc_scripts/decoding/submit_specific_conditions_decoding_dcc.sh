@@ -2,14 +2,8 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    "stimulus_congruency_blockA_conditions"
-    "stimulus_congruency_blockB_conditions"
-    "stimulus_congruency_blockC_conditions"
-    "stimulus_congruency_blockD_conditions"
-    "stimulus_switchType_blockA_conditions"
-    "stimulus_switchType_blockB_conditions"
-    "stimulus_switchType_blockC_conditions"
-    "stimulus_switchType_blockD_conditions"
+    "stimulus_congruency_conditions"
+    "stimulus_switchType_conditions"
     # add more condition names here
 )
 

@@ -1,0 +1,6 @@
+Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 139, in <module>
+    CONDITIONS = getattr(experiment_conditions, CONDITION_NAME)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'src.analysis.config.experiment_conditions' has no attribute 'stimulus_switchType_conditions'. Did you mean: 'stimulus_switch_type_conditions'?

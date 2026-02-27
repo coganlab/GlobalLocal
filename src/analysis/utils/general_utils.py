@@ -41,6 +41,7 @@ from statsmodels.stats.anova import anova_lm
 from numpy.lib.stride_tricks import as_strided, sliding_window_view
 
 from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import CONDITION_REGISTRY
 
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.

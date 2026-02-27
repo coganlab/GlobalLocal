@@ -89,10 +89,10 @@ from src.analysis.decoding.run_aggregate_and_plot_time_averaged_cms import run_a
 from src.analysis.decoding.run_context_comparisons import run_all_context_comparisons
 '''
 when adding a new condition to decoding - 
-1. update get_conditions_save_name. 
-2. update process_bootstrap for the pooled_conditions. 
-3. update run_visualization_debug for the new condition.
-4. update run_context_comparisons.py to include the new condition and comparisons if you want to compare both true vs. true and true vs. shuffle.
+1. update get_conditions_save_name and build_condition_comparisons in src/analysis/utils/general_utils.py. 
+2. update src/analysis/decoding/process_bootstrap.py for the pooled_conditions. 
+3. update src/analysis/decoding/run_visualization_debug.py for the new condition.
+4. update src/analysis/decoding/run_context_comparisons.py to include the new condition and comparisons if you want to compare both true vs. true and true vs. shuffle.
 
 '''
 def main(args):
