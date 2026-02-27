@@ -2,8 +2,8 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    "stimulus_congruency_conditions"
-    "stimulus_switchType_conditions"
+    "stimulus_lwpc_conditions"
+    "stimulus_lwps_conditions"
     # add more condition names here
 )
 
@@ -13,5 +13,5 @@ mkdir -p out
 for COND in "${CONDITIONS[@]}"; do
     echo "Submitting: $COND"
     sbatch --job-name="dec_${COND}" --export=ALL,CONDITION_NAME="$COND" sbatch_decoding_dcc.sh
-    sleep 5
+    # sleep 2
 done
