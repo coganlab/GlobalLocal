@@ -6,9 +6,9 @@
 #SBATCH --mem=200G
 #SBATCH --time=24:00:00
 
-default_subj=("D0117")
+default_subj=("D0121")
 default_region="lpfc"
-default_conditions=("stimulus_ci75" "stimulus_ci25")
+default_conditions=("stimulus_c75" "stimulus_c25" "stimulus_i75" "stimulus_i25")
 default_time_start="-1.0"
 default_time_end="1.5"
 default_window_width="0.5"
