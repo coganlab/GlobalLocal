@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import json
 import numpy as np
@@ -74,7 +73,6 @@ def make_windows(start, end, win_len):
     return windows
 
 def _bh_fdr(pvals, alpha=0.05):
-    """Benjamini-Hochberg FDR. pvals: 1D array. Returns boolean mask of rejected hypotheses."""
     p = np.asarray(pvals)
     n = p.size
     if n == 0:
@@ -91,14 +89,6 @@ def _bh_fdr(pvals, alpha=0.05):
     return rej
 
 def compute_alltrial_coherence_and_permutation(epochs, chs, freqs, n_cycles, method, mode, cwt_n_cycles, fmin, fmax, n_jobs, n_perm=200, alpha=0.05, verbose=True):
-    """
-    Compute all-trial coherence for all channel pairs in 'chs' (present in epochs),
-    then for each pair perform permutation by shuffling trial indices of the second channel
-    to create a null distribution. Return dictionary with:
-      - con_true_dict[(ch1,ch2)] = array(n_freqs,)
-      - pvals_dict[(ch1,ch2)] = array(n_freqs,)
-      - sig_mask_dict[(ch1,ch2)] = boolean array(n_freqs,) after FDR across all tests
-    """
     present = set(epochs.ch_names)
     chs_present = [ch for ch in chs if ch in present]
     missing = [ch for ch in chs if ch not in present]
@@ -262,8 +252,6 @@ def compute_alltrial_coherence_and_permutation(epochs, chs, freqs, n_cycles, met
         return con_true_dict, pvals_dict, sig_mask_dict
 
     rej_flat = _bh_fdr(all_pvals_flat, alpha=alpha)
-    # now we need to map rej_flat back to each (pair,freq)
-    # We'll iterate in same order as we filled all_pvals_flat
     sig_mask_dict = {}
     idx_flat = 0
     for k in keys_list:
