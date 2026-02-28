@@ -2,8 +2,8 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    "stimulus_lwpc_conditions"
-    "stimulus_lwps_conditions"
+    "stimulus_congruency_blockC_conditions"
+
     # add more condition names here
 )
 

@@ -3132,7 +3132,7 @@ def cluster_perm_paired_ttest_by_duration(
     observed_cluster_durations = np.array([np.sum(labeled_clusters == i) for i in range(1, n_clusters + 1)])
 
     # --- Step 2: Build null distribution in PARALLEL ---
-    print(f"🚀 Building null distribution with {n_perm} permutations across {n_jobs} jobs...")
+    print(f" Building null distribution with {n_perm} permutations across {n_jobs} jobs...")
     
     # Generate independent seeds for each permutation job for reproducibility
     seeds = rng.integers(low=0, high=2**32-1, size=n_perm)
@@ -3149,7 +3149,7 @@ def cluster_perm_paired_ttest_by_duration(
         if observed_cluster_durations[i-1] > critical_duration:
             final_sig_mask[labeled_clusters == i] = True
             
-    print(f"✅ Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
+    print(f" Found {np.sum(observed_cluster_durations > critical_duration)} significant cluster(s) using duration statistic.")
     return final_sig_mask
 
 def run_two_one_tailed_tests_with_time_perm_cluster(
