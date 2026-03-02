@@ -87,7 +87,7 @@ Last edited: 01/16/2024
 1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: ```(ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057```. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
 ### Decoding
-1. run ```sbatch sbatch_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc, with chosen parameters in run_decoding_dcc.py. Testing code is at bottom of this file, uncomment to test. Make sure your chosen epochs root file is saved in the dcc cwork folder. Using unit of analysis as repeat right now. The decoding_dcc.py script will load in the epoched data of specified subjects, then for each bootstrap, transform it into a LabeledArray where each electrode is randomly downsampled to the lowest number of trials across electrodes in that roi and condition, then for each condition comparison (i.e., congruent vs incongruent), randomly downsample again to the lowest number of trials across conditions for that condition comparison, then run decoding where error bars and stats are calculated using the unit of analysis (bootstrap, repeat, fold). If bootstrap, it will sum accuracies across folds and average across repeats for each bootstrap. If repeat, it will sum accuracies across folds for each repeat. If fold, it will find the variance and stats over all folds.
+1. run ```sh submit_specific_conditions_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc, with chosen conditions in this script and other chosen parameters in run_decoding_dcc.py. Testing code is at bottom of sbatch_decoding_dcc.sh, uncomment to test. Make sure your chosen epochs root file is saved in the dcc cwork folder. Using unit of analysis as repeat right now. The decoding_dcc.py script will load in the epoched data of specified subjects, then for each bootstrap, transform it into a LabeledArray where each electrode is randomly downsampled to the lowest number of trials across electrodes in that roi and condition, then for each condition comparison (i.e., congruent vs incongruent), randomly downsample again to the lowest number of trials across conditions for that condition comparison, then run decoding where error bars and stats are calculated using the unit of analysis (bootstrap, repeat, fold). If bootstrap, it will sum accuracies across folds and average across repeats for each bootstrap. If repeat, it will sum accuracies across folds for each repeat. If fold, it will find the variance and stats over all folds.
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
  
@@ -147,9 +147,9 @@ Practice Accuracy Cutoff (pracAccCutoff) = 75
 - Minimum accuracy percent (out of 100) needed to move on from one practice task to the next.
   
 blockTypes  
-A: 25% congruent, 25% switch  
-B: 25% congruent, 75% switch  
-C: 75% congruent, 25% switch  
-D: 75% congruent, 75% switch
+A: 25% congruent (or 75% incongruent), 25% switch  
+B: 25% congruent (or 75% incongruent), 75% switch  
+C: 75% congruent (or 25% incongruent), 25% switch  
+D: 75% congruent (or 25% incongruent), 75% switch
   
 BIDS EVENTS ARE SAVED IN TERMS OF INCONGRUENT PROPORTION, NOT CONGRUENT PROPORTION. So Stimulus/c25/s25 will grab the stimulus onsets of trials that are congruent and switch, in a 25% incongruent and 25% switch block. AKA a 75% congruent and 25% switch block.

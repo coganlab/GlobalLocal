@@ -80,7 +80,11 @@ def main(args):
 
     # hardcoding lab root (Erin)
     #LAB_root = "/cwork/etb28"
+<<<<<<< HEAD
     #LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
+=======
+    # LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
+>>>>>>> 6b0258705dda8e5dd9c61cedb7845dd791d93171
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
     subjects_electrodestoROIs_dict = utils.load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')

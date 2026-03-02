@@ -1,8 +1,27 @@
-import mne
 import sys
+import os
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+# Get the absolute path to the directory containing the current script
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    current_script_dir = os.getcwd()
+
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)  # insert at the beginning to prioritize it
+
+import mne
 import json
 import numpy as np
-import os
 import pandas as pd
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
     outliers_to_nan
@@ -20,6 +39,10 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from numpy.lib.stride_tricks import as_strided, sliding_window_view
+
+from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import CONDITION_REGISTRY
+from src.analysis.config.condition_registry import get_comparisons
 
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.
@@ -2024,6 +2047,23 @@ def find_difference_between_two_electrode_lists(
                 
     return in_1_not_2, in_2_not_1
 
+def print_summary_of_dropped_electrodes(raw_electrodes, filtered_electrodes):
+    '''
+    debug prints for looking at which electrodes got dropped
+    '''
+    dropped_electrodes, _ = find_difference_between_two_electrode_lists(raw_electrodes, filtered_electrodes)
+    print("\n--- Summary of Dropped Electrodes ---")
+    total_dropped = 0
+    for roi, sub_dict in dropped_electrodes.items():
+        if not sub_dict: continue # Skip ROIs with no dropped electrodes
+        print(f"ROI: {roi}")
+        for sub, elec_list in sub_dict.items():
+            if elec_list:
+                print(f"  - Subject {sub}: Dropped {len(elec_list)} electrode(s)")
+                total_dropped += len(elec_list)
+    print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
+    print("-------------------------------------\n")
+    
 def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
              step_size: int = 1, insert_at: int = 0):
     if window_size is None:
@@ -2049,3 +2089,34 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
         windowed = np.moveaxis(windowed, axis, insert_at)
     
     return windowed
+
+def get_conditions_save_name(conditions, experiment_conditions, n_subjects):
+    """
+    Map a conditions object to its save name string.
+    
+    Parameters
+    ----------
+    conditions : dict
+        The conditions object to map.
+    experiment_conditions : dict
+        The experiment conditions dictionary.
+    n_subjects : int
+        The number of subjects.
+    
+    Returns
+    -------
+    str
+        The save name string.
+    """
+    for key, entry in CONDITION_REGISTRY.items():
+        if conditions == entry['conditions_obj']:
+            return f"{key}_{n_subjects}_subjects"
+
+    raise ValueError(f"Unknown conditions object: {conditions}")
+    
+def build_condition_comparisons(conditions, experiment_conditions=None):
+    """
+    Return the condition_comparisons dict for a given conditions object.
+    This is primarily for setting up decoding comparisons.
+    """    
+    return get_comparisons(conditions)

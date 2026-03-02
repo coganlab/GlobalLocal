@@ -1,0 +1,137 @@
+graph TD
+    %% ============================================================
+    %% MAIN ORCHESTRATOR: decoding_dcc.py → main()
+    %% ============================================================
+    
+    MAIN["<b>main(args)</b><br/><i>decoding_dcc.py</i>"]
+    
+    %% --- Setup Phase ---
+    MAIN --> LOAD_DICT["load_subjects_electrodes_to_ROIs_dict()"]
+    MAIN --> SIG_CHANS["get_sig_chans_per_subject()"]
+    MAIN --> MAKE_SIG["make_sig_electrodes_per_subject_and_roi_dict()"]
+    MAIN --> CREATE_MNE["create_subjects_mne_objects_dict()"]
+    MAIN --> FILTER_ELEC["filter_electrode_lists_against_subjects_mne_objects()"]
+    MAIN --> BUILD_COND["build_condition_comparisons()"]
+    
+    %% --- Optional Visualization Debug ---
+    MAIN -->|"if args.run_visualization_debug"| VIZ_DEBUG["<b>run_visualization_debug()</b><br/><i>run_visualization_debug.py</i>"]
+    
+    %% --- Parallel Bootstrapping ---
+    MAIN ==>|"joblib Parallel<br/>n_bootstraps × n_jobs"| PB["<b>process_bootstrap()</b><br/><i>process_bootstrap.py</i>"]
+    
+    %% --- Post-Bootstrap Aggregation ---
+    MAIN --> AGG_CM["<b>run_aggregate_and_plot_time_averaged_cms()</b><br/><i>run_aggregate_and_plot_time_averaged_cms.py</i>"]
+    MAIN --> POOLED_STATS["<b>compute_pooled_bootstrap_statistics()</b>"]
+    MAIN --> PLOT_TVS["<b>plot_accuracies_nature_style()</b><br/><i>for each condition × ROI</i>"]
+    MAIN --> DEBUG_CM["<b>run_debug_cm_traces()</b><br/><i>run_debug_cm_traces.py</i>"]
+    MAIN --> CONTEXT["<b>run_all_context_comparisons()</b><br/><i>run_context_comparisons.py</i>"]
+    MAIN --> SAVE["pickle.dump(master_results)"]
+    
+    %% ============================================================
+    %% BOOTSTRAP WORKER: process_bootstrap.py
+    %% ============================================================
+    
+    PB --> MAKE_BOOT["make_bootstrapped_roi_labeled_arrays<br/>_with_nan_trials_removed_for_each_channel()"]
+    
+    %% Time-Averaged CMs
+    PB --> CONCAT_COND_TA["concatenate_conditions_by_string()"]
+    PB --> GET_TA_CM["<b>get_time_averaged_confusion_matrix()</b>"]
+    GET_TA_CM --> CONCAT_BAL_TA["concatenate_and_balance_data_for_decoding()"]
+    GET_TA_CM --> DECODER_TA["Decoder.cv_cm_jim()"]
+    
+    %% Time-Window Decoding
+    PB ==> GET_CM_TW["<b>get_confusion_matrices_for_rois<br/>_time_window_decoding_jim()</b>"]
+    PB --> COMP_ACC["<b>compute_accuracies()</b>"]
+    
+    %% Pooled Shuffle
+    PB --> POOLED_SHUF["<b>run_pooled_shuffle_for_roi()</b>"]
+    POOLED_SHUF --> MAKE_POOLED["<b>make_pooled_shuffle_distribution()</b>"]
+    
+    %% ============================================================
+    %% CORE DECODING: get_confusion_matrices_for_rois_time_window_decoding_jim
+    %% ============================================================
+    
+    GET_CM_TW --> CONCAT_BAL["<b>concatenate_and_balance_data_for_decoding()</b>"]
+    CONCAT_BAL --> CONCAT_BY_STR["concatenate_conditions_by_string()"]
+    
+    GET_CM_TW --> DEC_TRUE["Decoder (true labels)"]
+    GET_CM_TW --> DEC_SHUF["Decoder (shuffled labels)"]
+    
+    DEC_TRUE --> CV_CM_WS_T["<b>Decoder.cv_cm_jim_window_shuffle()</b><br/><i>shuffle=False</i>"]
+    DEC_SHUF --> CV_CM_WS_S["<b>Decoder.cv_cm_jim_window_shuffle()</b><br/><i>shuffle=True</i>"]
+    
+    CV_CM_WS_T --> WIN_PRED["<b>Decoder._window_and_predict_minimal()</b>"]
+    CV_CM_WS_S --> WIN_PRED
+    
+    WIN_PRED --> SAMPLE_FOLD["<b>sample_fold()</b>"]
+    WIN_PRED --> WINDOWER["<b>windower()</b>"]
+    WIN_PRED --> FIT_PRED["Decoder.fit() → predict()"]
+    
+    SAMPLE_FOLD --> MIXUP["<b>mixup2()</b><br/><i>fill train NaNs</i>"]
+    SAMPLE_FOLD --> NOISE["np.random.normal()<br/><i>fill test NaNs</i>"]
+    
+    %% ============================================================
+    %% POOLED SHUFFLE DISTRIBUTION
+    %% ============================================================
+    
+    MAKE_POOLED --> CONCAT_BAL_P["concatenate_and_balance_data_for_decoding()"]
+    MAKE_POOLED --> DEC_SHUF_P["Decoder.cv_cm_jim_window_shuffle()<br/><i>shuffle=True, normalize=None</i>"]
+    MAKE_POOLED --> COMP_ACC_P["compute_accuracies()"]
+    
+    %% ============================================================
+    %% POST-BOOTSTRAP STATISTICS
+    %% ============================================================
+    
+    POOLED_STATS --> FIND_SIG["<b>find_significant_clusters_of_series<br/>_vs_distribution_based_on_percentile()</b>"]
+    FIND_SIG --> FIND_CONTIG["find_contiguous_clusters()"]
+    FIND_SIG --> FIND_LEN["find_cluster_lengths()"]
+    FIND_SIG --> GET_MAX_PERM["get_max_perm_cluster_lengths<br/>_based_on_percentile()"]
+    
+    %% ============================================================
+    %% AGGREGATE TIME-AVERAGED CMs
+    %% ============================================================
+    
+    AGG_CM --> AGG_SUM["np.sum(raw_cms) across bootstraps"]
+    AGG_CM --> AGG_NORM["Row-normalize → ConfusionMatrixDisplay"]
+    
+    %% ============================================================
+    %% CONTEXT COMPARISONS: run_context_comparisons.py
+    %% ============================================================
+    
+    CONTEXT --> RCA["<b>run_context_comparison_analysis()</b><br/><i>decoding.py</i>"]
+    
+    RCA --> GET_POOL_ACC["get_pooled_accuracy_distributions<br/>_for_comparison()"]
+    RCA --> TWO_TAIL["<b>run_two_one_tailed_tests<br/>_with_time_perm_cluster()</b>"]
+    TWO_TAIL --> TPC_1["time_perm_cluster()<br/><i>acc1 > acc2</i>"]
+    TWO_TAIL --> TPC_2["time_perm_cluster()<br/><i>acc2 > acc1</i>"]
+    
+    RCA --> PLOT_MULTI["<b>plot_accuracies_with<br/>_multiple_sig_clusters()</b>"]
+    RCA --> PLOT_DIFF["plot_accuracies_with<br/>_multiple_sig_clusters()<br/><i>difference plot</i>"]
+    
+    %% ============================================================
+    %% DEBUG CM TRACES
+    %% ============================================================
+    
+    DEBUG_CM --> EXTRACT_TR["<b>extract_pooled_cm_traces()</b>"]
+    DEBUG_CM --> PLOT_TR["<b>plot_cm_traces_nature_style()</b>"]
+    
+    %% ============================================================
+    %% STYLING
+    %% ============================================================
+    
+    classDef orchestrator fill:#2C3E50,color:#ECF0F1,stroke:#1ABC9C,stroke-width:2px
+    classDef worker fill:#1A5276,color:#ECF0F1,stroke:#3498DB,stroke-width:2px
+    classDef core fill:#7D3C98,color:#ECF0F1,stroke:#AF7AC5,stroke-width:2px
+    classDef stats fill:#1E8449,color:#ECF0F1,stroke:#82E0AA,stroke-width:2px
+    classDef plot fill:#CA6F1E,color:#ECF0F1,stroke:#F0B27A,stroke-width:1px
+    classDef util fill:#5D6D7E,color:#ECF0F1,stroke:#AEB6BF,stroke-width:1px
+    classDef save fill:#922B21,color:#ECF0F1,stroke:#E74C3C,stroke-width:1px
+    
+    class MAIN orchestrator
+    class PB,MAKE_BOOT worker
+    class GET_CM_TW,CONCAT_BAL,CV_CM_WS_T,CV_CM_WS_S,WIN_PRED,SAMPLE_FOLD,DEC_TRUE,DEC_SHUF core
+    class POOLED_STATS,FIND_SIG,FIND_CONTIG,FIND_LEN,GET_MAX_PERM,TWO_TAIL,TPC_1,TPC_2 stats
+    class PLOT_TVS,PLOT_MULTI,PLOT_DIFF,PLOT_TR,AGG_CM,AGG_SUM,AGG_NORM plot
+    class CONCAT_BY_STR,MIXUP,NOISE,WINDOWER,COMP_ACC,COMP_ACC_P,GET_POOL_ACC,MAKE_POOLED,POOLED_SHUF,DEC_SHUF_P,CONCAT_BAL_P,CONCAT_BAL_TA,DECODER_TA,CONCAT_COND_TA,GET_TA_CM,FIT_PRED util
+    class SAVE save
+    class LOAD_DICT,SIG_CHANS,MAKE_SIG,CREATE_MNE,FILTER_ELEC,BUILD_COND,VIZ_DEBUG,CONTEXT,RCA,DEBUG_CM,EXTRACT_TR util
