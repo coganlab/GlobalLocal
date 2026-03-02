@@ -590,10 +590,11 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
         error_type = 'std' if show_std else 'sem' if show_sem else 'ci' if show_ci else 'no_error'
-        filename = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading.png'
-        filepath = os.path.join(save_dir, filename)
-        plt.savefig(filepath, dpi=300, bbox_inches='tight')
-        print(f"Saved plot to: {filepath}")
+        base = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading'
+        for ext in ('.pdf', '.png'):
+            filepath = os.path.join(save_dir, base + ext)
+            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+            print(f"Saved plot to: {filepath}")
     
     plt.close()
     return fig
