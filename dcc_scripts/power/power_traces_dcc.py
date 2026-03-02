@@ -80,7 +80,7 @@ def main(args):
 
     # hardcoding lab root (Erin)
     #LAB_root = "/cwork/etb28"
-    LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
+    #LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
     subjects_electrodestoROIs_dict = utils.load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
@@ -109,7 +109,7 @@ def main(args):
     elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
         conditions_save_name = 'stimulus_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
-        conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+        conditions_save_name = 'stimulus_err_corr_conditions_greenred' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
         conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
     elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
