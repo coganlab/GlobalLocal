@@ -2,7 +2,8 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    "stimulus_congruency_blockC_conditions"
+    # "stimulus_congruency_blockC_conditions"
+    "stimulus_err_corr_conditions"
 
     # add more condition names here
 )
