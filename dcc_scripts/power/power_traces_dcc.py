@@ -80,13 +80,73 @@ def main(args):
 
     # hardcoding lab root (Erin)
     #LAB_root = "/cwork/etb28"
+<<<<<<< HEAD
+    #LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
+=======
     # LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
+>>>>>>> 6b0258705dda8e5dd9c61cedb7845dd791d93171
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
     subjects_electrodestoROIs_dict = utils.load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
+<<<<<<< HEAD
     conditions_save_name = utils.get_conditions_save_name(args.conditions, experiment_conditions, len(args.subjects))
+=======
+
+    # filename is too long to save so let's just drop the epochs root file from the conditions save name for now.
+    if args.conditions == experiment_conditions.stimulus_conditions:
+        conditions_save_name = 'stimulus_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_experiment_conditions:
+        conditions_save_name = 'stimulus_experiment_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_main_effect_conditions:
+        conditions_save_name = 'stimulus_main_effect_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_lwpc_conditions:
+        conditions_save_name = 'stimulus_lwpc_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
+        conditions_save_name = 'stimulus_lwps_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_big_letter_conditions:
+        conditions_save_name = 'stimulus_big_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_small_letter_conditions:
+        conditions_save_name = 'stimulus_small_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_task_conditions:
+        conditions_save_name = 'stimulus_task_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_congruency_conditions:
+        conditions_save_name = 'stimulus_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
+        conditions_save_name = 'stimulus_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
+        conditions_save_name = 'stimulus_err_corr_conditions_greenred' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
+        conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
+        conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
+        conditions_save_name = 'stimulus_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    
+    elif args.conditions == experiment_conditions.response_conditions:
+        conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_experiment_conditions:
+        conditions_save_name = 'response_experiment_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_big_letter_conditions:
+        conditions_save_name = 'response_big_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_small_letter_conditions:
+        conditions_save_name = 'response_small_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_task_conditions:
+        conditions_save_name = 'response_task_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_congruency_conditions:
+        conditions_save_name = 'response_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_switch_type_conditions:
+        conditions_save_name = 'response_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_err_corr_conditions:
+        conditions_save_name = 'response_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_congruency_by_switch_proportion_conditions:
+        conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
+        conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    elif args.conditions == experiment_conditions.response_iR_cS_err_conditions:
+        conditions_save_name = 'response_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+>>>>>>> f220d99fe74087e765d3458f352461804b0339b2
     
     # Get data layout
     layout = get_data(args.task, root=LAB_root)
