@@ -247,7 +247,7 @@ Loading data for subject: D0057
 Reading /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
     Found the data of interest:
         t =   -1000.00 ...    1500.00 ms
-        0 CTF compensation matrices available
+        0 CTF compensation matrices availabl"e
 Adding metadata with 29 columns
 449 matching events found
 No baseline correction applied
