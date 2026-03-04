@@ -45,24 +45,24 @@ from src.analysis.config import experiment_conditions
 # ANALYSIS PARAMETERS
 # ============================================================================
 LAB_ROOT = "/cwork/etb28"  # Will be determined automatically in main()
+# LAB_ROOT = None
 
 # Subject configuration
 # subjects for iR-cS err
 # SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
 # subjetcs for err-corr
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
-#removing D0110 because less than 10 errors -- use this one for all err/corr analysis
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
-# SUBJECTS = ['D0057']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137']
+
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139']
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
 # switch to False for err-corr 
-ACC_TRIALS_ONLY = False
+ACC_TRIALS_ONLY = True
 
 # Parallel processing
 N_JOBS = -1 
@@ -80,7 +80,7 @@ if STATISTICAL_METHOD == 'time_perm_cluster':
     STEP_SIZE = None
     
 # additional parameters for permutation cluster stats
-STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+STAT_FUNC_CHOICE = 'ttest_rel' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
@@ -100,15 +100,14 @@ TAILS=2
 
 # ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+CONDITIONS = experiment_conditions.stimulus_congruency_conditions
 
 # Epochs file selection
-<<<<<<< HEAD
+EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-=======
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
->>>>>>> 6b0258705dda8e5dd9c61cedb7845dd791d93171
+
+# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+>>>>>>> f220d99fe74087e765d3458f352461804b0339b2
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -145,8 +144,37 @@ ROIS_DICT = {
 ELECTRODES = 'sig'
 
 # plotting
-YLIM = (-0.1,0.45)
-SHOW_LEGEND = False
+PLOT_STYLE = {
+    # Toggles
+    'show_title': False,
+    'show_xlabel': False,
+    'show_ylabel': False,
+    'show_legend': False,
+    
+    # Labels
+    'title': None,        # None = auto-generate from ROI name
+    'x_label': 'Time (s)',
+    'y_label': 'Power (z)',
+    
+    # Font sizes
+    'title_font_size': 14,
+    'axis_font_size': 12,
+    'tick_font_size': 12,
+    'legend_font_size': 10,
+    
+    # Tick customization
+    'xticks': [-1.0, -0.5, 0, 0.5, 1.0, 1.5],       # None = auto, or pass array
+    'yticks': [-0.1, 0, 0.1, 0.2, 0.3],
+    'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
+    'ytick_labels': None,
+    'xlim': (-1, 1.5),
+    'ylim': (-0.1, 0.3),
+    
+    # Other
+    'figsize': (12, 8),
+    'text_color': 'black',
+    'sig_cluster_height': 0.3,
+}
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
@@ -186,8 +214,8 @@ def run_analysis():
         step_size=STEP_SIZE,
         n_perm=N_PERM,
         tails=TAILS,
-        ylim=YLIM,
-        show_legend=SHOW_LEGEND
+        plot_style=PLOT_STYLE,
+
     )
 
     # Print configuration summary
@@ -218,8 +246,7 @@ def run_analysis():
     print("=" * 70)
     
     print('plotting parameters:')
-    print(f'  y limits: {YLIM}')
-    print(f'  show legend: {SHOW_LEGEND}')
+    print(f"\n{PLOT_STYLE}")
     print("=" * 70)
 
     
