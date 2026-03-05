@@ -60,7 +60,7 @@ Last edited: 01/16/2024
 6. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
 
 7. To run an interactive session on the dcc:
-   1. Set up ssh host script in my ssh keys file (he does some stuff here that I forget…)
+   1. Set up ssh host script in my ssh keys file, after putting it in the sshhost folder in home.
 		a. ls -al ~/.ssh/id_*.pub
 		b. Id_ed25519.pub
 	2. Open a dcc on demand session (choose an amount of time)
