@@ -65,7 +65,7 @@ Last edited: 01/16/2024
 		b. Id_ed25519.pub
 	2. Open a dcc on demand session (choose an amount of time)
 		a. https://dcc-ondemand-01.oit.duke.edu/pun/sys/dashboard/batch_connect/sys/bc_jupyter/session_contexts/new
-	3. Use his sshost script with ./sshhost (put this in my base directory in terminal)
+	3. Use jianghao's sshost script with ./sshhost (put this in my base directory in terminal)
 		a. Put in the host name from the dcc on demand session
 	4. Open vscode, connect to host, choose dcc-compute
   
