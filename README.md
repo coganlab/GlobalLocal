@@ -49,7 +49,7 @@ Last edited: 01/16/2024
 
 ### Duke Compute Cluster
 1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal and then after logging in, open your shell's startup file by doing ```nano ~/.bashrc```, then add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file, and save/close it by pressing Ctrl+X.
-2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode
+2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode. You need to do this before using jianghao's script to open an interactive session.
    
 3. You can do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal to access the DCC.
    
@@ -60,12 +60,12 @@ Last edited: 01/16/2024
 6. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
 
 7. To run an interactive session on the dcc:
-   1. Set up ssh host script in my ssh keys file (he does some stuff here that I forget…)
+   1. Set up ssh host script in my ssh keys file, after putting it in the sshhost folder in home.  
 		a. ls -al ~/.ssh/id_*.pub
 		b. Id_ed25519.pub
 	2. Open a dcc on demand session (choose an amount of time)
 		a. https://dcc-ondemand-01.oit.duke.edu/pun/sys/dashboard/batch_connect/sys/bc_jupyter/session_contexts/new
-	3. Use his sshost script with ./sshhost (put this in my base directory in terminal)
+	3. Use jianghao's sshost script with ./sshhost (put this in my base directory in terminal)
 		a. Put in the host name from the dcc on demand session
 	4. Open vscode, connect to host, choose dcc-compute
   
