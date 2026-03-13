@@ -86,59 +86,7 @@ def main(args):
     subjects_electrodestoROIs_dict = utils.load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
-
-    # filename is too long to save so let's just drop the epochs root file from the conditions save name for now.
-    if args.conditions == experiment_conditions.stimulus_conditions:
-        conditions_save_name = 'stimulus_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_experiment_conditions:
-        conditions_save_name = 'stimulus_experiment_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_main_effect_conditions:
-        conditions_save_name = 'stimulus_main_effect_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        conditions_save_name = 'stimulus_lwpc_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
-        conditions_save_name = 'stimulus_lwps_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_big_letter_conditions:
-        conditions_save_name = 'stimulus_big_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_small_letter_conditions:
-        conditions_save_name = 'stimulus_small_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_task_conditions:
-        conditions_save_name = 'stimulus_task_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_congruency_conditions:
-        conditions_save_name = 'stimulus_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_switch_type_conditions:
-        conditions_save_name = 'stimulus_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_err_corr_conditions:
-        conditions_save_name = 'stimulus_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        conditions_save_name = 'stimulus_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        conditions_save_name = 'stimulus_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.stimulus_iR_cS_err_conditions:
-        conditions_save_name = 'stimulus_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    
-    elif args.conditions == experiment_conditions.response_conditions:
-        conditions_save_name = 'response_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_experiment_conditions:
-        conditions_save_name = 'response_experiment_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_big_letter_conditions:
-        conditions_save_name = 'response_big_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_small_letter_conditions:
-        conditions_save_name = 'response_small_letter_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_task_conditions:
-        conditions_save_name = 'response_task_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_congruency_conditions:
-        conditions_save_name = 'response_congruency_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_switch_type_conditions:
-        conditions_save_name = 'response_switch_type_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_err_corr_conditions:
-        conditions_save_name = 'response_err_corr_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_congruency_by_switch_proportion_conditions:
-        conditions_save_name = 'response_congruency_by_switch_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_switch_type_by_congruency_proportion_conditions:
-        conditions_save_name = 'response_switch_type_by_congruency_proportion_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
-    elif args.conditions == experiment_conditions.response_iR_cS_err_conditions:
-        conditions_save_name = 'response_iR_cS_err_conditions' + '_' + str(len(args.subjects)) + '_' + 'subjects'
+    conditions_save_name = utils.get_conditions_save_name(args.conditions, experiment_conditions, len(args.subjects))
     
     # Get data layout
     layout = get_data(args.task, root=LAB_root)
@@ -246,11 +194,13 @@ def main(args):
         electrodes
     ) 
     
+    significant_clusters = {}
+    
     if args.statistical_method == 'time_perm_cluster':
         print("\nRunning statistical tests comparing TWO conditions")
         if len(condition_names) != 2:
             raise ValueError("Time perm cluster stats requires exactly two conditions.")
-        significant_clusters = {}
+
         p_values_dict = {}
         condition1_name = condition_names[0]
         condition2_name = condition_names[1]
@@ -323,11 +273,9 @@ def main(args):
         args.window_size, args.sampling_rate, 
         significant_clusters=significant_clusters,
         save_dir=save_dir,
-        error_type='sem', figsize=(12, 8), 
-        x_label='Time from Stimulus Onset (s)', 
-        y_label='Power (z)', ylim=args.ylim,
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
-        show_legend=args.show_legend
+        error_type='sem',
+        plot_style=args.plot_style,
+        save_name_suffix=elec_string_to_add_to_filename,
     )
     
     # init subtracted evokeds dict
@@ -355,13 +303,38 @@ def main(args):
         plot_power_traces_for_all_rois(
             subtracted_evks_dict_elecs, rois, subtraction_pairs_condition_names, subtraction_pairs_conditions_save_name, plot_params,
             save_dir=save_dir,
-        window_size=args.window_size, sampling_rate=args.sampling_rate,
-        error_type='sem', figsize=(12, 8), 
-        x_label='Time from Stimulus Onset (s)', 
-        y_label='Power (z)',
-        axis_font_size=35, tick_font_size=24, title_font_size=40, save_name_suffix=elec_string_to_add_to_filename,
-        show_legend=args.show_legend
+            window_size=args.window_size, sampling_rate=args.sampling_rate,
+            error_type='sem',
+            plot_style=args.plot_style,
+            save_name_suffix=elec_string_to_add_to_filename
     )
+        
+    # Save results for later plotting
+    results_save_dir = os.path.join(save_dir, 'saved_results')
+    os.makedirs(results_save_dir, exist_ok=True)
+
+    # Save evoked data as numpy arrays
+    for condition_name in condition_names:
+        for roi in rois:
+            evk = evks_dict_elecs[condition_name][roi]
+            if evk is not None:
+                np.savez(os.path.join(results_save_dir, f'{conditions_save_name}_{condition_name}_{roi}_evoked.npz'),
+                        data=evk.data, times=evk.times, ch_names=evk.ch_names)
+
+    # Save significant clusters (if they exist)
+    if significant_clusters:
+        np.savez(os.path.join(results_save_dir, f'{conditions_save_name}_significant_clusters.npz'), **significant_clusters)
+
+    # Save metadata
+    metadata = {
+        'condition_names': condition_names,
+        'rois': rois,
+        'conditions_save_name': conditions_save_name,
+        'sfreq': args.sampling_rate,
+    }
+    with open(os.path.join(results_save_dir, f'{conditions_save_name}_metadata.json'), 'w') as f:
+        json.dump(metadata, f, indent=2)
+
 
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly
@@ -378,10 +351,12 @@ if __name__ == "__main__":
         print("This script should be called via run_power_traces_dcc.py")
         print("Direct command-line execution is not supported with complex parameters.")
         sys.exit(1)
+    
 # %%
 # TODO: hm i should make a function that can take in stimulus_experiment_conditions and create evokeds based on chosen comparisons (i.e., i75,c75,i25,c25)
 
 # %% [markdown]
 # 
+
 
 

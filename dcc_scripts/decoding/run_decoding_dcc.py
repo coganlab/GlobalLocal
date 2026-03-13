@@ -54,14 +54,16 @@ LAB_ROOT = None  # Will be determined automatically in main()
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 # subjects for iR-cS err
 # SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+# below is without D0110, D0059, D0071, D0090  because less than 23 error trials -- use this for err/corr decoding
+SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
 # switched to False for err-corr decoding
-ACC_TRIALS_ONLY = True
+ACC_TRIALS_ONLY = False
 
 # Parallel processing
 N_JOBS = -1 
@@ -161,25 +163,25 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 # }
 
 # adding parietal, dlpfc, acc for err-corr decoding
-# ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-#     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-#     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-#     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-#     'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
-# }
+ROIS_DICT = {
+     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+     'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
+ }
 
 # ROIS_DICT = {
 #     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
 #     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
 # }
 
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# ROIS_DICT = {
+#    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
-ELECTRODES = 'all'
+ELECTRODES = 'sig'
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']

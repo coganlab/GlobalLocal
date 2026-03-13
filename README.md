@@ -49,7 +49,7 @@ Last edited: 01/16/2024
 
 ### Duke Compute Cluster
 1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal and then after logging in, open your shell's startup file by doing ```nano ~/.bashrc```, then add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file, and save/close it by pressing Ctrl+X.
-2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode
+2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode. You need to do this before using jianghao's script to open an interactive session.
    
 3. You can do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal to access the DCC.
    
@@ -60,12 +60,12 @@ Last edited: 01/16/2024
 6. To move files from DCC to a local machine or Box using Terminal, on windows, can run something like: ```scp jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png C:Users/jz421/Desktop/tfr_figures/``` but replace the paths with where you've saved the figures on the dcc and where you want to save them to. For mac, do ```scp "jz421@dcc-login.oit.duke.edu:/cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/spec/multitaper/subjects_tfr_objects/*.png" ~/Desktop/tfr_figures/```
 
 7. To run an interactive session on the dcc:
-   1. Set up ssh host script in my ssh keys file (he does some stuff here that I forget…)
+   1. Set up ssh host script in my ssh keys file, after putting it in the sshhost folder in home.  
 		a. ls -al ~/.ssh/id_*.pub
 		b. Id_ed25519.pub
 	2. Open a dcc on demand session (choose an amount of time)
 		a. https://dcc-ondemand-01.oit.duke.edu/pun/sys/dashboard/batch_connect/sys/bc_jupyter/session_contexts/new
-	3. Use his sshost script with ./sshhost (put this in my base directory in terminal)
+	3. Use jianghao's sshost script with ./sshhost (put this in my base directory in terminal)
 		a. Put in the host name from the dcc on demand session
 	4. Open vscode, connect to host, choose dcc-compute
   
@@ -87,7 +87,7 @@ Last edited: 01/16/2024
 1. Run make_epoched_data.py to do the stats without plotting. Run make_epoched_data.py like this: ```(ieeg) PS C:\Users\jz421\Desktop\GlobalLocal> python make_epoched_data.py --passband 4 8 --subjects D0057```. So the passband needs to pass in the lower and then upper bound, and then subjects needs to just be the subject ids, no list brackets.
 
 ### Decoding
-1. run ```sbatch sbatch_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc, with chosen parameters in run_decoding_dcc.py. Testing code is at bottom of this file, uncomment to test. Make sure your chosen epochs root file is saved in the dcc cwork folder. Using unit of analysis as repeat right now. The decoding_dcc.py script will load in the epoched data of specified subjects, then for each bootstrap, transform it into a LabeledArray where each electrode is randomly downsampled to the lowest number of trials across electrodes in that roi and condition, then for each condition comparison (i.e., congruent vs incongruent), randomly downsample again to the lowest number of trials across conditions for that condition comparison, then run decoding where error bars and stats are calculated using the unit of analysis (bootstrap, repeat, fold). If bootstrap, it will sum accuracies across folds and average across repeats for each bootstrap. If repeat, it will sum accuracies across folds for each repeat. If fold, it will find the variance and stats over all folds.
+1. run ```sh submit_specific_conditions_decoding_dcc.sh``` from the dcc_scripts/decoding folder on the dcc, with chosen conditions in this script and other chosen parameters in run_decoding_dcc.py. Testing code is at bottom of sbatch_decoding_dcc.sh, uncomment to test. Make sure your chosen epochs root file is saved in the dcc cwork folder. Using unit of analysis as repeat right now. The decoding_dcc.py script will load in the epoched data of specified subjects, then for each bootstrap, transform it into a LabeledArray where each electrode is randomly downsampled to the lowest number of trials across electrodes in that roi and condition, then for each condition comparison (i.e., congruent vs incongruent), randomly downsample again to the lowest number of trials across conditions for that condition comparison, then run decoding where error bars and stats are calculated using the unit of analysis (bootstrap, repeat, fold). If bootstrap, it will sum accuracies across folds and average across repeats for each bootstrap. If repeat, it will sum accuracies across folds for each repeat. If fold, it will find the variance and stats over all folds.
 ### RSA
 1. rsa.ipynb uses my math to do RSA. rsa_using_toolbox.ipynb uses the rsatoolbox library (and also does power trace plotting too).
  
