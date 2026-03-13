@@ -712,11 +712,6 @@ def subsample_to_min_trials_per_condition(roi, nan_removed_data_dict, condition_
     for condition_name in condition_names:
         # get trial counts for all channels in this condition
         trial_counts = [len(data) for data in nan_removed_data_dict[condition_name].values()]
-        
-        # Print per-channel trial counts to find the bottleneck
-        print(f"\n  Condition '{condition_name}' trial counts per channel:")
-        for channel, count in sorted(trial_counts.items(), key=lambda x: x[1]):
-            print(f"    {channel}: {count} trials")
             
         if not trial_counts:
             # This can happen if a condition has no channels with valid data
