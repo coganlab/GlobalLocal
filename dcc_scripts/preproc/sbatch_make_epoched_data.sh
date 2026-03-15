@@ -19,6 +19,9 @@ outlier_policy=${11}
 outliers=${12}
 threshold_percent=${13}
 passband=${14}
+filter_method=${15}
+method=${16}
+fir_design=${17}
 
 # can't pass in stat_func because it's a function, sadly...manually set this in make_epoched_data_dcc.py
 
@@ -33,12 +36,15 @@ python /hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/preproc/make_epoc
     --times ${times} \
     --within_base_times ${within_base_times} \
     --baseline_event "${baseline_event}" \
-    --base_times_length ${base_times_length} \
-    --pad_length ${pad_length} \
+    --base_times_length "${base_times_length}" \
+    --pad_length "${pad_length}" \
     --LAB_root "${LAB_root}" \
     --channels "${channels}" \
-    --dec_factor ${dec_factor} \
+    --dec_factor "${dec_factor}" \
     --outlier_policy "${outlier_policy}" \
-    --outliers ${outliers} \
-    --threshold_percent ${threshold_percent} \
-    --passband ${passband}
+    --outliers "${outliers}" \
+    --threshold_percent "${threshold_percent}" \
+    --passband ${passband} \
+    --filter_method "${filter_method}" \
+    --method "${method}" \
+    --fir_design "${fir_design}"

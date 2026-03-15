@@ -182,7 +182,9 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, 
+                      outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
+                      stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -202,6 +204,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.  
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
+    - filter_method (str, optional): The filtering method to use for extracting your chosen passband. Currently can either use filterbank_hilbert (https://naplib-python.readthedocs.io/en/latest/references/preprocessing.html#naplib.preprocessing.filterbank_hilbert) or bandpass (which will apply a FIR bandpass filter).
+    - method (str, optional): The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.
+    - fir_design (str, optional): The fir design for the bandpass filter if you use bandpass as the filter_method. Default is firwin but can use firwin2 or other things.
     - stat_func (function, optional): The statistical function to use for significance testing. Default is ttest_ind(equal_var=False).
     
     This function will process the provided event for a given subject and task.
@@ -323,8 +328,13 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         impute_trial_nans_by_channel_mean(base_trials)
     else:
         print('ignoring outliers')
-        
-    HG_base = gamma.extract(base_trials, passband=passband, copy=False, n_jobs=1)
+    if filter_method == 'filterbank_hilbert':    
+        HG_base = gamma.extract(base_trials, passband=passband, copy=False, n_jobs=1)
+    elif filter_method == 'bandpass':
+        HG_base = base_trials.copy().filter(passband[0], passband[1], method=method, fir_design=fir_design)
+        HG_base.apply_hilbert(envelope=True)
+    else:
+        raise ValueError("Please choose filterbank_hilbert or bandpass as your filter method. Other filter methods are not yet supported.")
     pad_length_string = f"{pad_length}s"
     crop_pad(HG_base, pad_length_string)
     HG_base.decimate(dec_factor)
@@ -379,7 +389,14 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         channels = trials.ch_names
         
         # Now extract gamma and proceed with analysis
-        HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
+        if filter_method == 'filterbank_hilbert':
+            HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
+        elif filter_method == 'bandpass':
+            HG_ev1 = trials.copy().filter(passband[0], passband[1], method=method, fir_design=fir_design)
+            HG_ev1.apply_hilbert(envelope=True) # get real signal only - if you set envelope=False, you can grab the complex signal and then do np.angle(HG_ev1._data) to get the phase. But make sure to do that before decimation cuz that will mess up the phase calculation.
+        else:
+            raise ValueError("Please choose filterbank_hilbert or bandpass as your filter method. Other filter methods are not yet supported.")
+        
         crop_pad(HG_ev1, pad_length_string)
         HG_ev1.decimate(dec_factor)
         # Square the data to get power from amplitude
@@ -425,7 +442,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         # Save HG_ev1_evoke_rescaled
         HG_ev1_evoke_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_rescaled-ave.fif', overwrite=True)
         HG_ev1_evoke_power_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_evoke_power_rescaled-ave.fif', overwrite=True)
-
+        
         ###
         print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
         print(f"Shape of HG_base._data: {HG_base._data.shape}")
@@ -454,18 +471,23 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', outliers=10, threshold_percent=5.0, passband=(70,150), stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
+         outliers=10, threshold_percent=5.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
+         stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
     if subjects is None:
-        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134', 'D0137']
+        subjects = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 
+                    'D0117', 'D0121', 'D0130', 'D0133', 'D0134', 'D0137']
 
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
                           pad_length=pad_length, LAB_root=LAB_root, channels=channels,
-                          dec_factor=dec_factor, outlier_policy=outlier_policy, outliers=outliers, threshold_percent=threshold_percent, passband=passband, stat_func=stat_func)
+                          dec_factor=dec_factor, outlier_policy=outlier_policy, outliers=outliers, 
+                          threshold_percent=threshold_percent, passband=passband, filter_method=filter_method, 
+                          method=method, fir_design=fir_design, stat_func=stat_func)
         
 if __name__ == "__main__":
     import argparse
@@ -484,6 +506,9 @@ if __name__ == "__main__":
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
     parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
+    parser.add_argument('--filter_method', type=str, default='filterbank_hilbert', help='Which filtering method to use for extracting your chosen frequency range. Currently can use either filterbank_hilbert or bandpass.')
+    parser.add_argument('--method', type=str, default='fir', help='The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.')
+    parser.add_argument('--fir_design', type=str, default='firwin', help='The fir design for the bandpass filter if you use bandpass as the filter_method. Default is firwin but can use firwin2 or other things.')
     parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False, nan_policy='omit'), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
     args=parser.parse_args()
 
@@ -505,8 +530,10 @@ if __name__ == "__main__":
     print(f"args.outliers: {args.outliers}")
     print(f"args.threshold_percent: {args.threshold_percent}")
     print(f"args.passband: {args.passband}")
-
-
+    print(f"args.filter_method: {args.filter_method}")
+    print(f"args.method: {args.method}")
+    print(f"args.fir_design: {args.fir_design}")
+    
     main(subjects=args.subjects, 
         task=args.task, 
         times=args.times, 
@@ -520,4 +547,7 @@ if __name__ == "__main__":
         outliers=args.outliers, 
         threshold_percent=args.threshold_percent,
         passband=args.passband,
+        filter_method=args.filter_method,
+        method=args.method,
+        fir_design=args.fir_design,
         stat_func=args.stat_func)
