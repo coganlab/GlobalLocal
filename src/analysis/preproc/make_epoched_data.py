@@ -54,7 +54,7 @@ sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to d
 import pickle
 from scipy.stats import ttest_ind
 from functools import partial
-from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean
+from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean, get_default_LAB_root
 from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 
 # Add this fixed version of crop_empty_data at the top of your script, after the imports
@@ -218,20 +218,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
     else:
         LAB_root = LAB_root
 
@@ -360,7 +347,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
         
-    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_stat_func_{stat_func_for_filename}"
+    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_{filter_method}_stat_func_{stat_func_for_filename}"
     for event in ["Stimulus", "Response"]:
         print(f"--- Processing Event: {event} ---")
         output_name_event = f'{event}_{times[0]}to{times[1]}sec_{output_name_base}'
