@@ -284,3 +284,4 @@
 [Parallel(n_jobs=6)]: Done  91 tasks      | elapsed:  9.8min
 [Parallel(n_jobs=6)]: Done  92 tasks      | elapsed:  9.8min
 [Parallel(n_jobs=6)]: Done  93 tasks      | elapsed:  9.9min
+[Parallel(n_jobs=6)]: Done  94 tasks      | elapsed: 10.0min
