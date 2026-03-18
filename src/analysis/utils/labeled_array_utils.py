@@ -712,7 +712,7 @@ def subsample_to_min_trials_per_condition(roi, nan_removed_data_dict, condition_
     for condition_name in condition_names:
         # get trial counts for all channels in this condition
         trial_counts = [len(data) for data in nan_removed_data_dict[condition_name].values()]
-        
+            
         if not trial_counts:
             # This can happen if a condition has no channels with valid data
             print(f"Warning: No valid trials found for condition '{condition_name}' in ROI {roi}. Setting min trials to 0.")
@@ -959,3 +959,4 @@ def make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channe
     
     
     
+

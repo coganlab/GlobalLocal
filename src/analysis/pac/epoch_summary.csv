@@ -1,1 +1,2 @@
-
+subject,file,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
+D0057,/cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0057/D0057_Stimulus_full-epo.fif,449,2048.0,175,-1.0,1.5,"RAI1,RAI2,RAI3"

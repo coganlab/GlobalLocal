@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import argparse
 import numpy as np
@@ -7,67 +6,95 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# keep same BASE_DIR & filename formatting as your other scripts
 BASE_DIR = "/hpc/home/rl330/coganlab/rl330/GlobalLocal/src/analysis/pac/coh_timewindow"
 
 
-def build_filename(subject, region, condition, tstart, tend):
-    """Construct filename identical to sig_test.py convention."""
+def build_filename(subject, region, condition):
+    """
+    New filename convention (no window in filename):
+    coherence_epochs_summary_{subject}_{region}_{condition}.csv
+    """
     if isinstance(subject, (list, tuple)):
         raise ValueError("Subject should be a single ID string, not a list or tuple")
     subj = str(subject).strip()
-    tstart_s = str(tstart)
-    tend_s = str(tend)
-    fname = f"coherence_{subj}_{region}_{condition}_({tstart_s}, {tend_s})_summary.csv"
+    region_s = str(region).strip()
+    cond_s = str(condition).strip()
+    fname = f"coherence_epochs_summary_{subj}_{region_s}_{cond_s}.csv"
     return os.path.join(BASE_DIR, fname)
 
 
-def load_summary_for_condition_window(subjects, region, condition, tstart, tend, allowed_pairs=None, verbose=True):
+def pkl_path_from_summary(csv_path):
     """
-    Load all summary CSVs for a given condition and time window across subjects.
-    Optionally filter to only allowed_pairs (set of (ch1,ch2) tuples).
-    Returns combined DataFrame (may be empty if no files found / none match) and list of found_subjects.
+    Map CSV path to corresponding full-PKL path:
+    coherence_epochs_full_{subject}_{region}_{condition}.pkl
     """
+    base = os.path.basename(csv_path)
+    dirn = os.path.dirname(csv_path)
+    if base.startswith('coherence_epochs_summary_') and base.endswith('.csv'):
+        new_base = base.replace('coherence_epochs_summary_', 'coherence_epochs_full_')
+        new_base = new_base.rsplit('.csv', 1)[0] + '.pkl'
+        return os.path.join(dirn, new_base)
+    # fallback conservative replacement
+    return os.path.join(dirn, base.replace('_summary.csv', '_full.pkl'))
+
+
+def load_summary_for_condition_window(subjects, region, condition, tstart, tend, allowed_pairs=None, tol=1e-6, verbose=True):
+    
     rows = []
     found = []
     for subj in subjects:
         subj = str(subj).strip()
-        path = build_filename(subj, region, condition, tstart, tend)
-        if os.path.exists(path):
-            try:
-                df = pd.read_csv(path)
-            except Exception as e:
+        path = build_filename(subj, region, condition)
+        if not os.path.exists(path):
+            # silent skip as before
+            continue
+        try:
+            df = pd.read_csv(path)
+        except Exception as e:
+            if verbose:
+                print(f"Warning: failed to read {path}: {e}")
+            continue
+
+        # ensure window cols exist
+        if 'window_start' not in df.columns or 'window_end' not in df.columns:
+            if verbose:
+                print(f"Warning: file {path} missing window_start/window_end columns; skipping subject {subj}")
+            continue
+
+        # filter by requested window using tolerance
+        mask = np.isclose(df['window_start'].astype(float), float(tstart), atol=tol) & \
+               np.isclose(df['window_end'].astype(float), float(tend), atol=tol)
+        df_filtered = df[mask].copy()
+        if df_filtered.empty:
+            # no matching rows for this subject / window
+            if verbose:
+                print(f"  Subject {subj}: no rows matching window ({tstart},{tend}) in {path}")
+            continue
+
+        # optional allowed-pair filtering
+        if allowed_pairs:
+            # be tolerant to pair order (ch1,ch2) vs (ch2,ch1)
+            df_filtered = df_filtered[df_filtered.apply(
+                lambda r: ((r['ch1'], r['ch2']) in allowed_pairs) or ((r['ch2'], r['ch1']) in allowed_pairs),
+                axis=1
+            )]
+            if df_filtered.empty:
                 if verbose:
-                    print(f"Warning: failed to read {path}: {e}")
+                    print(f"  Subject {subj}: no rows left after allowed_pairs filter for window ({tstart},{tend})")
                 continue
-            df['subject'] = subj
-            # filter by allowed_pairs if provided
-            if allowed_pairs:
-                # define mask where (ch1,ch2) or (ch2,ch1) in allowed_pairs
-                mask = df.apply(lambda r: ((r['ch1'], r['ch2']) in allowed_pairs) or ((r['ch2'], r['ch1']) in allowed_pairs), axis=1)
-                df = df[mask]
-                if df.empty:
-                    # nothing left for this subject in this window
-                    if verbose:
-                        print(f"  Subject {subj}: no matching sig pairs in {path} after filtering")
-                    continue
-            rows.append(df)
-            found.append(subj)
-        else:
-            # silent skip
-            pass
+
+        df_filtered['subject'] = subj
+        rows.append(df_filtered)
+        found.append(subj)
+
     if not rows:
         return pd.DataFrame(), []
-    return pd.concat(rows, ignore_index=True), sorted(found)
+    combined = pd.concat(rows, ignore_index=True)
+    return combined, sorted(found)
 
 
 def perpair_means(df):
-    """
-    Same aggregation behavior as the other script:
-    - if 'subject' present: compute per-subject per-pair means then average across subjects
-    - else: compute mean across all rows per pair
-    Returns DataFrame with columns ['ch1','ch2','mean_coh','n','n_subjects']
-    """
+   
     if df.empty:
         return pd.DataFrame(columns=['ch1', 'ch2', 'mean_coh', 'n', 'n_subjects'])
     if 'subject' in df.columns:
@@ -90,11 +117,7 @@ def perpair_means(df):
 
 
 def compute_overall_stats(perpair_df):
-    """
-    From per-pair aggregated table (with mean_coh), compute
-    overall mean across pairs, std across pairs, SEM, and n_pairs.
-    Returns dict.
-    """
+    
     if perpair_df.empty:
         return {'mean': np.nan, 'std': np.nan, 'sem': np.nan, 'n_pairs': 0}
     arr = perpair_df['mean_coh'].values.astype(float)
@@ -120,10 +143,7 @@ def make_windows(time_start, time_end, window_width, time_step):
 
 
 def read_sig_pairs_for_subjects(subj_list, sig_dir, verbose=True):
-    """
-    Read sig pair files for each subject in subj_list from sig_dir.
-    Tries several filename patterns. Returns set of allowed pairs {(ch1,ch2),...}.
-    """
+    
     allowed = set()
     tried_any = False
     for sub in subj_list:
@@ -270,7 +290,11 @@ def main():
     ax.legend()
     ax.grid(axis='y', alpha=0.3)
     plt.tight_layout()
-    out_fig='sig_pairs/' + args.subj[0] + '_' + args.region + '_timecourse.png'
+
+    # ensure output dir for sig pairs exists
+    out_dir = 'sig_pairs'
+    os.makedirs(out_dir, exist_ok=True)
+    out_fig = os.path.join(out_dir, args.subj[0] + '_' + args.region + '_timecourse.png')
     fig.savefig(out_fig, dpi=150)
     print(f"Saved figure to {out_fig}")
     plt.close(fig)

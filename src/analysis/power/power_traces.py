@@ -32,8 +32,8 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
                                             impute_trial_nans_by_channel_mean, \
                                             create_subjects_mne_objects_dict, \
                                             filter_electrode_lists_against_subjects_mne_objects, \
-                                            find_difference_between_two_electrode_lists,
-                                            windower
+                                            find_difference_between_two_electrode_lists
+                                            
                                             
 #to save print statements while on cluster
 # PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
@@ -46,6 +46,38 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
 #                     level=logging.DEBUG, 
 #                     format='%(asctime)s - %(message)s',
 #                     filemode='w')
+
+DEFAULT_PLOT_STYLE = {
+    # Toggles
+    'show_title': True,
+    'show_xlabel': True,
+    'show_ylabel': True,
+    'show_legend': True,
+    
+    # Labels
+    'title': None,        # None = auto-generate from ROI name
+    'x_label': 'Time (s)',
+    'y_label': 'Power (z)',
+    
+    # Font sizes
+    'title_font_size': 14,
+    'axis_font_size': 12,
+    'tick_font_size': 12,
+    'legend_font_size': 10,
+    
+    # Tick customization
+    'xticks': None,       # None = auto, or pass array
+    'yticks': None,
+    'xtick_labels': None, # Custom labels for xticks
+    'ytick_labels': None,
+    'xlim': None,
+    'ylim': None,
+    
+    # Other
+    'figsize': (12, 8),
+    'text_color': '#002060',
+    'sig_cluster_height': 0.3,
+}
 
 def combine_single_channel_evokeds(single_channel_evokeds, ch_type='seeg'):
     """
@@ -363,9 +395,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
                              plotting_parameters, significant_clusters=None, 
                              window_size=None, sampling_rate=None, save_dir=None, 
                              show_std=True, show_sem=False, show_ci=False, ci=0.95, 
-                             figsize=(12, 8), x_label='Time (s)', ylim=None, 
-                             y_label='Power (z)', axis_font_size=12, tick_font_size=12, 
-                             title_font_size=14, save_name_suffix=None, show_legend=True):
+                             plot_style=None, save_name_suffix=None):
     """
     Custom plot with standard deviation or standard error shading.
     
@@ -383,17 +413,15 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     conditions_save_name : str
         Name to use for saving the plot
     plotting_parameters : dict
-        Dictionary with plotting parameters
+        Dictionary with plotting parameters for the traces.
     save_dir : str
         Directory to save the plot
     show_std : bool
         Whether to show standard deviation shading
     show_sem : bool
         Whether to show standard error of mean shading
-    figsize : tuple
-        Figure size 
-    ylim : tuple
-        Y-axis limits
+    plot_style : dict
+        Dictionary with plot style parameters for the figure settings.
     save_name_suffix : str
         Suffix to add to the save name
     significant_clusters : array-like of bool
@@ -403,6 +431,10 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     --------
     fig : matplotlib figure
     """
+    # Resolve plot style with defaults
+    s = {**DEFAULT_PLOT_STYLE, **(plot_style or {})}
+    figsize = s['figsize']
+    sig_cluster_height = s['sig_cluster_height']
     fig, ax = plt.subplots(figsize=figsize)
     
     for condition_name in condition_names:
@@ -464,10 +496,6 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             ax.fill_between(times, ci_data[0], ci_data[1],
                            alpha=0.3, color=color, linewidth=0)
 
-
-   # Get the number of timepoints
-    time_axis_length = times
-
     # Find contiguous significant clusters
     def find_clusters(significant_clusters: Union[np.ndarray, List[bool], Sequence[bool]]):
         """Helper to find start and end indices of contiguous True blocks."""
@@ -500,11 +528,8 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         # # Determine y position for the bars
         # max_y = np.max(mean_true_accuracy + se_true_accuracy)
         # min_y = np.min(mean_shuffle_accuracy - se_shuffle_accuracy)
-        # y_bar = max_y + 0.02  # Adjust as needed
-        # plt.ylim([min_y, y_bar + 0.05])  # Adjust ylim to accommodate the bars
-
-        # Set y_bar to a fixed value within the y-axis limits
-        y_bar = 0.3  # Fixed value near the top of the y-axis
+        # sig_cluster_height = max_y + 0.02  # Adjust as needed
+        # plt.ylim([min_y, sig_cluster_height + 0.05])  # Adjust ylim to accommodate the bars
 
         # Plot horizontal bars and asterisks for significant clusters
         for cluster in clusters:
@@ -523,40 +548,41 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
                 start_time = times[start_idx] - (window_duration / 2)
                 end_time = times[end_idx] + (window_duration / 2)
                 
-            plt.hlines(y=y_bar, xmin=start_time, xmax=end_time, color='black', linewidth=2)  
+            plt.hlines(y=sig_cluster_height, xmin=start_time, xmax=end_time, color='black', linewidth=2)  
             # Place an asterisk at the center of the bar
             center_time = (start_time + end_time) / 2
-            plt.text(center_time, y_bar + 0.01, '*', ha='center', va='bottom', fontsize=14)
+            plt.text(center_time, sig_cluster_height + 0.01, '*', ha='center', va='bottom', fontsize=14)
 
     # Customize plot
-    text_color = "#002060"
+    text_color = s['text_color']
 
-    ax.set_xlabel(x_label, fontsize=axis_font_size, color=text_color)
-    ax.set_ylabel(y_label, fontsize=axis_font_size, color=text_color)
+    if s['show_xlabel']:
+        ax.set_xlabel(s['x_label'], fontsize=s['axis_font_size'], color=text_color)
+    if s['show_ylabel']:
+        ax.set_ylabel(s['y_label'], fontsize=s['axis_font_size'], color=text_color)
+    
     ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.tick_params(axis='both', colors=text_color, labelsize=tick_font_size)
+    ax.tick_params(axis='both', colors=text_color, labelsize=s['tick_font_size'])
     
-    # Set title
-    title = f'{roi.upper()}'
-
-    # if show_std:
-    #     title += ' (±1 SD)'
-    # elif show_sem:
-    #     title += ' (±1 SEM)'
-    # elif show_ci:
-    #     title += f' ({ci*100}% CI)'
-
-    ax.set_title(title, fontsize=title_font_size, fontweight='bold', color=text_color)
+    if s['xticks'] is not None:
+        ax.set_xticks(s['xticks'])
+    if s['yticks'] is not None:
+        ax.set_yticks(s['yticks'])
     
-    if ylim:
-        ax.set_ylim(ylim)
+    if s['show_title']:
+        title = s['title'] if s['title'] else f'{roi.upper()}'
+        ax.set_title(title, fontsize=s['title_font_size'], fontweight='bold', color=text_color)
+    
+    if s['ylim']:
+        ax.set_ylim(s['ylim'])
+    if s['xlim']:
+        ax.set_xlim(s['xlim'])
         
-    if show_legend:
-        ax.legend(loc='best', framealpha=0.95)
-    #ax.grid(False, alpha=0.3, linestyle='--')
+    if s['show_legend']:
+        ax.legend(loc='best', framealpha=0.95, fontsize=s.get('legend_font_size', 10))
     
     plt.tight_layout()
     
@@ -564,10 +590,11 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     if save_dir:
         os.makedirs(save_dir, exist_ok=True)
         error_type = 'std' if show_std else 'sem' if show_sem else 'ci' if show_ci else 'no_error'
-        filename = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading.png'
-        filepath = os.path.join(save_dir, filename)
-        plt.savefig(filepath, dpi=300, bbox_inches='tight')
-        print(f"Saved plot to: {filepath}")
+        base = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading'
+        for ext in ('.pdf', '.png'):
+            filepath = os.path.join(save_dir, base + ext)
+            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+            print(f"Saved plot to: {filepath}")
     
     plt.close()
     return fig
@@ -575,9 +602,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
 def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, conditions_save_name,
                                    plotting_parameters, window_size=None, sampling_rate=None, 
                                    significant_clusters=None, save_dir=None, error_type='std', 
-                                   figsize=(12, 8), x_label='Time (s)', y_label='Power (z)', 
-                                   ylim=None, axis_font_size=12, tick_font_size=12, title_font_size=14, 
-                                   save_name_suffix=None, show_legend=True):
+                                   plot_style=None, save_name_suffix=None):
     """
     Plot power traces for each ROI comparing the specified conditions
     
@@ -592,23 +617,13 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, condi
     conditions_save_name : str
         Name to use for saving the plot
     plotting_parameters : dict
-        Plotting parameters dictionary
+        Plotting parameters dictionary (see config/plotting_parameters.py for details)
     save_dir : str
         Directory to save plots
     error_type : str
         Type of error to show: 'std', 'sem', 'ci', or 'none'
-    x_label : str
-        X-axis label
-    y_label : str
-        Y-axis label
-    axis_font_size : int
-        Font size for axis labels and title
-    tick_font_size : int
-        Font size for tick labels
-    title_font_size : int
-        Font size for title
-    figsize : tuple
-        Figure size for each plot
+    plot_style : dict
+        Dictionary with plot style parameters for the figure settings.
     save_name_suffix : str
         Suffix to add to the save name
     significant_clusters : array-like of bool
@@ -625,49 +640,15 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, condi
             clusters_for_this_roi = significant_clusters.get(roi, None)
 
         # Plot all electrodes
-        if error_type == 'std':
-            # Use custom function for standard deviation
-            plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, 
-                window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir, show_std=True, show_sem=False, axis_font_size=axis_font_size, 
-                tick_font_size=tick_font_size, x_label=x_label, y_label=y_label, ylim=ylim,
-                title_font_size=title_font_size, figsize=figsize, 
-                save_name_suffix=save_name_suffix, show_legend=show_legend
-            )
-            
-        elif error_type == 'sem':
-            # Use custom function for standard error
-            plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, 
-                significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir,
-                show_std=False, show_sem=True, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label, ylim=ylim,
-                title_font_size=title_font_size, figsize=figsize, 
-                save_name_suffix=save_name_suffix, show_legend=show_legend
-            )
-        elif error_type == 'ci':
-            # Use MNE function with 95% CI
-            plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, 
-                significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir,
-                show_std=False, show_sem=False, show_ci=True, ci=0.95, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label, ylim=ylim,
-                title_font_size=title_font_size, figsize=figsize, 
-                save_name_suffix=save_name_suffix, show_legend=show_legend
-            )
-        else:
-            # No error bars
-            plot_power_trace_for_roi(
-                evks_dict_elecs, roi, condition_names, conditions_save_name, plotting_parameters, window_size=window_size, sampling_rate=sampling_rate, significant_clusters=clusters_for_this_roi,
-                save_dir=save_dir,
-                show_std=False, show_sem=False, show_ci=False, ci=None, axis_font_size=axis_font_size, tick_font_size=tick_font_size, 
-                x_label=x_label, y_label=y_label, ylim=ylim,
-                title_font_size=title_font_size, figsize=figsize, 
-                save_name_suffix=save_name_suffix, show_legend=show_legend
-            )
+        plot_power_trace_for_roi(
+            evks_dict_elecs, roi, condition_names, conditions_save_name, 
+            plotting_parameters, window_size=window_size, sampling_rate=sampling_rate,
+            significant_clusters=clusters_for_this_roi, save_dir=save_dir,
+            show_std=(error_type == 'std'), 
+            show_sem=(error_type == 'sem'),
+            show_ci=(error_type == 'ci'),
+            plot_style=plot_style, save_name_suffix=save_name_suffix
+        )
     
     if save_dir:
         print(f"\nAll plots saved to: {save_dir}")
@@ -1008,3 +989,48 @@ def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
                 corrected_results[window].append(info)
     
     return corrected_results
+
+def apply_plot_style(ax, roi, style=None):
+    """Apply styling to an axis from a style dict, with defaults."""
+    s = {**DEFAULT_PLOT_STYLE, **(style or {})}
+    
+    if s['show_title']:
+        title = s['title'] if s['title'] else f"{roi.upper()}"
+        ax.set_title(title, fontsize=s['title_font_size'], 
+                     fontweight='bold', color=s['text_color'])
+    
+    if s['show_xlabel']:
+        ax.set_xlabel(s['x_label'], fontsize=s['axis_font_size'], color=s['text_color'])
+    else:
+        ax.set_xlabel('')
+    
+    if s['show_ylabel']:
+        ax.set_ylabel(s['y_label'], fontsize=s['axis_font_size'], color=s['text_color'])
+    else:
+        ax.set_ylabel('')
+    
+    # Ticks
+    if s['xticks'] is not None:
+        ax.set_xticks(s['xticks'])
+    if s['yticks'] is not None:
+        ax.set_yticks(s['yticks'])
+    if s['xtick_labels'] is not None:
+        ax.set_xticklabels(s['xtick_labels'])
+    if s['ytick_labels'] is not None:
+        ax.set_yticklabels(s['ytick_labels'])
+    
+    ax.tick_params(axis='both', colors=s['text_color'], labelsize=s['tick_font_size'])
+    
+    if s['xlim']:
+        ax.set_xlim(s['xlim'])
+    if s['ylim']:
+        ax.set_ylim(s['ylim'])
+    
+    if s['show_legend']:
+        ax.legend(loc='best', framealpha=0.95, fontsize=s['legend_font_size'])
+    
+    # Standard cleanup
+    ax.axhline(y=0, color='black', linestyle=':', alpha=0.5)
+    ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)

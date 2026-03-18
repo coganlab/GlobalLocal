@@ -1,8 +1,27 @@
-import mne
 import sys
+import os
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+# Get the absolute path to the directory containing the current script
+try:
+    # This will work if running as a .py script
+    current_file_path = os.path.abspath(__file__)
+    current_script_dir = os.path.dirname(current_file_path)
+except NameError:
+    # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
+    current_script_dir = os.getcwd()
+
+# Navigate up two levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)  # insert at the beginning to prioritize it
+
+import mne
 import json
 import numpy as np
-import os
 import pandas as pd
 from ieeg.navigate import channel_outlier_marker, trial_ieeg, crop_empty_data, \
     outliers_to_nan
@@ -20,6 +39,44 @@ import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from numpy.lib.stride_tricks import as_strided, sliding_window_view
+
+from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import CONDITION_REGISTRY
+from src.analysis.config.condition_registry import get_comparisons
+
+def get_default_LAB_root():
+    """Determine the default root directory for CoganLab data based on the current platform.
+
+    Resolves the path to the lab's shared data directory by detecting the
+    operating system and common mount points. Supports Windows (Box sync),
+    macOS (Box cloud storage), and Linux (Duke HPC /cwork or local fallback).
+
+    Parameters
+    ----------
+    LAB_root : str, optional
+        If provided, returned as-is (allows manual override). If None,
+        the path is auto-detected based on the current OS and environment.
+
+    Returns
+    -------
+    str
+        Absolute path to the lab data root directory.
+    """
+    
+    HOME = os.path.expanduser("~")
+    USER = os.path.basename(HOME)
+    
+    if os.name == 'nt':  # Windows
+        return os.path.join(HOME, "Box", "CoganLab")
+    elif sys.platform == 'darwin':  # macOS
+        return os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
+    else:  # Linux (cluster)
+        # Check if we're on the cluster by looking for /cwork directory
+        if os.path.exists(f"/cwork/{USER}"):
+            return f"/cwork/{USER}"
+        else:
+            # Fallback for other Linux systems
+            return os.path.join(HOME, "CoganLab")
 
 def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
     """
@@ -76,43 +133,14 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
     
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
 
     for sub in subjects:
         print(sub)
         layout = get_data(task, root=LAB_root)
-        filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
-                            extension='.edf', desc='clean', preload=False)
+        good = get_good_data(sub, layout)
 
-        good = crop_empty_data(filt)
-
-        good.info['bads'] = channel_outlier_marker(good, 3, 2)
-
-        # Drop the trigger channel if it exists 9/30
-        if 'Trigger' in good.ch_names:
-            good.drop_channels('Trigger')
-
-        filt.drop_channels(good.info['bads'])  # this has to come first cuz if you drop from good first, then good.info['bads'] is just empty
-        good.drop_channels(good.info['bads'])
-
-        good.load_data()
         channels = good.ch_names
-
-        ch_type = filt.get_channel_types(only_data_chs=True)[0]
-        good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
         
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
@@ -249,6 +277,17 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     return subjects_electrodes_to_ROIs_dict
 
+def _load_epochs_with_metadata(save_dir, sub, epochs_root_file, obj_name):
+    """Load an epochs .fif file and attach metadata from CSV if available"""
+    fif_path = f'{save_dir}/{sub}_{epochs_root_file}_{obj_name}-epo.fif'
+    csv_path = f'{save_dir}/{sub}_{epochs_root_file}_{obj_name}_metadata.csv'
+    
+    epochs = mne.read_epochs(fif_path)
+    if os.path.exists(csv_path):
+        epochs.metadata = pd.read_csv(csv_path)
+    
+    return epochs
+
 def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LAB_root=None):
     """
     Load MNE objects for a given subject and output name, with an option to load only rescaled high gamma epochs.
@@ -272,20 +311,7 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
 
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
                 
     # Get data layout
     layout = get_data(task, root=LAB_root)
@@ -299,32 +325,15 @@ def load_mne_objects(sub, epochs_root_file, task, just_HG_ev1_rescaled=False, LA
     mne_objects = {}
 
     if just_HG_ev1_rescaled:
-        # Define path and load only the rescaled high gamma epochs
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-
-        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
-        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
-        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
+        # Define path and load only the rescaled high gamma epochs, along with corresponding metadata
+        mne_objects['HG_ev1_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_rescaled')
+        mne_objects['HG_ev1_power_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_power_rescaled')
 
     else:
-        # Define file paths
-        HG_ev1_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1-epo.fif'
-        HG_base_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif'
-        HG_ev1_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_rescaled-epo.fif'
-        HG_ev1_power_rescaled_file = f'{save_dir}/{sub}_{epochs_root_file}_HG_ev1_power_rescaled-epo.fif'
-
-        # Load the objects
-        HG_ev1 = mne.read_epochs(HG_ev1_file)
-        HG_base = mne.read_epochs(HG_base_file)
-        HG_ev1_rescaled = mne.read_epochs(HG_ev1_rescaled_file)
-        HG_ev1_power_rescaled = mne.read_epochs(HG_ev1_power_rescaled_file)
-
-        mne_objects['HG_ev1'] = HG_ev1
-        mne_objects['HG_base'] = HG_base
-        mne_objects['HG_ev1_rescaled'] = HG_ev1_rescaled
-        mne_objects['HG_ev1_power_rescaled'] = HG_ev1_power_rescaled
+        mne_objects['HG_ev1'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1')
+        mne_objects['HG_ev1_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_rescaled')
+        mne_objects['HG_ev1_power_rescaled'] = _load_epochs_with_metadata(save_dir, sub, epochs_root_file, 'HG_ev1_power_rescaled')
+        mne_objects['HG_base'] = mne.read_epochs(f'{save_dir}/{sub}_{epochs_root_file}_HG_base-epo.fif')
 
     return mne_objects
 
@@ -1281,20 +1290,7 @@ def get_sig_chans(sub, task, epochs_root_file, LAB_root=None):
     """
     # Determine LAB_root based on the operating system and environment
     if LAB_root is None:
-        HOME = os.path.expanduser("~")
-        USER = os.path.basename(HOME)
-        
-        if os.name == 'nt':  # Windows
-            LAB_root = os.path.join(HOME, "Box", "CoganLab")
-        elif sys.platform == 'darwin':  # macOS
-            LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-        else:  # Linux (cluster)
-            # Check if we're on the cluster by looking for /cwork directory
-            if os.path.exists(f"/cwork/{USER}"):
-                LAB_root = f"/cwork/{USER}"
-            else:
-                # Fallback for other Linux systems
-                LAB_root = os.path.join(HOME, "CoganLab")
+        LAB_root = get_default_LAB_root()
     # Get data layout
     layout = get_data(task, root=LAB_root)
     save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs', sub)
@@ -1580,6 +1576,7 @@ def get_good_data(sub, layout):
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
 
     return good
+
 
 def count_electrodes_across_subjects(data, subjects):
     total_electrodes = 0
@@ -2050,6 +2047,23 @@ def find_difference_between_two_electrode_lists(
                 
     return in_1_not_2, in_2_not_1
 
+def print_summary_of_dropped_electrodes(raw_electrodes, filtered_electrodes):
+    '''
+    debug prints for looking at which electrodes got dropped
+    '''
+    dropped_electrodes, _ = find_difference_between_two_electrode_lists(raw_electrodes, filtered_electrodes)
+    print("\n--- Summary of Dropped Electrodes ---")
+    total_dropped = 0
+    for roi, sub_dict in dropped_electrodes.items():
+        if not sub_dict: continue # Skip ROIs with no dropped electrodes
+        print(f"ROI: {roi}")
+        for sub, elec_list in sub_dict.items():
+            if elec_list:
+                print(f"  - Subject {sub}: Dropped {len(elec_list)} electrode(s)")
+                total_dropped += len(elec_list)
+    print(f"Total electrodes dropped across all subjects/ROIs: {total_dropped}")
+    print("-------------------------------------\n")
+    
 def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
              step_size: int = 1, insert_at: int = 0):
     if window_size is None:
@@ -2075,3 +2089,34 @@ def windower(x_data: np.ndarray, window_size: int = None, axis: int = -1,
         windowed = np.moveaxis(windowed, axis, insert_at)
     
     return windowed
+
+def get_conditions_save_name(conditions, experiment_conditions, n_subjects):
+    """
+    Map a conditions object to its save name string.
+    
+    Parameters
+    ----------
+    conditions : dict
+        The conditions object to map.
+    experiment_conditions : dict
+        The experiment conditions dictionary.
+    n_subjects : int
+        The number of subjects.
+    
+    Returns
+    -------
+    str
+        The save name string.
+    """
+    for key, entry in CONDITION_REGISTRY.items():
+        if conditions == entry['conditions_obj']:
+            return f"{key}_{n_subjects}_subjects"
+
+    raise ValueError(f"Unknown conditions object: {conditions}")
+    
+def build_condition_comparisons(conditions, experiment_conditions=None):
+    """
+    Return the condition_comparisons dict for a given conditions object.
+    This is primarily for setting up decoding comparisons.
+    """    
+    return get_comparisons(conditions)
