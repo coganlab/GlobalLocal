@@ -5,6 +5,7 @@ data
 *.pkl
 *.pyc
 *.json
-*.png
 __pycache__/
 *.pyc
+*.svg
+
