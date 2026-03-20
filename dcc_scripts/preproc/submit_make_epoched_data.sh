@@ -4,18 +4,19 @@
 subjects=("D0057" "D0059" "D0065" "D0063" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100" "D0102" "D0103" "D0107A" "D0110" "D0116" "D0117" "D0121" "D0130" "D0133" "D0134" "D0137")
 # subjects=("D0130" "D0133" "D0134" "D0137")
 # subjects=("D0065")
+# subjects=("D0103")
 
 # Define all arguments for the Python script
 TASK="GlobalLocal"
-TIMES="-1 1.5"
+TIMES="-1.5 1.5"
 WITHIN_BASE_TIMES="-1 0"
-BASELINE_EVENT="Stimulus"
+BASELINE_EVENT="Response"
 BASE_TIMES_LENGTH=0.5
 PAD_LENGTH=1.5 # this needs to at least be 1s for theta to avoid edge artifacts. Can be lower for higher frequencies (e.g., 0.5s for high gamma). 
-LAB_ROOT="/cwork/jz421"
+LAB_ROOT="/cwork/etb28"
 CHANNELS="None"
 DEC_FACTOR=8
-OUTLIER_POLICY="ignore"
+OUTLIER_POLICY="none"
 OUTLIERS=10
 THRESHOLD_PERCENT=5.0
 PASSBAND="4 8"
