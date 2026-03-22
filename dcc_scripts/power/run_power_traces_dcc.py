@@ -106,6 +106,7 @@ CONDITIONS = experiment_conditions.response_err_corr_conditions
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -116,7 +117,11 @@ CONDITIONS = experiment_conditions.response_err_corr_conditions
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 
-EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
 # ROI dictionary
 # ROIS_DICT = {
@@ -130,19 +135,14 @@ EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 
 # adding parietal, dlpfc, acc for err-corr decoding
 ROIS_DICT = {
-      'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+      # 'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
       'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-      'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+      # 'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+      # 'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
       'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
-      'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
-      'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
+      # 'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
+      # 'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
 }
-
-# ROIS_DICT = {
-    # 'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
-    # 'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
-# }
 
 # ROIS_DICT = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
@@ -154,7 +154,7 @@ ELECTRODES = 'sig'
 # plotting
 PLOT_STYLE = {
     # Toggles
-    'show_title': True,
+    'show_title': False,
     'show_xlabel': True,
     'show_ylabel': True,
     'show_legend': False,
@@ -166,22 +166,22 @@ PLOT_STYLE = {
     
     # Font sizes
     'title_font_size': 14,
-    'axis_font_size': 12,
-    'tick_font_size': 12,
+    'axis_font_size': 38,
+    'tick_font_size': 28,
     'legend_font_size': 10,
     
     # Tick customization
-    'xticks': [-1.0, -0.5, 0, 0.5, 1.0, 1.5],       # None = auto, or pass array
-    'yticks': [-0.1, 0, 0.1, 0.2, 0.3],
+    'xticks': [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0],       # None = auto, or pass array
+    'yticks': [-0.1, 0, 0.1, 0.2, 0.3, 0.4],
     'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
     'ytick_labels': None,
-    'xlim': (-1, 1.5),
-    'ylim': (-0.1, 0.3),
+    'xlim': (-1.0, 1.5),
+    'ylim': (-0.1, 0.4),
     
     # Other
     'figsize': (12, 8),
     'text_color': 'black',
-    'sig_cluster_height': 0.3,
+    'sig_cluster_height': 0.4,
 }
 
 # # # # testing params (comment out)

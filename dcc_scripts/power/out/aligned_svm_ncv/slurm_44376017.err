@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 265, in run_analysis
+    main(args)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 192, in main
+    evks_dict_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py", line 342, in make_multi_channel_evokeds_for_all_conditions_and_rois
+    evks_dict_single_elecs = make_evoked_electrode_lists_for_all_conditions_and_rois(
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py", line 309, in make_evoked_electrode_lists_for_all_conditions_and_rois
+    out[condition_name] = make_evoked_electrode_lists_for_rois(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py", line 274, in make_evoked_electrode_lists_for_rois
+    evokeds = create_list_of_single_channel_evokeds_across_subjects_for_roi_and_condition(
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py", line 232, in create_list_of_single_channel_evokeds_across_subjects_for_roi_and_condition
+    evoked = get_evoked_for_specific_subject_and_condition(subjects_mne_objects, sub, condition_name, mne_object_type)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/power/power_traces.py", line 172, in get_evoked_for_specific_subject_and_condition
+    return subjects_mne_objects[subject][condition_name][mne_object_type + "_avg"].copy()
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+KeyError: 'D0057'
