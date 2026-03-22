@@ -136,11 +136,11 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 
 # adding parietal, dlpfc, acc for err-corr decoding
 ROIS_DICT = {
-      'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+      # 'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
       'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-      'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-      'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
+      # 'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+      # 'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+      # 'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
       'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
       'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
 }
@@ -173,16 +173,16 @@ PLOT_STYLE = {
     
     # Tick customization
     'xticks': [-1.5, -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0],       # None = auto, or pass array
-    'yticks': [-0.1, 0, 0.1, 0.2, 0.3, 0.4],
+    'yticks': [-0.2, -0.1, 0, 0.1, 0.2, 0.3],
     'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
     'ytick_labels': None,
     'xlim': (-1.0, 1.5),
-    'ylim': (-0.1, 0.4),
+    'ylim': (-0.2, 0.3),
     
     # Other
     'figsize': (12, 8),
     'text_color': 'black',
-    'sig_cluster_height': 0.4,
+    'sig_cluster_height': 0.3,
 }
 
 # # # # testing params (comment out)
