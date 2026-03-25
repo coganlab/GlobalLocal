@@ -1296,7 +1296,7 @@ def plot_accuracies_nature_style(
     title: Optional[str] = None,
     ylabel: str = "Accuracy",
     ylim: Tuple[float, float] = (0.0, 1.0),  # CHANGED: Default Y-axis is now 0 to 1
-    xlim: Tuple[float, float] = (-0.5, 1.5),
+    xlim: Tuple[float, float] = (-1.0, 1.5),
     single_column: bool = True,
     show_legend: bool = True,
     show_significance: bool = True,
@@ -1433,18 +1433,23 @@ def plot_accuracies_nature_style(
                         fontweight='bold')
         
         # Set labels
+        # changed to size 12 font
+        # changed to response
+        # ax.set_xlabel('Time from response onset (s)', fontsize=12)
         ax.set_xlabel('Time from stimulus onset (s)', fontsize=12)
-        ax.set_ylabel(ylabel, fontsize=7)
+        ax.set_ylabel("Accuracy", fontsize=12)
         
         # Set axis limits
         ax.set_ylim(ylim)
         ax.set_xlim(xlim)
         
         # Configure ticks
-        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        # changed to size 10 font
+        ax.tick_params(axis='both', which='major', labelsize=10, width=0.5, length=2)
         
         # Set specific x-ticks for clarity
-        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        # changed to 1.0
+        x_ticks = np.arange(-1.0, 1.6, 0.5)
         ax.set_xticks(x_ticks)
         
         # CHANGED: Set specific y-ticks for consistency
@@ -1676,7 +1681,7 @@ def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shu
     se_shuffle_accuracy = std_shuffle_accuracy / np.sqrt(n_perm)
 
     # Plotting
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 8))
     plt.plot(time_points, mean_true_accuracy, label='True Accuracy', color='blue')
     plt.fill_between(
         time_points,

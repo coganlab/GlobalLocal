@@ -110,26 +110,36 @@ plotting_parameters = {
     "line_style": "--"
 },
 # commenting these out for now, going to put them in black
-# "Stimulus_err": {
-#     "condition_parameter": "error",
-#     "color": "firebrick",
-#     "line_style": "-",
-# },
-# "Stimulus_corr": {
-#     "condition_parameter": "correct",
-#     "color": "seagreen",
-#     "line_style": "-", 
-# },
 "Stimulus_err": {
-    "condition_parameter": "error",
-    "color": "black",
-    "line_style": "--",
-},
-"Stimulus_corr": {
-    "condition_parameter": "correct",
-    "color": "black",
-    "line_style": "-", 
-},
+     "condition_parameter": "error",
+     "color": "firebrick",
+     "line_style": "-",
+ },
+ "Stimulus_corr": {
+     "condition_parameter": "correct",
+     "color": "seagreen",
+     "line_style": "-", 
+ },
+ "Response_err": {
+     "condition_parameter": "error",
+     "color": "firebrick",
+     "line_style": "-",
+ },
+ "Response_corr": {
+     "condition_parameter": "correct",
+     "color": "seagreen",
+     "line_style": "-", 
+ },
+# "Stimulus_err": {
+#    "condition_parameter": "error",
+#    "color": "black",
+#    "line_style": "--",
+#},
+# "Stimulus_corr": {
+#   "condition_parameter": "correct",
+#    "color": "black",
+#    "line_style": "-", 
+# },
 "Stimulus_err_inc": {
     "condition_parameter": "err-inc",
     "color": "black",

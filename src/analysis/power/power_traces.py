@@ -548,10 +548,10 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
                 start_time = times[start_idx] - (window_duration / 2)
                 end_time = times[end_idx] + (window_duration / 2)
                 
-            plt.hlines(y=sig_cluster_height, xmin=start_time, xmax=end_time, color='black', linewidth=2)  
+            plt.hlines(y=sig_cluster_height, xmin=start_time, xmax=end_time, color='black', linewidth=8)  
             # Place an asterisk at the center of the bar
             center_time = (start_time + end_time) / 2
-            plt.text(center_time, sig_cluster_height + 0.01, '*', ha='center', va='bottom', fontsize=14)
+            plt.text(center_time, sig_cluster_height + 0.01, '*', ha='center', va='bottom', fontsize=25)
 
     # Customize plot
     text_color = s['text_color']

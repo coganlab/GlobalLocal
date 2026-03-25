@@ -558,7 +558,9 @@ CONDITION_REGISTRY = {
     },
     'response_err_corr_conditions': {
         'conditions_obj': experiment_conditions.response_err_corr_conditions,
-        'comparisons': {},
+        'comparisons': {
+            'err_vs_corr': [['Response_err'], ['Response_corr']],
+        },
     },
     'response_congruency_by_switch_proportion_conditions': {
         'conditions_obj': experiment_conditions.response_congruency_by_switch_proportion_conditions,
