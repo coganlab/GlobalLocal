@@ -83,7 +83,7 @@ def main(args):
     # LAB_root = "/hpc/home/etb28/coganlab/Data/BIDS-1.1_GlobalLocal/BIDS"
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    subjects_electrodestoROIs_dict = utils.make_or_load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
+    subjects_electrodestoROIs_dict = utils.make_or_load_subjects_electrodes_to_ROIs_dict(subjects=args.subjects, save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
     conditions_save_name = utils.get_conditions_save_name(args.conditions, experiment_conditions, len(args.subjects))
