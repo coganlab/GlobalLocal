@@ -1566,7 +1566,7 @@ def get_good_data(sub, layout):
     filt.annotations.extras = [None] * len(filt.annotations)
 
     # Crop raw data to minimize processing time
-    good = crop_empty_data(filt)
+    good = crop_empty_data_patched(filt)
 
     # Mark and drop bad channels
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
@@ -2123,3 +2123,18 @@ def build_condition_comparisons(conditions, experiment_conditions=None):
     This is primarily for setting up decoding comparisons.
     """    
     return get_comparisons(conditions)
+
+def crop_empty_data_patched(raw, bound='boundary', start_pad="10s", end_pad="10s"):
+    """Wrapper around ieeg's crop_empty_data that fixes MNE Annotations extras compatibility."""
+    # Sanitize extras on all annotations before crop_empty_data unpacks them
+    if hasattr(raw, 'annotations') and raw.annotations is not None:
+        # Rebuild annotations without extras
+        new_annot = mne.Annotations(
+            onset=raw.annotations.onset,
+            duration=raw.annotations.duration,
+            description=raw.annotations.description,
+            orig_time=raw.annotations.orig_time
+        )
+        raw.set_annotations(new_annot)
+    
+    return crop_empty_data(raw, bound=bound, start_pad=start_pad, end_pad=end_pad)
