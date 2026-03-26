@@ -1562,15 +1562,9 @@ def get_good_data(sub, layout):
                            extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
     print(filt)
 
-    # Normalize annotation extras for MNE version compatibility
-    if hasattr(filt, 'annotations') and filt.annotations is not None:
-        extras = getattr(filt.annotations, 'extras', None)
-        if extras is not None and not isinstance(extras, list):
-            try:
-                filt.annotations.extras = list(extras)
-            except (TypeError, ValueError):
-                filt.annotations.extras = [None] * len(filt.annotations)
-                
+    # Make annotations extras a list of None values to fix weird mne error. Can delete this line in the future if I need annotations extras but for now just get rid of them. 3/26/26.
+    filt.annotations.extras = [None] * len(filt.annotations)
+
     # Crop raw data to minimize processing time
     good = crop_empty_data(filt)
 
