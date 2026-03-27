@@ -1561,14 +1561,9 @@ def get_good_data(sub, layout):
     # Load the data
     filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                            extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
-    print(filt)
 
-    # Make annotations extras a list of None values to fix weird mne error. Can delete this line in the future if I need annotations extras but for now just get rid of them. 3/26/26.
-    filt.annotations.extras = [None] * len(filt.annotations)
-
-    # Crop raw data to minimize processing time
-    good = crop_empty_data_patched(filt)
-
+    good = crop_empty_data_fixed(filt)
+    
     # Mark and drop bad channels
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
     print(len(good.info['bads']))
