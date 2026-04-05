@@ -136,18 +136,40 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         LAB_root = get_default_LAB_root()
 
     for sub in subjects:
+
         print(sub)
         if layout is None:
             layout = get_data(task, root=LAB_root)
+
         good = get_good_data(sub, layout)
 
         channels = good.ch_names
-        
+
+        # Only pick sEEG channels for label generation
+        seeg_picks = mne.pick_types(good.info, seeg=True, exclude='bads')
+        seeg_ch_names = [good.info['ch_names'][i] for i in seeg_picks]
+
+        try:
+            # Load recon CSV to check which channels have localizations
+            # Note: this only works on PC where ECoG_Recon is accessible, not on the cluster
+            recon_path = os.path.join(LAB_root.replace("CoganLab", "ECoG_Recon"), 
+                                    sub.replace("D0", "D"), "elec_recon",
+                                    f"{sub.replace('D0', 'D')}_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv")
+            recon_df = pd.read_csv(recon_path, skiprows=1, header=None)
+            localized_channels = set(recon_df[1].astype(str).values)
+            missing = [ch for ch in seeg_ch_names if ch not in localized_channels]
+            if missing:
+                print(f"  Skipping channels not in recon CSV: {missing}")
+            seeg_ch_names = [ch for ch in seeg_ch_names if ch in localized_channels]
+        except (FileNotFoundError, OSError) as e:
+            print(f"  Could not load recon CSV for {sub} (probably on cluster): {e}")
+            # Proceed without filtering - gen_labels will raise KeyError if there are orphan channels
+
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
-            default_dict = gen_labels(good.info, sub='D107A')
+            default_dict = gen_labels(good.info, sub='D107A', picks=seeg_ch_names)
         else:
-            default_dict = gen_labels(good.info)
+            default_dict = gen_labels(good.info, picks=seeg_ch_names)
 
         # Create rawROI_dict for the subject
         rawROI_dict = defaultdict(list)
@@ -1563,7 +1585,7 @@ def get_good_data(sub, layout):
                            extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
 
     good = crop_empty_data_fixed(filt)
-    
+
     # Mark and drop bad channels
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
     print(len(good.info['bads']))

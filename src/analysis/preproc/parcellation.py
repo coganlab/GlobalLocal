@@ -1,7 +1,21 @@
-import argparse
-import logging
 import sys
 import os
+print(sys.path)
+# sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...comment out when running on cluster, but uncomment when running on pc.
+
+# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
+current_script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Navigate up three levels to get to the 'GlobalLocal' directory
+project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..', '..'))
+
+# Add the 'GlobalLocal' directory to sys.path if it's not already there
+if project_root not in sys.path:
+    sys.path.insert(0, project_root) # insert at the beginning to prioritize it
+
+import argparse
+import logging
 from mne_bids import BIDSPath
 import nibabel as nib
 import numpy as np
