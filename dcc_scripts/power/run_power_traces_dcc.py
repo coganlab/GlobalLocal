@@ -44,8 +44,7 @@ from src.analysis.config import experiment_conditions
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
-LAB_ROOT = "/cwork/etb28"  # Will be determined automatically in main()
-# LAB_ROOT = None
+LAB_ROOT = None # Will be determined automatically in main()
 
 # Subject configuration
 # subjects for iR-cS err

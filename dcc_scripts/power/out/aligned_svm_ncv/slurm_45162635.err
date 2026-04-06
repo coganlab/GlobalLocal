@@ -1,0 +1,55 @@
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: The number of channels in the channels.tsv sidecar file (179) does not match the number of channels in the raw data file (178). Will not try to set channel names.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Cannot set channel type for the following channels, as they are missing in the raw data: Trigger
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+Traceback (most recent call last):
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 265, in run_analysis
+    main(args)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/power_traces_dcc.py", line 86, in main
+    subjects_electrodestoROIs_dict = utils.make_or_load_subjects_electrodes_to_ROIs_dict(subjects=args.subjects, save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py", line 294, in make_or_load_subjects_electrodes_to_ROIs_dict
+    make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename, layout)
+  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/utils/general_utils.py", line 172, in make_subjects_electrodes_to_ROIs_dict
+    default_dict = gen_labels(good.info, picks=seeg_ch_names)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/viz/mri.py", line 860, in gen_labels
+    labels = get_elec_volume_labels(sub, subj_dir, 10, atlas)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py", line 540, in get_elec_volume_labels
+    out = pd.read_csv(filename, header=None, skiprows=1, index_col=1)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ^^^^^^^^^^^
+  File "/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+             ^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/hpc/home/etb28/Box/ECoG_Recon/D57/elec_recon/D57_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv'
