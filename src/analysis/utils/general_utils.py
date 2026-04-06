@@ -78,7 +78,7 @@ def get_default_LAB_root():
             # Fallback for other Linux systems
             return os.path.join(HOME, "CoganLab")
 
-def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
+def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json', layout=None):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
     for a list of subjects and saves these mappings to a JSON file.
@@ -136,17 +136,40 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         LAB_root = get_default_LAB_root()
 
     for sub in subjects:
+
         print(sub)
-        layout = get_data(task, root=LAB_root)
+        if layout is None:
+            layout = get_data(task, root=LAB_root)
+
         good = get_good_data(sub, layout)
 
         channels = good.ch_names
-        
+
+        # Only pick sEEG channels for label generation
+        seeg_picks = mne.pick_types(good.info, seeg=True, exclude='bads')
+        seeg_ch_names = [good.info['ch_names'][i] for i in seeg_picks]
+
+        try:
+            # Load recon CSV to check which channels have localizations
+            # Note: this only works on PC where ECoG_Recon is accessible, not on the cluster
+            recon_path = os.path.join(LAB_root.replace("CoganLab", "ECoG_Recon"), 
+                                    sub.replace("D0", "D"), "elec_recon",
+                                    f"{sub.replace('D0', 'D')}_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv")
+            recon_df = pd.read_csv(recon_path, skiprows=1, header=None)
+            localized_channels = set(recon_df[1].astype(str).values)
+            missing = [ch for ch in seeg_ch_names if ch not in localized_channels]
+            if missing:
+                print(f"  Skipping channels not in recon CSV: {missing}")
+            seeg_ch_names = [ch for ch in seeg_ch_names if ch in localized_channels]
+        except (FileNotFoundError, OSError) as e:
+            print(f"  Could not load recon CSV for {sub} (probably on cluster): {e}")
+            # Proceed without filtering - gen_labels will raise KeyError if there are orphan channels
+
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
-            default_dict = gen_labels(good.info, sub='D107A')
+            default_dict = gen_labels(good.info, sub='D107A', picks=seeg_ch_names)
         else:
-            default_dict = gen_labels(good.info)
+            default_dict = gen_labels(good.info, picks=seeg_ch_names)
 
         # Create rawROI_dict for the subject
         rawROI_dict = defaultdict(list)
@@ -222,7 +245,7 @@ def load_subjects_electrodes_to_ROIs_dict(save_dir, filename='subjects_electrode
         return None
     
 def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, 
-                                                filename='subjects_electrodes_to_ROIs_dict.json', 
+                                                filename='subjects_electrodes_to_ROIs_dict.json', layout=None
                                                 ):
     """
     Ensures the subjects' electrodes-to-ROIs dictionary is available.
@@ -268,7 +291,7 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     if subjects_electrodes_to_ROIs_dict is None:
         print("No dictionary found. Looks like it's our lucky day to create one!")
-        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename)
+        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename, layout)
         subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
         print("Dictionary created and loaded successfully. Let's roll!")
 
@@ -1560,13 +1583,8 @@ def get_good_data(sub, layout):
     # Load the data
     filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                            extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
-    print(filt)
 
-    # Make annotations extras a list of None values to fix weird mne error. Can delete this line in the future if I need annotations extras but for now just get rid of them. 3/26/26.
-    filt.annotations.extras = [None] * len(filt.annotations)
-
-    # Crop raw data to minimize processing time
-    good = crop_empty_data_patched(filt)
+    good = crop_empty_data_fixed(filt)
 
     # Mark and drop bad channels
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
@@ -2124,17 +2142,54 @@ def build_condition_comparisons(conditions, experiment_conditions=None):
     """    
     return get_comparisons(conditions)
 
-def crop_empty_data_patched(raw, bound='boundary', start_pad="10s", end_pad="10s"):
-    """Wrapper around ieeg's crop_empty_data that fixes MNE Annotations extras compatibility."""
-    # Sanitize extras on all annotations before crop_empty_data unpacks them
-    if hasattr(raw, 'annotations') and raw.annotations is not None:
-        # Rebuild annotations without extras
-        new_annot = mne.Annotations(
-            onset=raw.annotations.onset,
-            duration=raw.annotations.duration,
-            description=raw.annotations.description,
-            orig_time=raw.annotations.orig_time
-        )
-        raw.set_annotations(new_annot)
+# Add this fixed version of crop_empty_data at the top of your script, after the imports
+def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s"):
+    """Fixed version of crop_empty_data that handles MNE compatibility issues."""
+    from ieeg.timefreq.utils import to_samples
     
-    return crop_empty_data(raw, bound=bound, start_pad=start_pad, end_pad=end_pad)
+    crop_list = []
+    start_pad = to_samples(start_pad, raw.info['sfreq']) / raw.info['sfreq']
+    end_pad = to_samples(end_pad, raw.info['sfreq']) / raw.info['sfreq']
+    
+    # split annotations into blocks
+    annot = raw.annotations.copy()
+    block_idx = [idx + 1 for idx, val in
+                 enumerate(annot) if bound in val['description']]
+    block_annot = [annot[i: j] for i, j in
+                   zip([0] + block_idx, block_idx +
+                       ([len(annot)] if block_idx[-1] != len(annot) else []))]
+    
+    for block_an in block_annot:
+        # remove boundary events from annotations
+        no_bound = None
+        for an in block_an:
+            if bound not in an['description']:
+                # FIX: Handle the extras field compatibility issue
+                an_dict = {}
+                an_dict['onset'] = an['onset']
+                an_dict['duration'] = an['duration']
+                an_dict['description'] = an['description']
+                if 'ch_names' in an:
+                    an_dict['ch_names'] = an['ch_names']
+                # Don't include 'extras' field to avoid compatibility issues
+                
+                if no_bound is None:
+                    no_bound = mne.Annotations(**an_dict)
+                else:
+                    # Don't include orig_time in append
+                    no_bound.append(onset=an_dict['onset'],
+                                  duration=an_dict['duration'],
+                                  description=an_dict['description'])
+        
+        # Skip if block is all boundary events
+        if no_bound is None:
+            continue
+        
+        # get start and stop time from raw.annotations onset attribute
+        t_min = max(0, no_bound.onset[0] - start_pad)
+        t_max = no_bound.onset[-1] + end_pad
+        
+        # create new cropped raw file
+        crop_list.append(raw.copy().crop(tmin=t_min, tmax=t_max))
+    
+    return mne.concatenate_raws(crop_list)
