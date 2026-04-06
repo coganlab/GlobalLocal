@@ -52,8 +52,9 @@ LAB_ROOT = "/cwork/etb28"  # Will be determined automatically in main()
 # SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
 # subjetcs for err-corr
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133']
+# Below is for power traces, removing D0110, D0059, D0071
+SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139']
 
@@ -105,8 +106,8 @@ CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
 # Epochs file selection
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -140,7 +141,6 @@ ROIS_DICT = {
       'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
       'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
       'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-      'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
       'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
       'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
 }
@@ -163,7 +163,7 @@ PLOT_STYLE = {
     # Labels
     'title': None,        # None = auto-generate from ROI name
     # 'x_label': 'Time from Stimulus Onset (s)',
-    'x_label': 'Time from Response Onset (s)',
+    'x_label': 'Time from Stimulus Onset (s)',
     'y_label': 'Power (z)',
     
     # Font sizes
@@ -174,16 +174,16 @@ PLOT_STYLE = {
     
     # Tick customization
     'xticks': [ -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0],       # None = auto, or pass array
-    'yticks': [-0.2, 0, 0.2, 0.4, 0.6],
+    'yticks': [-0.3, 0, 0.3, 0.6, 0.9],
     'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
     'ytick_labels': None,
     'xlim': (-1.0, 1.5),
-    'ylim': (-0.25, 0.65),
+    'ylim': (-0.35, 0.9),
     
     # Other
     'figsize': (12, 8),
     'text_color': 'black',
-    'sig_cluster_height': 0.6,
+    'sig_cluster_height': 0.8,
 }
 
 # # # # testing params (comment out)
