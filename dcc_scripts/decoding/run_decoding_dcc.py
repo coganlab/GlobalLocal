@@ -98,7 +98,7 @@ TIME_AXS = -1
 WINDOW_SIZE = 64  # Window size in samples (e.g., 64 samples = 250 ms at 256 Hz)
 STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
-FIRST_TIME_POINT = -1.0 # The time in seconds of the first sample in the epoch
+FIRST_TIME_POINT = -1.5 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
 N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
@@ -133,7 +133,7 @@ PERMUTATION_TYPE = 'independent'
 
 # plotting
 SINGLE_COLUMN = True
-SHOW_LEGEND = True
+SHOW_LEGEND = False
 RUN_VISUALIZATION_DEBUG = False # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
@@ -153,11 +153,11 @@ CONDITION_LABEL = CONDITION_NAME  # pass this into args for output path naming
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
 # EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
 # EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
 # ROI dictionary
 # ROIS_DICT = {
@@ -171,13 +171,13 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 
 # adding parietal, dlpfc, acc for err-corr decoding
 ROIS_DICT = {
-     # 'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-     # 'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-     # 'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
      # 'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
      # 'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
-     # 'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
+     'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
  }
 
 # ROIS_DICT = {

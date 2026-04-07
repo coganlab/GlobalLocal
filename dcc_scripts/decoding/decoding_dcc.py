@@ -255,7 +255,7 @@ def main(args):
                     linestyles=linestyles,
                     single_column=args.single_column,
                     show_legend=args.show_legend,
-                    ylim=(0.3, 0.8),
+                    ylim=(0.3, 1.0),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
                 )    

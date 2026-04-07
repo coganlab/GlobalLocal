@@ -3,8 +3,8 @@
 
 CONDITIONS=(
     # "stimulus_congruency_blockC_conditions"
-    # "response_err_corr_conditions"
-    "stimulus_err_corr_conditions"
+    "response_err_corr_conditions"
+    # "stimulus_err_corr_conditions"
 
     # add more condition names here
 )

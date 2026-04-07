@@ -114,24 +114,6 @@ def main(args):
 
     # filter electrodes to only the ones that exist in the epochs objects. This mismatch can arise due to dropping channels when making the epochs objects, because the subjects_electrodestoROIs_dict is made based on all the electrodes, with no dropping.
     electrodes = utils.filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_mne_objects)
-
-    print("\n--- ROI Electrode Counts and Array Shapes ---")
-    for roi in rois:
-        # 1. Calculate the total number of significant electrodes for this ROI
-        roi_total_count = 0
-        for sub, list_of_channels in electrodes[roi].items():
-            roi_total_count += len(list_of_channels)
-        
-        print(f"ROI: {roi} | Total Sig Electrodes: {roi_total_count}")
-
-        # 2. Print the shape of the data array for the first subject in this ROI
-        # (Since all subjects usually have the same Time and Trial dimensions)
-        for sub in electrodes[roi].keys():
-            if sub in subjects_mne_objects and len(electrodes[roi][sub]) > 0:
-                # This accesses the (Trials x Channels x Time) array
-                current_data = subjects_mne_objects[sub].get_data()
-                print(f"  - Example Shape (Sub {sub}): {current_data.shape}")
-                break # We only need to print the shape once per ROI to verify
     
     dropped_electrodes, _ = utils.find_difference_between_two_electrode_lists(raw_electrodes, electrodes)
     print("\n--- Summary of Dropped Electrodes ---")
