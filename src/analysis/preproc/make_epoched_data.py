@@ -383,7 +383,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         print(f"Shape of HG_base._data: {HG_base._data.shape}")
         
         # oh this changed and returns both the significant clusters matrix and the p values now
-        mat, _ = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func)
+        mat, _ = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func) # TODO: rerun with HG_ev1_power and HG_base_power instead.
 
         #save channels with their indices 
         save_channels_to_file(channels, sub, task, save_dir)
