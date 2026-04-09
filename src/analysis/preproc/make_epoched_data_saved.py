@@ -287,20 +287,21 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
     cathodes = []
     for prefix, items in groups.items():
         items.sort(key=lambda x: x[0])
-        for i in range(0, len(items) - 1, 2):
+        if len(items) == 1:
+            print(f"Warning: Only one channel in group '{prefix}' ({items[0][1]}). No bipolar pair can be formed.")
+            continue
+        for i in range(0, len(items) - 1):
             anode_ch = items[i][1]
             cathode_ch = items[i + 1][1]
             anodes.append(anode_ch)
             cathodes.append(cathode_ch)
-        if len(items) % 2 != 0:
-            last_ch = items[-1][1]
-            print(f"Warning: Odd number of channels in group '{prefix}'. Dropping unpaired channel '{last_ch}'.")
 
     if anodes and cathodes:
         good = mne.set_bipolar_reference(good,anode=anodes,cathode=cathodes,drop_refs=True,copy=False,)
         print(f"Applied bipolar reference to {len(anodes)} pairs.")
     else:
         print("No valid bipolar pairs found. Skipping bipolar reference.")
+    
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
 
@@ -367,6 +368,7 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         safe_event = sanitize_filename(group_name)
         out_fname = os.path.join(save_dir, f'{sub}_{safe_event}_full-epo.fif')
         trials_ev_full.save(out_fname, overwrite=True)
+        print("Final channel names after bipolar reference:", good.ch_names)
         print(f"Saved combined {group_name} (full times [{full_start},{full_end}]) for subject {sub} to {out_fname}")
 
 
