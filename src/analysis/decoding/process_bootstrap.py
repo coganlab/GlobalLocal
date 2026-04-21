@@ -70,7 +70,7 @@ def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, r
     
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
-    Generates and processes a single bootstrap sample.
+    Generates and processes a single bootstrap sample for decoding.
     This function is designed to be called in parallel by joblib.
     This is meant to be called in decoding_dcc.py.
     """

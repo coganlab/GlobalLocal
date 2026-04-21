@@ -201,11 +201,13 @@ def main(args):
     )
     
     sub_str = str(len(args.subjects))
+    
     analysis_params_str = (
             f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
             f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
             f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
-        )               
+        )   
+                
     master_results = {
         'stats': all_bootstrap_stats,
         'metadata': {
