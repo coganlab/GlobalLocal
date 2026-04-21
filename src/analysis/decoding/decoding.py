@@ -103,26 +103,6 @@ def concatenate_and_balance_data_for_decoding(
     - cats: Dictionary of condition categories.
     """
     rng = np.random.RandomState(random_state)
-
-    # ==================== NEW DEBUGGING BLOCK ====================
-    print("\n" + "="*20 + " DEBUGGING " + "="*20)
-    # Check what the main roi_labeled_arrays dictionary contains
-    print(f"Top-level keys in roi_labeled_arrays: {list(roi_labeled_arrays.keys())}")
-    
-    # Check the specific ROI we are trying to access
-    if roi in roi_labeled_arrays:
-        la = roi_labeled_arrays[roi]
-        print(f"Data for ROI '{roi}' found.")
-        print(f"Object type for this ROI is: {type(la)}")
-        
-        # This is the most important check: what are the actual condition keys?
-        if hasattr(la, 'keys'):
-            print(f"Actual condition keys in the LabeledArray: {list(la.keys())}")
-        else:
-            print("Object is not a LabeledArray or dictionary-like object.")
-            
-    else:
-        print(f"!!!!!!!!!! CRITICAL ERROR: ROI '{roi}' NOT FOUND IN THE DATA !!!!!!!!!!!")
     
     print(f"The code is searching for strings: {strings_to_find}")
     print("="*51 + "\n")

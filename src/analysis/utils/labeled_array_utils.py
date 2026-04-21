@@ -786,14 +786,6 @@ def make_bootstrapped_labeled_arrays_for_roi(
             # Stack the resampled channels along the channel axis
             # this makes a dense array for this condition: (trials, channels, time) or (trials, channels, freqs, time)
             concatenated_chans = np.stack(resampled_channels_for_condition, axis=chans_axs)
-            if condition_name == "Stimulus_i_in_25switchBlock": # <-- ADD THIS CHECK
-                        # <<< SET BREAKPOINT HERE (3c) >>>
-                        # Inspect specifically for the problematic condition:
-                        #   - np.sum(np.isnan(concatenated_chans)) 
-                        # Do NaNs appear right after stacking for *this* condition?
-                        if np.isnan(concatenated_chans).any():
-                            print(f"NANS APPEARED after stacking for {condition_name}!")
-                            import pdb; pdb.set_trace() # Force a stop
                    
             bootstrapped_conditions_data[condition_name] = concatenated_chans
             
