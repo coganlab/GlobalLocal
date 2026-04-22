@@ -1053,3 +1053,85 @@ response_switch_type_by_congruency_proportion_conditions = {
         "congruencyProportion": "25%"
     },
 }
+
+# =============================================================================
+# Block-pinned sub-conditions (for block-balanced decoding via metadata queries)
+#
+# Block mapping (incongruent_proportion, switch_proportion):
+#   MI_MR = (75, 25)   mostly inc,  mostly repeat
+#   MI_MS = (75, 75)   mostly inc,  mostly switch
+#   MC_MR = (25, 25)   mostly con,  mostly repeat
+#   MC_MS = (25, 75)   mostly con,  mostly switch
+# =============================================================================
+
+# Congruency × block (used for LWPC and congruency × switch_prop)
+stimulus_congruency_by_block_conditions = {
+    'Stimulus_c_MI_MR': {
+        'BIDS_events': ['Stimulus/c75.0/r25.0', 'Stimulus/c75.0/s25.0'],
+        'metadata_query': "congruency == 'c' and incongruent_proportion == 75 and switch_proportion == 25",
+    },
+    'Stimulus_c_MI_MS': {
+        'BIDS_events': ['Stimulus/c75.0/s75.0', 'Stimulus/c75.0/r75.0'],
+        'metadata_query': "congruency == 'c' and incongruent_proportion == 75 and switch_proportion == 75",
+    },
+    'Stimulus_c_MC_MR': {
+        'BIDS_events': ['Stimulus/c25.0/r25.0', 'Stimulus/c25.0/s25.0'],
+        'metadata_query': "congruency == 'c' and incongruent_proportion == 25 and switch_proportion == 25",
+    },
+    'Stimulus_c_MC_MS': {
+        'BIDS_events': ['Stimulus/c25.0/s75.0', 'Stimulus/c25.0/r75.0'],
+        'metadata_query': "congruency == 'c' and incongruent_proportion == 25 and switch_proportion == 75",
+    },
+    'Stimulus_i_MI_MR': {
+        'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/i75.0/s25.0'],
+        'metadata_query': "congruency == 'i' and incongruent_proportion == 75 and switch_proportion == 25",
+    },
+    'Stimulus_i_MI_MS': {
+        'BIDS_events': ['Stimulus/i75.0/s75.0', 'Stimulus/i75.0/r75.0'],
+        'metadata_query': "congruency == 'i' and incongruent_proportion == 75 and switch_proportion == 75",
+    },
+    'Stimulus_i_MC_MR': {
+        'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/i25.0/s25.0'],
+        'metadata_query': "congruency == 'i' and incongruent_proportion == 25 and switch_proportion == 25",
+    },
+    'Stimulus_i_MC_MS': {
+        'BIDS_events': ['Stimulus/i25.0/s75.0', 'Stimulus/i25.0/r75.0'],
+        'metadata_query': "congruency == 'i' and incongruent_proportion == 25 and switch_proportion == 75",
+    },
+}
+
+# Switch type × block (used for LWPS and switch_type × inc_prop)
+stimulus_switch_type_by_block_conditions = {
+    'Stimulus_r_MI_MR': {
+        'BIDS_events': ['Stimulus/i75.0/r25.0', 'Stimulus/c75.0/r25.0'],
+        'metadata_query': "task_sequence == 'r' and incongruent_proportion == 75 and switch_proportion == 25",
+    },
+    'Stimulus_r_MI_MS': {
+        'BIDS_events': ['Stimulus/i75.0/r75.0', 'Stimulus/c75.0/r75.0'],
+        'metadata_query': "task_sequence == 'r' and incongruent_proportion == 75 and switch_proportion == 75",
+    },
+    'Stimulus_r_MC_MR': {
+        'BIDS_events': ['Stimulus/i25.0/r25.0', 'Stimulus/c25.0/r25.0'],
+        'metadata_query': "task_sequence == 'r' and incongruent_proportion == 25 and switch_proportion == 25",
+    },
+    'Stimulus_r_MC_MS': {
+        'BIDS_events': ['Stimulus/i25.0/r75.0', 'Stimulus/c25.0/r75.0'],
+        'metadata_query': "task_sequence == 'r' and incongruent_proportion == 25 and switch_proportion == 75",
+    },
+    'Stimulus_s_MI_MR': {
+        'BIDS_events': ['Stimulus/i75.0/s25.0', 'Stimulus/c75.0/s25.0'],
+        'metadata_query': "task_sequence == 's' and incongruent_proportion == 75 and switch_proportion == 25",
+    },
+    'Stimulus_s_MI_MS': {
+        'BIDS_events': ['Stimulus/i75.0/s75.0', 'Stimulus/c75.0/s75.0'],
+        'metadata_query': "task_sequence == 's' and incongruent_proportion == 75 and switch_proportion == 75",
+    },
+    'Stimulus_s_MC_MR': {
+        'BIDS_events': ['Stimulus/i25.0/s25.0', 'Stimulus/c25.0/s25.0'],
+        'metadata_query': "task_sequence == 's' and incongruent_proportion == 25 and switch_proportion == 25",
+    },
+    'Stimulus_s_MC_MS': {
+        'BIDS_events': ['Stimulus/i25.0/s75.0', 'Stimulus/c25.0/s75.0'],
+        'metadata_query': "task_sequence == 's' and incongruent_proportion == 25 and switch_proportion == 75",
+    },
+}

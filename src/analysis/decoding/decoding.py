@@ -70,7 +70,8 @@ from src.analysis.utils.labeled_array_utils import (
     remove_nans_from_labeled_array,
     remove_nans_from_all_roi_labeled_arrays,
     concatenate_conditions_by_string,
-    get_data_in_time_range
+    get_data_in_time_range,
+    gather_class_data_by_stratum
 )
 
 # utils imports
@@ -83,212 +84,123 @@ import gc
 import seaborn as sns
 
 def concatenate_and_balance_data_for_decoding(
-    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=False, random_state=42,
+    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method,
+    balance_strata=False, random_state=42
 ):
     """
-    Processes and balances the data for a given ROI with improved debugging.
-    Now correctly distinguishes between outlier-induced NaNs and missing channel NaNs.
-    
-    Parameters:
-    - roi_labeled_arrays: Dictionary containing reshaped data for each ROI.
-    - roi: The ROI to process.
-    - strings_to_find: List of strings or string groups to identify condition labels.
-    - obs_axs: The trials axis.
-    - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
-    - balance_strata (bool) : 
-            If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
-            subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
-    - random_state: Random seed for reproducibility.
-    
-    Returns:
-    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
-    - labels: The processed labels array.
-    - cats: Dictionary of condition categories.
+    Build a decoding-ready (X, labels, cats) from multi-stratum class definitions.
+
+    Order of operations:
+      1. Gather raw data per class per sub-condition (stratum).
+      2. Drop NaN-containing trials per stratum.
+         (This reveals the true, unpadded trial counts.)
+      3. If balance_strata=True, subsample each stratum within a class down to
+         the min count across that class's strata.
+      4. Subsample each class down to the min count across classes
+         (balance_method='subsample') or pad the shorter class with NaNs
+         (balance_method='pad_with_nans').
+      5. Concatenate into final (X, labels) arrays.
     """
-    rng = np.random.RandomState(random_state)
-    
-    print(f"The code is searching for strings: {strings_to_find}")
-    print("="*51 + "\n")
-    # =============================================================
-    
-    # Concatenate the trials and get labels
-    concatenated_data, labels, cats = concatenate_conditions_by_string(
-        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_strata=balance_strata, random_state=random_state
+    rng = (random_state if isinstance(random_state, np.random.RandomState)
+           else np.random.RandomState(random_state))
+
+    # --- Step 1: gather raw data grouped by class -> stratum ---
+    class_data, cats = gather_class_data_by_stratum(
+        roi_labeled_arrays, roi, strings_to_find, obs_axs
     )
 
-    print(f"\n{'='*60}")
-    print(f"ROI: {roi}")
-    print(f"{'='*60}")
-    print(f"Initial concatenated data shape: {concatenated_data.shape}")
-    print(f"  Trials: {concatenated_data.shape[0]}")
-    print(f"  Channels: {concatenated_data.shape[1]}")
-    if concatenated_data.ndim > 2:
-        print(f"  Time points: {concatenated_data.shape[-1]}")
-        if concatenated_data.ndim == 4:  # Has frequency dimension
-            print(f"  Frequencies: {concatenated_data.shape[2]}")
-    
+    print(f"\n{'='*60}\nROI: {roi}\n{'='*60}")
+
+    # --- Step 2: drop NaN trials per stratum ---
+    clean_class_data = []   # list of dicts, same structure as class_data
+    for class_idx, strata_dict in enumerate(class_data):
+        clean_strata = {}
+        for cond, data in strata_dict.items():
+            # "trial has NaN" = any NaN anywhere in that trial's data
+            nan_trial_mask = np.isnan(data).any(
+                axis=tuple(range(1, data.ndim)) if obs_axs == 0
+                else tuple(i for i in range(data.ndim) if i != obs_axs)
+            )
+            valid_mask = ~nan_trial_mask
+            n_before = data.shape[obs_axs]
+            n_after = int(valid_mask.sum())
+            clean_strata[cond] = np.take(data, np.where(valid_mask)[0], axis=obs_axs)
+            print(f"  [NaN filter] class={class_idx} stratum={cond}: "
+                  f"{n_before} → {n_after} trials "
+                  f"({100*(n_before-n_after)/max(n_before,1):.1f}% dropped)")
+        clean_class_data.append(clean_strata)
+
+    # --- Step 3: balance strata within each class ---
+    if balance_strata:
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            if len(strata_dict) <= 1:
+                continue
+            sizes = {cond: d.shape[obs_axs] for cond, d in strata_dict.items()}
+            n_per_stratum = min(sizes.values())
+            if n_per_stratum == 0:
+                raise ValueError(
+                    f"Class {class_idx} has a stratum with 0 valid trials after NaN removal: {sizes}"
+                )
+            print(f"  [balance_strata post-NaN] class={class_idx}: {sizes} → {n_per_stratum} per stratum")
+            for cond, data in strata_dict.items():
+                if data.shape[obs_axs] > n_per_stratum:
+                    idx = rng.choice(data.shape[obs_axs], size=n_per_stratum, replace=False)
+                    strata_dict[cond] = np.take(data, idx, axis=obs_axs)
+
+    # --- Step 4 prep: get per-class totals now that strata are balanced ---
+    class_totals = [
+        sum(d.shape[obs_axs] for d in strata_dict.values())
+        for strata_dict in clean_class_data
+    ]
+    print(f"  [class totals after stratum balancing] {dict(enumerate(class_totals))}")
+
+    # --- Step 4: balance across classes ---
     if balance_method == 'subsample':
-        print(f"\n--- Detailed NaN Analysis ---")
-        
-        n_trials = concatenated_data.shape[0]
-        n_channels = concatenated_data.shape[1] if concatenated_data.ndim >= 2 else 1
-        
-        # Reshape to (trials, channels, features) for easier analysis
-        # where features = time*freq or just time
-        reshaped_data = concatenated_data.reshape(n_trials, n_channels, -1)
-        n_features = reshaped_data.shape[2]
-        
-        # 1. Identify channels that are completely NaN across all trials (missing channels)
-        missing_channels = []
-        for ch_idx in range(n_channels):
-            ch_data = reshaped_data[:, ch_idx, :]
-            if np.all(np.isnan(ch_data)):
-                missing_channels.append(ch_idx)
-        
-        print(f"\nMissing Channels (all NaN across all trials): {len(missing_channels)}/{n_channels}")
-        
-        # 2. Analyze NaN patterns per trial
-        trials_with_any_nan = 0
-        trials_with_outlier_nans = 0
-        trials_with_missing_channel_nans = 0
-        trials_with_both = 0
-        
-        outlier_nan_counts = []
-        missing_channel_counts_per_trial = []
-        
-        for trial_idx in range(n_trials):
-            trial_data = reshaped_data[trial_idx]  # Shape: (channels, features)
-            
-            has_any_nan = False
-            has_outlier_nan = False
-            has_missing_channel = False
-            outlier_nans_in_trial = 0
-            missing_channels_in_trial = 0
-            
-            for ch_idx in range(n_channels):
-                ch_data = trial_data[ch_idx]
-                
-                if np.any(np.isnan(ch_data)):
-                    has_any_nan = True
-                    
-                    if np.all(np.isnan(ch_data)):
-                        # Entire channel is NaN for this trial
-                        has_missing_channel = True
-                        missing_channels_in_trial += 1
-                    else:
-                        # Partial NaNs - likely outliers
-                        has_outlier_nan = True
-                        outlier_nans_in_trial += np.sum(np.isnan(ch_data))
-            
-            if has_any_nan:
-                trials_with_any_nan += 1
-            if has_outlier_nan:
-                trials_with_outlier_nans += 1
-                outlier_nan_counts.append(outlier_nans_in_trial)
-            if has_missing_channel:
-                trials_with_missing_channel_nans += 1
-                missing_channel_counts_per_trial.append(missing_channels_in_trial)
-            if has_outlier_nan and has_missing_channel:
-                trials_with_both += 1
-        
-        print(f"\nTrial-level NaN Statistics:")
-        print(f"  Trials with ANY NaN: {trials_with_any_nan}/{n_trials} ({100*trials_with_any_nan/n_trials:.1f}%)")
-        print(f"  Trials with outlier NaNs (sparse): {trials_with_outlier_nans}/{n_trials} ({100*trials_with_outlier_nans/n_trials:.1f}%)")
-        print(f"  Trials with missing channel NaNs (dense): {trials_with_missing_channel_nans}/{n_trials} ({100*trials_with_missing_channel_nans/n_trials:.1f}%)")
-        print(f"  Trials with both types: {trials_with_both}/{n_trials} ({100*trials_with_both/n_trials:.1f}%)")
-        
-        if outlier_nan_counts:
-            print(f"\nOutlier NaN Statistics (for affected trials):")
-            print(f"  Mean outlier NaNs per affected trial: {np.mean(outlier_nan_counts):.1f}")
-            print(f"  Max outlier NaNs in a trial: {np.max(outlier_nan_counts)}")
-            print(f"  Total outlier NaNs across all trials: {np.sum(outlier_nan_counts)}")
-        
-        if missing_channel_counts_per_trial:
-            print(f"\nMissing Channel Statistics (for affected trials):")
-            print(f"  Mean missing channels per affected trial: {np.mean(missing_channel_counts_per_trial):.1f}")
-            print(f"  Max missing channels in a trial: {np.max(missing_channel_counts_per_trial)}")
-        
-        # 3. Calculate percentage of data that is NaN
-        total_nan_count = np.sum(np.isnan(concatenated_data))
-        total_elements = concatenated_data.size
-        print(f"\nOverall NaN Percentage: {100*total_nan_count/total_elements:.2f}%")
-        
-        # Remove trials with any NaNs
-        nan_trials_mask = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
-        valid_trials = ~nan_trials_mask
-        
-        # Before removing, check which conditions are most affected
-        print(f"\n--- NaN Impact by Condition ---")
-        for string_group in strings_to_find:
-            condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
-            condition_mask = labels == condition_label
-            condition_nan_mask = nan_trials_mask & condition_mask
-            n_condition_trials = np.sum(condition_mask)
-            n_nan_trials = np.sum(condition_nan_mask)
-            print(f"  {string_group}: {n_nan_trials}/{n_condition_trials} trials with NaNs ({100*n_nan_trials/n_condition_trials:.1f}%)")
-        
-        concatenated_data = concatenated_data[valid_trials]
-        labels = labels[valid_trials]
-        
-        print(f"\nAfter removing NaN trials:")
-        print(f"  Trials kept: {np.sum(valid_trials)}/{len(valid_trials)} ({100*np.sum(valid_trials)/len(valid_trials):.1f}%)")
-        print(f"  New data shape: {concatenated_data.shape}")
+        target_n = min(class_totals)
+        print(f"  [balance_method=subsample] subsampling each class to {target_n}")
 
-    # Calculate trial counts per condition
-    trial_counts = {}
-    condition_indices = {}
+        final_per_class = []
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            # Concatenate strata within this class, then subsample if needed
+            class_arr = np.concatenate(list(strata_dict.values()), axis=obs_axs)
+            if class_arr.shape[obs_axs] > target_n:
+                # IMPORTANT: if balance_strata is True and we subsample here,
+                # we may re-unbalance the strata. But at this point we've already
+                # equalized strata, so a uniform random draw preserves the
+                # expected proportions. If you want strict preservation,
+                # subsample per-stratum proportionally instead.
+                idx = rng.choice(class_arr.shape[obs_axs], size=target_n, replace=False)
+                class_arr = np.take(class_arr, idx, axis=obs_axs)
+            final_per_class.append(class_arr)
 
-    print(f"\n--- Final Trial Counts by Condition ---")
-    for string_group in strings_to_find:
-        condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
-        condition_trials = labels == condition_label
-        data_for_condition = concatenated_data[condition_trials]
+    elif balance_method == 'pad_with_nans':
+        target_n = max(class_totals)
+        print(f"  [balance_method=pad_with_nans] padding each class to {target_n}")
+        final_per_class = []
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            class_arr = np.concatenate(list(strata_dict.values()), axis=obs_axs)
+            n_have = class_arr.shape[obs_axs]
+            if n_have < target_n:
+                pad_shape = list(class_arr.shape)
+                pad_shape[obs_axs] = target_n - n_have
+                pad = np.full(pad_shape, np.nan)
+                class_arr = np.concatenate([class_arr, pad], axis=obs_axs)
+            final_per_class.append(class_arr)
+    else:
+        raise ValueError(f"unknown balance_method: {balance_method}")
 
-        # Store indices and counts
-        condition_indices[condition_label] = np.where(condition_trials)[0]
-        trial_counts[condition_label] = data_for_condition.shape[0]
+    # --- Step 5: final concatenation ---
+    final_data = np.concatenate(final_per_class, axis=obs_axs)
+    labels = np.concatenate([
+        np.full(arr.shape[obs_axs], class_idx, dtype=int)
+        for class_idx, arr in enumerate(final_per_class)
+    ])
 
-        print(f'  Condition {string_group}: {trial_counts[condition_label]} trials')
-
-    # Check if we have enough trials
-    min_trials = min(trial_counts.values()) if trial_counts else 0
-    if min_trials < 10:
-        print(f"\n⚠️ WARNING: Very few trials remaining! Min trials per condition: {min_trials}")
-        print("  This will likely result in poor decoding accuracy.")
-
-    if balance_method == 'pad_with_nans':
-        max_trial_count = max(trial_counts.values())
-        print(f"\nPadding to max trial count: {max_trial_count}")
-        for condition_label, count in trial_counts.items():
-            trials_to_add = max_trial_count - count
-            if trials_to_add > 0:
-                print(f"  Adding {trials_to_add} NaN trials to condition {condition_label}")
-                nan_trial_shape = (trials_to_add,) + concatenated_data.shape[1:]
-                nan_trials = np.full(nan_trial_shape, np.nan)
-                concatenated_data = np.concatenate([concatenated_data, nan_trials], axis=obs_axs)
-                labels = np.concatenate([labels, [condition_label] * trials_to_add])
-
-    elif balance_method == 'subsample':
-        min_trial_count = min(trial_counts.values())
-        print(f"\nSubsampling to min trial count: {min_trial_count}")
-        subsampled_indices = []
-        for condition_label in trial_counts.keys():
-            indices = condition_indices[condition_label]
-            if trial_counts[condition_label] > min_trial_count:
-                selected_indices = rng.choice(indices, size=min_trial_count, replace=False)
-                print(f"  Subsampled condition {condition_label}: {len(indices)} -> {min_trial_count}")
-            else:
-                selected_indices = indices
-            subsampled_indices.extend(selected_indices)
-
-        subsampled_indices = np.array(subsampled_indices, dtype=int)
-        concatenated_data = concatenated_data[subsampled_indices]
-        labels = labels[subsampled_indices]
-        
-        print(f"\nFinal balanced data shape: {concatenated_data.shape}")
-
+    print(f"  [final] data shape: {final_data.shape}, labels: "
+          f"{dict(zip(*np.unique(labels, return_counts=True)))}")
     print(f"{'='*60}\n")
-    return concatenated_data, labels, cats
+
+    return final_data, labels, cats
 
 # largely stolen from aaron's ieeg plot_decoding.py
 

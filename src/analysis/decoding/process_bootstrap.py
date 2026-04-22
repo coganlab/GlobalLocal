@@ -40,7 +40,8 @@ from src.analysis.config.condition_registry import get_pooled_shuffle_settings
 
 from src.analysis.utils.labeled_array_utils import (
     make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel,
-    concatenate_conditions_by_string,
+    concatenate_conditions_by_string, gather_class_data_by_stratum
+
 )
 from src.analysis.decoding.decoding import (
     get_confusion_matrices_for_rois_time_window_decoding_jim,
@@ -132,8 +133,8 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
         results_for_this_bootstrap['time_averaged_cms'][condition_comparison] = {}
         for roi in rois:
             # Get the 'cats' dictionary for this ROI - pass through balance_strata and bootstrap_random_state 
-            _, _, cats = concatenate_conditions_by_string(
-                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs, args.balance_strata, bootstrap_random_state
+            _, cats = gather_class_data_by_stratum(
+                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs
             )
             
             ## FIX: Store the 'cats' dictionary for this ROI so it can be used for plotting later.
@@ -219,7 +220,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
     # 1. Determine configuration based on experiment conditions - make sure to update this as you add more conditions
     # pooled_settings is now a LIST of (key, strings_to_find) tuples
-    pooled_settings_list = get_pooled_shuffle_settings(args.conditions)
+    pooled_settings_list = get_pooled_shuffle_settings(args.condition_label)
 
     # 2. Execute logic for ALL pooled settings
     for pooled_settings in pooled_settings_list:

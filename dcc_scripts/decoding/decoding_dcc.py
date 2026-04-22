@@ -136,7 +136,7 @@ def main(args):
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
     
-    condition_comparisons = get_comparisons(args.conditions)
+    condition_comparisons = get_comparisons(args.condition_label)
  
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25

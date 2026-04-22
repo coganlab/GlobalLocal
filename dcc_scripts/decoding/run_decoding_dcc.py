@@ -43,7 +43,7 @@ if project_root not in sys.path:
 # Import after path is set up
 from dcc_scripts.decoding.decoding_dcc import main
 from src.analysis.config import experiment_conditions
-
+from src.analysis.config.condition_registry import get_conditions_obj, get_balance_strata
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
@@ -88,7 +88,6 @@ N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
-BALANCE_STRATA = True
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
 OBS_AXS = 0
@@ -138,9 +137,13 @@ SHOW_LEGEND = False
 RUN_VISUALIZATION_DEBUG = False # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
-CONDITION_NAME = os.environ.get('CONDITION_NAME', 'stimulus_congruency_blockA_conditions')
-CONDITIONS = getattr(experiment_conditions, CONDITION_NAME)
+CONDITION_NAME = os.environ.get('CONDITION_NAME')
+if CONDITION_NAME is None:
+    raise ValueError("CONDITION_NAME env var must be set")
+CONDITIONS = get_conditions_obj(CONDITION_NAME)
 CONDITION_LABEL = CONDITION_NAME  # pass this into args for output path naming
+
+BALANCE_STRATA = get_balance_strata(CONDITION_NAME)
 
 # Epochs file selection
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -194,16 +197,16 @@ ROIS_DICT = {
 ELECTRODES = 'sig'
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_SPLITS = 2
-# N_REPEATS = 1
-# N_PERM = 2
-# N_CLUSTER_PERMS= 2
-# BOOTSTRAPS = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_SPLITS = 2
+N_REPEATS = 1
+N_PERM = 2
+N_CLUSTER_PERMS= 2
+BOOTSTRAPS = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""

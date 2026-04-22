@@ -28,7 +28,7 @@ def run_all_context_comparisons(
     save_dir,
     analysis_params_str,
 ):
-    kwargs = get_context_comparison_kwargs(args.conditions)
+    kwargs = get_context_comparison_kwargs(args.condition_label)
     if kwargs is not None:
         run_context_comparison_analysis(
             **kwargs,
