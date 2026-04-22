@@ -230,6 +230,98 @@ def add_previous_trial_info(metadata, fields=None):
     return pd.concat([metadata, prev_df], axis=1)
 
 
+def select_and_balance_trials(
+    epochs,
+    query,
+    class_col,
+    balance_by=None,
+    random_state=None
+):
+    """
+    Select trials for decoding based on metadata query, assign class labels, optionally balance across strata.
+    replaces concatenate_conditions_by_string and concatenate_and_balance_data_for_decoding
+    Parameters
+    ----------
+    epochs : mne.Epochs
+        Must have metadata attached.
+    query : str or None
+        Pandas query string applied to metadata. None means use all trials.
+    class_col : str
+        Metadata column whose values become the class labels
+    balance_by : list of str or None
+        Metadata columns defining the strata. Each (class x stratum) cell is subsampled to the minimum count across all cells.
+        If none, classes are subsampled to the minimum class count (no stratification)
+    random_state : int or RandomState
+        RNG seed.
+    
+    Returns
+    -------
+    data : np.ndarray of shape (n_trials, n_channels, n_times)
+    labels : np.ndarray of integer class labels
+    cats : dict of {(class_value,): int} matching the old decoding cats format
+    """
+    rng = (random_state if isinstance(random_state, np.random.RandomState)
+           else np.random.RandomState(random_state))
+    
+    md = epochs.metadata.reset_index(drop=True)
+    if query is not None:
+        mask = md.eval(query).fillna(False).to_numpy()
+        idx = np.where(mask)[0]
+    else:
+        idx = np.arange(len(md))
+    
+    class_values = md.loc[idx, class_col].to_numpy()
+    
+    # drop rows where class is NaN (e.g., prev_* at block starts)
+    keep = pd.notna(class_values)
+    idx = idx[keep]
+    
+    class_values = class_values[keep]
+    
+    unique_classes = sorted(pd.unique(class_values).tolist())
+    cats = {(c,): i for i,c in enumerate(unique_classes)} # TODO: check if c has to be a tuple according to the ieeg pipelines Decoder class
+    
+    # keep walking through the below code to understand and test it..
+    # assemble the stratification key per trial - TODO: this requires adding blockType to the metadata - recreate this from the inc and switch prop, similar to how i do it for the fmri code.
+    if balance_by:
+        strata = md.loc[idx, balance_by].apply(
+            lambda row: tuple(row.to_list()), axis=1
+        ).to_numpy()
+    else:
+        strata = np.zeros(len(idx), dtype=object)
+    
+    # count per (class, stratum) cell
+    cells = {} # (class, stratum) -> list of positional indices into 'idx'
+    for pos, (cls, strat) in enumerate(zip(class_values, strata)):
+        cells.setdefault((cls, strat), []).append(idx[pos])
+    
+    if not cells:
+        raise ValueError(f"No trials returned by query {query!r}")
+    
+    n_per_cell = min(len(v) for v in cells.values())
+    print(f"[select] query={query!r} class_col={class_col!r} balance_by={balance_by}")
+    for (cls, strat), trials in sorted(cells.items()):
+        print(f" class={cls} stratum={strat}: {len(trials)} trials")
+    print(f" subsampling each cell to {n_per_cell}")
+    
+    # build final index list and labels
+    chosen_idx = []
+    labels = []
+    for cls in unique_classes:
+        for (c, strat), trials in cells.items():
+            if c != cls:
+                continue
+            pick = rng.choice(trials, size=n_per_cell, replace=False)
+            chosen_idx.extend(pick.tolist())
+            labels.extend([cats[(cls,)]] * n_per_cell)
+            
+    chosen_idx = np.array(chosen_idx)
+    labels = np.array(labels, dtype=int)
+    
+    # pull the data
+    data = epochs.get_data(copy=True)[chosen_idx]
+    return data, labels, cats
+    
 # ---- Quick test ----
 if __name__ == "__main__":
     test_name = "Stimulus/i25.0/r25.0/BigLetters/SmallLetterh/Taskg/TargetLetters/Responded1.0/ParticipantResponse115.0/CorrectResponse115.0/TrialCount261.0/BlockTrialCount37.0/ReactionTime1350.0/Accuracy1.0/D57"

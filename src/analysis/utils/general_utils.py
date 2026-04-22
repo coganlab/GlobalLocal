@@ -525,6 +525,31 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
             subjects_mne_objects[sub] = final_sub_mne_objects
 
     return subjects_mne_objects
+
+def load_HG_ev1_rescaled_per_subject(
+    subjects, epochs_root_file, task, LAB_root=None,
+    acc_trials_only=True
+):
+    """
+    Basically create subjects mne objects dict but a SINGLE  Epochs object per subject (so no longer one per condition) with an attached metadata Dataframe.
+    
+    Returns:
+    -------
+    HG_ev1_rescaled_per_subject (dict) : a dictionary with subjects as keys and HG_ev1_rescaled Epochs objects as values
+    """
+    HG_ev1_rescaled_per_subject = {}
+    for sub in subjects:
+        mne_objects = load_mne_objects(sub, epochs_root_file, task, 
+                                       just_HG_ev1_rescaled=True,
+                                       LAB_root=LAB_root)
+        
+        epochs = mne_objects['HG_ev1_rescaled'] # already has metadata CSV attached
+        
+        if acc_trials_only:
+            epochs = epochs['Accuracy1.0']
+        HG_ev1_rescaled_per_subject[sub] = epochs
+        
+    return HG_ev1_rescaled_per_subject
     
 def load_acc_arrays(npy_directory, skip_subjects=None):
     """
@@ -1284,16 +1309,16 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
 
 def map_block_type(row):
     '''
-    maps blockType from behavioral csv to congruencyProportion and switchProportion
+    maps blockType from behavioral csv to incongruentProportion and switchProportion
     '''
     if row['blockType'] == 'A':
-        return pd.Series(['25%', '25%'])
-    elif row['blockType'] == 'B':
-        return pd.Series(['25%', '75%'])
-    elif row['blockType'] == 'C':
         return pd.Series(['75%', '25%'])
-    elif row['blockType'] == 'D':
+    elif row['blockType'] == 'B':
         return pd.Series(['75%', '75%'])
+    elif row['blockType'] == 'C':
+        return pd.Series(['25%', '25%'])
+    elif row['blockType'] == 'D':
+        return pd.Series(['25%', '75%'])
     else:
         return pd.Series([None, None])
 
