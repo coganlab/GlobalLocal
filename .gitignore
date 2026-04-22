@@ -8,4 +8,7 @@ data
 __pycache__/
 *.pyc
 *.svg
+*.png
+*.pdf
+*.eps
 
