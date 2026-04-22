@@ -83,7 +83,7 @@ import gc
 import seaborn as sns
 
 def concatenate_and_balance_data_for_decoding(
-    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=False, random_state=42,
 ):
     """
     Processes and balances the data for a given ROI with improved debugging.
@@ -95,8 +95,11 @@ def concatenate_and_balance_data_for_decoding(
     - strings_to_find: List of strings or string groups to identify condition labels.
     - obs_axs: The trials axis.
     - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
+    - balance_strata (bool) : 
+            If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+            subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
     - random_state: Random seed for reproducibility.
-
+    
     Returns:
     - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
     - labels: The processed labels array.
@@ -110,7 +113,7 @@ def concatenate_and_balance_data_for_decoding(
     
     # Concatenate the trials and get labels
     concatenated_data, labels, cats = concatenate_conditions_by_string(
-        roi_labeled_arrays, roi, strings_to_find, obs_axs
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_strata=balance_strata, random_state=random_state
     )
 
     print(f"\n{'='*60}")
@@ -900,7 +903,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
 
 def get_and_plot_confusion_matrix_for_rois_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, random_state=42, timestamp=None
+    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, balance_strata=False, random_state=42, timestamp=None
 ):
     """
     Compute the confusion matrix for each ROI and return it. This function allows for balancing trial counts
@@ -919,6 +922,9 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     - obs_axs: The trials axis.
     - explained_variance: The amount of variance to explain in the PCA.
     - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
+    - balance_strata (bool) : 
+        If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+        subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
     - random_state: Random seed for reproducibility.
     - timestamp: timestamp of when this script was run for filenaming purposes
     
@@ -933,7 +939,7 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         os.makedirs(roi_save_dir, exist_ok=True)
         print(f"Processing ROI: {roi}")
         concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
-            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=balance_strata, random_state=random_state
         )
 
         # Create a Decoder and run cross-validation
@@ -979,7 +985,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, clf=None, 
     n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
-    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False
+    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False,
+    balance_strata = False, random_seed=42
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -1039,6 +1046,12 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         aligned to the beginning of the concatenated data. Default is -1.
     folds_as_samples : bool, optional
         Whether to use the folds (splits) as the unit to be shuffled across for time perm cluster. Default is false and to sum across splits within repeats, and use repeats as the unit to be shuffled across instead.
+    balance_strata : bool, optional
+        If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+        subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
+    random_state : int or RandomState, optional
+        Used only when balance_strata=True
+        
     Returns
     -------
     tuple of (dict, dict)
@@ -1067,7 +1080,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"Processing ROI: {roi}")
 
         concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
-            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=balance_strata, random_state=random_state
         )
 
         # Get the number of timepoints

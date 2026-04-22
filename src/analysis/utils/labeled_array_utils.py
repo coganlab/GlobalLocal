@@ -524,7 +524,7 @@ def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans
 
     return roi_labeled_arrays_no_nans, conditions_with_no_valid_trials_per_roi
 
-def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, obs_axs=0):
+def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, obs_axs=0, balance_strata=False, random_state=None):
     """
     Concatenate trials across condition names that contain specific strings.
     Assign labels based on the groupings of the conditions.
@@ -533,15 +533,25 @@ def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, o
     - roi_labeled_arrays: Dictionary of LabeledArrays for each ROI.
     - roi: The specific ROI to process.
     - strings_to_find: List of strings or list of lists of strings to search for in condition names.
-                      If a list of strings is provided, each string is treated as its own condition group.
-                      If a list of lists is provided, each sublist represents a group of conditions.
-    - obs_axs (int) : The trials dimension. Concatenation will happen along this axis. This is the 1st dimension (not 0th) because conditions in the labeled array is the 0th. But we will subtract 1 if not considering conditions as a dimension (looping over conditions)
+        If a list of strings is provided, each string is treated as its own condition group.
+        If a list of lists is provided, each sublist represents a group of conditions.
+    - obs_axs (int) : 
+        The trials dimension. Concatenation will happen along this axis. 
+        This is the 1st dimension (not 0th) because conditions in the labeled array is the 0th. 
+        But we will subtract 1 if not considering conditions as a dimension (looping over conditions)
+    - balance_strata (bool) : 
+        If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+        subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
+    - random_state : int or RandomState, optional. Used only when balance_strata=True
     
     Returns:
     - concatenated_data: The concatenated trials by (channels, timepoints, or whatever your other dimensions are) across the matching conditions.
     - labels: A numpy array of labels (0, 1, 2, ...) corresponding to each group of conditions.
     - cats: Dictionary of {condition_name: index} for decoding.
+    
     """
+    rng = (random_state if isinstance(random_state, np.random.RandomState) else np.random.RandomState(random_state))
+    
     concatenated_data = []
     labels = []
     cats = {}
@@ -561,16 +571,33 @@ def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, o
 
         if not matching_conditions:
             continue
-
-        # Concatenate data for all matching conditions
-        data_to_concatenate = []
-        for cond in matching_conditions:
-            # Extract data for the current condition
-            data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints) or (trials, channels, frequencies, timepoints)
-            data_to_concatenate.append(data)
+        
+        # within-class stratified subsampling
+        if balance_strata and len(matching_conditions) > 1:
+            stratum_sizes = {cond: roi_labeled_arrays[roi][cond].shape[obs_axs] for cond in matching_conditions}
+            n_per_stratum = min(stratum_sizes.values())
+            print(f" [balance_strata] class={string_group}: "
+                  f"sizes={stratum_sizes}, subsampling each to {n_per_stratum}")
             
-            # Update labels for the current condition group
-            labels.extend([current_label] * data.shape[0])
+            data_to_concatenate = []
+            for cond in matching_conditions:
+                data = roi_labeled_arrays[roi][cond]
+                n_available = data.shape[obs_axs]
+                if n_available > n_per_stratum:
+                    idx = rng.choice(n_available, size=n_per_stratum, replace=False)
+                    data = np.take(data, idx, axis=obs_axs)
+                data_to_concatenate.append(data)
+                labels.extend([current_label] * n_per_stratum)
+        else:
+            # Concatenate data for all matching conditions
+            data_to_concatenate = []
+            for cond in matching_conditions:
+                # Extract data for the current condition
+                data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints) or (trials, channels, frequencies, timepoints)
+                data_to_concatenate.append(data)
+                
+                # Update labels for the current condition group
+                labels.extend([current_label] * data.shape[0])
         
         # Check if we have data to concatenate for this condition group
         if data_to_concatenate:

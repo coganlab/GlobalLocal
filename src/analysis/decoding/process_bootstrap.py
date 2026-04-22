@@ -131,9 +131,9 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
     for condition_comparison, strings_to_find in condition_comparisons.items():
         results_for_this_bootstrap['time_averaged_cms'][condition_comparison] = {}
         for roi in rois:
-            # Get the 'cats' dictionary for this ROI
+            # Get the 'cats' dictionary for this ROI - pass through balance_strata and bootstrap_random_state 
             _, _, cats = concatenate_conditions_by_string(
-                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs
+                roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs, args.balance_strata, bootstrap_random_state
             )
             
             ## FIX: Store the 'cats' dictionary for this ROI so it can be used for plotting later.
