@@ -595,7 +595,7 @@ def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, o
                 # Extract data for the current condition
                 data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints) or (trials, channels, frequencies, timepoints)
                 data_to_concatenate.append(data)
-                
+    
                 # Update labels for the current condition group
                 labels.extend([current_label] * data.shape[0])
         
@@ -789,6 +789,7 @@ def make_bootstrapped_labeled_arrays_for_roi(
     for i in range(n_bootstraps):
         bootstrapped_conditions_data = {}
         
+        # TODO: turn the below code into its own function and just call this instead in process_bootstrap.py
         # loop through conditions to build one bootstrapped LabeledArray
         for condition_name in condition_names:
             n_samples = min_trials_per_condition[condition_name]

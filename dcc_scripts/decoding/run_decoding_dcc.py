@@ -88,6 +88,7 @@ N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
+BALANCE_STRATA = True
 NORMALIZE = 'true'
 BOOTSTRAPS = 20
 OBS_AXS = 0
@@ -229,6 +230,7 @@ def run_analysis():
         clf_model_str=CLF_MODEL_STR,  
         explained_variance=EXPLAINED_VARIANCE,
         balance_method=BALANCE_METHOD,
+        balance_strata=BALANCE_STRATA,
         bootstraps=BOOTSTRAPS,
         obs_axs=OBS_AXS,
         chans_axs=CHANS_AXS,
@@ -266,6 +268,7 @@ def run_analysis():
     print(f"Electrodes (all or sig):       {ELECTRODES}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")
+    print(f"Balance strata:     {BALANCE_STRATA}")
     print(f"Obs axs:            {OBS_AXS}")
     print(f"Chans axs:          {CHANS_AXS}")
     print(f"Time axs:           {TIME_AXS}")
