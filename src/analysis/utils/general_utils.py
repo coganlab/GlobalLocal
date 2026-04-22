@@ -374,6 +374,8 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
     MNE Epochs objects using `load_mne_objects`, and then further processes
     these epochs based on specified experimental conditions. It can optionally
     filter epochs to include only accurate trials.
+    
+    It also adds metadata to epochs objects if they don't already have them, and blockType to their metadata if it's not already included.
 
     Parameters:
     ----------
@@ -384,18 +386,19 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         Example: 'Stimulus_1sec_preStimulusBase_decFactor_10'.
     conditions : dict
         A dictionary defining the experimental conditions to extract.
-        - Keys (str): User-defined names for each condition (e.g., 'TargetAuditory', 'StandardVisual').
+        - Keys (str): User-defined names for each condition (e.g., 'Stimulus_c25', 'Stimulus_c75').
         - Values (dict): Parameters for each condition. Each condition's dictionary
           *must* contain a 'BIDS_events' key.
           The value for 'BIDS_events' can be:
-            - A string: representing a single BIDS event type (e.g., 'auditory/target').
+            - A string: representing a single BIDS event type (e.g., 'Stimulus/c25.0').
             - A list of strings: representing multiple BIDS event types to be
-              concatenated for this condition (e.g., ['visual/target', 'visual/nontarget']).
+              concatenated for this condition (e.g., ['Stimulus/c25.0', 'Stimulus/c75.0']).
+
         Example:
         ```python
         conditions = {
-            'AuditoryTarget': {'BIDS_events': 'auditory/target', 'other_param': 'value'},
-            'VisualCombined': {'BIDS_events': ['visual/target', 'visual/nontarget']}
+            'Stimulus_c25': {'BIDS_events': ['Stimulus/c25.0']},
+            'Stimulus_c': {'BIDS_events': ['Stimulus/c25.0', 'Stimulus/c75.0]}
         }
         ```
     task : str
@@ -447,11 +450,11 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         for mne_object_type, epochs_obj in mne_objects.items():
             
             # parse event names into metadata on the full epochs object before acc filtering so prev-trial lookups see all trials
-            if epochs_obj.metadata is None or 'blockType' not in (epochs_obj.metadata.columns if epochs_obj.metadata is not None else []):
+            if epochs_obj.metadata is None or 'block_type' not in (epochs_obj.metadata.columns if epochs_obj.metadata is not None else []):
                 md = make_metadata_from_event_names(epochs_obj)
                 md = add_previous_trial_info(md)
-                # blockType as (incongruent_proportion, switch_proportion) tuple
-                md['blockType'] = md.apply(
+                # block_type as (incongruent_proportion, switch_proportion) tuple
+                md['block_type'] = md.apply(
                     lambda r: (r.get('incongruent_proportion'), r.get('switch_proportion')),
                     axis=1
                 )
@@ -468,14 +471,32 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
             for condition_name, condition_parameters in conditions.items():
                 print(f"  Loading condition: {condition_name}")
                 
+                # support metadata_query as an alternative to BIDS_events
+                metadata_query = condition_parameters.get("metadata_query")
                 bids_events = condition_parameters.get("BIDS_events")
-                if not bids_events:
-                    print(f"    Warning: Condition '{condition_name}' is missing 'BIDS_events'. Skipping.")
+                
+                if metadata_query is None and not bids_events:
+                    print(f"    Warning: Condition '{condition_name}' has neither metadata_query nor 'BIDS_events'. Skipping.")
                     continue
 
                 event_epochs = None  # Initialize to None
-
-                if isinstance(bids_events, list):
+                
+                # first apply the metadata query if it exists
+                if metadata_query is not None:
+                    # Query metadata directly. Accepts any pandas .eval()-compatible string, 
+                    # including prev-trial columns (e.g., "prev_task_sequence == 's'").
+                    try:
+                        mask = processed_epochs.metadata.eval(metadata_query).fillna(False).to_numpy()
+                    except Exception as e:
+                        print(f"    Warning: metadata_query failed for '{condition_name}': {e}. Skipping.")
+                        continue
+                    sel_idx = np.where(mask)[0]
+                    if len(sel_idx) == 0:
+                        print(f"    Warning: metadata_query '{metadata_query}' matched 0 trials for {sub}. Skipping condition '{condition_name}'.")
+                        continue
+                    event_epochs = processed_epochs[sel_idx]
+                    
+                elif isinstance(bids_events, list):
                     combined_epochs_list = []
                     for event in bids_events:
                         try:
