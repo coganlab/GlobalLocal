@@ -44,6 +44,11 @@ from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import CONDITION_REGISTRY
 from src.analysis.config.condition_registry import get_comparisons
 
+from src.analysis.utils.epoch_metadata_utils import (
+    make_metadata_from_event_names,
+    add_previous_trial_info
+)
+
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.
 
@@ -440,6 +445,17 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         
         # Loop through each MNE object type (e.g., 'HG_ev1_power_rescaled')
         for mne_object_type, epochs_obj in mne_objects.items():
+            
+            # parse event names into metadata on the full epochs object before acc filtering so prev-trial lookups see all trials
+            if epochs_obj.metadata is None or 'blockType' not in (epochs_obj.metadata.columns if epochs_obj.metadata is not None else []):
+                md = make_metadata_from_event_names(epochs_obj)
+                md = add_previous_trial_info(md)
+                # blockType as (incongruent_proportion, switch_proportion) tuple
+                md['blockType'] = md.apply(
+                    lambda r: (r.get('incongruent_proportion'), r.get('switch_proportion')),
+                    axis=1
+                )
+                epochs_obj.metadata = md
             
             # Filter for accuracy first before looping through conditions
             processed_epochs = epochs_obj
