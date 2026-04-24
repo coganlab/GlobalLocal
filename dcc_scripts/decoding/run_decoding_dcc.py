@@ -49,21 +49,15 @@ from src.analysis.config.condition_registry import get_conditions_obj, get_balan
 # ============================================================================
 LAB_ROOT = None  # Will be determined automatically in main()
 
-# Subject configuration
-# subjects for err-corr
+
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
-# subjects for iR-cS err
-# SUBJECTS = ['D0065', 'D0069', 'D0077', 'D0102', 'D0103', 'D0121']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
-# below is without D0110, D0059, D0071, D0090  because less than 23 error trials -- use this for err/corr decoding
-SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
-# switched to False for err-corr decoding
-ACC_TRIALS_ONLY = False
+ACC_TRIALS_ONLY = True
 
 # Parallel processing
 N_JOBS = -1 
@@ -195,20 +189,20 @@ ROIS_DICT = {
 
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
 ELECTRODES = 'sig'
+SAVE_DIR = os.path.join(current_script_dir, EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
-SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 1
-N_PERM = 2
-N_CLUSTER_PERMS= 2
-BOOTSTRAPS = 2
-N_JOBS = 1
-ROIS_DICT = {
-  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# SUBJECTS = ['D0103']
+# N_SPLITS = 2
+# N_REPEATS = 1
+# N_PERM = 2
+# N_CLUSTER_PERMS= 2
+# BOOTSTRAPS = 2
+# N_JOBS = 1
+# ROIS_DICT = {
+#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
-SAVE_DIR = os.path.join(current_script_dir, EPOCHS_ROOT_FILE)
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
