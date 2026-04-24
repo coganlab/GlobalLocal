@@ -781,6 +781,34 @@ stimulus_task_conditions = {
     }
 }
 
+# Block A: 75% Inc, 25% Switch
+stimulus_blockA_conditions = {
+    "Stimulus_blockA": {
+        "BIDS_events": ["Stimulus/c75.0/s25.0", "Stimulus/c75.0/r25.0", "Stimulus/i75.0/s25.0", "Stimulus/i75.0/r25.0"]
+    }
+}
+
+# Block B: 75% Inc, 75% Switch
+stimulus_blockB_conditions = {
+    "Stimulus_blockB": {
+        "BIDS_events": ["Stimulus/c75.0/s75.0", "Stimulus/c75.0/r75.0", "Stimulus/i75.0/s75.0", "Stimulus/i75.0/r75.0"]
+    }
+}
+
+# Block C: 25% Inc, 25% Switch
+stimulus_blockC_conditions = {
+    "Stimulus_blockC": {
+        "BIDS_events": ["Stimulus/c25.0/s25.0", "Stimulus/c25.0/r25.0", "Stimulus/i25.0/s25.0", "Stimulus/i25.0/r25.0"]
+    }
+}
+
+# Block D: 25% Inc, 75% Switch
+stimulus_blockD_conditions = {
+    "Stimulus_blockD": {
+        "BIDS_events": ["Stimulus/c25.0/s75.0", "Stimulus/c25.0/r75.0", "Stimulus/i25.0/s75.0", "Stimulus/i25.0/r75.0"]
+    }
+}
+
 # congruency
 response_congruency_conditions = {
     "Response_i": {
