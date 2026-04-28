@@ -47,11 +47,15 @@ from src.analysis.config.condition_registry import get_conditions_obj, get_balan
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
+SLURM_JOB_ID = os.environ.get('SLURM_JOB_ID', 'local') # 'local' fallback when run off-cluster
 LAB_ROOT = None  # Will be determined automatically in main()
 
 
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133']
 
 # task
 TASK = 'GlobalLocal'
@@ -83,7 +87,7 @@ RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 20
+BOOTSTRAPS = 10
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -94,7 +98,7 @@ STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.5 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
-N_SHUFFLE_PERMS = 50 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
+N_SHUFFLE_PERMS = 20 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across fold, repeat, or bootstrap
 UNIT_OF_ANALYSIS='repeat'
@@ -105,7 +109,7 @@ FOLDS_AS_SAMPLES = True if UNIT_OF_ANALYSIS == 'fold' else False
 # percentile stats parameters
 PERCENTILE=95
 CLUSTER_PERCENTILE=95
-N_CLUSTER_PERMS=200 # how many times to shuffle accuracies between chance and true to do cluster correction
+N_CLUSTER_PERMS=100 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # additional parameters for permutation cluster stats
 STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
@@ -178,18 +182,18 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 #      'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
 #  }
 
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-    'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
-}
-
 # ROIS_DICT = {
-#    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#     'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
 # }
+
+ROIS_DICT = {
+   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
 ELECTRODES = 'sig'
-SAVE_DIR = os.path.join(current_script_dir, EPOCHS_ROOT_FILE)
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
@@ -212,6 +216,7 @@ def run_analysis():
     # Create argument namespace
     args = SimpleNamespace(
         timestamp=timestamp,
+        slurm_job_id=SLURM_JOB_ID,
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
         acc_trials_only=ACC_TRIALS_ONLY,

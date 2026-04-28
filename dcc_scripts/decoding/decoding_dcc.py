@@ -203,8 +203,10 @@ def main(args):
     )
     
     sub_str = str(len(args.subjects))
+    sub_str_with_ids = "_".join([str(len(args.subjects))] + [s.strip().replace('D00', "").replace('D0', "") for s in args.subjects])
     
     analysis_params_str = (
+            f"job{args.slurm_job_id}_"
             f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
             f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
             f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"

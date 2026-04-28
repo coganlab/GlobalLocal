@@ -280,16 +280,20 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
     def cv_cm_jim(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
-        n_cats = len(set(labels))
-        mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats))
-        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs
-        idx = [slice(None) for _ in range(x_data.ndim)]
-        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)):
-            x_train = np.take(x_data, train_idx, obs_axs)
-            x_test = np.take(x_data, test_idx, obs_axs)
+        '''
+        This produces a cross-validated confusion matrix, such that there is one confusion matrix per (repeat, fold).
+        '''
+        
+        n_cats = len(set(labels)) # Number of classes. 2 for binary encoding.
+        mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats)) # output container: one confusion matrix per (repeat, fold).
+        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs # obs axs is the trial axis that gets normalized to a positive index so that np.take is unambiguous. 
+        idx = [slice(None) for _ in range(x_data.ndim)] # create a list of slice(None, None, None) values, with one for each dim of x_data - so probably 3, resulting in [slice(None, None, None), slice(None, None, None), slice(None, None, None)]
+        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)): # self.split is from the MinimumNaNSplit class, and is a stratified K-fold that ensures each test fold has at least N non-NaN trials per class. The x_data.swapaxes(0, obs_axs) is a view to satisfy self.split's expectation that trials are on axis 0. f is a flat index 0...n_repeats*n_splits-1, corresponding to all folds across all repeats.
+            x_train = np.take(x_data, train_idx, obs_axs) # np.take selects along whatever axis trials really live on. x_train keeps the original shape just fewer trials
+            x_test = np.take(x_data, test_idx, obs_axs) 
             
             y_train = labels[train_idx]
-            mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None)
+            mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None) # replace trials with NaN timepoints with a random combination of two non-NaN trials: these trials can be from the same class (50% or higher chance for each trial) or a different class.
             y_test = labels[test_idx]
             # for i in set(labels):
             #     # fill in train data nans with random combinations of existing train data trials (mixup)
@@ -298,33 +302,33 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
             # fill in test data nans with noise from distribution
             is_nan = np.isnan(x_test)
-            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
+            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan)) # NaNs are filled with independent and identically distributed noise, which is intentionally non-informative, approximately matching the scaled-feature distribution after the scaler maps everything to unit variance. This is so test imputation doesn't leak class info.
 
             # feature selection
-            train_in = flatten_features(x_train, obs_axs)
+            train_in = flatten_features(x_train, obs_axs) # flatten features collapses everything except the trial axis into one feature dimension so end up with (n_trials, n_channels * n_timepoints)
             test_in = flatten_features(x_test, obs_axs)
-            if train_in.shape[1] > self.max_features:
+            if train_in.shape[1] > self.max_features: # if the resulting feature count exceeds self.max_features, pick a random subset of features, with the same indices for train and test so the slicing is consistent. Usually will not be triggered since  default max_features = inf.
                 tidx = np.random.choice(train_in.shape[1], self.max_features, replace=False)
                 train_in = train_in[:, tidx]
                 test_in = test_in[:, tidx]
 
             # fit model and score results
-            self.fit(train_in, y_train)
-            pred = self.predict(test_in)
+            self.fit(train_in, y_train) # fits scaler -> pca -> clf. Called fresh every iteration, so decoder.model.named_steps['pca'] is overwritten on every fold.
+            pred = self.predict(test_in) # transforms with the same scaler/pca, then predicts
             rep, fold = divmod(f, self.n_splits)
             mats[rep, fold] = confusion_matrix(y_test, pred)
 
         # average the repetitions, sum the folds
-        matk = np.sum(mats, axis=1)
+        matk = np.sum(mats, axis=1) # sum across folds within each repeat, resulting in matk of shape (n_repeats, n_cats, n_cats)
         if normalize == 'true':
-            divisor = np.sum(matk, axis=-1, keepdims=True)
+            divisor = np.sum(matk, axis=-1, keepdims=True) # row-normalize
         elif normalize == 'pred':
-            divisor = np.sum(matk, axis=-2, keepdims=True)
+            divisor = np.sum(matk, axis=-2, keepdims=True) # col-normalize
         elif normalize == 'all':
-            divisor = self.n_repeats
+            divisor = self.n_repeats # average over repeats
         else:
             divisor = 1
-        return matk / divisor
+        return matk / divisor # returns accuracy per repeat of shape (n_repeats, n_cats, n_cats), with the n_repeats distribution being used later for significance testing
     
     # untested 11/30
     # def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
@@ -3870,7 +3874,7 @@ def plot_static_pca_projection(
     plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)")
     plt.legend(title="Condition")
     plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
-    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    plt.axvline(0, color='grey', linestyle='--', linewidth=0.5)
     
     if save_dir:
         plt.savefig(os.path.join(save_dir, f"static_pca_{roi}.pdf"))
@@ -3886,6 +3890,7 @@ def plot_pca_over_time(
     step_size: int,
     sampling_rate: float,
     first_time_point: float,
+    save_dir: None,
     obs_axs: int = 0,
     random_state: int = 42
 ):
@@ -3989,7 +3994,10 @@ def plot_pca_over_time(
 
     fig.suptitle(f"PCA Over Time for {roi} (Conditions: {', '.join(label_map.values())})", fontsize=16, y=1.02)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
-    plt.show()
+    if save_dir:
+        plt.savefig(os.path.join(save_dir, f"pca_over_time_in_{roi}.pdf"))
+    else:
+        plt.show()
     
 # need to get time window by time window version next. Also this is untested rn. 10/31/25.
 def plot_high_dim_decision_slice(
