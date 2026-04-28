@@ -2,11 +2,10 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    # "stimulus_congruency_blockC_conditions"
-    "response_err_corr_conditions"
-    # "stimulus_err_corr_conditions"
-
-    # add more condition names here
+    "stimulus_lwpc_block_balanced_conditions"
+    "stimulus_lwps_block_balanced_conditions"
+    "stimulus_congruency_by_switch_prop_block_balanced_conditions"
+    "stimulus_switch_type_by_inc_prop_block_balanced_conditions"
 )
 
 # Create output directory if needed

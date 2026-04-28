@@ -573,7 +573,210 @@ CONDITION_REGISTRY = {
     'response_iR_cS_err_conditions': {
         'conditions_obj': experiment_conditions.response_iR_cS_err_conditions,
         'comparisons': {},
-    }
+    },
+    
+    
+# =========================================================================
+# Block-balanced Analysis 1: LWPC — decode i vs c, stratified by inc_prop
+# =========================================================================
+'stimulus_lwpc_block_balanced_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_congruency_by_block_conditions,
+    'balance_strata': True,
+    'comparisons': {
+        # inc_prop=25 → MC blocks (MC_MR, MC_MS)
+        'i_vs_c_at_inc25': [
+            ['Stimulus_i_MC_MR', 'Stimulus_i_MC_MS'],
+            ['Stimulus_c_MC_MR', 'Stimulus_c_MC_MS'],
+        ],
+        # inc_prop=75 → MI blocks (MI_MR, MI_MS)
+        'i_vs_c_at_inc75': [
+            ['Stimulus_i_MI_MR', 'Stimulus_i_MI_MS'],
+            ['Stimulus_c_MI_MR', 'Stimulus_c_MI_MS'],
+        ],
+    },
+    'pooled_shuffle': [
+        {
+            'key': 'lwpc_block_balanced_shuffle',
+            'strings_to_find': [
+                ['Stimulus_c_MI_MR', 'Stimulus_c_MI_MS',
+                 'Stimulus_c_MC_MR', 'Stimulus_c_MC_MS'],
+                ['Stimulus_i_MI_MR', 'Stimulus_i_MI_MS',
+                 'Stimulus_i_MC_MR', 'Stimulus_i_MC_MS'],
+            ],
+        },
+    ],
+    'context_comparison': {
+        'condition_name': 'LWPC_block_balanced',
+        'condition_comparison_1': 'i_vs_c_at_inc25',
+        'condition_comparison_2': 'i_vs_c_at_inc75',
+        'pooled_shuffle_key': 'lwpc_block_balanced_shuffle',
+        'colors': {
+            'i_vs_c_at_inc25': '#FF7E79',
+            'i_vs_c_at_inc75': '#FF7E79',
+            'lwpc_block_balanced_shuffle_across_bootstraps': '#949494',
+        },
+        'linestyles': {
+            'i_vs_c_at_inc25': '-',
+            'i_vs_c_at_inc75': '--',
+            'lwpc_block_balanced_shuffle_across_bootstraps': '--',
+        },
+        'ylabel': 'Congruency Decoding Accuracy',
+        'significance_label_1': '25% I > 75% I',
+        'significance_label_2': '75% I > 25% I',
+    },
+},
+
+# =========================================================================
+# Block-balanced Analysis 2: LWPS — decode s vs r, stratified by switch_prop
+# =========================================================================
+'stimulus_lwps_block_balanced_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_switch_type_by_block_conditions,
+    'balance_strata': True,
+    'comparisons': {
+        # switch_prop=25 → MR blocks (MI_MR, MC_MR)
+        's_vs_r_at_sw25': [
+            ['Stimulus_s_MI_MR', 'Stimulus_s_MC_MR'],
+            ['Stimulus_r_MI_MR', 'Stimulus_r_MC_MR'],
+        ],
+        # switch_prop=75 → MS blocks (MI_MS, MC_MS)
+        's_vs_r_at_sw75': [
+            ['Stimulus_s_MI_MS', 'Stimulus_s_MC_MS'],
+            ['Stimulus_r_MI_MS', 'Stimulus_r_MC_MS'],
+        ],
+    },
+    'pooled_shuffle': [
+        {
+            'key': 'lwps_block_balanced_shuffle',
+            'strings_to_find': [
+                ['Stimulus_s_MI_MR', 'Stimulus_s_MI_MS',
+                 'Stimulus_s_MC_MR', 'Stimulus_s_MC_MS'],
+                ['Stimulus_r_MI_MR', 'Stimulus_r_MI_MS',
+                 'Stimulus_r_MC_MR', 'Stimulus_r_MC_MS'],
+            ],
+        },
+    ],
+    'context_comparison': {
+        'condition_name': 'LWPS_block_balanced',
+        'condition_comparison_1': 's_vs_r_at_sw25',
+        'condition_comparison_2': 's_vs_r_at_sw75',
+        'pooled_shuffle_key': 'lwps_block_balanced_shuffle',
+        'colors': {
+            's_vs_r_at_sw25': '#05B0F0',
+            's_vs_r_at_sw75': '#05B0F0',
+            'lwps_block_balanced_shuffle_across_bootstraps': '#949494',
+        },
+        'linestyles': {
+            's_vs_r_at_sw25': '-',
+            's_vs_r_at_sw75': '--',
+            'lwps_block_balanced_shuffle_across_bootstraps': '--',
+        },
+        'ylabel': 'Switch Type Decoding Accuracy',
+        'significance_label_1': '25% S > 75% S',
+        'significance_label_2': '75% S > 25% S',
+    },
+},
+
+# =========================================================================
+# Block-balanced Analysis 3: congruency × switch_prop —
+#   decode i vs c, stratified by switch_prop
+# =========================================================================
+'stimulus_congruency_by_switch_prop_block_balanced_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_congruency_by_block_conditions,
+    'balance_strata': True,
+    'comparisons': {
+        # switch_prop=25 → MR blocks (MI_MR, MC_MR)
+        'i_vs_c_at_sw25': [
+            ['Stimulus_i_MI_MR', 'Stimulus_i_MC_MR'],
+            ['Stimulus_c_MI_MR', 'Stimulus_c_MC_MR'],
+        ],
+        # switch_prop=75 → MS blocks (MI_MS, MC_MS)
+        'i_vs_c_at_sw75': [
+            ['Stimulus_i_MI_MS', 'Stimulus_i_MC_MS'],
+            ['Stimulus_c_MI_MS', 'Stimulus_c_MC_MS'],
+        ],
+    },
+    'pooled_shuffle': [
+        {
+            'key': 'congruency_by_switch_prop_block_balanced_shuffle',
+            'strings_to_find': [
+                ['Stimulus_c_MI_MR', 'Stimulus_c_MI_MS',
+                 'Stimulus_c_MC_MR', 'Stimulus_c_MC_MS'],
+                ['Stimulus_i_MI_MR', 'Stimulus_i_MI_MS',
+                 'Stimulus_i_MC_MR', 'Stimulus_i_MC_MS'],
+            ],
+        },
+    ],
+    'context_comparison': {
+        'condition_name': 'congruency_by_switch_prop_block_balanced',
+        'condition_comparison_1': 'i_vs_c_at_sw25',
+        'condition_comparison_2': 'i_vs_c_at_sw75',
+        'pooled_shuffle_key': 'congruency_by_switch_prop_block_balanced_shuffle',
+        'colors': {
+            'i_vs_c_at_sw25': '#05B0F0',
+            'i_vs_c_at_sw75': '#05B0F0',
+            'congruency_by_switch_prop_block_balanced_shuffle_across_bootstraps': '#949494',
+        },
+        'linestyles': {
+            'i_vs_c_at_sw25': '-',
+            'i_vs_c_at_sw75': '--',
+            'congruency_by_switch_prop_block_balanced_shuffle_across_bootstraps': '--',
+        },
+        'ylabel': 'Congruency Decoding Accuracy',
+        'significance_label_1': 'C/I (25% S) > C/I (75% S)',
+        'significance_label_2': 'C/I (75% S) > C/I (25% S)',
+    },
+},
+
+# =========================================================================
+# Block-balanced Analysis 4: switch_type × inc_prop —
+#   decode s vs r, stratified by inc_prop
+# =========================================================================
+'stimulus_switch_type_by_inc_prop_block_balanced_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_switch_type_by_block_conditions,
+    'balance_strata': True,
+    'comparisons': {
+        # inc_prop=25 → MC blocks (MC_MR, MC_MS)
+        's_vs_r_at_inc25': [
+            ['Stimulus_s_MC_MR', 'Stimulus_s_MC_MS'],
+            ['Stimulus_r_MC_MR', 'Stimulus_r_MC_MS'],
+        ],
+        # inc_prop=75 → MI blocks (MI_MR, MI_MS)
+        's_vs_r_at_inc75': [
+            ['Stimulus_s_MI_MR', 'Stimulus_s_MI_MS'],
+            ['Stimulus_r_MI_MR', 'Stimulus_r_MI_MS'],
+        ],
+    },
+    'pooled_shuffle': [
+        {
+            'key': 'switch_type_by_inc_prop_block_balanced_shuffle',
+            'strings_to_find': [
+                ['Stimulus_s_MI_MR', 'Stimulus_s_MI_MS',
+                 'Stimulus_s_MC_MR', 'Stimulus_s_MC_MS'],
+                ['Stimulus_r_MI_MR', 'Stimulus_r_MI_MS',
+                 'Stimulus_r_MC_MR', 'Stimulus_r_MC_MS'],
+            ],
+        },
+    ],
+    'context_comparison': {
+        'condition_name': 'switch_type_by_inc_prop_block_balanced',
+        'condition_comparison_1': 's_vs_r_at_inc25',
+        'condition_comparison_2': 's_vs_r_at_inc75',
+        'pooled_shuffle_key': 'switch_type_by_inc_prop_block_balanced_shuffle',
+        'colors': {
+            's_vs_r_at_inc25': '#FF7E79',
+            's_vs_r_at_inc75': '#FF7E79',
+            'switch_type_by_inc_prop_block_balanced_shuffle_across_bootstraps': '#949494',
+        },
+        'linestyles': {
+            's_vs_r_at_inc25': '-',
+            's_vs_r_at_inc75': '--',
+            'switch_type_by_inc_prop_block_balanced_shuffle_across_bootstraps': '--',
+        },
+        'ylabel': 'Switch Type Decoding Accuracy',
+        'significance_label_1': 'S/R (25% I) > S/R (75% I)',
+        'significance_label_2': 'S/R (75% I) > S/R (25% I)',
+    },
+}
 
 }
 
@@ -583,45 +786,22 @@ CONDITION_REGISTRY = {
 # Helper functions for consumers
 # =============================================================================
 
-def _find_entry(conditions):
-    """Look up the registry entry matching a conditions object."""
-    for entry in CONDITION_REGISTRY.values():
-        if conditions == entry['conditions_obj']:
-            return entry
-    return None
+def get_comparisons(condition_name):
+    return CONDITION_REGISTRY[condition_name]['comparisons']
 
+def get_pooled_shuffle_settings(condition_name):
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    return [(s['key'], s['strings_to_find']) for s in entry.get('pooled_shuffle', [])]
 
-def get_comparisons(conditions):
-    """
-    Return the comparisons dict for a given conditions object.
-    Replaces build_condition_comparisons().
-    """
-    entry = _find_entry(conditions)
-    if entry is None:
-        raise ValueError(f"No comparisons defined for {conditions}")
-    return entry['comparisons']
-
-
-def get_pooled_shuffle_settings(conditions):
-    """
-    Return a list of (key, strings_to_find) tuples for pooled shuffle.
-    Replaces the if/elif chain in process_bootstrap.py.
-    """
-    entry = _find_entry(conditions)
-    if entry is None:
-        return []
-    return [
-        (s['key'], s['strings_to_find'])
-        for s in entry.get('pooled_shuffle', [])
-    ]
-
-
-def get_context_comparison_kwargs(conditions):
-    """
-    Return the kwargs dict for run_context_comparison_analysis, or None.
-    Replaces CONTEXT_COMPARISON_REGISTRY in run_context_comparisons.py.
-    """
-    entry = _find_entry(conditions)
+def get_context_comparison_kwargs(condition_name):
+    entry = CONDITION_REGISTRY.get(condition_name)
     if entry is None:
         return None
-    return entry.get('context_comparison', None)
+    return entry.get('context_comparison')
+
+def get_balance_strata(condition_name):
+    entry = CONDITION_REGISTRY.get(condition_name)
+    return False if entry is None else entry.get('balance_strata', False)
+
+def get_conditions_obj(condition_name):
+    return CONDITION_REGISTRY[condition_name]['conditions_obj']

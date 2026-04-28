@@ -33,6 +33,7 @@ from src.analysis.config import experiment_conditions
 from src.analysis.utils.labeled_array_utils import make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel
 from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice
 
+# TODO: go through and add save dir and test these plotting functions. Also, update to use condition_registry. Add a vis pairs line to each condition_registry entry i think.
 def run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir):
     condition_comparison = None
     print(f"\n{'='*20} 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) {'='*20}\n")

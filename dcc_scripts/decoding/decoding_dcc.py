@@ -105,8 +105,10 @@ def main(args):
     subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
-    
-    save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
+    if args.save_dir:
+        save_dir = args.save_dir
+    else: 
+        save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
     
@@ -136,7 +138,7 @@ def main(args):
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
     
-    condition_comparisons = get_comparisons(args.conditions)
+    condition_comparisons = get_comparisons(args.condition_label)
  
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
@@ -201,8 +203,10 @@ def main(args):
     )
     
     sub_str = str(len(args.subjects))
+    sub_str_with_ids = "_".join([str(len(args.subjects))] + [s.strip().replace('D00', "").replace('D0', "") for s in args.subjects])
     
     analysis_params_str = (
+            f"job{args.slurm_job_id}_"
             f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
             f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
             f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"

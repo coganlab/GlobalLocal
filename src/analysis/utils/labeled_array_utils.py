@@ -524,69 +524,84 @@ def remove_nans_from_all_roi_labeled_arrays(roi_labeled_arrays, obs_axs=0, chans
 
     return roi_labeled_arrays_no_nans, conditions_with_no_valid_trials_per_roi
 
-def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find, obs_axs=0):
+def gather_class_data_by_stratum(roi_labeled_arrays, roi, strings_to_find, obs_axs=0):
     """
-    Concatenate trials across condition names that contain specific strings.
-    Assign labels based on the groupings of the conditions.
+    Group sub-conditions into classes, preserving stratum identity.
 
-    Parameters:
-    - roi_labeled_arrays: Dictionary of LabeledArrays for each ROI.
-    - roi: The specific ROI to process.
-    - strings_to_find: List of strings or list of lists of strings to search for in condition names.
-                      If a list of strings is provided, each string is treated as its own condition group.
-                      If a list of lists is provided, each sublist represents a group of conditions.
-    - obs_axs (int) : The trials dimension. Concatenation will happen along this axis. This is the 1st dimension (not 0th) because conditions in the labeled array is the 0th. But we will subtract 1 if not considering conditions as a dimension (looping over conditions)
-    
-    Returns:
-    - concatenated_data: The concatenated trials by (channels, timepoints, or whatever your other dimensions are) across the matching conditions.
-    - labels: A numpy array of labels (0, 1, 2, ...) corresponding to each group of conditions.
-    - cats: Dictionary of {condition_name: index} for decoding.
+    Returns
+    -------
+    class_data : list of dicts
+        class_data[class_idx] = {sub_condition_name: np.ndarray, ...}
+        One dict per class (string_group). Keys are the sub-condition names
+        that matched; values are the raw (possibly NaN-padded) data arrays
+        from roi_labeled_arrays. Data is NOT yet concatenated or balanced.
+    cats : dict
+        {tuple(string_group): class_idx} for decoding output.
+
+    Notes
+    -----
+    - No NaN removal, no balancing. Those belong in the caller.
+    - If a class matches only one sub-condition, the dict has one entry; that's fine.
+    - Preserves the exact arrays from roi_labeled_arrays (no copies unless needed later).
     """
-    concatenated_data = []
-    labels = []
+    class_data = []
     cats = {}
 
-    # Track current label index
-    current_label = 0
-
-    # Normalize strings_to_find so each entry is a list (whether it's a string or a list of strings)
+    # Normalize strings_to_find: flat list → list of single-item lists
     if isinstance(strings_to_find, list) and all(isinstance(s, str) for s in strings_to_find):
-        # If it's a flat list of strings, convert each string into its own single-item list
         strings_to_find = [[s] for s in strings_to_find]
 
-    # Iterate over each group (whether it's a single string or a list of strings)
-    for string_group in strings_to_find:
-        # Find condition names that match any of the strings in the current string_group
-        matching_conditions = [cond for cond in roi_labeled_arrays[roi].keys() if any(s in cond for s in string_group)]
-
+    for class_idx, string_group in enumerate(strings_to_find):
+        matching_conditions = [
+            cond for cond in roi_labeled_arrays[roi].keys()
+            if any(s in cond for s in string_group)
+        ]
         if not matching_conditions:
             continue
 
-        # Concatenate data for all matching conditions
-        data_to_concatenate = []
-        for cond in matching_conditions:
-            # Extract data for the current condition
-            data = roi_labeled_arrays[roi][cond]  # Shape: (trials, channels, timepoints) or (trials, channels, frequencies, timepoints)
-            data_to_concatenate.append(data)
-            
-            # Update labels for the current condition group
-            labels.extend([current_label] * data.shape[0])
-        
-        # Check if we have data to concatenate for this condition group
-        if data_to_concatenate:
-            concatenated_data.append(np.concatenate(data_to_concatenate, axis=obs_axs))
+        strata_dict = {
+            cond: roi_labeled_arrays[roi][cond]
+            for cond in matching_conditions
+        }
+        class_data.append(strata_dict)
+        cats[tuple(string_group)] = class_idx
 
-        # Assign current label to the condition group (based on the first string in the group for reference)
-        cats[tuple(string_group)] = current_label
-        current_label += 1
-
-    # Ensure there is data to concatenate
-    if not concatenated_data:
+    if not class_data:
         raise ValueError(f"No matching conditions found for ROI: {roi} and strings: {strings_to_find}")
 
-    # Concatenate all condition data along the trials axis
-    concatenated_data = np.concatenate(concatenated_data, axis=obs_axs)
-    
+    return class_data, cats
+
+def concatenate_conditions_by_string(roi_labeled_arrays, roi, strings_to_find,
+                                      obs_axs=0, balance_strata=False, random_state=None):
+    """
+    DEPRECATED — calls gather_class_data_by_stratum + does old-style balancing.
+    Kept for callers that still expect (data, labels, cats) tuple.
+    Prefer gather_class_data_by_stratum + do balancing in the caller.
+    """
+    class_data, cats = gather_class_data_by_stratum(
+        roi_labeled_arrays, roi, strings_to_find, obs_axs
+    )
+    rng = (random_state if isinstance(random_state, np.random.RandomState)
+           else np.random.RandomState(random_state))
+
+    concatenated = []
+    labels = []
+    for class_idx, strata_dict in enumerate(class_data):
+        if balance_strata and len(strata_dict) > 1:
+            n_per = min(d.shape[obs_axs] for d in strata_dict.values())
+            for cond, data in strata_dict.items():
+                n_avail = data.shape[obs_axs]
+                if n_avail > n_per:
+                    idx = rng.choice(n_avail, size=n_per, replace=False)
+                    data = np.take(data, idx, axis=obs_axs)
+                concatenated.append(data)
+                labels.extend([class_idx] * n_per)
+        else:
+            for cond, data in strata_dict.items():
+                concatenated.append(data)
+                labels.extend([class_idx] * data.shape[obs_axs])
+
+    concatenated_data = np.concatenate(concatenated, axis=obs_axs)
     return concatenated_data, np.array(labels), cats
 
 def get_data_in_time_range(labeled_array, time_range, time_axs=-1):
@@ -762,6 +777,7 @@ def make_bootstrapped_labeled_arrays_for_roi(
     for i in range(n_bootstraps):
         bootstrapped_conditions_data = {}
         
+        # TODO: turn the below code into its own function and just call this instead in process_bootstrap.py
         # loop through conditions to build one bootstrapped LabeledArray
         for condition_name in condition_names:
             n_samples = min_trials_per_condition[condition_name]
