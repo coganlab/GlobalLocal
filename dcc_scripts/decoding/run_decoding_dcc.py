@@ -53,9 +53,13 @@ LAB_ROOT = None  # Will be determined automatically in main()
 
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+
+LEAVE_OUT = os.environ.get('LEAVE_OUT')  # e.g. "D0071", or None to use full list
+if LEAVE_OUT:
+    SUBJECTS = [s for s in SUBJECTS if s != LEAVE_OUT]
 
 # task
 TASK = 'GlobalLocal'
@@ -258,7 +262,8 @@ def run_analysis():
         show_legend=SHOW_LEGEND,
         run_visualization_debug=RUN_VISUALIZATION_DEBUG,
         condition_label=CONDITION_LABEL,
-        save_dir=SAVE_DIR
+        save_dir=SAVE_DIR,
+        held_out_subject=LEAVE_OUT
         # cluster_tails=CLUSTER_TAILS,
     )
 
