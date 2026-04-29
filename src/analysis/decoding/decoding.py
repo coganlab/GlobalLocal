@@ -82,6 +82,8 @@ import gc
 
 # plotting
 import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D # registers the '3d' projection
+from matplotlib.collections import LineCollection # for color-by-time fades (optional)
 
 def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method,
@@ -4033,6 +4035,32 @@ def plot_pca_over_time(
         print(f"Saved windowed PCA plot to {out}")
     else:
         plt.show()
+    
+def plot_pca_3d_trajectory(
+    roi_labeled_arrays,
+    roi,
+    strings_to_find,
+    cats,
+    save_dir,
+    window_size,
+    step_size,
+    sampling_rate,
+    first_time_point,
+    obs_axs=0,
+    balance_strata=True,
+    random_state=42,
+    explained_variance=0.8,
+    clf=None
+):
+    """
+    Trace each condition's centroid through the Decoder's first 3 PCs over time.
+    """
+    # first get clean data the same way the rest of the pipeline does
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs,
+        
+    )
     
 # need to get time window by time window version next. Also this is untested rn. 10/31/25.
 def plot_high_dim_decision_slice(
