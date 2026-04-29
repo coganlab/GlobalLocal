@@ -258,6 +258,16 @@ def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
             arr[i] = l * arr[choice1] + (1 - l) * arr[choice2]
 
 class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
+    '''
+    Decoder class that inherits from two parents: PcaEstimateDecoder and MinimumNaNSplit.
+    PcaEstimateDecoder (from ieeg.decoding.models) sets up self.model as a sklearn Pipeline([scaler, pca, clf]).
+    decoder.fit(X, y) calls self.model.fit(X, y), which fits scaler -> pca -> clf in sequence.
+    decoder.predict(X) calls self.model.predict
+    MinimumNaNSplit (from ieeg.calc.oversample) provides self.split(x, y). This is a stratified K-fold that's NaN-aware.
+    It ensures each test fold has at least N non-NaN trials per class, so there's no folds where one class is entirely missing on some channel.
+    
+    '''
+    
     def __init__(self, categories: dict,
                  explained_variance: float = 0.8,
                  n_splits: int = 5, n_repeats: int = 10,
@@ -265,7 +275,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                  clf: BaseEstimator = LinearDiscriminantAnalysis(),
                  clf_params: dict = None,
                  random_state: int = None):
-        
+        # two-stage constructor b/c inherits from two classes
         PcaEstimateDecoder.__init__(self, 
                                     explained_variance=explained_variance,
                                     clf=clf,
@@ -604,7 +614,12 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         # Step 6: Process each time window independently 
         out_cm = [] # list to collect confusion matrices
 
-        for x_window in windowed:
+        for x_window in windowed: 
+            '''
+            would need to modify this step for temporal generalization matrices. 
+            Maybe chunk the code before and after this into functions that can be reused in two versions of _window_and_predict_minimal - one as is and one with temporal generalization matrices
+            Though cv_cm_jim_window_shuffle would also need to be modified to output (n_windows, n_windows, n_repeats, n_cats, n_cats) instead of the current hsape.
+            '''
             # Step 6a: Flatten all features except trials dimension
             # E.g., (100, 10, 64) -> (100, 640)
             # This creates feature vector for each trial
@@ -859,7 +874,12 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         )
 
         # Create a Decoder and run cross-validation
-        decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+        decoder = Decoder(cats,                 # classes mapped to their class numbers. E.g., {('c25',): 0, ('i25',): 1}
+                          explained_variance,   # PCA: keep enough components for this much variance (usually 90%)
+                          oversample=True,      # apply mixup to train NaNs
+                          n_splits=n_splits,    # k in k-fold
+                          n_repeats=n_repeats,  # how many times to redo k-fold with different splits
+                          random_state=random_state) 
 
         # Use the concatenated data for the decoder
         cm = decoder.cv_cm_jim(concatenated_data, labels, normalize='true', obs_axs=obs_axs)
@@ -3843,7 +3863,9 @@ def plot_static_pca_projection(
     
     print(f"Explained variance by PC1: {pca.explained_variance_ratio_[0]:.2%}")
     print(f"Explained variance by PC2: {pca.explained_variance_ratio_[1]:.2%}")
-
+    print(f"PCA kept {pca.n_components_} components, total var = " 
+          f"{pca.explained_variance_ratio_.sum():.1%}")
+    
     # 5. Plot
     
     # Get human-readable labels from 'cats'
@@ -3877,7 +3899,13 @@ def plot_static_pca_projection(
     plt.axvline(0, color='grey', linestyle='--', linewidth=0.5)
     
     if save_dir:
-        plt.savefig(os.path.join(save_dir, f"static_pca_{roi}.pdf"))
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"static_pca_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"saved static PCA plot to {out}")
     else:
         plt.show()
         
@@ -3994,8 +4022,15 @@ def plot_pca_over_time(
 
     fig.suptitle(f"PCA Over Time for {roi} (Conditions: {', '.join(label_map.values())})", fontsize=16, y=1.02)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
+    
     if save_dir:
-        plt.savefig(os.path.join(save_dir, f"pca_over_time_in_{roi}.pdf"))
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"pca_over_time_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        print(f"Saved windowed PCA plot to {out}")
     else:
         plt.show()
     

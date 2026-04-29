@@ -145,6 +145,9 @@ def main(args):
     other_string_to_add = (
         f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}_ev_{args.explained_variance}"
     )
+    # append left out subject to file name for leave-one-subject out decoding debugging. Can delete after. 4/28/26. 
+    if getattr(args, 'held_out_subject', None):
+        other_string_to_add += f"_loo-{args.held_out_subject}"
             
     time_window_decoding_results = {}     
      
