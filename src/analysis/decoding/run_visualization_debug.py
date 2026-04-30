@@ -31,7 +31,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from src.analysis.config import experiment_conditions
 from src.analysis.utils.labeled_array_utils import make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel
-from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice
+from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory
 
 # TODO: go through and add save dir and test these plotting functions. Also, update to use condition_registry. Add a vis pairs line to each condition_registry entry i think.
 def run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir):
@@ -153,6 +153,19 @@ def run_visualization_debug(args, rois, condition_names, electrodes, subjects_mn
                         cats=cats,
                         roi=f"{roi} ({pair_name})", # Add pair info to title,
                         save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}")
+                    )
+                    
+                    plot_pca_3d_trajectory(
+                        roi_labeled_arrays_viz, roi, viz_strings, cats,
+                        save_dir=os.path.join(save_dir, condition_comparison, roi),
+                        window_size=args.window_size,
+                        step_size=args.step_size,
+                        sampling_rate=args.sampling_rate,
+                        first_time_point=args.first_time_point,
+                        obs_axs=args.obs_axs,
+                        random_state=args.random_state,
+                        explained_variance=args.explained_variance,
+                        clf=args.clf_model
                     )
                 except Exception as e:
                     print(f"!! FAILED to generate plot for {roi} - {pair_name}: {e}")

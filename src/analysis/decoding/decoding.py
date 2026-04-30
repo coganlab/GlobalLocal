@@ -4047,7 +4047,6 @@ def plot_pca_3d_trajectory(
     sampling_rate,
     first_time_point,
     obs_axs=0,
-    balance_strata=True,
     random_state=42,
     explained_variance=0.8,
     clf=None
@@ -4058,9 +4057,124 @@ def plot_pca_3d_trajectory(
     # first get clean data the same way the rest of the pipeline does
     data, labels, _ = concatenate_and_balance_data_for_decoding(
         roi_labeled_arrays, roi, strings_to_find,
-        obs_axs=obs_axs,
-        
+        obs_axs=obs_axs, balance_method='subsample', 
+        balance_strata=True, random_state=random_state
     )
+    if data.size == 0:
+        print(f"No data for{roi}, skipping 3D PCA.")
+        return
+    # data shape: (n_trials, n_channels, n_timepoints)
+    n_trials, n_channels, n_timepoints = data.shape
+    
+    # fit the Decoder on the full flattened epoch, pull its PCA
+    if clf is None:
+        clf = LinearDiscriminantAnalysis()
+    
+    X_flat = data.reshape(n_trials, -1) # (n_trials, n_channels x n_timepoints)
+    
+    decoder = Decoder(
+        cats,
+        explained_variance=explained_variance,
+        oversample=False,
+        n_splits=2,
+        n_repeats=1,
+        clf=clf,
+        random_state=random_state
+    )
+    
+    decoder.fit(X_flat, labels)
+    
+    pca = decoder.model.named_steps['pca']
+    n_kept = pca.n_components_
+    print(f"[{roi}] Decoder PCA kept {n_kept} comps, "
+          f"total var = {pca.explained_variance_ratio_.sum():.1%}")
+    if n_kept < 3:
+        print(f"  ⚠ Only {n_kept} PCs available — 3D plot will skip missing axis")
+    
+    # find the grand mean, which becomes the out-of-window filter for the pca
+    grand_mean = data.mean(axis=0) # (n_channels, n_timepoints)
+    
+    # compute per-window/condition centroids, embed them, and project them
+    n_windows = (n_timepoints - window_size) // step_size + 1
+    first_sample = first_time_point * sampling_rate
+    window_centers_s = [
+        (first_sample + step_size * w + window_size / 2) / sampling_rate
+        for w in range(n_windows)
+    ]
+    
+    unique_labels = np.unique(labels)
+    label_to_name = {v: str(k[0]) for k, v in cats.items()}
+    
+    # trajectories[label] -> ndarray of shape (n_windows, 3)
+    trajectories = {lab: np.zeros((n_windows, 3)) for lab in unique_labels}
+    
+    for w in range(n_windows):
+        t0 = w * step_size
+        t1 = t0 + window_size
+        
+        for lab in unique_labels:
+            class_data = data[labels == lab] # (n_class, ch, time)
+            window_centroid = class_data[:, :, t0:t1].mean(0) # (ch, window_size)
+            
+            # embed into the full epoch using the grand mean as filler
+            full = grand_mean.copy() # (ch, time)
+            full[:, t0:t1] = window_centroid
+            
+            # project: pca.transform handles the centering itself.
+            flat = full.reshape(1, -1) # (1, ch*time)
+            pcs = pca.transform(flat)[0] # (n_kept,)
+            
+            # pad with NaN if the decoder kept fewer than 3 components
+            traj_3 = np.full(3, np.nan)
+            traj_3[:min(3, n_kept)] = pcs[:min(3, n_kept)]
+            trajectories[lab][w] = traj_3
+    
+    # plot with one set of 3D axes, one line per condition, and color-coded markers for time
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    cmap = plt.get_cmap('viridis')
+    norm = plt.Normalize(vmin=window_centers_s[0], vmax=window_centers_s[-1])
+    
+    for lab, traj in trajectories.items():
+        # Connecting line (one color per condition)
+        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], '-', linewidth=1.5, alpha=0.6, label=label_to_name[lab])
+        
+        # markers colored by time
+        ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2],
+                   c=[cmap(norm(t)) for t in window_centers_s],
+                   s=40, edgecolors='k', linewidths=0.5)
+        
+        # mark the window closest to t=0 with a star
+        zero_idx = int(np.argmin(np.abs(np.array(window_centers_s))))
+        ax.scatter(*traj[zero_idx], s=200, marker='*',
+                   facecolors='none', edgecolors='red', linewidths=2)
+    
+    ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%})")
+    ax.set_ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%})"
+                  if n_kept >= 2 else "PC2 (n/a)")
+    ax.set_zlabel(f"PC3 ({pca.explained_variance_ratio_[2]:.1%})"
+                  if n_kept >= 3 else "PC3 (n/a)")   
+    ax.set_title(
+        f"3D PCA trajectory - {roi}\n"
+        f"({n_kept} PCs total, "
+        f"{pca.explained_variance_ratio_.sum():.1%} variance; "
+        f"red ★ = t≈0)"
+    )
+    ax.legend()
+    
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cb = fig.colorbar(sm, ax=ax, shrink=0.6, pad=0.1)
+    cb.set_label("Time (s)")
+    
+    os.makedirs(save_dir, exist_ok=True)
+    safe_roi = roi.replace(" ", "_").replace("/", "_")
+    out = os.path.join(save_dir, f"pca_3d_trajectory_{safe_roi}.pdf")
+    plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved 3D PCA trajectory to {out}")
     
 # need to get time window by time window version next. Also this is untested rn. 10/31/25.
 def plot_high_dim_decision_slice(

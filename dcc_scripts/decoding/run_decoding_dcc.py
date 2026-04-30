@@ -85,13 +85,13 @@ else:
     raise ValueError(f"Unknown MODEL_CHOICE: {MODEL_CHOICE}")
 
 # Then, choose your decoding parameters
-N_SPLITS = 5
-N_REPEATS = 5
+N_SPLITS = 2
+N_REPEATS = 1
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 10
+BOOTSTRAPS = 1
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -136,7 +136,7 @@ PERMUTATION_TYPE = 'independent'
 # plotting
 SINGLE_COLUMN = True
 SHOW_LEGEND = False
-RUN_VISUALIZATION_DEBUG = False # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
+RUN_VISUALIZATION_DEBUG = True # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
 CONDITION_NAME = os.environ.get('CONDITION_NAME')
