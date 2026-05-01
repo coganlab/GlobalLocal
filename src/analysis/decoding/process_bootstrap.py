@@ -152,6 +152,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 n_repeats=args.n_repeats,
                 obs_axs=args.obs_axs,
                 balance_method=args.balance_method,
+                balance_strata=args.balance_strata,
                 explained_variance=args.explained_variance,
                 random_state=args.random_state + bootstrap_idx,
             )
@@ -174,6 +175,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             time_axs=-1,
             clf=args.clf_model,
             balance_method=args.balance_method,
+            balance_strata=args.balance_strata,
             explained_variance=args.explained_variance,
             random_state=bootstrap_random_state,
             window_size=args.window_size,

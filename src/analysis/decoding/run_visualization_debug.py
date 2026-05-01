@@ -30,8 +30,14 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 from src.analysis.config import experiment_conditions
+from src.analysis.config.condition_registry import get_comparisons, get_pooled_shuffle_settings, get_conditions_obj
 from src.analysis.utils.labeled_array_utils import make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel
 from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory
+
+condition_name = 'stimulus_congruency_by_switch_prop_block_balanced_conditions'
+conditions = get_conditions_obj(condition_name)
+condition_label = condition_name  # pass this into args for output path naming
+condition_comparisons = get_comparisons(condition_name)
 
 # TODO: go through and add save dir and test these plotting functions. Also, update to use condition_registry. Add a vis pairs line to each condition_registry entry i think.
 def run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir):

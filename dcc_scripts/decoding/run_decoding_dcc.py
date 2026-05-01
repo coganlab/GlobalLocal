@@ -86,12 +86,12 @@ else:
 
 # Then, choose your decoding parameters
 N_SPLITS = 2
-N_REPEATS = 1
+N_REPEATS = 2
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 1
+BOOTSTRAPS = 2
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1

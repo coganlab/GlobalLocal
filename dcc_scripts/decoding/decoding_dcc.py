@@ -154,7 +154,7 @@ def main(args):
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
     if args.run_visualization_debug: # this needs to be pulled into its own function so that this can be a one liner.
-        run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir)
+        run_visualization_debug(args, rois, args.condition_label, electrodes, subjects_mne_objects, save_dir)
         
     # use joblib to run the bootstrap processing in parallel
     bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(

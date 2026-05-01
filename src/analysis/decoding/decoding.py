@@ -87,7 +87,7 @@ from matplotlib.collections import LineCollection # for color-by-time fades (opt
 
 def concatenate_and_balance_data_for_decoding(
     roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method,
-    balance_strata=False, random_state=42
+    balance_strata=True, random_state=42
 ):
     """
     Build a decoding-ready (X, labels, cats) from multi-stratum class definitions.
@@ -924,7 +924,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
     n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
     step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False,
-    balance_strata = False, random_seed=42
+    balance_strata=True, random_seed=42
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -2903,14 +2903,14 @@ def do_mne_paired_cluster_test(
 
 def get_time_averaged_confusion_matrix(
     roi_labeled_arrays, roi, strings_to_find, clf, n_splits, n_repeats,
-    obs_axs, balance_method, explained_variance, random_state, cats
+    obs_axs, balance_method, balance_strata, explained_variance, random_state, cats
 ):
     """
     Computes a single time-averaged confusion matrix for one bootstrap sample.
     Returns the RAW COUNTS instead of a normalized matrix.
     """
     concatenated_data, labels, _ = concatenate_and_balance_data_for_decoding(
-        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata, random_state
     )
 
     if concatenated_data.size == 0:
