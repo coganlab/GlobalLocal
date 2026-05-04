@@ -801,7 +801,7 @@ def get_context_comparison_kwargs(condition_name):
 
 def get_balance_strata(condition_name):
     entry = CONDITION_REGISTRY.get(condition_name)
-    return False if entry is None else entry.get('balance_strata', False)
+    return True if entry is None else entry.get('balance_strata', True)
 
 def get_conditions_obj(condition_name):
     return CONDITION_REGISTRY[condition_name]['conditions_obj']

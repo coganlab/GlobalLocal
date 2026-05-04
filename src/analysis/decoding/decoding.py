@@ -27,6 +27,7 @@ from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
 from scipy.stats import norm, t # also from scipy.stats
+import umap
 
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
@@ -262,8 +263,8 @@ def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
 class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
     '''
     Decoder class that inherits from two parents: PcaEstimateDecoder and MinimumNaNSplit.
-    PcaEstimateDecoder (from ieeg.decoding.models) sets up self.model as a sklearn Pipeline([scaler, pca, clf]).
-    decoder.fit(X, y) calls self.model.fit(X, y), which fits scaler -> pca -> clf in sequence.
+    PcaEstimateDecoder (from ieeg.decoding.models) sets up self.model as a sklearn Pipeline([pca, clf]).
+    decoder.fit(X, y) calls self.model.fit(X, y), which fits pca -> clf in sequence.
     decoder.predict(X) calls self.model.predict
     MinimumNaNSplit (from ieeg.calc.oversample) provides self.split(x, y). This is a stratified K-fold that's NaN-aware.
     It ensures each test fold has at least N non-NaN trials per class, so there's no folds where one class is entirely missing on some channel.
@@ -3822,7 +3823,7 @@ def plot_static_pca_projection(
     save_dir: None,
     obs_axs: int = 0,
     random_state: int = 42,
-    
+    balance_strata=True
 ):
     """
     Visualizes the first two principal components of the full, flattened dataset.
@@ -3840,7 +3841,8 @@ def plot_static_pca_projection(
         strings_to_find,
         obs_axs=obs_axs,
         balance_method='subsample', # Critical: removes NaN trials
-        random_state=random_state
+        random_state=random_state,
+        balance_strata=balance_strata
     )
     
     if data.size == 0:
@@ -3938,6 +3940,7 @@ def plot_pca_over_time(
         strings_to_find,
         obs_axs=obs_axs,
         balance_method='subsample', # Must use subsample
+        balance_strata=True, # just hard code this to balance strata, don't know why i wouldn't want this on
         random_state=random_state
     )
     
@@ -4280,7 +4283,188 @@ def plot_high_dim_decision_slice(
 
     plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
     plt.close() # Close the figure to free memory
+
+def plot_static_umap_projection(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    save_dir: None,
+    obs_axs: int = 0,
+    random_state: int = 42,
+    balance_strata=True,
+    explained_variance=0.8,
+    n_neighbors=30, min_dist=0.3, metric='euclidean',
+    decoder=None, clf=None
+):
+    """
+    Visualizes the first two UMAP dimensions of the full, flattened dataset. Does PCA -> UMAP to further project the PCs onto 2 UMAP dimensions.
     
+    This helps to see if the data is nonlinearly separable at a global level.
+    """
+    print(f"--- Generating Static UMAP Plot for ROI: {roi} ---")
+    
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample',
+        balance_strata=True, random_state=random_state,
+    )
+    if data.size == 0:
+        return
+
+    n_trials, n_channels, n_timepoints = data.shape
+    X_flat = data.reshape(n_trials, -1)
+
+    if decoder is None:
+        if clf is None:
+            clf = LinearDiscriminantAnalysis()
+        decoder = Decoder(
+            cats, explained_variance=explained_variance,
+            oversample=False, n_splits=2, n_repeats=1,
+            clf=clf, random_state=random_state,
+        )
+        decoder.fit(X_flat, labels)
+
+    pca = decoder.model.named_steps['pca']
+    pc_scores = pca.transform(X_flat)
+    
+    reducer = umap.UMAP(
+        n_components=2, n_neighbors=n_neighbors,
+        min_dist=min_dist, metric=metric, random_state=random_state
+    )
+    emb = reducer.fit_transform(pc_scores)
+    
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    df = pd.DataFrame({
+        'UMAP1': emb[:,0],
+        'UMAP2': emb[:,1],
+        'Condition': [label_map[l] for l in labels]
+    })
+    
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(data=df, x='UMAP1', y='UMAP2',
+                    hue='Condition', palette='deep', alpha=0.7, s=50)
+    plt.title(f"UMAP of PCA scores for {roi} "
+              f"(n_pcs={pca.n_components_}, n_neighbors={n_neighbors})")
+    plt.xlabel("UMAP1")
+    plt.ylabel("UMAP2")
+    plt.legend(title="Condition")
+
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"static_umap_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+    
+def plot_umap_3d_trajectory(
+    roi_labeled_arrays, roi, strings_to_find, cats, save_dir,
+    window_size, step_size, sampling_rate, first_time_point,
+    obs_axs=0, random_state=42,
+    explained_variance=0.8,
+    n_neighbors=30, min_dist=0.3, metric='euclidean',
+    n_umap_components=3,
+    decoder=None, clf=None,
+):
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample',
+        balance_strata=True, random_state=random_state,
+    )
+    if data.size == 0:
+        return
+
+    n_trials, n_channels, n_timepoints = data.shape
+    X_flat = data.reshape(n_trials, -1)
+
+    if decoder is None:
+        if clf is None:
+            clf = LinearDiscriminantAnalysis()
+        decoder = Decoder(
+            cats, explained_variance=explained_variance,
+            oversample=False, n_splits=2, n_repeats=1,
+            clf=clf, random_state=random_state,
+        )
+        decoder.fit(X_flat, labels)
+
+    pca = decoder.model.named_steps['pca']
+    n_kept = pca.n_components_
+    if n_kept < 2:
+        print(f"Only {n_kept} PC kept — UMAP needs >=2 input dims. Skipping.")
+        return
+
+    # fit UMAP on the same trial-level PCA scores the LDA receives
+    train_pcs = pca.transform(X_flat)
+    reducer = umap.UMAP(
+        n_components=n_umap_components,
+        n_neighbors=min(n_neighbors, max(2, n_trials - 1)),
+        min_dist=min_dist, metric=metric, random_state=random_state,
+    )
+    reducer.fit(train_pcs)
+
+    # build per-condition / per-window trajectories using the same padded-centroid
+    # trick as plot_pca_3d_trajectory, then push through scaler -> pca -> umap.transform
+    grand_mean = data.mean(axis=0)
+    n_windows = (n_timepoints - window_size) // step_size + 1
+    unique_labels = np.unique(labels)
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+
+    trajectories = {lab: np.zeros((n_windows, n_umap_components))
+                    for lab in unique_labels}
+    window_centers_s = np.zeros(n_windows)
+
+    for w in range(n_windows):
+        t0 = w * step_size
+        t1 = t0 + window_size
+        window_centers_s[w] = first_time_point + (t0 + window_size/2) / sampling_rate
+
+        for lab in unique_labels:
+            class_data = data[labels == lab]
+            window_centroid = class_data[:, :, t0:t1].mean(axis=0)
+            full = grand_mean.copy()
+            full[:, t0:t1] = window_centroid
+            flat = full.reshape(1, -1)
+            pcs = pca.transform(flat)     # (1, n_kept)
+            trajectories[lab][w] = reducer.transform(pcs)[0]
+
+    # plot — structure mirrors plot_pca_3d_trajectory: one line per condition,
+    # viridis-by-time markers, red star at the window closest to t=0
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    fig = plt.figure(figsize=(12, 9))
+    ax = fig.add_subplot(111, projection='3d')
+    palette = sns.color_palette('deep', n_colors=len(unique_labels))
+
+    for i, lab in enumerate(unique_labels):
+        traj = trajectories[lab]
+        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2],
+                color=palette[i], label=label_map[lab], linewidth=2)
+        ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2],
+                   c=window_centers_s, cmap='viridis', s=40)
+
+    zero_idx = int(np.argmin(np.abs(window_centers_s)))
+    for lab in unique_labels:
+        p = trajectories[lab][zero_idx]
+        ax.scatter(p[0], p[1], p[2], marker='*', s=200, c='red', zorder=10)
+
+    ax.set_xlabel("UMAP1")
+    ax.set_ylabel("UMAP2")
+    ax.set_zlabel("UMAP3")
+    ax.set_title(f"UMAP trajectory for {roi} "
+                 f"(n_pcs={n_kept}, n_neighbors={n_neighbors}, min_dist={min_dist})")
+    ax.legend()
+
+    os.makedirs(save_dir, exist_ok=True)
+    safe_roi = roi.replace(" ", "_").replace("/", "_")
+    out = os.path.join(save_dir, f"umap_3d_trajectory_{safe_roi}.pdf")
+    plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved 3D UMAP trajectory to {out}")
+    
+
 def run_context_comparison_analysis(
     condition_name,
     condition_comparison_1,

@@ -32,149 +32,103 @@ from sklearn.decomposition import PCA
 from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import get_comparisons, get_pooled_shuffle_settings, get_conditions_obj
 from src.analysis.utils.labeled_array_utils import make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel
-from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory
-
-condition_name = 'stimulus_congruency_by_switch_prop_block_balanced_conditions'
-conditions = get_conditions_obj(condition_name)
-condition_label = condition_name  # pass this into args for output path naming
-condition_comparisons = get_comparisons(condition_name)
+from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory, plot_static_pca_projection, plot_pca_over_time
 
 # TODO: go through and add save dir and test these plotting functions. Also, update to use condition_registry. Add a vis pairs line to each condition_registry entry i think.
-def run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir):
-    condition_comparison = None
-    print(f"\n{'='*20} 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) {'='*20}\n")
-    
-    # 1. Define the visualization pairs for each condition set
-    viz_pairs = []
-    if args.conditions == experiment_conditions.stimulus_lwpc_conditions:
-        print("Setting up LWPC visualization pairs...")
-        viz_pairs = [(['c25'], ['i25']), (['c75'], ['i75'])]
-        condition_comparison = 'LWPC_comparison'
-    elif args.conditions == experiment_conditions.stimulus_lwps_conditions:
-        print("Setting up LWPS visualization pairs...")
-        viz_pairs = [(['s25'], ['r25']), (['s75'], ['r75'])]
-        condition_comparison = 'LWPS_comparison'
-    elif args.conditions == experiment_conditions.stimulus_congruency_by_switch_proportion_conditions:
-        print("Setting up Congruency x Switch Prop. visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_c_in_25switchBlock'], ['Stimulus_i_in_25switchBlock']),
-            (['Stimulus_c_in_75switchBlock'], ['Stimulus_i_in_75switchBlock'])
-        ]
-        condition_comparison = 'congruency_by_switch_proportion_comparison'
-    elif args.conditions == experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions:
-        print("Setting up Switch Type x Congruency Prop. visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_s_in_25incongruentBlock'], ['Stimulus_r_in_25incongruentBlock']),
-            (['Stimulus_s_in_75incongruentBlock'], ['Stimulus_r_in_75incongruentBlock'])
-        ]
-        condition_comparison = 'switch_type_by_congruency_proportion_comparison'
-    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_conditions:
-        print("Setting up Task by Congruency visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_i_taskG'], ['Stimulus_i_taskL']),
-            (['Stimulus_c_taskG'], ['Stimulus_c_taskL'])
-        ]
-        condition_comparison = 'task_by_congruency_comparison'
-    elif args.conditions == experiment_conditions.stimulus_task_by_switch_type_conditions:
-        print("Setting up Task by Switch Type visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_s_taskG'], ['Stimulus_s_taskL']),
-            (['Stimulus_r_taskG'], ['Stimulus_r_taskL'])
-        ]
-        condition_comparison = 'task_by_switch_type_comparison'
-    elif args.conditions == experiment_conditions.stimulus_task_by_congruency_proportion_conditions:
-        print("Setting up Task by Congruency Proportion visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_taskG_in_25incongruentBlock'], ['Stimulus_taskL_in_25incongruentBlock']),
-            (['Stimulus_taskG_in_75incongruentBlock'], ['Stimulus_taskL_in_75incongruentBlock'])
-        ]
-        condition_comparison = 'task_by_congruency_proportion_comparison'
-    elif args.conditions == experiment_conditions.stimulus_task_by_switch_proportion_conditions:
-        print("Setting up Task by Switch Proportion visualization pairs...")
-        viz_pairs = [
-            (['Stimulus_taskG_in_25switchBlock'], ['Stimulus_taskL_in_25switchBlock']),
-            (['Stimulus_taskG_in_75switchBlock'], ['Stimulus_taskL_in_75switchBlock'])
-        ]
-        condition_comparison = 'task_by_switch_proportion_comparison'
-    if not viz_pairs:
-        print("Warning: No visualization pairs defined for the current condition set. Skipping debug plots.")
-    else:
-        # 2. Get the single data sample for visualization
-        print("Generating LabeledArray data for visualization (n_bootstraps=1)...")
-        roi_labeled_arrays_viz = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
-            rois=rois,
-            subjects_data_objects=subjects_mne_objects,
-            condition_names=condition_names, # This is already defined in main()
-            subjects=args.subjects,
-            electrodes_per_subject_roi=electrodes, # This is already defined in main()
-            n_bootstraps=1,
-            chans_axs=args.chans_axs,
-            time_axs=args.time_axs,
-            random_state=args.random_state,
-            n_jobs=args.n_jobs
-        )
-        roi_labeled_arrays_viz = {roi: arrs[0] for roi, arrs in roi_labeled_arrays_viz.items() if arrs}
+def run_visualization_debug(args, rois, condition_label, electrodes, subjects_mne_objects, save_dir):
+    conditions = get_conditions_obj(condition_label)
+    condition_comparisons = get_comparisons(condition_label)
+    condition_names = list(conditions.keys()) # get the condition names as a list
 
-        # 3. Loop through ROIs and Pairs and plot
+    print(f"\n{'='*20} 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) {'='*20}\n")
+
+    # 2. Get the single data sample for visualization
+    print("Generating LabeledArray data for visualization (n_bootstraps=1)...")
+    roi_labeled_arrays_viz = make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel(
+        rois=rois,
+        subjects_data_objects=subjects_mne_objects,
+        condition_names=condition_names, # This is already defined in main()
+        subjects=args.subjects,
+        electrodes_per_subject_roi=electrodes, # This is already defined in main()
+        n_bootstraps=1,
+        chans_axs=args.chans_axs,
+        time_axs=args.time_axs,
+        random_state=args.random_state,
+        n_jobs=args.n_jobs
+    )
+    roi_labeled_arrays_viz = {roi: arrs[0] for roi, arrs in roi_labeled_arrays_viz.items() if arrs}
+
+    # 3. Loop through ROIs and Pairs and plot
+    for condition_comparison, strings_to_find in condition_comparisons.items():
+
         for roi in rois:
             if roi not in roi_labeled_arrays_viz:
                 print(f"Skipping visualization for {roi}: No data found.")
                 continue
+            
+            print(f"\n--- Plotting for ROI: {roi} and condition_comparison {condition_comparison} ---")
+
+            # 4. Get balanced data and 'cats'
+            data, labels, cats = concatenate_and_balance_data_for_decoding(
+                roi_labeled_arrays_viz, roi, strings_to_find, args.obs_axs,
+                balance_method='subsample', # Must use subsample for this viz
+                random_state=args.random_state
+            )
+            if data.size == 0:
+                print("No data after balancing. Skipping plot.")
+                continue
                 
-            for pair in viz_pairs:
-                viz_strings = pair
-                pair_name = f"{viz_strings[0][0]}_vs_{viz_strings[1][0]}"
-                print(f"\n--- Plotting for ROI: {roi}, Pair: {pair_name} ---")
+            data_flat = data.reshape(data.shape[0], -1)
 
-                try:
-                    # 4. Get balanced data and 'cats'
-                    data, labels, cats = concatenate_and_balance_data_for_decoding(
-                        roi_labeled_arrays_viz, roi, viz_strings, args.obs_axs,
-                        balance_method='subsample', # Must use subsample for this viz
-                        random_state=args.random_state
-                    )
-                    if data.size == 0:
-                        print("No data after balancing. Skipping plot.")
-                        continue
-                        
-                    data_flat = data.reshape(data.shape[0], -1)
+            # 5. Create and FIT the FULL pipeline
+            # This uses the *exact* classifier and PCA settings from your args
+            full_pipeline = Pipeline([
+                ('scaler', StandardScaler()),
+                ('pca', PCA(n_components=args.explained_variance)), 
+                ('clf', args.clf_model) 
+            ])
+            
+            full_pipeline.fit(data_flat, labels)
+            print("Fit complete.")
 
-                    # 5. Create and FIT the FULL pipeline
-                    # This uses the *exact* classifier and PCA settings from your args
-                    full_pipeline = Pipeline([
-                        ('scaler', StandardScaler()),
-                        ('pca', PCA(n_components=args.explained_variance)), 
-                        ('clf', args.clf_model) 
-                    ])
-                    
-                    print(f"Fitting pipeline for {pair_name}...")
-                    full_pipeline.fit(data_flat, labels)
-                    print("Fit complete.")
-
-                    # 6. Call the plotting function
-                    plot_high_dim_decision_slice(
-                        fitted_pipeline=full_pipeline,
-                        X_data=data_flat,
-                        y_labels=labels,
-                        cats=cats,
-                        roi=f"{roi} ({pair_name})", # Add pair info to title,
-                        save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}")
-                    )
-                    
-                    plot_pca_3d_trajectory(
-                        roi_labeled_arrays_viz, roi, viz_strings, cats,
-                        save_dir=os.path.join(save_dir, condition_comparison, roi),
-                        window_size=args.window_size,
-                        step_size=args.step_size,
-                        sampling_rate=args.sampling_rate,
-                        first_time_point=args.first_time_point,
-                        obs_axs=args.obs_axs,
-                        random_state=args.random_state,
-                        explained_variance=args.explained_variance,
-                        clf=args.clf_model
-                    )
-                except Exception as e:
-                    print(f"!! FAILED to generate plot for {roi} - {pair_name}: {e}")
+            # 5. Call the plotting functions
+            
+            plot_static_pca_projection(
+                roi_labeled_arrays_viz,
+                roi,
+                strings_to_find,
+                cats,
+                save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                obs_axs=args.obs_axs,
+                random_state=args.random_state
+            )
+            
+            plot_pca_over_time(
+                roi_labeled_arrays_viz,
+                roi,
+                strings_to_find,
+                cats,
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                first_time_point=args.first_time_point,
+                save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                obs_axs=args.obs_axs,
+                random_state=args.random_state,
+            )
+            
+            plot_pca_3d_trajectory(
+                roi_labeled_arrays_viz, roi, strings_to_find, cats,
+                save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                window_size=args.window_size,
+                step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                first_time_point=args.first_time_point,
+                obs_axs=args.obs_axs,
+                random_state=args.random_state,
+                explained_variance=args.explained_variance,
+                clf=args.clf_model
+            )
                     
     print(f"\n{'='*20} ✅ VISUALIZATION DEBUG COMPLETE {'='*20}\n")
 

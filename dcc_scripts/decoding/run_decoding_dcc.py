@@ -85,13 +85,13 @@ else:
     raise ValueError(f"Unknown MODEL_CHOICE: {MODEL_CHOICE}")
 
 # Then, choose your decoding parameters
-N_SPLITS = 2
-N_REPEATS = 2
+N_SPLITS = 5
+N_REPEATS = 5
 RANDOM_STATE = 42
 EXPLAINED_VARIANCE = 0.90
 BALANCE_METHOD = 'subsample'
 NORMALIZE = 'true'
-BOOTSTRAPS = 2
+BOOTSTRAPS = 20
 OBS_AXS = 0
 CHANS_AXS = 1
 TIME_AXS = -1
@@ -102,7 +102,7 @@ STEP_SIZE = 16    # Step size in samples (e.g., 16 samples = 62.5 ms at 256 Hz)
 SAMPLING_RATE = 256 # Sampling rate of the data in Hz
 FIRST_TIME_POINT = -1.5 # The time in seconds of the first sample in the epoch
 TAILS = 1 # 1 for one-tailed (e.g., accuracy > chance), 2 for two-tailed
-N_SHUFFLE_PERMS = 20 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
+N_SHUFFLE_PERMS = 100 # how many times to shuffle labels and train decoder to make chance decoding results - this iterates over splits, so end up with N_SHUFFLE_PERMS * N_SPLITS for number of folds
 
 # whether to do stats across fold, repeat, or bootstrap
 UNIT_OF_ANALYSIS='repeat'
