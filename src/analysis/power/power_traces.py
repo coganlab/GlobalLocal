@@ -29,6 +29,7 @@ from ieeg.calc.stats import time_perm_cluster
 from numpy.lib.stride_tricks import sliding_window_view
 from mne.stats import permutation_cluster_1samp_test
 import matplotlib.colors as mcolors
+from scipy import stats
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, \
                                             identify_bad_channels_by_trial_nan_rate, \
                                             impute_trial_nans_by_channel_mean, \
@@ -1036,3 +1037,476 @@ def apply_plot_style(ax, roi, style=None):
     ax.axvline(x=0, color='black', linestyle=':', alpha=0.5)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    
+# =============================================================================
+# Two-way interaction cluster correction across time
+#
+# We compute, per electrode per timepoint, the 2x2 interaction contrast
+#   ((A1B1 - A1B2) - (A2B1 - A2B2))
+# averaging across whatever other factors exist in the conditions_obj. We then
+# use a one-sample sign-flip cluster permutation test across electrodes
+# (mne.stats.permutation_cluster_1samp_test). This is mathematically equivalent
+# to an F-test on the interaction term in a 2x2 ANOVA across electrodes
+# (t**2 == F when df_num == 1), so the resulting cluster mask is equivalent to a
+# F-statistic cluster correction.
+# =============================================================================
+
+def _get_subcell_condition_names(conditions_obj, factor1, factor2, level1, level2):
+    """Find condition keys whose factor values match (level1, level2)."""
+    return [
+        k for k, v in conditions_obj.items()
+        if v.get(factor1) == level1 and v.get(factor2) == level2
+    ]
+
+def _get_factor_levels(conditions_obj, factor):
+    """Return the unique levels of 'factor' across the conditions, in stable order."""
+    seen = []
+    for v in conditions_obj.values():
+        lvl = v.get(factor)
+        if lvl is not None and lvl not in seen:
+            seen.append(lvl)
+    return seen
+
+def compute_subcell_evoked_data(evks_dict, conditions_obj, factor1, factor2,
+                                level1, level2, roi):
+    """Average per-electrode evoked data across all condition keys that match (factor1=level1, factor2=level2).
+    Other factors are collapsed by simmple average over the matching cells (equal weight per subcell).
+    
+    Returns
+    -------
+    arr : (n_electrodes, n_times) ndarray, or None if no matching condition has data
+    """
+    cond_keys = _get_subcell_condition_names(conditions_obj, factor1, factor2,
+                                             level1, level2)
+    arrays = []
+    for k in cond_keys:
+        evk = evks_dict.get(k, {}).get(roi)
+        if evk is None or evk.data.shape[0] == 0:
+            continue
+        arrays.append(evk.data)
+    if not arrays:
+        return None
+    return np.mean(np.stack(arrays, axis=0), axis=0)
+    
+def compute_interaction_contrast(evks_dict, conditions_obj, factor1, factor2, roi):
+    """Build the per-electrode 2x2 interaction contrast for a given ROI.
+    
+    Returns
+    -------
+    contrast : (n_electrodes, n_times) ndarray
+    levels1 : list of two values for factor1
+    levels2 : list of two values for factor2
+    cells : dict[(l1, l2)] -> (n_electrodes, n_times)
+    """
+    levels1 = _get_factor_levels(conditions_obj, factor1)
+    levels2 = _get_factor_levels(conditions_obj, factor2)
+    if len(levels1) != 2 or len(levels2) != 2:
+        raise ValueError(
+            f"Two-way interaction expects exactly 2 levels per factor; got "
+            f"{factor1}={levels1}, {factor2}={levels2}"
+        )
+    cells = {}
+    for l1 in levels1:
+        for l2 in levels2:
+            cells[(l1, l2)] = compute_subcell_evoked_data(
+                evks_dict, conditions_obj, factor1, factor2, l1, l2, roi
+            )
+            
+    if any(c is None for c in cells.values()):
+        raise ValueError(
+            f"Missing data for at least one cell of {factor1} x {factor2} in ROI {roi}"
+        )
+    
+    contrast = (
+        (cells[(levels1[0], levels2[0])] - cells[(levels1[0], levels2[1])])
+        - (cells[(levels1[1], levels2[0])] - cells[(levels1[1], levels2[1])])
+    )
+    
+    return contrast, levels1, levels2, cells
+
+def cluster_correct_interaction_across_time(contrast, p_thresh=0.05,
+                                            cluster_forming_p=0.05,
+                                            n_perm=1000, tails=2, seed=None):
+    """Sign-flip cluster permutation test on a per-electrode interaction contrast.
+
+    Parameters
+    ----------
+    contrast : (n_electrodes, n_times) array
+    p_thresh : float
+        Cluster-level significance threshold (clusters with p < p_thresh kept).
+    cluster_forming_p : float
+        Sample-level p threshold used to form clusters (translated to a t threshold).
+    n_perm : int
+    tails : int
+        1, -1, or 2.
+    seed : int or None
+
+    Returns
+    -------
+    sig_mask : (n_times,) bool array of timepoints in any significant cluster
+    t_obs : observed t-stat per timepoint
+    cluster_p_values : list of p values per cluster
+    """
+    n_elec = contrast.shape[0]
+    if n_elec < 2:
+        return (np.zeros(contrast.shape[1], dtype=bool),
+                np.zeros(contrast.shape[1]), np.array([]))
+
+    # Translate p threshold to t threshold for cluster formation
+    if tails == 2:
+        threshold = stats.t.ppf(1 - cluster_forming_p / 2, df=n_elec - 1)
+        tail = 0
+    elif tails == 1:
+        threshold = stats.t.ppf(1 - cluster_forming_p, df=n_elec - 1)
+        tail = 1
+    elif tails == -1:
+        threshold = -stats.t.ppf(1 - cluster_forming_p, df=n_elec - 1)
+        tail = -1
+    else:
+        raise ValueError(f"tails must be -1, 1, or 2; got {tails}")
+
+    t_obs, clusters, p_values, _ = permutation_cluster_1samp_test(
+        contrast, n_permutations=n_perm, threshold=threshold, tail=tail,
+        seed=seed, out_type='mask', verbose=False,
+    )
+
+    sig_mask = np.zeros(contrast.shape[1], dtype=bool)
+    for cluster, p_val in zip(clusters, p_values):
+        if p_val < p_thresh:
+            sig_mask |= np.asarray(cluster)
+    return sig_mask, t_obs, np.asarray(p_values)
+    
+def run_anova_interaction_clusters(evks_dict, conditions_obj, anova_interactions,
+                                    rois, p_thresh=0.05, cluster_forming_p=0.05,
+                                    n_perm=1000, tails=2, seed=None, verbose=True):
+    """Per ROI, per interaction: compute contrast and run cluster permutation test.
+
+    Returns
+    -------
+    results : dict[roi][interaction_name] -> dict with keys
+        'mask', 't_obs', 'cluster_p_values', 'factors', 'levels', 'label'
+    """
+    results = {}
+    for roi in rois:
+        results[roi] = {}
+        for inter in anova_interactions:
+            f1, f2 = inter['factors']
+            try:
+                contrast, lvls1, lvls2, _ = compute_interaction_contrast(
+                    evks_dict, conditions_obj, f1, f2, roi
+                )
+            except ValueError as e:
+                if verbose:
+                    print(f"[anova-cluster] Skipping {roi}/{inter['name']}: {e}")
+                continue
+            mask, t_obs, p_values = cluster_correct_interaction_across_time(
+                contrast, p_thresh=p_thresh, cluster_forming_p=cluster_forming_p,
+                n_perm=n_perm, tails=tails, seed=seed,
+            )
+            results[roi][inter['name']] = {
+                'mask': mask,
+                't_obs': t_obs,
+                'cluster_p_values': p_values,
+                'factors': (f1, f2),
+                'levels': (lvls1, lvls2),
+                'label': inter.get('label', inter['name']),
+            }
+            if verbose:
+                n_sig_pts = int(mask.sum())
+                print(f"[anova-cluster] {roi}/{inter['name']}: "
+                      f"{n_sig_pts} sig timepoints, "
+                      f"min p={p_values.min() if len(p_values) else float('nan'):.4f}")
+    return results
+    
+# =============================================================================
+# Plotting helpers
+# =============================================================================
+
+def _find_cluster_spans(mask):
+    """Return list of (start_idx, end_idx) inclusive for contiguous True runs."""
+    spans = []
+    in_run = False
+    start = 0
+    arr = np.asarray(mask).astype(bool)
+    for i, val in enumerate(arr):
+        if val and not in_run:
+            start = i
+            in_run = True
+        elif not val and in_run:
+            spans.append((start, i - 1))
+            in_run = False
+    if in_run:
+        spans.append((start, len(arr) - 1))
+    return spans
+
+def _draw_cluster_bar(ax, times, mask, y, color='black', linewidth=6,
+                      label=None, label_x=None, label_color=None,
+                      label_fontsize=10):
+    """Draw horizontal bar(s) wherever mask is True, at height y."""
+    spans = _find_cluster_spans(mask)
+    for start_idx, end_idx in spans:
+        ax.hlines(y=y, xmin=times[start_idx], xmax=times[end_idx],
+                  color=color, linewidth=linewidth)
+    if label is not None and label_x is not None:
+        ax.text(label_x, y, label, ha='right', va='center',
+                fontsize=label_fontsize,
+                color=label_color if label_color is not None else color)
+
+def _generate_16_condition_colors(condition_names, conditions_obj,
+                                   factors=('congruency', 'congruencyProportion',
+                                            'switchType', 'switchProportion')):
+    """Build a structured color map for 16 conditions in a 2x2x2x2 design.
+
+    Strategy: hue from congruency × congruencyProportion (4 hues),
+    lightness from switchType × switchProportion (4 lightness levels).
+    Falls back to tab20 if factor levels are not all populated.
+    """
+    try:
+        f_hue1, f_hue2, f_light1, f_light2 = factors
+        levels = {f: _get_factor_levels(conditions_obj, f) for f in factors}
+        if any(len(v) != 2 for v in levels.values()):
+            raise ValueError("non-binary factor")
+        # 4 hues spaced around the wheel
+        hue_pairs = [(l1, l2) for l1 in levels[f_hue1] for l2 in levels[f_hue2]]
+        hue_map = {pair: i / 4.0 for i, pair in enumerate(hue_pairs)}
+        # 4 lightness levels in [0.35, 0.75]
+        light_pairs = [(l1, l2) for l1 in levels[f_light1] for l2 in levels[f_light2]]
+        light_map = {pair: 0.35 + 0.40 * (i / 3.0) for i, pair in enumerate(light_pairs)}
+        colors = {}
+        for name in condition_names:
+            v = conditions_obj.get(name, {})
+            try:
+                hue = hue_map[(v[f_hue1], v[f_hue2])]
+                light = light_map[(v[f_light1], v[f_light2])]
+            except KeyError:
+                colors[name] = None
+                continue
+            rgb = mcolors.hsv_to_rgb([hue, 0.7, 1.0])
+            # Scale toward white/black by lightness (light==0.5 keeps base color)
+            if light < 0.5:
+                rgb = tuple(c * (light / 0.5) for c in rgb)
+            else:
+                rgb = tuple(c + (1 - c) * ((light - 0.5) / 0.5) for c in rgb)
+            colors[name] = rgb
+        if all(c is not None for c in colors.values()):
+            return colors
+    except Exception:
+        pass
+    # Fallback: tab20 cycling
+    cmap = plt.get_cmap('tab20')
+    return {name: cmap(i % 20) for i, name in enumerate(condition_names)}
+
+def plot_2way_interaction_for_roi(
+    evks_dict, roi, conditions_obj, factor1, factor2,
+    interaction_mask, conditions_save_name, plotting_parameters=None,
+    plot_style=None, save_dir=None, save_name_suffix=None, error_type='sem',
+    interaction_label=None, factor_labels=None,
+):
+    """Plot the 4 sub-cell traces for a 2x2 interaction with a cluster bar overlay.
+
+    Parameters
+    ----------
+    interaction_mask : (n_times,) bool array, or None
+    """
+    s = {**DEFAULT_PLOT_STYLE, **(plot_style or {})}
+    fig, ax = plt.subplots(figsize=s['figsize'])
+
+    # Figure out a time vector from any populated condition
+    times = None
+    for cname, roi_dict in evks_dict.items():
+        evk = roi_dict.get(roi)
+        if evk is not None and evk.data.shape[0] > 0:
+            times = evk.times
+            break
+    if times is None:
+        plt.close(fig)
+        return None
+
+    levels1 = _get_factor_levels(conditions_obj, factor1)
+    levels2 = _get_factor_levels(conditions_obj, factor2)
+    if len(levels1) != 2 or len(levels2) != 2:
+        plt.close(fig)
+        raise ValueError(
+            f"Two-way plot expects 2 levels per factor; got "
+            f"{factor1}={levels1}, {factor2}={levels2}"
+        )
+
+    # 4 colors: factor1 -> hue, factor2 -> linestyle alternative we ignore (color only)
+    base_colors = {levels1[0]: '#1f77b4', levels1[1]: '#d62728'}
+    sat_alpha = {levels2[0]: 1.0, levels2[1]: 0.55}
+
+    f1_label = (factor_labels or {}).get(factor1, factor1)
+    f2_label = (factor_labels or {}).get(factor2, factor2)
+
+    for l1 in levels1:
+        for l2 in levels2:
+            data = compute_subcell_evoked_data(
+                evks_dict, conditions_obj, factor1, factor2, l1, l2, roi
+            )
+            if data is None:
+                continue
+            mean_data = np.mean(data, axis=0)
+            color = base_colors[l1]
+            alpha = sat_alpha[l2]
+            label = f"{f1_label}={l1}, {f2_label}={l2}"
+            ax.plot(times, mean_data, color=color, alpha=alpha,
+                    linewidth=2.5, label=label,
+                    linestyle='-' if l2 == levels2[0] else '--')
+            n = data.shape[0]
+            if error_type == 'sem' and n > 1:
+                err = np.std(data, axis=0) / np.sqrt(n)
+            elif error_type == 'std':
+                err = np.std(data, axis=0)
+            else:
+                err = None
+            if err is not None:
+                ax.fill_between(times, mean_data - err, mean_data + err,
+                                color=color, alpha=0.15 * alpha, linewidth=0)
+
+    # Overlay cluster bar at top of plot
+    if interaction_mask is not None and np.any(interaction_mask):
+        ylim = ax.get_ylim() if s.get('ylim') is None else s['ylim']
+        bar_y = s.get('sig_cluster_height', ylim[1] - (ylim[1] - ylim[0]) * 0.05)
+        _draw_cluster_bar(ax, times, interaction_mask, y=bar_y,
+                          color='black', linewidth=8)
+        center_idx = np.where(interaction_mask)[0]
+        if len(center_idx):
+            ax.text(times[int(np.median(center_idx))], bar_y + 0.01, '*',
+                    ha='center', va='bottom', fontsize=20)
+
+    apply_plot_style(ax, roi, plot_style)
+    if interaction_label and s.get('show_title', True):
+        ax.set_title(f"{roi.upper()} — {interaction_label}",
+                     fontsize=s['title_font_size'], fontweight='bold',
+                     color=s['text_color'])
+    plt.tight_layout()
+
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        suf = save_name_suffix or ''
+        base = (f'{roi}_{conditions_save_name}_2way_{factor1}_x_{factor2}_'
+                f'{suf}_{error_type}_shading')
+        for ext in ('.pdf', '.png'):
+            filepath = os.path.join(save_dir, base + ext)
+            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+            print(f"Saved plot to: {filepath}")
+    plt.close(fig)
+    return fig
+
+def plot_16_conditions_with_interaction_clusters_for_roi(
+    evks_dict, roi, conditions_obj, condition_names, conditions_save_name,
+    interaction_results,  # dict[interaction_name] -> result dict
+    anova_interactions,
+    plot_style=None, save_dir=None, save_name_suffix=None, error_type='sem',
+):
+    """Plot all 16 condition power traces with 4 stacked horizontal cluster bars
+    (one per 2-way interaction) overlaid at the top of the panel.
+    """
+    s = {**DEFAULT_PLOT_STYLE, **(plot_style or {})}
+    fig, ax = plt.subplots(figsize=s['figsize'])
+
+    times = None
+    colors = _generate_16_condition_colors(condition_names, conditions_obj)
+
+    for cname in condition_names:
+        evk = evks_dict.get(cname, {}).get(roi)
+        if evk is None or evk.data.shape[0] == 0:
+            continue
+        if times is None:
+            times = evk.times
+        data = evk.data
+        mean_data = np.mean(data, axis=0)
+        n = data.shape[0]
+        color = colors.get(cname, 'black')
+        ax.plot(times, mean_data, color=color, linewidth=1.5,
+                label=cname.replace('Stimulus_', ''))
+        if error_type == 'sem' and n > 1:
+            err = np.std(data, axis=0) / np.sqrt(n)
+            ax.fill_between(times, mean_data - err, mean_data + err,
+                            color=color, alpha=0.10, linewidth=0)
+
+    if times is None:
+        plt.close(fig)
+        return None
+
+    # Stack 4 cluster bars at the top of the panel.
+    ylim = s.get('ylim') if s.get('ylim') is not None else ax.get_ylim()
+    y_top = ylim[1]
+    y_bottom = ylim[0]
+    span = y_top - y_bottom
+    # Reserve top 16% of axis for 4 cluster bars + labels
+    bar_band_top = y_top - span * 0.02
+    bar_band_bottom = y_top - span * 0.16
+    n_bars = max(len(anova_interactions), 1)
+    bar_ys = np.linspace(bar_band_top, bar_band_bottom, n_bars)
+    bar_colors = ['#000000', '#4d4d4d', '#7f7f7f', '#b3b3b3'][:n_bars]
+
+    if times is not None:
+        label_x = times[0]  # leftmost edge for labels
+    else:
+        label_x = None
+
+    res_for_roi = interaction_results.get(roi, {})
+    for i, inter in enumerate(anova_interactions):
+        name = inter['name']
+        info = res_for_roi.get(name)
+        if info is None:
+            continue
+        mask = info['mask']
+        bar_color = bar_colors[i % len(bar_colors)]
+        _draw_cluster_bar(ax, times, mask, y=bar_ys[i],
+                          color=bar_color, linewidth=7,
+                          label=info.get('label', name),
+                          label_x=label_x,
+                          label_fontsize=s.get('legend_font_size', 10))
+
+    apply_plot_style(ax, roi, plot_style)
+    # Force ylim to leave room for bars if not user-set
+    if s.get('ylim') is None:
+        ax.set_ylim(y_bottom, y_top)
+
+    if s.get('show_legend', True):
+        ax.legend(loc='lower right', framealpha=0.9, ncol=2,
+                  fontsize=max(6, s.get('legend_font_size', 10) - 2))
+
+    plt.tight_layout()
+
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        suf = save_name_suffix or ''
+        base = (f'{roi}_{conditions_save_name}_16cond_with_interaction_clusters_'
+                f'{suf}_{error_type}_shading')
+        for ext in ('.pdf', '.png'):
+            filepath = os.path.join(save_dir, base + ext)
+            plt.savefig(filepath, dpi=300, bbox_inches='tight')
+            print(f"Saved plot to: {filepath}")
+    plt.close(fig)
+    return fig
+
+
+def plot_anova_interaction_results(
+    evks_dict, conditions_obj, condition_names, conditions_save_name,
+    rois, anova_interactions, interaction_results,
+    plot_style=None, save_dir=None, save_name_suffix=None, error_type='sem',
+):
+    """Convenience wrapper: for each ROI, draw the 16-condition mega-plot AND
+    one 4-trace plot per 2-way interaction.
+    """
+    for roi in rois:
+        plot_16_conditions_with_interaction_clusters_for_roi(
+            evks_dict, roi, conditions_obj, condition_names, conditions_save_name,
+            interaction_results, anova_interactions,
+            plot_style=plot_style, save_dir=save_dir,
+            save_name_suffix=save_name_suffix, error_type=error_type,
+        )
+        for inter in anova_interactions:
+            f1, f2 = inter['factors']
+            info = interaction_results.get(roi, {}).get(inter['name'])
+            mask = info['mask'] if info is not None else None
+            plot_2way_interaction_for_roi(
+                evks_dict, roi, conditions_obj, f1, f2, mask,
+                conditions_save_name,
+                plot_style=plot_style, save_dir=save_dir,
+                save_name_suffix=save_name_suffix, error_type=error_type,
+                interaction_label=inter.get('label'),
+            )

@@ -68,7 +68,7 @@ ACC_TRIALS_ONLY = False
 N_JOBS = -1 
 
 # stats
-STATISTICAL_METHOD = 'time_perm_cluster' # 'time_perm_cluster' or 'anova'
+STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
@@ -100,7 +100,12 @@ TAILS=2
 
 # ============================================================================
 # Condition selection
-CONDITIONS = experiment_conditions.stimulus_err_corr_conditions
+# Pass a condition_label (string key into condition_registry.CONDITION_REGISTRY).
+# The registry resolves: conditions_obj, comparisons, subtraction_pairs,
+# anova_factors, anova_interactions, etc.
+# Example labels: 'stimulus_err_corr_conditions', 'stimulus_lwpc_conditions',
+# 'stimulus_experiment_conditions' (16-cell ANOVA).
+CONDITION_LABEL = 'stimulus_err_corr_conditions'
 
 # Epochs file selection
 # EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -206,7 +211,7 @@ def run_analysis():
         acc_trials_only=ACC_TRIALS_ONLY,
         n_jobs=N_JOBS,
         task=TASK,
-        conditions=CONDITIONS,
+        condition_label=CONDITION_LABEL,
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
@@ -232,7 +237,7 @@ def run_analysis():
     print("BANDPASS FILTERED DECODING ANALYSIS")
     print("=" * 70)
     print(f"Subjects:          {SUBJECTS}")
-    print(f"Conditions:        {list(CONDITIONS.keys())}")
+    print(f"Condition label:        {CONDITION_LABEL}")
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
