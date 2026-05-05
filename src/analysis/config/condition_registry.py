@@ -419,7 +419,7 @@ CONDITION_REGISTRY = {
             },
         ],
         # ANOVA over the full 2x2x2x2 design (16 conditions)
-        'anova_factors': ['congruency', 'congruencyProportion', 'switchType', 'switchProportion']
+        'anova_factors': ['congruency', 'congruencyProportion', 'switchType', 'switchProportion'],
         # Two-way interactions to test with cluster correction across time, and to
         # plot as 4-trace single-interaction plots
         # Each entry: name, factors (length 2), and human-readable label/ylabel for plots.

@@ -23,10 +23,12 @@ if project_root not in sys.path:
 import numpy as np
 import mne
 import matplotlib.pyplot as plt
-from typing import Union, List, Sequence
+from typing import Union, List, Sequence, Optional, Dict, Tuple
 import logging
 from ieeg.calc.stats import time_perm_cluster
 from numpy.lib.stride_tricks import sliding_window_view
+from mne.stats import permutation_cluster_1samp_test
+import matplotlib.colors as mcolors
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, \
                                             identify_bad_channels_by_trial_nan_rate, \
                                             impute_trial_nans_by_channel_mean, \
