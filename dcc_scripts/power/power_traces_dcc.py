@@ -40,7 +40,9 @@ from src.analysis.power.power_traces import (
     plot_power_traces_for_all_rois,
     create_subtracted_evokeds_dict,
     time_perm_cluster_between_two_evokeds,
-    run_anova_interaction_clusters,
+    process_windowed_data_for_anova,
+    run_windowed_anova_cluster_correction,
+    anova_results_to_interaction_results_for_plotting,
     plot_anova_interaction_results,
 )
 
@@ -186,19 +188,45 @@ def main(args):
                       f"one or both conditions.")
 
     elif args.statistical_method == 'anova':
-        if not anova_interactions:
+        if not anova_factors or not anova_interactions:
             raise ValueError(
-                f"condition_label '{condition_label}' has no 'anova_interactions' "
-                f"in the registry. Add them to enable ANOVA cluster correction."
+                f"condition_label '{condition_label}' has no 'anova_factors' / "
+                f"'anova_interactions' in the registry."
             )
-        print(f"\nRunning ANOVA-based 2-way interaction cluster correction for "
-              f"{len(anova_interactions)} interaction(s) across {len(rois)} ROI(s)")
-        interaction_results = run_anova_interaction_clusters(
-            evks_dict_elecs, conditions, anova_interactions, rois,
-            p_thresh=args.p_thresh_for_time_perm_cluster_stats,
-            cluster_forming_p=args.p_cluster,
-            n_perm=args.n_perm, tails=args.tails,
-            seed=None, verbose=True,
+        print(f"\nRunning full {len(anova_factors)}-way ANOVA cluster correction "
+              f"across {len(rois)} ROI(s) with {args.n_perm} permutations")
+
+        # Pull a representative evoked to get the full time vector + n_times
+        ref_evk = next(
+            (evks_dict_elecs[c][r] for c in condition_names for r in rois
+             if evks_dict_elecs[c][r] is not None and evks_dict_elecs[c][r].data.shape[0] > 0),
+            None,
+        )
+        if ref_evk is None:
+            raise RuntimeError("No usable evoked data found for ANOVA path.")
+        full_times = ref_evk.times
+
+        windowed_data = process_windowed_data_for_anova(
+            subjects_mne_objects, condition_names, rois, args.subjects,
+            electrodes, window_size=args.window_size,
+            step_size=args.step_size, sampling_rate=args.sampling_rate,
+        )
+
+        anova_cluster_results, window_centers = run_windowed_anova_cluster_correction(
+            windowed_data, conditions, anova_factors, rois,
+            electrodes_per_subject_roi=electrodes,
+            times=full_times,
+            window_size=args.window_size, step_size=args.step_size,
+            sampling_rate=args.sampling_rate,
+            n_perm=args.n_perm,
+            percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
+            cluster_percentile=int(100 * (1 - args.p_cluster)),
+            seed=42, n_jobs=args.n_jobs, verbose=True,
+        )
+
+        # Adapt into the structure the mega-plot expects, picking out the four 2-ways
+        interaction_results = anova_results_to_interaction_results_for_plotting(
+            anova_cluster_results, anova_interactions,
         )
 
     # ------------------------------------------------------------------
@@ -289,6 +317,25 @@ def main(args):
                     t_obs=info['t_obs'],
                     cluster_p_values=info['cluster_p_values'],
                 )
+                
+    if args.statistical_method == 'anova':
+        # Save the full ANOVA F-traces too (all 16 effects, not just the 4 plotted)
+        try:
+            anova_save_dir = os.path.join(results_save_dir, 'anova_F_traces')
+            os.makedirs(anova_save_dir, exist_ok=True)
+            for roi, by_effect in anova_cluster_results.items():
+                for eff, info in by_effect.items():
+                    safe_eff = eff.replace(':', '_x_').replace('C(', '').replace(')', '')
+                    np.savez(
+                        os.path.join(anova_save_dir,
+                                     f'{conditions_save_name}_{roi}_{safe_eff}.npz'),
+                        observed_F=info['observed_F'],
+                        null_F=info['null_F'],
+                        window_mask=info['window_mask'],
+                        sample_mask=info['sample_mask'],
+                    )
+        except NameError:
+            pass  # anova_cluster_results not in scope (e.g. another method ran)
 
     metadata = {
         'condition_label': condition_label,

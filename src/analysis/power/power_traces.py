@@ -27,15 +27,21 @@ from typing import Union, List, Sequence, Optional, Dict, Tuple
 import logging
 from ieeg.calc.stats import time_perm_cluster
 from numpy.lib.stride_tricks import sliding_window_view
-from mne.stats import permutation_cluster_1samp_test
 import matplotlib.colors as mcolors
 from scipy import stats
+import pandas as pd
+from statsmodels.formula.api import ols
+from statsmodels.stats.anova import anova_lm
+from joblib import Parallel, delayed
+from src.analysis.decoding.decoding import (
+    find_significant_clusters_of_series_vs_distribution_based_on_percentile,
+)
 from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, \
                                             identify_bad_channels_by_trial_nan_rate, \
                                             impute_trial_nans_by_channel_mean, \
                                             create_subjects_mne_objects_dict, \
                                             filter_electrode_lists_against_subjects_mne_objects, \
-                                            find_difference_between_two_electrode_lists
+                                            find_difference_between_two_electrode_lists, windower
                                             
                                             
 #to save print statements while on cluster
@@ -1088,136 +1094,6 @@ def compute_subcell_evoked_data(evks_dict, conditions_obj, factor1, factor2,
         return None
     return np.mean(np.stack(arrays, axis=0), axis=0)
     
-def compute_interaction_contrast(evks_dict, conditions_obj, factor1, factor2, roi):
-    """Build the per-electrode 2x2 interaction contrast for a given ROI. This is good for plotting but not for inferential stats, which should be done on the full 16 condition evoked dict.
-    
-    Returns
-    -------
-    contrast : (n_electrodes, n_times) ndarray
-    levels1 : list of two values for factor1
-    levels2 : list of two values for factor2
-    cells : dict[(l1, l2)] -> (n_electrodes, n_times)
-    """
-    levels1 = _get_factor_levels(conditions_obj, factor1)
-    levels2 = _get_factor_levels(conditions_obj, factor2)
-    if len(levels1) != 2 or len(levels2) != 2:
-        raise ValueError(
-            f"Two-way interaction expects exactly 2 levels per factor; got "
-            f"{factor1}={levels1}, {factor2}={levels2}"
-        )
-    cells = {}
-    for l1 in levels1:
-        for l2 in levels2:
-            cells[(l1, l2)] = compute_subcell_evoked_data(
-                evks_dict, conditions_obj, factor1, factor2, l1, l2, roi
-            )
-            
-    if any(c is None for c in cells.values()):
-        raise ValueError(
-            f"Missing data for at least one cell of {factor1} x {factor2} in ROI {roi}"
-        )
-    
-    contrast = (
-        (cells[(levels1[0], levels2[0])] - cells[(levels1[1], levels2[0])])
-        - (cells[(levels1[0], levels2[1])] - cells[(levels1[1], levels2[1])])
-    )
-    
-    return contrast, levels1, levels2, cells
-
-def cluster_correct_interaction_across_time(contrast, p_thresh=0.05,
-                                            cluster_forming_p=0.05,
-                                            n_perm=1000, tails=2, seed=None):
-    """Sign-flip cluster permutation test on a per-electrode interaction contrast. THIS IS WRONG. DO ANOVA ON THE FULL 16 CONDITION EVOKED DICT.
-
-    Parameters
-    ----------
-    contrast : (n_electrodes, n_times) array
-    p_thresh : float
-        Cluster-level significance threshold (clusters with p < p_thresh kept).
-    cluster_forming_p : float
-        Sample-level p threshold used to form clusters (translated to a t threshold).
-    n_perm : int
-    tails : int
-        1, -1, or 2.
-    seed : int or None
-
-    Returns
-    -------
-    sig_mask : (n_times,) bool array of timepoints in any significant cluster
-    t_obs : observed t-stat per timepoint
-    cluster_p_values : list of p values per cluster
-    """
-    n_elec = contrast.shape[0]
-    if n_elec < 2:
-        return (np.zeros(contrast.shape[1], dtype=bool),
-                np.zeros(contrast.shape[1]), np.array([]))
-
-    # Translate p threshold to t threshold for cluster formation
-    if tails == 2:
-        threshold = stats.t.ppf(1 - cluster_forming_p / 2, df=n_elec - 1)
-        tail = 0
-    elif tails == 1:
-        threshold = stats.t.ppf(1 - cluster_forming_p, df=n_elec - 1)
-        tail = 1
-    elif tails == -1:
-        threshold = -stats.t.ppf(1 - cluster_forming_p, df=n_elec - 1)
-        tail = -1
-    else:
-        raise ValueError(f"tails must be -1, 1, or 2; got {tails}")
-
-    t_obs, clusters, p_values, _ = permutation_cluster_1samp_test(
-        contrast, n_permutations=n_perm, threshold=threshold, tail=tail,
-        seed=seed, out_type='mask', verbose=False,
-    )
-
-    sig_mask = np.zeros(contrast.shape[1], dtype=bool)
-    for cluster, p_val in zip(clusters, p_values):
-        if p_val < p_thresh:
-            sig_mask |= np.asarray(cluster)
-    return sig_mask, t_obs, np.asarray(p_values)
-    
-def run_anova_interaction_clusters(evks_dict, conditions_obj, anova_interactions,
-                                    rois, p_thresh=0.05, cluster_forming_p=0.05,
-                                    n_perm=1000, tails=2, seed=None, verbose=True):
-    """Per ROI, per interaction: compute contrast and run cluster permutation test.
-
-    Returns
-    -------
-    results : dict[roi][interaction_name] -> dict with keys
-        'mask', 't_obs', 'cluster_p_values', 'factors', 'levels', 'label'
-    """
-    results = {}
-    for roi in rois:
-        results[roi] = {}
-        for inter in anova_interactions:
-            f1, f2 = inter['factors']
-            try:
-                contrast, lvls1, lvls2, _ = compute_interaction_contrast(
-                    evks_dict, conditions_obj, f1, f2, roi
-                )
-            except ValueError as e:
-                if verbose:
-                    print(f"[anova-cluster] Skipping {roi}/{inter['name']}: {e}")
-                continue
-            mask, t_obs, p_values = cluster_correct_interaction_across_time(
-                contrast, p_thresh=p_thresh, cluster_forming_p=cluster_forming_p,
-                n_perm=n_perm, tails=tails, seed=seed,
-            )
-            results[roi][inter['name']] = {
-                'mask': mask,
-                't_obs': t_obs,
-                'cluster_p_values': p_values,
-                'factors': (f1, f2),
-                'levels': (lvls1, lvls2),
-                'label': inter.get('label', inter['name']),
-            }
-            if verbose:
-                n_sig_pts = int(mask.sum())
-                print(f"[anova-cluster] {roi}/{inter['name']}: "
-                      f"{n_sig_pts} sig timepoints, "
-                      f"min p={p_values.min() if len(p_values) else float('nan'):.4f}")
-    return results
-    
 # =============================================================================
 # Plotting helpers
 # =============================================================================
@@ -1510,3 +1386,264 @@ def plot_anova_interaction_results(
                 save_name_suffix=save_name_suffix, error_type=error_type,
                 interaction_label=inter.get('label'),
             )
+            
+# =============================================================================
+# Full-ANOVA cluster correction (uses windowed OLS, all 16 effects in one fit)
+#
+# This is the trial-imbalance-robust version: per window, fit
+#   Activity ~ C * CP * S * SP
+# extract F per effect, build a permutation null by shuffling factor labels
+# within electrode, then cluster-correct each effect's F-trace using
+# find_significant_clusters_of_series_vs_distribution_based_on_percentile.
+# =============================================================================
+
+def _fit_anova_one_window(df_window, formula, factor_columns):
+    """Fit OLS at a single window, return dict[effect_name] -> F-stat.
+
+    `df_window` already aggregated to one row per (electrode × cell).
+    Effect names match those returned by anova_lm (e.g., "C(congruency)",
+    "C(congruency):C(congruencyProportion)", ...).
+    """
+    try:
+        model = ols(formula, data=df_window).fit()
+        table = anova_lm(model, typ=2)
+    except Exception:
+        return None
+    return {idx: row['F'] for idx, row in table.iterrows() if idx != 'Residual'}
+
+
+def _shuffle_labels_within_electrode(df_one_window, factor_columns, rng):
+    """Return a copy of df_one_window with factor columns permuted within each
+    electrode (so each electrode keeps its 16 cell means but their factor
+    assignment is randomized as a block)."""
+    df = df_one_window.copy()
+    for (sub, elec), idxs in df.groupby(['SubjectID', 'Electrode']).groups.items():
+        idxs = np.asarray(idxs)
+        perm = rng.permutation(len(idxs))
+        for col in factor_columns:
+            df.loc[idxs, col] = df.loc[idxs[perm], col].values
+    return df
+
+
+def run_windowed_anova_cluster_correction(
+    windowed_data, conditions_obj, anova_factors, rois,
+    electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
+    n_perm=1000, percentile=95, cluster_percentile=95,
+    seed=42, n_jobs=-1, verbose=True,
+):
+    """Windowed full-ANOVA + cluster correction.
+
+    Parameters
+    ----------
+    windowed_data : dict
+        Output of process_windowed_data_for_anova (condition_name -> roi -> list of
+        (n_trials, n_windows, n_channels) arrays per subject).
+    conditions_obj : dict
+        The conditions_obj from the registry (condition_name -> dict of factor values).
+    anova_factors : list of str
+        Factor column names (e.g. ['congruency', 'congruencyProportion',
+        'switchType', 'switchProportion']).
+    n_perm : int
+    percentile : float
+        Pointwise null percentile for cluster formation (e.g., 95 → uncorrected p=0.05).
+    cluster_percentile : float
+        Cluster-mass percentile for cluster correction (e.g., 95 → corrected p=0.05).
+
+    Returns
+    -------
+    results : dict[roi][effect_name] -> {
+        'observed_F': (n_windows,) array,
+        'null_F': (n_perm, n_windows) array,
+        'sig_clusters_windows': list of (start_window_idx, end_window_idx),
+        'window_mask': (n_windows,) bool array,
+        'sample_mask': (n_times,) bool array,
+    }
+    window_centers : (n_windows,) array of timepoints
+    """
+    rng_master = np.random.RandomState(seed)
+
+    # Build long dataframe (re-uses your existing function)
+    df = create_windowed_anova_dataframe(
+        windowed_data, conditions_obj, rois, electrodes_per_subject_roi,
+        times=times, window_size=window_size, step_size=step_size,
+        sampling_rate=sampling_rate,
+    )
+
+    # OLS formula over the requested factors
+    formula = 'Activity ~ ' + ' * '.join([f'C({f})' for f in anova_factors])
+    if verbose:
+        print(f"[anova-cluster] Formula: {formula}")
+
+    # Pre-compute window centers (n_windows,) and the corresponding sample mapping
+    window_indices = sorted(df['WindowIndex'].unique())
+    n_windows = len(window_indices)
+    window_centers = np.array(
+        [df[df['WindowIndex'] == w]['WindowCenter'].iloc[0] for w in window_indices]
+    )
+
+    # Map each window to a (start_sample, end_sample) range, used to expand
+    # window-level clusters back to the full sampling-rate mask for plotting.
+    n_times = len(times)
+    win_to_samples = []
+    for w in window_indices:
+        start_sample = int(w * step_size)
+        end_sample = min(start_sample + window_size - 1, n_times - 1)
+        win_to_samples.append((start_sample, end_sample))
+
+    results = {}
+
+    for roi in rois:
+        if verbose:
+            print(f"[anova-cluster] === ROI: {roi} ===")
+        df_roi = df[df['ROI'] == roi]
+        if df_roi.empty:
+            continue
+
+        # Aggregate to electrode × window × cell (across-electrode ANOVA)
+        group_cols = ['SubjectID', 'Electrode', 'WindowIndex', 'WindowCenter'] + anova_factors
+        df_agg = df_roi.groupby(group_cols, as_index=False)['Activity'].mean()
+
+        # === Observed F per effect per window ===
+        observed_per_window = {}  # window_idx -> dict(effect -> F)
+        for w in window_indices:
+            df_w = df_agg[df_agg['WindowIndex'] == w]
+            f_dict = _fit_anova_one_window(df_w, formula, anova_factors)
+            observed_per_window[w] = f_dict
+
+        # All effects encountered (use first non-None window)
+        effect_names = None
+        for w in window_indices:
+            if observed_per_window[w] is not None:
+                effect_names = list(observed_per_window[w].keys())
+                break
+        if effect_names is None:
+            print(f"[anova-cluster] No usable windows for ROI {roi}; skipping.")
+            continue
+
+        observed_F = np.full((len(effect_names), n_windows), np.nan)
+        for wi, w in enumerate(window_indices):
+            f_dict = observed_per_window[w]
+            if f_dict is None:
+                continue
+            for ei, eff in enumerate(effect_names):
+                observed_F[ei, wi] = f_dict.get(eff, np.nan)
+
+        # === Permutation null ===
+        # We shuffle factor labels per electrode once per perm (same shuffle for all windows),
+        # since each electrode contributes independent rows per window.
+        # Per-perm work: re-fit OLS at every window.
+        seeds = rng_master.randint(0, 2**31 - 1, size=n_perm)
+
+        def _one_perm(perm_seed):
+            rng = np.random.RandomState(perm_seed)
+            # Build a single shuffle map per (subject, electrode) that we apply at every window
+            shuffle_map = {}
+            for (sub, elec), grp in df_agg[df_agg['WindowIndex'] == window_indices[0]] \
+                    .groupby(['SubjectID', 'Electrode']):
+                n_cells = len(grp)
+                shuffle_map[(sub, elec)] = rng.permutation(n_cells)
+
+            # Apply the same shuffle to every window
+            null_F_perm = np.full((len(effect_names), n_windows), np.nan)
+            for wi, w in enumerate(window_indices):
+                df_w = df_agg[df_agg['WindowIndex'] == w].copy().reset_index(drop=True)
+                # For each (sub, elec), permute the factor columns in place using shuffle_map
+                for (sub, elec), idxs in df_w.groupby(['SubjectID', 'Electrode']).groups.items():
+                    perm = shuffle_map.get((sub, elec))
+                    if perm is None or len(perm) != len(idxs):
+                        continue
+                    idxs = np.asarray(idxs)
+                    for col in anova_factors:
+                        df_w.loc[idxs, col] = df_w.loc[idxs[perm], col].values
+                f_dict = _fit_anova_one_window(df_w, formula, anova_factors)
+                if f_dict is None:
+                    continue
+                for ei, eff in enumerate(effect_names):
+                    null_F_perm[ei, wi] = f_dict.get(eff, np.nan)
+            return null_F_perm
+
+        if verbose:
+            print(f"[anova-cluster]   running {n_perm} permutations across {n_windows} windows "
+                  f"({len(effect_names)} effects)")
+        null_F_list = Parallel(n_jobs=n_jobs, verbose=5 if verbose else 0)(
+            delayed(_one_perm)(s) for s in seeds
+        )
+        null_F = np.stack(null_F_list, axis=0)  # (n_perm, n_effects, n_windows)
+
+        # === Cluster correction per effect ===
+        results[roi] = {}
+        for ei, eff in enumerate(effect_names):
+            obs = observed_F[ei]                  # (n_windows,)
+            null = null_F[:, ei, :]               # (n_perm, n_windows)
+
+            # Replace NaNs (failed fits) with zeros so they never form clusters
+            obs_clean = np.nan_to_num(obs, nan=0.0)
+            null_clean = np.nan_to_num(null, nan=0.0)
+
+            sig_clusters_windows = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
+                series=obs_clean,
+                distribution=null_clean,
+                time_points=window_centers,
+                percentile=percentile,
+                cluster_percentile=cluster_percentile,
+                n_cluster_perms=n_perm,
+                random_state=seed,
+            )
+
+            window_mask = np.zeros(n_windows, dtype=bool)
+            for s, e in sig_clusters_windows:
+                window_mask[s:e + 1] = True
+
+            sample_mask = np.zeros(n_times, dtype=bool)
+            for s, e in sig_clusters_windows:
+                first = win_to_samples[s][0]
+                last = win_to_samples[e][1]
+                sample_mask[first:last + 1] = True
+
+            results[roi][eff] = {
+                'observed_F': obs,
+                'null_F': null,
+                'sig_clusters_windows': sig_clusters_windows,
+                'window_mask': window_mask,
+                'sample_mask': sample_mask,
+            }
+            if verbose and sig_clusters_windows:
+                print(f"[anova-cluster]   {eff}: {len(sig_clusters_windows)} cluster(s), "
+                      f"window indices {sig_clusters_windows}")
+
+    return results, window_centers
+
+
+def anova_results_to_interaction_results_for_plotting(
+    anova_cluster_results, anova_interactions
+):
+    """Adapt the full-ANOVA result dict into the shape my mega-plot expects.
+
+    The mega-plot's interaction_results structure is:
+        dict[roi][interaction_name] -> {'mask', 'label', 'factors', ...}
+    where `mask` is the *sample-level* boolean array.
+    """
+    out = {}
+    for roi, by_effect in anova_cluster_results.items():
+        out[roi] = {}
+        for inter in anova_interactions:
+            f1, f2 = inter['factors']
+            # statsmodels names the interaction term as 'C(f1):C(f2)' regardless
+            # of which factor is listed first in the formula
+            candidate_names = [f'C({f1}):C({f2})', f'C({f2}):C({f1})']
+            info = None
+            for nm in candidate_names:
+                if nm in by_effect:
+                    info = by_effect[nm]
+                    break
+            if info is None:
+                continue
+            out[roi][inter['name']] = {
+                'mask': info['sample_mask'],
+                't_obs': info['observed_F'],   # F-trace, but field name kept for compat
+                'cluster_p_values': np.array([]),  # not exposed by the percentile method
+                'factors': (f1, f2),
+                'levels': (_get_factor_levels({}, f1) or [], _get_factor_levels({}, f2) or []),
+                'label': inter.get('label', inter['name']),
+            }
+    return out
