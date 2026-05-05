@@ -1089,7 +1089,7 @@ def compute_subcell_evoked_data(evks_dict, conditions_obj, factor1, factor2,
     return np.mean(np.stack(arrays, axis=0), axis=0)
     
 def compute_interaction_contrast(evks_dict, conditions_obj, factor1, factor2, roi):
-    """Build the per-electrode 2x2 interaction contrast for a given ROI.
+    """Build the per-electrode 2x2 interaction contrast for a given ROI. This is good for plotting but not for inferential stats, which should be done on the full 16 condition evoked dict.
     
     Returns
     -------
@@ -1118,8 +1118,8 @@ def compute_interaction_contrast(evks_dict, conditions_obj, factor1, factor2, ro
         )
     
     contrast = (
-        (cells[(levels1[0], levels2[0])] - cells[(levels1[0], levels2[1])])
-        - (cells[(levels1[1], levels2[0])] - cells[(levels1[1], levels2[1])])
+        (cells[(levels1[0], levels2[0])] - cells[(levels1[1], levels2[0])])
+        - (cells[(levels1[0], levels2[1])] - cells[(levels1[1], levels2[1])])
     )
     
     return contrast, levels1, levels2, cells
@@ -1127,7 +1127,7 @@ def compute_interaction_contrast(evks_dict, conditions_obj, factor1, factor2, ro
 def cluster_correct_interaction_across_time(contrast, p_thresh=0.05,
                                             cluster_forming_p=0.05,
                                             n_perm=1000, tails=2, seed=None):
-    """Sign-flip cluster permutation test on a per-electrode interaction contrast.
+    """Sign-flip cluster permutation test on a per-electrode interaction contrast. THIS IS WRONG. DO ANOVA ON THE FULL 16 CONDITION EVOKED DICT.
 
     Parameters
     ----------
@@ -1223,7 +1223,7 @@ def run_anova_interaction_clusters(evks_dict, conditions_obj, anova_interactions
 # =============================================================================
 
 def _find_cluster_spans(mask):
-    """Return list of (start_idx, end_idx) inclusive for contiguous True runs."""
+    """Return list of (start_idx, end_idx) inclusive for contiguous True runs.""" # hmm pretty sure some version of this already exists somewhere
     spans = []
     in_run = False
     start = 0
