@@ -11,6 +11,9 @@ To add a new condition:
    - 'comparisons' (required): used by build_condition_comparisons
    - 'pooled_shuffle' (optional): used by process_bootstrap for pooled shuffle distributions
    - 'context_comparison' (optional): used by run_context_comparisons for true-vs-true overlays
+   - 'subtraction_pairs' (optional): used by power_traces_dcc to compute (cond1 - cond2) evokeds
+   - 'anova_factors' (optional): list of factor column names for ANOVA over the conditions
+   - 'anova_interactions' (optional): list of dicts describing 2-way interactions to plot/test
 """
 
 from src.analysis.config import experiment_conditions
@@ -97,6 +100,10 @@ CONDITION_REGISTRY = {
             'c25_vs_c75': ['c25', 'c75'],
             'i25_vs_i75': ['i25', 'i75'],
         },
+        'subtraction_pairs': [
+            ('Stimulus_i75', 'Stimulus_c75'),
+            ('Stimulus_i25', 'Stimulus_c25')
+        ],
         'pooled_shuffle': [
             {
                 'key': 'lwpc_shuffle_accs_across_pooled_conditions',
@@ -134,6 +141,10 @@ CONDITION_REGISTRY = {
             's25_vs_s75': ['s25', 's75'],
             'r25_vs_r75': ['r25', 'r75'],
         },
+        'subtraction_pairs': [
+            ('Stimulus_s75', 'Stimulus_r75'),
+            ('Stimulus_s25', 'Stimulus_r25')
+        ],
         'pooled_shuffle': [
             {
                 'key': 'lwps_shuffle_accs_across_pooled_conditions',
@@ -405,6 +416,33 @@ CONDITION_REGISTRY = {
             {
                 'key': 'switchType_pooled_shuffle',
                 'strings_to_find': [['s25', 's75'], ['r25', 'r75']],
+            },
+        ],
+        # ANOVA over the full 2x2x2x2 design (16 conditions)
+        'anova_factors': ['congruency', 'congruencyProportion', 'switchType', 'switchProportion']
+        # Two-way interactions to test with cluster correction across time, and to
+        # plot as 4-trace single-interaction plots
+        # Each entry: name, factors (length 2), and human-readable label/ylabel for plots.
+        'anova_interactions': [
+            {
+                'name': 'congruency_x_congruencyProportion',
+                'factors': ['congruency', 'congruencyProportion'],
+                'label': 'Congruency × Inc. Proportion',
+            },
+            {
+                'name': 'switchType_x_switchProportion',
+                'factors': ['switchType', 'switchProportion'],
+                'label': 'Switch Type × Switch Proportion',
+            },
+            {
+                'name': 'congruency_x_switchProportion',
+                'factors': ['congruency', 'switchProportion'],
+                'label': 'Congruency × Switch Proportion',
+            },
+            {
+                'name': 'switchType_x_congruencyProportion',
+                'factors': ['switchType', 'congruencyProportion'],
+                'label': 'Switch Type × Inc. Proportion',
             },
         ],
     },
@@ -805,3 +843,20 @@ def get_balance_strata(condition_name):
 
 def get_conditions_obj(condition_name):
     return CONDITION_REGISTRY[condition_name]['conditions_obj']
+
+def get_subtraction_pairs(condition_name):
+    """
+    List of (cond1, cond2) tuples to subtract for difference-evoked plotting. May be empty.
+    """
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    return list(entry.get('subtraction_pairs', []))
+
+def get_anova_factors(condition_name):
+    """List of factor column names defined for ANOVA over this condition set, or None."""
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    return entry.get('anova_factors')
+
+def get_anova_interactions(condition_name):
+    """List of 2-way interaction dicts to test/plot for this condition set, or [] if none."""
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    return list(entry.get('anova_interactions', [])) 
