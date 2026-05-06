@@ -94,8 +94,12 @@ def main(args):
     )
 
     layout = get_data(args.task, root=LAB_root)
-    save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs',
-                            f"{args.epochs_root_file}")
+    
+    if args.save_dir:
+        save_dir = args.save_dir
+    else:
+        save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs',
+                                f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
 
@@ -213,7 +217,7 @@ def main(args):
         )
 
         anova_cluster_results, window_centers = run_windowed_anova_cluster_correction(
-            windowed_data, conditions, anova_factors, rois,
+            windowed_data, conditions, anova_factors, rois, args.subjects,
             electrodes_per_subject_roi=electrodes,
             times=full_times,
             window_size=args.window_size, step_size=args.step_size,
@@ -282,8 +286,6 @@ def main(args):
     # ------------------------------------------------------------------
     # 8. Save results
     # ------------------------------------------------------------------
-    results_save_dir = os.path.join(save_dir, 'saved_results')
-    os.makedirs(results_save_dir, exist_ok=True)
 
     for condition_name in condition_names:
         for roi in rois:
@@ -291,7 +293,7 @@ def main(args):
             if evk is not None:
                 np.savez(
                     os.path.join(
-                        results_save_dir,
+                        save_dir,
                         f'{conditions_save_name}_{condition_name}_{roi}_evoked.npz'
                     ),
                     data=evk.data, times=evk.times, ch_names=evk.ch_names
@@ -299,7 +301,7 @@ def main(args):
 
     if significant_clusters:
         np.savez(
-            os.path.join(results_save_dir,
+            os.path.join(save_dir,
                          f'{conditions_save_name}_significant_clusters.npz'),
             **significant_clusters
         )
@@ -310,7 +312,7 @@ def main(args):
             for inter_name, info in by_inter.items():
                 np.savez(
                     os.path.join(
-                        results_save_dir,
+                        save_dir,
                         f'{conditions_save_name}_{roi}_{inter_name}_interaction_cluster.npz'
                     ),
                     mask=info['mask'],
@@ -321,7 +323,7 @@ def main(args):
     if args.statistical_method == 'anova':
         # Save the full ANOVA F-traces too (all 16 effects, not just the 4 plotted)
         try:
-            anova_save_dir = os.path.join(results_save_dir, 'anova_F_traces')
+            anova_save_dir = os.path.join(save_dir, 'anova_F_traces')
             os.makedirs(anova_save_dir, exist_ok=True)
             for roi, by_effect in anova_cluster_results.items():
                 for eff, info in by_effect.items():
@@ -351,7 +353,7 @@ def main(args):
             for i in anova_interactions
         ] if anova_interactions else [],
     }
-    with open(os.path.join(results_save_dir,
+    with open(os.path.join(save_dir,
                            f'{conditions_save_name}_metadata.json'), 'w') as f:
         json.dump(metadata, f, indent=2)
 

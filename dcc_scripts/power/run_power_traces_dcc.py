@@ -53,16 +53,16 @@ LAB_ROOT = None # Will be determined automatically in main()
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
 # SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133']
 # Below is for power traces, removing D0110, D0059, D0071
-SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
+# SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134']
 
 # task
 TASK = 'GlobalLocal'
 
 # Trial selection
 # switch to False for err-corr 
-ACC_TRIALS_ONLY = False
+ACC_TRIALS_ONLY = True
 
 # Parallel processing
 N_JOBS = -1 
@@ -72,8 +72,6 @@ STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
-APPLY_FDR = True # Apply FDR correction to p-values for ANOVA, since we can't do cluster correction here (or I at least can't think of a way to do cluster-correction for ANOVA)
-FDR_ALPHA=0.05 # FDR alpha for ANOVA
 
 if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
@@ -105,29 +103,10 @@ TAILS=2
 # anova_factors, anova_interactions, etc.
 # Example labels: 'stimulus_err_corr_conditions', 'stimulus_lwpc_conditions',
 # 'stimulus_experiment_conditions' (16-cell ANOVA).
-CONDITION_LABEL = 'stimulus_err_corr_conditions'
+CONDITION_LABEL = 'stimulus_experiment_conditions'
 
 # Epochs file selection
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-
-# EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Response_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Response_-1.5to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
 # ROI dictionary
 # ROIS_DICT = {
@@ -140,18 +119,18 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 # }
 
 # adding parietal, dlpfc, acc for err-corr decoding
-ROIS_DICT = {
-      'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-      'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-      'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-      'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
-      'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
-}
-
 # ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+#       'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#       'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+#       'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#       'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+#       'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
+#       'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
 # }
+
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 # which electrodes to use (all or sig)
 ELECTRODES = 'sig'
@@ -198,6 +177,8 @@ PLOT_STYLE = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
 
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
+
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
     # Generate a timestamp string
@@ -221,14 +202,13 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
-        apply_fdr=APPLY_FDR,
-        fdr_alpha=FDR_ALPHA,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
         n_perm=N_PERM,
         tails=TAILS,
         plot_style=PLOT_STYLE,
+        save_dir=SAVE_DIR
 
     )
 
@@ -255,8 +235,6 @@ def run_analysis():
     print("ANOVA Parameters:")
     print(f"  Window Size: {WINDOW_SIZE}")
     print(f"  Step Size: {STEP_SIZE}")
-    print(f"  Apply FDR: {APPLY_FDR}")
-    print(f"  FDR alpha: {FDR_ALPHA}")
     print("=" * 70)
     
     print('plotting parameters:')

@@ -801,18 +801,23 @@ def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois,
     
     return windowed_data
 
-def create_windowed_anova_dataframe(windowed_data, conditions, rois, 
-                                    electrodes_per_subject_roi, times, 
+def create_windowed_anova_dataframe(windowed_data, conditions, rois, subjects,
+                                    electrodes_per_subject_roi, times,
                                     window_size=None, step_size=1, sampling_rate=256):
     """
     Create DataFrame for windowed ANOVA analysis.
+
+    IMPORTANT: `subjects` must be the same ordered list passed to
+    `process_windowed_data_for_anova`, because that function appends to
+    `windowed_data[cond][roi]` in subject-iteration order, skipping subjects
+    with no electrodes for the ROI. This function reproduces that same
+    iteration so the list index lines up with the right subject + electrodes.
     """
     data_for_anova = []
-    
-    # Calculate window centers for time labels
+
+    # Window centers
     if window_size is not None:
-        window_duration = window_size / sampling_rate
-        n_windows = len(range(0, len(times) - window_size + 1, step_size))
+        n_windows = (len(times) - window_size) // step_size + 1
         window_centers = []
         for i in range(n_windows):
             start_idx = i * step_size
@@ -822,35 +827,46 @@ def create_windowed_anova_dataframe(windowed_data, conditions, rois,
             else:
                 window_centers.append(times[-1])
     else:
-        window_centers = [np.mean(times)]  # Single window for full epoch
-    
+        window_centers = [np.mean(times)]
+
     for condition_name, condition_parameters in conditions.items():
         for roi in rois:
-            subjects_with_data = [s for s in electrodes_per_subject_roi[roi].keys()]
-            
-            for sub_idx, subject_data in enumerate(windowed_data[condition_name][roi]):
-                subject_id = subjects_with_data[sub_idx]
-                electrodes = electrodes_per_subject_roi[roi][subject_id]
-                
-                # subject_data shape: (n_trials, n_windows, n_channels)
+            roi_list = windowed_data.get(condition_name, {}).get(roi, [])
+            sub_idx = 0
+            for sub in subjects:
+                electrodes = electrodes_per_subject_roi[roi].get(sub, [])
+                if not electrodes:
+                    continue  # process_windowed_data_for_anova also skipped
+                if sub_idx >= len(roi_list):
+                    break
+                subject_data = roi_list[sub_idx]
+                sub_idx += 1
+
+                # Defensive: clamp electrode count to actual data shape.
+                n_chans_data = subject_data.shape[2]
+                n_chans = min(len(electrodes), n_chans_data)
+                if n_chans_data != len(electrodes):
+                    print(f"[create_windowed_anova_dataframe] WARNING: "
+                          f"{sub}/{roi}: electrode list has {len(electrodes)} but "
+                          f"data has {n_chans_data} channels; using first {n_chans}.")
+
                 for trial_idx in range(subject_data.shape[0]):
                     for window_idx in range(subject_data.shape[1]):
-                        for electrode_idx, electrode_name in enumerate(electrodes):
+                        for electrode_idx in range(n_chans):
+                            electrode_name = electrodes[electrode_idx]
                             activity = subject_data[trial_idx, window_idx, electrode_idx]
-                            
                             data_dict = {
-                                'SubjectID': subject_id,
+                                'SubjectID': sub,
                                 'Electrode': electrode_name,
                                 'ROI': roi,
                                 'WindowCenter': window_centers[window_idx],
                                 'WindowIndex': window_idx,
                                 'Trial': trial_idx + 1,
-                                'Activity': activity
+                                'Activity': activity,
                             }
-                            
                             data_dict.update(condition_parameters)
                             data_for_anova.append(data_dict)
-    
+
     return pd.DataFrame(data_for_anova)
 
 def perform_windowed_anova(df, conditions, rois, save_dir, save_name, 
@@ -1118,7 +1134,7 @@ def _find_cluster_spans(mask):
 def _draw_cluster_bar(ax, times, mask, y, color='black', linewidth=6,
                       label=None, label_x=None, label_color=None,
                       label_fontsize=10):
-    """Draw horizontal bar(s) wherever mask is True, at height y."""
+    """Draw horizontal bar(s) wherever mask is True, at height y.""" # this code might be redundant, check plot_horizontal_bar from aaron or i'm sure i have other code that does this.
     spans = _find_cluster_spans(mask)
     for start_idx, end_idx in spans:
         ax.hlines(y=y, xmin=times[start_idx], xmax=times[end_idx],
@@ -1426,7 +1442,7 @@ def _shuffle_labels_within_electrode(df_one_window, factor_columns, rng):
 
 
 def run_windowed_anova_cluster_correction(
-    windowed_data, conditions_obj, anova_factors, rois,
+    windowed_data, conditions_obj, anova_factors, rois, subjects,
     electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
     n_perm=1000, percentile=95, cluster_percentile=95,
     seed=42, n_jobs=-1, verbose=True,
@@ -1464,7 +1480,8 @@ def run_windowed_anova_cluster_correction(
 
     # Build long dataframe (re-uses your existing function)
     df = create_windowed_anova_dataframe(
-        windowed_data, conditions_obj, rois, electrodes_per_subject_roi,
+        windowed_data, conditions_obj, rois, subjects,
+        electrodes_per_subject_roi,
         times=times, window_size=window_size, step_size=step_size,
         sampling_rate=sampling_rate,
     )
