@@ -759,6 +759,53 @@ def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois,
         Size of window in samples. If None, uses full epoch.
     step_size : int
         Step size for sliding window in samples.
+    Slide a window over each subject's trial-level epoch data and average within
+    each window to produce per-window per-channel scalars suitable for ANOVA.
+
+    For every (condition, ROI, subject) triple that has at least one electrode in
+    the ROI, this function:
+      1. Picks the subject's epochs for the given condition.
+      2. Restricts channels to ``electrodes_per_subject_roi[roi][subject]``.
+      3. Slides a window of ``window_size`` samples with stride ``step_size`` over
+         the time axis using ``general_utils.windower``.
+      4. Averages within each window (collapsing the time axis inside a window)
+         to produce a (n_trials, n_windows, n_channels) array.
+
+    Subjects with **no** electrodes for the ROI are silently skipped (the output
+    list for that ROI simply omits them). The downstream
+    ``create_windowed_anova_dataframe`` reproduces this same skipping logic so
+    list indices line up with the right subject + electrodes — see
+    ``create_windowed_anova_dataframe`` for the matching invariant.
+
+    Parameters
+    ----------
+    subjects_mne_objects : dict
+        Nested dict ``[subject][condition_name][mne_object_type]``; we read
+        ``[sub][cond]['HG_ev1_power_rescaled']``.
+    condition_names : list of str
+        Condition keys (e.g. ``['Stimulus_i25s25', ...]``).
+    rois : list of str
+        ROI names (e.g. ``['lpfc', 'occ', ...]``).
+    subjects : list of str
+        Subject IDs to iterate. Must be the same ordered list passed to
+        ``create_windowed_anova_dataframe`` later, since that function relies on
+        the same subject-skipping order.
+    electrodes_per_subject_roi : dict
+        ``[roi][subject] -> list of electrode names``.
+    window_size : int or None, default 64
+        Size of window in samples. If None, ``windower`` falls back to a single
+        full-epoch window.
+    step_size : int, default 16
+        Stride between successive windows in samples.
+    sampling_rate : int, default 256
+        Currently unused (kept for API symmetry with the dataframe builder).
+
+    Returns
+    -------
+    windowed_data : dict
+        ``{condition_name: {roi: list_of_arrays}}`` where each list entry is a
+        (n_trials, n_windows, n_channels) ndarray, one per subject that had
+        electrodes for that ROI, in the same order as ``subjects``.
     """
     windowed_data = {}
     
@@ -807,12 +854,52 @@ def create_windowed_anova_dataframe(windowed_data, conditions, rois, subjects,
                                     window_size=None, step_size=1, sampling_rate=256):
     """
     Create DataFrame for windowed ANOVA analysis.
+    Flatten the nested ``windowed_data`` structure into a long DataFrame suitable
+    for per-window OLS / ANOVA fits.
 
-    IMPORTANT: `subjects` must be the same ordered list passed to
-    `process_windowed_data_for_anova`, because that function appends to
-    `windowed_data[cond][roi]` in subject-iteration order, skipping subjects
-    with no electrodes for the ROI. This function reproduces that same
-    iteration so the list index lines up with the right subject + electrodes.
+    Each row is one observation: ``(subject, electrode, ROI, trial, window) ->
+    Activity``, with the factor columns from ``conditions[cond]`` attached
+    (e.g. ``congruency``, ``congruencyProportion``, ``switchType``,
+    ``switchProportion``). ``BIDS_events`` is included verbatim; downstream
+    formula-builders should drop it.
+
+    Window centers are precomputed once (in seconds) and attached to every row
+    of the corresponding window so the resulting DataFrame can be plotted /
+    grouped by ``WindowCenter`` directly.
+
+    Parameters
+    ----------
+    windowed_data : dict
+        Output of :func:`process_windowed_data_for_anova`.
+    conditions : dict
+        Mapping ``{condition_name: condition_parameters}`` from
+        ``experiment_conditions``. The ``condition_parameters`` dict is merged
+        into every row so factor columns become available for OLS.
+    rois : list of str
+    electrodes_per_subject_roi : dict
+        ``[roi][subject] -> list of electrode names``.
+    times : array-like
+        The full per-sample time vector of the epoch (used to compute window
+        centers).
+    window_size : int or None
+        Window length in samples; when None, a single window centered at the
+        epoch midpoint is produced.
+    step_size : int, default 1
+    sampling_rate : int, default 256
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        Columns: ``SubjectID``, ``Electrode``, ``ROI``, ``WindowCenter``,
+        ``WindowIndex``, ``Trial``, ``Activity``, plus all keys from
+        ``condition_parameters`` (factor columns + ``BIDS_events``).
+
+    Notes
+    -----
+    Cross-subject channel-name collisions: ``combine_single_channel_evokeds``
+    renames duplicates with running suffixes (``LFMM9-0``, ``LFMM9-1``), but the
+    ``Electrode`` column here stores the **un-suffixed** original name. Always
+    group by ``(SubjectID, Electrode)`` together if you need a unique key.
     """
     data_for_anova = []
 
@@ -873,12 +960,58 @@ def create_windowed_anova_dataframe(windowed_data, conditions, rois, subjects,
 def perform_windowed_anova(df, conditions, rois, save_dir, save_name, 
                            anova_type='within_electrode'):
     """
-    Perform ANOVA for each time window.
-    
-    Parameters:
-    -----------
-    anova_type : str
-        'within_electrode' or 'across_electrode'
+    Fit a Type II OLS ANOVA at every time window and persist the results.
+
+    The OLS formula is built dynamically from the keys of any single condition
+    in ``conditions`` (excluding ``BIDS_events``), as
+    ``Activity ~ C(f1) * C(f2) * ... * C(fn)`` — i.e. all factors plus all
+    interactions. This implicitly assumes that every condition shares the same
+    factor-key set; mixing condition sets with different keys here will produce
+    misleading formulas.
+
+    Two analysis modes:
+
+    - ``'within_electrode'``: per (subject, electrode, ROI), fit OLS on the
+      trial-level rows for that electrode in that window. Stores only the
+      effects with uncorrected p < 0.05.
+    - ``'across_electrode'``: per ROI, average activity within each
+      (subject, electrode, factors) cell first, then fit OLS treating each
+      electrode-cell as one observation. Stores the full ANOVA table per ROI
+      per window.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Output of :func:`create_windowed_anova_dataframe`.
+    conditions : dict
+        ``{condition_name: condition_parameters}``; only the first entry's keys
+        are used to build the formula.
+    rois : list of str
+        Used only in the ``'across_electrode'`` branch.
+    save_dir : str
+        Directory to write the JSON output file.
+    save_name : str
+        Stem for the output filename
+        (``{save_name}_windowed_anova_{anova_type}.json``).
+    anova_type : {'within_electrode', 'across_electrode'}, default 'within_electrode'
+
+    Returns
+    -------
+    results_by_window : dict
+        - within_electrode: ``{window_center -> list of {SubjectID, Electrode,
+          ROI, Effects (DataFrame of significant effects)}}``
+        - across_electrode: ``{window_center -> {roi: anova_lm_table}}``
+
+    Notes
+    -----
+    BUG (across_electrode branch): the inner loop overwrites
+    ``results_by_window[window_center]`` for each ROI, so only the last ROI's
+    table is preserved per window. To persist all ROIs, that branch should
+    accumulate into ``{window_center: {roi: ...}}`` instead of reassigning.
+
+    Output JSON serializes via ``str(result)``, which is lossy and only useful
+    for human inspection — re-parsing the JSON back into DataFrames is not
+    supported.
     """
     results_by_window = {}
     
@@ -929,28 +1062,33 @@ def perform_windowed_anova(df, conditions, rois, save_dir, save_name,
             results_by_window[window_center] = results
             
         elif anova_type == 'across_electrode':
-            # Perform across-electrode ANOVA for this window
+            # Perform across-electrode ANOVA for this window.
+            # Accumulate per-ROI results under this window so multiple ROIs
+            # don't overwrite each other.
+            if window_center not in results_by_window:
+                results_by_window[window_center] = {}
+
+            # Build the factor-key list once per window — exclude BIDS_events
+            # because (a) it isn't an ANOVA factor and (b) its values are lists,
+            # which are unhashable and would break the groupby below.
+            condition_keys = [k for k in conditions[next(iter(conditions))].keys()
+                              if k != 'BIDS_events']
+            formula = 'Activity ~ ' + ' * '.join([f'C({k})' for k in condition_keys])
+
             for roi in rois:
                 df_roi = df_window[df_window['ROI'] == roi]
-                
                 if df_roi.empty:
                     continue
-                
-                # Average across trials for each electrode
+
+                # Average across trials for each electrode-cell
                 df_averaged = df_roi.groupby(
-                    ['SubjectID', 'Electrode', 'ROI'] + 
-                    list(conditions[next(iter(conditions))].keys())
+                    ['SubjectID', 'Electrode', 'ROI'] + condition_keys
                 )['Activity'].mean().reset_index()
-                
-                # Build formula
-                condition_keys = [k for k in conditions[next(iter(conditions))].keys() 
-                                if k != 'BIDS_events']
-                formula = 'Activity ~ ' + ' * '.join([f'C({k})' for k in condition_keys])
-                
+
                 model = ols(formula, data=df_averaged).fit()
                 anova_results = anova_lm(model, typ=2)
-                
-                results_by_window[window_center] = {roi: anova_results}
+
+                results_by_window[window_center][roi] = anova_results
     
     # Save results
     results_file = os.path.join(save_dir, f'{save_name}_windowed_anova_{anova_type}.json')
@@ -1273,7 +1411,7 @@ def plot_2way_interaction_for_roi(
     # because for these plots the legend is essential, not optional.
     handles, labels = ax.get_legend_handles_labels()
     if handles:
-        ax.legend(handles, labels, loc='best', framealpha=0.9,
+        ax.legend(handles, labels, loc='lower right', framealpha=0.9,
                   fontsize=s.get('legend_font_size', 10))
     if interaction_label and s.get('show_title', True):
         ax.set_title(f"{roi.upper()} — {interaction_label}",
