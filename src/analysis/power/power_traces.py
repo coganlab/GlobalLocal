@@ -28,6 +28,7 @@ import logging
 from ieeg.calc.stats import time_perm_cluster
 from numpy.lib.stride_tricks import sliding_window_view
 import matplotlib.colors as mcolors
+from matplotlib.lines import Line2D
 from scipy import stats
 import pandas as pd
 from statsmodels.formula.api import ols
@@ -1267,6 +1268,13 @@ def plot_2way_interaction_for_roi(
                     ha='center', va='bottom', fontsize=20)
 
     apply_plot_style(ax, roi, plot_style)
+    # Always show the 4-trace legend on per-interaction plots — the 4 cells are
+    # otherwise indistinguishable. This overrides plot_style['show_legend']
+    # because for these plots the legend is essential, not optional.
+    handles, labels = ax.get_legend_handles_labels()
+    if handles:
+        ax.legend(handles, labels, loc='best', framealpha=0.9,
+                  fontsize=s.get('legend_font_size', 10))
     if interaction_label and s.get('show_title', True):
         ax.set_title(f"{roi.upper()} — {interaction_label}",
                      fontsize=s['title_font_size'], fontweight='bold',
@@ -1331,14 +1339,16 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
     bar_band_bottom = y_top - span * 0.16
     n_bars = max(len(anova_interactions), 1)
     bar_ys = np.linspace(bar_band_top, bar_band_bottom, n_bars)
-    bar_colors = ['#000000', '#4d4d4d', '#7f7f7f', '#b3b3b3'][:n_bars]
-
-    if times is not None:
-        label_x = times[0]  # leftmost edge for labels
-    else:
-        label_x = None
+    # Distinct, perceptually-separated colors for the 4 cluster bars
+    # (ColorBrewer Set1, dropping yellow/orange which collide with the
+    # 16-condition trace palette).
+    bar_palette = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3',
+                   '#ff7f00', '#a65628']
+    bar_colors = [bar_palette[i % len(bar_palette)] for i in range(n_bars)]
 
     res_for_roi = interaction_results.get(roi, {})
+    bar_legend_handles = []
+    bar_legend_labels = []
     for i, inter in enumerate(anova_interactions):
         name = inter['name']
         info = res_for_roi.get(name)
@@ -1346,20 +1356,34 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
             continue
         mask = info['mask']
         bar_color = bar_colors[i % len(bar_colors)]
+        # No per-bar text label — the legend below handles labeling instead.
         _draw_cluster_bar(ax, times, mask, y=bar_ys[i],
                           color=bar_color, linewidth=7,
-                          label=info.get('label', name),
-                          label_x=label_x,
-                          label_fontsize=s.get('legend_font_size', 10))
+                          label=None, label_x=None)
+        bar_legend_handles.append(
+            Line2D([0], [0], color=bar_color, linewidth=7)
+        )
+        bar_legend_labels.append(info.get('label', name))
 
     apply_plot_style(ax, roi, plot_style)
     # Force ylim to leave room for bars if not user-set
     if s.get('ylim') is None:
         ax.set_ylim(y_bottom, y_top)
 
+    # Two legends: the 16-condition trace legend (gated on plot_style.show_legend
+    # because it's huge and often obscures the data) and the cluster-bar legend
+    # (always shown — the bars are uninterpretable without it).
+    trace_legend = None
     if s.get('show_legend', True):
-        ax.legend(loc='lower right', framealpha=0.9, ncol=2,
-                  fontsize=max(6, s.get('legend_font_size', 10) - 2))
+        trace_legend = ax.legend(loc='lower right', framealpha=0.9, ncol=2,
+                                 fontsize=max(6, s.get('legend_font_size', 10) - 2))
+    if bar_legend_handles:
+        if trace_legend is not None:
+            ax.add_artist(trace_legend)  # keep both legends visible
+        ax.legend(bar_legend_handles, bar_legend_labels,
+                  loc='upper right', framealpha=0.9,
+                  title='2-way interaction clusters',
+                  fontsize=s.get('legend_font_size', 10))
 
     plt.tight_layout()
 
