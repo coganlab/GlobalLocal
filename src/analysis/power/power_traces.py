@@ -1090,17 +1090,21 @@ def perform_windowed_anova(df, conditions, rois, save_dir, save_name,
 
                 results_by_window[window_center][roi] = anova_results
     
-    # Save results
-    results_file = os.path.join(save_dir, f'{save_name}_windowed_anova_{anova_type}.json')
+    # Save results - TODO: this only works for across_electrode right now, need to handle within_electrode too. Check the way I used to store these results for plotting.
+    rows = []
     
-    # Convert results to serializable format
-    serializable_results = {}
-    for window, result in results_by_window.items():
-        serializable_results[str(window)] = str(result)
-    
-    with open(results_file, 'w') as f:
-        json.dump(serializable_results, f, indent=4)
-    
+    for window_center, roi_dict in results_by_window.items():
+        for roi, anova_table in roi_dict.items():
+            df_out = anova_table.reset_index().rename(columns={'index': 'term'})
+            df_out['window_center'] = window_center
+            df_out['roi'] = roi
+            rows.append(df_out)
+            
+    pd.concat(rows, ignore_index=True).to_csv(
+        os.path.join(save_dir, f'{save_name}_windowed_anova_{anova_type}.csv'), 
+        index=False
+    )
+
     return results_by_window
 
 def apply_fdr_correction_to_windowed_results(results_by_window, alpha=0.05):
@@ -1285,7 +1289,7 @@ def _draw_cluster_bar(ax, times, mask, y, color='black', linewidth=6,
 
 def _generate_16_condition_colors(condition_names, conditions_obj,
                                    factors=('congruency', 'congruencyProportion',
-                                            'switchType', 'switchProportion')):
+                                            'switchType', 'switchProportion')): # TODO: oh jesus this is so unnecessarily complicated, just pick some colors dude. Drop this function.
     """Build a structured color map for 16 conditions in a 2x2x2x2 design.
 
     Strategy: hue from congruency × congruencyProportion (4 hues),
@@ -1513,13 +1517,13 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
     # (always shown — the bars are uninterpretable without it).
     trace_legend = None
     if s.get('show_legend', True):
-        trace_legend = ax.legend(loc='lower right', framealpha=0.9, ncol=2,
+        trace_legend = ax.legend(loc='lower left', framealpha=0.9, ncol=2,
                                  fontsize=max(6, s.get('legend_font_size', 10) - 2))
     if bar_legend_handles:
         if trace_legend is not None:
             ax.add_artist(trace_legend)  # keep both legends visible
         ax.legend(bar_legend_handles, bar_legend_labels,
-                  loc='upper right', framealpha=0.9,
+                  loc='lower right', framealpha=0.9,
                   title='2-way interaction clusters',
                   fontsize=s.get('legend_font_size', 10))
 
