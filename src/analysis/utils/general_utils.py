@@ -2255,3 +2255,9 @@ def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s")
         crop_list.append(raw.copy().crop(tmin=t_min, tmax=t_max))
     
     return mne.concatenate_raws(crop_list)
+
+def _subdir(dir, subfolder):
+    """Return {dir}/{subfolder}/, creating it if missing."""
+    out = os.path.join(dir, subfolder)
+    os.makedirs(out, exist_ok=True)
+    return out

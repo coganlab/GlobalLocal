@@ -293,7 +293,7 @@ def main(args):
             if evk is not None:
                 np.savez(
                     os.path.join(
-                        save_dir, roi,
+                        utils._subdir(save_dir, roi),
                         f'{conditions_save_name}_{condition_name}_{roi}_evoked.npz'
                     ),
                     data=evk.data, times=evk.times, ch_names=evk.ch_names
@@ -301,7 +301,7 @@ def main(args):
 
     if significant_clusters:
         np.savez(
-            os.path.join(save_dir, roi,
+            os.path.join(utils._subdir(save_dir, roi),
                          f'{conditions_save_name}_significant_clusters.npz'),
             **significant_clusters
         )
@@ -312,7 +312,7 @@ def main(args):
             for inter_name, info in by_inter.items():
                 np.savez(
                     os.path.join(
-                        save_dir, roi,
+                        utils._subdir(save_dir, roi),
                         f'{conditions_save_name}_{roi}_{inter_name}_interaction_cluster.npz'
                     ),
                     mask=info['mask'],
@@ -323,13 +323,11 @@ def main(args):
     if args.statistical_method == 'anova':
         # Save the full ANOVA F-traces too (all 16 effects for stimulus_experiment_conditions, not just the 4 plotted)
         try:
-            anova_save_dir = os.path.join(save_dir, 'anova_F_traces')
-            os.makedirs(anova_save_dir, exist_ok=True)
             for roi, by_effect in anova_cluster_results.items():
                 for eff, info in by_effect.items():
                     safe_eff = eff.replace(':', '_x_').replace('C(', '').replace(')', '')
                     np.savez(
-                        os.path.join(anova_save_dir, roi,
+                        os.path.join(utils._subdir(save_dir, 'anova_F_traces'),
                                      f'{conditions_save_name}_{roi}_{safe_eff}.npz'),
                         observed_F=info['observed_F'],
                         null_F=info['null_F'],
