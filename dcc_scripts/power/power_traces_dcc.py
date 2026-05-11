@@ -321,7 +321,7 @@ def main(args):
                 )
                 
     if args.statistical_method == 'anova':
-        # Save the full ANOVA F-traces too (all 16 effects, not just the 4 plotted)
+        # Save the full ANOVA F-traces too (all 16 effects for stimulus_experiment_conditions, not just the 4 plotted)
         try:
             anova_save_dir = os.path.join(save_dir, 'anova_F_traces')
             os.makedirs(anova_save_dir, exist_ok=True)
