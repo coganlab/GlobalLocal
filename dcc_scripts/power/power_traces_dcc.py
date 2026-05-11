@@ -293,7 +293,7 @@ def main(args):
             if evk is not None:
                 np.savez(
                     os.path.join(
-                        save_dir,
+                        save_dir, roi,
                         f'{conditions_save_name}_{condition_name}_{roi}_evoked.npz'
                     ),
                     data=evk.data, times=evk.times, ch_names=evk.ch_names
@@ -301,7 +301,7 @@ def main(args):
 
     if significant_clusters:
         np.savez(
-            os.path.join(save_dir,
+            os.path.join(save_dir, roi,
                          f'{conditions_save_name}_significant_clusters.npz'),
             **significant_clusters
         )
@@ -312,7 +312,7 @@ def main(args):
             for inter_name, info in by_inter.items():
                 np.savez(
                     os.path.join(
-                        save_dir,
+                        save_dir, roi,
                         f'{conditions_save_name}_{roi}_{inter_name}_interaction_cluster.npz'
                     ),
                     mask=info['mask'],
@@ -329,7 +329,7 @@ def main(args):
                 for eff, info in by_effect.items():
                     safe_eff = eff.replace(':', '_x_').replace('C(', '').replace(')', '')
                     np.savez(
-                        os.path.join(anova_save_dir,
+                        os.path.join(anova_save_dir, roi,
                                      f'{conditions_save_name}_{roi}_{safe_eff}.npz'),
                         observed_F=info['observed_F'],
                         null_F=info['null_F'],

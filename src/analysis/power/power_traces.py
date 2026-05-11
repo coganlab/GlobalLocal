@@ -644,6 +644,10 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, condi
         os.makedirs(save_dir, exist_ok=True)
     
     for roi in rois:
+        roi_save_dir = os.path.join(save_dir, roi)
+        if roi_save_dir:
+            os.makedirs(roi_save_dir, exist_ok=True)
+            
         clusters_for_this_roi = None
         if significant_clusters is not None:
             # Look up the specific mask for this ROI
@@ -653,7 +657,7 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, condi
         plot_power_trace_for_roi(
             evks_dict_elecs, roi, condition_names, conditions_save_name, 
             plotting_parameters, window_size=window_size, sampling_rate=sampling_rate,
-            significant_clusters=clusters_for_this_roi, save_dir=save_dir,
+            significant_clusters=clusters_for_this_roi, save_dir=roi_save_dir,
             show_std=(error_type == 'std'), 
             show_sem=(error_type == 'sem'),
             show_ci=(error_type == 'ci'),
@@ -1551,10 +1555,14 @@ def plot_anova_interaction_results(
     one 4-trace plot per 2-way interaction.
     """
     for roi in rois:
+        roi_save_dir = os.path.join(save_dir, roi)
+        if roi_save_dir:
+            os.makedirs(roi_save_dir, exist_ok=True)
+            
         plot_16_conditions_with_interaction_clusters_for_roi(
             evks_dict, roi, conditions_obj, condition_names, conditions_save_name,
             interaction_results, anova_interactions,
-            plot_style=plot_style, save_dir=save_dir,
+            plot_style=plot_style, save_dir=roi_save_dir,
             save_name_suffix=save_name_suffix, error_type=error_type,
         )
         for inter in anova_interactions:
@@ -1564,7 +1572,7 @@ def plot_anova_interaction_results(
             plot_2way_interaction_for_roi(
                 evks_dict, roi, conditions_obj, f1, f2, mask,
                 conditions_save_name,
-                plot_style=plot_style, save_dir=save_dir,
+                plot_style=plot_style, save_dir=roi_save_dir,
                 save_name_suffix=save_name_suffix, error_type=error_type,
                 interaction_label=inter.get('label'),
             )

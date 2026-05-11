@@ -129,6 +129,14 @@ CONDITION_REGISTRY = {
             'significance_label_1': '25% > 75% I',
             'significance_label_2': '75% > 25% I',
         },
+        'anova_factors': ['congruency', 'congruencyProportion'],
+        'anova_interactions': [
+            {
+                'name': 'congruency_x_congruencyProportion',
+                'factors': ['congruency', 'congruencyProportion'],
+                'label': 'Congruency × Inc. Proportion (LWPC)',
+            },
+        ],
     },
 
     'stimulus_lwps_conditions': {
@@ -170,6 +178,14 @@ CONDITION_REGISTRY = {
             'significance_label_1': '25% > 75% S',
             'significance_label_2': '75% > 25% S',
         },
+        'anova_factors': ['switchType', 'switchProportion'],
+        'anova_interactions': [
+            {
+                'name': 'switchType_x_switchProportion',
+                'factors': ['switchType', 'switchProportion'],
+                'label': 'Switch Type × Switch Proportion (LWPS)',
+            },
+        ],
     },
 
     # =========================================================================
@@ -285,6 +301,14 @@ CONDITION_REGISTRY = {
             'significance_label_1': 'C/I (25% S) > C/I (75% S)',
             'significance_label_2': 'C/I (75% S) > C/I (25% S)',
         },
+        'anova_factors': ['congruency', 'switchProportion'],
+        'anova_interactions': [
+            {
+                'name': 'congruency_x_switchProportion',
+                'factors': ['congruency', 'switchProportion'],
+                'label': 'Congruency × Switch Proportion',
+            },
+        ],
     },
 
     'stimulus_switch_type_by_congruency_proportion_conditions': {
@@ -322,6 +346,14 @@ CONDITION_REGISTRY = {
             'significance_label_1': 'S/R (25% I) > S/R (75% I)',
             'significance_label_2': 'S/R (75% I) > S/R (25% I)',
         },
+        'anova_factors': ['switchType', 'congruencyProportion'],
+        'anova_interactions': [
+            {
+                'name': 'switchType_x_congruencyProportion',
+                'factors': ['switchType', 'congruencyProportion'],
+                'label': 'Switch Type × Inc. Proportion',
+            },
+        ],
     },
 
     # =========================================================================
