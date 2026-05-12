@@ -1944,18 +1944,18 @@ def run_windowed_anova_cluster_correction(
                     sub_pi = _split_clusters_at_sign_flips(raw_pi, null_sg[pi])
                 else:
                     sub_pi = [{'start': s, 'end': e, 'sign': 0} for s, e in raw_pi]
-                masses_pi = [null[pi, c['start']:c['end'] + 1].sum() for c in sub_pi] or [0.0]
-                null_max_masses.append(max(masses_pi))
+                extents_pi = [c['end'] - c['start'] + 1 for c in sub_pi] or [0]
+                null_max_masses.append(max(extents_pi))   # rename to null_max_extents if you want clarity
             null_max_masses = np.array(null_max_masses)
             mass_thresh = np.percentile(null_max_masses, cluster_percentile)
 
             # 4. Filter observed sub-clusters by mass and compute p per cluster
             sig_subs = []
             for c in obs_split:
-                m = float(obs[c['start']:c['end'] + 1].sum())
+                m = c['end'] - c['start'] + 1   # cluster extent in windows
                 p = float((null_max_masses >= m).mean())
                 if m > mass_thresh:
-                    sig_subs.append({**c, 'mass': m, 'p_value': p})
+                    sig_subs.append({**c, 'extent': m, 'p_value': p})
 
             # 5. Build masks for plotting -- split into pos / neg if sign-aware
             window_mask = np.zeros(n_windows, dtype=bool)
