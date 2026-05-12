@@ -311,8 +311,8 @@ CONDITION_REGISTRY = {
         ],
     },
 
-    'stimulus_switch_type_by_congruency_proportion_conditions': {
-        'conditions_obj': experiment_conditions.stimulus_switch_type_by_congruency_proportion_conditions,
+    'stimulus_switch_type_by_incongruent_proportion_conditions': {
+        'conditions_obj': experiment_conditions.stimulus_switch_type_by_incongruent_proportion_conditions,
         'comparisons': {
             's_in_25incongruentBlock_vs_r_in_25incongruentBlock': ['Stimulus_s_in_25incongruentBlock', 'Stimulus_r_in_25incongruentBlock'],
             's_in_75incongruentBlock_vs_r_in_75incongruentBlock': ['Stimulus_s_in_75incongruentBlock', 'Stimulus_r_in_75incongruentBlock'],
@@ -323,24 +323,24 @@ CONDITION_REGISTRY = {
         },
         'pooled_shuffle': [
             {
-                'key': 'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+                'key': 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
                 'strings_to_find': [['s_in'], ['r_in']],
             },
         ],
         'context_comparison': {
-            'condition_name': 'switch_type_by_congruency_proportion',
+            'condition_name': 'switch_type_by_incongruent_proportion',
             'condition_comparison_1': 's_in_25incongruentBlock_vs_r_in_25incongruentBlock',
             'condition_comparison_2': 's_in_75incongruentBlock_vs_r_in_75incongruentBlock',
-            'pooled_shuffle_key': 'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+            'pooled_shuffle_key': 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#FF7E79',
                 's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#FF7E79',
-                'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
+                'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',
                 's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '--',
-                'switch_type_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
+                'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Switch Type Decoding Accuracy',
             'significance_label_1': 'S/R (25% I) > S/R (75% I)',
@@ -360,8 +360,8 @@ CONDITION_REGISTRY = {
     # 6. Task by Proportion Blocks
     # =========================================================================
 
-    'stimulus_task_by_congruency_proportion_conditions': {
-        'conditions_obj': experiment_conditions.stimulus_task_by_congruency_proportion_conditions,
+    'stimulus_task_by_incongruent_proportion_conditions': {
+        'conditions_obj': experiment_conditions.stimulus_task_by_incongruent_proportion_conditions,
         'comparisons': {
             'taskG_in_25incongruentBlock_vs_taskG_in_75incongruentBlock': ['Stimulus_taskG_in_25incongruentBlock', 'Stimulus_taskG_in_75incongruentBlock'],
             'taskL_in_25incongruentBlock_vs_taskL_in_75incongruentBlock': ['Stimulus_taskL_in_25incongruentBlock', 'Stimulus_taskL_in_75incongruentBlock'],
@@ -370,24 +370,24 @@ CONDITION_REGISTRY = {
         },
         'pooled_shuffle': [
             {
-                'key': 'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+                'key': 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
                 'strings_to_find': [['taskG'], ['taskL']],
             },
         ],
         'context_comparison': {
-            'condition_name': 'task_by_congruency_proportion',
+            'condition_name': 'task_by_incongruent_proportion',
             'condition_comparison_1': 'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock',
             'condition_comparison_2': 'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock',
-            'pooled_shuffle_key': 'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions',
+            'pooled_shuffle_key': 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '#05B0F0',
                 'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '#05B0F0',
-                'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
+                'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '-',
                 'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '--',
-                'task_by_congruency_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
+                'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Task Decoding Accuracy',
             'significance_label_1': 'Task (25% I) > Task (75% I)',
@@ -636,8 +636,8 @@ CONDITION_REGISTRY = {
         'conditions_obj': experiment_conditions.response_congruency_by_switch_proportion_conditions,
         'comparisons': {},
     },
-    'response_switch_type_by_congruency_proportion_conditions': {
-        'conditions_obj': experiment_conditions.response_switch_type_by_congruency_proportion_conditions,
+    'response_switch_type_by_incongruent_proportion_conditions': {
+        'conditions_obj': experiment_conditions.response_switch_type_by_incongruent_proportion_conditions,
         'comparisons': {},
     },
     'response_iR_cS_err_conditions': {

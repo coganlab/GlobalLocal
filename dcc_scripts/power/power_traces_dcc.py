@@ -226,6 +226,7 @@ def main(args):
             percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
             cluster_percentile=int(100 * (1 - args.p_cluster)),
             seed=42, n_jobs=args.n_jobs, verbose=True,
+            split_anova_clusters_by_sign=args.split_anova_clusters_by_sign
         )
 
         # Adapt into the structure the mega-plot expects, picking out the four 2-ways

@@ -72,6 +72,7 @@ STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
+SPLIT_ANOVA_CLUSTERS_BY_SIGN = True
 
 if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
@@ -103,7 +104,7 @@ TAILS=2
 # anova_factors, anova_interactions, etc.
 # Example labels: 'stimulus_err_corr_conditions', 'stimulus_lwpc_conditions',
 # 'stimulus_experiment_conditions' (16-cell ANOVA).
-CONDITION_LABEL = 'stimulus_experiment_conditions'
+CONDITION_LABEL = 'stimulus_lwpc_conditions'
 
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
@@ -179,12 +180,12 @@ PLOT_STYLE = {
 }
 
 # # # # testing params (comment out)
-# SUBJECTS = ['D0103']
-# N_PERM = 2
-# N_JOBS = 1
-# ROIS_DICT = {
-#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-# }
+SUBJECTS = ['D0103']
+N_PERM = 2
+N_JOBS = 1
+ROIS_DICT = {
+  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+}
 
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
@@ -211,6 +212,7 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
+        split_anova_clusters_by_sign=SPLIT_ANOVA_CLUSTERS_BY_SIGN,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
@@ -218,7 +220,6 @@ def run_analysis():
         tails=TAILS,
         plot_style=PLOT_STYLE,
         save_dir=SAVE_DIR
-
     )
 
     # Print configuration summary
@@ -244,6 +245,7 @@ def run_analysis():
     print("ANOVA Parameters:")
     print(f"  Window Size: {WINDOW_SIZE}")
     print(f"  Step Size: {STEP_SIZE}")
+    print(f"  Split ANOVA Clusters By Sign: {SPLIT_ANOVA_CLUSTERS_BY_SIGN}")
     print("=" * 70)
     
     print('plotting parameters:')

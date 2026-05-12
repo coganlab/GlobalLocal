@@ -34,6 +34,7 @@ import pandas as pd
 from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from joblib import Parallel, delayed
+import re
 from src.analysis.decoding.decoding import (
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
 )
@@ -735,7 +736,101 @@ def time_perm_cluster_between_two_evokeds(evoked_cond1, evoked_cond2, p_thresh=0
                                     verbose=verbose)
     
     return clusters, p_obs
-    
+
+import re
+
+def _parse_effect_factors(effect_name):
+    """Parse a statsmodels effect name into factor names.
+
+    'C(congruency)'                            -> ('congruency',)
+    'C(congruency):C(incongruentProportion)'   -> ('congruency', 'incongruentProportion')
+    Anything else / 3-way+ interactions        -> caller decides (we return the tuple as-is).
+    """
+    factors = re.findall(r'C\(([^)]+)\)', effect_name)
+    return tuple(factors) if factors else None
+
+
+def _signed_contrast_per_window(df_window, effect_name, anova_factors):
+    """Signed scalar contrast for one effect in one time window.
+
+    Main effect (one 2-level factor):
+        Δ = mean[level0] - mean[level1]              (levels sorted alphabetically)
+    Two-way 2x2 interaction:
+        Δ = (mean[A0,B0] - mean[A1,B0]) - (mean[A0,B1] - mean[A1,B1])
+
+    Returns NaN for 3-way+ interactions or non-2-level factors (sign is undefined
+    without a canonical contrast vector). Cluster correction for those effects
+    will fall back to un-split behavior.
+    """
+    factors = _parse_effect_factors(effect_name)
+    if factors is None or len(factors) > 2:
+        return np.nan
+
+    if len(factors) == 1:
+        f = factors[0]
+        if f not in df_window.columns:
+            return np.nan
+        levels = sorted(df_window[f].dropna().unique())
+        if len(levels) != 2:
+            return np.nan
+        m0 = df_window[df_window[f] == levels[0]]['Activity'].mean()
+        m1 = df_window[df_window[f] == levels[1]]['Activity'].mean()
+        return m0 - m1
+
+    f1, f2 = factors
+    if f1 not in df_window.columns or f2 not in df_window.columns:
+        return np.nan
+    levels1 = sorted(df_window[f1].dropna().unique())
+    levels2 = sorted(df_window[f2].dropna().unique())
+    if len(levels1) != 2 or len(levels2) != 2:
+        return np.nan
+    def cell(l1, l2):
+        return df_window[(df_window[f1] == l1) & (df_window[f2] == l2)]['Activity'].mean()
+    return ((cell(levels1[0], levels2[0]) - cell(levels1[1], levels2[0]))
+          - (cell(levels1[0], levels2[1]) - cell(levels1[1], levels2[1])))
+
+
+def _find_contiguous_runs(mask):
+    """Inclusive (start, end) pairs for every contiguous True run in a 1-D bool array."""
+    runs = []
+    in_run = False
+    for i, v in enumerate(mask):
+        if v and not in_run:
+            in_run = True
+            start = i
+        elif not v and in_run:
+            in_run = False
+            runs.append((start, i - 1))
+    if in_run:
+        runs.append((start, len(mask) - 1))
+    return runs
+
+def _split_clusters_at_sign_flips(raw_clusters, sign_trace):
+    """Split each (start, end) cluster at indices where sign(trace) changes.
+
+    Zeros and NaNs are treated as "uncertain" and break runs without contributing
+    to either side. Returns list of dicts: {'start', 'end', 'sign': +1/-1}.
+    """
+    out = []
+    for s, e in raw_clusters:
+        if e < s:
+            continue
+        seg = np.sign(np.nan_to_num(sign_trace[s:e + 1], nan=0.0)).astype(int)
+        start = None; cur_sign = 0
+        for i, sg in enumerate(seg):
+            if sg == 0:
+                if start is not None:
+                    out.append({'start': s + start, 'end': s + i - 1, 'sign': cur_sign})
+                    start = None; cur_sign = 0
+                continue
+            if start is None:
+                start = i; cur_sign = sg
+            elif sg != cur_sign:
+                out.append({'start': s + start, 'end': s + i - 1, 'sign': cur_sign})
+                start = i; cur_sign = sg
+        if start is not None:
+            out.append({'start': s + start, 'end': s + len(seg) - 1, 'sign': cur_sign})
+    return out
 
 def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois, subjects, 
                                     electrodes_per_subject_roi, window_size=64, 
@@ -1428,18 +1523,35 @@ def plot_2way_interaction_for_roi(
                 err = None
             if err is not None:
                 ax.fill_between(times, mean_data - err, mean_data + err,
-                                color=color, alpha=0.15 * alpha, linewidth=0)
+                                color=color, alpha=0.15, linewidth=0)
 
     # Overlay cluster bar at top of plot
-    if interaction_mask is not None and np.any(interaction_mask):
+    # === Sign-aware cluster bars: positive (red) above, negative (blue) below. ===
+    if interaction_mask is not None:
+        # interaction_mask may be a (n_times,) bool array (back-compat) or a dict
+        # {'pos': bool[n_times], 'neg': bool[n_times]} from the sign-aware path.
         ylim = ax.get_ylim() if s.get('ylim') is None else s['ylim']
-        bar_y = s.get('sig_cluster_height', ylim[1] - (ylim[1] - ylim[0]) * 0.05)
-        _draw_cluster_bar(ax, times, interaction_mask, y=bar_y,
-                          color='black', linewidth=8)
-        center_idx = np.where(interaction_mask)[0]
-        if len(center_idx):
-            ax.text(times[int(np.median(center_idx))], bar_y + 0.01, '*',
-                    ha='center', va='bottom', fontsize=20)
+        span = ylim[1] - ylim[0]
+        bar_y_top = s.get('sig_cluster_height', ylim[1] - span * 0.04)
+        bar_y_step = span * 0.04
+
+        if isinstance(interaction_mask, dict):
+            bar_specs = [
+                (interaction_mask.get('pos'),  '#D62728', 0, '+ direction'),
+                (interaction_mask.get('neg'),  '#1F77B4', 1, '- direction'),
+            ]
+        else:
+            bar_specs = [(interaction_mask, 'black', 0, None)]
+
+        for mask, color, offset, label in bar_specs:
+            if mask is None or not np.any(mask):
+                continue
+            y_here = bar_y_top - offset * bar_y_step
+            _draw_cluster_bar(ax, times, mask, y=y_here, color=color, linewidth=8)
+            center_idx = np.where(mask)[0]
+            if len(center_idx) and label:
+                ax.text(times[int(np.median(center_idx))], y_here + span * 0.005,
+                        '*', ha='center', va='bottom', fontsize=18, color=color)
 
     apply_plot_style(ax, roi, plot_style)
     # Always show the 4-trace legend on per-interaction plots — the 4 cells are
@@ -1482,6 +1594,7 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
     times = None
     colors = _generate_16_condition_colors(condition_names, conditions_obj)
 
+    default_style = {'color': 'black', 'linestyle': '-', 'linewidth': 1.5, 'alpha': 1.0}
     for cname in condition_names:
         evk = evks_dict.get(cname, {}).get(roi)
         if evk is None or evk.data.shape[0] == 0:
@@ -1491,56 +1604,58 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
         data = evk.data
         mean_data = np.mean(data, axis=0)
         n = data.shape[0]
-        color = colors.get(cname, 'black')
-        ax.plot(times, mean_data, color=color, linewidth=1.5,
+        style = colors.get(cname, default_style)
+        ax.plot(times, mean_data,
+                color=style['color'], linestyle=style['linestyle'],
+                linewidth=style['linewidth'], alpha=style['alpha'],
                 label=cname.replace('Stimulus_', ''))
         if error_type == 'sem' and n > 1:
             err = np.std(data, axis=0) / np.sqrt(n)
             ax.fill_between(times, mean_data - err, mean_data + err,
-                            color=color, alpha=0.10, linewidth=0)
+                            color=style['color'],
+                            alpha=0.10 * style['alpha'], linewidth=0)
 
     if times is None:
         plt.close(fig)
         return None
 
-    # Stack 4 cluster bars at the top of the panel.
+    # === Per-interaction sign-aware bars: red for +, blue for -. Stack vertically. ===
     ylim = s.get('ylim') if s.get('ylim') is not None else ax.get_ylim()
-    y_top = ylim[1]
-    y_bottom = ylim[0]
+    y_top = ylim[1]; y_bottom = ylim[0]
     span = y_top - y_bottom
-    # Reserve top 16% of axis for 4 cluster bars + labels
     bar_band_top = y_top - span * 0.02
-    bar_band_bottom = y_top - span * 0.16
-    n_bars = max(len(anova_interactions), 1)
-    bar_ys = np.linspace(bar_band_top, bar_band_bottom, n_bars)
-    # Distinct, perceptually-separated colors for the 4 cluster bars
-    # (ColorBrewer Set1, dropping yellow/orange which collide with the
-    # 16-condition trace palette).
-    bar_palette = ['#e41a1c', '#377eb8', '#4daf4a', '#984ea3',
-                   '#ff7f00', '#a65628']
-    bar_colors = [bar_palette[i % len(bar_palette)] for i in range(n_bars)]
+    bar_band_bottom = y_top - span * 0.20  # slightly wider to fit 2 bars per interaction
+    n_inter = max(len(anova_interactions), 1)
+    n_bar_slots = 2 * n_inter  # one slot per (interaction, sign)
+    bar_ys = np.linspace(bar_band_top, bar_band_bottom, n_bar_slots)
+
+    POS_COLOR = '#D62728'   # red:  contrast direction +
+    NEG_COLOR = '#1F77B4'   # blue: contrast direction -
 
     res_for_roi = interaction_results.get(roi, {})
     bar_legend_handles = []
     bar_legend_labels = []
-    for i, inter in enumerate(anova_interactions):
-        name = inter['name']
-        info = res_for_roi.get(name)
+    slot = 0
+    for inter in anova_interactions:
+        info = res_for_roi.get(inter['name'])
         if info is None:
+            slot += 2
             continue
-        mask = info['mask']
-        bar_color = bar_colors[i % len(bar_colors)]
-        # No per-bar text label — the legend below handles labeling instead.
-        _draw_cluster_bar(ax, times, mask, y=bar_ys[i],
-                          color=bar_color, linewidth=7,
-                          label=None, label_x=None)
-        bar_legend_handles.append(
-            Line2D([0], [0], color=bar_color, linewidth=7)
-        )
-        bar_legend_labels.append(info.get('label', name))
+        pos_mask = info.get('pos_sample_mask', info.get('pos_window_mask'))
+        neg_mask = info.get('neg_sample_mask', info.get('neg_window_mask'))
+        label_base = info.get('label', inter['name']) if isinstance(info, dict) else inter['name']
+
+        for mask, color, sign_label in [(pos_mask, POS_COLOR, '+'),
+                                        (neg_mask, NEG_COLOR, '-')]:
+            if mask is not None and np.any(mask):
+                _draw_cluster_bar(ax, times, mask, y=bar_ys[slot],
+                                  color=color, linewidth=7,
+                                  label=None, label_x=None)
+                bar_legend_handles.append(Line2D([0], [0], color=color, linewidth=7))
+                bar_legend_labels.append(f'{label_base} ({sign_label})')
+            slot += 1
 
     apply_plot_style(ax, roi, plot_style)
-    # Force ylim to leave room for bars if not user-set
     if s.get('ylim') is None:
         ax.set_ylim(y_bottom, y_top)
 
@@ -1573,7 +1688,6 @@ def plot_16_conditions_with_interaction_clusters_for_roi(
     plt.close(fig)
     return fig
 
-
 def plot_anova_interaction_results(
     evks_dict, conditions_obj, condition_names, conditions_save_name,
     rois, anova_interactions, interaction_results,
@@ -1592,9 +1706,16 @@ def plot_anova_interaction_results(
         for inter in anova_interactions:
             f1, f2 = inter['factors']
             info = interaction_results.get(roi, {}).get(inter['name'])
-            mask = info['mask'] if info is not None else None
+            if info is not None and ('pos_sample_mask' in info or 'pos_window_mask' in info):
+                # Prefer sample-resolution masks if both shapes are available
+                mask_arg = {
+                    'pos': info.get('pos_sample_mask', info.get('pos_window_mask')),
+                    'neg': info.get('neg_sample_mask', info.get('neg_window_mask')),
+                }
+            else:
+                mask_arg = info['mask'] if info is not None else None
             plot_2way_interaction_for_roi(
-                evks_dict, roi, conditions_obj, f1, f2, mask,
+                evks_dict, roi, conditions_obj, f1, f2, mask_arg,
                 conditions_save_name,
                 plot_style=plot_style, save_dir=_subdir(save_dir, roi),
                 save_name_suffix=save_name_suffix, error_type=error_type,
@@ -1637,12 +1758,12 @@ def _shuffle_labels_within_electrode(df_one_window, factor_columns, rng):
         for col in factor_columns:
             df.loc[idxs, col] = df.loc[idxs[perm], col].values
     return df
-
-
+ 
 def run_windowed_anova_cluster_correction(
     windowed_data, conditions_obj, anova_factors, rois, subjects,
     electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
     n_perm=1000, percentile=95, cluster_percentile=95,
+    split_anova_clusters_by_sign=True,                    
     seed=42, n_jobs=-1, verbose=True,
 ):
     """Windowed full-ANOVA + cluster correction.
@@ -1742,7 +1863,15 @@ def run_windowed_anova_cluster_correction(
                 continue
             for ei, eff in enumerate(effect_names):
                 observed_F[ei, wi] = f_dict.get(eff, np.nan)
-
+                
+        # === Compute signed contrast trace per effect alongside observed F ===
+        observed_sign = np.full((len(effect_names), n_windows), np.nan)
+        if split_anova_clusters_by_sign:
+            for wi, w in enumerate(window_indices):
+                df_w = df_agg[df_agg['WindowIndex'] == w]
+                for ei, eff in enumerate(effect_names):
+                    observed_sign[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
+                    
         # === Permutation null ===
         # We shuffle factor labels per electrode once per perm (same shuffle for all windows),
         # since each electrode contributes independent rows per window.
@@ -1751,18 +1880,15 @@ def run_windowed_anova_cluster_correction(
 
         def _one_perm(perm_seed):
             rng = np.random.RandomState(perm_seed)
-            # Build a single shuffle map per (subject, electrode) that we apply at every window
             shuffle_map = {}
             for (sub, elec), grp in df_agg[df_agg['WindowIndex'] == window_indices[0]] \
                     .groupby(['SubjectID', 'Electrode']):
                 n_cells = len(grp)
                 shuffle_map[(sub, elec)] = rng.permutation(n_cells)
-
-            # Apply the same shuffle to every window
             null_F_perm = np.full((len(effect_names), n_windows), np.nan)
+            null_sign_perm = np.full((len(effect_names), n_windows), np.nan)   # === NEW ===
             for wi, w in enumerate(window_indices):
                 df_w = df_agg[df_agg['WindowIndex'] == w].copy().reset_index(drop=True)
-                # For each (sub, elec), permute the factor columns in place using shuffle_map
                 for (sub, elec), idxs in df_w.groupby(['SubjectID', 'Electrode']).groups.items():
                     perm = shuffle_map.get((sub, elec))
                     if perm is None or len(perm) != len(idxs):
@@ -1775,56 +1901,94 @@ def run_windowed_anova_cluster_correction(
                     continue
                 for ei, eff in enumerate(effect_names):
                     null_F_perm[ei, wi] = f_dict.get(eff, np.nan)
-            return null_F_perm
+                    if split_anova_clusters_by_sign:
+                        null_sign_perm[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
+            return null_F_perm, null_sign_perm                                  # === CHANGED ===
 
-        if verbose:
-            print(f"[anova-cluster]   running {n_perm} permutations across {n_windows} windows "
-                  f"({len(effect_names)} effects)")
-        null_F_list = Parallel(n_jobs=n_jobs, verbose=5 if verbose else 0)(
+        # === unpack tuples from joblib ===
+        perm_results = Parallel(n_jobs=n_jobs, verbose=5 if verbose else 0)(
             delayed(_one_perm)(s) for s in seeds
         )
-        null_F = np.stack(null_F_list, axis=0)  # (n_perm, n_effects, n_windows)
+        null_F   = np.stack([r[0] for r in perm_results], axis=0)   # (n_perm, n_effects, n_windows)
+        null_sign = np.stack([r[1] for r in perm_results], axis=0)  # same shape
 
-        # === Cluster correction per effect ===
+        # === Per-effect sign-aware cluster correction ===
         results[roi] = {}
         for ei, eff in enumerate(effect_names):
-            obs = observed_F[ei]                  # (n_windows,)
-            null = null_F[:, ei, :]               # (n_perm, n_windows)
+            obs    = np.nan_to_num(observed_F[ei], nan=0.0)
+            null   = np.nan_to_num(null_F[:, ei, :], nan=0.0)
+            obs_sg = observed_sign[ei]                  # may be all NaN for 3-way+
+            null_sg = null_sign[:, ei, :] if split_anova_clusters_by_sign else None
 
-            # Replace NaNs (failed fits) with zeros so they never form clusters
-            obs_clean = np.nan_to_num(obs, nan=0.0)
-            null_clean = np.nan_to_num(null, nan=0.0)
+            # 1. Per-window pointwise threshold from the null distribution
+            pointwise_thresh = np.nanpercentile(null, percentile, axis=0)  # (n_windows,)
 
-            sig_clusters_windows = find_significant_clusters_of_series_vs_distribution_based_on_percentile(
-                series=obs_clean,
-                distribution=null_clean,
-                time_points=window_centers,
-                percentile=percentile,
-                cluster_percentile=cluster_percentile,
-                n_cluster_perms=n_perm,
-                random_state=seed,
-            )
+            # 2. Raw observed clusters (contiguous windows above threshold)
+            above_thresh = obs > pointwise_thresh
+            raw_obs_clusters = _find_contiguous_runs(above_thresh)
 
+            # Branch: do we have a usable sign trace?
+            do_split = (split_anova_clusters_by_sign and np.any(np.isfinite(obs_sg)))
+
+            if do_split:
+                obs_split = _split_clusters_at_sign_flips(raw_obs_clusters, obs_sg)
+            else:
+                obs_split = [{'start': s, 'end': e, 'sign': 0} for s, e in raw_obs_clusters]
+
+            # 3. Null cluster-mass distribution -- split nulls the SAME way
+            null_max_masses = []
+            for pi in range(null.shape[0]):
+                above_pi = null[pi] > pointwise_thresh
+                raw_pi = _find_contiguous_runs(above_pi)
+                if do_split:
+                    sub_pi = _split_clusters_at_sign_flips(raw_pi, null_sg[pi])
+                else:
+                    sub_pi = [{'start': s, 'end': e, 'sign': 0} for s, e in raw_pi]
+                masses_pi = [null[pi, c['start']:c['end'] + 1].sum() for c in sub_pi] or [0.0]
+                null_max_masses.append(max(masses_pi))
+            null_max_masses = np.array(null_max_masses)
+            mass_thresh = np.percentile(null_max_masses, cluster_percentile)
+
+            # 4. Filter observed sub-clusters by mass and compute p per cluster
+            sig_subs = []
+            for c in obs_split:
+                m = float(obs[c['start']:c['end'] + 1].sum())
+                p = float((null_max_masses >= m).mean())
+                if m > mass_thresh:
+                    sig_subs.append({**c, 'mass': m, 'p_value': p})
+
+            # 5. Build masks for plotting -- split into pos / neg if sign-aware
             window_mask = np.zeros(n_windows, dtype=bool)
-            for s, e in sig_clusters_windows:
-                window_mask[s:e + 1] = True
+            pos_window_mask = np.zeros(n_windows, dtype=bool)
+            neg_window_mask = np.zeros(n_windows, dtype=bool)
+            for c in sig_subs:
+                window_mask[c['start']:c['end'] + 1] = True
+                if c['sign'] > 0:
+                    pos_window_mask[c['start']:c['end'] + 1] = True
+                elif c['sign'] < 0:
+                    neg_window_mask[c['start']:c['end'] + 1] = True
 
-            sample_mask = np.zeros(n_times, dtype=bool)
-            for s, e in sig_clusters_windows:
-                first = win_to_samples[s][0]
-                last = win_to_samples[e][1]
-                sample_mask[first:last + 1] = True
+            # 6. Expand window-level masks to sample-level (for time-axis plots)
+            def _expand(mask_w):
+                m = np.zeros(n_times, dtype=bool)
+                for s, e in _find_contiguous_runs(mask_w):
+                    sa, _ = win_to_samples[s]
+                    _, eb = win_to_samples[e]
+                    m[sa:eb + 1] = True
+                return m
 
             results[roi][eff] = {
-                'observed_F': obs,
-                'null_F': null,
-                'sig_clusters_windows': sig_clusters_windows,
-                'window_mask': window_mask,
-                'sample_mask': sample_mask,
+                'observed_F': observed_F[ei],
+                'null_F':     null_F[:, ei, :],
+                'signed_contrast':  obs_sg,              # (n_windows,) -- the Δ trace
+                'window_mask':      window_mask,          # union (back-compat)
+                'pos_window_mask':  pos_window_mask,
+                'neg_window_mask':  neg_window_mask,
+                'sample_mask':      _expand(window_mask),
+                'pos_sample_mask':  _expand(pos_window_mask),
+                'neg_sample_mask':  _expand(neg_window_mask),
+                'sig_clusters_with_sign': sig_subs,       # list of dicts
             }
-            if verbose and sig_clusters_windows:
-                print(f"[anova-cluster]   {eff}: {len(sig_clusters_windows)} cluster(s), "
-                      f"window indices {sig_clusters_windows}")
 
     return results, window_centers
 
