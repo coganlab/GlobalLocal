@@ -44,19 +44,8 @@ from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to
                                             filter_electrode_lists_against_subjects_mne_objects, \
                                             find_difference_between_two_electrode_lists, windower, \
                                             _subdir
-                                            
-                                            
-#to save print statements while on cluster
-# PROJECT_DIR = '/hpc/group/coganlab/etb28/GlobalLocal/src/analysis/power' 
 
-# LOG_DIR = os.path.join(PROJECT_DIR, 'logs')
-# os.makedirs(LOG_DIR, exist_ok=True) 
-
-# log_file_path = os.path.join(LOG_DIR, 'power_traces_debug.log')
-# logging.basicConfig(filename='power_traces_debug.log', 
-#                     level=logging.DEBUG, 
-#                     format='%(asctime)s - %(message)s',
-#                     filemode='w')
+from src.analysis.config.plotting_parameters import plotting_parameters                                                                                
 
 DEFAULT_PLOT_STYLE = {
     # Toggles
@@ -860,7 +849,7 @@ def create_windowed_anova_dataframe(windowed_data, conditions, rois, subjects,
 
     Each row is one observation: ``(subject, electrode, ROI, trial, window) ->
     Activity``, with the factor columns from ``conditions[cond]`` attached
-    (e.g. ``congruency``, ``congruencyProportion``, ``switchType``,
+    (e.g. ``congruency``, ``incongruentProportion``, ``switchType``,
     ``switchProportion``). ``BIDS_events`` is included verbatim; downstream
     formula-builders should drop it.
 
@@ -1288,49 +1277,83 @@ def _draw_cluster_bar(ax, times, mask, y, color='black', linewidth=6,
                 fontsize=label_fontsize,
                 color=label_color if label_color is not None else color)
 
-def _generate_16_condition_colors(condition_names, conditions_obj,
-                                   factors=('congruency', 'congruencyProportion',
-                                            'switchType', 'switchProportion')): # TODO: oh jesus this is so unnecessarily complicated, just pick some colors dude. Drop this function.
-    """Build a structured color map for 16 conditions in a 2x2x2x2 design.
+# --- Factor-pair → plotting_parameters key resolver ---
+# The 4 levels of each 2-way factor pair map directly to a Stimulus_*** entry
+# (e.g. (congruency='c', incongruentProportion='25%') -> 'Stimulus_c25').
+# Each pair-resolver takes the factor *value* dict for a condition and returns
+# the plotting_parameters key, or None if any factor is missing/unknown.
 
-    Strategy: hue from congruency × congruencyProportion (4 hues),
-    lightness from switchType × switchProportion (4 lightness levels).
-    Falls back to tab20 if factor levels are not all populated.
+def _strip_pct(level):
+    """Normalize '25%' / 25 / '25' -> '25' or '75', else None."""
+    if level is None:
+        return None
+    s = str(level).rstrip('%')
+    return s if s in {'25', '75'} else None
+
+def _pp_key_incongruent_proportion(v):
+    """(congruency, incongruentProportion) -> 'Stimulus_c25' / 'Stimulus_i75' / ...
+
+    Now consistent: the stored incongruentProportion matches the suffix used
+    in Stimulus_*** keys (both follow BIDS naming).
     """
-    try:
-        f_hue1, f_hue2, f_light1, f_light2 = factors
-        levels = {f: _get_factor_levels(conditions_obj, f) for f in factors}
-        if any(len(v) != 2 for v in levels.values()):
-            raise ValueError("non-binary factor")
-        # 4 hues spaced around the wheel
-        hue_pairs = [(l1, l2) for l1 in levels[f_hue1] for l2 in levels[f_hue2]]
-        hue_map = {pair: i / 4.0 for i, pair in enumerate(hue_pairs)}
-        # 4 lightness levels in [0.35, 0.75]
-        light_pairs = [(l1, l2) for l1 in levels[f_light1] for l2 in levels[f_light2]]
-        light_map = {pair: 0.35 + 0.40 * (i / 3.0) for i, pair in enumerate(light_pairs)}
-        colors = {}
-        for name in condition_names:
-            v = conditions_obj.get(name, {})
-            try:
-                hue = hue_map[(v[f_hue1], v[f_hue2])]
-                light = light_map[(v[f_light1], v[f_light2])]
-            except KeyError:
-                colors[name] = None
-                continue
-            rgb = mcolors.hsv_to_rgb([hue, 0.7, 1.0])
-            # Scale toward white/black by lightness (light==0.5 keeps base color)
-            if light < 0.5:
-                rgb = tuple(c * (light / 0.5) for c in rgb)
-            else:
-                rgb = tuple(c + (1 - c) * ((light - 0.5) / 0.5) for c in rgb)
-            colors[name] = rgb
-        if all(c is not None for c in colors.values()):
-            return colors
-    except Exception:
-        pass
-    # Fallback: tab20 cycling
-    cmap = plt.get_cmap('tab20')
-    return {name: cmap(i % 20) for i, name in enumerate(condition_names)}
+    cong = v.get('congruency')
+    prop = _strip_pct(v.get('incongruentProportion'))   # <-- no flip
+    if cong in ('c', 'i') and prop in ('25', '75'):
+        return f'Stimulus_{cong}{prop}'
+    return None
+def _pp_key_switch_proportion(v):
+    """(switchType, switchProportion) -> 'Stimulus_s25' / 'Stimulus_r75' / ...
+
+    switchProportion is NOT flipped -- both the stored value and the BIDS
+    naming use the switch proportion directly.
+    """
+    st = v.get('switchType')
+    prop = _strip_pct(v.get('switchProportion'))             # <-- no flip
+    if st in ('s', 'r') and prop in ('25', '75'):
+        return f'Stimulus_{st}{prop}'
+    return None
+
+def _pp_style(key, fallback=('gray', '-')):
+    """Return (color, line_style) from plotting_parameters[key], with fallback."""
+    if key is None or key not in plotting_parameters:
+        return fallback
+    p = plotting_parameters[key]
+    return p.get('color', fallback[0]), p.get('line_style', fallback[1])
+
+def _generate_16_condition_colors(condition_names, conditions_obj,
+                                  factors=('congruency', 'incongruentProportion',
+                                           'switchType', 'switchProportion')):
+    """Style map for the 16-condition plot.
+
+    Strategy: read directly from plotting_parameters[condition_name] when an
+    entry exists. Otherwise compose a fallback style by looking up the
+    (congruency, incongruentProportion) entry for color and the
+    (switchType, switchProportion) entry for linestyle.
+    """
+    style_map = {}
+    for name in condition_names:
+        # Preferred path: direct entry exists in plotting_parameters.
+        if name in plotting_parameters:
+            p = plotting_parameters[name]
+            style_map[name] = {
+                'color':     p.get('color', 'gray'),
+                'linestyle': p.get('line_style', '-'),
+                'linewidth': p.get('linewidth', 1.8),
+                'alpha':     p.get('alpha', 1.0),
+            }
+            continue
+
+        # Fallback: compose from the two 2-way pair entries.
+        v = conditions_obj.get(name, {})
+        cong_key   = _pp_key_incongruent_proportion(v)
+        switch_key = _pp_key_switch_proportion(v)
+        color, _   = _pp_style(cong_key)
+        _, ls      = _pp_style(switch_key)
+        style_map[name] = {
+            'color': color, 'linestyle': ls,
+            'linewidth': 1.8, 'alpha': 1.0,
+        }
+    return style_map
 
 def plot_2way_interaction_for_roi(
     evks_dict, roi, conditions_obj, factor1, factor2,
@@ -1367,12 +1390,15 @@ def plot_2way_interaction_for_roi(
             f"{factor1}={levels1}, {factor2}={levels2}"
         )
 
-    # 4 colors: factor1 -> hue, factor2 -> linestyle alternative we ignore (color only)
-    base_colors = {levels1[0]: '#1f77b4', levels1[1]: '#d62728'}
-    sat_alpha = {levels2[0]: 1.0, levels2[1]: 0.55}
-
-    f1_label = (factor_labels or {}).get(factor1, factor1)
-    f2_label = (factor_labels or {}).get(factor2, factor2)
+    # Resolve PP key per cell based on which factor pair this 2-way is.
+    # If we recognize the pair, use direct PP lookups; otherwise fall back to a generic pair.
+    pair = frozenset((factor1, factor2))
+    if pair == frozenset(('congruency', 'incongruentProportion')):
+        resolve = _pp_key_incongruent_proportion
+    elif pair == frozenset(('switchType', 'switchProportion')):
+        resolve = _pp_key_switch_proportion
+    else:
+        resolve = None
 
     for l1 in levels1:
         for l2 in levels2:
@@ -1382,12 +1408,17 @@ def plot_2way_interaction_for_roi(
             if data is None:
                 continue
             mean_data = np.mean(data, axis=0)
-            color = base_colors[l1]
-            alpha = sat_alpha[l2]
-            label = f"{f1_label}={l1}, {f2_label}={l2}"
-            ax.plot(times, mean_data, color=color, alpha=alpha,
-                    linewidth=2.5, label=label,
-                    linestyle='-' if l2 == levels2[0] else '--')
+            if resolve is not None:
+                key = resolve({factor1: l1, factor2: l2})
+                color, ls = _pp_style(key)
+            else:
+                # Cross-factor 2-way (e.g. congruency x switchProportion) -- no PP entry.
+                color = ('#1f77b4' if l1 == levels1[0] else '#d62728')
+                ls = '-' if l2 == levels2[0] else '--'
+            label = f"{factor1}={l1}, {factor2}={l2}"
+            ax.plot(times, mean_data, color=color, linestyle=ls,
+                    linewidth=2.5, label=label)
+            # ... (SEM shading block unchanged)
             n = data.shape[0]
             if error_type == 'sem' and n > 1:
                 err = np.std(data, axis=0) / np.sqrt(n)
@@ -1585,7 +1616,7 @@ def _fit_anova_one_window(df_window, formula, factor_columns):
 
     `df_window` already aggregated to one row per (electrode × cell).
     Effect names match those returned by anova_lm (e.g., "C(congruency)",
-    "C(congruency):C(congruencyProportion)", ...).
+    "C(congruency):C(incongruentProportion)", ...).
     """
     try:
         model = ols(formula, data=df_window).fit()
@@ -1624,7 +1655,7 @@ def run_windowed_anova_cluster_correction(
     conditions_obj : dict
         The conditions_obj from the registry (condition_name -> dict of factor values).
     anova_factors : list of str
-        Factor column names (e.g. ['congruency', 'congruencyProportion',
+        Factor column names (e.g. ['congruency', 'incongruentProportion',
         'switchType', 'switchProportion']).
     n_perm : int
     percentile : float

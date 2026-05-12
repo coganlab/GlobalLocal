@@ -1325,13 +1325,13 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
                         
             if 'congruency' in effect:
                 color = 'red'
-            elif 'congruencyProportion' in effect:
+            elif 'incongruentProportion' in effect:
                 color = 'green'
             elif 'switchType' in effect:
                 color = 'blue'
             elif 'switchProportion' in effect:
                 color = 'yellow'
-            elif 'congruency:congruencyProportion' in effect:
+            elif 'congruency:incongruentProportion' in effect:
                 color = 'purple'
             elif 'switchType:switchProportion' in effect:
                 color = 'yellowgreen'

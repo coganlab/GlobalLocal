@@ -199,5 +199,29 @@ plotting_parameters = {
     "condition_parameter": "s25-r25",
     "color": "skyblue",
     "line_style": "-"
-}
+},
+
+# === 16-condition entries (congruency × incongruentProportion × switchType × switchProportion) ===
+# Color carries (congruency, incongruentProportion):
+#   c25 -> pink,    c75 -> orange    (warm hues = congruency family)
+#   i25 -> skyblue, i75 -> purple    (cool hues = incongruency family)
+# Linestyle carries switchType:  r -> '-',  s -> '--'
+# Linewidth carries switchProportion: 25 -> 1.5, 75 -> 2.5
+"Stimulus_c25r25": {"condition_parameter": "c25r25", "color": "pink",    "line_style": "-",  "linewidth": 1.5},
+"Stimulus_c25r75": {"condition_parameter": "c25r75", "color": "pink",    "line_style": "-",  "linewidth": 2.5},
+"Stimulus_c25s25": {"condition_parameter": "c25s25", "color": "pink",    "line_style": "--", "linewidth": 1.5},
+"Stimulus_c25s75": {"condition_parameter": "c25s75", "color": "pink",    "line_style": "--", "linewidth": 2.5},
+"Stimulus_c75r25": {"condition_parameter": "c75r25", "color": "orange",  "line_style": "-",  "linewidth": 1.5},
+"Stimulus_c75r75": {"condition_parameter": "c75r75", "color": "orange",  "line_style": "-",  "linewidth": 2.5},
+"Stimulus_c75s25": {"condition_parameter": "c75s25", "color": "orange",  "line_style": "--", "linewidth": 1.5},
+"Stimulus_c75s75": {"condition_parameter": "c75s75", "color": "orange",  "line_style": "--", "linewidth": 2.5},
+"Stimulus_i25r25": {"condition_parameter": "i25r25", "color": "skyblue", "line_style": "-",  "linewidth": 1.5},
+"Stimulus_i25r75": {"condition_parameter": "i25r75", "color": "skyblue", "line_style": "-",  "linewidth": 2.5},
+"Stimulus_i25s25": {"condition_parameter": "i25s25", "color": "skyblue", "line_style": "--", "linewidth": 1.5},
+"Stimulus_i25s75": {"condition_parameter": "i25s75", "color": "skyblue", "line_style": "--", "linewidth": 2.5},
+"Stimulus_i75r25": {"condition_parameter": "i75r25", "color": "purple",  "line_style": "-",  "linewidth": 1.5},
+"Stimulus_i75r75": {"condition_parameter": "i75r75", "color": "purple",  "line_style": "-",  "linewidth": 2.5},
+"Stimulus_i75s25": {"condition_parameter": "i75s25", "color": "purple",  "line_style": "--", "linewidth": 1.5},
+"Stimulus_i75s75": {"condition_parameter": "i75s75", "color": "purple",  "line_style": "--", "linewidth": 2.5},
+
 }

@@ -129,11 +129,11 @@ CONDITION_REGISTRY = {
             'significance_label_1': '25% > 75% I',
             'significance_label_2': '75% > 25% I',
         },
-        'anova_factors': ['congruency', 'congruencyProportion'],
+        'anova_factors': ['congruency', 'incongruentProportion'],
         'anova_interactions': [
             {
-                'name': 'congruency_x_congruencyProportion',
-                'factors': ['congruency', 'congruencyProportion'],
+                'name': 'congruency_x_incongruentProportion',
+                'factors': ['congruency', 'incongruentProportion'],
                 'label': 'Congruency × Inc. Proportion (LWPC)',
             },
         ],
@@ -346,11 +346,11 @@ CONDITION_REGISTRY = {
             'significance_label_1': 'S/R (25% I) > S/R (75% I)',
             'significance_label_2': 'S/R (75% I) > S/R (25% I)',
         },
-        'anova_factors': ['switchType', 'congruencyProportion'],
+        'anova_factors': ['switchType', 'incongruentProportion'],
         'anova_interactions': [
             {
-                'name': 'switchType_x_congruencyProportion',
-                'factors': ['switchType', 'congruencyProportion'],
+                'name': 'switchType_x_incongruentProportion',
+                'factors': ['switchType', 'incongruentProportion'],
                 'label': 'Switch Type × Inc. Proportion',
             },
         ],
@@ -451,14 +451,14 @@ CONDITION_REGISTRY = {
             },
         ],
         # ANOVA over the full 2x2x2x2 design (16 conditions)
-        'anova_factors': ['congruency', 'congruencyProportion', 'switchType', 'switchProportion'],
+        'anova_factors': ['congruency', 'incongruentProportion', 'switchType', 'switchProportion'],
         # Two-way interactions to test with cluster correction across time, and to
         # plot as 4-trace single-interaction plots
         # Each entry: name, factors (length 2), and human-readable label/ylabel for plots.
         'anova_interactions': [
             {
-                'name': 'congruency_x_congruencyProportion',
-                'factors': ['congruency', 'congruencyProportion'],
+                'name': 'congruency_x_incongruentProportion',
+                'factors': ['congruency', 'incongruentProportion'],
                 'label': 'Congruency × Inc. Proportion',
             },
             {
@@ -472,8 +472,8 @@ CONDITION_REGISTRY = {
                 'label': 'Congruency × Switch Proportion',
             },
             {
-                'name': 'switchType_x_congruencyProportion',
-                'factors': ['switchType', 'congruencyProportion'],
+                'name': 'switchType_x_incongruentProportion',
+                'factors': ['switchType', 'incongruentProportion'],
                 'label': 'Switch Type × Inc. Proportion',
             },
         ],
