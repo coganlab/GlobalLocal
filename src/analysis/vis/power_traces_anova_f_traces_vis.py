@@ -4,17 +4,15 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 def _load_F_trace_files(save_dir, roi, conditions_save_name):
     """Yield (effect_name, npz_data) pairs for one ROI."""
-    p = Path(save_dir) / 'anova_F_traces'
+    p = Path(save_dir)
     for f in sorted(p.glob(f'{conditions_save_name}_{roi}_*.npz')):
         # strip prefix + .npz; what's left is the safe-effect name
         m = re.match(rf'{re.escape(conditions_save_name)}_{re.escape(roi)}_(.+)\.npz', f.name)
         if not m:
             continue
         yield m.group(1), np.load(f)
-
 
 def plot_anova_F_traces_for_roi(save_dir, roi, conditions_save_name,
                                 window_centers=None, effects=None,

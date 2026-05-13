@@ -101,7 +101,8 @@ def main(args):
         save_dir = args.save_dir
     else:
         save_dir = os.path.join(layout.root, 'derivatives', 'freqFilt', 'figs',
-                                f"{args.epochs_root_file}")
+                                f"{args.epochs_root_file}", f"anova_{args.anova_unit}")
+        
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
 

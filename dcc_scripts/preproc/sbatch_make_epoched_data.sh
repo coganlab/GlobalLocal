@@ -2,8 +2,9 @@
 #SBATCH --output=out/aligned_svm_ncv/slurm_%j.out
 #SBATCH -e out/aligned_svm_ncv/slurm_%j.err
 #SBATCH -p common,scavenger,coganlab-gpu
-#SBATCH -c 10
-#SBATCH --mem=80G
+#SBATCH -c 6
+#SBATCH --mem=130G
+#SBATCH --time=10:00:00  # 48 hours (adjust based on your needs)
 
 subject=$1
 task=$2

@@ -74,7 +74,6 @@ WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm clu
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 SPLIT_CLUSTERS_BY_SIGN = True
 MIN_TRIALS_PER_CELL=4
-ANOVA_UNIT = 'electrode' # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
 FILTER_ELECTRODES_FROM = None # Optional path to a within_elec_anova run directory (the one containing summary.csv and significant_effects_structure.json). When set, restrict the analysis to electrodes flagged significant in that run.
 FILTER_EFFECT = None # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
 FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
@@ -113,13 +112,16 @@ CONDITION_LABEL = os.environ.get('CONDITION_LABEL')
 if CONDITION_LABEL is None:
     raise ValueError("CONDITION_LABEL environment variable not set. "
                      "Set it via sbatch --export=ALL,CONDITION_LABEL=...")
-    
-# Epochs file selection
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_13.0-30.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
+EPOCHS_ROOT_FILE = os.environ.get('EPOCHS_ROOT_FILE')
+if EPOCHS_ROOT_FILE is None:
+    raise ValueError("EPOCHS_ROOT_FILE environment variable not set. "
+                     "Set it via sbatch --export=ALL,EPOCHS_ROOT_FILE=...")
+    
+ANOVA_UNIT = os.environ.get('ANOVA_UNIT')
+if ANOVA_UNIT is None:
+    raise ValueError("ANOVA_UNIT environment variable not set. "
+                     "Set it via sbatch --export=ALL,ANOVA_UNIT=...")
 # ROI dictionary
 # ROIS_DICT = {
 #     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
@@ -195,7 +197,7 @@ PLOT_STYLE = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
 
-SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE, 'anova_within_' + ANOVA_UNIT)
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""

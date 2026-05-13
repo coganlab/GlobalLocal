@@ -3,7 +3,7 @@
 
 CONDITIONS=(
     stimulus_block_pairwise_conditions
-    stimulus_block_multiclass_conditions
+    # stimulus_block_multiclass_conditions
 )
 
 # Create output directory if needed

@@ -1069,7 +1069,7 @@ def run_within_electrode_windowed_anova_cluster_correction(
 
         # 3e. Stream-write per-electrode npz (memory: drop null_F after this)
         if save_dir and run_label:
-            out_dir = Path(save_dir) / 'within_elec_anova' / run_label / roi / sub
+            out_dir = Path(save_dir) / run_label / roi / sub
             out_dir.mkdir(parents=True, exist_ok=True)
             np.savez(
                 out_dir / f'{elec}.npz',
@@ -1143,7 +1143,7 @@ def run_within_electrode_windowed_anova_cluster_correction(
     # === 7. Disk writes: summary.csv, skipped.csv, sig_electrodes_*.json,
     #        significant_effects_structure.json (legacy compat) ===
     if save_dir and run_label:
-        run_dir = Path(save_dir) / 'within_elec_anova' / run_label
+        run_dir = Path(save_dir) / run_label
         run_dir.mkdir(parents=True, exist_ok=True)
         summary_df.to_csv(run_dir / 'summary.csv', index=False)
         pd.DataFrame(skipped).to_csv(run_dir / 'skipped.csv', index=False)
