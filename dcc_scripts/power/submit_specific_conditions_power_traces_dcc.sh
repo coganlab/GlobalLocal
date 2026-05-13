@@ -3,9 +3,9 @@
 
 CONDITIONS=(
     stimulus_lwpc_conditions
-    # stimulus_lwps_conditions
-    # stimulus_congruency_by_switch_proportion_conditions
-    # stimulus_switch_type_by_incongruent_proportion_conditions
+    stimulus_lwps_conditions
+    stimulus_congruency_by_switch_proportion_conditions
+    stimulus_switch_type_by_incongruent_proportion_conditions
 )
 
 # Create output directory if needed

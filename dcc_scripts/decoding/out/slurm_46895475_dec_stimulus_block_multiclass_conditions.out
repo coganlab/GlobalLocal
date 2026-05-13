@@ -593,3 +593,703 @@ No baseline correction applied
 Adding metadata with 30 columns
 99 matching events found
 No baseline correction applied
+    Stimulus_blockC: 99 valid trials out of 99
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Loading data for subject: D0100
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0100/D0100_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+451 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+107 matching events found
+No baseline correction applied
+    Stimulus_blockA: 107 valid trials out of 107
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockB: 87 valid trials out of 87
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+110 matching events found
+No baseline correction applied
+    Stimulus_blockC: 110 valid trials out of 110
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+110 matching events found
+No baseline correction applied
+    Stimulus_blockD: 110 valid trials out of 110
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+107 matching events found
+No baseline correction applied
+    Stimulus_blockA: 107 valid trials out of 107
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockB: 87 valid trials out of 87
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+110 matching events found
+No baseline correction applied
+    Stimulus_blockC: 110 valid trials out of 110
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+110 matching events found
+No baseline correction applied
+    Stimulus_blockD: 110 valid trials out of 110
+Loading data for subject: D0102
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0102/D0102_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+70 matching events found
+No baseline correction applied
+    Stimulus_blockA: 70 valid trials out of 70
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_blockB: 56 valid trials out of 56
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+92 matching events found
+No baseline correction applied
+    Stimulus_blockC: 92 valid trials out of 92
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+81 matching events found
+No baseline correction applied
+    Stimulus_blockD: 81 valid trials out of 81
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+70 matching events found
+No baseline correction applied
+    Stimulus_blockA: 70 valid trials out of 70
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+56 matching events found
+No baseline correction applied
+    Stimulus_blockB: 56 valid trials out of 56
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+92 matching events found
+No baseline correction applied
+    Stimulus_blockC: 92 valid trials out of 92
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+81 matching events found
+No baseline correction applied
+    Stimulus_blockD: 81 valid trials out of 81
+Loading data for subject: D0103
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0103/D0103_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+91 matching events found
+No baseline correction applied
+    Stimulus_blockA: 91 valid trials out of 91
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_blockB: 63 valid trials out of 63
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+106 matching events found
+No baseline correction applied
+    Stimulus_blockC: 106 valid trials out of 106
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockD: 98 valid trials out of 98
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+91 matching events found
+No baseline correction applied
+    Stimulus_blockA: 91 valid trials out of 91
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+63 matching events found
+No baseline correction applied
+    Stimulus_blockB: 63 valid trials out of 63
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+106 matching events found
+No baseline correction applied
+    Stimulus_blockC: 106 valid trials out of 106
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockD: 98 valid trials out of 98
+Loading data for subject: D0107A
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0107A/D0107A_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+452 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockA: 98 valid trials out of 98
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+89 matching events found
+No baseline correction applied
+    Stimulus_blockB: 89 valid trials out of 89
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+97 matching events found
+No baseline correction applied
+    Stimulus_blockC: 97 valid trials out of 97
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockA: 98 valid trials out of 98
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+89 matching events found
+No baseline correction applied
+    Stimulus_blockB: 89 valid trials out of 89
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+97 matching events found
+No baseline correction applied
+    Stimulus_blockC: 97 valid trials out of 97
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Loading data for subject: D0110
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0110/D0110_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+111 matching events found
+No baseline correction applied
+    Stimulus_blockA: 111 valid trials out of 111
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+111 matching events found
+No baseline correction applied
+    Stimulus_blockB: 111 valid trials out of 111
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+108 matching events found
+No baseline correction applied
+    Stimulus_blockC: 108 valid trials out of 108
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+111 matching events found
+No baseline correction applied
+    Stimulus_blockA: 111 valid trials out of 111
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+111 matching events found
+No baseline correction applied
+    Stimulus_blockB: 111 valid trials out of 111
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+108 matching events found
+No baseline correction applied
+    Stimulus_blockC: 108 valid trials out of 108
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Loading data for subject: D0116
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0116/D0116_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockA: 103 valid trials out of 103
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockB: 98 valid trials out of 98
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+100 matching events found
+No baseline correction applied
+    Stimulus_blockC: 100 valid trials out of 100
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockA: 103 valid trials out of 103
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+98 matching events found
+No baseline correction applied
+    Stimulus_blockB: 98 valid trials out of 98
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+100 matching events found
+No baseline correction applied
+    Stimulus_blockC: 100 valid trials out of 100
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockD: 105 valid trials out of 105
+Loading data for subject: D0117
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0117/D0117_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+72 matching events found
+No baseline correction applied
+    Stimulus_blockA: 72 valid trials out of 72
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_blockB: 55 valid trials out of 55
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+81 matching events found
+No baseline correction applied
+    Stimulus_blockC: 81 valid trials out of 81
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+73 matching events found
+No baseline correction applied
+    Stimulus_blockD: 73 valid trials out of 73
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+72 matching events found
+No baseline correction applied
+    Stimulus_blockA: 72 valid trials out of 72
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+55 matching events found
+No baseline correction applied
+    Stimulus_blockB: 55 valid trials out of 55
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+81 matching events found
+No baseline correction applied
+    Stimulus_blockC: 81 valid trials out of 81
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+73 matching events found
+No baseline correction applied
+    Stimulus_blockD: 73 valid trials out of 73
+Loading data for subject: D0121
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockA: 103 valid trials out of 103
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+96 matching events found
+No baseline correction applied
+    Stimulus_blockB: 96 valid trials out of 96
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockC: 103 valid trials out of 103
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+95 matching events found
+No baseline correction applied
+    Stimulus_blockD: 95 valid trials out of 95
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockA: 103 valid trials out of 103
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+96 matching events found
+No baseline correction applied
+    Stimulus_blockB: 96 valid trials out of 96
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockC: 103 valid trials out of 103
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+95 matching events found
+No baseline correction applied
+    Stimulus_blockD: 95 valid trials out of 95
+Loading data for subject: D0130
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0130/D0130_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+448 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+104 matching events found
+No baseline correction applied
+    Stimulus_blockA: 104 valid trials out of 104
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+109 matching events found
+No baseline correction applied
+    Stimulus_blockB: 109 valid trials out of 109
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockC: 103 valid trials out of 103
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+101 matching events found
+No baseline correction applied
+    Stimulus_blockD: 101 valid trials out of 101
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+104 matching events found
+No baseline correction applied
+    Stimulus_blockA: 104 valid trials out of 104
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+109 matching events found
+No baseline correction applied
+    Stimulus_blockB: 109 valid trials out of 109
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockC: 103 valid trials out of 103
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+101 matching events found
+No baseline correction applied
+    Stimulus_blockD: 101 valid trials out of 101
+Loading data for subject: D0133
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+454 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0133/D0133_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+454 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockA: 87 valid trials out of 87
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+95 matching events found
+No baseline correction applied
+    Stimulus_blockB: 95 valid trials out of 95
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+102 matching events found
+No baseline correction applied
+    Stimulus_blockC: 102 valid trials out of 102
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockD: 87 valid trials out of 87
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockA: 87 valid trials out of 87
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+95 matching events found
+No baseline correction applied
+    Stimulus_blockB: 95 valid trials out of 95
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+102 matching events found
+No baseline correction applied
+    Stimulus_blockC: 102 valid trials out of 102
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+87 matching events found
+No baseline correction applied
+    Stimulus_blockD: 87 valid trials out of 87
+Loading data for subject: D0134
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Reading /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0134/D0134_Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit_HG_ev1_power_rescaled-epo.fif ...
+    Found the data of interest:
+        t =   -1000.00 ...    1500.00 ms
+        0 CTF compensation matrices available
+Adding metadata with 29 columns
+450 matching events found
+No baseline correction applied
+0 projection items activated
+Replacing existing metadata with 29 columns
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockA: 105 valid trials out of 105
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockB: 105 valid trials out of 105
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+106 matching events found
+No baseline correction applied
+    Stimulus_blockC: 106 valid trials out of 106
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockD: 103 valid trials out of 103
+Replacing existing metadata with 30 columns
+  Loading condition: Stimulus_blockA
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockA: 105 valid trials out of 105
+  Loading condition: Stimulus_blockB
+Adding metadata with 30 columns
+105 matching events found
+No baseline correction applied
+    Stimulus_blockB: 105 valid trials out of 105
+  Loading condition: Stimulus_blockC
+Adding metadata with 30 columns
+106 matching events found
+No baseline correction applied
+    Stimulus_blockC: 106 valid trials out of 106
+  Loading condition: Stimulus_blockD
+Adding metadata with 30 columns
+103 matching events found
+No baseline correction applied
+    Stimulus_blockD: 103 valid trials out of 103
+
+--- Summary of Dropped Electrodes ---
+Total electrodes dropped across all subjects/ROIs: 0
+-------------------------------------
+
+
+==================== STARTING PARALLEL BOOTSTRAPPING (20 samples across -1 jobs) ====================
+
+
+==================== 🔬 RUNNING 2D VISUALIZATION DEBUG (first two PCs and decision boundary) ====================
+
+Generating LabeledArray data for visualization (n_bootstraps=1)...
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal/src', '/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/decoding', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/jz421/coganlab/jz421/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/', 'C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/']
+
+Making LabeledArray for ROI: lpfc with NaN trials removed within each channel
+ROI lpfc: Final conditions in nan_removed_data_dict: ['Stimulus_blockA', 'Stimulus_blockB', 'Stimulus_blockC', 'Stimulus_blockD']
+condition 'Stimulus_blockA': subsampling to 70 trials
+condition 'Stimulus_blockB': subsampling to 55 trials
+condition 'Stimulus_blockC': subsampling to 81 trials
+condition 'Stimulus_blockD': subsampling to 73 trials
+generating 1 bootstrap sample(s)
+Built bootstrapped_conditions_data with conditions: ['Stimulus_blockA', 'Stimulus_blockB', 'Stimulus_blockC', 'Stimulus_blockD']
+Bootstrap 0: LabeledArray has conditions: ['Stimulus_blockA', 'Stimulus_blockB', 'Stimulus_blockC', 'Stimulus_blockD']
