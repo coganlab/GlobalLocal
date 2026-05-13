@@ -72,7 +72,12 @@ STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
-SPLIT_ANOVA_CLUSTERS_BY_SIGN = True
+SPLIT_CLUSTERS_BY_SIGN = True
+MIN_TRIALS_PER_CELL=4
+ANOVA_UNIT = 'roi' # whether to do the stats in terms of roi (across electrodes) or electrode (within_electrodes)
+FILTER_ELECTRODES_FROM = None # Optional path to a within_elec_anova run directory (the one containing summary.csv and significant_effects_structure.json). When set, restrict the analysis to electrodes flagged significant in that run.
+FILTER_EFFECT = None # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
+FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
 
 if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
@@ -212,7 +217,12 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
-        split_anova_clusters_by_sign=SPLIT_ANOVA_CLUSTERS_BY_SIGN,
+        split_clusters_by_sign=SPLIT_CLUSTERS_BY_SIGN,
+        anova_unit=ANOVA_UNIT,
+        min_trials_per_cell=MIN_TRIALS_PER_CELL,
+        filter_electrodes_from=FILTER_ELECTRODES_FROM ,
+        filter_effect=FILTER_EFFECT,
+        filter_use_fdr=FILTER_USE_FDR,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
@@ -231,6 +241,8 @@ def run_analysis():
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
+    print(f"sampling rate: {SAMPLING_RATE}"),
+
     print("-" * 70)
     
     print("Perm Cluster Statistical Parameters:")
@@ -245,7 +257,12 @@ def run_analysis():
     print("ANOVA Parameters:")
     print(f"  Window Size: {WINDOW_SIZE}")
     print(f"  Step Size: {STEP_SIZE}")
-    print(f"  Split ANOVA Clusters By Sign: {SPLIT_ANOVA_CLUSTERS_BY_SIGN}")
+    print(f"  Split ANOVA Clusters By Sign: {SPLIT_CLUSTERS_BY_SIGN}")
+    print(f" ANOVA unit: {ANOVA_UNIT}")
+    print(f" Min trials per ANOVA cell: {MIN_TRIALS_PER_CELL}")
+    print(f" filter electrodes from: {FILTER_ELECTRODES_FROM}"),
+    print(f" filter effect: {FILTER_EFFECT}"),
+    print(f" filter use fdr: {FILTER_USE_FDR}"),
     print("=" * 70)
     
     print('plotting parameters:')

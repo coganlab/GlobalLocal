@@ -35,6 +35,7 @@ from statsmodels.formula.api import ols
 from statsmodels.stats.anova import anova_lm
 from joblib import Parallel, delayed
 import re
+from itertools import combinations
 from src.analysis.decoding.decoding import (
     find_significant_clusters_of_series_vs_distribution_based_on_percentile,
 )
@@ -832,6 +833,392 @@ def _split_clusters_at_sign_flips(raw_clusters, sign_trace):
             out.append({'start': s + start, 'end': s + len(seg) - 1, 'sign': cur_sign})
     return out
 
+def _fit_anova_per_window_per_unit(df, formula, anova_factors, unit_cols,
+                                   window_col='WindowIndex',
+                                   return_sign=False):
+    """Fit OLS+ANOVA at every (unit, window) cell. Returns full F-traces.
+
+    Reusable across all ANOVA paths (within-electrode, across-electrode-within-ROI,
+    perform_windowed_anova, etc.). The 'unit' is whatever grouping you want -- pass
+    unit_cols=('SubjectID', 'Electrode', 'ROI') for within-electrode, ('ROI',) for
+    across-electrode-within-ROI, etc.
+
+    Returns
+    -------
+    f_trace_by_unit    : dict[unit_tuple] -> (n_effects, n_windows) ndarray
+    sign_trace_by_unit : dict[unit_tuple] -> (n_effects, n_windows) ndarray
+                         (None if return_sign=False)
+    effect_names       : list[str] pinned from the formula
+    window_indices     : list[int] sorted window indices found in df
+    """
+    # Pin effect names from the formula -- stable across units even when statsmodels
+    # drops a term on a degenerate cell.
+    effect_names = []
+    for k in range(1, len(anova_factors) + 1):
+        for combo in combinations(anova_factors, k):
+            effect_names.append(':'.join([f'C({c})' for c in combo]))
+
+    window_indices = sorted(df[window_col].unique())
+    n_windows = len(window_indices)
+    n_eff = len(effect_names)
+
+    f_by_unit = {}
+    sign_by_unit = {} if return_sign else None
+
+    for unit_vals, df_unit in df.groupby(list(unit_cols)):
+        # Normalize single-column groupby to a tuple
+        if not isinstance(unit_vals, tuple):
+            unit_vals = (unit_vals,)
+        f_trace = np.full((n_eff, n_windows), np.nan)
+        sign_trace = np.full((n_eff, n_windows), np.nan) if return_sign else None
+        for wi, w in enumerate(window_indices):
+            df_w = df_unit[df_unit[window_col] == w]
+            f_dict = _fit_anova_one_window(df_w, formula, anova_factors)
+            if f_dict is None:
+                continue
+            for ei, eff in enumerate(effect_names):
+                f_trace[ei, wi] = f_dict.get(eff, np.nan)
+                if return_sign:
+                    sign_trace[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
+        f_by_unit[unit_vals] = f_trace
+        if return_sign:
+            sign_by_unit[unit_vals] = sign_trace
+
+    return f_by_unit, sign_by_unit, effect_names, window_indices
+
+def run_within_electrode_windowed_anova_cluster_correction(
+    windowed_data, conditions_obj, anova_factors, rois, subjects,
+    electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
+    n_perm=1000, percentile=95, cluster_percentile=95,
+    min_trials_per_cell=2,
+    split_clusters_by_sign=True,
+    seed=42, n_jobs=-1, verbose=True,
+    save_dir=None, run_label=None,
+):
+    """Within-electrode windowed ANOVA + cluster correction.
+
+    Differences from run_windowed_anova_cluster_correction:
+      - ANOVA fit per (subject, electrode) using trials as observations -- no
+        across-electrode aggregation.
+      - Permutation null built per electrode (shuffle trial-level factor labels).
+      - Cluster correction uses cluster EXTENT (n windows), matching the codebase
+        convention. Optionally splits clusters at sign-flips of the contrast.
+
+    Returns
+    -------
+    results : dict[roi][(subject, electrode)][effect] -> dict of arrays/lists
+    window_centers : (n_windows,) array
+    summary_df : tidy DataFrame, one row per (sub, elec, roi, effect, cluster)
+    skipped : list of dicts -- electrodes skipped due to min_trials_per_cell
+    """
+    from pathlib import Path
+    import pandas as pd
+    from joblib import Parallel, delayed
+    from statsmodels.stats.multitest import multipletests
+
+    # === 1. Long-form dataframe (reuse existing builder) ===
+    df = create_windowed_anova_dataframe(
+        windowed_data, conditions_obj, rois, subjects,
+        electrodes_per_subject_roi,
+        times=times, window_size=window_size, step_size=step_size,
+        sampling_rate=sampling_rate,
+    )
+    formula = 'Activity ~ ' + ' * '.join([f'C({f})' for f in anova_factors])
+
+    # === 2. Observed pass via shared helper ===
+    obs_f_by_unit, obs_sign_by_unit, effect_names, window_indices = \
+        _fit_anova_per_window_per_unit(
+            df, formula, anova_factors,
+            unit_cols=('SubjectID', 'Electrode', 'ROI'),
+            return_sign=split_clusters_by_sign,
+        )
+    n_windows = len(window_indices)
+    n_effects = len(effect_names)
+
+    # Window centers + window -> sample-index mapping (for expanding masks)
+    window_centers = np.array(
+        [df[df['WindowIndex'] == w]['WindowCenter'].iloc[0] for w in window_indices]
+    )
+    n_times = len(times)
+    win_to_samples = []
+    for w in window_indices:
+        start_sample = int(w * step_size)
+        end_sample = min(start_sample + window_size - 1, n_times - 1)
+        win_to_samples.append((start_sample, end_sample))
+
+    # === 3. Per-electrode worker (permutation + cluster correction) ===
+    def _run_one_electrode(unit_key):
+        sub, elec, roi = unit_key
+        df_elec = df[(df['SubjectID'] == sub) &
+                     (df['Electrode'] == elec) &
+                     (df['ROI'] == roi)]
+
+        # 3a. Min-trials gate on the first window (same trials per window)
+        df_w0 = df_elec[df_elec['WindowIndex'] == window_indices[0]]
+        cell_counts = df_w0.groupby(anova_factors).size()
+        if (cell_counts < min_trials_per_cell).any():
+            return {'skipped': True, 'reason': 'min_trials_per_cell',
+                    'subject': sub, 'electrode': elec, 'roi': roi,
+                    'cell_counts': cell_counts.to_dict()}
+
+        # 3b. Observed F and sign from the shared-helper output
+        observed_F = obs_f_by_unit[unit_key]                          # (n_eff, n_win)
+        observed_sign = (obs_sign_by_unit[unit_key]
+                         if split_clusters_by_sign and obs_sign_by_unit is not None
+                         else None)
+
+        # 3c. Permutation null (trials shuffled within electrode)
+        elec_seed = (seed + hash(unit_key)) % (2**31 - 1)
+        rng = np.random.RandomState(elec_seed)
+        n_trials_elec = len(df_w0)
+        null_F = np.full((n_perm, n_effects, n_windows), np.nan, dtype=np.float32)
+        null_sign = (np.full((n_perm, n_effects, n_windows), np.nan, dtype=np.float32)
+                     if split_clusters_by_sign else None)
+
+        for pi in range(n_perm):
+            perm = rng.permutation(n_trials_elec)
+            for wi, w in enumerate(window_indices):
+                df_w = df_elec[df_elec['WindowIndex'] == w].copy().reset_index(drop=True)
+                for col in anova_factors:
+                    df_w[col] = df_w[col].values[perm]
+                f_dict = _fit_anova_one_window(df_w, formula, anova_factors)
+                if f_dict is None:
+                    continue
+                for ei, eff in enumerate(effect_names):
+                    null_F[pi, ei, wi] = f_dict.get(eff, np.nan)
+                    if split_clusters_by_sign:
+                        null_sign[pi, ei, wi] = _signed_contrast_per_window(
+                            df_w, eff, anova_factors)
+
+        # 3d. Cluster correction per effect (extent statistic, sign-aware)
+        per_effect = {}
+        for ei, eff in enumerate(effect_names):
+            obs = np.nan_to_num(observed_F[ei], nan=0.0)
+            null = np.nan_to_num(null_F[:, ei, :], nan=0.0)
+            obs_sg = observed_sign[ei] if observed_sign is not None else None
+            null_sg = null_sign[:, ei, :] if null_sign is not None else None
+
+            pointwise_thresh = np.nanpercentile(null, percentile, axis=0)
+            raw_obs = _find_contiguous_runs(obs > pointwise_thresh)
+
+            do_split = (split_clusters_by_sign and obs_sg is not None
+                        and np.any(np.isfinite(obs_sg)))
+            obs_sub = (_split_clusters_at_sign_flips(raw_obs, obs_sg)
+                       if do_split
+                       else [{'start': s, 'end': e, 'sign': 0} for s, e in raw_obs])
+
+            null_max_extents = []
+            for pi in range(null.shape[0]):
+                raw_pi = _find_contiguous_runs(null[pi] > pointwise_thresh)
+                sub_pi = (_split_clusters_at_sign_flips(raw_pi, null_sg[pi])
+                          if do_split and null_sg is not None
+                          else [{'start': s, 'end': e, 'sign': 0} for s, e in raw_pi])
+                extents = [c['end'] - c['start'] + 1 for c in sub_pi] or [0]
+                null_max_extents.append(max(extents))
+            null_max_extents = np.array(null_max_extents)
+            extent_thresh = np.percentile(null_max_extents, cluster_percentile)
+
+            sig_subs = []
+            for c in obs_sub:
+                ext = c['end'] - c['start'] + 1
+                p = float((null_max_extents >= ext).mean())
+                if ext > extent_thresh:
+                    sig_subs.append({**c, 'extent': ext, 'p_value': p})
+
+            window_mask = np.zeros(n_windows, dtype=bool)
+            pos_window_mask = np.zeros(n_windows, dtype=bool)
+            neg_window_mask = np.zeros(n_windows, dtype=bool)
+            for c in sig_subs:
+                window_mask[c['start']:c['end'] + 1] = True
+                if c['sign'] > 0:
+                    pos_window_mask[c['start']:c['end'] + 1] = True
+                elif c['sign'] < 0:
+                    neg_window_mask[c['start']:c['end'] + 1] = True
+
+            def _expand(mask_w):
+                m = np.zeros(n_times, dtype=bool)
+                for s, e in _find_contiguous_runs(mask_w):
+                    sa, _ = win_to_samples[s]
+                    _, eb = win_to_samples[e]
+                    m[sa:eb + 1] = True
+                return m
+
+            peak_idx = (int(np.nanargmax(observed_F[ei]))
+                        if np.isfinite(observed_F[ei]).any() else -1)
+            min_p = min((c['p_value'] for c in sig_subs), default=1.0)
+
+            per_effect[eff] = {
+                'observed_F': observed_F[ei],
+                'signed_contrast': (obs_sg if obs_sg is not None
+                                    else np.full(n_windows, np.nan)),
+                'window_mask': window_mask,
+                'pos_window_mask': pos_window_mask,
+                'neg_window_mask': neg_window_mask,
+                'sample_mask': _expand(window_mask),
+                'pos_sample_mask': _expand(pos_window_mask),
+                'neg_sample_mask': _expand(neg_window_mask),
+                'sig_clusters_with_sign': sig_subs,
+                'peak_F': (float(observed_F[ei, peak_idx])
+                           if peak_idx >= 0 else np.nan),
+                'peak_time': (float(window_centers[peak_idx])
+                              if peak_idx >= 0 else np.nan),
+                'cluster_p_value': min_p,
+                'any_sig_cluster': bool(sig_subs),
+            }
+
+        # 3e. Stream-write per-electrode npz (memory: drop null_F after this)
+        if save_dir and run_label:
+            out_dir = Path(save_dir) / 'within_elec_anova' / run_label / roi / sub
+            out_dir.mkdir(parents=True, exist_ok=True)
+            np.savez(
+                out_dir / f'{elec}.npz',
+                observed_F=observed_F,
+                null_F=null_F,
+                signed_contrast=(observed_sign if observed_sign is not None
+                                 else np.full(observed_F.shape, np.nan)),
+                window_mask=np.array([per_effect[e]['window_mask'] for e in effect_names]),
+                pos_window_mask=np.array([per_effect[e]['pos_window_mask'] for e in effect_names]),
+                neg_window_mask=np.array([per_effect[e]['neg_window_mask'] for e in effect_names]),
+                effect_names=np.array(effect_names),
+                window_centers=window_centers,
+            )
+
+        return {'skipped': False,
+                'subject': sub, 'electrode': elec, 'roi': roi,
+                'per_effect': per_effect}
+
+    # === 4. Fan out over electrodes ===
+    tasks = list(obs_f_by_unit.keys())
+    if verbose:
+        print(f"[within-elec] {len(tasks)} (subject, electrode, roi) tasks; "
+              f"{n_perm} perms each on {n_jobs} workers")
+    raw_results = Parallel(n_jobs=n_jobs, verbose=5 if verbose else 0)(
+        delayed(_run_one_electrode)(k) for k in tasks
+    )
+
+    # === 5. Aggregate results + tidy summary df + skipped log ===
+    results = {}
+    summary_rows = []
+    skipped = []
+    for r in raw_results:
+        if r['skipped']:
+            skipped.append(r); continue
+        roi = r['roi']
+        results.setdefault(roi, {})[(r['subject'], r['electrode'])] = r['per_effect']
+        for eff, info in r['per_effect'].items():
+            if info['sig_clusters_with_sign']:
+                for ci, c in enumerate(info['sig_clusters_with_sign']):
+                    summary_rows.append({
+                        'subject': r['subject'], 'electrode': r['electrode'], 'roi': roi,
+                        'effect': eff, 'cluster_idx': ci,
+                        'sign': c['sign'], 'extent_windows': c['extent'],
+                        'cluster_onset': float(window_centers[c['start']]),
+                        'cluster_offset': float(window_centers[c['end']]),
+                        'cluster_p_value': c['p_value'],
+                        'peak_F': info['peak_F'], 'peak_time': info['peak_time'],
+                    })
+            else:
+                summary_rows.append({
+                    'subject': r['subject'], 'electrode': r['electrode'], 'roi': roi,
+                    'effect': eff, 'cluster_idx': -1,
+                    'sign': 0, 'extent_windows': 0,
+                    'cluster_onset': np.nan, 'cluster_offset': np.nan,
+                    'cluster_p_value': 1.0,
+                    'peak_F': info['peak_F'], 'peak_time': info['peak_time'],
+                })
+    summary_df = pd.DataFrame(summary_rows)
+
+    # === 6. BH-FDR across electrodes (per roi, per effect) ===
+    if not summary_df.empty:
+        def _fdr(g):
+            p = g['cluster_p_value'].fillna(1.0).values
+            reject, p_adj, _, _ = multipletests(p, alpha=0.05, method='fdr_bh')
+            g = g.copy()
+            g['cluster_p_fdr'] = p_adj
+            g['sig_after_fdr'] = reject
+            return g
+        summary_df = summary_df.groupby(['roi', 'effect'], group_keys=False).apply(_fdr)
+
+    # === 7. Disk writes: summary.csv, skipped.csv, sig_electrodes_*.json,
+    #        significant_effects_structure.json (legacy compat) ===
+    if save_dir and run_label:
+        run_dir = Path(save_dir) / 'within_elec_anova' / run_label
+        run_dir.mkdir(parents=True, exist_ok=True)
+        summary_df.to_csv(run_dir / 'summary.csv', index=False)
+        pd.DataFrame(skipped).to_csv(run_dir / 'skipped.csv', index=False)
+
+        if not summary_df.empty:
+            sig = summary_df[summary_df['sig_after_fdr']]
+            sig_by_re = {}
+            for (roi, eff), grp in sig.groupby(['roi', 'effect']):
+                sig_by_re.setdefault(eff, {})[roi] = (
+                    grp[['subject', 'electrode']].drop_duplicates().to_dict('records'))
+            for eff, by_roi in sig_by_re.items():
+                safe_eff = eff.replace(':', '_x_').replace('C(', '').replace(')', '')
+                with open(run_dir / f'sig_electrodes_{safe_eff}.json', 'w') as f:
+                    json.dump(by_roi, f, indent=2)
+
+        # Legacy significant_effects_structure.json
+        sig_struct = {}
+        for roi, by_elec in results.items():
+            for (sub, elec), per_effect in by_elec.items():
+                for eff, info in per_effect.items():
+                    if not info['any_sig_cluster']:
+                        continue
+                    cluster_p = info['cluster_p_value']
+                    for wi, in_cluster in enumerate(info['window_mask']):
+                        if not in_cluster:
+                            continue
+                        tw = float(window_centers[wi])
+                        sig_struct.setdefault(sub, {}) \
+                                  .setdefault(elec, {}) \
+                                  .setdefault(roi, {}) \
+                                  .setdefault(tw, {})[eff] = cluster_p
+        with open(run_dir / 'significant_effects_structure.json', 'w') as f:
+            json.dump(sig_struct, f, indent=2)
+
+    return results, window_centers, summary_df, skipped
+
+def load_significant_electrodes(within_elec_anova_run_dir, roi=None, effect=None,
+                                use_fdr=True, p_thresh=0.05):
+    """Filter a within_elec_anova run to a list of (subject, electrode) tuples.
+
+    Prefers significant_effects_structure.json (legacy format) when present;
+    falls back to summary.csv with FDR otherwise.
+    """
+    import pandas as pd
+    from pathlib import Path
+    run_dir = Path(within_elec_anova_run_dir)
+    sig_json = run_dir / 'significant_effects_structure.json'
+
+    if sig_json.exists():
+        struct = json.load(open(sig_json))
+        out = []
+        for sub, by_elec in struct.items():
+            for elec, by_roi in by_elec.items():
+                if roi is not None and roi not in by_roi:
+                    continue
+                rois_to_walk = [roi] if roi else list(by_roi.keys())
+                for r in rois_to_walk:
+                    by_tw = by_roi.get(r, {})
+                    matched = any(
+                        (effs.get(effect, 1.0) < p_thresh) if effect
+                        else any(p < p_thresh for p in effs.values())
+                        for _, effs in by_tw.items()
+                    )
+                    if matched:
+                        out.append((sub, elec))
+        return sorted(set(out))
+
+    df = pd.read_csv(run_dir / 'summary.csv')
+    if roi is not None:
+        df = df[df['roi'] == roi]
+    if effect is not None:
+        df = df[df['effect'] == effect]
+    df = df[df['sig_after_fdr']] if use_fdr else df[df['cluster_p_value'] < p_thresh]
+    return list(df[['subject', 'electrode']].drop_duplicates()
+                  .itertuples(index=False, name=None))
+    
 def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois, subjects, 
                                     electrodes_per_subject_roi, window_size=64, 
                                     step_size=16, sampling_rate=256):
@@ -1763,7 +2150,7 @@ def run_windowed_anova_cluster_correction(
     windowed_data, conditions_obj, anova_factors, rois, subjects,
     electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
     n_perm=1000, percentile=95, cluster_percentile=95,
-    split_anova_clusters_by_sign=True,                    
+    split_clusters_by_sign=True,                    
     seed=42, n_jobs=-1, verbose=True,
 ):
     """Windowed full-ANOVA + cluster correction.
@@ -1866,7 +2253,7 @@ def run_windowed_anova_cluster_correction(
                 
         # === Compute signed contrast trace per effect alongside observed F ===
         observed_sign = np.full((len(effect_names), n_windows), np.nan)
-        if split_anova_clusters_by_sign:
+        if split_clusters_by_sign:
             for wi, w in enumerate(window_indices):
                 df_w = df_agg[df_agg['WindowIndex'] == w]
                 for ei, eff in enumerate(effect_names):
@@ -1901,7 +2288,7 @@ def run_windowed_anova_cluster_correction(
                     continue
                 for ei, eff in enumerate(effect_names):
                     null_F_perm[ei, wi] = f_dict.get(eff, np.nan)
-                    if split_anova_clusters_by_sign:
+                    if split_clusters_by_sign:
                         null_sign_perm[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
             return null_F_perm, null_sign_perm                                  # === CHANGED ===
 
@@ -1918,7 +2305,7 @@ def run_windowed_anova_cluster_correction(
             obs    = np.nan_to_num(observed_F[ei], nan=0.0)
             null   = np.nan_to_num(null_F[:, ei, :], nan=0.0)
             obs_sg = observed_sign[ei]                  # may be all NaN for 3-way+
-            null_sg = null_sign[:, ei, :] if split_anova_clusters_by_sign else None
+            null_sg = null_sign[:, ei, :] if split_clusters_by_sign else None
 
             # 1. Per-window pointwise threshold from the null distribution
             pointwise_thresh = np.nanpercentile(null, percentile, axis=0)  # (n_windows,)
@@ -1928,7 +2315,7 @@ def run_windowed_anova_cluster_correction(
             raw_obs_clusters = _find_contiguous_runs(above_thresh)
 
             # Branch: do we have a usable sign trace?
-            do_split = (split_anova_clusters_by_sign and np.any(np.isfinite(obs_sg)))
+            do_split = (split_clusters_by_sign and np.any(np.isfinite(obs_sg)))
 
             if do_split:
                 obs_split = _split_clusters_at_sign_flips(raw_obs_clusters, obs_sg)

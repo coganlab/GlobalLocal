@@ -44,6 +44,8 @@ from src.analysis.power.power_traces import (
     run_windowed_anova_cluster_correction,
     anova_results_to_interaction_results_for_plotting,
     plot_anova_interaction_results,
+    run_within_electrode_windowed_anova_cluster_correction,
+    load_significant_electrodes, 
 )
 
 
@@ -149,6 +151,26 @@ def main(args):
     print("-------------------------------------\n")
 
     # ------------------------------------------------------------------
+    # 3b. Optionally filter electrodes to those flagged in a prior
+    #     within-electrode ANOVA run.
+    # ------------------------------------------------------------------
+    if args.filter_electrodes_from:
+        keep = set(load_significant_electrodes(
+            args.filter_electrodes_from,
+            roi=None,                           # let the filter cover all ROIs
+            effect=args.filter_effect,
+            use_fdr=args.filter_use_fdr,
+            p_thresh=0.05,
+        ))
+        print(f"[filter] loaded {len(keep)} (sub, elec) tuples from "
+              f"{args.filter_electrodes_from}")
+        for roi in rois:
+            for sub, elec_list in list(electrodes[roi].items()):
+                electrodes[roi][sub] = [e for e in elec_list if (sub, e) in keep]
+        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
+        print(f"[filter] {remaining} electrodes remain after filtering")
+        
+    # ------------------------------------------------------------------
     # 4. Build evokeds for all conditions
     # ------------------------------------------------------------------
     evks_dict_elecs = make_multi_channel_evokeds_for_all_conditions_and_rois(
@@ -197,10 +219,8 @@ def main(args):
                 f"condition_label '{condition_label}' has no 'anova_factors' / "
                 f"'anova_interactions' in the registry."
             )
-        print(f"\nRunning full {len(anova_factors)}-way ANOVA cluster correction "
-              f"across {len(rois)} ROI(s) with {args.n_perm} permutations")
 
-        # Pull a representative evoked to get the full time vector + n_times
+        # Pull a representative evoked to get the full time vector
         ref_evk = next(
             (evks_dict_elecs[c][r] for c in condition_names for r in rois
              if evks_dict_elecs[c][r] is not None and evks_dict_elecs[c][r].data.shape[0] > 0),
@@ -216,24 +236,50 @@ def main(args):
             step_size=args.step_size, sampling_rate=args.sampling_rate,
         )
 
-        anova_cluster_results, window_centers = run_windowed_anova_cluster_correction(
-            windowed_data, conditions, anova_factors, rois, args.subjects,
-            electrodes_per_subject_roi=electrodes,
-            times=full_times,
-            window_size=args.window_size, step_size=args.step_size,
-            sampling_rate=args.sampling_rate,
-            n_perm=args.n_perm,
-            percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
-            cluster_percentile=int(100 * (1 - args.p_cluster)),
-            seed=42, n_jobs=args.n_jobs, verbose=True,
-            split_anova_clusters_by_sign=args.split_anova_clusters_by_sign
-        )
+        if args.anova_unit == 'roi':
+            print(f"\nRunning across-electrode ANOVA cluster correction across "
+                  f"{len(rois)} ROI(s) with {args.n_perm} permutations")
+            anova_cluster_results, window_centers = run_windowed_anova_cluster_correction(
+                windowed_data, conditions, anova_factors, rois, args.subjects,
+                electrodes_per_subject_roi=electrodes,
+                times=full_times,
+                window_size=args.window_size, step_size=args.step_size,
+                sampling_rate=args.sampling_rate,
+                n_perm=args.n_perm,
+                percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
+                cluster_percentile=int(100 * (1 - args.p_cluster)),
+                split_clusters_by_sign=args.split_clusters_by_sign,
+                seed=42, n_jobs=args.n_jobs, verbose=True,
+            )
+            interaction_results = anova_results_to_interaction_results_for_plotting(
+                anova_cluster_results, anova_interactions,
+            )
+            within_elec_summary = None
+            within_elec_skipped = None
 
-        # Adapt into the structure the mega-plot expects, picking out the four 2-ways
-        interaction_results = anova_results_to_interaction_results_for_plotting(
-            anova_cluster_results, anova_interactions,
-        )
-
+        else:   # 'electrode'
+            print(f"\nRunning within-electrode ANOVA cluster correction across "
+                  f"{len(rois)} ROI(s) with {args.n_perm} permutations")
+            run_label = conditions_save_name   # filenames inside the run dir
+            (anova_cluster_results, window_centers,
+             within_elec_summary, within_elec_skipped) = \
+                run_within_electrode_windowed_anova_cluster_correction(
+                    windowed_data, conditions, anova_factors, rois, args.subjects,
+                    electrodes_per_subject_roi=electrodes,
+                    times=full_times,
+                    window_size=args.window_size, step_size=args.step_size,
+                    sampling_rate=args.sampling_rate,
+                    n_perm=args.n_perm,
+                    percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
+                    cluster_percentile=int(100 * (1 - args.p_cluster)),
+                    min_trials_per_cell=args.min_trials_per_cell,
+                    split_clusters_by_sign=args.split_clusters_by_sign,
+                    seed=42, n_jobs=args.n_jobs, verbose=True,
+                    save_dir=save_dir, run_label=run_label,
+                )
+            # In within-electrode mode the 16-condition mega-plot doesn't make
+            # sense (results are per-electrode, not ROI-aggregated). Skip it.
+            interaction_results = None
     # ------------------------------------------------------------------
     # 6. Plotting
     # ------------------------------------------------------------------
