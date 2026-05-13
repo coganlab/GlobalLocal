@@ -1,8 +1,8 @@
 
 #!/usr/bin/env python
 """
-Submit script for james sun cluster decoding analysis.
-This sets up input args for and calls james_sun_cluster_decoding_dcc.py
+Submit script for  decoding analysis.
+This sets up input args for and calls decoding_dcc.py
 Should be wrapped in an sbatch script for cluster submission.
 """
 import sys

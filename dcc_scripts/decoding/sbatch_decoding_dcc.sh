@@ -3,8 +3,8 @@
 #SBATCH -e out/slurm_%j_%x.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 10
-#SBATCH --mem=95G
-#SBATCH --time=120:00:00
+#SBATCH --mem=200G
+#SBATCH --time=18:00:00
 
 source $(conda info --base)/etc/profile.d/conda.sh
 conda activate ieeg

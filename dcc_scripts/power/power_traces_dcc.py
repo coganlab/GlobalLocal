@@ -315,9 +315,7 @@ def main(args):
                 evks_dict_elecs, usable_pairs, rois
             )
             sub_pair_names = ['-'.join(pair) for pair in usable_pairs]
-            sub_save_name = (f"{condition_label}_subtractions_"
-                             f"{args.epochs_root_file}_"
-                             f"{len(args.subjects)}_subjects")
+            sub_save_name = (f"{condition_label}_subtractions_{len(args.subjects)}_subjects")
             plot_power_traces_for_all_rois(
                 subtracted_evks_dict_elecs, rois, sub_pair_names, sub_save_name,
                 plot_params, save_dir=save_dir,
@@ -367,22 +365,23 @@ def main(args):
                     cluster_p_values=info['cluster_p_values'],
                 )
                 
-    if args.statistical_method == 'anova':
-        # Save the full ANOVA F-traces too (all 16 effects for stimulus_experiment_conditions, not just the 4 plotted)
+    if args.statistical_method == 'anova' and args.anova_unit == 'roi':
         try:
+            anova_save_dir = os.path.join(save_dir, 'anova_F_traces')
+            os.makedirs(anova_save_dir, exist_ok=True)
             for roi, by_effect in anova_cluster_results.items():
                 for eff, info in by_effect.items():
                     safe_eff = eff.replace(':', '_x_').replace('C(', '').replace(')', '')
                     np.savez(
-                        os.path.join(utils._subdir(save_dir, 'anova_F_traces'),
-                                     f'{conditions_save_name}_{roi}_{safe_eff}.npz'),
+                        os.path.join(anova_save_dir,
+                                    f'{conditions_save_name}_{roi}_{safe_eff}.npz'),
                         observed_F=info['observed_F'],
                         null_F=info['null_F'],
                         window_mask=info['window_mask'],
                         sample_mask=info['sample_mask'],
                     )
         except NameError:
-            pass  # anova_cluster_results not in scope (e.g. another method ran)
+            pass
 
     metadata = {
         'condition_label': condition_label,

@@ -846,7 +846,43 @@ CONDITION_REGISTRY = {
         'significance_label_1': 'S/R (25% I) > S/R (75% I)',
         'significance_label_2': 'S/R (75% I) > S/R (25% I)',
     },
-}
+},
+# =========================================================================
+# 11. Direct Block Decoding (A vs B vs C vs D)
+# =========================================================================
+
+'stimulus_block_pairwise_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_all_block_conditions,
+    'comparisons': {
+        'Stimulus_blockA_vs_Stimulus_blockB': ['Stimulus_blockA', 'Stimulus_blockB'],
+        'Stimulus_blockA_vs_Stimulus_blockC': ['Stimulus_blockA', 'Stimulus_blockC'],
+        'Stimulus_blockA_vs_Stimulus_blockD': ['Stimulus_blockA', 'Stimulus_blockD'],
+        'Stimulus_blockB_vs_Stimulus_blockC': ['Stimulus_blockB', 'Stimulus_blockC'],
+        'Stimulus_blockB_vs_Stimulus_blockD': ['Stimulus_blockB', 'Stimulus_blockD'],
+        'Stimulus_blockC_vs_Stimulus_blockD': ['Stimulus_blockC', 'Stimulus_blockD'],
+    },
+},
+
+'stimulus_block_multiclass_conditions': {
+    'conditions_obj': experiment_conditions.stimulus_all_block_conditions,
+    # A single "comparison" with len > 2 -- the existing decoder pipeline reads
+    # n_cats from the label set so a 4-element list flows through as 4-class.
+    'comparisons': {
+        'Stimulus_blockABCD': [
+            'Stimulus_blockA', 'Stimulus_blockB',
+            'Stimulus_blockC', 'Stimulus_blockD',
+        ],
+    },
+    'pooled_shuffle': [
+        {
+            'key': 'block_multiclass_shuffle',
+            'strings_to_find': [
+                ['Stimulus_blockA'], ['Stimulus_blockB'],
+                ['Stimulus_blockC'], ['Stimulus_blockD'],
+            ],
+        },
+    ],
+},
 
 }
 

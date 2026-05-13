@@ -74,7 +74,7 @@ WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm clu
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 SPLIT_CLUSTERS_BY_SIGN = True
 MIN_TRIALS_PER_CELL=4
-ANOVA_UNIT = 'roi' # whether to do the stats in terms of roi (across electrodes) or electrode (within_electrodes)
+ANOVA_UNIT = 'electrode' # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
 FILTER_ELECTRODES_FROM = None # Optional path to a within_elec_anova run directory (the one containing summary.csv and significant_effects_structure.json). When set, restrict the analysis to electrodes flagged significant in that run.
 FILTER_EFFECT = None # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
 FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
@@ -103,14 +103,17 @@ N_PERM = 500
 TAILS=2
 
 # ============================================================================
-# Condition selection
+# Condition selection - NOW FROM SUBMIT SCRIPT
 # Pass a condition_label (string key into condition_registry.CONDITION_REGISTRY).
 # The registry resolves: conditions_obj, comparisons, subtraction_pairs,
 # anova_factors, anova_interactions, etc.
 # Example labels: 'stimulus_err_corr_conditions', 'stimulus_lwpc_conditions',
 # 'stimulus_experiment_conditions' (16-cell ANOVA).
-CONDITION_LABEL = 'stimulus_lwpc_conditions'
-
+CONDITION_LABEL = os.environ.get('CONDITION_LABEL')
+if CONDITION_LABEL is None:
+    raise ValueError("CONDITION_LABEL environment variable not set. "
+                     "Set it via sbatch --export=ALL,CONDITION_LABEL=...")
+    
 # Epochs file selection
 EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 # EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"

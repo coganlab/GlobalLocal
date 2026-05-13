@@ -22,6 +22,7 @@ if project_root not in sys.path:
 
 import numpy as np
 import mne
+import json
 import matplotlib.pyplot as plt
 from typing import Union, List, Sequence, Optional, Dict, Tuple
 import logging
