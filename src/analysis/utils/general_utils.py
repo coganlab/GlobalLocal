@@ -173,6 +173,8 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
             default_dict = gen_labels(good.info, sub='D107A', picks=seeg_ch_names)
+        elif sub == 'D0139A':
+            default_dict = gen_labels(good.info, sub='D139A', picks=seeg_ch_names)
         else:
             default_dict = gen_labels(good.info, picks=seeg_ch_names)
 
