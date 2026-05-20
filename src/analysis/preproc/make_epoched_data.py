@@ -130,7 +130,7 @@ def shuffle_array(arr):
     return arr
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
-                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_factor=8, 
+                      within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 3, LAB_root=None, channels=None, dec_factor=8, 
                       outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
                       stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
@@ -406,7 +406,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=0.5, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
+         within_base_times=(-1, 0), base_times_length=0.5, pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
          outliers=10, threshold_percent=5.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
          stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
@@ -433,7 +433,7 @@ if __name__ == "__main__":
     parser.add_argument('--within_base_times', type=float, nargs=2, default=(-1, 0), help='Time window for baseline processing. Default is (-1, 0).')
     parser.add_argument('--baseline_event', type=str, default='Stimulus', help='Event to use for baseline. Default is Stimulus.')
     parser.add_argument('--base_times_length', type=float, default=0.5, help='Length of the time intervals to randomly select within `within_base_times`. Default is 0.5.')
-    parser.add_argument('--pad_length', type=float, default=0.5, help='Length to pad each time interval. Will be removed later. Default is 0.5.')
+    parser.add_argument('--pad_length', type=float, default=3, help='Length to pad each time interval. Will be removed later. Default is 0.5.')
     parser.add_argument('--LAB_root', type=str, default=None, help='Root directory for the lab. Will be determined based on OS if not provided. Default is None.')
     parser.add_argument('--channels', type=str, default=None, help='Channels to plot and get stats for. Default is all channels.')
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
