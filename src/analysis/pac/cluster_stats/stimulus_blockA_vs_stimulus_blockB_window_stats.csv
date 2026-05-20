@@ -1,0 +1,6 @@
+window_idx,time_center,significant,p_value
+0,-0.75,False,0.5774845030993802
+1,-0.25,False,0.6174765046990602
+2,0.25,False,0.6798640271945611
+3,0.75,False,0.6270745850829834
+4,1.25,False,1.0

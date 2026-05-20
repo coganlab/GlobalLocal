@@ -6,15 +6,15 @@
 #SBATCH --mem=200G
 #SBATCH --time=24:00:00
 
-default_subj=("D0121")
+default_subj=("D0057" "D0059" "D0063" "D0065" "D0069" "D0071" "D0077" "D0090" "D0094" "D0100" "D0102" "D0103" "D0107A" "D0110" "D0116" "D0117" "D0121" "D0137")
 default_region="lpfc"
-default_conditions=("stimulus_c75" "stimulus_c25" "stimulus_i75" "stimulus_i25")
+default_conditions=("stimulus_c" "stimulus_i")
 default_time_start="-1.0"
 default_time_end="1.5"
 default_window_width="0.5"
 default_time_step="0.5"
-default_out_fig="cond_timecourse_sig.png"
-default_out_csv="cond_timecourse_sig_summary.csv"
+default_out_fig="cond_timecourse_"${default_conditions[0]}${default_subject}".png"
+default_out_csv="cond_timecourse_summary.csv"
 #default_sig_pairs_dir="/hpc/home/$USER/coganlab/$USER/GlobalLocal/src/analysis/pac/sig_pairs"
 
 
@@ -58,7 +58,7 @@ mkdir -p sig_pairs
 # build and run python command
 cmd=(python "$PY_SCRIPT" --subj "${subj[@]}" --region "$region" --conditions "${conditions[@]}" \
      --time_start "$time_start" --time_end "$time_end" --window_width "$window_width" --time_step "$time_step" \
-     --sig_pairs_dir "$sig_pairs_dir" --out_fig "$out_fig" --out_csv "$out_csv")
+     --sig_pairs_dir "$sig_pairs_dir")
 
 echo "Running: ${cmd[*]}"
 "${cmd[@]}"
