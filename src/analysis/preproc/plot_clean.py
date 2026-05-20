@@ -132,8 +132,9 @@ def main(subjects_list):
 
         # this is to exclude the eeg channels if needed
         # List of channels you want to exclude. Uncomment if needed.
-        # channels_to_exclude = ['T5', 'T6', 'FZ', 'CZ', 'PZ', 'FP1', 'FP2', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'O1', '02', 'F7', 'F8', 'T3', 'T4']
-        # raw.drop_channels(channels_to_exclude)
+        # channels_to_exclude = ['T5', 'T6', 'FZ', 'CZ', 'PZ', 'FP1', 'FP2', 'F3', 'F4', 'C3', 'C4', 'P3', 'P4', 'O1', 'O2', 'F7', 'F8', 'T3', 'T4']
+        channels_to_exclude = ['P3', 'O1', 'FP2', 'F4', 'C4', 'P4', 'O2', 'F8', 'T4', 'T6', 'F7']
+        raw.drop_channels(channels_to_exclude)
         
         # Plot raw data and save it
         fig_raw = figure_compare([actual_raw], 

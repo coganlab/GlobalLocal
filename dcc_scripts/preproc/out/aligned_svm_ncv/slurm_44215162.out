@@ -1,0 +1,67 @@
+['/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/jz421/coganlab/jz421/GlobalLocal', '/hpc/group/coganlab/jz421/GlobalLocal/src/analysis/preproc', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages']
+--------- PARSED ARGUMENTS ---------
+args.subjects: ['D0077']
+args.task: GlobalLocal
+args.times: [-1.0, 1.5]
+args.within_base_times: [-1.0, 0.0]
+args.baseline_event: Stimulus
+args.base_times_length: 0.5
+args.pad_length: 1.5
+args.LAB_root: /cwork/jz421
+args.channels: None
+args.dec_factor: 8
+args.outlier_policy: ignore
+args.outliers: 10
+args.threshold_percent: 5.0
+args.passband: [4.0, 8.0]
+args.filter_method: bandpass
+args.method: fir
+args.fir_design: firwin
+======================================================================
+epoching data for subject: D0077
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Extracting EDF parameters from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/jz421/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0077/ieeg/sub-D0077_acq-01_space-ACPC_electrodes.tsv.
+Not fully anonymizing info - keeping his_id, sex, and hand info
+Use my new crop empty data function that gets rid of the mne annotations extras dict
+good channels before dropping bads: 134
+filt channels before dropping bads: 134
+outlier round 1 channels: ['ROAM8']
+outlier round 2 channels: ['ROAM8', 'RTAM1']
+outlier round 2 channels: ['ROAM8', 'RTAM1', 'ROPM7']
+Bad channels in 'good': ['ROAM8', 'RTAM1', 'ROPM7']
+Bad channels in 'good' after dropping once: []
+good channels after dropping bads: 131
+filt channels after dropping bads: 131
+Reading 0 ... 5671320  =      0.000 ...  2769.199 secs...

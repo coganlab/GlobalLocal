@@ -63,6 +63,7 @@ from tqdm import tqdm
 import re
 from pathlib import Path
 from src.analysis.utils.general_utils import identify_bad_channels_by_trial_nan_rate
+from collections import defaultdict
 
 # Directory where your .npy files are saved
 npy_directory = r'C:\Users\luoruoxi\Box\CoganLab\D_Data\GlobalLocal\accArrays'  # Replace with your directory path
@@ -270,7 +271,37 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         good.pick_channels(channels)
 
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
-    good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
+    ch_names = good.ch_names
+    parsed_channels = []
+    for ch in ch_names:
+        match = re.match(r'([A-Za-z]+)(\d+)', ch)
+        if match:
+            prefix, num_str = match.groups()
+            parsed_channels.append((prefix, int(num_str), ch))
+        else:
+            print(f"Warning: Channel '{ch}' does not match expected format (letters + digits). Skipping.")
+    groups = defaultdict(list)
+    for prefix, num, ch in parsed_channels:
+        groups[prefix].append((num, ch))
+    anodes = []
+    cathodes = []
+    for prefix, items in groups.items():
+        items.sort(key=lambda x: x[0])
+        if len(items) == 1:
+            print(f"Warning: Only one channel in group '{prefix}' ({items[0][1]}). No bipolar pair can be formed.")
+            continue
+        for i in range(0, len(items) - 1):
+            anode_ch = items[i][1]
+            cathode_ch = items[i + 1][1]
+            anodes.append(anode_ch)
+            cathodes.append(cathode_ch)
+
+    if anodes and cathodes:
+        good = mne.set_bipolar_reference(good,anode=anodes,cathode=cathodes,drop_refs=True,copy=False,)
+        print(f"Applied bipolar reference to {len(anodes)} pairs.")
+    else:
+        print("No valid bipolar pairs found. Skipping bipolar reference.")
+    
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
     pad_length_string = f"{pad_length}s" # define pad_length as a string so can use it as input to crop_pad
 
@@ -299,6 +330,10 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         "stimulus_s": ["Stimulus/s25.0/Accuracy1.0", "Stimulus/s75.0/Accuracy1.0"],
         "stimulus_ci25": ["Stimulus/c25.0/Accuracy1.0", "Stimulus/i25.0/Accuracy1.0"],
         "stimulus_ci75": ["Stimulus/c75.0/Accuracy1.0", "Stimulus/i75.0/Accuracy1.0"],
+        "stimulus_c25": ["Stimulus/c25.0/Accuracy1.0"],
+        "stimulus_c75": ["Stimulus/c75.0/Accuracy1.0"],
+        "stimulus_i25": ["Stimulus/i25.0/Accuracy1.0"],
+        "stimulus_i75": ["Stimulus/i75.0/Accuracy1.0"],
     }
     full_start = start  # e.g. -1.0
     full_end = end      # e.g. 1.5
@@ -333,6 +368,7 @@ baseline_event="Stimulus", pad_length = 0.5, LAB_root=None, channels=None, dec_f
         safe_event = sanitize_filename(group_name)
         out_fname = os.path.join(save_dir, f'{sub}_{safe_event}_full-epo.fif')
         trials_ev_full.save(out_fname, overwrite=True)
+        print("Final channel names after bipolar reference:", good.ch_names)
         print(f"Saved combined {group_name} (full times [{full_start},{full_end}]) for subject {sub} to {out_fname}")
 
 

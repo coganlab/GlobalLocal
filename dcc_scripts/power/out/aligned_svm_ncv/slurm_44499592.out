@@ -1,0 +1,67 @@
+Qt5Agg backend not available, using default backend
+Qt5Agg backend not available, using default backend
+['/hpc/home/etb28/coganlab/etb28/GlobalLocal/src', '/hpc/home/etb28/coganlab/etb28/GlobalLocal', '/hpc/group/coganlab/etb28/GlobalLocal/dcc_scripts/power', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python311.zip', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/lib-dynload', '/hpc/home/etb28/miniconda3/envs/ieeg/lib/python3.11/site-packages', '/hpc/home/etb28/coganlab/etb28/GlobalLocal/IEEG_Pipelines/']
+======================================================================
+BANDPASS FILTERED DECODING ANALYSIS
+======================================================================
+Subjects:          ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137']
+Conditions:        ['Stimulus_err', 'Stimulus_corr']
+ROIs:              ['lpfc', 'occ', 'dlpfc', 'acc', 'parietal', 'mfc', 'insula_ant']
+Epochs file:       Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_none_thresh_perc_5.0_4.0-8.0_Hz_padLength_1.5s_bandpass_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+Electrodes (all or sig):       sig
+----------------------------------------------------------------------
+Perm Cluster Statistical Parameters:
+  P-value Threshold: 0.05
+  P cluster: 0.05
+  Stat Func: ttest_rel
+  Permutation Type: independent
+  Number of Permutations: 500
+  Tails: 2
+======================================================================
+ANOVA Parameters:
+  Window Size: None
+  Step Size: None
+  Apply FDR: True
+  FDR alpha: 0.05
+======================================================================
+plotting parameters:
+
+{'show_title': False, 'show_xlabel': True, 'show_ylabel': True, 'show_legend': False, 'title': None, 'x_label': 'Time from Response Onset (s)', 'y_label': 'Power (z)', 'title_font_size': 14, 'axis_font_size': 38, 'tick_font_size': 28, 'legend_font_size': 14, 'xticks': [-1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0], 'yticks': [-0.2, 0, 0.2, 0.4, 0.6], 'xtick_labels': None, 'ytick_labels': None, 'xlim': (-1.0, 1.5), 'ylim': (-0.25, 0.65), 'figsize': (12, 8), 'text_color': 'black', 'sig_cluster_height': 0.6}
+======================================================================
+
+Starting analysis...
+Attempting to load the subjects' electrodes-to-ROIs dictionary...
+File not found: /hpc/home/etb28/coganlab/etb28/GlobalLocal/src/analysis/config/subjects_electrodestoROIs_dict.json
+No dictionary found. Looks like it's our lucky day to create one!
+D0057
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-02_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-03_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+Extracting EDF parameters from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_ieeg.edf...
+EDF file detected
+Setting channel info structure...
+Creating raw.info structure...
+Reading events from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_events.tsv.
+Reading channel info from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_task-GlobalLocal_acq-01_run-04_desc-clean_channels.tsv.
+Reading electrode coords from /cwork/etb28/BIDS-1.1_GlobalLocal/BIDS/derivatives/clean/sub-D0057/ieeg/sub-D0057_acq-01_space-ACPC_electrodes.tsv.
+<RawEDF | sub-D0057_task-GlobalLocal_acq-01_run-01_desc-clean_ieeg.edf, 178 x 8243200 (4025.0 s), ~201 KiB, data not loaded>
+
+✗ Analysis failed with error: extras must be an instance of None, list, or _AnnotationsExtrasList, got <class 'mne.annotations._AnnotationsExtrasDict'> instead.

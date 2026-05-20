@@ -1,0 +1,5 @@
+Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 114, in <module>
+    raise ValueError("CONDITION_NAME environment variable not set. "
+ValueError: CONDITION_NAME environment variable not set. Set it via sbatch --export=ALL,CONDITION_NAME=...

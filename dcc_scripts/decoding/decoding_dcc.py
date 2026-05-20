@@ -105,8 +105,10 @@ def main(args):
     subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
     
     condition_names = list(args.conditions.keys()) # get the condition names as a list
-    
-    save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
+    if args.save_dir:
+        save_dir = args.save_dir
+    else: 
+        save_dir = os.path.join(LAB_root, 'BIDS-1.1_GlobalLocal', 'BIDS', 'derivatives', 'decoding', 'figs', f"{args.epochs_root_file}")
     os.makedirs(save_dir, exist_ok=True)
     print(f"Save directory created or already exists at: {save_dir}")
     
@@ -136,20 +138,23 @@ def main(args):
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
     
-    condition_comparisons = get_comparisons(args.conditions)
+    condition_comparisons = get_comparisons(args.condition_label)
  
     # get the confusion matrix using the downsampled version
     # add elec and subject info to filename 6/11/25
     other_string_to_add = (
         f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}_ev_{args.explained_variance}"
     )
+    # append left out subject to file name for leave-one-subject out decoding debugging. Can delete after. 4/28/26. 
+    if getattr(args, 'held_out_subject', None):
+        other_string_to_add += f"_loo-{args.held_out_subject}"
             
     time_window_decoding_results = {}     
      
     print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
     if args.run_visualization_debug: # this needs to be pulled into its own function so that this can be a one liner.
-        run_visualization_debug(args, rois, condition_names, electrodes, subjects_mne_objects, save_dir)
+        run_visualization_debug(args, rois, args.condition_label, electrodes, subjects_mne_objects, save_dir)
         
     # use joblib to run the bootstrap processing in parallel
     bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
@@ -201,11 +206,15 @@ def main(args):
     )
     
     sub_str = str(len(args.subjects))
+    sub_str_with_ids = "_".join([str(len(args.subjects))] + [s.strip().replace('D00', "").replace('D0', "") for s in args.subjects])
+    
     analysis_params_str = (
+            f"job{args.slurm_job_id}_"
             f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
             f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
             f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
-        )               
+        )   
+                
     master_results = {
         'stats': all_bootstrap_stats,
         'metadata': {
@@ -255,7 +264,7 @@ def main(args):
                     linestyles=linestyles,
                     single_column=args.single_column,
                     show_legend=args.show_legend,
-                    ylim=(0.3, 0.8),
+                    ylim=(0.3, 1.0),
                     show_chance_level=False, # The pooled shuffle line is the new chance level 
                     filename_suffix=analysis_params_str  
                 )    

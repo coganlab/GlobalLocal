@@ -40,7 +40,8 @@ from src.analysis.config.condition_registry import get_pooled_shuffle_settings
 
 from src.analysis.utils.labeled_array_utils import (
     make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel,
-    concatenate_conditions_by_string,
+    concatenate_conditions_by_string, gather_class_data_by_stratum
+
 )
 from src.analysis.decoding.decoding import (
     get_confusion_matrices_for_rois_time_window_decoding_jim,
@@ -70,7 +71,7 @@ def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, r
     
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
     """
-    Generates and processes a single bootstrap sample.
+    Generates and processes a single bootstrap sample for decoding.
     This function is designed to be called in parallel by joblib.
     This is meant to be called in decoding_dcc.py.
     """
@@ -131,8 +132,8 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
     for condition_comparison, strings_to_find in condition_comparisons.items():
         results_for_this_bootstrap['time_averaged_cms'][condition_comparison] = {}
         for roi in rois:
-            # Get the 'cats' dictionary for this ROI
-            _, _, cats = concatenate_conditions_by_string(
+            # Get the 'cats' dictionary for this ROI - pass through balance_strata and bootstrap_random_state 
+            _, cats = gather_class_data_by_stratum(
                 roi_labeled_arrays_this_bootstrap, roi, strings_to_find, args.obs_axs
             )
             
@@ -151,6 +152,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
                 n_repeats=args.n_repeats,
                 obs_axs=args.obs_axs,
                 balance_method=args.balance_method,
+                balance_strata=args.balance_strata,
                 explained_variance=args.explained_variance,
                 random_state=args.random_state + bootstrap_idx,
             )
@@ -173,6 +175,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             time_axs=-1,
             clf=args.clf_model,
             balance_method=args.balance_method,
+            balance_strata=args.balance_strata,
             explained_variance=args.explained_variance,
             random_state=bootstrap_random_state,
             window_size=args.window_size,
@@ -219,7 +222,7 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             
     # 1. Determine configuration based on experiment conditions - make sure to update this as you add more conditions
     # pooled_settings is now a LIST of (key, strings_to_find) tuples
-    pooled_settings_list = get_pooled_shuffle_settings(args.conditions)
+    pooled_settings_list = get_pooled_shuffle_settings(args.condition_label)
 
     # 2. Execute logic for ALL pooled settings
     for pooled_settings in pooled_settings_list:

@@ -44,6 +44,11 @@ from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import CONDITION_REGISTRY
 from src.analysis.config.condition_registry import get_comparisons
 
+from src.analysis.utils.epoch_metadata_utils import (
+    make_metadata_from_event_names,
+    add_previous_trial_info
+)
+
 def get_default_LAB_root():
     """Determine the default root directory for CoganLab data based on the current platform.
 
@@ -78,7 +83,7 @@ def get_default_LAB_root():
             # Fallback for other Linux systems
             return os.path.join(HOME, "CoganLab")
 
-def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json'):
+def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json', layout=None):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
     for a list of subjects and saves these mappings to a JSON file.
@@ -136,17 +141,40 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         LAB_root = get_default_LAB_root()
 
     for sub in subjects:
+
         print(sub)
-        layout = get_data(task, root=LAB_root)
+        if layout is None:
+            layout = get_data(task, root=LAB_root)
+
         good = get_good_data(sub, layout)
 
         channels = good.ch_names
-        
+
+        # Only pick sEEG channels for label generation
+        seeg_picks = mne.pick_types(good.info, seeg=True, exclude='bads')
+        seeg_ch_names = [good.info['ch_names'][i] for i in seeg_picks]
+
+        try:
+            # Load recon CSV to check which channels have localizations
+            # Note: this only works on PC where ECoG_Recon is accessible, not on the cluster
+            recon_path = os.path.join(LAB_root.replace("CoganLab", "ECoG_Recon"), 
+                                    sub.replace("D0", "D"), "elec_recon",
+                                    f"{sub.replace('D0', 'D')}_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv")
+            recon_df = pd.read_csv(recon_path, skiprows=1, header=None)
+            localized_channels = set(recon_df[1].astype(str).values)
+            missing = [ch for ch in seeg_ch_names if ch not in localized_channels]
+            if missing:
+                print(f"  Skipping channels not in recon CSV: {missing}")
+            seeg_ch_names = [ch for ch in seeg_ch_names if ch in localized_channels]
+        except (FileNotFoundError, OSError) as e:
+            print(f"  Could not load recon CSV for {sub} (probably on cluster): {e}")
+            # Proceed without filtering - gen_labels will raise KeyError if there are orphan channels
+
         # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
         if sub == 'D0107A':
-            default_dict = gen_labels(good.info, sub='D107A')
+            default_dict = gen_labels(good.info, sub='D107A', picks=seeg_ch_names)
         else:
-            default_dict = gen_labels(good.info)
+            default_dict = gen_labels(good.info, picks=seeg_ch_names)
 
         # Create rawROI_dict for the subject
         rawROI_dict = defaultdict(list)
@@ -222,7 +250,7 @@ def load_subjects_electrodes_to_ROIs_dict(save_dir, filename='subjects_electrode
         return None
     
 def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, 
-                                                filename='subjects_electrodes_to_ROIs_dict.json', 
+                                                filename='subjects_electrodes_to_ROIs_dict.json', layout=None
                                                 ):
     """
     Ensures the subjects' electrodes-to-ROIs dictionary is available.
@@ -268,7 +296,7 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     if subjects_electrodes_to_ROIs_dict is None:
         print("No dictionary found. Looks like it's our lucky day to create one!")
-        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename)
+        make_subjects_electrodes_to_ROIs_dict(subjects, task, LAB_root, save_dir, filename, layout)
         subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
         print("Dictionary created and loaded successfully. Let's roll!")
 
@@ -346,6 +374,8 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
     MNE Epochs objects using `load_mne_objects`, and then further processes
     these epochs based on specified experimental conditions. It can optionally
     filter epochs to include only accurate trials.
+    
+    It also adds metadata to epochs objects if they don't already have them, and blockType to their metadata if it's not already included.
 
     Parameters:
     ----------
@@ -356,18 +386,19 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         Example: 'Stimulus_1sec_preStimulusBase_decFactor_10'.
     conditions : dict
         A dictionary defining the experimental conditions to extract.
-        - Keys (str): User-defined names for each condition (e.g., 'TargetAuditory', 'StandardVisual').
+        - Keys (str): User-defined names for each condition (e.g., 'Stimulus_c25', 'Stimulus_c75').
         - Values (dict): Parameters for each condition. Each condition's dictionary
           *must* contain a 'BIDS_events' key.
           The value for 'BIDS_events' can be:
-            - A string: representing a single BIDS event type (e.g., 'auditory/target').
+            - A string: representing a single BIDS event type (e.g., 'Stimulus/c25.0').
             - A list of strings: representing multiple BIDS event types to be
-              concatenated for this condition (e.g., ['visual/target', 'visual/nontarget']).
+              concatenated for this condition (e.g., ['Stimulus/c25.0', 'Stimulus/c75.0']).
+
         Example:
         ```python
         conditions = {
-            'AuditoryTarget': {'BIDS_events': 'auditory/target', 'other_param': 'value'},
-            'VisualCombined': {'BIDS_events': ['visual/target', 'visual/nontarget']}
+            'Stimulus_c25': {'BIDS_events': ['Stimulus/c25.0']},
+            'Stimulus_c': {'BIDS_events': ['Stimulus/c25.0', 'Stimulus/c75.0]}
         }
         ```
     task : str
@@ -418,6 +449,17 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
         # Loop through each MNE object type (e.g., 'HG_ev1_power_rescaled')
         for mne_object_type, epochs_obj in mne_objects.items():
             
+            # parse event names into metadata on the full epochs object before acc filtering so prev-trial lookups see all trials
+            if epochs_obj.metadata is None or 'block_type' not in (epochs_obj.metadata.columns if epochs_obj.metadata is not None else []):
+                md = make_metadata_from_event_names(epochs_obj)
+                md = add_previous_trial_info(md)
+                # block_type as (incongruent_proportion, switch_proportion) tuple
+                md['block_type'] = md.apply(
+                    lambda r: (r.get('incongruent_proportion'), r.get('switch_proportion')),
+                    axis=1
+                )
+                epochs_obj.metadata = md
+            
             # Filter for accuracy first before looping through conditions
             processed_epochs = epochs_obj
             if acc_trials_only:
@@ -429,14 +471,32 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
             for condition_name, condition_parameters in conditions.items():
                 print(f"  Loading condition: {condition_name}")
                 
+                # support metadata_query as an alternative to BIDS_events
+                metadata_query = condition_parameters.get("metadata_query")
                 bids_events = condition_parameters.get("BIDS_events")
-                if not bids_events:
-                    print(f"    Warning: Condition '{condition_name}' is missing 'BIDS_events'. Skipping.")
+                
+                if metadata_query is None and not bids_events:
+                    print(f"    Warning: Condition '{condition_name}' has neither metadata_query nor 'BIDS_events'. Skipping.")
                     continue
 
                 event_epochs = None  # Initialize to None
-
-                if isinstance(bids_events, list):
+                
+                # first apply the metadata query if it exists
+                if metadata_query is not None:
+                    # Query metadata directly. Accepts any pandas .eval()-compatible string, 
+                    # including prev-trial columns (e.g., "prev_task_sequence == 's'").
+                    try:
+                        mask = processed_epochs.metadata.eval(metadata_query).fillna(False).to_numpy()
+                    except Exception as e:
+                        print(f"    Warning: metadata_query failed for '{condition_name}': {e}. Skipping.")
+                        continue
+                    sel_idx = np.where(mask)[0]
+                    if len(sel_idx) == 0:
+                        print(f"    Warning: metadata_query '{metadata_query}' matched 0 trials for {sub}. Skipping condition '{condition_name}'.")
+                        continue
+                    event_epochs = processed_epochs[sel_idx]
+                    
+                elif isinstance(bids_events, list):
                     combined_epochs_list = []
                     for event in bids_events:
                         try:
@@ -502,6 +562,31 @@ def create_subjects_mne_objects_dict(subjects, epochs_root_file, conditions, tas
             subjects_mne_objects[sub] = final_sub_mne_objects
 
     return subjects_mne_objects
+
+def load_HG_ev1_rescaled_per_subject(
+    subjects, epochs_root_file, task, LAB_root=None,
+    acc_trials_only=True
+):
+    """
+    Basically create subjects mne objects dict but a SINGLE  Epochs object per subject (so no longer one per condition) with an attached metadata Dataframe.
+    
+    Returns:
+    -------
+    HG_ev1_rescaled_per_subject (dict) : a dictionary with subjects as keys and HG_ev1_rescaled Epochs objects as values
+    """
+    HG_ev1_rescaled_per_subject = {}
+    for sub in subjects:
+        mne_objects = load_mne_objects(sub, epochs_root_file, task, 
+                                       just_HG_ev1_rescaled=True,
+                                       LAB_root=LAB_root)
+        
+        epochs = mne_objects['HG_ev1_rescaled'] # already has metadata CSV attached
+        
+        if acc_trials_only:
+            epochs = epochs['Accuracy1.0']
+        HG_ev1_rescaled_per_subject[sub] = epochs
+        
+    return HG_ev1_rescaled_per_subject
     
 def load_acc_arrays(npy_directory, skip_subjects=None):
     """
@@ -1240,13 +1325,13 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
                         
             if 'congruency' in effect:
                 color = 'red'
-            elif 'congruencyProportion' in effect:
+            elif 'incongruentProportion' in effect:
                 color = 'green'
             elif 'switchType' in effect:
                 color = 'blue'
             elif 'switchProportion' in effect:
                 color = 'yellow'
-            elif 'congruency:congruencyProportion' in effect:
+            elif 'congruency:incongruentProportion' in effect:
                 color = 'purple'
             elif 'switchType:switchProportion' in effect:
                 color = 'yellowgreen'
@@ -1261,16 +1346,16 @@ def plot_significance(ax, times, sig_effects, y_offset=0.1):
 
 def map_block_type(row):
     '''
-    maps blockType from behavioral csv to congruencyProportion and switchProportion
+    maps blockType from behavioral csv to incongruentProportion and switchProportion
     '''
     if row['blockType'] == 'A':
-        return pd.Series(['25%', '25%'])
-    elif row['blockType'] == 'B':
-        return pd.Series(['25%', '75%'])
-    elif row['blockType'] == 'C':
         return pd.Series(['75%', '25%'])
-    elif row['blockType'] == 'D':
+    elif row['blockType'] == 'B':
         return pd.Series(['75%', '75%'])
+    elif row['blockType'] == 'C':
+        return pd.Series(['25%', '25%'])
+    elif row['blockType'] == 'D':
+        return pd.Series(['25%', '75%'])
     else:
         return pd.Series([None, None])
 
@@ -1560,10 +1645,8 @@ def get_good_data(sub, layout):
     # Load the data
     filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                            extension='.edf', desc='clean', preload=False)  # Get line-noise filtered data
-    print(filt)
 
-    # Crop raw data to minimize processing time
-    good = crop_empty_data(filt)
+    good = crop_empty_data_fixed(filt)
 
     # Mark and drop bad channels
     good.info['bads'] = channel_outlier_marker(good, 3, 2)
@@ -2120,3 +2203,61 @@ def build_condition_comparisons(conditions, experiment_conditions=None):
     This is primarily for setting up decoding comparisons.
     """    
     return get_comparisons(conditions)
+
+# Add this fixed version of crop_empty_data at the top of your script, after the imports
+def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s"):
+    """Fixed version of crop_empty_data that handles MNE compatibility issues."""
+    from ieeg.timefreq.utils import to_samples
+    
+    crop_list = []
+    start_pad = to_samples(start_pad, raw.info['sfreq']) / raw.info['sfreq']
+    end_pad = to_samples(end_pad, raw.info['sfreq']) / raw.info['sfreq']
+    
+    # split annotations into blocks
+    annot = raw.annotations.copy()
+    block_idx = [idx + 1 for idx, val in
+                 enumerate(annot) if bound in val['description']]
+    block_annot = [annot[i: j] for i, j in
+                   zip([0] + block_idx, block_idx +
+                       ([len(annot)] if block_idx[-1] != len(annot) else []))]
+    
+    for block_an in block_annot:
+        # remove boundary events from annotations
+        no_bound = None
+        for an in block_an:
+            if bound not in an['description']:
+                # FIX: Handle the extras field compatibility issue
+                an_dict = {}
+                an_dict['onset'] = an['onset']
+                an_dict['duration'] = an['duration']
+                an_dict['description'] = an['description']
+                if 'ch_names' in an:
+                    an_dict['ch_names'] = an['ch_names']
+                # Don't include 'extras' field to avoid compatibility issues
+                
+                if no_bound is None:
+                    no_bound = mne.Annotations(**an_dict)
+                else:
+                    # Don't include orig_time in append
+                    no_bound.append(onset=an_dict['onset'],
+                                  duration=an_dict['duration'],
+                                  description=an_dict['description'])
+        
+        # Skip if block is all boundary events
+        if no_bound is None:
+            continue
+        
+        # get start and stop time from raw.annotations onset attribute
+        t_min = max(0, no_bound.onset[0] - start_pad)
+        t_max = no_bound.onset[-1] + end_pad
+        
+        # create new cropped raw file
+        crop_list.append(raw.copy().crop(tmin=t_min, tmax=t_max))
+    
+    return mne.concatenate_raws(crop_list)
+
+def _subdir(dir, subfolder):
+    """Return {dir}/{subfolder}/, creating it if missing."""
+    out = os.path.join(dir, subfolder)
+    os.makedirs(out, exist_ok=True)
+    return out

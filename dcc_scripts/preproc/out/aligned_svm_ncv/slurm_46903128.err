@@ -1,0 +1,5 @@
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 226 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/ieeg/io.py:278: RuntimeWarning: Omitted 228 annotation(s) that were outside data range.
+  new_raw = read_raw_bids(bids_path=BIDS_path, verbose=verbose)
+[2026-05-13T17:37:56.289] error: *** JOB 46903128 ON dcc-dhvimdcore-gpu-ferc-s-i11-17 CANCELLED AT 2026-05-13T17:37:56 DUE to SIGNAL Terminated ***

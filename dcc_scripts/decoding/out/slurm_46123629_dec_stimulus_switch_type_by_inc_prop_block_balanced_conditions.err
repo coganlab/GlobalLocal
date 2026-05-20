@@ -1,0 +1,10 @@
+Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
+Traceback (most recent call last):
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py", line 44, in <module>
+    from dcc_scripts.decoding.decoding_dcc import main
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/decoding_dcc.py", line 61, in <module>
+    from src.analysis.decoding.decoding import (
+  File "/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/decoding/decoding.py", line 3891
+    save_dir: None
+    ^^^^^^^^^^^^^^
+SyntaxError: non-default argument follows default argument

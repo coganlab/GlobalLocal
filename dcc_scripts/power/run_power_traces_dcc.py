@@ -44,18 +44,18 @@ from src.analysis.config import experiment_conditions
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
-LAB_ROOT = "/cwork/etb28"  # Will be determined automatically in main()
-# LAB_ROOT = None
+LAB_ROOT = None # Will be determined automatically in main()
 
 # Subject configuration
 # subjects for iR-cS err
 # SUBJECTS = ['D0059', 'D0069', 'D0077', 'D0090', 'D0094', 'D0102', 'D0103', 'D0107A', 'D0121']
 # subjetcs for err-corr
 # SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121']
-SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121']
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137']
+# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133']
+# Below is for power traces, removing D0110, D0059, D0071
+# SUBJECTS = ['D0057', 'D0063', 'D0065', 'D0069', 'D0077', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0116', 'D0117', 'D0121', 'D0130', 'D0133', 'D0134']
 
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139']
+SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0071', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134']
 
 # task
 TASK = 'GlobalLocal'
@@ -68,12 +68,15 @@ ACC_TRIALS_ONLY = True
 N_JOBS = -1 
 
 # stats
-STATISTICAL_METHOD = 'time_perm_cluster' # 'time_perm_cluster' or 'anova'
+STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
-APPLY_FDR = True # Apply FDR correction to p-values for ANOVA, since we can't do cluster correction here (or I at least can't think of a way to do cluster-correction for ANOVA)
-FDR_ALPHA=0.05 # FDR alpha for ANOVA
+SPLIT_CLUSTERS_BY_SIGN = True
+MIN_TRIALS_PER_CELL=4
+FILTER_ELECTRODES_FROM = None # Optional path to a within_elec_anova run directory (the one containing summary.csv and significant_effects_structure.json). When set, restrict the analysis to electrodes flagged significant in that run.
+FILTER_EFFECT = None # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
+FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
 
 if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
@@ -99,24 +102,26 @@ N_PERM = 500
 TAILS=2
 
 # ============================================================================
-# Condition selection
-CONDITIONS = experiment_conditions.stimulus_congruency_conditions
+# Condition selection - NOW FROM SUBMIT SCRIPT
+# Pass a condition_label (string key into condition_registry.CONDITION_REGISTRY).
+# The registry resolves: conditions_obj, comparisons, subtraction_pairs,
+# anova_factors, anova_interactions, etc.
+# Example labels: 'stimulus_err_corr_conditions', 'stimulus_lwpc_conditions',
+# 'stimulus_experiment_conditions' (16-cell ANOVA).
+CONDITION_LABEL = os.environ.get('CONDITION_LABEL')
+if CONDITION_LABEL is None:
+    raise ValueError("CONDITION_LABEL environment variable not set. "
+                     "Set it via sbatch --export=ALL,CONDITION_LABEL=...")
 
-# Epochs file selection
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
->>>>>>> f220d99fe74087e765d3458f352461804b0339b2
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_4.0-8.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_markOutliersAsNaN_False_passband_4.0-8.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within-1-0sec_randoffset_StimulusBase_decFactor_8_outlier_policy_interpolate_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Stimulus_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind_equal_var_False"
-# EPOCHS_ROOT_FILE = "Response_0.5sec_within1sec_randoffset_preStimulusBase_decFactor_8_outliers_10_passband_70.0-150.0_padLength_0.5s_stat_func_ttest_ind"
-
+EPOCHS_ROOT_FILE = os.environ.get('EPOCHS_ROOT_FILE')
+if EPOCHS_ROOT_FILE is None:
+    raise ValueError("EPOCHS_ROOT_FILE environment variable not set. "
+                     "Set it via sbatch --export=ALL,EPOCHS_ROOT_FILE=...")
+    
+ANOVA_UNIT = os.environ.get('ANOVA_UNIT')
+if ANOVA_UNIT is None:
+    raise ValueError("ANOVA_UNIT environment variable not set. "
+                     "Set it via sbatch --export=ALL,ANOVA_UNIT=...")
 # ROI dictionary
 # ROIS_DICT = {
 #     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
@@ -129,16 +134,23 @@ EPOCHS_ROOT_FILE = "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFacto
 
 # adding parietal, dlpfc, acc for err-corr decoding
 # ROIS_DICT = {
-#      'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-#      'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
-#      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
-#      'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
-#      'parietal': ["G_parietal_sup", "S_intrapariet_and_P_trans", "G_pariet_inf-Angular", "G_pariet_inf-Supramar"],
-#  }
+#       'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#       'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"],
+#       'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+#       'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
+#       'mfc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant", "G_and_S_cingul-Mid-Post", "G_and_S_paracentral"],
+#       'insula_ant': ["G_insular_short", "S_circular_insula_ant"]
+# }
+
+# ROIS_DICT = {
+#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 ROIS_DICT = {
-   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+      'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+      'occ': ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle", "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual", "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus", "S_oc_sup_and_transversal", "S_occipital_ant"]
 }
+
 
 # which electrodes to use (all or sig)
 ELECTRODES = 'sig'
@@ -147,33 +159,34 @@ ELECTRODES = 'sig'
 PLOT_STYLE = {
     # Toggles
     'show_title': False,
-    'show_xlabel': False,
-    'show_ylabel': False,
-    'show_legend': False,
+    'show_xlabel': True,
+    'show_ylabel': True,
+    'show_legend': True,
     
     # Labels
     'title': None,        # None = auto-generate from ROI name
-    'x_label': 'Time (s)',
+    # 'x_label': 'Time from Stimulus Onset (s)',
+    'x_label': 'Time from Stimulus Onset (s)',
     'y_label': 'Power (z)',
     
     # Font sizes
     'title_font_size': 14,
-    'axis_font_size': 12,
-    'tick_font_size': 12,
-    'legend_font_size': 10,
+    'axis_font_size': 38,
+    'tick_font_size': 28,
+    'legend_font_size': 14,
     
     # Tick customization
-    'xticks': [-1.0, -0.5, 0, 0.5, 1.0, 1.5],       # None = auto, or pass array
-    'yticks': [-0.1, 0, 0.1, 0.2, 0.3],
+    'xticks': [ -1.0, -0.5, 0, 0.5, 1.0, 1.5, 2.0],       # None = auto, or pass array
+    'yticks': [-0.3, 0, 0.3, 0.6, 0.9],
     'xtick_labels': None, # Custom labels for xticks (like 'baseline', 'onset', etc), which are placed at the xtick locations.
     'ytick_labels': None,
-    'xlim': (-1, 1.5),
-    'ylim': (-0.1, 0.3),
+    'xlim': (-1.0, 1.5),
+    'ylim': (-0.35, 0.9),
     
     # Other
     'figsize': (12, 8),
     'text_color': 'black',
-    'sig_cluster_height': 0.3,
+    'sig_cluster_height': 0.8,
 }
 
 # # # # testing params (comment out)
@@ -183,6 +196,8 @@ PLOT_STYLE = {
 # ROIS_DICT = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
+
+SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE, 'anova_within_' + ANOVA_UNIT)
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -197,7 +212,7 @@ def run_analysis():
         acc_trials_only=ACC_TRIALS_ONLY,
         n_jobs=N_JOBS,
         task=TASK,
-        conditions=CONDITIONS,
+        condition_label=CONDITION_LABEL,
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
@@ -207,15 +222,19 @@ def run_analysis():
         permutation_type=PERMUTATION_TYPE,
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
-        apply_fdr=APPLY_FDR,
-        fdr_alpha=FDR_ALPHA,
+        split_clusters_by_sign=SPLIT_CLUSTERS_BY_SIGN,
+        anova_unit=ANOVA_UNIT,
+        min_trials_per_cell=MIN_TRIALS_PER_CELL,
+        filter_electrodes_from=FILTER_ELECTRODES_FROM ,
+        filter_effect=FILTER_EFFECT,
+        filter_use_fdr=FILTER_USE_FDR,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
         n_perm=N_PERM,
         tails=TAILS,
         plot_style=PLOT_STYLE,
-
+        save_dir=SAVE_DIR
     )
 
     # Print configuration summary
@@ -223,10 +242,12 @@ def run_analysis():
     print("BANDPASS FILTERED DECODING ANALYSIS")
     print("=" * 70)
     print(f"Subjects:          {SUBJECTS}")
-    print(f"Conditions:        {list(CONDITIONS.keys())}")
+    print(f"Condition label:        {CONDITION_LABEL}")
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
+    print(f"sampling rate: {SAMPLING_RATE}"),
+
     print("-" * 70)
     
     print("Perm Cluster Statistical Parameters:")
@@ -241,8 +262,12 @@ def run_analysis():
     print("ANOVA Parameters:")
     print(f"  Window Size: {WINDOW_SIZE}")
     print(f"  Step Size: {STEP_SIZE}")
-    print(f"  Apply FDR: {APPLY_FDR}")
-    print(f"  FDR alpha: {FDR_ALPHA}")
+    print(f"  Split ANOVA Clusters By Sign: {SPLIT_CLUSTERS_BY_SIGN}")
+    print(f" ANOVA unit: {ANOVA_UNIT}")
+    print(f" Min trials per ANOVA cell: {MIN_TRIALS_PER_CELL}")
+    print(f" filter electrodes from: {FILTER_ELECTRODES_FROM}"),
+    print(f" filter effect: {FILTER_EFFECT}"),
+    print(f" filter use fdr: {FILTER_USE_FDR}"),
     print("=" * 70)
     
     print('plotting parameters:')

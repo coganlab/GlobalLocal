@@ -2,10 +2,8 @@
 # Submit decoding jobs for multiple conditions
 
 CONDITIONS=(
-    # "stimulus_congruency_blockC_conditions"
-    "stimulus_err_corr_conditions"
-
-    # add more condition names here
+    stimulus_block_pairwise_conditions
+    # stimulus_block_multiclass_conditions
 )
 
 # Create output directory if needed

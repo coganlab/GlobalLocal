@@ -27,6 +27,7 @@ from mne.stats import permutation_cluster_1samp_test
 import scipy.stats as stats
 from scipy.ndimage import label # was imported separately, now grouped with scipy
 from scipy.stats import norm, t # also from scipy.stats
+import umap
 
 import joblib
 from joblib import Parallel, delayed # Add this line in your decoding.py
@@ -70,7 +71,8 @@ from src.analysis.utils.labeled_array_utils import (
     remove_nans_from_labeled_array,
     remove_nans_from_all_roi_labeled_arrays,
     concatenate_conditions_by_string,
-    get_data_in_time_range
+    get_data_in_time_range,
+    gather_class_data_by_stratum
 )
 
 # utils imports
@@ -81,231 +83,127 @@ import gc
 
 # plotting
 import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D # registers the '3d' projection
+from matplotlib.collections import LineCollection # for color-by-time fades (optional)
 
 def concatenate_and_balance_data_for_decoding(
-    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+    roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method,
+    balance_strata=True, random_state=42
 ):
     """
-    Processes and balances the data for a given ROI with improved debugging.
-    Now correctly distinguishes between outlier-induced NaNs and missing channel NaNs.
-    
-    Parameters:
-    - roi_labeled_arrays: Dictionary containing reshaped data for each ROI.
-    - roi: The ROI to process.
-    - strings_to_find: List of strings or string groups to identify condition labels.
-    - obs_axs: The trials axis.
-    - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
-    - random_state: Random seed for reproducibility.
+    Build a decoding-ready (X, labels, cats) from multi-stratum class definitions.
 
-    Returns:
-    - concatenated_data: The processed and balanced numpy array for decoding. This gets the data out of the roi labeled arrays format and into a numpy array that is trials x channels x (freqs?) x timepoints.
-    - labels: The processed labels array.
-    - cats: Dictionary of condition categories.
+    Order of operations:
+      1. Gather raw data per class per sub-condition (stratum).
+      2. Drop NaN-containing trials per stratum.
+         (This reveals the true, unpadded trial counts.)
+      3. If balance_strata=True, subsample each stratum within a class down to
+         the min count across that class's strata.
+      4. Subsample each class down to the min count across classes
+         (balance_method='subsample') or pad the shorter class with NaNs
+         (balance_method='pad_with_nans').
+      5. Concatenate into final (X, labels) arrays.
     """
-    rng = np.random.RandomState(random_state)
+    rng = (random_state if isinstance(random_state, np.random.RandomState)
+           else np.random.RandomState(random_state))
 
-    # ==================== NEW DEBUGGING BLOCK ====================
-    print("\n" + "="*20 + " DEBUGGING " + "="*20)
-    # Check what the main roi_labeled_arrays dictionary contains
-    print(f"Top-level keys in roi_labeled_arrays: {list(roi_labeled_arrays.keys())}")
-    
-    # Check the specific ROI we are trying to access
-    if roi in roi_labeled_arrays:
-        la = roi_labeled_arrays[roi]
-        print(f"Data for ROI '{roi}' found.")
-        print(f"Object type for this ROI is: {type(la)}")
-        
-        # This is the most important check: what are the actual condition keys?
-        if hasattr(la, 'keys'):
-            print(f"Actual condition keys in the LabeledArray: {list(la.keys())}")
-        else:
-            print("Object is not a LabeledArray or dictionary-like object.")
-            
-    else:
-        print(f"!!!!!!!!!! CRITICAL ERROR: ROI '{roi}' NOT FOUND IN THE DATA !!!!!!!!!!!")
-    
-    print(f"The code is searching for strings: {strings_to_find}")
-    print("="*51 + "\n")
-    # =============================================================
-    
-    # Concatenate the trials and get labels
-    concatenated_data, labels, cats = concatenate_conditions_by_string(
+    # --- Step 1: gather raw data grouped by class -> stratum ---
+    class_data, cats = gather_class_data_by_stratum(
         roi_labeled_arrays, roi, strings_to_find, obs_axs
     )
 
-    print(f"\n{'='*60}")
-    print(f"ROI: {roi}")
-    print(f"{'='*60}")
-    print(f"Initial concatenated data shape: {concatenated_data.shape}")
-    print(f"  Trials: {concatenated_data.shape[0]}")
-    print(f"  Channels: {concatenated_data.shape[1]}")
-    if concatenated_data.ndim > 2:
-        print(f"  Time points: {concatenated_data.shape[-1]}")
-        if concatenated_data.ndim == 4:  # Has frequency dimension
-            print(f"  Frequencies: {concatenated_data.shape[2]}")
-    
+    print(f"\n{'='*60}\nROI: {roi}\n{'='*60}")
+
+    # --- Step 2: drop NaN trials per stratum ---
+    clean_class_data = []   # list of dicts, same structure as class_data
+    for class_idx, strata_dict in enumerate(class_data):
+        clean_strata = {}
+        for cond, data in strata_dict.items():
+            # "trial has NaN" = any NaN anywhere in that trial's data
+            nan_trial_mask = np.isnan(data).any(
+                axis=tuple(range(1, data.ndim)) if obs_axs == 0
+                else tuple(i for i in range(data.ndim) if i != obs_axs)
+            )
+            valid_mask = ~nan_trial_mask
+            n_before = data.shape[obs_axs]
+            n_after = int(valid_mask.sum())
+            clean_strata[cond] = np.take(data, np.where(valid_mask)[0], axis=obs_axs)
+            print(f"  [NaN filter] class={class_idx} stratum={cond}: "
+                  f"{n_before} → {n_after} trials "
+                  f"({100*(n_before-n_after)/max(n_before,1):.1f}% dropped)")
+        clean_class_data.append(clean_strata)
+
+    # --- Step 3: balance strata within each class ---
+    if balance_strata:
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            if len(strata_dict) <= 1:
+                continue
+            sizes = {cond: d.shape[obs_axs] for cond, d in strata_dict.items()}
+            n_per_stratum = min(sizes.values())
+            if n_per_stratum == 0:
+                raise ValueError(
+                    f"Class {class_idx} has a stratum with 0 valid trials after NaN removal: {sizes}"
+                )
+            print(f"  [balance_strata post-NaN] class={class_idx}: {sizes} → {n_per_stratum} per stratum")
+            for cond, data in strata_dict.items():
+                if data.shape[obs_axs] > n_per_stratum:
+                    idx = rng.choice(data.shape[obs_axs], size=n_per_stratum, replace=False)
+                    strata_dict[cond] = np.take(data, idx, axis=obs_axs)
+
+    # --- Step 4 prep: get per-class totals now that strata are balanced ---
+    class_totals = [
+        sum(d.shape[obs_axs] for d in strata_dict.values())
+        for strata_dict in clean_class_data
+    ]
+    print(f"  [class totals after stratum balancing] {dict(enumerate(class_totals))}")
+
+    # --- Step 4: balance across classes ---
     if balance_method == 'subsample':
-        print(f"\n--- Detailed NaN Analysis ---")
-        
-        n_trials = concatenated_data.shape[0]
-        n_channels = concatenated_data.shape[1] if concatenated_data.ndim >= 2 else 1
-        
-        # Reshape to (trials, channels, features) for easier analysis
-        # where features = time*freq or just time
-        reshaped_data = concatenated_data.reshape(n_trials, n_channels, -1)
-        n_features = reshaped_data.shape[2]
-        
-        # 1. Identify channels that are completely NaN across all trials (missing channels)
-        missing_channels = []
-        for ch_idx in range(n_channels):
-            ch_data = reshaped_data[:, ch_idx, :]
-            if np.all(np.isnan(ch_data)):
-                missing_channels.append(ch_idx)
-        
-        print(f"\nMissing Channels (all NaN across all trials): {len(missing_channels)}/{n_channels}")
-        
-        # 2. Analyze NaN patterns per trial
-        trials_with_any_nan = 0
-        trials_with_outlier_nans = 0
-        trials_with_missing_channel_nans = 0
-        trials_with_both = 0
-        
-        outlier_nan_counts = []
-        missing_channel_counts_per_trial = []
-        
-        for trial_idx in range(n_trials):
-            trial_data = reshaped_data[trial_idx]  # Shape: (channels, features)
-            
-            has_any_nan = False
-            has_outlier_nan = False
-            has_missing_channel = False
-            outlier_nans_in_trial = 0
-            missing_channels_in_trial = 0
-            
-            for ch_idx in range(n_channels):
-                ch_data = trial_data[ch_idx]
-                
-                if np.any(np.isnan(ch_data)):
-                    has_any_nan = True
-                    
-                    if np.all(np.isnan(ch_data)):
-                        # Entire channel is NaN for this trial
-                        has_missing_channel = True
-                        missing_channels_in_trial += 1
-                    else:
-                        # Partial NaNs - likely outliers
-                        has_outlier_nan = True
-                        outlier_nans_in_trial += np.sum(np.isnan(ch_data))
-            
-            if has_any_nan:
-                trials_with_any_nan += 1
-            if has_outlier_nan:
-                trials_with_outlier_nans += 1
-                outlier_nan_counts.append(outlier_nans_in_trial)
-            if has_missing_channel:
-                trials_with_missing_channel_nans += 1
-                missing_channel_counts_per_trial.append(missing_channels_in_trial)
-            if has_outlier_nan and has_missing_channel:
-                trials_with_both += 1
-        
-        print(f"\nTrial-level NaN Statistics:")
-        print(f"  Trials with ANY NaN: {trials_with_any_nan}/{n_trials} ({100*trials_with_any_nan/n_trials:.1f}%)")
-        print(f"  Trials with outlier NaNs (sparse): {trials_with_outlier_nans}/{n_trials} ({100*trials_with_outlier_nans/n_trials:.1f}%)")
-        print(f"  Trials with missing channel NaNs (dense): {trials_with_missing_channel_nans}/{n_trials} ({100*trials_with_missing_channel_nans/n_trials:.1f}%)")
-        print(f"  Trials with both types: {trials_with_both}/{n_trials} ({100*trials_with_both/n_trials:.1f}%)")
-        
-        if outlier_nan_counts:
-            print(f"\nOutlier NaN Statistics (for affected trials):")
-            print(f"  Mean outlier NaNs per affected trial: {np.mean(outlier_nan_counts):.1f}")
-            print(f"  Max outlier NaNs in a trial: {np.max(outlier_nan_counts)}")
-            print(f"  Total outlier NaNs across all trials: {np.sum(outlier_nan_counts)}")
-        
-        if missing_channel_counts_per_trial:
-            print(f"\nMissing Channel Statistics (for affected trials):")
-            print(f"  Mean missing channels per affected trial: {np.mean(missing_channel_counts_per_trial):.1f}")
-            print(f"  Max missing channels in a trial: {np.max(missing_channel_counts_per_trial)}")
-        
-        # 3. Calculate percentage of data that is NaN
-        total_nan_count = np.sum(np.isnan(concatenated_data))
-        total_elements = concatenated_data.size
-        print(f"\nOverall NaN Percentage: {100*total_nan_count/total_elements:.2f}%")
-        
-        # Remove trials with any NaNs
-        nan_trials_mask = np.isnan(concatenated_data).any(axis=tuple(range(1, concatenated_data.ndim)))
-        valid_trials = ~nan_trials_mask
-        
-        # Before removing, check which conditions are most affected
-        print(f"\n--- NaN Impact by Condition ---")
-        for string_group in strings_to_find:
-            condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
-            condition_mask = labels == condition_label
-            condition_nan_mask = nan_trials_mask & condition_mask
-            n_condition_trials = np.sum(condition_mask)
-            n_nan_trials = np.sum(condition_nan_mask)
-            print(f"  {string_group}: {n_nan_trials}/{n_condition_trials} trials with NaNs ({100*n_nan_trials/n_condition_trials:.1f}%)")
-        
-        concatenated_data = concatenated_data[valid_trials]
-        labels = labels[valid_trials]
-        
-        print(f"\nAfter removing NaN trials:")
-        print(f"  Trials kept: {np.sum(valid_trials)}/{len(valid_trials)} ({100*np.sum(valid_trials)/len(valid_trials):.1f}%)")
-        print(f"  New data shape: {concatenated_data.shape}")
+        target_n = min(class_totals)
+        print(f"  [balance_method=subsample] subsampling each class to {target_n}")
 
-    # Calculate trial counts per condition
-    trial_counts = {}
-    condition_indices = {}
+        final_per_class = []
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            # Concatenate strata within this class, then subsample if needed
+            class_arr = np.concatenate(list(strata_dict.values()), axis=obs_axs)
+            if class_arr.shape[obs_axs] > target_n:
+                # IMPORTANT: if balance_strata is True and we subsample here,
+                # we may re-unbalance the strata. But at this point we've already
+                # equalized strata, so a uniform random draw preserves the
+                # expected proportions. If you want strict preservation,
+                # subsample per-stratum proportionally instead.
+                idx = rng.choice(class_arr.shape[obs_axs], size=target_n, replace=False)
+                class_arr = np.take(class_arr, idx, axis=obs_axs)
+            final_per_class.append(class_arr)
 
-    print(f"\n--- Final Trial Counts by Condition ---")
-    for string_group in strings_to_find:
-        condition_label = cats[tuple(string_group) if isinstance(string_group, list) else (string_group,)]
-        condition_trials = labels == condition_label
-        data_for_condition = concatenated_data[condition_trials]
+    elif balance_method == 'pad_with_nans':
+        target_n = max(class_totals)
+        print(f"  [balance_method=pad_with_nans] padding each class to {target_n}")
+        final_per_class = []
+        for class_idx, strata_dict in enumerate(clean_class_data):
+            class_arr = np.concatenate(list(strata_dict.values()), axis=obs_axs)
+            n_have = class_arr.shape[obs_axs]
+            if n_have < target_n:
+                pad_shape = list(class_arr.shape)
+                pad_shape[obs_axs] = target_n - n_have
+                pad = np.full(pad_shape, np.nan)
+                class_arr = np.concatenate([class_arr, pad], axis=obs_axs)
+            final_per_class.append(class_arr)
+    else:
+        raise ValueError(f"unknown balance_method: {balance_method}")
 
-        # Store indices and counts
-        condition_indices[condition_label] = np.where(condition_trials)[0]
-        trial_counts[condition_label] = data_for_condition.shape[0]
+    # --- Step 5: final concatenation ---
+    final_data = np.concatenate(final_per_class, axis=obs_axs)
+    labels = np.concatenate([
+        np.full(arr.shape[obs_axs], class_idx, dtype=int)
+        for class_idx, arr in enumerate(final_per_class)
+    ])
 
-        print(f'  Condition {string_group}: {trial_counts[condition_label]} trials')
-
-    # Check if we have enough trials
-    min_trials = min(trial_counts.values()) if trial_counts else 0
-    if min_trials < 10:
-        print(f"\n⚠️ WARNING: Very few trials remaining! Min trials per condition: {min_trials}")
-        print("  This will likely result in poor decoding accuracy.")
-
-    if balance_method == 'pad_with_nans':
-        max_trial_count = max(trial_counts.values())
-        print(f"\nPadding to max trial count: {max_trial_count}")
-        for condition_label, count in trial_counts.items():
-            trials_to_add = max_trial_count - count
-            if trials_to_add > 0:
-                print(f"  Adding {trials_to_add} NaN trials to condition {condition_label}")
-                nan_trial_shape = (trials_to_add,) + concatenated_data.shape[1:]
-                nan_trials = np.full(nan_trial_shape, np.nan)
-                concatenated_data = np.concatenate([concatenated_data, nan_trials], axis=obs_axs)
-                labels = np.concatenate([labels, [condition_label] * trials_to_add])
-
-    elif balance_method == 'subsample':
-        min_trial_count = min(trial_counts.values())
-        print(f"\nSubsampling to min trial count: {min_trial_count}")
-        subsampled_indices = []
-        for condition_label in trial_counts.keys():
-            indices = condition_indices[condition_label]
-            if trial_counts[condition_label] > min_trial_count:
-                selected_indices = rng.choice(indices, size=min_trial_count, replace=False)
-                print(f"  Subsampled condition {condition_label}: {len(indices)} -> {min_trial_count}")
-            else:
-                selected_indices = indices
-            subsampled_indices.extend(selected_indices)
-
-        subsampled_indices = np.array(subsampled_indices, dtype=int)
-        concatenated_data = concatenated_data[subsampled_indices]
-        labels = labels[subsampled_indices]
-        
-        print(f"\nFinal balanced data shape: {concatenated_data.shape}")
-
+    print(f"  [final] data shape: {final_data.shape}, labels: "
+          f"{dict(zip(*np.unique(labels, return_counts=True)))}")
     print(f"{'='*60}\n")
-    return concatenated_data, labels, cats
+
+    return final_data, labels, cats
 
 # largely stolen from aaron's ieeg plot_decoding.py
 
@@ -363,6 +261,16 @@ def mixup2(arr: np.ndarray, labels: np.ndarray, obs_axs: int, alpha: float = 1.,
             arr[i] = l * arr[choice1] + (1 - l) * arr[choice2]
 
 class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
+    '''
+    Decoder class that inherits from two parents: PcaEstimateDecoder and MinimumNaNSplit.
+    PcaEstimateDecoder (from ieeg.decoding.models) sets up self.model as a sklearn Pipeline([pca, clf]).
+    decoder.fit(X, y) calls self.model.fit(X, y), which fits pca -> clf in sequence.
+    decoder.predict(X) calls self.model.predict
+    MinimumNaNSplit (from ieeg.calc.oversample) provides self.split(x, y). This is a stratified K-fold that's NaN-aware.
+    It ensures each test fold has at least N non-NaN trials per class, so there's no folds where one class is entirely missing on some channel.
+    
+    '''
+    
     def __init__(self, categories: dict,
                  explained_variance: float = 0.8,
                  n_splits: int = 5, n_repeats: int = 10,
@@ -370,7 +278,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                  clf: BaseEstimator = LinearDiscriminantAnalysis(),
                  clf_params: dict = None,
                  random_state: int = None):
-        
+        # two-stage constructor b/c inherits from two classes
         PcaEstimateDecoder.__init__(self, 
                                     explained_variance=explained_variance,
                                     clf=clf,
@@ -385,16 +293,20 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
     def cv_cm_jim(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
-        n_cats = len(set(labels))
-        mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats))
-        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs
-        idx = [slice(None) for _ in range(x_data.ndim)]
-        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)):
-            x_train = np.take(x_data, train_idx, obs_axs)
-            x_test = np.take(x_data, test_idx, obs_axs)
+        '''
+        This produces a cross-validated confusion matrix, such that there is one confusion matrix per (repeat, fold).
+        '''
+        
+        n_cats = len(set(labels)) # Number of classes. 2 for binary encoding.
+        mats = np.zeros((self.n_repeats, self.n_splits, n_cats, n_cats)) # output container: one confusion matrix per (repeat, fold).
+        obs_axs = x_data.ndim + obs_axs if obs_axs < 0 else obs_axs # obs axs is the trial axis that gets normalized to a positive index so that np.take is unambiguous. 
+        idx = [slice(None) for _ in range(x_data.ndim)] # create a list of slice(None, None, None) values, with one for each dim of x_data - so probably 3, resulting in [slice(None, None, None), slice(None, None, None), slice(None, None, None)]
+        for f, (train_idx, test_idx) in enumerate(self.split(x_data.swapaxes(0, obs_axs), labels)): # self.split is from the MinimumNaNSplit class, and is a stratified K-fold that ensures each test fold has at least N non-NaN trials per class. The x_data.swapaxes(0, obs_axs) is a view to satisfy self.split's expectation that trials are on axis 0. f is a flat index 0...n_repeats*n_splits-1, corresponding to all folds across all repeats.
+            x_train = np.take(x_data, train_idx, obs_axs) # np.take selects along whatever axis trials really live on. x_train keeps the original shape just fewer trials
+            x_test = np.take(x_data, test_idx, obs_axs) 
             
             y_train = labels[train_idx]
-            mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None)
+            mixup2(arr=x_train, labels=y_train, obs_axs=obs_axs, alpha=1., seed=None) # replace trials with NaN timepoints with a random combination of two non-NaN trials: these trials can be from the same class (50% or higher chance for each trial) or a different class.
             y_test = labels[test_idx]
             # for i in set(labels):
             #     # fill in train data nans with random combinations of existing train data trials (mixup)
@@ -403,33 +315,33 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
             # fill in test data nans with noise from distribution
             is_nan = np.isnan(x_test)
-            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan))
+            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan)) # NaNs are filled with independent and identically distributed noise, which is intentionally non-informative, approximately matching the scaled-feature distribution after the scaler maps everything to unit variance. This is so test imputation doesn't leak class info.
 
             # feature selection
-            train_in = flatten_features(x_train, obs_axs)
+            train_in = flatten_features(x_train, obs_axs) # flatten features collapses everything except the trial axis into one feature dimension so end up with (n_trials, n_channels * n_timepoints)
             test_in = flatten_features(x_test, obs_axs)
-            if train_in.shape[1] > self.max_features:
+            if train_in.shape[1] > self.max_features: # if the resulting feature count exceeds self.max_features, pick a random subset of features, with the same indices for train and test so the slicing is consistent. Usually will not be triggered since  default max_features = inf.
                 tidx = np.random.choice(train_in.shape[1], self.max_features, replace=False)
                 train_in = train_in[:, tidx]
                 test_in = test_in[:, tidx]
 
             # fit model and score results
-            self.fit(train_in, y_train)
-            pred = self.predict(test_in)
+            self.fit(train_in, y_train) # fits scaler -> pca -> clf. Called fresh every iteration, so decoder.model.named_steps['pca'] is overwritten on every fold.
+            pred = self.predict(test_in) # transforms with the same scaler/pca, then predicts
             rep, fold = divmod(f, self.n_splits)
             mats[rep, fold] = confusion_matrix(y_test, pred)
 
         # average the repetitions, sum the folds
-        matk = np.sum(mats, axis=1)
+        matk = np.sum(mats, axis=1) # sum across folds within each repeat, resulting in matk of shape (n_repeats, n_cats, n_cats)
         if normalize == 'true':
-            divisor = np.sum(matk, axis=-1, keepdims=True)
+            divisor = np.sum(matk, axis=-1, keepdims=True) # row-normalize
         elif normalize == 'pred':
-            divisor = np.sum(matk, axis=-2, keepdims=True)
+            divisor = np.sum(matk, axis=-2, keepdims=True) # col-normalize
         elif normalize == 'all':
-            divisor = self.n_repeats
+            divisor = self.n_repeats # average over repeats
         else:
             divisor = 1
-        return matk / divisor
+        return matk / divisor # returns accuracy per repeat of shape (n_repeats, n_cats, n_cats), with the n_repeats distribution being used later for significance testing
     
     # untested 11/30
     # def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
@@ -705,7 +617,12 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         # Step 6: Process each time window independently 
         out_cm = [] # list to collect confusion matrices
 
-        for x_window in windowed:
+        for x_window in windowed: 
+            '''
+            would need to modify this step for temporal generalization matrices. 
+            Maybe chunk the code before and after this into functions that can be reused in two versions of _window_and_predict_minimal - one as is and one with temporal generalization matrices
+            Though cv_cm_jim_window_shuffle would also need to be modified to output (n_windows, n_windows, n_repeats, n_cats, n_cats) instead of the current hsape.
+            '''
             # Step 6a: Flatten all features except trials dimension
             # E.g., (100, 10, 64) -> (100, 640)
             # This creates feature vector for each trial
@@ -920,7 +837,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
 
 def get_and_plot_confusion_matrix_for_rois_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, save_dir,
-    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, random_state=42, timestamp=None
+    time_interval_name=None, other_string_to_add=None, n_splits=5, n_repeats=5, obs_axs=0, balance_method='pad_with_nans', explained_variance=0.8, balance_strata=False, random_state=42, timestamp=None
 ):
     """
     Compute the confusion matrix for each ROI and return it. This function allows for balancing trial counts
@@ -939,6 +856,9 @@ def get_and_plot_confusion_matrix_for_rois_jim(
     - obs_axs: The trials axis.
     - explained_variance: The amount of variance to explain in the PCA.
     - balance_method: 'pad_with_nans' or 'subsample' to balance trial counts between conditions.
+    - balance_strata (bool) : 
+        If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+        subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
     - random_state: Random seed for reproducibility.
     - timestamp: timestamp of when this script was run for filenaming purposes
     
@@ -953,11 +873,16 @@ def get_and_plot_confusion_matrix_for_rois_jim(
         os.makedirs(roi_save_dir, exist_ok=True)
         print(f"Processing ROI: {roi}")
         concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
-            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=balance_strata, random_state=random_state
         )
 
         # Create a Decoder and run cross-validation
-        decoder = Decoder(cats, explained_variance, oversample=True, n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+        decoder = Decoder(cats,                 # classes mapped to their class numbers. E.g., {('c25',): 0, ('i25',): 1}
+                          explained_variance,   # PCA: keep enough components for this much variance (usually 90%)
+                          oversample=True,      # apply mixup to train NaNs
+                          n_splits=n_splits,    # k in k-fold
+                          n_repeats=n_repeats,  # how many times to redo k-fold with different splits
+                          random_state=random_state) 
 
         # Use the concatenated data for the decoder
         cm = decoder.cv_cm_jim(concatenated_data, labels, normalize='true', obs_axs=obs_axs)
@@ -999,7 +924,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
     roi_labeled_arrays, rois, condition_comparison, strings_to_find, clf=None, 
     n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
-    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False
+    step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False,
+    balance_strata=True, random_seed=42
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -1059,6 +985,12 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         aligned to the beginning of the concatenated data. Default is -1.
     folds_as_samples : bool, optional
         Whether to use the folds (splits) as the unit to be shuffled across for time perm cluster. Default is false and to sum across splits within repeats, and use repeats as the unit to be shuffled across instead.
+    balance_strata : bool, optional
+        If True, when a class (string_group) matches multiple sub-conditions (e.g., the same congruency drawn from different blocks), 
+        subsample each matched sub-condition down to the minimum count before concatenating. This prevents block imbalance from biasing the class.
+    random_state : int or RandomState, optional
+        Used only when balance_strata=True
+        
     Returns
     -------
     tuple of (dict, dict)
@@ -1087,7 +1019,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"Processing ROI: {roi}")
 
         concatenated_data, labels, cats = concatenate_and_balance_data_for_decoding(
-            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+            roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata=balance_strata, random_state=random_state
         )
 
         # Get the number of timepoints
@@ -1296,7 +1228,7 @@ def plot_accuracies_nature_style(
     title: Optional[str] = None,
     ylabel: str = "Accuracy",
     ylim: Tuple[float, float] = (0.0, 1.0),  # CHANGED: Default Y-axis is now 0 to 1
-    xlim: Tuple[float, float] = (-0.5, 1.5),
+    xlim: Tuple[float, float] = (-1.0, 1.5),
     single_column: bool = True,
     show_legend: bool = True,
     show_significance: bool = True,
@@ -1433,18 +1365,23 @@ def plot_accuracies_nature_style(
                         fontweight='bold')
         
         # Set labels
+        # changed to size 12 font
+        # changed to response
+        # ax.set_xlabel('Time from response onset (s)', fontsize=12)
         ax.set_xlabel('Time from stimulus onset (s)', fontsize=12)
-        ax.set_ylabel(ylabel, fontsize=7)
+        ax.set_ylabel("Accuracy", fontsize=12)
         
         # Set axis limits
         ax.set_ylim(ylim)
         ax.set_xlim(xlim)
         
         # Configure ticks
-        ax.tick_params(axis='both', which='major', labelsize=6, width=0.5, length=2)
+        # changed to size 10 font
+        ax.tick_params(axis='both', which='major', labelsize=10, width=0.5, length=2)
         
         # Set specific x-ticks for clarity
-        x_ticks = np.arange(-0.5, 1.6, 0.5)
+        # changed to 1.0
+        x_ticks = np.arange(-1.0, 1.6, 0.5)
         ax.set_xticks(x_ticks)
         
         # CHANGED: Set specific y-ticks for consistency
@@ -1676,7 +1613,7 @@ def plot_true_vs_shuffle_accuracies(time_points, accuracies_true, accuracies_shu
     se_shuffle_accuracy = std_shuffle_accuracy / np.sqrt(n_perm)
 
     # Plotting
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 8))
     plt.plot(time_points, mean_true_accuracy, label='True Accuracy', color='blue')
     plt.fill_between(
         time_points,
@@ -2967,14 +2904,14 @@ def do_mne_paired_cluster_test(
 
 def get_time_averaged_confusion_matrix(
     roi_labeled_arrays, roi, strings_to_find, clf, n_splits, n_repeats,
-    obs_axs, balance_method, explained_variance, random_state, cats
+    obs_axs, balance_method, balance_strata, explained_variance, random_state, cats
 ):
     """
     Computes a single time-averaged confusion matrix for one bootstrap sample.
     Returns the RAW COUNTS instead of a normalized matrix.
     """
     concatenated_data, labels, _ = concatenate_and_balance_data_for_decoding(
-        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, random_state
+        roi_labeled_arrays, roi, strings_to_find, obs_axs, balance_method, balance_strata, random_state
     )
 
     if concatenated_data.size == 0:
@@ -3886,7 +3823,7 @@ def plot_static_pca_projection(
     save_dir: None,
     obs_axs: int = 0,
     random_state: int = 42,
-    
+    balance_strata=True
 ):
     """
     Visualizes the first two principal components of the full, flattened dataset.
@@ -3904,7 +3841,8 @@ def plot_static_pca_projection(
         strings_to_find,
         obs_axs=obs_axs,
         balance_method='subsample', # Critical: removes NaN trials
-        random_state=random_state
+        random_state=random_state,
+        balance_strata=balance_strata
     )
     
     if data.size == 0:
@@ -3929,7 +3867,9 @@ def plot_static_pca_projection(
     
     print(f"Explained variance by PC1: {pca.explained_variance_ratio_[0]:.2%}")
     print(f"Explained variance by PC2: {pca.explained_variance_ratio_[1]:.2%}")
-
+    print(f"PCA kept {pca.n_components_} components, total var = " 
+          f"{pca.explained_variance_ratio_.sum():.1%}")
+    
     # 5. Plot
     
     # Get human-readable labels from 'cats'
@@ -3960,10 +3900,16 @@ def plot_static_pca_projection(
     plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%} variance)")
     plt.legend(title="Condition")
     plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
-    plt.axhline(0, color='grey', linestyle='--', linewidth=0.5)
+    plt.axvline(0, color='grey', linestyle='--', linewidth=0.5)
     
     if save_dir:
-        plt.savefig(os.path.join(save_dir, f"static_pca_{roi}.pdf"))
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"static_pca_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"saved static PCA plot to {out}")
     else:
         plt.show()
         
@@ -3976,6 +3922,7 @@ def plot_pca_over_time(
     step_size: int,
     sampling_rate: float,
     first_time_point: float,
+    save_dir: None,
     obs_axs: int = 0,
     random_state: int = 42
 ):
@@ -3993,6 +3940,7 @@ def plot_pca_over_time(
         strings_to_find,
         obs_axs=obs_axs,
         balance_method='subsample', # Must use subsample
+        balance_strata=True, # just hard code this to balance strata, don't know why i wouldn't want this on
         random_state=random_state
     )
     
@@ -4079,7 +4027,157 @@ def plot_pca_over_time(
 
     fig.suptitle(f"PCA Over Time for {roi} (Conditions: {', '.join(label_map.values())})", fontsize=16, y=1.02)
     plt.tight_layout(rect=[0, 0, 1, 0.98])
-    plt.show()
+    
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"pca_over_time_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        print(f"Saved windowed PCA plot to {out}")
+    else:
+        plt.show()
+    
+def plot_pca_3d_trajectory(
+    roi_labeled_arrays,
+    roi,
+    strings_to_find,
+    cats,
+    save_dir,
+    window_size,
+    step_size,
+    sampling_rate,
+    first_time_point,
+    obs_axs=0,
+    random_state=42,
+    explained_variance=0.8,
+    clf=None
+):
+    """
+    Trace each condition's centroid through the Decoder's first 3 PCs over time.
+    """
+    # first get clean data the same way the rest of the pipeline does
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample', 
+        balance_strata=True, random_state=random_state
+    )
+    if data.size == 0:
+        print(f"No data for{roi}, skipping 3D PCA.")
+        return
+    # data shape: (n_trials, n_channels, n_timepoints)
+    n_trials, n_channels, n_timepoints = data.shape
+    
+    # fit the Decoder on the full flattened epoch, pull its PCA
+    if clf is None:
+        clf = LinearDiscriminantAnalysis()
+    
+    X_flat = data.reshape(n_trials, -1) # (n_trials, n_channels x n_timepoints)
+    
+    decoder = Decoder(
+        cats,
+        explained_variance=explained_variance,
+        oversample=False,
+        n_splits=2,
+        n_repeats=1,
+        clf=clf,
+        random_state=random_state
+    )
+    
+    decoder.fit(X_flat, labels)
+    
+    pca = decoder.model.named_steps['pca']
+    n_kept = pca.n_components_
+    print(f"[{roi}] Decoder PCA kept {n_kept} comps, "
+          f"total var = {pca.explained_variance_ratio_.sum():.1%}")
+    if n_kept < 3:
+        print(f"  ⚠ Only {n_kept} PCs available — 3D plot will skip missing axis")
+    
+    # find the grand mean, which becomes the out-of-window filter for the pca
+    grand_mean = data.mean(axis=0) # (n_channels, n_timepoints)
+    
+    # compute per-window/condition centroids, embed them, and project them
+    n_windows = (n_timepoints - window_size) // step_size + 1
+    first_sample = first_time_point * sampling_rate
+    window_centers_s = [
+        (first_sample + step_size * w + window_size / 2) / sampling_rate
+        for w in range(n_windows)
+    ]
+    
+    unique_labels = np.unique(labels)
+    label_to_name = {v: str(k[0]) for k, v in cats.items()}
+    
+    # trajectories[label] -> ndarray of shape (n_windows, 3)
+    trajectories = {lab: np.zeros((n_windows, 3)) for lab in unique_labels}
+    
+    for w in range(n_windows):
+        t0 = w * step_size
+        t1 = t0 + window_size
+        
+        for lab in unique_labels:
+            class_data = data[labels == lab] # (n_class, ch, time)
+            window_centroid = class_data[:, :, t0:t1].mean(0) # (ch, window_size)
+            
+            # embed into the full epoch using the grand mean as filler
+            full = grand_mean.copy() # (ch, time)
+            full[:, t0:t1] = window_centroid
+            
+            # project: pca.transform handles the centering itself.
+            flat = full.reshape(1, -1) # (1, ch*time)
+            pcs = pca.transform(flat)[0] # (n_kept,)
+            
+            # pad with NaN if the decoder kept fewer than 3 components
+            traj_3 = np.full(3, np.nan)
+            traj_3[:min(3, n_kept)] = pcs[:min(3, n_kept)]
+            trajectories[lab][w] = traj_3
+    
+    # plot with one set of 3D axes, one line per condition, and color-coded markers for time
+    fig = plt.figure(figsize=(10,8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    cmap = plt.get_cmap('viridis')
+    norm = plt.Normalize(vmin=window_centers_s[0], vmax=window_centers_s[-1])
+    
+    for lab, traj in trajectories.items():
+        # Connecting line (one color per condition)
+        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], '-', linewidth=1.5, alpha=0.6, label=label_to_name[lab])
+        
+        # markers colored by time
+        ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2],
+                   c=[cmap(norm(t)) for t in window_centers_s],
+                   s=40, edgecolors='k', linewidths=0.5)
+        
+        # mark the window closest to t=0 with a star
+        zero_idx = int(np.argmin(np.abs(np.array(window_centers_s))))
+        ax.scatter(*traj[zero_idx], s=200, marker='*',
+                   facecolors='none', edgecolors='red', linewidths=2)
+    
+    ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%})")
+    ax.set_ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%})"
+                  if n_kept >= 2 else "PC2 (n/a)")
+    ax.set_zlabel(f"PC3 ({pca.explained_variance_ratio_[2]:.1%})"
+                  if n_kept >= 3 else "PC3 (n/a)")   
+    ax.set_title(
+        f"3D PCA trajectory - {roi}\n"
+        f"({n_kept} PCs total, "
+        f"{pca.explained_variance_ratio_.sum():.1%} variance; "
+        f"red ★ = t≈0)"
+    )
+    ax.legend()
+    
+    sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+    cb = fig.colorbar(sm, ax=ax, shrink=0.6, pad=0.1)
+    cb.set_label("Time (s)")
+    
+    os.makedirs(save_dir, exist_ok=True)
+    safe_roi = roi.replace(" ", "_").replace("/", "_")
+    out = os.path.join(save_dir, f"pca_3d_trajectory_{safe_roi}.pdf")
+    plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved 3D PCA trajectory to {out}")
     
 # need to get time window by time window version next. Also this is untested rn. 10/31/25.
 def plot_high_dim_decision_slice(
@@ -4185,7 +4283,188 @@ def plot_high_dim_decision_slice(
 
     plt.savefig(filepath, format='pdf', dpi=300, bbox_inches='tight')
     plt.close() # Close the figure to free memory
+
+def plot_static_umap_projection(
+    roi_labeled_arrays: dict,
+    roi: str,
+    strings_to_find: list,
+    cats: dict,
+    save_dir: None,
+    obs_axs: int = 0,
+    random_state: int = 42,
+    balance_strata=True,
+    explained_variance=0.8,
+    n_neighbors=30, min_dist=0.3, metric='euclidean',
+    decoder=None, clf=None
+):
+    """
+    Visualizes the first two UMAP dimensions of the full, flattened dataset. Does PCA -> UMAP to further project the PCs onto 2 UMAP dimensions.
     
+    This helps to see if the data is nonlinearly separable at a global level.
+    """
+    print(f"--- Generating Static UMAP Plot for ROI: {roi} ---")
+    
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample',
+        balance_strata=True, random_state=random_state,
+    )
+    if data.size == 0:
+        return
+
+    n_trials, n_channels, n_timepoints = data.shape
+    X_flat = data.reshape(n_trials, -1)
+
+    if decoder is None:
+        if clf is None:
+            clf = LinearDiscriminantAnalysis()
+        decoder = Decoder(
+            cats, explained_variance=explained_variance,
+            oversample=False, n_splits=2, n_repeats=1,
+            clf=clf, random_state=random_state,
+        )
+        decoder.fit(X_flat, labels)
+
+    pca = decoder.model.named_steps['pca']
+    pc_scores = pca.transform(X_flat)
+    
+    reducer = umap.UMAP(
+        n_components=2, n_neighbors=n_neighbors,
+        min_dist=min_dist, metric=metric, random_state=random_state
+    )
+    emb = reducer.fit_transform(pc_scores)
+    
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+    df = pd.DataFrame({
+        'UMAP1': emb[:,0],
+        'UMAP2': emb[:,1],
+        'Condition': [label_map[l] for l in labels]
+    })
+    
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(data=df, x='UMAP1', y='UMAP2',
+                    hue='Condition', palette='deep', alpha=0.7, s=50)
+    plt.title(f"UMAP of PCA scores for {roi} "
+              f"(n_pcs={pca.n_components_}, n_neighbors={n_neighbors})")
+    plt.xlabel("UMAP1")
+    plt.ylabel("UMAP2")
+    plt.legend(title="Condition")
+
+    if save_dir:
+        os.makedirs(save_dir, exist_ok=True)
+        safe_roi = roi.replace(" ", "_").replace("/", "_")
+        out = os.path.join(save_dir, f"static_umap_{safe_roi}.pdf")
+        plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+        plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+        plt.close()
+    else:
+        plt.show()
+    
+def plot_umap_3d_trajectory(
+    roi_labeled_arrays, roi, strings_to_find, cats, save_dir,
+    window_size, step_size, sampling_rate, first_time_point,
+    obs_axs=0, random_state=42,
+    explained_variance=0.8,
+    n_neighbors=30, min_dist=0.3, metric='euclidean',
+    n_umap_components=3,
+    decoder=None, clf=None,
+):
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample',
+        balance_strata=True, random_state=random_state,
+    )
+    if data.size == 0:
+        return
+
+    n_trials, n_channels, n_timepoints = data.shape
+    X_flat = data.reshape(n_trials, -1)
+
+    if decoder is None:
+        if clf is None:
+            clf = LinearDiscriminantAnalysis()
+        decoder = Decoder(
+            cats, explained_variance=explained_variance,
+            oversample=False, n_splits=2, n_repeats=1,
+            clf=clf, random_state=random_state,
+        )
+        decoder.fit(X_flat, labels)
+
+    pca = decoder.model.named_steps['pca']
+    n_kept = pca.n_components_
+    if n_kept < 2:
+        print(f"Only {n_kept} PC kept — UMAP needs >=2 input dims. Skipping.")
+        return
+
+    # fit UMAP on the same trial-level PCA scores the LDA receives
+    train_pcs = pca.transform(X_flat)
+    reducer = umap.UMAP(
+        n_components=n_umap_components,
+        n_neighbors=min(n_neighbors, max(2, n_trials - 1)),
+        min_dist=min_dist, metric=metric, random_state=random_state,
+    )
+    reducer.fit(train_pcs)
+
+    # build per-condition / per-window trajectories using the same padded-centroid
+    # trick as plot_pca_3d_trajectory, then push through scaler -> pca -> umap.transform
+    grand_mean = data.mean(axis=0)
+    n_windows = (n_timepoints - window_size) // step_size + 1
+    unique_labels = np.unique(labels)
+    label_map = {v: str(k[0]) for k, v in cats.items()}
+
+    trajectories = {lab: np.zeros((n_windows, n_umap_components))
+                    for lab in unique_labels}
+    window_centers_s = np.zeros(n_windows)
+
+    for w in range(n_windows):
+        t0 = w * step_size
+        t1 = t0 + window_size
+        window_centers_s[w] = first_time_point + (t0 + window_size/2) / sampling_rate
+
+        for lab in unique_labels:
+            class_data = data[labels == lab]
+            window_centroid = class_data[:, :, t0:t1].mean(axis=0)
+            full = grand_mean.copy()
+            full[:, t0:t1] = window_centroid
+            flat = full.reshape(1, -1)
+            pcs = pca.transform(flat)     # (1, n_kept)
+            trajectories[lab][w] = reducer.transform(pcs)[0]
+
+    # plot — structure mirrors plot_pca_3d_trajectory: one line per condition,
+    # viridis-by-time markers, red star at the window closest to t=0
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+    fig = plt.figure(figsize=(12, 9))
+    ax = fig.add_subplot(111, projection='3d')
+    palette = sns.color_palette('deep', n_colors=len(unique_labels))
+
+    for i, lab in enumerate(unique_labels):
+        traj = trajectories[lab]
+        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2],
+                color=palette[i], label=label_map[lab], linewidth=2)
+        ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2],
+                   c=window_centers_s, cmap='viridis', s=40)
+
+    zero_idx = int(np.argmin(np.abs(window_centers_s)))
+    for lab in unique_labels:
+        p = trajectories[lab][zero_idx]
+        ax.scatter(p[0], p[1], p[2], marker='*', s=200, c='red', zorder=10)
+
+    ax.set_xlabel("UMAP1")
+    ax.set_ylabel("UMAP2")
+    ax.set_zlabel("UMAP3")
+    ax.set_title(f"UMAP trajectory for {roi} "
+                 f"(n_pcs={n_kept}, n_neighbors={n_neighbors}, min_dist={min_dist})")
+    ax.legend()
+
+    os.makedirs(save_dir, exist_ok=True)
+    safe_roi = roi.replace(" ", "_").replace("/", "_")
+    out = os.path.join(save_dir, f"umap_3d_trajectory_{safe_roi}.pdf")
+    plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    print(f"Saved 3D UMAP trajectory to {out}")
+    
+
 def run_context_comparison_analysis(
     condition_name,
     condition_comparison_1,
