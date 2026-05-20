@@ -322,3 +322,5 @@ Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-lea
 Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-learn-intelex)
 [Parallel(n_jobs=-1)]: Done   2 tasks      | elapsed:  6.5min
 [Parallel(n_jobs=-1)]: Done  56 tasks      | elapsed: 38.9min
+[Parallel(n_jobs=-1)]: Done 146 tasks      | elapsed: 105.7min
+[Parallel(n_jobs=-1)]: Done 208 out of 208 | elapsed: 135.1min finished

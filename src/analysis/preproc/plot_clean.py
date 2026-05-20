@@ -200,8 +200,8 @@ def main(subjects_list):
         # Save the filtered data
         save_derivative(raw, layout, "clean", True)
         
-        # Mark channel outliers
-        channel_outlier_marker(raw, 3, 2, save=True)
+        # Mark channel outliers - this fails because of some weird BIDS issue but it's fine because get_good_data() reruns channel_outlier_marker() anyway.
+        # channel_outlier_marker(raw, 3, 2, save=True)
 
 # For command line execution
 if __name__ == "__main__":

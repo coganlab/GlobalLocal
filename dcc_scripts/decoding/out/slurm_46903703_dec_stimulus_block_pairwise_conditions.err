@@ -305,3 +305,9 @@ Extension for Scikit-learn* enabled (https://github.com/uxlfoundation/scikit-lea
   event_epochs = mne.concatenate_epochs(combined_epochs_list)
 /hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/sklearnex/decomposition/pca.py:347: UserWarning: Sklearnex always uses `covariance_eigh` solver instead of `full` when `svd_solver` parameter is set to `auto` for performance purposes.
   warn(
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 12 leaked semlock objects to clean up at shutdown
+  warnings.warn(
+/hpc/home/jz421/miniconda3/envs/ieeg/lib/python3.11/site-packages/joblib/externals/loky/backend/resource_tracker.py:359: UserWarning: resource_tracker: There appear to be 2 leaked folder objects to clean up at shutdown
+  warnings.warn(
+/var/spool/slurmd/job46903703/slurm_script: line 13: 284091 Killed                  python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/decoding/run_decoding_dcc.py
+[2026-05-14T06:20:31.337] error: Detected 1 oom_kill event in StepId=46903703.batch. Some of the step tasks have been OOM Killed.
