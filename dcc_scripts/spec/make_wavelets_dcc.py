@@ -37,124 +37,132 @@ import numpy as np
 from src.analysis.utils.general_utils import get_good_data
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper
 
-def main(subject_id,type):
+def main(args):
 
-    try:
-        # Set up paths
+    # ------------------------------------------------------------------
+    # 1. Resolve LAB_root
+    # ------------------------------------------------------------------
+    if args.LAB_root is None:
         HOME = os.path.expanduser("~")
         USER = os.path.basename(HOME)
-        task = 'GlobalLocal'
 
-        # get box directory depending on OS
-        LAB_root = os.path.join("/cwork", USER)
+        if os.name == 'nt':  # Windows
+            LAB_root = os.path.join(HOME, "Box", "CoganLab")
+        elif sys.platform == 'darwin':  # macOS
+            LAB_root = os.path.join(HOME, "Library", "CloudStorage",
+                                    "Box-Box", "CoganLab")
+        else:  # Linux (cluster)
+            if os.path.exists(f"/cwork/{USER}"):
+                LAB_root = f"/cwork/{USER}"
+            else:
+                LAB_root = os.path.join(HOME, "CoganLab")
+    else:
+        LAB_root = args.LAB_root
 
-        # Load Data using the first 'get_data' function
-        layout = get_data(task, root=LAB_root)
+    # ------------------------------------------------------------------
+    # 2. Resolve conditions / comparisons / subtraction_pairs / anova
+    #    config from the registry, driven by condition_label.
+    # ------------------------------------------------------------------
+    condition_label = args.condition_label
+    conditions = get_conditions_obj(condition_label)
+    condition_names = list(conditions.keys())
 
-        output_names_and_events_dict = {}
-        output_names_and_events_dict['ErrorTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy0.0"]
-        output_names_and_events_dict['CorrectTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy1.0"]
 
-        baseline_times = [-0.5, 0]
-        signal_times = [-0.5, 1.5]
+    # Load Data using the first 'get_data' function
+    layout = get_data(args.task, root=LAB_root)
 
-        # Use the second 'get_good_data' function, with the passed-in subject_id
-        print(f"Loading good data for subject: {subject_id}")
-        good = get_good_data(subject_id, layout)
+    # Use the second 'get_good_data' function, with the passed-in args.subject_id
+    print(f"Loading good data for subject: {args.subject_id}")
+    good = get_good_data(args.subject_id, layout)
 
-        if type == 'wavelet':
+    # output_names_and_events_dict = {}
+    # output_names_and_events_dict['ErrorTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy0.0"]
+    # output_names_and_events_dict['CorrectTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy1.0"]
 
-            ## epoching and trial outlier removal
-            save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', subject_id)
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
+    baseline_times = args.baseline_times
+    signal_times = args.signal_times
 
-            # Use the 'subject_id' variable 
-            base = get_uncorrected_wavelets(subject_id, layout, events=["Stimulus"], times=baseline_times, freqs=freqs)
+    if args.spec_type == 'wavelet':
 
-            # make signal wavelets
-            for output_name, events in output_names_and_events_dict.items():
+        ## epoching and trial outlier removal
+        save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'wavelet', args.subject_id)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
 
-                if events: 
-                    print(f"Found {len(events)} trials. Running analysis")
-                    spec = get_uncorrected_wavelets(subject_id, layout, events, signal_times)
+        # Use the 'args.subject_id' variable 
+        base = get_uncorrected_wavelets(args.subject_id, layout, events=["Stimulus"], times=baseline_times)
 
-                    spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
-                        lambda x: np.nanmean(x, axis=0), copy=True)
-                    spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
-                    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-                    spec_rescaled.info['subject_info']['files'] = tuple(fnames)
-                    spec_rescaled.info['bads'] = good.info['bads']
+        # make signal wavelets
+        for condition_name in condition_names:
+            events = conditions.get(condition_name).get('BIDS_events')
+            spec = get_uncorrected_wavelets(args.subject_id, layout, events, signal_times)
 
-                    rescaled_filename = os.path.join(save_dir, f'{output_name}_rescaled-tfr.h5')
-                    uncorrected_filename = os.path.join(save_dir, f'{output_name}_uncorrected-tfr.h5')
+            spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
+                lambda x: np.nanmean(x, axis=0), copy=True)
+            spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
+            fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
+            spec_rescaled.info['subject_info']['files'] = tuple(fnames)
+            spec_rescaled.info['bads'] = good.info['bads']
 
-                    mne.time_frequency.write_tfrs(rescaled_filename, spec_rescaled, overwrite=True)
-                    mne.time_frequency.write_tfrs(uncorrected_filename, spec, overwrite=True)
+            rescaled_filename = os.path.join(save_dir, f'{conditions_name}_rescaled-tfr.h5')
+            uncorrected_filename = os.path.join(save_dir, f'{conditions_name}_uncorrected-tfr.h5')
+
+            mne.time_frequency.write_tfrs(rescaled_filename, spec_rescaled, overwrite=True)
+            mne.time_frequency.write_tfrs(uncorrected_filename, spec, overwrite=True)
+
+            spec_rescaled.save(os.path.join(save_dir, f'{conditions_name}_rescaled-avg.fif'), overwrite=True)
+            spec.save(os.path.join(save_dir, f'{conditions_name}_uncorrected-avg.fif'), overwrite=True)
+
+
+    elif type == 'multitaper':
+
+        # Define multitaper parameters
+        freqs = args.freqs
+        n_cycles = args.n_cycles 
+        time_bandwidth = args.time_bandwidth 
+        return_itc = args.return_itc
+
+        # Set the save directory for multitaper results
+        save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', args.subject_id)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         
-                    spec_rescaled.save(os.path.join(save_dir, f'{output_name}_rescaled-avg.fif'), overwrite=True)
-                    spec.save(os.path.join(save_dir, f'{output_name}_uncorrected-avg.fif'), overwrite=True)
-                else:
-                    print(f"No trials found")
+        base = get_uncorrected_multitaper(
+            args.subject_id, layout, events=["Stimulus"], times=baseline_times,
+            freqs=freqs, n_cycles=n_cycles,
+            time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
+        )
 
-        elif type == 'multitaper':
+        # Generate and save multitaper spectrogram for each condition
+        for condition_name in condition_names:
+            events = conditions.get(condition_name).get('BIDS_events')
 
-            # Define multitaper parameters
-            freqs = np.arange(10, 200, 2)
-            n_cycles = freqs / 2  
-            time_bandwidth = 10  
-            return_itc = False
-
-            # Set the save directory for multitaper results
-            save_dir = os.path.join(layout.root, 'derivatives', 'spec', 'multitaper', subject_id)
-            if not os.path.exists(save_dir):
-                os.makedirs(save_dir)
-            
-            base = get_uncorrected_multitaper(
-                subject_id, layout, events=["Stimulus"], times=baseline_times,
-                freqs=freqs, n_cycles=n_cycles,
+            # Call the multitaper function
+            spec = get_uncorrected_multitaper(
+                args.subject_id, layout, events, signal_times, 
+                freqs=freqs, n_cycles=n_cycles, 
                 time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
             )
+            spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
+                lambda x: np.nanmean(x, axis=0), copy=True)
+            spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
+            fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
+            spec_rescaled.info['subject_info']['files'] = tuple(fnames)
+            spec_rescaled.info['bads'] = good.info['bads']
 
-            # Generate and save multitaper spectrogram for each condition
-            for output_name, events in output_names_and_events_dict.items():
+            rescaled_filename = os.path.join(save_dir, f'{condition_name}_rescaled-tfr.h5')
+            uncorrected_filename = os.path.join(save_dir, f'{condition_name}_uncorrected-tfr.h5')
 
-                if events: 
-                    print(f"Found {len(events)} trials for '{output_name}'. Running multitaper analysis...")
-            
-                    # Call the multitaper function
-                    spec = get_uncorrected_multitaper(
-                        subject_id, layout, events, signal_times, 
-                        freqs=freqs, n_cycles=n_cycles, 
-                        time_bandwidth=time_bandwidth, return_itc=return_itc, average=False
-                    )
-                    spec_rescaled = rescale(spec, base, copy=True, mode='ratio').average(
-                        lambda x: np.nanmean(x, axis=0), copy=True)
-                    spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
-                    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-                    spec_rescaled.info['subject_info']['files'] = tuple(fnames)
-                    spec_rescaled.info['bads'] = good.info['bads']
+            spec_rescaled.save(rescaled_filename, overwrite=True)
+            spec.save(uncorrected_filename, overwrite=True)
+            print(f"Saved multitaper spectrogram to: {rescaled_filename}")
+            print(f"Saved multitaper spectrogram to: {uncorrected_filename}")
 
-                    rescaled_filename = os.path.join(save_dir, f'{output_name}_rescaled-tfr.h5')
-                    uncorrected_filename = os.path.join(save_dir, f'{output_name}_uncorrected-tfr.h5')
-
-                    spec_rescaled.save(rescaled_filename, overwrite=True)
-                    spec.save(uncorrected_filename, overwrite=True)
-                    print(f"Saved multitaper spectrogram to: {rescaled_filename}")
-                    print(f"Saved multitaper spectrogram to: {uncorrected_filename}")
-
-                else:
-                    print(f"No trials found for '{output_name}'")
-
-    
-    except Exception as e:
-        print(f"A critical error occurred for subject {subject_id}: {e}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Make wavelets for a given subject.")
-    parser.add_argument('--subject', type=str, required=True, 
-                        help='The subject ID to processs')
-    parser.add_argument('--type', type=str, required=True, 
-                        help='The type of analysis to run - wavelet or multitaper')
-    args = parser.parse_args()
-    main(args.subject, args.type)
+    if len(sys.argv) == 1:
+        pass
+    else:
+        print("This script should be called via run_wavelets_dcc.py")
+        print("Direct command-line execution is not supported with complex parameters.")
+        sys.exit(1)
