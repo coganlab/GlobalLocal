@@ -36,6 +36,7 @@ from ieeg.timefreq.utils import wavelet_scaleogram, crop_pad
 import numpy as np
 from src.analysis.utils.general_utils import get_good_data
 from src.analysis.spec.wavelet_functions import get_uncorrected_wavelets, get_uncorrected_multitaper
+from src.analysis.config.condition_registry import get_conditions_obj
 
 def main(args):
 
@@ -75,10 +76,6 @@ def main(args):
     print(f"Loading good data for subject: {args.subject_id}")
     good = get_good_data(args.subject_id, layout)
 
-    # output_names_and_events_dict = {}
-    # output_names_and_events_dict['ErrorTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy0.0"]
-    # output_names_and_events_dict['CorrectTrials_Stimulus_Locked'] = ["Responded1.0/Stimulus/Accuracy1.0"]
-
     baseline_times = args.baseline_times
     signal_times = args.signal_times
 
@@ -104,17 +101,14 @@ def main(args):
             spec_rescaled.info['subject_info']['files'] = tuple(fnames)
             spec_rescaled.info['bads'] = good.info['bads']
 
-            rescaled_filename = os.path.join(save_dir, f'{conditions_name}_rescaled-tfr.h5')
-            uncorrected_filename = os.path.join(save_dir, f'{conditions_name}_uncorrected-tfr.h5')
+            rescaled_filename = os.path.join(save_dir, f'{condition_name}_rescaled-tfr.h5')
+            uncorrected_filename = os.path.join(save_dir, f'{condition_name}_uncorrected-tfr.h5')
 
             mne.time_frequency.write_tfrs(rescaled_filename, spec_rescaled, overwrite=True)
             mne.time_frequency.write_tfrs(uncorrected_filename, spec, overwrite=True)
 
-            spec_rescaled.save(os.path.join(save_dir, f'{conditions_name}_rescaled-avg.fif'), overwrite=True)
-            spec.save(os.path.join(save_dir, f'{conditions_name}_uncorrected-avg.fif'), overwrite=True)
 
-
-    elif type == 'multitaper':
+    elif args.spec_type == 'multitaper':
 
         # Define multitaper parameters
         freqs = args.freqs

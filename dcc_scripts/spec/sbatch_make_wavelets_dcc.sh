@@ -5,15 +5,8 @@
 #SBATCH -c 25
 #SBATCH --mem=150G
 
-subject=$1
-
-analysis_type=$2
-
 source $(conda info --base)/etc/profile.d/conda.sh
 
 conda activate ieeg # make sure this works
 
-#to be able to search for src file
-export PYTHONPATH=/hpc/home/$USER/coganlab/$USER/GlobalLocal
-
-python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/spec/make_wavelets_dcc.py --subject ${subject} --type ${analysis_type}
+python /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/spec/run_make_wavelets_dcc.py

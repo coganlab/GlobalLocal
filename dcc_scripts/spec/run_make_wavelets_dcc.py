@@ -1,8 +1,8 @@
 
 #!/usr/bin/env python
 """
-Submit script for power traces analysis.
-This sets up input args for and calls power_traces_dcc.py
+Submit script for spectrogram (wavelet or multitaper) analysis.
+This sets up input args for and calls make_wavelets_dcc.py
 Should be wrapped in an sbatch script for cluster submission.
 """
 import sys
@@ -46,7 +46,6 @@ from src.analysis.config import experiment_conditions
 # ============================================================================
 LAB_ROOT = None # Will be determined automatically in main()
 
-# SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090', 'D0094', 'D0100', 'D0102', 'D0103', 'D0107A', 'D0110', 'D0116', 'D0117', 'D0121', 'D0133', 'D0134', 'D0137', 'D0138', 'D0139A', 'D0144', 'D0145', 'D0146']
 SUBJECT_ID = os.environ.get('SUBJECT_ID')
 if SUBJECT_ID is None:
     raise ValueError("SUBJECT_ID environment variable not set. "
@@ -76,7 +75,7 @@ SIGNAL_TIMES = [-0.5, 1.5]
     
 # multitaper params
 FREQS = np.arange(10, 200, 2)
-N_CYCLES = freqs / 2  
+N_CYCLES = FREQS / 2  
 TIME_BANDWIDTH = 10  
 RETURN_ITC = False
 
@@ -104,7 +103,7 @@ def run_analysis():
     print("=" * 70)
     print("MAKE WAVELETS ANALYSIS")
     print("=" * 70)
-    print(f"Subjects:          {SUBJECTS}")
+    print(f"Subject id:          {SUBJECT_ID}")
     print(f"Condition label:        {CONDITION_LABEL}")
     print(f"spec type:        {SPEC_TYPE}")
     print(f"baseline times:        {BASELINE_TIMES}")
