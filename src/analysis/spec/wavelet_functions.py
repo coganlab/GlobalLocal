@@ -84,7 +84,7 @@ def get_wavelet_baseline(inst: mne.io.BaseRaw, base_times: tuple[float, float]):
     del inst
     return base
 
-def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float], mark_outliers_as_nan: bool, n_jobs: int=1) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[float, float], mark_outliers_as_nan: bool = True, n_jobs: int=1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected wavelets for specified trials.
 
@@ -136,7 +136,7 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
 
     return spec
 
-def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, mark_outliers_as_nan: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
+def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, mark_outliers_as_nan: bool = True, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
     """
     Compute non-baseline-corrected multitaper spectrogram for specified trials.
 
@@ -203,7 +203,7 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
 
 # untested, if this works, can do the same thing for wavelet
 
-def get_corrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], base_times: tuple[float, float], mode: str, freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, mark_outliers_as_nan: bool, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
+def get_corrected_multitaper(sub: str, layout, events: list[str], times: tuple[float, float], base_times: tuple[float, float], mode: str, freqs: np.ndarray, n_cycles: int | np.ndarray, time_bandwidth: int, return_itc: bool, average: bool, mark_outliers_as_nan: bool = True, n_jobs: int = 1) -> mne.time_frequency.EpochsTFR:
     """
     Compute baseline-corrected multitaper spectrogram for specified trials.
 
