@@ -12,4 +12,7 @@ __pycache__/
 *.pdf
 *.eps
 *.npz
+*.csv
+*.out
+*.err
 
