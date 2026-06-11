@@ -1,0 +1,6 @@
+subject,condition,part,ch1,ch2,window_start,window_end,n_epochs_in_window,coh_mean
+D0069,stimulus_i,lpfc,LOF7-LOF8,LOF8-LOF9,-1.0,-0.5,153,0.1851053925946473
+D0069,stimulus_i,lpfc,LOF7-LOF8,LOF8-LOF9,-0.5,0.0,153,0.16666730023600584
+D0069,stimulus_i,lpfc,LOF7-LOF8,LOF8-LOF9,0.0,0.5,153,0.17841465500352308
+D0069,stimulus_i,lpfc,LOF7-LOF8,LOF8-LOF9,0.5,1.0,153,0.14797755211495947
+D0069,stimulus_i,lpfc,LOF7-LOF8,LOF8-LOF9,1.0,1.5,153,0.19309010576475494

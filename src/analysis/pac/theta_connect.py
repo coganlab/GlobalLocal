@@ -9,7 +9,7 @@ import argparse
 import copy
 import warnings
 
-def find_roi_names(part, subj, roi_json):
+def find_roi_names(part, subj, roi_json, epochs_ch_names):
     rois_dict = {
     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
@@ -23,14 +23,19 @@ def find_roi_names(part, subj, roi_json):
     with open(roi_json, 'r') as f:
         roi_data = json.load(f)
 
-    chs = []
+    chs_single = []
     filt = roi_data.get(subj, {}).get('filtROI_dict', {})
     for roi in roi_list:
         for key, val in filt.items():
             if roi in key:
-                chs.extend(val)
-    chs = list(dict.fromkeys(chs))
-    print(f"Found {len(chs)} ROI channels for {subj}")
+                chs_single.extend(val)
+    chs_single = list(dict.fromkeys(chs_single))
+    print(f"Found {len(chs_single)} single-pole ROI channels for {subj}")
+
+    chs = [ch for ch in epochs_ch_names if '-' in ch and (ch.split('-')[0] in chs_single or ch.split('-')[1] in chs_single)]
+    chs = list(dict.fromkeys(chs)) 
+    print(f"Filtered to {len(chs)} bipolar ROI channels for {subj}")
+    print(chs[:3])
     return chs
 
 def load_epochs(subjects, bids_root, condition, deriv_dir='freqFilt/figs', epoch_suffix='full-epo', nch_example=3):
@@ -285,7 +290,7 @@ if __name__ == '__main__':
     parser.add_argument('--fmax', type=float, default=8.0)
     parser.add_argument('--n_freqs', type=int, default=25)
     parser.add_argument('--n_jobs', type=int, default=8)
-    parser.add_argument('--n_perm', type=int, default=200, help='number of permutations per pair')
+    parser.add_argument('--n_perm', type=int, default=50, help='number of permutations per pair')
     parser.add_argument('--alpha', type=float, default=0.05, help='FDR alpha')
     parser.add_argument('--output_dir', type=str, default='.')
     parser.add_argument('--plot', action='store_true')
@@ -334,7 +339,7 @@ if __name__ == '__main__':
             continue
         print(f"Processing subject {subj}...")
 
-        chs = find_roi_names(args.part, subj, args.roi_json)
+        chs = find_roi_names(args.part, subj, args.roi_json, epochs.ch_names)
 
         for (w0, w1) in windows:
             print(f"  Window {w0} to {w1} s — cropping epochs and computing all-trial coherence + permutations...")

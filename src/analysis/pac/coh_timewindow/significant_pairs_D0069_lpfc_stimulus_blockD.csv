@@ -1,0 +1,2 @@
+subject,part,condition,window_start,window_end,ch1,ch2,n_epochs,sig_freqs
+D0069,lpfc,stimulus_blockD,1.0,1.5,LOF7-LOF8,LOF8-LOF9,111,"3.62,3.83,4.04,4.25,4.46,4.67,4.88,5.08,5.29,5.50"

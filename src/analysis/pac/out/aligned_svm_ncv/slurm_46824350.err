@@ -1,0 +1,8 @@
+usage: plot_timeline.py [-h] --subj SUBJ [SUBJ ...] --region REGION
+                        --conditions CONDITIONS [CONDITIONS ...]
+                        [--time_start TIME_START] [--time_end TIME_END]
+                        [--window_width WINDOW_WIDTH] [--time_step TIME_STEP]
+                        [--sig_pairs_dir SIG_PAIRS_DIR] [--n_perm N_PERM]
+                        [--p_thresh P_THRESH] [--p_cluster P_CLUSTER]
+                        [--tails TAILS] [--outdir OUTDIR] [--verbose]
+plot_timeline.py: error: unrecognized arguments: --out_fig  --out_csv cond_timecourse_summary.csv
