@@ -157,6 +157,6 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         pass
     else:
-        print("This script should be called via run_wavelets_dcc.py")
+        print("This script should be called via run_make_wavelets_dcc.py")
         print("Direct command-line execution is not supported with complex parameters.")
         sys.exit(1)

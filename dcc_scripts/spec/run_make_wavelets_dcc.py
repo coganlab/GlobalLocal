@@ -8,11 +8,8 @@ Should be wrapped in an sbatch script for cluster submission.
 import sys
 import os
 import numpy as np
-from functools import partial
-from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
-from ieeg.calc.fast import mean_diff
 
 # ============================================================================
 # PATH SETUP
@@ -39,7 +36,6 @@ if project_root not in sys.path:
 
 # Import after path is set up
 from dcc_scripts.spec.make_wavelets_dcc import main
-from src.analysis.config import experiment_conditions
 
 # ============================================================================
 # ANALYSIS PARAMETERS
@@ -52,9 +48,6 @@ if SUBJECT_ID is None:
                      "Set it via sbatch --export=ALL,SUBJECT_ID=...")
 # task
 TASK = 'GlobalLocal'
-
-# Parallel processing
-N_JOBS = -1 
 
 # ============================================================================
 # Condition selection - NOW FROM SUBMIT SCRIPT
@@ -81,8 +74,6 @@ RETURN_ITC = False
 
 def run_analysis():
     """Make wavelets or multitaper."""
-    # Generate a timestamp string
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     
     # Create argument namespace
     args = SimpleNamespace(

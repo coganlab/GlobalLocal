@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit power trace jobs for multiple conditions
+# Submit make wavelet jobs for multiple conditions
 
 # CONDITIONS=(
 #     stimulus_lwpc_conditions
@@ -15,7 +15,7 @@ CONDITIONS=(
 )
 
 # Create output directory if needed
-mkdir -p out
+mkdir -p out/make_wavelets
 
 for SUBJ in "${SUBJECTS[@]}"; do
     echo "Submitting: $SUBJ"
