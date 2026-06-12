@@ -21,7 +21,7 @@ CONDITIONS=(
 EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 
 # anova stats
-ANOVA_UNIT='roi'  # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
+ANOVA_UNIT='electrode'  # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
 
 # Create output directory if needed
 mkdir -p out

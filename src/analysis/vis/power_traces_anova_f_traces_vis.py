@@ -116,10 +116,16 @@ def plot_per_electrode_power_traces(subjects_mne_objects, rois, condition_names,
                                     electrodes_per_subject_roi,
                                     plotting_parameters,
                                     channels_per_page=20, grid_shape=None,
-                                    save_dir=None, error='sem'):
+                                    save_dir=None, error='sem',
+                                    mne_object_type='HG_ev1_power_rescaled'):
     """For each ROI, plot a grid of single-electrode power traces (one subplot per electrode).
 
     Re-uses the existing per-electrode evoked structure rather than re-computing.
+
+    ``subjects_mne_objects`` is nested as
+    ``[subject][condition_name][mne_object_type] -> MNE Epochs``; ``mne_object_type``
+    selects which signal to average (default matches the ROI-level evokeds and the
+    windowed ANOVA).
     """
     from pathlib import Path
     pages_by_roi = {}
@@ -130,7 +136,9 @@ def plot_per_electrode_power_traces(subjects_mne_objects, rois, condition_names,
                 # Build a tiny one-channel evk_dict per condition for this electrode.
                 per_cond = {}
                 for cname in condition_names:
-                    mne_obj = subjects_mne_objects[sub][cname]
+                    cond_dict = subjects_mne_objects.get(sub, {}).get(cname)
+                    mne_obj = (cond_dict.get(mne_object_type)
+                               if isinstance(cond_dict, dict) else cond_dict)
                     if mne_obj is None or elec not in mne_obj.ch_names:
                         per_cond[cname] = None
                         continue
