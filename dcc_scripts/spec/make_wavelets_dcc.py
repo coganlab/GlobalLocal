@@ -98,7 +98,7 @@ def main(args):
                 lambda x: np.nanmean(x, axis=0), copy=True)
             spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
             fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-            spec_rescaled.info['subject_info']['files'] = tuple(fnames)
+            spec_rescaled.info['temp'] = {'files': tuple(fnames)}
             spec_rescaled.info['bads'] = good.info['bads']
 
             rescaled_filename = os.path.join(save_dir, f'{condition_name}_rescaled-tfr.h5')
@@ -141,7 +141,7 @@ def main(args):
                 lambda x: np.nanmean(x, axis=0), copy=True)
             spec_rescaled._data = np.log10(spec_rescaled._data) * 20 # convert to dB
             fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-            spec_rescaled.info['subject_info']['files'] = tuple(fnames)
+            spec_rescaled.info['temp'] = {'files': tuple(fnames)}
             spec_rescaled.info['bads'] = good.info['bads']
 
             rescaled_filename = os.path.join(save_dir, f'{condition_name}_rescaled-tfr.h5')

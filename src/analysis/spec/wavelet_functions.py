@@ -129,8 +129,8 @@ def get_uncorrected_wavelets(sub: str, layout, events: list[str], times: tuple[f
     spec = wavelet_scaleogram(all_trials, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     
     # add fnames to spec.info
-    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-    spec.info['subject_info']['files'] = tuple(fnames)
+    fnames = [os.path.relpath(f, layout.root) for f in good.filenames]    
+    spec.info['temp'] = {'files': tuple(fnames)}
     
     crop_pad(spec, "0.5s")
 
@@ -195,8 +195,7 @@ def get_uncorrected_multitaper(sub: str, layout, events: list[str], times: tuple
     spec = mne.time_frequency.tfr_multitaper(inst=all_trials, freqs=freqs, n_cycles=n_cycles, time_bandwidth=time_bandwidth, return_itc=return_itc, average=average, n_jobs=n_jobs, decim=int(good.info['sfreq'] / 100))
     # add fnames to spec.info
     fnames = [os.path.relpath(f, layout.root) for f in good.filenames]
-    spec.info['subject_info']['files'] = tuple(fnames)
-
+    spec.info['temp'] = {'files': tuple(fnames)}
     crop_pad(spec, "0.5s")
 
     return spec
