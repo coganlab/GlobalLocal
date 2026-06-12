@@ -63,6 +63,9 @@ CONDITION_REGISTRY = {
         'comparisons': {
             'congruency': [['Stimulus_c'], ['Stimulus_i']],
         },
+        # Single main effect, no interactions.
+        'anova_factors': ['congruency'],
+        'anova_interactions': [],
     },
 
     'stimulus_switch_type_conditions': {
@@ -70,6 +73,9 @@ CONDITION_REGISTRY = {
         'comparisons': {
             'switchType': [['Stimulus_r'], ['Stimulus_s']],
         },
+        # Single main effect, no interactions.
+        'anova_factors': ['switchType'],
+        'anova_interactions': [],
     },
 
     'stimulus_err_corr_conditions': {

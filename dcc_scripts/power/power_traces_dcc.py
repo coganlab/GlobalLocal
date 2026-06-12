@@ -48,6 +48,10 @@ from src.analysis.power.power_traces import (
     load_significant_electrodes, 
 )
 
+from src.analysis.vis.power_traces_anova_f_traces_vis import (
+    plot_per_electrode_power_traces,
+    plot_per_electrode_F_traces,
+)
 
 def main(args):
     # ------------------------------------------------------------------
@@ -215,10 +219,12 @@ def main(args):
                       f"one or both conditions.")
 
     elif args.statistical_method == 'anova':
-        if not anova_factors or not anova_interactions:
+        # anova_interactions may legitimately be empty (single main-effect ANOVA);
+        # we only require at least one factor to run the ANOVA.
+        if not anova_factors:
             raise ValueError(
-                f"condition_label '{condition_label}' has no 'anova_factors' / "
-                f"'anova_interactions' in the registry."
+                f"condition_label '{condition_label}' has no 'anova_factors' "
+                f"in the registry."
             )
 
         # Pull a representative evoked to get the full time vector
@@ -252,9 +258,14 @@ def main(args):
                 split_clusters_by_sign=args.split_clusters_by_sign,
                 seed=42, n_jobs=args.n_jobs, verbose=True,
             )
-            interaction_results = anova_results_to_interaction_results_for_plotting(
-                anova_cluster_results, anova_interactions,
-            )
+            # The interaction mega-plot only makes sense for a factorial design;
+            # for a single main-effect ANOVA there are no interactions to plot.
+            if anova_interactions:
+                interaction_results = anova_results_to_interaction_results_for_plotting(
+                    anova_cluster_results, anova_interactions,
+                )
+            else:
+                interaction_results = None
             within_elec_summary = None
             within_elec_skipped = None
 
@@ -281,6 +292,41 @@ def main(args):
             # In within-electrode mode the 16-condition mega-plot doesn't make
             # sense (results are per-electrode, not ROI-aggregated). Skip it.
             interaction_results = None
+
+            # Per-electrode power traces: one subplot per electrode, paginated.
+            per_elec_pt_dir = os.path.join(save_dir, 'per_electrode_power_traces')
+            os.makedirs(per_elec_pt_dir, exist_ok=True)
+            print(f"\nPlotting per-electrode power traces to: {per_elec_pt_dir}")
+            plot_per_electrode_power_traces(
+                subjects_mne_objects, rois, condition_names,
+                electrodes_per_subject_roi=electrodes,
+                plotting_parameters=plot_params,
+                save_dir=per_elec_pt_dir,
+                error='sem',
+            )
+            plt.close('all')
+
+            # Per-electrode F traces: one subplot per electrode, paginated,
+            # one figure per (roi, effect). Reads the per-electrode npz files
+            # written by the within-electrode ANOVA above.
+            within_run_dir = os.path.join(save_dir, run_label)
+            per_elec_f_dir = os.path.join(save_dir, 'per_electrode_F_traces')
+            os.makedirs(per_elec_f_dir, exist_ok=True)
+            print(f"\nPlotting per-electrode F traces to: {per_elec_f_dir}")
+            if within_elec_summary is not None and not within_elec_summary.empty:
+                effects = list(within_elec_summary['effect'].unique())
+                for roi in rois:
+                    for effect in effects:
+                        plot_per_electrode_F_traces(
+                            within_run_dir, roi, effect,
+                            save_dir=per_elec_f_dir,
+                            sample_window_centers=window_centers,
+                        )
+                        plt.close('all')
+            else:
+                print("[per-electrode F traces] no within-electrode summary; "
+                      "skipping.")
+            
     # ------------------------------------------------------------------
     # 6. Plotting
     # ------------------------------------------------------------------
