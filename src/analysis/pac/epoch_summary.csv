@@ -1,2 +1,2 @@
 subject,file,n_epochs,sfreq,n_channels,tmin,tmax,channel_examples
-D0137,/cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0137/D0137_stimulus_blockD_full-epo.fif,112,2048.0,186,-1.0,1.5,"Trigger,LTAI3-LTAI4,LTAI4-LTAI5"
+D0121,/cwork/rl330/BIDS-1.1_GlobalLocal/BIDS/derivatives/freqFilt/figs/D0121/D0121_stimulus_blockD_sig_HG_ev-epo.fif,111,256.0,45,0.0,0.5,"Trigger,LTAM3-LTAM4,LTAM4-LTAM5"
