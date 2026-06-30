@@ -142,12 +142,21 @@ BG_NUCLEI = {
 }
 
 
-def add_basal_ganglia(brain, hemis=None):
-    """Add the major basal ganglia nuclei as ellipsoids.
+def add_basal_ganglia(brain, hemis=None, blend=1.35, iso=0.4,
+                      resolution=72, smooth_iter=40):
+    """Add the basal ganglia as a SINGLE merged, smoothly-blended blob.
 
-    Depicts the basal ganglia broadly (striatum, pallidum, STN) instead of
-    centering the subthalamic nucleus alone. All nuclei share one color and
-    are grouped under a single 'Basal Ganglia' legend entry.
+    Instead of one ellipsoid per nucleus, this samples a soft (metaball-style)
+    scalar field from all nuclei in BG_NUCLEI onto a 3D grid and extracts one
+    isosurface, so overlapping nuclei fuse into a single organic shape rather
+    than distinct ovals.
+
+    Tuning
+    ------
+    blend       : how far each nucleus 'reaches' (bigger => more fusion, fatter)
+    iso         : isosurface level (lower => fatter/more merged; higher => tighter)
+    resolution  : grid points per axis (higher => smoother but slower)
+    smooth_iter : Taubin smoothing passes on the final surface
     """
     if hemis is None:
         hemis = ['lh', 'rh']
@@ -156,21 +165,49 @@ def add_basal_ganglia(brain, hemis=None):
     color = COLORS['Basal Ganglia']
 
     for hemi in hemis:
-        sign = -1 if hemi == 'lh' else 1  # mirror left-hemisphere centers
-        for name, spec in BG_NUCLEI.items():
+        sign = -1 if hemi == 'lh' else 1
+        centers, radii = [], []
+        for spec in BG_NUCLEI.values():
             cx, cy, cz = spec['center']
-            center = [abs(cx) * sign, cy, cz]
-            rx, ry, rz = spec['radii']
-            nucleus = pv.ParametricEllipsoid(rx, ry, rz)
-            nucleus.translate(center, inplace=True)
-            plotter.add_mesh(
-                nucleus,
-                color=color,
-                opacity=0.9,
-                smooth_shading=True,
-            )
-            print(f"✓ Added BG nucleus '{name}' ({hemi}) at {center}")
+            centers.append([abs(cx) * sign, cy, cz])
+            radii.append(spec['radii'])
+        centers = np.asarray(centers, float)
+        radii = np.asarray(radii, float) * blend
 
+        # Bounding grid with padding around all nuclei.
+        pad = radii.max() + 6.0
+        mins = (centers - radii).min(axis=0) - pad
+        maxs = (centers + radii).max(axis=0) + pad
+        nx = ny = nz = int(resolution)
+        xs = np.linspace(mins[0], maxs[0], nx)
+        ys = np.linspace(mins[1], maxs[1], ny)
+        zs = np.linspace(mins[2], maxs[2], nz)
+        X, Y, Z = np.meshgrid(xs, ys, zs, indexing='ij')
+
+        # Soft metaball field: each nucleus is a smooth anisotropic Gaussian;
+        # summing them makes nearby nuclei bulge together and fuse.
+        field = np.zeros_like(X)
+        for (cx, cy, cz), (rx, ry, rz) in zip(centers, radii):
+            d2 = ((X - cx) / rx) ** 2 + ((Y - cy) / ry) ** 2 + ((Z - cz) / rz) ** 2
+            field += np.exp(-d2)
+
+        spacing = ((maxs[0] - mins[0]) / (nx - 1),
+                   (maxs[1] - mins[1]) / (ny - 1),
+                   (maxs[2] - mins[2]) / (nz - 1))
+        try:
+            grid = pv.ImageData(dimensions=(nx, ny, nz),
+                                spacing=spacing, origin=tuple(mins))
+        except AttributeError:                      # older pyvista
+            grid = pv.UniformGrid(dimensions=(nx, ny, nz),
+                                  spacing=spacing, origin=tuple(mins))
+        grid['field'] = field.ravel(order='F')      # x fastest -> matches grid
+
+        blob = grid.contour([iso], scalars='field')
+        if smooth_iter:
+            blob = blob.smooth_taubin(n_iter=smooth_iter, pass_band=0.1)
+
+        plotter.add_mesh(blob, color=color, opacity=1.0, smooth_shading=True)
+        print(f"✓ Added merged basal ganglia blob ({hemi}): {blob.n_points} pts")
 
 # =============================================================================
 # 7. SOFTEN LIGHTING — reduce harsh sulcal shadows
