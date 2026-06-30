@@ -301,42 +301,46 @@ if __name__ == '__main__':
         'Basal Ganglia': 'Basal Ganglia',
     }
 
-    fig, ax = plt.subplots(figsize=(2.5, 3))
-    ax.axis('off')
+    roi_order = ['dlPFC', 'ACC', 'preSMA', 'dmPFC', 'vmPFC', 'precuneus', 'Basal Ganglia']
 
-    patches = []
-    for roi_key in ['dlPFC', 'ACC', 'preSMA', 'dmPFC', 'vmPFC', 'precuneus', 'Basal Ganglia']:
-        patches.append(
-            mpatches.Patch(
-                facecolor=COLORS[roi_key],
-                edgecolor='black',
-                linewidth=0.8,
-                label=ROI_LABELS[roi_key],
-            )
+    patches = [
+        mpatches.Patch(
+            facecolor=COLORS[roi_key],
+            edgecolor='black',
+            linewidth=0.8,
+            label=ROI_LABELS[roi_key],
         )
+        for roi_key in roi_order
+    ]
+
+    # Wide + short figure for a single horizontal row.
+    fig, ax = plt.subplots(figsize=(len(patches) * 1.4, 0.6))
+    ax.axis('off')
 
     legend = ax.legend(
         handles=patches,
         loc='center',
+        ncol=len(patches),       # <-- one column per entry => single row
         frameon=True,
         framealpha=1.0,
         edgecolor='black',
         fontsize=11,
         handlelength=1.2,
         handleheight=1.2,
-        handletextpad=0.6,
-        labelspacing=0.5,
+        handletextpad=0.5,
+        columnspacing=1.2,       # gap between columns
+        labelspacing=0.4,
+        borderpad=0.6,
     )
     legend.get_frame().set_linewidth(0.8)
 
     plt.tight_layout()
-    plt.savefig('brain_legend.svg', format='svg', dpi=300,
+    plt.savefig('brain_legend_horizontal.svg', format='svg', dpi=300,
                 bbox_inches='tight', transparent=True)
-    plt.savefig('brain_legend.png', dpi=300,
+    plt.savefig('brain_legend_horizontal.png', dpi=300,
                 bbox_inches='tight', transparent=True)
     plt.close()
-    print("✓ Saved legend: brain_legend.svg / .png")
-
+    print("✓ Saved legend: brain_legend_horizontal.svg / .png")
 
 # =============================================================================
 # 10. NOTES
