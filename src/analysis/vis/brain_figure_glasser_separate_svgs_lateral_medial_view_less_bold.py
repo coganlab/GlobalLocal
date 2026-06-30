@@ -203,7 +203,7 @@ def soften_lighting(brain):
 # Cortex transparency: 1.0 = fully opaque (deep structures hidden),
 # lower = see-through. ~0.3–0.45 lets the basal ganglia show through
 # while the opaque ROI fills stay bold.
-BRAIN_ALPHA = 0.4
+BRAIN_ALPHA = 0.7
 
 
 def make_and_save_view(hemi, view, basename):
@@ -303,7 +303,7 @@ if __name__ == '__main__':
         'Basal Ganglia': 'Basal Ganglia',
     }
 
-    roi_order = ['dlPFC', 'ACC', 'preSMA', 'dmPFC', 'vmPFC', 'precuneus', 'Basal Ganglia']
+    roi_order = ['dlPFC', 'preSMA', 'vmPFC', 'precuneus', 'dmPFC', 'ACC', 'Basal Ganglia']
 
     patches = [
         mpatches.Patch(
