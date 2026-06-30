@@ -135,46 +135,44 @@ BG_ASEG_LABELS = {
     'rh': ['Right-Caudate', 'Right-Putamen', 'Right-Pallidum', 'Right-Accumbens-area'],
 }
 
+# Small schematic STN, since aseg has no STN label (it's inside VentralDC).
+STN_ELLIPSOID = {
+    'center': [-10, -15, -5],   # left hemisphere; x is mirrored for rh
+    'radii':  (3.0, 2.5, 2.0),
+}
 
 def add_basal_ganglia(brain, hemis=None, alpha=1.0, smooth=0.9,
-                      anatomical_colors=False):
-    """Add anatomically-correct basal ganglia surfaces from FreeSurfer aseg.
-
-    Reconstructs the real subcortical surfaces (caudate, putamen, pallidum,
-    accumbens) instead of schematic ellipsoids. Requires an aseg.mgz in the
-    subject's mri/ directory.
-
-    Parameters
-    ----------
-    anatomical_colors : bool
-        False (default) -> all structures in the single 'Basal Ganglia' color,
-        matching the legend. True -> FreeSurfer's per-structure LUT colors.
-    """
+                      anatomical_colors=False, include_stn=True):
+    """Anatomical aseg BG surfaces (+ optional schematic STN ellipsoid)."""
     if hemis is None:
         hemis = ['lh', 'rh']
 
-    aseg_path = os.path.join(subjects_dir, 'fsaverage', 'mri', 'aseg.mgz')
-    if not os.path.exists(aseg_path):
-        print(f"⚠ aseg.mgz not found at {aseg_path}")
-        print("  add_volume_labels needs FreeSurfer's subcortical segmentation.")
-        print("  Copy it in, e.g.:")
-        print("    cp $FREESURFER_HOME/subjects/fsaverage/mri/aseg.mgz \\")
-        print(f"       {os.path.join(subjects_dir, 'fsaverage', 'mri')}/")
-        return
-
     color = COLORS['Basal Ganglia']
-    for hemi in hemis:
-        labels = BG_ASEG_LABELS[hemi]
-        colors = None if anatomical_colors else [color] * len(labels)
-        brain.add_volume_labels(
-            aseg='aseg',
-            labels=labels,
-            colors=colors,
-            alpha=alpha,
-            smooth=smooth,
-            legend=False,
-        )
-        print(f"✓ Added anatomical BG surfaces ({hemi}): {labels}")
+    aseg_path = os.path.join(subjects_dir, 'fsaverage', 'mri', 'aseg.mgz')
+
+    if not os.path.exists(aseg_path):
+        print(f"⚠ aseg.mgz not found at {aseg_path} — see earlier copy instructions.")
+    else:
+        for hemi in hemis:
+            labels = BG_ASEG_LABELS[hemi]
+            colors = None if anatomical_colors else [color] * len(labels)
+            brain.add_volume_labels(
+                aseg='aseg', labels=labels, colors=colors,
+                alpha=alpha, smooth=smooth, legend=False,
+            )
+            print(f"✓ Added anatomical BG surfaces ({hemi}): {labels}")
+
+    # STN is absent from aseg, so add it as a small ellipsoid marker.
+    if include_stn:
+        plotter = brain._renderer.plotter
+        cx, cy, cz = STN_ELLIPSOID['center']
+        rx, ry, rz = STN_ELLIPSOID['radii']
+        for hemi in hemis:
+            sign = -1 if hemi == 'lh' else 1
+            stn = pv.ParametricEllipsoid(rx, ry, rz)
+            stn.translate([abs(cx) * sign, cy, cz], inplace=True)
+            plotter.add_mesh(stn, color=color, opacity=1.0, smooth_shading=True)
+            print(f"✓ Added schematic STN ellipsoid ({hemi})")
 
 # =============================================================================
 # 7. SOFTEN LIGHTING — reduce harsh sulcal shadows
