@@ -198,25 +198,15 @@ def soften_lighting(brain):
 # 8. CREATE AND SAVE INDIVIDUAL VIEWS
 # =============================================================================
 
+# Cortex transparency: 1.0 = fully opaque (deep structures hidden),
+# lower = see-through. ~0.3–0.45 lets the basal ganglia show through
+# while the opaque ROI fills stay bold.
+BRAIN_ALPHA = 0.4
+
+
 def make_and_save_view(hemi, view, basename):
-    """
-    Create a single brain view and save as both SVG and PNG.
+    """Create a single brain view and save as both SVG and PNG."""
 
-    Parameters
-    ----------
-    hemi : str
-        'lh' or 'rh'
-    view : str
-        'lateral', 'medial', 'dorsal', 'ventral', 'frontal', 'caudal'
-    basename : str
-        Output filename without extension (e.g., 'brain_lateral')
-    """
-
-    # ---- Cortex color ----
-    # MNE cortex presets: 'classic', 'low_contrast', 'high_contrast',
-    # 'bone', 'ivory', or any valid color name/hex.
-    # 'low_contrast' gives a light gray with gentle sulcal shading.
-    # For a uniform flat gray, pass a color like 'grey' or '#B0B0B0'.
     cortex_color = 'low_contrast'
 
     brain = mne.viz.Brain(
@@ -227,9 +217,16 @@ def make_and_save_view(hemi, view, basename):
         views=view,
         background='white',
         cortex=cortex_color,
-        alpha=1.0,               # semi-transparent brain
+        alpha=BRAIN_ALPHA,        # <-- was 1.0; now see-through so BG is visible
         size=(1200, 1000),
     )
+
+    # Correct transparency sorting for the translucent cortex over the
+    # opaque subcortical blobs.
+    try:
+        brain._renderer.plotter.enable_depth_peeling(number_of_peels=10)
+    except Exception as e:
+        print(f"⚠ depth peeling unavailable: {e}")
 
     # Add ROIs as solid fills
     add_cortical_regions(brain, hemis=[hemi])
