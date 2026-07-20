@@ -1,17 +1,17 @@
 #!/bin/bash
 # Submit power trace jobs for multiple conditions
 
-# CONDITIONS=(
-#     stimulus_lwpc_conditions
-#     stimulus_lwps_conditions
-#     stimulus_congruency_by_switch_proportion_conditions
-#     stimulus_switch_type_by_incongruent_proportion_conditions
-# )
-
-
 CONDITIONS=(
-    stimulus_congruency_conditions
+    stimulus_lwpc_conditions
+    stimulus_lwps_conditions
+    stimulus_congruency_by_switch_proportion_conditions
+    stimulus_switch_type_by_incongruent_proportion_conditions
 )
+
+
+# CONDITIONS=(
+#     stimulus_experiment_conditions
+# )
 
 # Epochs file selection
 # EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"

@@ -103,12 +103,12 @@ def main(args):
             print(f"No source file info in {condition_name} TFR; "
                   "skipping bad-channel update")
 
-        figs = chan_grid(spec, size=(20, 10), vmin=-2, vmax=2,
+        figs = chan_grid(spec, size=(20, 10), vlim=(-2, 2),
                          cmap=parula_map, show=False, **plot_kwargs)
-
+        
         for i, f in enumerate(figs):
             fig_name = (f'{args.subject_id}_{condition_name}_{suffix}_'
-                        f'{args.spec_type}_{i + 1}.svg')
+                        f'{args.spec_type}_{i + 1}.png')
             f.savefig(os.path.join(fig_path, fig_name), bbox_inches='tight')
             print("Saved figure:", fig_name)
 
