@@ -49,7 +49,7 @@ matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
-
+from src.analysis.utils.general_utils import get_default_LAB_root
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
 
@@ -60,17 +60,9 @@ def resolve_lab_root(explicit=None):
     """Same LAB_root resolution the power/decoding scripts use."""
     if explicit is not None:
         return explicit
-    HOME = os.path.expanduser("~")
-    USER = os.path.basename(HOME)
-    if os.name == 'nt':                       # Windows
-        return os.path.join(HOME, "Box", "CoganLab")
-    if sys.platform == 'darwin':              # macOS
-        return os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-    if os.path.exists(f"/cwork/{USER}"):      # Linux cluster
-        return f"/cwork/{USER}"
-    return os.path.join(HOME, "CoganLab")
-
-
+    else:
+        return get_default_LAB_root()
+        
 # ---------------------------------------------------------------------------
 # electrode selection (optional ROI / significance filtering)
 # ---------------------------------------------------------------------------
@@ -342,6 +334,7 @@ def make_summary_plots(out, save_dir, n_perm_plot=2000, seed=1):
 # ---------------------------------------------------------------------------
 def main(args):
     LAB_root = resolve_lab_root(args.LAB_root)
+        
     print(f"LAB_root: {LAB_root}")
     os.makedirs(args.save_dir, exist_ok=True)
 
