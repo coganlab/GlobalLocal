@@ -17,15 +17,18 @@ PLOT_SETS=(
     # stim_vs_response
 )
 
-# Base directory holding your within-electrode ANOVA runs. Exported so
-# condition_plot_specs.ANOVA_RUNS_BASE picks it up without editing the file.
-export ANOVA_RUNS_BASE="/path/to/within_elec_anova_runs"   # <- EDIT ME
+# Where the within-electrode ANOVA runs live. These override the defaults in
+# condition_plot_specs.py without editing that file. anova_run() builds:
+#   $POWER_FIGS_BASE/$ANOVA_EPOCHS_ROOT/anova_within_$ANOVA_UNIT/<label>_<N>_subjects
+export POWER_FIGS_BASE="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs"
+export ANOVA_EPOCHS_ROOT="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+export ANOVA_UNIT="electrode"
 
 mkdir -p out
 
 for LABEL in "${PLOT_SETS[@]}"; do
     echo "Submitting plot set: $LABEL"
     sbatch --job-name="plot_${LABEL}" \
-        --export=ALL,PLOT_SET_LABEL="$LABEL",ANOVA_RUNS_BASE="$ANOVA_RUNS_BASE" \
+        --export=ALL,PLOT_SET_LABEL="$LABEL",POWER_FIGS_BASE="$POWER_FIGS_BASE",ANOVA_EPOCHS_ROOT="$ANOVA_EPOCHS_ROOT",ANOVA_UNIT="$ANOVA_UNIT" \
         sbatch_plot_sig_electrodes_dcc.sh
 done
