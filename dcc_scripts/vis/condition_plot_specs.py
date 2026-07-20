@@ -90,16 +90,47 @@ def anova_effect(anova_run_dir, effect, color=None, use_fdr=True, p_thresh=0.05,
 # ===========================================================================
 # Data locations (edit these once for your machine / cluster)
 # ===========================================================================
-# Where within-electrode ANOVA runs live (each run is a subdirectory containing
-# significant_effects_structure.json / summary.csv). Override with the
-# ANOVA_RUNS_BASE env var without editing this file.
-ANOVA_RUNS_BASE = os.environ.get(
-    "ANOVA_RUNS_BASE", "/path/to/within_elec_anova_runs")   # <- EDIT ME
+# Within-electrode ANOVA runs are written by run_power_traces_dcc.py into:
+#
+#   <POWER_FIGS_BASE>/<ANOVA_EPOCHS_ROOT>/anova_within_<ANOVA_UNIT>/
+#       <condition_label>_<n_subjects>_subjects/
+#           significant_effects_structure.json   (and summary.csv)
+#
+# so anova_run(condition_label, n_subjects) rebuilds that path. Any of the three
+# pieces can be overridden with an env var (exported by the submit script)
+# without editing this file.
+_USER = os.environ.get("USER", "")
+if os.path.exists("/hpc/home") and _USER:
+    _DEFAULT_POWER_FIGS_BASE = (
+        f"/hpc/home/{_USER}/coganlab/{_USER}/GlobalLocal/dcc_scripts/power/figs")
+else:
+    _DEFAULT_POWER_FIGS_BASE = "/path/to/GlobalLocal/dcc_scripts/power/figs"  # <- EDIT ME
+
+POWER_FIGS_BASE = os.environ.get("POWER_FIGS_BASE", _DEFAULT_POWER_FIGS_BASE)
+
+# The epochs_root_file the ANOVA was run on (the directory name under figs/).
+ANOVA_EPOCHS_ROOT = os.environ.get(
+    "ANOVA_EPOCHS_ROOT",
+    "Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_"
+    "drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_"
+    "ttest_ind_equal_var_False_nan_policy_omit")
+
+# 'electrode' (within-electrode ANOVA) -> anova_within_electrode. Must be
+# 'electrode' to get per-electrode significance for brain plotting.
+ANOVA_UNIT = os.environ.get("ANOVA_UNIT", "electrode")
 
 
-def anova_run(run_label):
-    """Absolute path to a within-electrode ANOVA run directory."""
-    return os.path.join(ANOVA_RUNS_BASE, run_label)
+def anova_run(condition_label, n_subjects):
+    """Path to a within-electrode ANOVA run dir produced by run_power_traces_dcc.
+
+    ``condition_label`` is the CONDITION_LABEL the ANOVA was submitted with (e.g.
+    'stimulus_lwpc_conditions'); ``n_subjects`` is the subject count baked into the
+    run-directory name (e.g. 24) -- this must match the existing directory, which
+    is independent of the SUBJECTS list you plot with.
+    """
+    return os.path.join(POWER_FIGS_BASE, ANOVA_EPOCHS_ROOT,
+                        f"anova_within_{ANOVA_UNIT}",
+                        f"{condition_label}_{n_subjects}_subjects")
 
 
 # A couple of commonly-used sig_chans epochs_root_files, for reference.
@@ -114,6 +145,10 @@ STIM_HG_ROOT = ("Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_
 # Each entry: {'conditions': OrderedDict(name -> source cfg), and optionally
 #              'rois_dict', 'mutually_exclusive', 'overlap_color'}.
 # Colors are optional; unspecified ones are auto-assigned from DEFAULT_PALETTE.
+# Subject count baked into the ANOVA run-directory names (the "_N_subjects"
+# suffix). Set to whatever the ANOVA was actually run with.
+N_SUBJECTS_IN_ANOVA = 24
+
 PLOT_CONDITION_SETS = {
 
     # LWPC vs LWPS interaction electrodes.
@@ -121,26 +156,31 @@ PLOT_CONDITION_SETS = {
     # overlap -> black.
     "lwpc_vs_lwps": {
         "conditions": OrderedDict([
-            ("lwpc", anova_effect(anova_run("lwpc_within_elec_anova_run"),   # <- EDIT run label
-                                  "C(congruency):C(incongruentProportion)")),
-            ("lwps", anova_effect(anova_run("lwps_within_elec_anova_run"),   # <- EDIT run label
-                                  "C(switchType):C(switchProportion)")),
+            ("lwpc", anova_effect(
+                anova_run("stimulus_lwpc_conditions", N_SUBJECTS_IN_ANOVA),
+                "C(congruency):C(incongruentProportion)")),
+            ("lwps", anova_effect(
+                anova_run("stimulus_lwps_conditions", N_SUBJECTS_IN_ANOVA),
+                "C(switchType):C(switchProportion)")),
         ]),
     },
 
-    # Congruency vs switch-type MAIN effects, from a congruency x switchType
-    # ANOVA run.
+    # Congruency vs switch-type MAIN effects. Both live in the full 16-cell
+    # experiment ANOVA run (factors congruency, incongruentProportion,
+    # switchType, switchProportion), so pull both from that one run.
     "congruency_vs_switchType": {
         "conditions": OrderedDict([
-            ("congruency", anova_effect(anova_run("congruency_switchType_anova_run"),
-                                        "C(congruency)")),
-            ("switchType", anova_effect(anova_run("congruency_switchType_anova_run"),
-                                        "C(switchType)")),
+            ("congruency", anova_effect(
+                anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA),
+                "C(congruency)")),
+            ("switchType", anova_effect(
+                anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA),
+                "C(switchType)")),
         ]),
     },
 
-    # Example of the other source: two different sig_chans contrasts.
-    # (Replace the roots with your actual stimulus/response epochs_root_files.)
+    # Example of the OTHER electrode source: two different sig_chans contrasts
+    # (not ANOVA-based). Replace the roots with your actual epochs_root_files.
     "stim_vs_response": {
         "conditions": OrderedDict([
             ("stimulus", sig_chans(STIM_HG_ROOT)),
