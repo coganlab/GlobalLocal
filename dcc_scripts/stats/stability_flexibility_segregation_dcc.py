@@ -49,50 +49,9 @@ matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
-from src.analysis.utils.general_utils import get_default_LAB_root
+from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
-
-# ---------------------------------------------------------------------------
-# environment resolution
-# ---------------------------------------------------------------------------
-def resolve_lab_root(explicit=None):
-    """Same LAB_root resolution the power/decoding scripts use."""
-    if explicit is not None:
-        return explicit
-    else:
-        return get_default_LAB_root()
-        
-# ---------------------------------------------------------------------------
-# electrode selection (optional ROI / significance filtering)
-# ---------------------------------------------------------------------------
-def resolve_electrodes_to_keep(args, LAB_root):
-    """Return {subject: set(channel_names)} to keep, or None to keep all.
-
-    When `args.rois_dict` is None the analysis uses every channel. Otherwise we
-    reuse the same ROI/significance machinery as the power-traces script.
-    """
-    if args.rois_dict is None:
-        return None
-
-    import src.analysis.utils.general_utils as utils
-    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    subjects_electrodestoROIs_dict = utils.make_or_load_subjects_electrodes_to_ROIs_dict(
-        subjects=args.subjects, save_dir=config_dir,
-        filename='subjects_electrodestoROIs_dict.json')
-
-    sig_chans_per_subject = utils.get_sig_chans_per_subject(
-        args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
-
-    all_roi, sig_roi = utils.make_sig_electrodes_per_subject_and_roi_dict(
-        args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
-
-    source = sig_roi if args.electrodes == 'sig' else all_roi
-    keep = {sub: set() for sub in args.subjects}
-    for roi_name, per_sub in source.items():
-        for sub, chans in per_sub.items():
-            keep.setdefault(sub, set()).update(chans)
-    return keep
 
 
 # ---------------------------------------------------------------------------

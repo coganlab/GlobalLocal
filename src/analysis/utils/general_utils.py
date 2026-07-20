@@ -83,6 +83,13 @@ def get_default_LAB_root():
             # Fallback for other Linux systems
             return os.path.join(HOME, "CoganLab")
 
+def resolve_lab_root(explicit=None):
+    """Same LAB_root resolution the power/decoding scripts use."""
+    if explicit is not None:
+        return explicit
+    else:
+        return get_default_LAB_root()
+    
 def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json', layout=None):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
@@ -137,8 +144,7 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         raise ValueError("save_dir must be specified to save the dictionary.")
     
     # Determine LAB_root based on the operating system and environment
-    if LAB_root is None:
-        LAB_root = get_default_LAB_root()
+    LAB_root = resolve_lab_root(LAB_root)
 
     for sub in subjects:
 
@@ -306,6 +312,36 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
         print("Dictionary loaded successfully. Ready to proceed!")
 
     return subjects_electrodes_to_ROIs_dict
+
+# ---------------------------------------------------------------------------
+# electrode selection (optional ROI / significance filtering)
+# ---------------------------------------------------------------------------
+def resolve_electrodes_to_keep(args, LAB_root):
+    """Return {subject: set(channel_names)} to keep, or None to keep all.
+
+    When `args.rois_dict` is None the analysis uses every channel. Otherwise we
+    reuse the same ROI/significance machinery as the power-traces script.
+    """
+    if args.rois_dict is None:
+        return None
+
+    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
+    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
+        subjects=args.subjects, save_dir=config_dir,
+        filename='subjects_electrodestoROIs_dict.json')
+
+    sig_chans_per_subject = get_sig_chans_per_subject(
+        args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
+
+    all_roi, sig_roi = make_sig_electrodes_per_subject_and_roi_dict(
+        args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
+
+    source = sig_roi if args.electrodes == 'sig' else all_roi
+    keep = {sub: set() for sub in args.subjects}
+    for roi_name, per_sub in source.items():
+        for sub, chans in per_sub.items():
+            keep.setdefault(sub, set()).update(chans)
+    return keep
 
 def _load_epochs_with_metadata(save_dir, sub, epochs_root_file, obj_name):
     """Load an epochs .fif file and attach metadata from CSV if available"""
