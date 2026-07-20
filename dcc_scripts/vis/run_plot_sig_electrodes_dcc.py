@@ -69,31 +69,59 @@ SUBJECTS = [
 
 # ----------------------------------------------------------------------------
 # Conditions to plot. Add/remove entries to choose what gets drawn; each is
-# given its own color (matplotlib RGB tuple, values in 0-1).
-# 'epochs_root_file' identifies the sig_chans_{subject}_{epochs_root_file}.json
-# files produced by the stats pipeline for that condition/contrast.
+# given its own color (matplotlib RGB tuple, values in 0-1). With
+# MUTUALLY_EXCLUSIVE=True (below), electrodes significant in >1 condition are
+# drawn once in OVERLAP_COLOR and each condition shows only its unique electrodes.
+#
+# Each condition picks ONE electrode source:
+#   A) 'epochs_root_file' : sig_chans_{subject}_{epochs_root_file}.json files
+#                           (a single contrast, e.g. congruency or response).
+#   B) 'anova_run_dir' + 'effect' : electrodes flagged significant for a specific
+#                           effect in a within-electrode ANOVA run. This is how
+#                           interaction effects like LWPC / LWPS are defined.
+#                           Optional: 'use_fdr' (default True), 'p_thresh'
+#                           (default 0.05), 'anova_roi' (restrict to one ROI).
 # ----------------------------------------------------------------------------
 _STIM_ROOT = ("Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_"
               "drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_"
               "ttest_ind_equal_var_False_nan_policy_omit")
 
-CONDITIONS = OrderedDict([
-    ("congruency", {"epochs_root_file": _STIM_ROOT, "color": (1.0, 0.0, 0.0)}),  # red
-    ("switchType", {"epochs_root_file": _STIM_ROOT, "color": (0.0, 0.0, 1.0)}),  # blue
-    # Add more, e.g.:
-    # ("response", {"epochs_root_file": _RESP_ROOT, "color": (1.0, 1.0, 0.0)}),  # yellow
-])
+# --- Example 1: LWPC vs LWPS interaction electrodes (the multi-condition,
+#     unique-in-color / overlap-in-black use case). Point anova_run_dir at your
+#     within-electrode ANOVA run directories (the ones containing
+#     significant_effects_structure.json / summary.csv). ---
+_LWPC_ANOVA_RUN_DIR = "/path/to/your/lwpc_within_elec_anova_run"   # <- EDIT ME
+_LWPS_ANOVA_RUN_DIR = "/path/to/your/lwps_within_elec_anova_run"   # <- EDIT ME
 
-# Restrict to these ROIs, or set to None to plot every significant electrode.
-ROIS_DICT = {
-    "lpfc": [
-        "G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul",
-        "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont",
-        "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup",
-        "S_front_inf", "S_front_middle", "S_front_sup",
-    ],
-}
-# ROIS_DICT = None  # <- uncomment for whole-brain
+CONDITIONS = OrderedDict([
+    ("lwpc", {"anova_run_dir": _LWPC_ANOVA_RUN_DIR,
+              "effect": "C(congruency):C(incongruentProportion)",
+              "use_fdr": True, "color": (1.0, 0.0, 0.0)}),   # unique LWPC -> red
+    ("lwps", {"anova_run_dir": _LWPS_ANOVA_RUN_DIR,
+              "effect": "C(switchType):C(switchProportion)",
+              "use_fdr": True, "color": (0.0, 0.0, 1.0)}),   # unique LWPS -> blue
+])
+# (overlap of lwpc & lwps -> OVERLAP_COLOR, black, via MUTUALLY_EXCLUSIVE below.)
+
+# --- Example 2: plain sig_chans contrasts (uncomment to use instead) ---
+# CONDITIONS = OrderedDict([
+#     ("congruency", {"epochs_root_file": _STIM_ROOT, "color": (1.0, 0.0, 0.0)}),
+#     ("switchType", {"epochs_root_file": _STIM_ROOT, "color": (0.0, 0.0, 1.0)}),
+# ])
+
+# Restrict to these anatomical ROIs, or set to None to plot every significant
+# electrode. NOTE: this only applies to 'epochs_root_file'-sourced conditions;
+# 'anova_run_dir'-sourced conditions (like the LWPC/LWPS example above) are
+# already ROI-scoped by the ANOVA run, so this is ignored for them.
+ROIS_DICT = None  # whole brain
+# ROIS_DICT = {
+#     "lpfc": [
+#         "G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul",
+#         "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont",
+#         "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup",
+#         "S_front_inf", "S_front_middle", "S_front_sup",
+#     ],
+# }
 
 # Where subjects_electrodestoROIs_dict.json lives (built if absent).
 CONFIG_DIR = os.path.join(project_root, "src", "analysis", "config")

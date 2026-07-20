@@ -55,6 +55,7 @@ from src.analysis.utils.general_utils import (
     make_or_load_subjects_electrodes_to_ROIs_dict,
     make_sig_electrodes_per_subject_and_roi_dict,
 )
+from src.analysis.power.power_traces import load_significant_electrodes
 
 # Regex that strips leading zeros from a subject id: 'D0057' -> 'D57', 'D0107A' -> 'D107A'.
 _SUBJECT_PATTERN = re.compile(r"^D(0*)(\d+)([A-Za-z]*)$")
@@ -86,26 +87,52 @@ def collapse_rois_to_subject_dict(sig_electrodes_per_subject_roi):
     return collapsed
 
 
-def get_condition_electrodes(subjects, epochs_root_file, task, LAB_root,
+def tuples_to_subject_dict(sub_elec_tuples):
+    """Group ``[(subject, electrode), ...]`` into ``{subject: [electrodes]}``."""
+    grouped = {}
+    for subject, electrode in sub_elec_tuples:
+        bucket = grouped.setdefault(subject, [])
+        if electrode not in bucket:
+            bucket.append(electrode)
+    return grouped
+
+
+def get_condition_electrodes(subjects, cfg, task, LAB_root,
                              rois_dict=None, subjects_electrodes_to_ROIs_dict=None,
                              config_dir=None):
     """Significant electrodes for one condition, as {subject_with_zeros: [names]}.
+
+    A condition is described by a config dict ``cfg`` and may draw its electrodes
+    from one of two sources:
+
+    1. **Per-condition sig_chans files** (``cfg['epochs_root_file']``):
+       reads ``sig_chans_{subject}_{epochs_root_file}.json``. Optionally
+       restricted to ``rois_dict``. Good for single-contrast effects (e.g. a
+       congruency or response contrast).
+
+    2. **A within-electrode ANOVA run, filtered by effect**
+       (``cfg['anova_run_dir']`` + ``cfg['effect']``): reads the run's
+       ``significant_effects_structure.json`` / ``summary.csv`` via
+       :func:`load_significant_electrodes`. This is how interaction effects such
+       as LWPC (``C(congruency):C(incongruentProportion)``) and LWPS
+       (``C(switchType):C(switchProportion)``) are identified. Optional keys:
+       ``use_fdr`` (default True), ``p_thresh`` (default 0.05), ``anova_roi``
+       (restrict to one ANOVA ROI, default all).
 
     Parameters
     ----------
     subjects : list of str
         Subject ids with leading zeros, e.g. ``['D0057', 'D0059']``.
-    epochs_root_file : str
-        Identifies the ``sig_chans_{subject}_{epochs_root_file}.json`` files.
+    cfg : dict
+        Condition config. Must contain either ``'epochs_root_file'`` or
+        ``'anova_run_dir'`` (with ``'effect'``), plus a ``'color'`` used later.
     task, LAB_root :
         Passed through to :func:`get_sig_chans_per_subject`.
     rois_dict : dict, optional
-        If given (``{roi_name: [anatomical_labels]}``), restrict the significant
-        electrodes to those falling in the listed ROIs. If ``None``, every
-        significant electrode is kept (whole-brain).
+        For the sig_chans source only: restrict to these anatomical ROIs.
+        Ignored for the ANOVA source, which is already ROI-scoped by the run.
     subjects_electrodes_to_ROIs_dict : dict, optional
-        Prebuilt electrode->ROI mapping. If ``None`` and ROI filtering is
-        requested, it is loaded/built from ``config_dir``.
+        Prebuilt electrode->ROI mapping (loaded from ``config_dir`` if needed).
     config_dir : str, optional
         Where the ``subjects_electrodestoROIs_dict.json`` lives.
 
@@ -114,8 +141,20 @@ def get_condition_electrodes(subjects, epochs_root_file, task, LAB_root,
     dict
         ``{subject_with_zeros: [electrode_names]}``.
     """
+    # ---- Source 2: within-electrode ANOVA run, filtered by effect ----------
+    if cfg.get("anova_run_dir"):
+        sub_elec = load_significant_electrodes(
+            cfg["anova_run_dir"],
+            roi=cfg.get("anova_roi"),
+            effect=cfg.get("effect"),
+            use_fdr=cfg.get("use_fdr", True),
+            p_thresh=cfg.get("p_thresh", 0.05),
+        )
+        return tuples_to_subject_dict(sub_elec)
+
+    # ---- Source 1: per-condition sig_chans files ---------------------------
     sig_chans_per_subject = get_sig_chans_per_subject(
-        subjects, epochs_root_file, task=task, LAB_root=LAB_root)
+        subjects, cfg["epochs_root_file"], task=task, LAB_root=LAB_root)
 
     if not rois_dict:
         # Whole brain: keep every significant channel.
@@ -253,7 +292,10 @@ def main(args):
 
     Expected attributes on ``args`` (see ``run_plot_sig_electrodes_dcc.py``):
         subjects                : list[str]        subject ids with leading zeros
-        conditions              : OrderedDict      {name: {'epochs_root_file': str, 'color': (r,g,b)}}
+        conditions              : OrderedDict      {name: cfg}. Each cfg has a
+                                  'color' (r,g,b) plus ONE electrode source:
+                                    - {'epochs_root_file': str}                 sig_chans files
+                                    - {'anova_run_dir': str, 'effect': str, ...} within-elec ANOVA
         task                    : str
         LAB_root                : str | None
         rois_dict               : dict | None      restrict to these ROIs, or None for whole brain
@@ -289,7 +331,7 @@ def main(args):
     for name, cfg in args.conditions.items():
         print(f"\n=== Loading significant electrodes for condition: {name} ===")
         electrodes = get_condition_electrodes(
-            subjects, cfg["epochs_root_file"], task=args.task, LAB_root=args.LAB_root,
+            subjects, cfg, task=args.task, LAB_root=args.LAB_root,
             rois_dict=rois_dict,
             subjects_electrodes_to_ROIs_dict=subjects_electrodes_to_ROIs_dict,
             config_dir=args.config_dir)
