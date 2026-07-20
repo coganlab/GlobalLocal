@@ -289,6 +289,117 @@ def make_summary_plots(out, save_dir, n_perm_plot=2000, seed=1):
 
 
 # ---------------------------------------------------------------------------
+# QC / diagnostics figure (the step-by-step panels from the tutorial notebook)
+# ---------------------------------------------------------------------------
+def _naive_sensitivities(df):
+    """Per-electrode (x, y) estimated from ALL trials (shared trial noise).
+    Only used for the diagnostic naive-vs-disjoint comparison; the analysis
+    itself always uses the disjoint-half estimator in `sfs`."""
+    rows = []
+    for (subj, elec), g in df.groupby(['subject', 'electrode']):
+        x = sfs._cohens_d(g.loc[g.congruency == 'i', 'hg'],
+                          g.loc[g.congruency == 'c', 'hg'])
+        y = sfs._cohens_d(g.loc[g.switchType == 's', 'hg'],
+                          g.loc[g.switchType == 'r', 'hg'])
+        rows.append((x, y))
+    return np.asarray(rows, float)
+
+
+def make_diagnostic_plots(out, df, save_dir):
+    """Save the notebook's QC panels so a production run also shows *why* the
+    corrections were needed and that they did their job. Complements
+    segregation_summary.png; writes segregation_diagnostics.png.
+
+    Panels:
+      row 0  data structure (unequal trials/electrodes, gain-driven HG spread)
+      row 1  gain confound (responsiveness -> |x|,|y|) + naive-vs-disjoint corr
+      row 2  residualization stages: raw -> resp-residualized -> +within-subj
+      row 3  per-electrode permutation p's + FDR q-value conjunction scatter
+    """
+    from scipy.stats import pearsonr
+    elec, cont, labels = out['electrodes'], out['continuous'], out['labels']
+
+    def _corr(a, b):
+        m = np.isfinite(a) & np.isfinite(b)
+        return pearsonr(a[m], b[m])[0] if m.sum() > 2 else np.nan
+
+    fig, ax = plt.subplots(4, 3, figsize=(16, 18))
+
+    # --- row 0: data structure ------------------------------------------------
+    tr = df.groupby('subject').size()
+    ax[0, 0].bar(tr.index.astype(str), tr.values, color="#555")
+    ax[0, 0].set(title="Trials per subject", xlabel="subject", ylabel="# trials")
+    ax[0, 0].tick_params(axis='x', labelrotation=90, labelsize=7)
+
+    ne = df.groupby('subject')['electrode'].nunique()
+    ax[0, 1].bar(ne.index.astype(str), ne.values, color="#777")
+    ax[0, 1].set(title="Electrodes per subject", xlabel="subject", ylabel="# electrodes")
+    ax[0, 1].tick_params(axis='x', labelrotation=90, labelsize=7)
+
+    gstd = df.groupby('electrode')['hg'].std()
+    ax[0, 2].hist(gstd.dropna().values, bins=30, color="#999")
+    ax[0, 2].set(title="Per-electrode HG std\n(varies with gain / SNR)",
+                 xlabel="HG std", ylabel="# electrodes")
+
+    # --- row 1: gain confound + estimator check -------------------------------
+    for a, col, color, name in [(ax[1, 0], 'x', STAB, "|x| stability"),
+                                (ax[1, 1], 'y', FLEX, "|y| flexibility")]:
+        m = np.isfinite(elec['resp']) & np.isfinite(elec[col])
+        rr, cc = elec.loc[m, 'resp'].to_numpy(), elec.loc[m, col].abs().to_numpy()
+        a.scatter(rr, cc, s=15, alpha=.5, color=color)
+        if m.sum() > 2:
+            b1, b0 = np.polyfit(rr, cc, 1)
+            xs = np.linspace(rr.min(), rr.max(), 50)
+            a.plot(xs, b0 + b1 * xs, color='k', lw=1.2)
+        a.set(title=f"responsiveness -> {name}",
+              xlabel="responsiveness (resp)", ylabel=name)
+
+    naive = _naive_sensitivities(df)
+    r_naive = _corr(naive[:, 0], naive[:, 1]) if len(naive) else np.nan
+    r_disj = _corr(elec['x'].to_numpy(), elec['y'].to_numpy())
+    ax[1, 2].bar(["naive\n(same trials)", "disjoint\n(pipeline)"],
+                 [r_naive, r_disj], color=["#bbb", "#31a354"])
+    ax[1, 2].axhline(0, color='k', lw=.6)
+    for xi, v in enumerate([r_naive, r_disj]):
+        if np.isfinite(v):
+            ax[1, 2].text(xi, v, f"{v:+.3f}", ha='center',
+                          va='bottom' if v >= 0 else 'top')
+    ax[1, 2].set(title="corr(x, y): shared trial noise removed\n"
+                       "by the disjoint-half estimator",
+                 ylabel="Pearson corr(x, y)")
+
+    # --- row 2: residualization stages ---------------------------------------
+    stages = [(elec, 'x', 'y', "1. raw x, y"),
+              (cont, 'x1', 'y1', "2. after responsiveness residualization"),
+              (cont, 'x_resid', 'y_resid', "3. + within-subject centering")]
+    for a, (src, cx, cy, ttl) in zip(ax[2], stages):
+        if cx in src.columns and cy in src.columns and len(src):
+            a.scatter(src[cx], src[cy], s=15, alpha=.5, color="#444")
+        a.axhline(0, color='k', lw=.6); a.axvline(0, color='k', lw=.6)
+        a.set(title=ttl, xlabel=cx, ylabel=cy)
+
+    # --- row 3: per-electrode permutation p's + FDR q conjunction ------------
+    ax[3, 0].hist(labels['p_cong'].dropna(), bins=20, color=STAB, alpha=.7)
+    ax[3, 0].set(title="congruency permutation p", xlabel="p_cong", ylabel="# elec")
+    ax[3, 1].hist(labels['p_switch'].dropna(), bins=20, color=FLEX, alpha=.7)
+    ax[3, 1].set(title="switch permutation p", xlabel="p_switch", ylabel="# elec")
+
+    sc = ax[3, 2].scatter(labels['q_cong'], labels['q_switch'], s=18, alpha=.6,
+                          c=(labels['S'] + 2 * labels['F']), cmap="viridis")
+    ax[3, 2].axvline(0.05, color='k', ls='--', lw=1)
+    ax[3, 2].axhline(0.05, color='k', ls='--', lw=1)
+    ax[3, 2].set(title="FDR q-values (dashed = alpha)",
+                 xlabel="q_cong (stability)", ylabel="q_switch (flexibility)",
+                 xlim=(-.02, 1.02), ylim=(-.02, 1.02))
+
+    fig.tight_layout()
+    fig_path = os.path.join(save_dir, 'segregation_diagnostics.png')
+    fig.savefig(fig_path, dpi=140, bbox_inches='tight')
+    plt.close(fig)
+    print(f"saved figure: {fig_path}")
+
+
+# ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
 def main(args):
@@ -324,6 +435,7 @@ def main(args):
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
     make_summary_plots(out, args.save_dir)
+    make_diagnostic_plots(out, df, args.save_dir)
     write_summary(out, args.save_dir, meta=dict(
         data_source=args.data_source, task=args.task,
         epochs_root_file=args.epochs_root_file,
