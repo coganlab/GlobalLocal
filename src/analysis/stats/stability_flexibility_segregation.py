@@ -38,14 +38,18 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
 
   * `contrast_mode`  : 'condition'  -> stability = congruency (i vs c),
                                        flexibility = switchType (s vs r)   [default]
-                       'proportion' -> stability = incongruent_proportion (high vs low),
-                                       flexibility = switch_proportion (high vs low)
+                       'proportion' -> stability = LWPC = congruency x
+                                       incongruent_proportion interaction,
+                                       flexibility = LWPS = switchType x
+                                       switch_proportion interaction (each a 2x2
+                                       difference-of-differences, high vs low block)
                        Or pass an explicit `contrasts` spec (see `resolve_contrasts`).
   * `effect_measure` : 'cohens_d'   -> standardized mean difference on window-mean HG [default]
                        'cluster'    -> aggregate time-permutation cluster statistic
                                        (signed cluster mass) on time-resolved HG.
 """
 
+import copy
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr, pearsonr, fisher_exact
@@ -57,26 +61,52 @@ from statsmodels.stats.contingency_tables import StratifiedTable
 # ----------------------------------------------------------------------------
 # contrast specification (condition vs proportion)
 # ----------------------------------------------------------------------------
-# A `contrasts` spec is a dict with 'stability' and 'flexibility' entries, each
-# {'col': column, 'pos': positive group, 'neg': negative group}. `pos`/`neg` may
-# be a category label ('i'), an explicit value (75.0), a collection, or the
-# sentinels 'high'/'low' (resolved to the column's extreme values by
-# `finalize_contrasts`). The effect is measured as pos - neg, so its sign
-# encodes selectivity direction just like the original congruency/switch d's.
+# A `contrasts` spec is a dict with 'stability' and 'flexibility' entries. Each
+# entry is one of two kinds:
+#
+#   SIMPLE      {'col': column, 'pos': positive group, 'neg': negative group}
+#       A two-group contrast; the effect is pos - neg, so its sign encodes
+#       selectivity direction (the original congruency i-vs-c, switch s-vs-r).
+#
+#   INTERACTION {'kind': 'interaction',
+#                'cond': {simple spec},   # e.g. congruency i vs c
+#                'mod':  {simple spec}}   # e.g. incongruent_proportion high vs low
+#       A 2x2 difference-of-differences: how much the `cond` effect changes
+#       between the two `mod` levels -- i.e. the LWPC (congruency x incongruent-
+#       proportion) and LWPS (switchType x switch-proportion) interactions.
+#       We encode it as a single +/-1 contrast (the interaction contrast
+#       weights): the pos super-group is {cond_pos & mod_pos} U {cond_neg &
+#       mod_neg}, the neg super-group is {cond_pos & mod_neg} U {cond_neg &
+#       mod_pos}. pos_mean - neg_mean is then the (balanced) interaction, and a
+#       pure main effect cancels -- so every simple-contrast effect / split /
+#       permutation routine works unchanged on the binary label.
+#
+# `pos`/`neg` in a simple spec may be a category label ('i'), an explicit value
+# (75.0), a collection, or the sentinels 'high'/'low' (resolved to the column's
+# extreme values by `finalize_contrasts`).
 _CONTRAST_PRESETS = {
     'condition': {
         'stability':   dict(col='congruency', pos='i', neg='c'),
         'flexibility': dict(col='switchType', pos='s', neg='r'),
     },
+    # LWPC / LWPS: the congruency x proportion and switch x proportion interactions
     'proportion': {
-        'stability':   dict(col='incongruent_proportion', pos='high', neg='low'),
-        'flexibility': dict(col='switch_proportion',      pos='high', neg='low'),
+        'stability':   dict(kind='interaction',
+                            cond=dict(col='congruency', pos='i', neg='c'),
+                            mod=dict(col='incongruent_proportion', pos='high', neg='low')),
+        'flexibility': dict(kind='interaction',
+                            cond=dict(col='switchType', pos='s', neg='r'),
+                            mod=dict(col='switch_proportion', pos='high', neg='low')),
     },
 }
 
 
 def _copy_contrasts(contrasts):
-    return {k: dict(v) for k, v in contrasts.items()}
+    return {k: copy.deepcopy(v) for k, v in contrasts.items()}
+
+
+def _is_interaction(spec):
+    return spec.get('kind') == 'interaction'
 
 
 def resolve_contrasts(contrast_mode='condition', contrasts=None):
@@ -92,28 +122,38 @@ def resolve_contrasts(contrast_mode='condition', contrasts=None):
     return _copy_contrasts(_CONTRAST_PRESETS[contrast_mode])
 
 
+def _finalize_simple(df, spec, key):
+    """Fill numeric 'high'/'low' thresholds from the WHOLE df so every electrode
+    uses the same split (an electrode may lack a level)."""
+    if 'high' in (spec.get('pos'), spec.get('neg')) or \
+       'low' in (spec.get('pos'), spec.get('neg')):
+        col = spec['col']
+        if col not in df.columns:
+            raise KeyError(f"contrast column '{col}' for {key} not in "
+                           f"df columns {list(df.columns)}")
+        num = pd.to_numeric(df[col], errors='coerce').to_numpy()
+        finite = num[np.isfinite(num)]
+        if finite.size == 0:
+            raise ValueError(f"proportion column '{col}' has no numeric values")
+        spec.setdefault('_hi', float(np.nanmax(finite)))
+        spec.setdefault('_lo', float(np.nanmin(finite)))
+
+
 def finalize_contrasts(df, contrasts):
-    """Fill in numeric 'high'/'low' thresholds from the WHOLE df so every
-    electrode uses the same proportion split (an electrode may lack a level)."""
+    """Resolve any 'high'/'low' sentinels to concrete thresholds, recursing into
+    the `cond`/`mod` sub-specs of interaction contrasts."""
     for key in ('stability', 'flexibility'):
         spec = contrasts[key]
-        if 'high' in (spec.get('pos'), spec.get('neg')) or \
-           'low' in (spec.get('pos'), spec.get('neg')):
-            col = spec['col']
-            if col not in df.columns:
-                raise KeyError(f"proportion contrast column '{col}' for {key} not in "
-                               f"df columns {list(df.columns)}")
-            num = pd.to_numeric(df[col], errors='coerce').to_numpy()
-            finite = num[np.isfinite(num)]
-            if finite.size == 0:
-                raise ValueError(f"proportion column '{col}' has no numeric values")
-            spec.setdefault('_hi', float(np.nanmax(finite)))
-            spec.setdefault('_lo', float(np.nanmin(finite)))
+        if _is_interaction(spec):
+            _finalize_simple(df, spec['cond'], f"{key}.cond")
+            _finalize_simple(df, spec['mod'], f"{key}.mod")
+        else:
+            _finalize_simple(df, spec, key)
     return contrasts
 
 
 def _group_masks(values, spec):
-    """Boolean (pos_mask, neg_mask) for a 1-D array of a contrast column.
+    """Boolean (pos_mask, neg_mask) for a 1-D array of a simple contrast column.
 
     Each of `spec['pos']`/`spec['neg']` may be 'high'/'low' (thresholded at the
     df-wide extremes filled in by `finalize_contrasts`), a collection of labels,
@@ -139,18 +179,46 @@ def _group_masks(values, spec):
     return resolve(spec.get('pos')), resolve(spec.get('neg'))
 
 
+def _contrast_membership(df, spec, key):
+    """Boolean (pos_mask, neg_mask) for a stability/flexibility contrast, simple
+    or interaction. For an interaction these are the +1/-1 super-groups."""
+    if _is_interaction(spec):
+        cond, mod = spec['cond'], spec['mod']
+        for sub, name in ((cond, 'cond'), (mod, 'mod')):
+            if sub['col'] not in df.columns:
+                raise KeyError(f"contrast column '{sub['col']}' for {key}.{name} "
+                               f"not in df columns {list(df.columns)}")
+        cp, cn = _group_masks(df[cond['col']].to_numpy(), cond)
+        mp, mn = _group_masks(df[mod['col']].to_numpy(), mod)
+        pos = (cp & mp) | (cn & mn)      # interaction contrast weights +1
+        neg = (cp & mn) | (cn & mp)      #                             -1
+        return pos, neg
+    if spec['col'] not in df.columns:
+        raise KeyError(f"contrast column '{spec['col']}' for {key} not in df "
+                       f"columns {list(df.columns)}")
+    return _group_masks(df[spec['col']].to_numpy(), spec)
+
+
+def _strata_columns(contrasts):
+    """The raw factor columns to stratify the disjoint-half split on (the finest
+    partition across both contrasts), so every 2x2 cell stays balanced."""
+    cols = []
+    for key in ('stability', 'flexibility'):
+        spec = contrasts[key]
+        subs = [spec['cond'], spec['mod']] if _is_interaction(spec) else [spec]
+        for s in subs:
+            if s['col'] not in cols:
+                cols.append(s['col'])
+    return cols
+
+
 def _canonical_labels(df, contrasts):
     """Attach '_slab'/'_flab' in {1 (pos), 0 (neg), NaN (excluded)} for the
     stability and flexibility contrasts, so downstream code is agnostic to
-    whether the contrast is a condition or a proportion."""
+    whether the contrast is a simple condition or a 2x2 interaction."""
     out = df.copy()
     for lab, key in (('_slab', 'stability'), ('_flab', 'flexibility')):
-        spec = contrasts[key]
-        col = spec['col']
-        if col not in out.columns:
-            raise KeyError(f"contrast column '{col}' for {key} not in df columns "
-                           f"{list(out.columns)}")
-        pmask, nmask = _group_masks(out[col].to_numpy(), spec)
+        pmask, nmask = _contrast_membership(out, contrasts[key], key)
         v = np.full(len(out), np.nan)
         v[np.asarray(nmask, bool)] = 0.0
         v[np.asarray(pmask, bool)] = 1.0   # pos wins any (unexpected) overlap
@@ -300,13 +368,14 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
     courses)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)
+    strata = _strata_columns(contrasts)
     rng = np.random.default_rng(seed)
     rows = []
     for (subj, elec), sub in work.groupby(['subject', 'electrode']):
         sub = sub.reset_index(drop=True)
         xs, ys = [], []
         for _ in range(n_splits):
-            h1, h2 = _stratified_half_split(sub, rng, strata_cols=('_slab', '_flab'))
+            h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
             hx, hy = (h1, h2) if rng.random() < 0.5 else (h2, h1)  # use data symmetrically
             gx, gy = sub.loc[hx], sub.loc[hy]
             xs.append(_contrast_effect(gx, '_slab', effect_measure, alpha))
@@ -506,10 +575,12 @@ def _synthetic_df(effect_measure='cohens_d', n_time=20, seed=0):
         for e in range(rng.integers(15, 40)):  # unequal electrode counts
             gain = rng.lognormal(0, 0.5)      # per-electrode SNR (gain confound)
             bx, by = rng.normal(0, .4), rng.normal(0, .4)   # true sensitivities
-            # effect from trial condition AND its block proportion, so both
-            # contrast_modes have recoverable signal
-            base = (bx * (cong == 'i') + by * (sw == 's')
-                    + 0.5 * bx * (inc_prop == 75.0) + 0.5 * by * (sw_prop == 75.0))
+            # bx drives the congruency effect AND lets it grow with incongruent
+            # proportion (a congruency x proportion INTERACTION = LWPC); likewise
+            # by for switch x switch-proportion (LWPS). So condition mode recovers
+            # bx via the main effect and proportion mode via the interaction.
+            base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
+                    + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
             fr = dict(subject=s, electrode=f'{s}_{e}',
                       congruency=cong, switchType=sw,
                       incongruent_proportion=inc_prop, switch_proportion=sw_prop)
@@ -533,17 +604,17 @@ if __name__ == '__main__':
     # bump n_splits / n_perm_* for a real run.
     for cm in ('condition', 'proportion'):
         df = _synthetic_df(effect_measure='cohens_d')
-        out = run_joint_distribution_analysis(df, n_splits=30, n_perm_corr=1000,
-                                              n_perm_label=200, contrast_mode=cm)
+        out = run_joint_distribution_analysis(df, n_splits=20, n_perm_corr=800,
+                                              n_perm_label=100, contrast_mode=cm)
         print(f"[{cm} / cohens_d] partial corr:", out['correlation'])
         print(f"[{cm} / cohens_d] MH OR:", out['conjunction']['mh_odds_ratio'],
               'CMH p:', out['conjunction']['cmh'].pvalue)
 
     # cluster-mass effect measure on time-resolved HG (see USE_TIME_PERM_CLUSTER
     # to swap the deterministic mass for the real time_perm_cluster mask)
-    dfc = _synthetic_df(effect_measure='cluster', n_time=20)
-    outc = run_joint_distribution_analysis(dfc, n_splits=15, n_perm_corr=1000,
-                                           n_perm_label=100, effect_measure='cluster')
+    dfc = _synthetic_df(effect_measure='cluster', n_time=16)
+    outc = run_joint_distribution_analysis(dfc, n_splits=10, n_perm_corr=500,
+                                           n_perm_label=50, effect_measure='cluster')
     print("[condition / cluster] partial corr:", outc['correlation'])
     print("[condition / cluster] MH OR:", outc['conjunction']['mh_odds_ratio'],
           'CMH p:', outc['conjunction']['cmh'].pvalue)

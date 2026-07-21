@@ -62,7 +62,7 @@ scored by its aggregate cluster-mass statistic rather than a difference of means
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | Analysis window (s from stimulus onset). |
 | `ELECTRODES` | `all` | `all` or `sig` (significant channels). |
-| `CONTRAST_MODE` | `condition` | `condition` = stability from congruency (i vs c), flexibility from switchType (s vs r); `proportion` = stability from `incongruent_proportion` (high vs low), flexibility from `switch_proportion` (high vs low). |
+| `CONTRAST_MODE` | `condition` | `condition` = stability from congruency (i vs c), flexibility from switchType (s vs r); `proportion` = stability from the **LWPC** congruency×`incongruent_proportion` interaction and flexibility from the **LWPS** switchType×`switch_proportion` interaction (each a 2×2 difference-of-differences, high vs low block). |
 | `EFFECT_MEASURE` | `cohens_d` | `cohens_d` = standardized mean difference on window-mean HG; `cluster` = aggregate cluster-mass statistic on the windowed HG time course. |
 | `N_SPLITS` | `200` | Disjoint trial-half resamples for sensitivity estimation. |
 | `N_PERM_CORR` | `10000` | Permutations for the continuous test. |

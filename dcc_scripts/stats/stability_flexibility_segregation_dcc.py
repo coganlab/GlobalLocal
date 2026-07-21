@@ -150,9 +150,10 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
                       effect_measure='cohens_d', n_time=20):
     """Ground-truth-controlled synthetic data for validating the pipeline/paths.
 
-    Carries `incongruent_proportion` / `switch_proportion` columns (so
-    contrast_mode='proportion' has recoverable signal) and, when
-    effect_measure='cluster', emits per-trial HG *time courses* (an effect
+    Carries `incongruent_proportion` / `switch_proportion` columns and injects a
+    congruency x proportion (LWPC) and switch x switch-proportion (LWPS)
+    INTERACTION, so contrast_mode='proportion' has recoverable signal. When
+    effect_measure='cluster', emits per-trial HG *time courses* (the effect
     injected into the middle of the window) instead of scalar window means."""
     cluster = (effect_measure == 'cluster')
     rng = np.random.default_rng(seed)
@@ -167,8 +168,12 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
         for e in range(int(rng.integers(15, 26))):
             gain = rng.lognormal(0, gain_sd)
             bx, by = rng.multivariate_normal([0, 0], cov)
-            base = (bx * (cong == 'i') + by * (sw == 's')
-                    + 0.5 * bx * (inc_prop == 75.0) + 0.5 * by * (sw_prop == 75.0))
+            # bx: congruency effect that grows with incongruent proportion (LWPC
+            # interaction); by: switch effect that grows with switch proportion
+            # (LWPS). Condition mode recovers bx/by via the main effect,
+            # proportion mode via the interaction.
+            base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
+                    + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
             fr = dict(subject=f"S{s:02d}", electrode=f"S{s:02d}-e{e}",
                       congruency=cong, switchType=sw,
                       incongruent_proportion=inc_prop, switch_proportion=sw_prop)
