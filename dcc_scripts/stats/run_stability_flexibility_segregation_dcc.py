@@ -58,6 +58,14 @@ if DATA_SOURCE == 'real' and EPOCHS_ROOT_FILE is None:
 WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimulus
 WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
+# --- analysis options (default to the original behaviour) ---
+# contrast_mode : 'condition'  -> stability=congruency(i vs c), flexibility=switchType(s vs r)
+#                 'proportion' -> stability=incongruent_proportion, flexibility=switch_proportion
+# effect_measure: 'cohens_d'   -> standardized mean diff on window-mean HG
+#                 'cluster'     -> aggregate cluster-mass statistic on windowed HG time courses
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'condition')
+EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cohens_d')
+
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 # ROIS_DICT = None keeps every channel. Provide a dict to restrict to ROIs,
@@ -88,7 +96,8 @@ MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subj
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag,
-                        f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}')
+                        f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
+                        f'_{CONTRAST_MODE}_{EFFECT_MEASURE}')
 
 
 def run_analysis():
@@ -107,6 +116,8 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         responsiveness=RESPONSIVENESS,
+        contrast_mode=CONTRAST_MODE,
+        effect_measure=EFFECT_MEASURE,
         n_splits=N_SPLITS,
         n_perm_corr=N_PERM_CORR,
         n_perm_label=N_PERM_LABEL,
@@ -124,6 +135,8 @@ def run_analysis():
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
+    print(f"Contrast mode:    {CONTRAST_MODE}")
+    print(f"Effect measure:   {EFFECT_MEASURE}")
     print("-" * 70)
     print(f"n_splits:         {N_SPLITS}")
     print(f"n_perm_corr:      {N_PERM_CORR}")
