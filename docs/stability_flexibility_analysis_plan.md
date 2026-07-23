@@ -204,25 +204,27 @@ split and the pseudo-trial construction.
 
 ## 5. Temporal dynamics — relative onset of stability vs. flexibility information
 
-> **Status.** Onset estimator and amplitude confound **decided** (50%-of-peak
-> latency + jackknife; see Step 2). Still open: the "information" signal —
-> univariate interaction time course vs. multivariate decoding time course
-> (Step 1).
+> **Status: specified.** Information signal = univariate interaction time course
+> (Step 1); onset = 50%-of-peak latency via jackknife (Step 2–3); multivariate
+> decoding onset from §4 as a secondary corroborating check.
 
 **Goal.** Does stability information arise *earlier or later* than flexibility
 information? Theory motivates it: proactive/stability control is often cast as
 sustained/tonic and preparatory (earlier), reactive/flexibility control as
 phasic (later) — but this is exactly what we want to measure, not assume.
 
-**Step 1 — define an "information time course" for each process.** Two options
-(decide together):
-- *Univariate:* the interaction magnitude over time — the LWPC
-  difference-of-differences and the LWPS difference-of-differences as functions
-  of time (grand average over the relevant electrodes, or a t-statistic time
-  course).
-- *Multivariate:* time-resolved decoding accuracy for stability and for
-  flexibility (train/test at each time point). More sensitive, and it dovetails
-  with §4.
+**Step 1 — define an "information time course" for each process: univariate
+(decided).** The primary signal is the **interaction magnitude over time** — the
+LWPC and LWPS difference-of-differences as functions of time (grand average over
+the relevant electrodes, or a t-statistic time course). This measures *when the
+response emerges* and is the cleaner "onset of information," less entangled with
+classifier choices; it reuses the `effect_measure='cluster'` time-resolved path
+already in the segregation module.
+- *Corroborating check (secondary):* the time-resolved decoding-accuracy
+  courses from §4 (train/test per time bin) measure *when the information
+  becomes readable* — a subtly different quantity (readout latency can lag
+  response onset). Since the decoders are built for §4 anyway, agreement between
+  the univariate and multivariate onsets makes the sequence claim bulletproof.
 
 **Step 2 — define onset latency: 50%-of-peak (decided).** For each process,
 find the peak of the effect in the expected direction (or of |effect|) within
@@ -303,10 +305,10 @@ independent support.
 
 ## Open questions to discuss
 
-1. **Timing measurement (§5):** univariate interaction time course vs.
-   multivariate decoding time course as the "information" signal? *(only open
-   §5 question — onset estimator is decided: 50%-of-peak + jackknife)*
-2. **Analysis window** for the aggregate-HG ANOVA electrode definition (§1) —
+1. **Analysis window** for the aggregate-HG ANOVA electrode definition (§1) —
    fixed window vs. data-driven.
-3. **Pseudopopulation construction (§4):** how to build pseudo-trials and how
+2. **Pseudopopulation construction (§4):** how to build pseudo-trials and how
    many folds, given per-subject trial counts.
+
+*(§5 timing is fully specified: univariate interaction time course, 50%-of-peak
+onset, jackknife.)*
