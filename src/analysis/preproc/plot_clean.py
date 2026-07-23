@@ -26,6 +26,7 @@ from bids import BIDSLayout
 from ieeg.navigate import trial_ieeg, channel_outlier_marker, crop_empty_data, outliers_to_nan
 from ieeg.viz.ensemble import figure_compare
 from mne_bids import read_raw_bids
+from analysis.utils.general_utils import get_default_LAB_root
 
 def fix_events_file(events_file):
     """Fix events file by removing events with negative durations
@@ -75,15 +76,11 @@ def main(subjects_list):
         List of subject IDs to process
     """
     # Set up paths
-    HOME = os.path.expanduser("~")
     task = 'GlobalLocal'
-    
+
     # get box directory depending on OS
-    if os.name == 'nt': # windows
-        LAB_root = os.path.join(HOME, "Box", "CoganLab")
-    else: # mac
-        LAB_root = os.path.join(HOME, "Library", "CloudStorage", "Box-Box", "CoganLab")
-    
+    LAB_root = get_default_LAB_root()
+
     # Load Data
     layout = get_data(task, root=LAB_root)
     
