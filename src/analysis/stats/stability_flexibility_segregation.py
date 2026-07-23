@@ -74,12 +74,17 @@ from statsmodels.stats.contingency_tables import StratifiedTable
 #       A 2x2 difference-of-differences: how much the `cond` effect changes
 #       between the two `mod` levels -- i.e. the LWPC (congruency x incongruent-
 #       proportion) and LWPS (switchType x switch-proportion) interactions.
-#       We encode it as a single +/-1 contrast (the interaction contrast
-#       weights): the pos super-group is {cond_pos & mod_pos} U {cond_neg &
-#       mod_neg}, the neg super-group is {cond_pos & mod_neg} U {cond_neg &
-#       mod_pos}. pos_mean - neg_mean is then the (balanced) interaction, and a
-#       pure main effect cancels -- so every simple-contrast effect / split /
-#       permutation routine works unchanged on the binary label.
+#       It is scored as the difference-of-differences of the four CELL means,
+#       weighted EQUALLY across cells (see `_interaction_effect`). This matters
+#       because the proportion design makes the four cells deliberately unequal
+#       (mostly-incongruent ~ 75/25); a naive pooled "+1 diagonal vs -1 diagonal"
+#       mean difference is trial-count weighted, so the "+1" super-group is
+#       dominated by the frequent cells and a pure main effect leaks into the
+#       "interaction". Equal cell weighting makes the estimate orthogonal to both
+#       main effects. The +/-1 super-group labels (`_slab`/`_flab`) are still
+#       attached for the simple path, but the interaction's effect and its
+#       (main-effect-preserving) permutation use the per-cell factor labels
+#       `_scond`/`_smod` and `_fcond`/`_fmod` instead.
 #
 # `pos`/`neg` in a simple spec may be a category label ('i'), an explicit value
 # (75.0), a collection, or the sentinels 'high'/'low' (resolved to the column's
@@ -212,17 +217,43 @@ def _strata_columns(contrasts):
     return cols
 
 
+def _sub_memberships(df, spec):
+    """Per-trial {1.0, 0.0, NaN} membership of an interaction's two sub-factors
+    (cond, mod); (None, None) for a simple contrast. Lets the interaction be
+    scored as a balanced (equal-cell-weight) difference-of-differences instead of
+    a trial-count-weighted pooled-super-group difference (see `_interaction_effect`)."""
+    if not _is_interaction(spec):
+        return None, None
+
+    def lab(sub):
+        pos, neg = _group_masks(df[sub['col']].to_numpy(), sub)
+        v = np.full(len(df), np.nan)
+        v[np.asarray(neg, bool)] = 0.0
+        v[np.asarray(pos, bool)] = 1.0
+        return v
+
+    return lab(spec['cond']), lab(spec['mod'])
+
+
 def _canonical_labels(df, contrasts):
     """Attach '_slab'/'_flab' in {1 (pos), 0 (neg), NaN (excluded)} for the
     stability and flexibility contrasts, so downstream code is agnostic to
-    whether the contrast is a simple condition or a 2x2 interaction."""
+    whether the contrast is a simple condition or a 2x2 interaction. For an
+    interaction, also attach the two sub-factor labels ('_scond'/'_smod',
+    '_fcond'/'_fmod') so the effect can be scored as a balanced difference-of-
+    differences (equal cell weights) rather than a pooled-super-group contrast."""
     out = df.copy()
-    for lab, key in (('_slab', 'stability'), ('_flab', 'flexibility')):
+    for lab, key, condcol, modcol in (('_slab', 'stability', '_scond', '_smod'),
+                                      ('_flab', 'flexibility', '_fcond', '_fmod')):
         pmask, nmask = _contrast_membership(out, contrasts[key], key)
         v = np.full(len(out), np.nan)
         v[np.asarray(nmask, bool)] = 0.0
         v[np.asarray(pmask, bool)] = 1.0   # pos wins any (unexpected) overlap
         out[lab] = v
+        cond, mod = _sub_memberships(out, contrasts[key])
+        if cond is not None:
+            out[condcol] = cond
+            out[modcol] = mod
     return out
 
 
@@ -341,6 +372,92 @@ def _contrast_effect(frame, labcol, effect_measure, alpha):
     return _effect_from_arrays(hg, lab, effect_measure, alpha)
 
 
+# --- balanced (equal-cell-weight) interaction effect -------------------------
+# The proportion contrasts (LWPC/LWPS) are 2x2 interactions. Scoring them by
+# pooling the two "+1" diagonal cells against the two "-1" cells and taking a
+# trial-count-weighted mean difference confounds the interaction with cell
+# imbalance: in a proportion design the "+1" super-group is dominated by the
+# frequent (majority) cells and "-1" by the rare (minority) cells, so a pure
+# congruency/switch MAIN effect (and any oddball/frequency response) leaks in.
+# The difference-of-differences of the four CELL means (equal weights) is
+# orthogonal to both main effects, so it isolates the interaction.
+def _dod_cells(hg, cond, mod):
+    """The four (cond, mod) cells as stacked arrays; None if any cell is empty."""
+    cells = {}
+    for cv in (1.0, 0.0):
+        for mv in (1.0, 0.0):
+            sel = (cond == cv) & (mod == mv)
+            if not np.any(sel):
+                return None
+            cells[(cv, mv)] = _stack(hg[sel])
+    return cells
+
+
+def _interaction_cohens_d(cells):
+    """Standardised difference-of-differences of the four cell means (equal cell
+    weight), pooled within-cell SD. NaN if any cell has < 2 trials."""
+    num, dfree, means = 0.0, 0, {}
+    for k, v in cells.items():
+        n = len(v)
+        if n < 2:
+            return np.nan
+        num += (n - 1) * v.var(ddof=1)
+        dfree += n - 1
+        means[k] = v.mean(0)
+    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
+           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
+    sp = np.sqrt(num / dfree)
+    return np.nan if sp == 0 else dod / sp
+
+
+def _interaction_cluster(cells, alpha):
+    """Signed cluster mass of the per-bin difference-of-differences t (equal cell
+    weight). Parametric threshold only -- the two-group time_perm_cluster path
+    does not apply to a 4-cell contrast."""
+    means, varis, ns = {}, {}, {}
+    for k, v in cells.items():
+        if len(v) < 2:
+            return np.nan
+        means[k] = v.mean(0); varis[k] = v.var(0, ddof=1); ns[k] = len(v)
+    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
+           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
+    se = np.sqrt(sum(varis[k] / ns[k] for k in cells))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        tvals = np.where(se > 0, dod / se, 0.0)
+    thr = _t_dist.ppf(1 - alpha / 2, sum(ns.values()) - 4)
+    supra = np.isfinite(tvals) & (np.abs(tvals) > thr)
+    return 0.0 if not supra.any() else float(np.sum(tvals[supra]))
+
+
+def _interaction_effect(hg, cond, mod, effect_measure, alpha):
+    """Balanced 2x2 interaction effect between the (cond, mod) cells of one
+    electrode; mirrors `_effect_from_arrays` but equal-cell-weighted."""
+    valid = ~(np.isnan(cond) | np.isnan(mod))
+    cells = _dod_cells(hg[valid], cond[valid], mod[valid])
+    if cells is None:
+        return np.nan
+    if effect_measure == 'cluster':
+        return _interaction_cluster(cells, alpha)
+    if effect_measure == 'cohens_d':
+        return _interaction_cohens_d(cells)
+    raise ValueError(f"effect_measure must be 'cohens_d' or 'cluster'; got {effect_measure!r}")
+
+
+def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
+    """Per-electrode effect for a stability/flexibility contrast: balanced
+    difference-of-differences for an interaction, else the plain two-group
+    contrast on the collapsed label."""
+    spec = contrasts[key]
+    if _is_interaction(spec):
+        condcol, modcol = (('_scond', '_smod') if key == 'stability'
+                           else ('_fcond', '_fmod'))
+        return _interaction_effect(frame['hg'].to_numpy(),
+                                   frame[condcol].to_numpy(),
+                                   frame[modcol].to_numpy(),
+                                   effect_measure, alpha)
+    return _contrast_effect(frame, labcol, effect_measure, alpha)
+
+
 def _stratified_half_split(sub, rng, strata_cols=('congruency', 'switchType')):
     """Split one electrode's trials into two disjoint halves, balanced on the
     contrast cells so neither half is confounded."""
@@ -378,8 +495,8 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
             h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
             hx, hy = (h1, h2) if rng.random() < 0.5 else (h2, h1)  # use data symmetrically
             gx, gy = sub.loc[hx], sub.loc[hy]
-            xs.append(_contrast_effect(gx, '_slab', effect_measure, alpha))
-            ys.append(_contrast_effect(gy, '_flab', effect_measure, alpha))
+            xs.append(_effect_for(gx, 'stability', '_slab', contrasts, effect_measure, alpha))
+            ys.append(_effect_for(gy, 'flexibility', '_flab', contrasts, effect_measure, alpha))
         rows.append(dict(subject=subj, electrode=elec,
                          x=np.nanmean(xs), y=np.nanmean(ys)))
     return pd.DataFrame(rows)
@@ -395,8 +512,8 @@ def naive_sensitivities(df, contrast_mode='condition', contrasts=None,
     rows = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
         rows.append(dict(subject=subj, electrode=elec,
-                         x=_contrast_effect(g, '_slab', effect_measure, alpha),
-                         y=_contrast_effect(g, '_flab', effect_measure, alpha)))
+                         x=_effect_for(g, 'stability', '_slab', contrasts, effect_measure, alpha),
+                         y=_effect_for(g, 'flexibility', '_flab', contrasts, effect_measure, alpha)))
     return pd.DataFrame(rows)
 
 
@@ -485,10 +602,8 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
     recs = []
     for (subj, elec), sub in work.groupby(['subject', 'electrode']):
         hg = sub['hg'].to_numpy()
-        slab = sub['_slab'].to_numpy()
-        flab = sub['_flab'].to_numpy()
 
-        def perm_p(lab):
+        def perm_p_simple(lab):
             valid = ~np.isnan(lab)
             l = lab[valid].astype(int)
             h = hg[valid]
@@ -499,8 +614,36 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
                       for _ in range(n_perm))
             return (cnt + 1) / (n_perm + 1)
 
+        def perm_p_interaction(condcol, modcol):
+            # Balanced difference-of-differences, with a main-effect-preserving
+            # null: permute the modulator WITHIN each condition level, so both
+            # main effects (and cell counts) are held fixed and only the
+            # interaction is nulled -- unlike a free label shuffle, which lets a
+            # main effect masquerade as an interaction under cell imbalance.
+            cond = sub[condcol].to_numpy(); mod = sub[modcol].to_numpy()
+            valid = ~(np.isnan(cond) | np.isnan(mod))
+            cond = cond[valid]; mod = mod[valid]; h = hg[valid]
+            obs = _interaction_effect(h, cond, mod, effect_measure, alpha)
+            if np.isnan(obs):
+                return np.nan
+            blocks = [np.where(cond == cv)[0] for cv in (1.0, 0.0)]
+            cnt = 0
+            for _ in range(n_perm):
+                mp = mod.copy()
+                for idx in blocks:
+                    mp[idx] = mod[rng.permutation(idx)]
+                if abs(_interaction_effect(h, cond, mp, effect_measure, alpha)) >= abs(obs):
+                    cnt += 1
+            return (cnt + 1) / (n_perm + 1)
+
+        def perm_p(key, labcol, condcol, modcol):
+            if _is_interaction(contrasts[key]):
+                return perm_p_interaction(condcol, modcol)
+            return perm_p_simple(sub[labcol].to_numpy())
+
         recs.append(dict(subject=subj, electrode=elec,
-                         p_cong=perm_p(slab), p_switch=perm_p(flab)))
+                         p_cong=perm_p('stability', '_slab', '_scond', '_smod'),
+                         p_switch=perm_p('flexibility', '_flab', '_fcond', '_fmod')))
     out = pd.DataFrame(recs)
     out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
     out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]

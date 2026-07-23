@@ -152,12 +152,21 @@ result and an artifact.
   - LWPC electrode ⇐ significant `congruency × incongruent_proportion`
     interaction term.
   - LWPS electrode ⇐ significant `switchType × switch_proportion` interaction.
-- Significance via **within-electrode permutation** of the interaction contrast
-  (shuffle the ±1 interaction labels), then **FDR across electrodes**. This is
-  exactly what `per_electrode_labels` already does with the interaction
-  contrast (`contrast_mode='proportion'`), producing binary `S` (stability) and
-  `F` (flexibility) flags per electrode.
-    - wait what..? i don't do this.
+- **Selection is the primary definition:** use the interaction term for the
+  binary S/F flags. Use **Type III** sums of squares so the *deliberately*
+  unequal proportion cells don't distort the interaction, FDR across electrodes,
+  and record the **sign** of the difference-of-differences (the F-test is
+  unsigned — you need the sign to keep only electrodes whose congruency/switch
+  effect *grows* in the predicted direction, and to feed the §2 correlation).
+- **Balanced-cell interaction, not a pooled super-group.** However the
+  interaction is scored — ANOVA F or the permutation effect size below — it must
+  weight the four cells **equally** (difference-of-differences of cell means).
+  The proportion design makes the cells unequal by construction (~75/25), and a
+  naive "+1 diagonal vs −1 diagonal" pooled mean difference is trial-count
+  weighted, so under asymmetric imbalance a pure congruency/switch **main
+  effect** leaks in as a spurious interaction (empirically ~0.8 SD of fake
+  effect in a zero-interaction simulation). Equal cell weighting is orthogonal
+  to both main effects and removes the leak.
 - Also fit the two **cross** interactions as specificity controls (report, do
   not select on them).
 
@@ -165,10 +174,24 @@ result and an artifact.
 effect sizes, q-values}`, plus the four groups: **LWPC-only**, **LWPS-only**,
 **both**, **neither**.
 
-**Code hooks.** `per_electrode_labels(df, contrast_mode='proportion', ...)`
-already returns `S`/`F`. The ANOVA framing is a thin wrapper — the interaction
-contrast in `_CONTRAST_PRESETS['proportion']` is the same 2×2 difference-of-
-differences an interaction F-term tests.
+**Code hooks.** The ANOVA selection is *not yet wired into the pipeline* — it is
+the planned primary definition. `per_electrode_labels(df,
+contrast_mode='proportion', ...)` provides a **complementary** nonparametric
+route: it returns the *signed, standardized* interaction effect size per
+electrode plus permutation-based S/F flags (within-electrode permutation of the
+interaction, FDR across electrodes). It does **not** replace the ANOVA — it
+(a) supplies the graded per-electrode effect the §2 continuous correlation needs
+(an F-value can't feed a correlation: unsigned, wrong scale), and (b) serves as
+a distribution-free cross-check on the ANOVA's parametric assumptions
+(single-trial HG is skewed). The two should agree closely since they test the
+same balanced difference-of-differences.
+
+As of the latest patch, `_interaction_effect` (used by `per_electrode_labels`,
+`compute_sensitivities`, `naive_sensitivities`) scores the interaction as the
+**equal-cell-weight** difference-of-differences — not the earlier pooled
+super-group Cohen's *d* — and its permutation null permutes the modulator
+**within each condition level**, holding both main effects fixed so only the
+interaction is nulled.
 
 ---
 
