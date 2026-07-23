@@ -87,6 +87,7 @@ result and an artifact.
   exactly what `per_electrode_labels` already does with the interaction
   contrast (`contrast_mode='proportion'`), producing binary `S` (stability) and
   `F` (flexibility) flags per electrode.
+    - wait what..? i don't do this.
 - Also fit the two **cross** interactions as specificity controls (report, do
   not select on them).
 
