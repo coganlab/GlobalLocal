@@ -65,14 +65,29 @@ def _window_indices(times, tmin, tmax):
     return idx[0], idx[-1] + 1
 
 
-def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None):
+def _proportion_col(md, name):
+    """Read a proportion column from metadata as float, NaN if absent."""
+    if name in md.columns:
+        return pd.to_numeric(md[name], errors='coerce').to_numpy()
+    return np.full(len(md), np.nan)
+
+
+def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
+                     effect_measure='cohens_d'):
     """Build the (electrode, trial) long table from per-subject Epochs.
 
-    hg          = mean HG_ev1_rescaled over [tmin, tmax]s (one value / trial / channel)
+    hg          = HG_ev1_rescaled over [tmin, tmax]s. With effect_measure=
+                  'cohens_d' (default) this is the window MEAN (one scalar /
+                  trial / channel); with 'cluster' it is the per-trial time
+                  COURSE over the window (a 1-D array), so the analysis can use
+                  the aggregate cluster statistic instead of the window mean.
     congruency  = metadata 'congruency'      ('c' / 'i')
     switchType  = metadata 'task_sequence'   ('s' / 'r'); 'n' (first-of-block) dropped
+    incongruent_proportion / switch_proportion
+                = metadata block proportions (for contrast_mode='proportion')
     electrode   = f"{subject}-{channel}"  (unique across subjects)
     """
+    cluster = (effect_measure == 'cluster')
     frames = []
     for sub, epochs in subjects_epochs.items():
         md = epochs.metadata
@@ -85,11 +100,14 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None):
         cong = md['congruency'].to_numpy().astype(str)
         sw = md['task_sequence'].to_numpy().astype(str) if 'task_sequence' in md.columns \
             else md['switchType'].to_numpy().astype(str)
+        inc_prop = _proportion_col(md, 'incongruent_proportion')
+        sw_prop = _proportion_col(md, 'switch_proportion')
 
         times = epochs.times
         s_idx, e_idx = _window_indices(times, tmin, tmax)
         data = epochs.get_data()                       # (n_trials, n_channels, n_times)
-        hg_win = np.nanmean(data[:, :, s_idx:e_idx], axis=2)   # (n_trials, n_channels)
+        win = data[:, :, s_idx:e_idx]                  # (n_trials, n_channels, n_win)
+        hg_mean = np.nanmean(win, axis=2)              # (n_trials, n_channels)
         ch_names = list(epochs.ch_names)
 
         keep_trials = np.isin(sw, ['s', 'r']) & np.isin(cong, ['c', 'i'])
@@ -100,22 +118,44 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None):
             ch_idx = list(range(len(ch_names)))
 
         for ci in ch_idx:
-            frames.append(pd.DataFrame(dict(
+            fr = pd.DataFrame(dict(
                 subject=sub,
                 electrode=f"{sub}-{ch_names[ci]}",
-                hg=hg_win[keep_trials, ci],
                 congruency=cong[keep_trials],
-                switchType=sw[keep_trials])))
+                switchType=sw[keep_trials],
+                incongruent_proportion=inc_prop[keep_trials],
+                switch_proportion=sw_prop[keep_trials]))
+            if cluster:
+                # store each trial's windowed time course as an object cell
+                tc = win[keep_trials, ci, :]           # (n_kept, n_win)
+                col = np.empty(len(fr), dtype=object)
+                for i in range(len(fr)):
+                    col[i] = tc[i]
+                fr['hg'] = col
+            else:
+                fr['hg'] = hg_mean[keep_trials, ci]
+            frames.append(fr)
 
     if not frames:
         raise RuntimeError("assembled 0 electrodes - check subjects / ROI filter / window")
     df = pd.concat(frames, ignore_index=True)
-    df = df.dropna(subset=['hg'])
+    if cluster:
+        df = df[df['hg'].apply(lambda a: np.all(np.isfinite(a)))].reset_index(drop=True)
+    else:
+        df = df.dropna(subset=['hg'])
     return df
 
 
-def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5):
-    """Ground-truth-controlled synthetic data for validating the pipeline/paths."""
+def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
+                      effect_measure='cohens_d', n_time=20):
+    """Ground-truth-controlled synthetic data for validating the pipeline/paths.
+
+    Carries `incongruent_proportion` / `switch_proportion` columns and injects a
+    congruency x proportion (LWPC) and switch x switch-proportion (LWPS)
+    INTERACTION, so contrast_mode='proportion' has recoverable signal. When
+    effect_measure='cluster', emits per-trial HG *time courses* (the effect
+    injected into the middle of the window) instead of scalar window means."""
+    cluster = (effect_measure == 'cluster')
     rng = np.random.default_rng(seed)
     cov = np.array([[0.4**2, rho_true*0.16], [rho_true*0.16, 0.4**2]])
     rows = []
@@ -123,13 +163,32 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5):
         n_tr = int(rng.integers(280, 420))
         cong = rng.choice(['c', 'i'], n_tr)
         sw = rng.choice(['s', 'r'], n_tr)
+        inc_prop = rng.choice([25.0, 75.0], n_tr)
+        sw_prop = rng.choice([25.0, 75.0], n_tr)
         for e in range(int(rng.integers(15, 26))):
             gain = rng.lognormal(0, gain_sd)
             bx, by = rng.multivariate_normal([0, 0], cov)
-            hg = (gain * (bx * (cong == 'i') + by * (sw == 's'))
-                  + rng.normal(0, 1, n_tr) * gain)
-            rows.append(pd.DataFrame(dict(subject=f"S{s:02d}", electrode=f"S{s:02d}-e{e}",
-                                          hg=hg, congruency=cong, switchType=sw)))
+            # bx: congruency effect that grows with incongruent proportion (LWPC
+            # interaction); by: switch effect that grows with switch proportion
+            # (LWPS). Condition mode recovers bx/by via the main effect,
+            # proportion mode via the interaction.
+            base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
+                    + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
+            fr = dict(subject=f"S{s:02d}", electrode=f"S{s:02d}-e{e}",
+                      congruency=cong, switchType=sw,
+                      incongruent_proportion=inc_prop, switch_proportion=sw_prop)
+            frame = pd.DataFrame(fr)
+            if cluster:
+                tc = rng.normal(0, 1, (n_tr, n_time)) * gain
+                w = slice(n_time // 4, 3 * n_time // 4)
+                tc[:, w] += (gain * base)[:, None]
+                col = np.empty(n_tr, dtype=object)
+                for i in range(n_tr):
+                    col[i] = tc[i]
+                frame['hg'] = col
+            else:
+                frame['hg'] = gain * base + rng.normal(0, 1, n_tr) * gain
+            rows.append(frame)
     return pd.concat(rows, ignore_index=True)
 
 
@@ -291,21 +350,18 @@ def make_summary_plots(out, save_dir, n_perm_plot=2000, seed=1):
 # ---------------------------------------------------------------------------
 # QC / diagnostics figure (the step-by-step panels from the tutorial notebook)
 # ---------------------------------------------------------------------------
-def _naive_sensitivities(df):
-    """Per-electrode (x, y) estimated from ALL trials (shared trial noise).
-    Only used for the diagnostic naive-vs-disjoint comparison; the analysis
-    itself always uses the disjoint-half estimator in `sfs`."""
-    rows = []
-    for (subj, elec), g in df.groupby(['subject', 'electrode']):
-        x = sfs._cohens_d(g.loc[g.congruency == 'i', 'hg'],
-                          g.loc[g.congruency == 'c', 'hg'])
-        y = sfs._cohens_d(g.loc[g.switchType == 's', 'hg'],
-                          g.loc[g.switchType == 'r', 'hg'])
-        rows.append((x, y))
-    return np.asarray(rows, float)
+def _scalar_hg(df):
+    """A view of df with scalar hg (window mean) so the raw-HG diagnostic panels
+    work whether hg holds scalars (cohens_d) or time courses (cluster)."""
+    if df['hg'].dtype == object:
+        d = df.copy()
+        d['hg'] = d['hg'].apply(lambda a: np.nanmean(a))
+        return d
+    return df
 
 
-def make_diagnostic_plots(out, df, save_dir):
+def make_diagnostic_plots(out, df, save_dir, contrast_mode='condition',
+                          effect_measure='cohens_d'):
     """Save the notebook's QC panels so a production run also shows *why* the
     corrections were needed and that they did their job. Complements
     segregation_summary.png; writes segregation_diagnostics.png.
@@ -318,6 +374,7 @@ def make_diagnostic_plots(out, df, save_dir):
     """
     from scipy.stats import pearsonr
     elec, cont, labels = out['electrodes'], out['continuous'], out['labels']
+    dfx = _scalar_hg(df)     # scalar-hg view for the raw-HG spread panel
 
     def _corr(a, b):
         m = np.isfinite(a) & np.isfinite(b)
@@ -336,7 +393,7 @@ def make_diagnostic_plots(out, df, save_dir):
     ax[0, 1].set(title="Electrodes per subject", xlabel="subject", ylabel="# electrodes")
     ax[0, 1].tick_params(axis='x', labelrotation=90, labelsize=7)
 
-    gstd = df.groupby('electrode')['hg'].std()
+    gstd = dfx.groupby('electrode')['hg'].std()
     ax[0, 2].hist(gstd.dropna().values, bins=30, color="#999")
     ax[0, 2].set(title="Per-electrode HG std\n(varies with gain / SNR)",
                  xlabel="HG std", ylabel="# electrodes")
@@ -354,8 +411,9 @@ def make_diagnostic_plots(out, df, save_dir):
         a.set(title=f"responsiveness -> {name}",
               xlabel="responsiveness (resp)", ylabel=name)
 
-    naive = _naive_sensitivities(df)
-    r_naive = _corr(naive[:, 0], naive[:, 1]) if len(naive) else np.nan
+    naive = sfs.naive_sensitivities(df, contrast_mode=contrast_mode,
+                                    effect_measure=effect_measure)
+    r_naive = _corr(naive['x'].to_numpy(), naive['y'].to_numpy()) if len(naive) else np.nan
     r_disj = _corr(elec['x'].to_numpy(), elec['y'].to_numpy())
     ax[1, 2].bar(["naive\n(same trials)", "disjoint\n(pipeline)"],
                  [r_naive, r_disj], color=["#bbb", "#31a354"])
@@ -404,14 +462,19 @@ def make_diagnostic_plots(out, df, save_dir):
 # ---------------------------------------------------------------------------
 def main(args):
     LAB_root = resolve_lab_root(args.LAB_root)
-        
+
+    # analysis options (default to the original behaviour)
+    contrast_mode = getattr(args, 'contrast_mode', 'condition')
+    effect_measure = getattr(args, 'effect_measure', 'cohens_d')
+
     print(f"LAB_root: {LAB_root}")
+    print(f"contrast_mode: {contrast_mode} | effect_measure: {effect_measure}")
     os.makedirs(args.save_dir, exist_ok=True)
 
     # 1. build the long-format df -------------------------------------------------
     if args.data_source == 'synthetic':
         print("DATA SOURCE: synthetic (pipeline / path validation)")
-        df = make_synthetic_df(rho_true=args.synthetic_rho)
+        df = make_synthetic_df(rho_true=args.synthetic_rho, effect_measure=effect_measure)
     else:
         print("DATA SOURCE: real epoched data")
         from src.analysis.utils.general_utils import load_HG_ev1_rescaled_per_subject
@@ -420,22 +483,27 @@ def main(args):
             task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
         keep = resolve_electrodes_to_keep(args, LAB_root)
         df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
-                              electrodes_to_keep=keep)
+                              electrodes_to_keep=keep, effect_measure=effect_measure)
 
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
-    df.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
+    # cluster mode stores per-trial time courses in `hg`; keep the CSV readable
+    # by dropping that (array) column, the metadata columns are what matters here
+    long_csv = df.drop(columns=['hg']) if df['hg'].dtype == object else df
+    long_csv.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
 
     # 2. run the analysis ---------------------------------------------------------
     out = sfs.run_joint_distribution_analysis(
         df, responsiveness=args.responsiveness,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
-        n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec)
+        n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec,
+        contrast_mode=contrast_mode, effect_measure=effect_measure)
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
     make_summary_plots(out, args.save_dir)
-    make_diagnostic_plots(out, df, args.save_dir)
+    make_diagnostic_plots(out, df, args.save_dir, contrast_mode=contrast_mode,
+                          effect_measure=effect_measure)
     write_summary(out, args.save_dir, meta=dict(
         data_source=args.data_source, task=args.task,
         epochs_root_file=args.epochs_root_file,
@@ -443,6 +511,7 @@ def main(args):
         window=f"[{args.window_tmin}, {args.window_tmax}]s",
         electrodes=args.electrodes,
         rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
+        contrast_mode=contrast_mode, effect_measure=effect_measure,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label, save_dir=args.save_dir))
     return out

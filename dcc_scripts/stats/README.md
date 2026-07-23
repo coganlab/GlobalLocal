@@ -43,11 +43,16 @@ For each subject, `load_HG_ev1_rescaled_per_subject` returns one
 accuracy-filtered `HG_ev1_rescaled` Epochs object. We window-average HG over
 `[WINDOW_TMIN, WINDOW_TMAX]` seconds and read the per-trial `congruency`
 (`c`/`i`) and `task_sequence` (`s`/`r`, first-of-block `n` dropped) from the
-epochs metadata, producing the long table the analysis expects:
+epochs metadata, plus the block proportions `incongruent_proportion` and
+`switch_proportion`, producing the long table the analysis expects:
 
 ```
-subject | electrode (= subject-channel) | hg | congruency | switchType
+subject | electrode (= subject-channel) | hg | congruency | switchType | incongruent_proportion | switch_proportion
 ```
+
+With `EFFECT_MEASURE=cluster` the `hg` column instead holds each trial's HG
+*time course* over the window (not the window mean), so each contrast can be
+scored by its aggregate cluster-mass statistic rather than a difference of means.
 
 ## Key knobs (env vars, read by the entrypoint)
 
@@ -57,9 +62,20 @@ subject | electrode (= subject-channel) | hg | congruency | switchType
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | Analysis window (s from stimulus onset). |
 | `ELECTRODES` | `all` | `all` or `sig` (significant channels). |
+| `CONTRAST_MODE` | `condition` | `condition` = stability from congruency (i vs c), flexibility from switchType (s vs r); `proportion` = stability from the **LWPC** congruency×`incongruent_proportion` interaction and flexibility from the **LWPS** switchType×`switch_proportion` interaction (each a 2×2 difference-of-differences, high vs low block). |
+| `EFFECT_MEASURE` | `cohens_d` | `cohens_d` = standardized mean difference on window-mean HG; `cluster` = aggregate cluster-mass statistic on the windowed HG time course. |
 | `N_SPLITS` | `200` | Disjoint trial-half resamples for sensitivity estimation. |
 | `N_PERM_CORR` | `10000` | Permutations for the continuous test. |
 | `N_PERM_LABEL` | `2000` | Permutations per electrode for S/F labeling. |
+
+`CONTRAST_MODE` and `EFFECT_MEASURE` are independent — any of the four
+combinations is valid, and both default to the original behaviour. Results are
+written under a `..._<CONTRAST_MODE>_<EFFECT_MEASURE>` sub-folder so runs don't
+collide. By default the `cluster` mass is a fast deterministic parametric
+statistic; set `USE_TIME_PERM_CLUSTER = True` in
+`src/analysis/stats/stability_flexibility_segregation.py` to instead use the
+real `ieeg.calc.stats.time_perm_cluster` mask (much slower — it permutes on
+every call).
 
 To restrict to ROIs, set `ROIS_DICT` in `run_stability_flexibility_segregation_dcc.py`
 (a commented LPFC/occipital example is included).

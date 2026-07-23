@@ -451,7 +451,12 @@ per-(electrode, trial) high-gamma dataframe for the segregation analysis.
 - `stats/stability_flexibility_segregation.py` — partial correlation (continuous)
   + Cochran–Mantel–Haenszel (categorical) tests of whether distinct
   subpopulations support stability vs. flexibility, with disjoint-trial-half and
-  responsiveness residualization to control shared noise.
+  responsiveness residualization to control shared noise. Two optional knobs
+  (`contrast_mode`, `effect_measure`) let stability/flexibility be defined by the
+  LWPC / LWPS interactions (congruency×`incongruent_proportion`,
+  switchType×`switch_proportion`) instead of the trial condition, and let each
+  contrast be scored by its aggregate cluster-mass statistic instead of Cohen's
+  _d_ on the window-mean HG.
 - `post_error_slowing_analysis.py` (repo root) — related behavioral analysis.
 
 These are mostly standalone scripts/notebooks rather than a multi-stage cluster
