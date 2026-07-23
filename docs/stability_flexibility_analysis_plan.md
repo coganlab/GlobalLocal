@@ -23,18 +23,72 @@ Two constructs, defined as two-way interactions on single-trial high-gamma (HG):
 - **LWPS (flexibility)** = `switchType × switch_proportion` interaction
   (switch effect grows in high-switch-proportion blocks).
 
+> **Frequency scope.** Constructs are defined on **high-gamma** as a proxy for
+> local activity. Conflict (theta) and switching (beta) have well-known
+> low-frequency signatures, and the neural cross-effects (Fig 9) may live there.
+> HG is the primary analysis; re-run the conjunction and decoding once in
+> low-frequency bands as a robustness / "where does the cross-effect live" check.
+
 > **Why not one four-way ANOVA?** The four-way
 > (`congruency × switchType × inc_prop × switch_prop`) has uninterpretable,
 > underpowered high-order terms. Two focused two-way interactions map directly
 > onto the theoretical constructs. The two *cross* interactions
 > (`congruency × switch_prop`, `switchType × inc_prop`) are **not**
 > characterizations of interest — keep them only as **specificity controls**
-> (LWPC should ride on inc-prop, not switch-prop).
+> (LWPC should ride on inc-prop, not switch-prop). *In univariate HG these
+> cross-terms should be null.* Note the contrast with **decoding** (§4, Fig 9),
+> where cross-effects **do** appear: the ANOVA cross-terms staying null while a
+> classifier finds cross-structure is itself informative — see the central
+> dissociation below.
 
 Much of the population-organization layer is already implemented in
 `src/analysis/stats/stability_flexibility_segregation.py` (per-electrode
 labels, subject-stratified conjunction / CMH). This plan reframes it around the
 ANOVA electrode definitions and adds the representation and dynamics layers.
+
+---
+
+## Where this fits in the paper (figure plan)
+
+This battery is the analytic core of the paper. "Shared vs distinct" is not one
+question but **three levels**, and the answer need not be the same at each:
+
+1. **Anatomical / electrode overlap** — are the *same sites* selective for both?
+   → §2, §3 (Figs 5, 7).
+2. **Single-channel tuning** — within a site, does the same channel carry both
+   signals? → §2 continuous correlation, §4a on the *both* group (Figs 7, 8).
+3. **Population representational format** — is it the *same code*? → §4 / §5
+   (Figs 9, 10).
+
+Full figure sequence and how each maps onto the layers:
+
+| Fig | Content | Role | Section |
+|---|---|---|---|
+| 1 | Behavior: LWPC + LWPS effects, **no behavioral cross-effects** | Establishes both adaptations exist and are *behaviorally independent* — the puzzle | motivation |
+| 2 | Time–frequency (wavelet): congruency (inc−con), switch cost (switch−repeat) | Signal validation; motivates HG focus | §1 setup |
+| 3 | High-gamma rises after stimulus onset | Signal validation | §1 setup |
+| 4 | HG power traces: LWPC & LWPS within-trial; **pre-trial cross-effects** | Effects + the tonic/baseline issue (§0.7) | §1, §5 |
+| 5 | 2×2 conjunction (electrode counts) + stats | Are the same sites selective for both? | §2 |
+| 6 | Onset latency (jackknife, 50%-of-peak) | Sequence: does one precede the other? | §5 |
+| 7 | Segregation: conjunction OR **+ continuous effect-size correlation** | Core anatomical answer | §2 |
+| 8 | Orthogonal power traces (define on LWPC → LWPS trace, and vice versa) | Cross-contrast functional confirmation | §2 / §4 (univariate) |
+| 9 | Within-block decoding (inc/con and switch/repeat by block type), incl. neural cross-effects | Readable information + behavior/neural dissociation | §4 |
+| 10 | Cross-decoding (label transfer) + temporal generalization matrices | Shared code vs merely co-located | §4, §5 |
+
+**Central dissociation to foreground.** Fig 1 shows *no behavioral crossover*,
+yet Fig 9 shows *neural* cross-effects (congruency decoding differs by
+switch-proportion block, and vice versa). This **behavior-independent /
+neural-interacting** dissociation is a headline result, not a nuisance —
+*provided* it survives the decoding confounds in §0.8 (RT / difficulty leakage,
+trial-count matching, univariate mean-offset removal). Treat the *behavioral*
+cross-interactions as specificity controls (they should be null); treat the
+*neural* cross-effects as a finding to confound-proof.
+
+Where the segregation analysis "slots in": Figs 5, 7, 8 are one anatomical-answer
+block (§2), with the **continuous effect-size correlation** (Fig 7) as its
+robust, threshold-free headline; the decoding (Figs 9–10, §4) is the
+representational-level answer. The paper's conclusion is the *conjunction* of the
+two levels (the §4 payoff 2×2).
 
 ---
 
@@ -69,6 +123,22 @@ result and an artifact.
 6. **Latency–amplitude confound.** A larger effect crosses any onset threshold
    sooner. Any "X is earlier than Y" claim must guard against X simply being
    bigger than Y (see §5).
+7. **Tonic / pre-trial baseline (do not handwave).** List-wide manipulations
+   induce a *sustained* block-level state that is present **before** stimulus
+   onset. Pre-trial "cross-effects" (Fig 4) may therefore be genuine tonic
+   proactive-control signals, not artifacts — but they poison any baseline
+   correction that spans them (you would subtract the very effect you study).
+   Use a baseline that predates the block context (pre-block, or a robust common
+   baseline), report the pre-trial effect explicitly rather than normalizing it
+   away, and separate the **tonic** (sustained, block-level) from the **phasic**
+   (stimulus-evoked) component. This is a substantive result about proactive
+   control, not a cleanup step.
+8. **Decoding confounds (§4, Figs 9–10).** Block types differ in difficulty and
+   RT, so a classifier can exploit RT-correlated power or a univariate mean
+   offset instead of a genuine control code. Before interpreting any decoding
+   effect — especially the neural *cross*-effects — match trial counts across
+   blocks, regress out or match RT, and confirm the effect survives
+   per-condition mean removal.
 
 ---
 
@@ -119,6 +189,16 @@ differences an interaction F-term tests.
 - **Threshold sweep.** Recompute the overlap OR across a range of selection
   thresholds and plot it — a segregation claim should be stable across
   thresholds, not an artifact of one α.
+- **Continuous (threshold-free) segregation — Fig 7 headline.** The conjunction
+  thresholds each contrast, so its verdict can hinge on α. The threshold-free
+  complement correlates the **per-electrode LWPC effect size** against the
+  **per-electrode LWPS effect size** across all electrodes (using the effect
+  sizes `per_electrode_labels` already returns). *Positive* correlation → shared
+  tuning (channels selective for one tend to be selective for the other); *≈ 0*
+  → segregation; report per-ROI as well as pooled. Estimate the two effect sizes
+  on **disjoint trial halves** so shared trial-level noise cannot inflate the
+  correlation, and get a null by within-subject permutation of the block labels.
+  This is the robust version of the same question the OR asks categorically.
 
 **What it answers.** Whether stability- and flexibility-selective electrodes
 are the *same sites* more/less than chance. **Positive evidence for
@@ -158,7 +238,16 @@ by itself establish, distinct substrates.
 **Goal.** The representation-level test that disambiguates the "both" group.
 This is the piece the counting analyses cannot do.
 
-**Two complementary designs:**
+**Three complementary designs (plus a within-block baseline):**
+
+**(0) Within-block decoding baseline (Fig 9).** Before any transfer, establish
+that each contrast is decodable and compare across blocks: decode inc/con within
+mostly-congruent vs mostly-incongruent blocks (and switch/repeat within
+mostly-repeat vs mostly-switch blocks), comparing accuracies. This is the
+decoding analog of the univariate LWPC/LWPS effects. It is also where the
+**neural cross-effects** surface — congruency decoding differing by
+switch-proportion block, and switch decoding by inc-proportion block — the
+Fig-1-vs-Fig-9 dissociation. Interpret only after the §0.8 confound controls.
 
 **(a) Label-transfer (within an electrode set).** Train a decoder on the
 stability contrast, test on the flexibility contrast (and vice versa), on the
@@ -171,6 +260,17 @@ stability contrast, test on the flexibility contrast (and vice versa), on the
 **(b) Electrode-set-transfer.** Train on one electrode set, test on the other
 (e.g. train on LWPC electrodes, test on LWPS electrodes) for the *same* label.
 - Tests whether the two subpopulations carry interchangeable information.
+
+**(c) Temporal generalization (Fig 10).** Train a decoder at time *t*, test at
+time *t′*, filling a train-time × test-time matrix — run it both **within** a
+contrast (does the code stay stable or move across the trial?) and **across**
+contrasts (cross-temporal label transfer).
+- Off-diagonal generalization ⇒ a *sustained / stable* code; a narrow diagonal
+  ⇒ a *moving / phasic* code that recodes over time.
+- Reading the across-contrast matrix together with §5's univariate onset gives
+  the full temporal-format picture: *when* a shared component (if any) exists and
+  whether it is stationary. Same pseudo-trial construction and disjoint
+  train/test discipline as (a)/(b).
 
 **Pooling / pseudopopulation.** We pool electrodes across subjects into a
 pseudopopulation (standard in the decoding literature). The one construction
@@ -299,7 +399,11 @@ substrates are shown to be *functional*, not incidental.
 
 No single analysis settles "shared vs distinct"; the **conjunction of §2 and
 §4** (the 2×2 above) is the strong, specific claim, with §5 and §6 as
-independent support.
+independent support. Layered onto that is the **behavior-independent /
+neural-interacting dissociation** (Fig 1 vs Fig 9): behavior treats the two
+adaptations as independent, but the neural data lets us ask *at what level* they
+interact — same sites (§2), same code (§4), same timing (§5) — which is the
+paper's throughline.
 
 ---
 
@@ -309,6 +413,12 @@ independent support.
    fixed window vs. data-driven.
 2. **Pseudopopulation construction (§4):** how to build pseudo-trials and how
    many folds, given per-subject trial counts.
+3. **Baseline choice (§0.7):** which baseline avoids subtracting the tonic
+   block-level state — pre-block vs. robust common baseline — and how to
+   separate the tonic from the phasic component cleanly.
+4. **Low-frequency robustness (frequency scope):** which bands (theta / beta) to
+   re-run the conjunction and decoding in, and whether the neural cross-effects
+   are stronger there than in HG.
 
 *(§5 timing is fully specified: univariate interaction time course, 50%-of-peak
 onset, jackknife.)*
