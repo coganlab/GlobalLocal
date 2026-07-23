@@ -11,6 +11,15 @@ reveal if you get stuck.
 > are ordered from gentle nudge → concrete approach → near-solution. Try the
 > task first; only open the next hint when you're genuinely stuck.
 
+> **Skeleton code.** The strongest hint for each assignment is a runnable stub
+> in **`docs/skeletons/aN_*.py`** — real function signatures with docstrings,
+> numbered implementation steps, and `raise NotImplementedError` bodies for you
+> to fill in. Each file's module docstring names its **drop-in target** (the
+> production module the finished code belongs in) and the exact existing helpers
+> to import and reuse. They live under `docs/skeletons/` (not `src/`) so they
+> stay out of the import path and out of pytest until you move them; they all
+> pass `python -m py_compile`. Start from the stub, not a blank file.
+
 **Work order.** A1 → A2 unlock the population-organization layer (§1–§2 of the
 plan) and are the natural first pieces because most of the scaffolding already
 exists in `src/analysis/stats/stability_flexibility_segregation.py`. A3 (anatomy)
@@ -18,15 +27,15 @@ and A6 (behavior) are independent and can slot in any time. A4 (decoding) and A5
 (timing) are the two larger, mostly-greenfield pieces; do them once A1/A2 have
 given you a trustworthy electrode definition.
 
-| # | Plan § | Deliverable | New or existing code |
-|---|---|---|---|
-| **A0** | — | Get the existing pipeline running; read the module | existing |
-| **A1** | §1 | Per-electrode two-way **ANOVA** electrode definition | new fn in segregation module |
-| **A2** | §2 | Conjunction **permutation null** + **threshold sweep** | new wrappers around `cmh_conjunction` |
-| **A3** | §3 | Anatomy: brain maps + ROI histograms + coverage-conditioned test | `src/analysis/vis` + new stats fn |
-| **A4** | §4 | **Cross-decoding**: pseudo-trials + label/set/temporal transfer | `src/analysis/decoding/decoding.py` |
-| **A5** | §5 | **Timing**: interaction time course, 50%-of-peak onset, jackknife | new `stability_flexibility_timing.py` |
-| **A6** | §6 | **Brain–behavior** correlation (across- and within-subject) | new fn in stats |
+| # | Plan § | Deliverable | Skeleton | Drop-in target |
+|---|---|---|---|---|
+| **A0** | — | Get the existing pipeline running; read the module | — | — |
+| **A1** | §1 | Per-electrode two-way **ANOVA** electrode definition | `docs/skeletons/a1_anova_labels.py` | segregation module |
+| **A2** | §2 | Conjunction **permutation null** + **threshold sweep** | `docs/skeletons/a2_conjunction_null_sweep.py` | segregation module |
+| **A3** | §3 | Anatomy: brain maps + ROI histograms + coverage-conditioned test | `docs/skeletons/a3_anatomy.py` | new `..._anatomy.py` + `vis/` |
+| **A4** | §4 | **Cross-decoding**: pseudo-trials + label/set/temporal transfer | `docs/skeletons/a4_cross_decoding.py` | new `decoding/cross_decoding.py` |
+| **A5** | §5 | **Timing**: interaction time course, 50%-of-peak onset, jackknife | `docs/skeletons/a5_stability_flexibility_timing.py` | new `stats/stability_flexibility_timing.py` |
+| **A6** | §6 | **Brain–behavior** correlation (across- and within-subject) | `docs/skeletons/a6_brain_behavior.py` | new `..._brain_behavior.py` |
 
 Throughout, keep the **§0 cross-cutting principles** from the plan in view —
 double-dipping, disjoint halves, power matching, FDR, coverage bias,
@@ -120,6 +129,10 @@ LWPS-only, both, neither).
 same shape as `per_electrode_labels` (so it's a drop-in alternative into
 `cmh_conjunction`).
 
+**Skeleton.** `docs/skeletons/a1_anova_labels.py` — `_anova_interaction_stats`
+(one-electrode Type III fit) and `per_electrode_anova_labels`, with the
+sum-coding formula and sign-extraction steps spelled out.
+
 **Tasks.**
 1. For each electrode, fit a two-way ANOVA on window-mean HG:
    - **LWPC model:** `hg ~ C(congruency) * C(incongruent_proportion)`.
@@ -201,6 +214,9 @@ an artifact of one cutoff.
 `conjunction_permutation_null(labels, n_perm=10000, seed=...)` and
 `conjunction_threshold_sweep(df, thresholds, ...)`.
 
+**Skeleton.** `docs/skeletons/a2_conjunction_null_sweep.py` — both wrappers,
+with the within-subject shuffle and the callable-based sweep spelled out.
+
 **Tasks.**
 1. **Permutation null.** Shuffle the `S` and `F` labels **within each subject**
    independently and recompute the observed "both" count each time → empirical
@@ -257,6 +273,10 @@ machinery, e.g.
 coverage-conditioned test as a small stats function (in the segregation module
 or a new `stability_flexibility_anatomy.py`).
 
+**Skeleton.** `docs/skeletons/a3_anatomy.py` — `attach_roi`,
+`build_coverage_matrix`, `roi_group_enrichment_test`,
+`plot_selectivity_groups_on_brain`.
+
 **Tasks.**
 1. Join the A1 labels to each electrode's ROI (use
    `make_or_load_subjects_electrodes_to_ROIs_dict` from `utils/general_utils.py`
@@ -302,6 +322,10 @@ counting analyses can't do.
 its CV machinery). Add the cross-condition train/test split and the pseudo-trial
 construction; a thin orchestrator can live in a new
 `dcc_scripts/decoding/` runner or a notebook.
+
+**Skeleton.** `docs/skeletons/a4_cross_decoding.py` — `build_pseudo_trials`,
+`remove_condition_means`, `within_block_decoding_baseline`, `cross_decode`
+(designs a/b), `temporal_generalization` (design c).
 
 **Tasks (do in this order — each is a checkpoint).**
 1. **(0) Within-block decoding baseline (Fig 9).** Decode inc/con within
@@ -373,6 +397,11 @@ Reuse the time-resolved contrast the segregation module already produces via the
 `effect_measure='cluster'` path (per-trial HG time courses →
 `_interaction_effect` per bin).
 
+**Skeleton.** `docs/skeletons/a5_stability_flexibility_timing.py` — this stub
+*is* the intended new module (move it to `src/analysis/stats/` and drop the
+`a5_` prefix once done): `interaction_time_course`, `onset_50pct_peak`,
+`peak_latency`, `jackknife_onset_difference` (with the Ulrich–Miller formulas).
+
 **Tasks.**
 1. **Information time course.** For each process, compute the interaction
    magnitude **over time** — the LWPC and LWPS difference-of-differences as
@@ -431,6 +460,10 @@ adjustment, so the substrates are shown to be *functional*, not incidental.
 **Where.** New function in the stats area; behavioral effects come from the
 existing behavioral pipeline (`combinedData.csv` /
 `erin_linear_mixed_effects_model.py`).
+
+**Skeleton.** `docs/skeletons/a6_brain_behavior.py` —
+`subject_level_brain_behavior` (across-subject) and `trialwise_brain_behavior`
+(within-subject mixed model, with the cross-pairing specificity control).
 
 **Tasks.**
 1. **Across subjects (low power, n = subjects):** correlate a subject's LWPC/LWPS
