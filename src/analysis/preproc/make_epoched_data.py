@@ -56,78 +56,7 @@ from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
 from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
-
-def trial_ieeg_rand_offset(raw: mne.io.Raw, event: str | list[str, ...], within_times: tuple[float,float], times_length: float, pad_length: float,
-               verbose=None, **kwargs) -> mne.Epochs:
-    """Epochs data from a mne Raw iEEG instance.
-
-    Takes a mne Raw instance and randomly epochs the data around a specified event, for each instance of the event,
-    for a duration of times_length, within a range of within_times.
-
-    Parameters
-    ----------
-    raw : mne.io.Raw
-        The raw data to epoch.
-    event : str
-        The event to epoch around.
-    within_times : tuple[float, float]
-        The time window within which to randomly select intervals for each event.
-    times_length : float,
-        The length of the time intervals to randomly select within `within_times`.
-    pad_length : float,
-        The length to pad each time interval. Will be removed later.
-    %(picks_all)s
-    %(reject_epochs)s
-    %(flat)s
-    %(decim)s
-    %(epochs_reject_tmin_tmax)s
-    %(detrend_epochs)s
-    %(proj_epochs)s
-    %(on_missing_epochs)s
-    %(verbose)s
-
-    Returns
-    -------
-    mne.Epochs
-        The epoched data.
-    """
-
-    sfreq = raw.info['sfreq'] #raw.info in function
-
-    # get padded within times and times_length
-    within_times_padded = [within_times[0] - pad_length, within_times[1] + pad_length]
-    times_length_padded = times_length + 2 * pad_length
-
-    # Convert times to samples
-    within_times_samples = [int(t * sfreq) for t in within_times_padded]
-    times_length_samples = int((times_length_padded) * sfreq)
-
-    # Shift the indices to be positive
-    shift = abs(within_times_samples[0])
-    within_times_samples_pos = [s + shift for s in within_times_samples]
-
-    trials = trial_ieeg(raw, event, within_times_padded, preload=True, reject_by_annotation=False)
-
-    rand_offset_data = []
-
-    # Randomly select subsets for each trial
-    for trial in trials.get_data():
-        start_sample = random.randint(within_times_samples_pos[0], within_times_samples_pos[1] - times_length_samples)
-        end_sample = start_sample + times_length_samples
-        rand_offset_data.append(trial[:, start_sample:end_sample+1]) #across all channels, grab this time subset
-
-    # Reassign data to rand_offset_trials and adjust the times in rand_offset_trials
-    new_tmin = within_times_padded[0]
-    new_tmax = new_tmin + times_length_padded
-    rand_offset_trials = trial_ieeg(raw, event, [new_tmin, new_tmax], preload=True, reject_by_annotation=False)
-    rand_offset_trials._data = np.array(rand_offset_data)
-
-    return rand_offset_trials
-
-# Define a function to shuffle an array
-def shuffle_array(arr):
-    arr = np.random.shuffle(arr)
-    return arr
+from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_array
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
                       within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 3, LAB_root=None, channels=None, dec_factor=8, 
