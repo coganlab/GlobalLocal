@@ -204,9 +204,10 @@ split and the pseudo-trial construction.
 
 ## 5. Temporal dynamics — relative onset of stability vs. flexibility information
 
-> **Status: for discussion.** The jackknife is the leading candidate; the
-> measurement choice and the amplitude confound are open and worth talking
-> through before implementing.
+> **Status.** Onset estimator and amplitude confound **decided** (50%-of-peak
+> latency + jackknife; see Step 2). Still open: the "information" signal —
+> univariate interaction time course vs. multivariate decoding time course
+> (Step 1).
 
 **Goal.** Does stability information arise *earlier or later* than flexibility
 information? Theory motivates it: proactive/stability control is often cast as
@@ -223,13 +224,26 @@ phasic (later) — but this is exactly what we want to measure, not assume.
   flexibility (train/test at each time point). More sensitive, and it dovetails
   with §4.
 
-**Step 2 — define onset latency.** Threshold-crossing is noisy; prefer a
-robust estimator:
-- **Fractional-area latency** (e.g. time to reach 50% of the cumulative area of
-  the effect over the window) — far less sensitive to amplitude and noise than
-  an absolute threshold.
-- Alternative: first time bin surviving `time_perm_cluster` — simple but crude
-  and threshold-dependent.
+**Step 2 — define onset latency: 50%-of-peak (decided).** For each process,
+find the peak of the effect in the expected direction (or of |effect|) within
+the window, then take the **first upward crossing of 50% of that peak** on the
+rising flank.
+- **Why this defeats the latency–amplitude confound.** Normalizing to each
+  process's *own* peak removes a pure multiplicative amplitude difference: if
+  `stab(t) = k·flex(t)`, both cross 50%-of-peak at the *same* time, whereas an
+  absolute threshold would make the larger effect cross spuriously early. So we
+  do **not** additionally amplitude-match (subsampling to equalize peaks would
+  only cost power without adding protection).
+- It is still a single-point crossing on the rising edge, hence noise-sensitive
+  — which is exactly what the jackknife (Step 3) absorbs by measuring it on
+  smooth leave-one-subject-out averages, not per subject.
+- **Cross-check:** also report **peak latency** alongside onset. Residual
+  differences in waveform *shape* (broad plateau vs. sharp transient) can move
+  the 50%-of-peak point — a genuine dynamics difference, not an artifact — so a
+  consistent onset+peak story is the robust claim.
+- Note: this is *not* fractional-area latency (50% of cumulative area), which is
+  a center-of-mass measure of the whole waveform rather than an onset;
+  50%-of-peak reads more naturally as onset and is the standard ERP measure.
 
 **Step 3 — jackknife the latency comparison (Miller/Ulrich).** Single-subject
 latency estimates are too noisy; the jackknife estimates latency on smooth
@@ -240,15 +254,10 @@ leave-one-subject-out grand-averages instead:
 - Cross-checks: bootstrap over subjects/electrodes; report the paired
   onset *difference* with a CI, not just a p-value.
 
-**Open problem — the latency–amplitude confound (must resolve before claiming).**
-A bigger effect crosses any onset criterion sooner, so "stability is earlier"
-could just mean "stability is stronger." Candidate mitigations to discuss:
-- Use fractional-area latency (amplitude-robust by construction).
-- Normalize each process's time course to its own peak before measuring onset.
-- Report onset *and* peak latency; a genuine timing difference should show in
-  onset independent of amplitude.
-- Or match the two processes on peak effect size (subsample electrodes/trials)
-  and re-measure.
+**Latency–amplitude confound — handled by the 50%-of-peak measure (Step 2).**
+The peak-normalization neutralizes a pure "one effect is bigger" difference, so
+no separate amplitude-matching step is needed; reporting peak latency alongside
+onset guards the residual shape-difference case.
 
 **What it answers.** A *sequence* claim (stability precedes flexibility, or
 vice versa) that neither the overlap nor the decoding analysis speaks to — an
@@ -295,10 +304,9 @@ independent support.
 ## Open questions to discuss
 
 1. **Timing measurement (§5):** univariate interaction time course vs.
-   multivariate decoding time course as the "information" signal?
-2. **Onset estimator + amplitude confound (§5):** fractional-area latency vs.
-   cluster-onset; which amplitude control?
-3. **Analysis window** for the aggregate-HG ANOVA electrode definition (§1) —
+   multivariate decoding time course as the "information" signal? *(only open
+   §5 question — onset estimator is decided: 50%-of-peak + jackknife)*
+2. **Analysis window** for the aggregate-HG ANOVA electrode definition (§1) —
    fixed window vs. data-driven.
-4. **Pseudopopulation construction (§4):** how to build pseudo-trials and how
+3. **Pseudopopulation construction (§4):** how to build pseudo-trials and how
    many folds, given per-subject trial counts.
