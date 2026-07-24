@@ -47,6 +47,15 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
   * `effect_measure` : 'cohens_d'   -> standardized mean difference on window-mean HG [default]
                        'cluster'    -> aggregate time-permutation cluster statistic
                                        (signed cluster mass) on time-resolved HG.
+                       'peak_t'     -> signed per-bin t at the moment of maximal
+                                       |t| (amplitude only, timing/duration
+                                       invariant). A robustness complement to
+                                       'cluster': cluster mass conflates effect
+                                       amplitude with its duration and is mildly
+                                       trial-count sensitive, whereas peak_t reads
+                                       the strongest-tuning instant regardless of
+                                       how long it lasts. For scalar (single-bin)
+                                       HG it reduces to the two-sample t.
 """
 
 import copy
@@ -345,6 +354,38 @@ def _cluster_effect(a, b, alpha=0.05):
     return float(tvals[supra].sum())      # signed cluster mass
 
 
+def _peak_t_effect(a, b):
+    """Signed per-bin two-sample t at the moment of maximal |t| (a - b).
+
+    An amplitude-only complement to `_cluster_effect`: cluster MASS sums t over
+    every supra-threshold bin, so it grows with the effect's DURATION (and, via
+    the number of bins that clear threshold, with trial count). peak_t instead
+    returns the t at the single strongest-tuning bin -- timing- and duration-
+    invariant -- so a segregation/overlap verdict that holds under BOTH measures
+    isn't an artifact of one contrast simply lasting longer. No threshold and no
+    permutation, so it is cheap inside the disjoint-half and label-permutation
+    loops. For scalar (single-bin) HG it reduces to the ordinary two-sample t.
+
+    Returns 0.0 if no finite bin; NaN if too few trials.
+    """
+    a = np.asarray(a, float); b = np.asarray(b, float)
+    if a.ndim == 1:
+        a = a[:, None]
+    if b.ndim == 1:
+        b = b[:, None]
+    na, nb = len(a), len(b)
+    if na < 2 or nb < 2:
+        return np.nan
+    va, vb = a.var(0, ddof=1), b.var(0, ddof=1)
+    se = np.sqrt(va / na + vb / nb)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        tvals = np.where(se > 0, (a.mean(0) - b.mean(0)) / se, 0.0)
+    tvals = tvals[np.isfinite(tvals)]
+    if tvals.size == 0:
+        return 0.0
+    return float(tvals[np.argmax(np.abs(tvals))])   # signed peak t
+
+
 def _stack(vals):
     """List/array of per-trial hg -> (n,) for scalars or (n, T) for time courses."""
     vals = list(vals)
@@ -361,9 +402,12 @@ def _effect_from_arrays(hg, lab, effect_measure, alpha):
     neg = _stack(hg[lab == 0])
     if effect_measure == 'cluster':
         return _cluster_effect(pos, neg, alpha=alpha)
+    if effect_measure == 'peak_t':
+        return _peak_t_effect(pos, neg)
     if effect_measure == 'cohens_d':
         return _cohens_d(pos, neg)
-    raise ValueError(f"effect_measure must be 'cohens_d' or 'cluster'; got {effect_measure!r}")
+    raise ValueError("effect_measure must be 'cohens_d', 'cluster' or 'peak_t'; "
+                     f"got {effect_measure!r}")
 
 
 def _contrast_effect(frame, labcol, effect_measure, alpha):
@@ -429,6 +473,27 @@ def _interaction_cluster(cells, alpha):
     return 0.0 if not supra.any() else float(np.sum(tvals[supra]))
 
 
+def _interaction_peak_t(cells):
+    """Signed per-bin difference-of-differences t at the moment of maximal |t|
+    (equal cell weight). Amplitude-only complement to `_interaction_cluster`, in
+    the same spirit as `_peak_t_effect` for the two-group case."""
+    means, varis, ns = {}, {}, {}
+    for k, v in cells.items():
+        if len(v) < 2:
+            return np.nan
+        means[k] = v.mean(0); varis[k] = v.var(0, ddof=1); ns[k] = len(v)
+    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
+           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
+    se = np.sqrt(sum(varis[k] / ns[k] for k in cells))
+    with np.errstate(divide='ignore', invalid='ignore'):
+        tvals = np.where(se > 0, dod / se, 0.0)
+    tvals = np.atleast_1d(tvals)
+    tvals = tvals[np.isfinite(tvals)]
+    if tvals.size == 0:
+        return 0.0
+    return float(tvals[np.argmax(np.abs(tvals))])   # signed peak d-o-d t
+
+
 def _interaction_effect(hg, cond, mod, effect_measure, alpha):
     """Balanced 2x2 interaction effect between the (cond, mod) cells of one
     electrode; mirrors `_effect_from_arrays` but equal-cell-weighted."""
@@ -438,9 +503,12 @@ def _interaction_effect(hg, cond, mod, effect_measure, alpha):
         return np.nan
     if effect_measure == 'cluster':
         return _interaction_cluster(cells, alpha)
+    if effect_measure == 'peak_t':
+        return _interaction_peak_t(cells)
     if effect_measure == 'cohens_d':
         return _interaction_cohens_d(cells)
-    raise ValueError(f"effect_measure must be 'cohens_d' or 'cluster'; got {effect_measure!r}")
+    raise ValueError("effect_measure must be 'cohens_d', 'cluster' or 'peak_t'; "
+                     f"got {effect_measure!r}")
 
 
 def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
@@ -481,8 +549,8 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
 
     `contrast_mode`/`contrasts` pick which manipulations define stability vs
     flexibility; `effect_measure` picks how each contrast is quantified
-    ('cohens_d' on window-mean HG, or 'cluster' aggregate statistic on time
-    courses)."""
+    ('cohens_d' on window-mean HG, 'cluster' aggregate cluster-mass statistic on
+    time courses, or 'peak_t' amplitude-only peak of the per-bin t)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)
     strata = _strata_columns(contrasts)
@@ -762,3 +830,11 @@ if __name__ == '__main__':
     print("[condition / cluster] MH OR:", outc['conjunction']['mh_odds_ratio'],
           'CMH p:', outc['conjunction']['cmh'].pvalue)
     print(outc['conjunction']['pooled_table'])
+
+    # peak_t: amplitude-only robustness complement to the cluster mass. Run it on
+    # the SAME time-resolved data and compare the segregation verdict.
+    outp = run_joint_distribution_analysis(dfc, n_splits=10, n_perm_corr=500,
+                                           n_perm_label=50, effect_measure='peak_t')
+    print("[condition / peak_t] partial corr:", outp['correlation'])
+    print("[condition / peak_t] MH OR:", outp['conjunction']['mh_odds_ratio'],
+          'CMH p:', outp['conjunction']['cmh'].pvalue)
