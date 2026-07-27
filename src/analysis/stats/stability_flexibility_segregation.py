@@ -65,6 +65,8 @@ from scipy.stats import spearmanr, pearsonr, fisher_exact
 from scipy.stats import t as _t_dist
 from statsmodels.stats.multitest import multipletests
 from statsmodels.stats.contingency_tables import StratifiedTable
+import statsmodels.formula.api as smf
+from statsmodels.stats.anova import anova_lm
 
 
 # ----------------------------------------------------------------------------
@@ -720,6 +722,90 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
     return out
 
 
+# ----------------------------------------------------------------------------
+# A1: parametric per-electrode electrode definition (two-way interaction ANOVA)
+# ----------------------------------------------------------------------------
+# The plan's *primary* (parametric) electrode definition. Complements the
+# nonparametric `per_electrode_labels`: it tests the SAME balanced 2x2
+# interaction but with a Type III ANOVA F rather than a within-electrode
+# permutation, so the two should agree closely and cross-check each other's
+# assumptions. Both feed `cmh_conjunction` unchanged (same output columns).
+def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
+    """One electrode's two-way Type III ANOVA; return {'F', 'p'} for the
+    interaction term (NaN, NaN on a singular fit / missing cell).
+
+    Sum-code BOTH factors so the fit is a well-posed, equal-cell-weighted model
+    over the deliberately unequal proportion cells (~75/25). Read Type III (the
+    margin-respecting SS): the interaction row is orthogonal to both main
+    effects, so a pure congruency/switch main effect does not inflate it. `hg`
+    is the window-mean scalar; a time-course cell is reduced to its mean."""
+    d = elec_df
+    if d[hg_col].dtype == object:            # cluster-mode time courses -> window mean
+        d = d.assign(**{hg_col: d[hg_col].apply(lambda a: np.nanmean(a))})
+    try:
+        formula = f"{hg_col} ~ C({cond_col}, Sum) * C({mod_col}, Sum)"
+        model = smf.ols(formula, data=d).fit()
+        aov = anova_lm(model, typ=3)                       # Type III
+        inter = f"C({cond_col}, Sum):C({mod_col}, Sum)"    # the interaction row
+        return {'F': float(aov.loc[inter, 'F']),
+                'p': float(aov.loc[inter, 'PR(>F)'])}
+    except Exception:
+        return {'F': np.nan, 'p': np.nan}                  # singular / missing cell
+
+
+def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
+                               contrasts=None, include_cross_controls=True,
+                               require_sign=False):
+    """Parametric per-electrode S (stability/LWPC) and F (flexibility/LWPS) labels
+    from the two-way interaction ANOVA. Drop-in `labels` for `cmh_conjunction`:
+    output columns match `per_electrode_labels` (subject, electrode, p_cong,
+    q_cong, S, p_switch, q_switch, F, plus signs and cross-control p-values).
+
+    - LWPC electrode <= significant congruency x incongruent_proportion interaction.
+    - LWPS electrode <= significant switchType x switch_proportion interaction.
+
+    The ANOVA F is UNSIGNED, so the direction (whether the effect grows the
+    predicted way) is taken from the module's own equal-cell-weight estimator
+    `_interaction_effect(..., 'cohens_d')` -- the same quantity the continuous
+    §2 correlation uses. FDR (Benjamini-Hochberg) across electrodes sets q; S/F
+    flag at `alpha`, optionally gated on a positive sign (`require_sign`). The
+    two cross interactions (congruency x switch_proportion, switchType x
+    incongruent_proportion) are recorded as specificity controls, never selected
+    on (they should be ~null)."""
+    contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
+    work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/...
+    recs = []
+    for (subj, elec), g in work.groupby(['subject', 'electrode']):
+        st = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
+        fl = _anova_interaction_stats(g, 'switchType', 'switch_proportion')
+        s_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
+                                             g['_scond'].to_numpy(),
+                                             g['_smod'].to_numpy(), 'cohens_d', alpha))
+        f_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
+                                             g['_fcond'].to_numpy(),
+                                             g['_fmod'].to_numpy(), 'cohens_d', alpha))
+        rec = dict(subject=subj, electrode=elec,
+                   p_cong=st['p'], F_cong=st['F'], s_sign=s_sign,
+                   p_switch=fl['p'], F_switch=fl['F'], f_sign=f_sign)
+        if include_cross_controls:                        # specificity controls (report only)
+            rec['p_cross_cs'] = _anova_interaction_stats(
+                g, 'congruency', 'switch_proportion')['p']
+            rec['p_cross_si'] = _anova_interaction_stats(
+                g, 'switchType', 'incongruent_proportion')['p']
+        recs.append(rec)
+    out = pd.DataFrame(recs)
+    out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
+    out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
+    S = out['q_cong'] < alpha
+    F = out['q_switch'] < alpha
+    if require_sign:                                      # keep only predicted-direction growth
+        S = S & (out['s_sign'] > 0)
+        F = F & (out['f_sign'] > 0)
+    out['S'] = S.astype(int)
+    out['F'] = F.astype(int)
+    return out
+
+
 def cmh_conjunction(labels):
     """Cochran-Mantel-Haenszel: is S-selectivity associated with F-selectivity,
     pooling over subject strata (each subject its own 2x2)?"""
@@ -746,6 +832,60 @@ def cmh_conjunction(labels):
     res['pooled_table'] = pooled
     res['pooled_fisher_or'], res['pooled_fisher_p'] = fisher_exact(pooled)
     return res
+
+
+# ----------------------------------------------------------------------------
+# A2: overlap / conjunction inference -- permutation null + threshold sweep
+# ----------------------------------------------------------------------------
+def conjunction_permutation_null(labels, n_perm=10000, seed=0):
+    """Empirical null for the count of 'both' (S==1 & F==1) electrodes.
+
+    Shuffle F WITHIN each subject only, so every subject's S-count and F-count
+    stay fixed and only the S/F *pairing* is randomized -- the exact null the
+    CMH assumes, and the categorical analogue of the within-subject permutation
+    used by `subject_clustered_corr`. A global shuffle would break the subject
+    nesting and manufacture significance.
+
+    Returns dict(observed:int, null:ndarray(n_perm), p_two_sided:float, z:float),
+    the p two-sided against the null mean."""
+    lab = labels.dropna(subset=['S', 'F']).copy()
+    S = lab['S'].to_numpy().astype(int)
+    F = lab['F'].to_numpy().astype(int)
+    subj = lab['subject'].to_numpy()
+    groups = [np.where(subj == s)[0] for s in np.unique(subj)]   # per-subject rows
+    observed = int(((S == 1) & (F == 1)).sum())
+    rng = np.random.default_rng(seed)
+    null = np.empty(n_perm)
+    for i in range(n_perm):
+        Fp = F.copy()
+        for idx in groups:                 # shuffle F WITHIN each subject only
+            Fp[idx] = F[rng.permutation(idx)]
+        null[i] = int(((S == 1) & (Fp == 1)).sum())
+    mean = null.mean()
+    p = (np.sum(np.abs(null - mean) >= abs(observed - mean)) + 1) / (n_perm + 1)
+    z = (observed - mean) / null.std() if null.std() > 0 else np.nan
+    return dict(observed=observed, null=null, p_two_sided=float(p), z=float(z))
+
+
+def conjunction_threshold_sweep(labels_by_threshold, thresholds):
+    """Recompute the overlap odds ratio + counts across selection thresholds.
+
+    A segregation (or shared-core) claim should be stable across thresholds, not
+    an artifact of one alpha. `labels_by_threshold` is a callable
+    threshold -> labels DataFrame (S/F recomputed at that cutoff); keeping it a
+    callable makes the sweep agnostic to whether you threshold ANOVA q-values,
+    permutation q-values, or effect-size percentiles. Returns a tidy DataFrame:
+    threshold, n_S, n_F, n_both, mh_odds_ratio, cmh_p."""
+    rows = []
+    for t in thresholds:
+        lab = labels_by_threshold(t)                 # fresh S/F at this threshold
+        res = cmh_conjunction(lab)                   # reuse the existing CMH machinery
+        rows.append(dict(threshold=t,
+                         n_S=int(lab.S.sum()), n_F=int(lab.F.sum()),
+                         n_both=int(((lab.S == 1) & (lab.F == 1)).sum()),
+                         mh_odds_ratio=res['mh_odds_ratio'],
+                         cmh_p=res['cmh'].pvalue))
+    return pd.DataFrame(rows)
 
 
 # ----------------------------------------------------------------------------

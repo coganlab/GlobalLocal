@@ -1,0 +1,39 @@
+#!/bin/bash
+# Submit the A1/A2 analysis: parametric ANOVA electrode definition (A1) +
+# overlap / conjunction inference (A2).
+#
+# Usage:
+#   bash submit_stability_flexibility_anova_conjunction_dcc.sh            # real data
+#   DATA_SOURCE=synthetic bash submit_stability_flexibility_anova_conjunction_dcc.sh   # dry-run
+
+# ---------------------------------------------------------------------------
+# Epochs file (high-gamma, rescaled). Match one you actually have on disk.
+# ---------------------------------------------------------------------------
+EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+
+# ---------------------------------------------------------------------------
+# Analysis window (seconds relative to stimulus onset) and electrode set.
+# ---------------------------------------------------------------------------
+WINDOW_TMIN=0.0
+WINDOW_TMAX=0.5
+ELECTRODES=all            # 'all' or 'sig'
+
+# Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
+DATA_SOURCE=${DATA_SOURCE:-real}
+
+# A1/A2 hyperparameters (lower N_PERM_NULL for a quick test run).
+ALPHA=${ALPHA:-0.05}
+N_PERM_NULL=${N_PERM_NULL:-10000}
+THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}
+# Set REQUIRE_SIGN=1 to keep only predicted-direction (growing) interactions.
+REQUIRE_SIGN=${REQUIRE_SIGN:-0}
+# Set CROSSCHECK_NONPARAMETRIC=1 to also compare A1's ANOVA flags to the
+# nonparametric permutation definition (slower).
+CROSSCHECK_NONPARAMETRIC=${CROSSCHECK_NONPARAMETRIC:-0}
+
+mkdir -p out
+
+echo "Submitting stability/flexibility A1/A2 ANOVA+conjunction (source=$DATA_SOURCE)"
+sbatch --job-name="sf_anova_${DATA_SOURCE}" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",ALPHA="$ALPHA",N_PERM_NULL="$N_PERM_NULL",THRESHOLDS="$THRESHOLDS",REQUIRE_SIGN="$REQUIRE_SIGN",CROSSCHECK_NONPARAMETRIC="$CROSSCHECK_NONPARAMETRIC" \
+    sbatch_stability_flexibility_anova_conjunction_dcc.sh
