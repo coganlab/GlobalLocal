@@ -100,3 +100,70 @@ Written to `results/<epochs_or_synthetic_tag>/window_<tmin>to<tmax>s_<electrodes
 
 **Reading:** continuous `corr ≤ 0` / CMH `OR < 1` → **segregation**;
 `corr > 0` / `OR > 1` → **shared core**.
+
+---
+
+# A3 — Anatomy of the stability/flexibility subpopulations
+
+Sits on the A1 electrode definition and asks: *are the distinct subpopulations in
+different **places**?* — while conditioning every claim on iEEG **coverage**
+(clinically-placed electrodes are the main confound here). Analysis code lives in
+`src/analysis/stats/stability_flexibility_anatomy.py`; a step-by-step walk-through
+is in `stability_flexibility_anatomy_tutorial.ipynb` (next to that module).
+
+## Files
+
+| File | Role |
+|---|---|
+| `stability_flexibility_anatomy_dcc.py` | Core: assembles the long df, runs A1 to get S/F flags, maps electrodes → ROIs, builds the coverage matrix, runs the coverage-conditioned enrichment test, writes figures + `summary.txt`. Exposes `main(args)`. |
+| `run_stability_flexibility_anatomy_dcc.py` | Entrypoint: sets parameters (env-overridable) and calls `main`. |
+| `sbatch_stability_flexibility_anatomy_dcc.sh` | SLURM wrapper (`conda activate ieeg` → entrypoint). |
+| `submit_stability_flexibility_anatomy_dcc.sh` | Sets `EPOCHS_ROOT_FILE`/window/etc. and `sbatch`-submits. |
+
+## Quick start
+
+```bash
+cd dcc_scripts/stats
+# validate the whole path in seconds with a PLANTED group×ROI association:
+DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh
+# the NULL version (no association — the test must come back n.s.):
+DATA_SOURCE=synthetic SYNTHETIC_ENRICHMENT=0.0 bash submit_stability_flexibility_anatomy_dcc.sh
+# real run — set EPOCHS_ROOT_FILE in the submit script, then:
+bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
+## What it does
+
+1. Assembles the same long-format single-trial HG table as the A1/A2 job.
+2. **A1** (`per_electrode_anova_labels`, `contrast_mode='proportion'`) → per-electrode `S`/`F` flags → 4-way group (`both`/`S_only`/`F_only`/`neither`).
+3. Maps each electrode to a coarse ROI (`build_electrode_roi_map` over the shared `subjects_electrodes_to_ROIs_dict` + `config/rois.py`).
+4. **Coverage**: subject × ROI boolean matrix (does subject *s* have any electrode in ROI *r*?).
+5. **Coverage-conditioned enrichment test** (`roi_group_enrichment_test`): Pearson χ² on the group × ROI table with a **within-subject permutation null** (shuffle the group label within each subject, so the null respects nesting *and* coverage), restricted to ROIs sampled in ≥ `MIN_SUBJECTS` subjects.
+6. Figures: ROI-group histograms (annotated with per-ROI coverage), the coverage heatmap + enrichment null, and a Glasser brain-surface figure via the existing `vis/` renderer (falls back to the ROI histogram off-cluster).
+
+## Key knobs (env vars)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DATA_SOURCE` | `real` | `real` = epoched data + ROI atlas; `synthetic` = ground-truth dry run. |
+| `SYNTHETIC_ENRICHMENT` | `0.6` | synthetic only: strength of the planted group×ROI association (`0.0` = null). |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset). |
+| `ELECTRODES` | `all` | `all` or `sig`. |
+| `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
+| `MIN_SUBJECTS` | `3` | keep only ROIs sampled in ≥ this many subjects (the coverage condition). |
+| `N_PERM` | `10000` | within-subject permutations for the enrichment null. |
+
+## Outputs
+
+Written to `results/<epochs_or_synthetic_tag>/anatomy_window_<tmin>to<tmax>s_<electrodes>/`:
+
+- `anatomy_labels_roi.csv` — per-electrode S/F, ROI, group.
+- `coverage_matrix.csv` — subject × ROI coverage.
+- `group_roi_contingency.csv`, `roi_group_histogram.csv` — the tables behind the test/figure.
+- `roi_enrichment.json` (+ `roi_enrichment_null.npy`) — ROIs tested, χ², permutation p, per-ROI coverage.
+- `roi_group_histogram.png`, `anatomy_coverage_enrichment.png`, `selectivity_groups_on_brain.svg` (or `..._roi_hist.png` fallback).
+- `summary.txt` — printed verdict.
+
+**Reading:** a significant test means selectivity-group membership is associated
+with ROI *beyond* what electrode placement forces; per-ROI coverage is reported so
+no claim rests on where the grid happens to be.
