@@ -248,6 +248,15 @@ def _electrode_groups(df, alpha, require_sign):
     return labels, groups
 
 
+def _interaction_groups(labels):
+    """The FOUR interaction-defined electrode sets (possibly overlapping), keyed by
+    the definition-group flag so `cd.is_circular_decode` can name each set's
+    double-dip cell. Used for the per-group within-block 2x2 that skips the
+    diagonal (define==decode) cell."""
+    return {flag: labels.loc[labels[flag] == 1, 'electrode'].tolist()
+            for flag in ('S', 'F', 'CS', 'SI') if flag in labels.columns}
+
+
 # ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
@@ -296,6 +305,37 @@ def main(args):
         'switchType (LWPS)': cd.within_block_decoding_baseline(
             df, contrast='switchType', rng=rng, **dec_kw),
     }
+
+    # 2b. within-block 2x2 restricted to each interaction-defined electrode group,
+    #     SKIPPING the diagonal (define==decode) cell to avoid double-dipping.
+    #     Only the OFF-diagonal (cross) cells are computed/kept -- e.g. the LWPC
+    #     electrode set is decoded on switchType/switch_prop and the two cross
+    #     cells, never on congruency/inc_prop (the interaction that defined it).
+    if args.data_source != 'synthetic':
+        print("A4(0b): per-group within-block 2x2 (diagonal define==decode cells ignored)")
+        interaction_groups = _interaction_groups(labels)
+        # the decode 2x2: (what you decode, how you split blocks)
+        decode_cells = [('congruency', 'incongruent_proportion'),
+                        ('congruency', 'switch_proportion'),
+                        ('switchType', 'switch_proportion'),
+                        ('switchType', 'incongruent_proportion')]
+        per_group = {}
+        for gflag, elset in interaction_groups.items():
+            if len(elset) < args.min_group_size:
+                print(f"     group '{gflag}' has {len(elset)} electrodes "
+                      f"(< {args.min_group_size}); skipping")
+                continue
+            cells = {}
+            for contrast, block_col in decode_cells:
+                if cd.is_circular_decode(gflag, contrast, block_col):
+                    continue                     # double-dipping: ignore this result
+                cells[f'{contrast} by {block_col}'] = cd.within_block_decoding_baseline(
+                    df, contrast=contrast, block_col=block_col, electrodes=elset,
+                    rng=rng, **dec_kw)
+            per_group[gflag] = dict(n_electrodes=len(elset),
+                                    ignored_cell=cd.circular_decode_for_group(gflag),
+                                    cells=cells)
+        results['within_block_by_group'] = per_group
 
     # 3. (a) label transfer per electrode group, raw + mean-removed --------------
     print("A4(a): label transfer (stability<->flexibility) per electrode group")

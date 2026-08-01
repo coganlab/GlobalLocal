@@ -1,5 +1,11 @@
 # Stability vs. Flexibility Segregation — DCC scripts
 
+> **Method & rationale:** see the merged guide
+> [`docs/stability_flexibility_guide.md`](../../docs/stability_flexibility_guide.md)
+> — §3 (the four-interaction electrode definition), §4 (window-mean vs
+> per-timepoint-cluster ANOVA), §5 (conjunction), and §9 (run order + how to run).
+
+
 Runs the joint-distribution analysis in
 `src/analysis/stats/stability_flexibility_segregation.py` on the cluster: do
 distinct iEEG subpopulations uniquely support **stability** (congruency / LWPC)

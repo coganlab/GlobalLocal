@@ -756,42 +756,60 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
 def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
                                contrasts=None, include_cross_controls=True,
                                require_sign=False):
-    """Parametric per-electrode S (stability/LWPC) and F (flexibility/LWPS) labels
-    from the two-way interaction ANOVA. Drop-in `labels` for `cmh_conjunction`:
-    output columns match `per_electrode_labels` (subject, electrode, p_cong,
-    q_cong, S, p_switch, q_switch, F, plus signs and cross-control p-values).
+    """Parametric per-electrode selectivity labels from the two-way interaction
+    ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
+    Drop-in `labels` for `cmh_conjunction`: output columns match
+    `per_electrode_labels` (subject, electrode, p_cong, q_cong, S, p_switch,
+    q_switch, F, plus signs), and add the two cross interactions as their own
+    FDR'd, flagged electrode-definition groups.
 
-    - LWPC electrode <= significant congruency x incongruent_proportion interaction.
-    - LWPS electrode <= significant switchType x switch_proportion interaction.
+    The four interaction groups (each a balanced 2x2 difference-of-differences,
+    FDR'd across electrodes, flagged at `alpha`):
+
+    - `S`  (LWPC / stability)  <= congruency x incongruent_proportion
+    - `F`  (LWPS / flexibility) <= switchType x switch_proportion
+    - `CS`                      <= congruency x switch_proportion   (cross)
+    - `SI`                      <= switchType x incongruent_proportion (cross)
+
+    Why the two cross interactions are now *defined* groups, not just report-only
+    p-values: the decoding battery (§4) decodes a 2x2 of {contrast} x {block
+    modulator}, and every one of those four decode cells is the readout analog of
+    one of these four interactions. To keep the decoding non-circular we must be
+    able to name the electrode set each cell would double-dip on -- i.e. we need
+    the CS/SI electrode groups, not only the CS/SI p-values. In *univariate HG*
+    the two cross interactions are still expected to be ~null, so their surviving
+    counts double as the specificity control they always were (`include_cross_
+    controls=False` drops them for the pure S/F conjunction path).
 
     The ANOVA F is UNSIGNED, so the direction (whether the effect grows the
     predicted way) is taken from the module's own equal-cell-weight estimator
     `_interaction_effect(..., 'cohens_d')` -- the same quantity the continuous
-    §2 correlation uses. FDR (Benjamini-Hochberg) across electrodes sets q; S/F
-    flag at `alpha`, optionally gated on a positive sign (`require_sign`). The
-    two cross interactions (congruency x switch_proportion, switchType x
-    incongruent_proportion) are recorded as specificity controls, never selected
-    on (they should be ~null)."""
+    §2 correlation uses. FDR (Benjamini-Hochberg) is applied across electrodes
+    per interaction; each flag is set at `alpha`, optionally gated on a positive
+    sign (`require_sign`)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
-    work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/...
+    work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
+        hg = g['hg'].to_numpy()
+        scond, smod = g['_scond'].to_numpy(), g['_smod'].to_numpy()   # congruency, inc_prop
+        fcond, fmod = g['_fcond'].to_numpy(), g['_fmod'].to_numpy()   # switchType, switch_prop
         st = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
         fl = _anova_interaction_stats(g, 'switchType', 'switch_proportion')
-        s_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
-                                             g['_scond'].to_numpy(),
-                                             g['_smod'].to_numpy(), 'cohens_d', alpha))
-        f_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
-                                             g['_fcond'].to_numpy(),
-                                             g['_fmod'].to_numpy(), 'cohens_d', alpha))
+        s_sign = np.sign(_interaction_effect(hg, scond, smod, 'cohens_d', alpha))
+        f_sign = np.sign(_interaction_effect(hg, fcond, fmod, 'cohens_d', alpha))
         rec = dict(subject=subj, electrode=elec,
                    p_cong=st['p'], F_cong=st['F'], s_sign=s_sign,
                    p_switch=fl['p'], F_switch=fl['F'], f_sign=f_sign)
-        if include_cross_controls:                        # specificity controls (report only)
-            rec['p_cross_cs'] = _anova_interaction_stats(
-                g, 'congruency', 'switch_proportion')['p']
-            rec['p_cross_si'] = _anova_interaction_stats(
-                g, 'switchType', 'incongruent_proportion')['p']
+        if include_cross_controls:                        # cross interactions -> real groups
+            cs = _anova_interaction_stats(g, 'congruency', 'switch_proportion')
+            si = _anova_interaction_stats(g, 'switchType', 'incongruent_proportion')
+            # reuse the already-attached sub-factor labels: CS = congruency (_scond)
+            # x switch_proportion (_fmod); SI = switchType (_fcond) x inc_prop (_smod).
+            rec['p_cross_cs'] = cs['p']; rec['F_cross_cs'] = cs['F']
+            rec['p_cross_si'] = si['p']; rec['F_cross_si'] = si['F']
+            rec['cs_sign'] = np.sign(_interaction_effect(hg, scond, fmod, 'cohens_d', alpha))
+            rec['si_sign'] = np.sign(_interaction_effect(hg, fcond, smod, 'cohens_d', alpha))
         recs.append(rec)
     out = pd.DataFrame(recs)
     out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
@@ -803,6 +821,16 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
         F = F & (out['f_sign'] > 0)
     out['S'] = S.astype(int)
     out['F'] = F.astype(int)
+    if include_cross_controls:
+        out['q_cross_cs'] = multipletests(out['p_cross_cs'].fillna(1), method='fdr_bh')[1]
+        out['q_cross_si'] = multipletests(out['p_cross_si'].fillna(1), method='fdr_bh')[1]
+        CS = out['q_cross_cs'] < alpha
+        SI = out['q_cross_si'] < alpha
+        if require_sign:
+            CS = CS & (out['cs_sign'] > 0)
+            SI = SI & (out['si_sign'] > 0)
+        out['CS'] = CS.astype(int)
+        out['SI'] = SI.astype(int)
     return out
 
 
