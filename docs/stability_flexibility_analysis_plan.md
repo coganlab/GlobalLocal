@@ -193,6 +193,55 @@ super-group Cohen's *d* — and its permutation null permutes the modulator
 **within each condition level**, holding both main effects fixed so only the
 interaction is nulled.
 
+### A1 vs. the `power_traces` windowed ANOVA — same machinery, different jobs
+
+The power-traces path (`src/analysis/power/windowed_anova.py`) already fits a
+per-electrode two-way ANOVA and exposes `load_significant_electrodes(...)`, so
+it is fair to ask why the §1 definition (`per_electrode_anova_labels`, i.e.
+assignment **A1**) is a separate function rather than a call into that code.
+They share the same raw ingredient — a per-electrode two-way ANOVA on windowed
+high-gamma — but they answer different questions and feed different consumers:
+
+| | `power_traces` windowed ANOVA | A1 `per_electrode_anova_labels` |
+|---|---|---|
+| **Question** | *Is this electrode doing something significant, over time, in this ROI?* (describe / select for plotting) | *Is this electrode selective for stability and/or flexibility?* (build the S/F labels the conjunction needs) |
+| **Temporal model** | time-windowed + **cluster-corrected over time** (contiguous significant windows) | one **static** ANOVA on HG averaged over the analysis window |
+| **Effects fit** | whichever `anova_factors` are passed, each thresholded on its own | **both** LWPC (`congruency × incongruent_proportion`) and LWPS (`switchType × switch_proportion`) on the *same* electrode, **plus the two cross interactions** (`congruency × switch_proportion`, `switchType × incongruent_proportion`) as report-only specificity controls |
+| **Multiple comparisons** | FDR across **clusters within `(roi, effect)`** | FDR across **electrodes**, separately per process |
+| **Coding / SS** | treatment coding, Type II | sum coding, Type III (see the note below) |
+| **Output** | flat list `[(subject, electrode)]` for one effect, ROI-scoped | a per-electrode **table** — `subject, electrode, S, F, signs, p/q, cross-controls` — column-matched to `per_electrode_labels`, so it drops straight into `cmh_conjunction` |
+
+The load-bearing difference is the **output contract**, not one test being more
+correct than the other. You cannot assemble the 2×2 both / S-only / F-only /
+neither table (§2) from `load_significant_electrodes`' flat list: it collapses
+to one significance verdict per electrode for one effect, with no paired
+S-vs-F labeling, no sign, and no cross-interaction controls. A1 exists to
+co-register both processes' interactions (and their specificity controls) on
+each electrode in the exact shape the conjunction and the §2 continuous
+correlation consume.
+
+> **On the coding difference.** For the *top-order interaction* term, Type II
+> (treatment) and Type III (sum) yield the **same** SS — coding only changes the
+> lower-order main-effect SS — so this is *not* a "power_traces is biased, A1
+> fixes it" story: `power_traces` already computes an equal-cell-weight signed
+> contrast (`_signed_contrast_per_window`) for its sign trace. A1 adopts
+> sum/Type III as the documented convention so its interaction estimate is
+> orthogonal to the main effects by construction and matches the equal-cell
+> difference-of-differences the permutation route (`_interaction_effect`)
+> already uses. The ~0.8 SD imbalance leak flagged above is a property of a
+> *pooled super-group* effect-size estimator, which both routes now avoid.
+
+**Which plotting code consumes which?** Today the brain-map / ROI-histogram /
+F-trace visualizers consume **power_traces**, not A1:
+`dcc_scripts/vis/plot_sig_electrodes_dcc.py` imports `load_significant_electrodes`
+and reads the `sig_chans_*.json` / `within_elec_anova` run outputs, and
+`src/analysis/vis/power_traces_anova_f_traces_vis.py` reads the F-trace `.npz`
+files `power_traces_dcc.py` writes. A1's labels currently feed only the
+**segregation statistics** — the conjunction (`cmh_conjunction`), the continuous
+correlation (`subject_clustered_corr`), and the segregation runner's
+`segregation_summary.png`. Re-pointing the anatomical brain plots at A1's
+S-only / F-only / both groups is **assignment A3**, and is not yet wired.
+
 ---
 
 ## 2. Overlap / conjunction test — *is the co-localization more or less than chance?*
