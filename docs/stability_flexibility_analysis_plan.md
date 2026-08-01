@@ -314,13 +314,51 @@ This is the piece the counting analyses cannot do.
 **Three complementary designs (plus a within-block baseline):**
 
 **(0) Within-block decoding baseline (Fig 9).** Before any transfer, establish
-that each contrast is decodable and compare across blocks: decode inc/con within
-mostly-congruent vs mostly-incongruent blocks (and switch/repeat within
-mostly-repeat vs mostly-switch blocks), comparing accuracies. This is the
-decoding analog of the univariate LWPC/LWPS effects. It is also where the
-**neural cross-effects** surface — congruency decoding differing by
-switch-proportion block, and switch decoding by inc-proportion block — the
-Fig-1-vs-Fig-9 dissociation. Interpret only after the §0.8 confound controls.
+that each contrast is decodable and compare across blocks. Concretely this is a
+**2×2 of time-resolved within-block decodes** — *what* you decode
+(congruency = inc vs con; switch type = switch vs repeat) crossed with *how you
+split the blocks* (by incongruent-proportion; by switch-proportion). The
+diagonal is the matched LWPC/LWPS effects; the off-diagonal is the two
+specificity controls (the decoding analog of §1's cross-interaction terms). In
+the figures below: **dotted = mostly-incongruent / mostly-switch, solid =
+mostly-congruent / mostly-repeat**; the flat dark band is the label-shuffle
+null.
+
+| Decode | Split by | Kind | Prediction |
+|---|---|---|---|
+| **LWPC** — congruency (inc vs con) | inc-proportion block (mostly-inc vs mostly-con) | matched (stability) | congruency decodes **better in mostly-congruent** blocks (less proactive control ⇒ larger congruency signal) |
+| **LWPS** — switch type (switch vs repeat) | switch-proportion block (mostly-switch vs mostly-repeat) | matched (flexibility) | switch type decodes **better in mostly-repeat** blocks |
+| **switch type × inc-prop** — switch vs repeat | inc-proportion block | cross control | does a *stability* manipulation move a *flexibility* readout? (expected weak) |
+| **congruency × switch-prop** — inc vs con | switch-proportion block | cross control | does a *flexibility* manipulation move a *stability* readout? (expected weak) |
+
+The matched decodes are the decoding analog of the univariate LWPC/LWPS effects;
+the cross decodes are where a genuine **neural cross-effect** would surface — the
+Fig-1-vs-Fig-9 dissociation — *if* it survives the §0.8 controls.
+
+> **Observed status / caveat (read before trusting the cross panels).** The two
+> **matched** decodes behave as expected: baseline (pre-stimulus) accuracy sits
+> at chance and only rises ~0.4–0.5 s after stimulus onset, with the
+> matched-block ordering in the predicted direction. The two **cross** decodes
+> currently show significant clusters that **extend into — and before — the
+> pre-stimulus baseline**. For *current-trial congruency* that is diagnostically
+> impossible (the subject cannot know this trial's congruency before the
+> stimulus), so the cross panels are treated as **baseline-leakage artifacts
+> pending the §0.8 confound controls**, not as neural cross-effects. The clean
+> matched baselines vs. the contaminated cross baselines localize the problem to
+> the **rare cross cells** (the minority cell of each cross decode is ~25% by
+> design and shrinks further once the other block factor is conditioned on).
+> Leading suspects, in order: (i) `StratifiedKFold(shuffle=True)` random folds
+> that ignore trial time/run order, so slow drift correlated with a
+> temporally-clustered rare label leaks across folds (a label-shuffle null then
+> stays at chance while the true trace rides the drift at *all* timepoints);
+> (ii) very low trial counts after balancing to the minimum cell, inflating
+> variance against a too-tight pooled null; (iii) trial-sequence / feature- and
+> response-repetition carryover (legitimate for switch type, a confound for
+> congruency). Fixes: time-/run-aware folds (leave-one-run-out / `GroupKFold`),
+> baseline-correct the accuracy trace before cluster-forming, match trial counts
+> across the two block versions, and re-run after `remove_condition_means`
+> (per-condition mean removal). Re-read the cross panels only once the congruency
+> baseline returns to chance.
 
 **(a) Label-transfer (within an electrode set).** Train a decoder on the
 stability contrast, test on the flexibility contrast (and vice versa), on the
