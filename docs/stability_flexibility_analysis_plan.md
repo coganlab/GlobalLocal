@@ -6,6 +6,12 @@ reactive control) rely on shared or distinct iEEG substrates?* Specifically:
 are there **distinct subpopulations** supporting one process but not the other,
 or only **shared populations** carrying both?
 
+> **Companion notes.** `decoding_and_electrode_definition_notes.md` collects the
+> discursive design decisions and troubleshooting behind this plan: using *one*
+> electrode definition (not several), the cross-decoding baseline-leakage
+> diagnosis, and the electrode-definition ↔ decoding circularity / trial-split
+> question.
+
 The battery has three logical layers, each answering a different sub-question,
 plus cross-cutting statistics notes:
 
@@ -193,6 +199,55 @@ super-group Cohen's *d* — and its permutation null permutes the modulator
 **within each condition level**, holding both main effects fixed so only the
 interaction is nulled.
 
+### A1 vs. the `power_traces` windowed ANOVA — same machinery, different jobs
+
+The power-traces path (`src/analysis/power/windowed_anova.py`) already fits a
+per-electrode two-way ANOVA and exposes `load_significant_electrodes(...)`, so
+it is fair to ask why the §1 definition (`per_electrode_anova_labels`, i.e.
+assignment **A1**) is a separate function rather than a call into that code.
+They share the same raw ingredient — a per-electrode two-way ANOVA on windowed
+high-gamma — but they answer different questions and feed different consumers:
+
+| | `power_traces` windowed ANOVA | A1 `per_electrode_anova_labels` |
+|---|---|---|
+| **Question** | *Is this electrode doing something significant, over time, in this ROI?* (describe / select for plotting) | *Is this electrode selective for stability and/or flexibility?* (build the S/F labels the conjunction needs) |
+| **Temporal model** | time-windowed + **cluster-corrected over time** (contiguous significant windows) | one **static** ANOVA on HG averaged over the analysis window |
+| **Effects fit** | whichever `anova_factors` are passed, each thresholded on its own | **both** LWPC (`congruency × incongruent_proportion`) and LWPS (`switchType × switch_proportion`) on the *same* electrode, **plus the two cross interactions** (`congruency × switch_proportion`, `switchType × incongruent_proportion`) as report-only specificity controls |
+| **Multiple comparisons** | FDR across **clusters within `(roi, effect)`** | FDR across **electrodes**, separately per process |
+| **Coding / SS** | treatment coding, Type II | sum coding, Type III (see the note below) |
+| **Output** | flat list `[(subject, electrode)]` for one effect, ROI-scoped | a per-electrode **table** — `subject, electrode, S, F, signs, p/q, cross-controls` — column-matched to `per_electrode_labels`, so it drops straight into `cmh_conjunction` |
+
+The load-bearing difference is the **output contract**, not one test being more
+correct than the other. You cannot assemble the 2×2 both / S-only / F-only /
+neither table (§2) from `load_significant_electrodes`' flat list: it collapses
+to one significance verdict per electrode for one effect, with no paired
+S-vs-F labeling, no sign, and no cross-interaction controls. A1 exists to
+co-register both processes' interactions (and their specificity controls) on
+each electrode in the exact shape the conjunction and the §2 continuous
+correlation consume.
+
+> **On the coding difference.** For the *top-order interaction* term, Type II
+> (treatment) and Type III (sum) yield the **same** SS — coding only changes the
+> lower-order main-effect SS — so this is *not* a "power_traces is biased, A1
+> fixes it" story: `power_traces` already computes an equal-cell-weight signed
+> contrast (`_signed_contrast_per_window`) for its sign trace. A1 adopts
+> sum/Type III as the documented convention so its interaction estimate is
+> orthogonal to the main effects by construction and matches the equal-cell
+> difference-of-differences the permutation route (`_interaction_effect`)
+> already uses. The ~0.8 SD imbalance leak flagged above is a property of a
+> *pooled super-group* effect-size estimator, which both routes now avoid.
+
+**Which plotting code consumes which?** Today the brain-map / ROI-histogram /
+F-trace visualizers consume **power_traces**, not A1:
+`dcc_scripts/vis/plot_sig_electrodes_dcc.py` imports `load_significant_electrodes`
+and reads the `sig_chans_*.json` / `within_elec_anova` run outputs, and
+`src/analysis/vis/power_traces_anova_f_traces_vis.py` reads the F-trace `.npz`
+files `power_traces_dcc.py` writes. A1's labels currently feed only the
+**segregation statistics** — the conjunction (`cmh_conjunction`), the continuous
+correlation (`subject_clustered_corr`), and the segregation runner's
+`segregation_summary.png`. Re-pointing the anatomical brain plots at A1's
+S-only / F-only / both groups is **assignment A3**, and is not yet wired.
+
 ---
 
 ## 2. Overlap / conjunction test — *is the co-localization more or less than chance?*
@@ -265,13 +320,51 @@ This is the piece the counting analyses cannot do.
 **Three complementary designs (plus a within-block baseline):**
 
 **(0) Within-block decoding baseline (Fig 9).** Before any transfer, establish
-that each contrast is decodable and compare across blocks: decode inc/con within
-mostly-congruent vs mostly-incongruent blocks (and switch/repeat within
-mostly-repeat vs mostly-switch blocks), comparing accuracies. This is the
-decoding analog of the univariate LWPC/LWPS effects. It is also where the
-**neural cross-effects** surface — congruency decoding differing by
-switch-proportion block, and switch decoding by inc-proportion block — the
-Fig-1-vs-Fig-9 dissociation. Interpret only after the §0.8 confound controls.
+that each contrast is decodable and compare across blocks. Concretely this is a
+**2×2 of time-resolved within-block decodes** — *what* you decode
+(congruency = inc vs con; switch type = switch vs repeat) crossed with *how you
+split the blocks* (by incongruent-proportion; by switch-proportion). The
+diagonal is the matched LWPC/LWPS effects; the off-diagonal is the two
+specificity controls (the decoding analog of §1's cross-interaction terms). In
+the figures below: **dotted = mostly-incongruent / mostly-switch, solid =
+mostly-congruent / mostly-repeat**; the flat dark band is the label-shuffle
+null.
+
+| Decode | Split by | Kind | Prediction |
+|---|---|---|---|
+| **LWPC** — congruency (inc vs con) | inc-proportion block (mostly-inc vs mostly-con) | matched (stability) | congruency decodes **better in mostly-congruent** blocks (less proactive control ⇒ larger congruency signal) |
+| **LWPS** — switch type (switch vs repeat) | switch-proportion block (mostly-switch vs mostly-repeat) | matched (flexibility) | switch type decodes **better in mostly-repeat** blocks |
+| **switch type × inc-prop** — switch vs repeat | inc-proportion block | cross control | does a *stability* manipulation move a *flexibility* readout? (expected weak) |
+| **congruency × switch-prop** — inc vs con | switch-proportion block | cross control | does a *flexibility* manipulation move a *stability* readout? (expected weak) |
+
+The matched decodes are the decoding analog of the univariate LWPC/LWPS effects;
+the cross decodes are where a genuine **neural cross-effect** would surface — the
+Fig-1-vs-Fig-9 dissociation — *if* it survives the §0.8 controls.
+
+> **Observed status / caveat (read before trusting the cross panels).** The two
+> **matched** decodes behave as expected: baseline (pre-stimulus) accuracy sits
+> at chance and only rises ~0.4–0.5 s after stimulus onset, with the
+> matched-block ordering in the predicted direction. The two **cross** decodes
+> currently show significant clusters that **extend into — and before — the
+> pre-stimulus baseline**. For *current-trial congruency* that is diagnostically
+> impossible (the subject cannot know this trial's congruency before the
+> stimulus), so the cross panels are treated as **baseline-leakage artifacts
+> pending the §0.8 confound controls**, not as neural cross-effects. The clean
+> matched baselines vs. the contaminated cross baselines localize the problem to
+> the **rare cross cells** (the minority cell of each cross decode is ~25% by
+> design and shrinks further once the other block factor is conditioned on).
+> Leading suspects, in order: (i) `StratifiedKFold(shuffle=True)` random folds
+> that ignore trial time/run order, so slow drift correlated with a
+> temporally-clustered rare label leaks across folds (a label-shuffle null then
+> stays at chance while the true trace rides the drift at *all* timepoints);
+> (ii) very low trial counts after balancing to the minimum cell, inflating
+> variance against a too-tight pooled null; (iii) trial-sequence / feature- and
+> response-repetition carryover (legitimate for switch type, a confound for
+> congruency). Fixes: time-/run-aware folds (leave-one-run-out / `GroupKFold`),
+> baseline-correct the accuracy trace before cluster-forming, match trial counts
+> across the two block versions, and re-run after `remove_condition_means`
+> (per-condition mean removal). Re-read the cross panels only once the congruency
+> baseline returns to chance.
 
 **(a) Label-transfer (within an electrode set).** Train a decoder on the
 stability contrast, test on the flexibility contrast (and vice versa), on the
