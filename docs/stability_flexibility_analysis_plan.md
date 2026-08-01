@@ -6,6 +6,12 @@ reactive control) rely on shared or distinct iEEG substrates?* Specifically:
 are there **distinct subpopulations** supporting one process but not the other,
 or only **shared populations** carrying both?
 
+> **Companion notes.** `decoding_and_electrode_definition_notes.md` collects the
+> discursive design decisions and troubleshooting behind this plan: using *one*
+> electrode definition (not several), the cross-decoding baseline-leakage
+> diagnosis, and the electrode-definition ↔ decoding circularity / trial-split
+> question.
+
 The battery has three logical layers, each answering a different sub-question,
 plus cross-cutting statistics notes:
 
