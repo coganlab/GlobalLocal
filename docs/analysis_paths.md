@@ -86,6 +86,8 @@ src/analysis/
 ├── decoding/    # ANALYSIS PATH: time-resolved decoding
 │   ├── decoding.py                       # Decoder class + all decoding helpers
 │   ├── process_bootstrap.py
+│   ├── cross_decoding.py                 # A4: stability↔flexibility cross-decoding (§12)
+│   ├── trial_splitting.py                # disjoint def/decode split (circularity control, §13)
 │   └── run_*.py                          # per-stage orchestration helpers
 │
 ├── pac/         # ANALYSIS PATH: phase-amplitude coupling / connectivity
@@ -93,9 +95,14 @@ src/analysis/
 │   ├── env_correlation.py
 │   └── *_plot.py, sig_test.py, get_channels_detail.py
 │
-├── stats/       # ANALYSIS PATH: behavioral / mixed-effects models
+├── stats/       # ANALYSIS PATH: behavioral / mixed-effects models + stability/flexibility battery (§12)
 │   ├── erin_linear_mixed_effects_model.py
-│   └── stability_flexibility_segregation.py
+│   ├── stability_flexibility_segregation.py    # A1 ANOVA defn + A2 conjunction + continuous corr/CMH
+│   ├── stability_flexibility_anatomy.py        # A3: coverage-conditioned ROI enrichment
+│   ├── stability_flexibility_timing.py         # A5: relative onset (50%-of-peak + jackknife)
+│   ├── stability_flexibility_brain_behavior.py # A6: brain↔behavior correlation
+│   ├── stability_flexibility_*_tutorial.ipynb  # per-analysis walk-throughs
+│   └── stability_flexibility_assignments_sandbox.ipynb  # learn-by-doing A1–A6
 │
 └── vis/         # Cross-path visualization (brain figures, F-traces)
     ├── brain_figure_glasser_separate_svgs_lateral_medial_view_less_bold.py
@@ -104,7 +111,9 @@ src/analysis/
 
 dcc_scripts/      # Cluster launchers (what you actually run)
 ├── power/        # run_power_traces_dcc.py, power_traces_dcc.py, sbatch/submit *.sh
-└── decoding/     # run_decoding_dcc.py, decoding_dcc.py, sbatch/submit *.sh
+├── decoding/     # run_decoding_dcc.py, decoding_dcc.py, sbatch/submit *.sh
+│                 # + stability_flexibility_cross_decoding (A4) + def-split launcher (§13)
+└── stats/        # A1/A2 (anova_conjunction, segregation) + A3 (anatomy) launchers (§12)
 ```
 
 ---
@@ -487,6 +496,8 @@ Cross-path plotting and anatomy figures:
 | **Decoding** | `decoding/` | `decoding_dcc.py` | saved HG epochs → LabeledArray | `process_bootstrap` → `Decoder.cv_cm_jim_window_shuffle` | accuracy traces + CMs |
 | **PAC / Connectivity** | `pac/` | `theta_connect.py` | bipolar derivatives | `compute_alltrial_coherence_and_permutation` | ROI–ROI coherence |
 | **Behavioral stats** | `stats/` | (script) | behavioral CSV / long-format HG | mixed LM / CMH | statistical models |
+| **Stability/flexibility A1–A6** (§12) | `stats/`, `decoding/` | `dcc_scripts/stats/*`, `dcc_scripts/decoding/*cross_decoding*` | long-format single-trial HG | `per_electrode_anova_labels`, `cmh_conjunction`, `roi_group_enrichment_test`, `cross_decode`, `jackknife_onset_difference`, brain–behavior | segregation / anatomy / code / timing / behavior verdicts |
+| **Def/decode trial split** (§13) | `decoding/trial_splitting.py` | `dcc_scripts/decoding/submit_decoding_with_electrode_definition_split_dcc.sh` | saved HG epochs | `apply_electrode_definition_split` | non-circular decoding accuracies |
 
 ### Where to make common changes
 
@@ -505,3 +516,291 @@ Path-level tests live under `tests/analysis/` (e.g.
 `tests/analysis/utils/test_labeled_array_utils.py`,
 `tests/analysis/utils/test_general_utils.py`). Run with `pytest` (see
 `pytest.ini`).
+
+---
+
+## 12. Analysis path: Stability vs. Flexibility population battery (A1–A6)
+
+**The question.** Are **stability** (LWPC — the list-wide proportion-congruent
+adjustment, i.e. proactive/congruency control) and **flexibility** (LWPS — the
+list-wide proportion-switch adjustment, i.e. reactive/task-switching control)
+carried by the **same** neural machinery or by **distinct** machinery? The
+battery attacks that one question from six complementary angles. Each angle is a
+numbered assignment (`A1`–`A6`) with a production module, a **tutorial
+notebook**, and — for A1–A4 — a **DCC launcher**.
+
+**The two governing documents** (read these for the *why*):
+- `docs/stability_flexibility_analysis_plan.md` — the scientific plan; §0 is the
+  cross-cutting statistical-rigor checklist (double-dipping, disjoint halves,
+  power matching, FDR, coverage bias, latency–amplitude, decoding confounds).
+- `docs/stability_flexibility_coding_assignments.md` — the staged build plan;
+  each assignment states why it exists, where the code goes, and its acceptance
+  criteria. Runnable stubs live in `docs/skeletons/aN_*.py`.
+
+**Learn-by-doing sandbox.** `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb`
+is a single notebook that walks A1→A6 with fill-in-the-blank cells, on-demand
+hints (`reveal("aN_hint1")`), and reference solutions
+(`reveal("aN_solution")` / `load_reference("aN")`). It runs on **synthetic
+ground-truth data** with no cluster access, so it's the fastest way to see the
+whole battery end to end.
+
+### 12.0 Map of the battery
+
+| # | Plan § | What it answers | Module | Tutorial notebook | DCC launcher |
+|---|---|---|---|---|---|
+| **A1** | §1 | Which electrodes are stability-(S) and/or flexibility-(F) selective? | `stats/stability_flexibility_segregation.py` (`per_electrode_anova_labels`) | `stats/stability_flexibility_segregation_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anova_conjunction_dcc.sh` |
+| **A2** | §2 | Do S and F co-occur on the same electrodes more/less than chance? | `stats/stability_flexibility_segregation.py` (`cmh_conjunction`, permutation null, threshold sweep, `subject_clustered_corr`) | same as A1 | same as A1 (+ `submit_stability_flexibility_segregation_dcc.sh` for the continuous/CMH-only run) |
+| **A3** | §3 | Are the distinct subpopulations in different **places** (conditioned on coverage)? | `stats/stability_flexibility_anatomy.py` | `stats/stability_flexibility_anatomy_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh` |
+| **A4** | §4 | One **shared code** or two **orthogonal codes** on the `both` electrodes? | `decoding/cross_decoding.py` | `decoding/cross_decoding_tutorial.ipynb` | `dcc_scripts/decoding/submit_stability_flexibility_cross_decoding_dcc.sh` |
+| **A5** | §5 | Does stability information arise **earlier** than flexibility (or vice versa)? | `stats/stability_flexibility_timing.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | none — notebook + module smoke test |
+| **A6** | §6 | Does the neural selectivity predict the actual **behavioral** control adjustment? | `stats/stability_flexibility_brain_behavior.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | none — notebook + module smoke test |
+
+**Consumes:** the same saved HG epochs as power/decoding, assembled into a
+**long single-trial table** (`subject | electrode | hg | congruency | switchType
+| incongruent_proportion | switch_proportion`). With `effect_measure='cluster'`
+(A4/A5) the `hg` column holds each trial's HG *time course* over the window
+instead of the window mean.
+
+> **Every DCC launcher has a `DATA_SOURCE=synthetic` dry-run** that validates the
+> whole path in seconds with ground-truth data — run that first to confirm your
+> environment before pointing `EPOCHS_ROOT_FILE` at real data. Every module is
+> also directly runnable (`python src/analysis/stats/<module>.py`) for a
+> synthetic smoke test.
+
+### 12.1 · A1 — per-electrode ANOVA electrode definition
+
+**What it does.** For each electrode, fits a two-way **Type III** (sum-coded)
+ANOVA on window-mean HG — `hg ~ C(congruency)*C(incongruent_proportion)` for
+stability and `hg ~ C(switchType)*C(switch_proportion)` for flexibility — and
+FDR-corrects the interaction p-values across electrodes to set the `S`/`F` flags.
+Sum coding makes the Type III interaction orthogonal to the main effects, which
+is essential because the proportion cells are deliberately unequal (~75/25) and
+treatment coding would leak a main effect into the "interaction". It also fits
+the two **cross** interactions as specificity controls (report-only).
+
+**Run on DCC** (from `dcc_scripts/stats`):
+```bash
+DATA_SOURCE=synthetic bash submit_stability_flexibility_anova_conjunction_dcc.sh  # dry run
+bash submit_stability_flexibility_anova_conjunction_dcc.sh                        # real (set EPOCHS_ROOT_FILE first)
+```
+
+**Interpret the output.** `anova_labels.csv` / `labels.csv` gives each electrode
+its interaction F, p, FDR q, signed effect direction, and `S`/`F` flags. A `both`
+electrode (S=1 & F=1) is selective for *both* processes. The **cross-interaction
+terms should be near-null** — if they aren't, the sum-coding orthogonalization
+didn't take and the S/F flags are suspect.
+
+### 12.2 · A2 — conjunction: overlap vs. chance
+
+**What it does.** Given the A1 `S`/`F` labels, tests whether "both" electrodes are
+*more or fewer* than chance: (a) a **within-subject permutation null** on the
+overlap count (shuffle S vs F pairing inside each subject, preserving each
+subject's S and F marginals), (b) a **Cochran–Mantel–Haenszel** odds ratio pooling
+the per-subject 2×2 tables, and (c) a **threshold sweep** so the conclusion is
+shown to be stable across selection cutoffs, not an artifact of one α. The
+**continuous** counterpart (`subject_clustered_corr`, run by the `segregation`
+launcher) correlates each electrode's stability effect size against its
+flexibility effect size across **disjoint trial halves**.
+
+**Run on DCC:** the `anova_conjunction` launcher above runs A1+A2 together; the
+`submit_stability_flexibility_segregation_dcc.sh` launcher runs the continuous
+correlation + CMH on their own (see `dcc_scripts/stats/README.md`).
+
+**Interpret the output** (`conjunction.json`, `correlation.json`,
+`segregation_summary.png`):
+- **CMH odds ratio `OR < 1`** (fewer "both" than chance) **or continuous
+  `corr ≤ 0`** → **segregation**: distinct populations carry the two processes.
+- **`OR > 1` / `corr > 0`** → a **shared core** carries both.
+- The **threshold sweep** should not flip the sign of the conclusion across
+  reasonable cutoffs; if it does, that's a finding to report, not hide.
+- On synthetic data with independent effects the null p is n.s. and `OR ≈ 1`
+  across the whole sweep — the built-in check that the test isn't manufacturing a
+  result.
+
+> A2 is the only test in the battery that can give **positive evidence for
+> distinctness** (`OR < 1`). Decoding (A4) can only *fail* to find a shared code,
+> which is weaker.
+
+### 12.3 · A3 — anatomy: coverage-conditioned ROI enrichment
+
+**What it does.** Joins the A1 labels to each electrode's ROI, then asks whether
+selectivity-group membership (`S_only` / `F_only` / `both`) is associated with
+**ROI** — **conditioned on coverage**, because iEEG coverage is clinical and a raw
+ROI difference can just reflect where electrodes happen to be. It restricts to
+ROIs sampled in ≥ `MIN_SUBJECTS` subjects, runs a Pearson χ² on the group × ROI
+table, and builds the null by permuting the group label **within each subject**
+(so the null respects both the subject nesting and the coverage). Reports
+per-ROI coverage alongside, and renders a Glasser brain-surface figure (falls
+back to the ROI histogram off-cluster).
+
+**Run on DCC** (from `dcc_scripts/stats`):
+```bash
+DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh                    # planted enrichment
+DATA_SOURCE=synthetic SYNTHETIC_ENRICHMENT=0.0 bash submit_stability_flexibility_anatomy_dcc.sh  # null → n.s.
+bash submit_stability_flexibility_anatomy_dcc.sh                                          # real
+```
+
+**Interpret the output** (`roi_enrichment.json`, `roi_group_histogram.png`,
+`anatomy_coverage_enrichment.png`, `selectivity_groups_on_brain.svg`):
+a **significant** permutation p means group membership is associated with ROI
+*beyond* what placement forces. Read the χ² p **together with `per_roi_coverage`**
+— every anatomical claim is only as strong as the number of subjects wired in
+that ROI. ROIs below the `MIN_SUBJECTS` threshold are excluded by design.
+
+### 12.4 · A4 — cross-decoding: shared vs. orthogonal code
+
+**What it does.** Co-localization (A1–A3) shows the *same electrodes* are
+selective for both processes, but not whether they carry **one shared code** or
+**two orthogonal codes**. A4 trains a classifier on one contrast and tests whether
+its decision axis **transfers** to the other. Subjects don't share trials, so
+electrodes are pooled into a **pseudopopulation** and **pseudo-trials** are
+synthesized by matching on the full condition cell, with train/test drawn from
+**disjoint reservoirs** (the circularity guard). Four designs: (0) within-block
+decoding baseline (Fig 9), (a) label transfer per electrode group, (b)
+electrode-set transfer, (c) temporal generalization (Fig 10). Every transfer is
+reported **raw and per-condition-mean-removed**, with a label-permutation null.
+
+**Run on DCC** (from `dcc_scripts/decoding`):
+```bash
+DATA_SOURCE=synthetic SYNTHETIC_CODE=shared     bash submit_stability_flexibility_cross_decoding_dcc.sh  # should transfer
+DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal bash submit_stability_flexibility_cross_decoding_dcc.sh  # should NOT
+bash submit_stability_flexibility_cross_decoding_dcc.sh                                                   # real
+```
+
+**Interpret the output** (`cross_decoding.json`, `tempgen_*.npy`,
+`cross_decoding_summary.png`):
+- Cross-decoding **above chance on the `both` group, surviving per-condition mean
+  removal** → a **shared** code (the classifier's axis is reused across processes).
+- **Chance on `both`** while each process is *individually* decodable →
+  **orthogonal** codes = representational-level segregation.
+- A transfer that **collapses to chance after mean removal** was a univariate
+  offset, not a genuine multivariate code — discount it.
+- **Temporal generalization matrix**: broad off-diagonal generalization → a
+  sustained/stable code; a narrow diagonal → a moving/phasic code.
+
+### 12.5 · A5 — timing: relative onset of stability vs. flexibility
+
+**What it does.** Computes each process's interaction magnitude **over time** (the
+equal-cell-weight difference-of-differences per time bin), then measures **onset =
+first upward crossing of 50% of that effect's own peak** and **peak latency** as a
+cross-check. The two onsets are compared with the **Ulrich–Miller jackknife**:
+onsets measured on smooth leave-one-subject-out grand-averages, jackknife SE, and
+the `(N−1)`-corrected paired t. Normalizing to each effect's own peak neutralizes
+the **latency–amplitude confound** — a bigger effect crosses any *absolute*
+threshold sooner, so without this "earlier" would just mean "larger" (baked into a
+unit test: `stab(t) = k·flex(t)` ⇒ equal onsets).
+
+**Run it** (no DCC launcher — notebook + module smoke test):
+```bash
+python src/analysis/stats/stability_flexibility_timing.py   # synthetic smoke test
+```
+then walk `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
+
+**Interpret the output.** The signed **onset difference with a CI** (from
+`jackknife_onset_difference`) is the headline: its sign says which process's
+information arises first; the CI/`(N−1)`-corrected t says whether that ordering is
+reliable. A claim should rest on **onset and peak latency agreeing** — report both.
+
+### 12.6 · A6 — brain–behavior correlation
+
+**What it does.** Ties the neural selectivity to the actual behavioral control
+adjustment, so the substrates are shown to be *functional*. Two levels: (1)
+**across subjects** (n = subjects, honest but underpowered) — does a subject with
+more/stronger LWPC electrodes show a larger behavioral LWPC (congruency ×
+incongruent-proportion) RT effect, and likewise LWPS? (2) **within subject,
+single-trial** (preferred) — does trial-by-trial HG in the LWPC electrode group
+predict the trial-by-trial congruency-sequence RT adjustment (LWPS group ↔ switch
+adjustment), via a mixed model with a subject random effect? Behavioral effects
+come from the same design as `stats/erin_linear_mixed_effects_model.py` /
+`combinedData.csv`.
+
+**Run it** (no DCC launcher — notebook + module smoke test):
+```bash
+python src/analysis/stats/stability_flexibility_brain_behavior.py   # synthetic smoke test
+```
+then walk `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
+
+**Interpret the output.** The **matched** pairing (LWPC group ↔ congruency-sequence
+adjustment; LWPS group ↔ switch adjustment) should be **stronger than the cross**
+pairing — that gap is the specificity result and the whole point of A6. Report the
+across-subject correlation with its n and the honest "underpowered at n = subjects"
+caveat; lean on the within-subject mixed model for the real test.
+
+---
+
+## 13. Disjoint trial splitting — the decoding ↔ electrode-definition circularity control
+
+**The problem it solves.** When decoding is restricted to a *selected* electrode
+set, and that selection is computed on the **same trials** the decoder then
+scores, the selection biases decoding accuracy upward (double-dipping — plan
+§0.1/§0.2; `docs/decoding_and_electrode_definition_notes.md` §C). The bulletproof
+fix is a **disjoint trial partition**: define electrodes on one set of trials,
+decode on a disjoint set.
+
+**The module.** `src/analysis/decoding/trial_splitting.py` provides the
+unit-tested primitives and one orchestration helper:
+
+| Function | Role |
+|---|---|
+| `stratified_trial_split(strata, frac_def, seed)` | Split trial indices into disjoint definition/decode sets, **stratified** within each stratum so both stay balanced on condition/block; deterministic under `seed`. |
+| `strata_key_from_metadata(metadata, strata_cols)` | Build one stratum key per trial from metadata columns (missing columns skipped with a warning). |
+| `select_responsive_channels(window_means, baseline_means, alpha)` | Held-out selector: per-channel responsiveness t-test with **FDR across channels**; drops dead/zero-variance channels. Run on the *definition* partition only. |
+| `apply_electrode_definition_split(subjects_mne_objects, electrodes, rois, ...)` | Orchestration glue: splits every `(subject, condition)` epochs object, selects responsive channels on the pooled definition trials, restricts `electrodes` to them, and returns the **decode partition** so the decoder never sees the definition trials. |
+
+**Tutorial:** `src/analysis/decoding/trial_splitting_tutorial.ipynb` — a
+synthetic, runs-anywhere walk-through of every primitive, including the
+double-dipping demo (selecting on the scored trials inflates accuracy on
+pure-noise data; the disjoint split returns it to chance) and a guarded MNE
+`apply_electrode_definition_split` example.
+
+**Tests:** `tests/analysis/decoding/test_trial_splitting.py` (16 tests — disjointness,
+stratum-proportion preservation, determinism, singleton handling, the FDR selector,
+zero-variance rejection). The primitives carry the correctness guarantees; the
+orchestration is I/O glue — **smoke-test it on one subject before a full run.**
+
+### How it's wired into the DCC decoding pipeline
+
+The split is **off by default** so existing runs reproduce exactly. It threads
+through the ordinary decoding stack:
+
+```
+submit_*.sh  --(env vars)-->  run_decoding_dcc.py  --(args)-->  decoding_dcc.py: main()
+                                                                    └── if args.electrode_definition_split:
+                                                                        apply_electrode_definition_split(...)
+                                                                        # electrodes reselected on P_def,
+                                                                        # decoder runs on disjoint P_dec only
+```
+
+`run_decoding_dcc.py` reads every split parameter from the environment (falling
+back to its hardcoded defaults), so a launcher can turn the split on **without
+editing code**. Output filenames get a `_defsplit` tag so split and non-split runs
+don't collide.
+
+**The higher-level launcher — "define held-out significant electrodes, then
+decode":** `dcc_scripts/decoding/submit_decoding_with_electrode_definition_split_dcc.sh`
+runs the whole non-circular flow in one job (define electrodes on `P_def` →
+decode on the disjoint `P_dec`), reusing the ordinary `sbatch_decoding_dcc.sh`:
+
+```bash
+cd dcc_scripts/decoding
+bash submit_decoding_with_electrode_definition_split_dcc.sh
+# tune the split from the environment:
+FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,switchType,blockType \
+    CONDITIONS="stimulus_congruency_by_switch_prop_block_balanced_conditions" \
+    bash submit_decoding_with_electrode_definition_split_dcc.sh
+```
+
+| Env var | Default | Meaning |
+|---|---|---|
+| `FRAC_DEF` | `0.5` | fraction of each subject's trials used to **define** electrodes |
+| `STRATA` | `congruency,switchType,blockType` | metadata columns to stratify the split on |
+| `SEED` | `0` | RNG seed for the split (reproducible) |
+| `ALPHA` | `0.05` | FDR q-value for the held-out responsiveness selector |
+| `CONDITIONS` | two block-balanced conditions | space-separated condition labels to decode |
+
+**Interpret the output.** Read the `_defsplit` accuracy traces exactly like the
+ordinary decoding output (§7) — the only difference is that the electrode set was
+chosen on trials the decoder never scored, so the accuracy is **not** inflated by
+selection. Expect it to be **lower than the non-split run**; that gap is roughly
+the double-dipping bias the control removes. The job log prints how many
+electrodes survived the held-out selector per ROI.
