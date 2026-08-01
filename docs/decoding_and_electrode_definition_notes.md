@@ -207,21 +207,48 @@ already saw the decode trials. So the honest options are:
   decode on `P_dec`) for the electrode-set-restricted decodes and the
   define-on-one-effect / test-the-other cross-decodes.
 
-**Implementation sketch for (iii)** (the piece to build):
+**Implementation (iii) — what is now in the repo.**
 
-- A reusable `stratified_trial_split(metadata, strata_cols, frac_def=0.5,
-  n_splits, seed)` returning disjoint `(idx_def, idx_dec)` per subject —
-  unit-testable in isolation (assert disjoint, assert per-stratum balance
-  preserved). Mirror the existing `_stratified_half_split` in
-  `stability_flexibility_segregation.py` and the `_split_reservoirs` disjoint
-  logic in `cross_decoding.py` rather than writing a third splitter.
-- A selection hook in `decoding_dcc.py` that, when a new
-  `args.electrode_definition_split` flag is set, computes the electrode set from
-  `P_def` (calling the chosen per-electrode test on that subset) and passes only
-  `P_dec` trials into the decoder.
-- Default the flag **off** so existing runs reproduce.
+Module `src/analysis/decoding/trial_splitting.py` provides the pure, unit-tested
+primitives:
 
-> **Status: not yet implemented.** This section is the design; the split code and
-> the `decoding_dcc.py` wiring are a follow-up (they touch a DCC pipeline that
-> can't be validated outside the cluster, so they should be built behind the
-> off-by-default flag and checked on a subject before a full re-run).
+- **`stratified_trial_split(strata, frac_def=0.5, seed=0)`** → disjoint
+  `(idx_def, idx_dec)`, stratified within each `strata` key so both partitions
+  stay balanced (and non-empty strata never silently vanish from selection).
+- **`strata_key_from_metadata(metadata, strata_cols)`** → one stratum key per
+  trial from `epochs.metadata` columns (missing columns are skipped with a
+  warning; all-missing → an unstratified random split).
+- **`select_responsive_channels(window_means, baseline_means=None, alpha=0.05)`**
+  → the **held-out selector**: per-channel t-test (one-sample vs 0 for
+  baseline-rescaled HG, or paired window-vs-baseline) with **FDR across
+  channels**; degenerate/flat channels are never selected. This is a
+  task-responsiveness contrast (approximately orthogonal to any single decode),
+  so run on `P_def` it makes selection independent of the `P_dec` accuracy.
+
+Tests: `tests/analysis/decoding/test_trial_splitting.py` (16 cases — disjointness,
+per-stratum balance, determinism, metadata keying, selector sensitivity/FDR,
+degenerate-channel guard).
+
+Orchestration glue: **`apply_electrode_definition_split(subjects_mne_objects,
+electrodes, rois, ...)`** splits each `(subject, condition)` epochs object
+(applying the same indices to every trial-aligned MNE object in the dict — the
+decoder consumes `HG_ev1_power_rescaled`), selects responsive channels on the
+pooled definition partition per subject, restricts `electrodes[roi][sub]`
+accordingly, and returns the **decode partition** so the bootstrap/decoder never
+sees the definition trials.
+
+Wiring: `dcc_scripts/decoding/run_decoding_dcc.py` exposes
+`ELECTRODE_DEFINITION_SPLIT` (+ `_FRAC`, `_STRATA`, `_SEED`, `_ALPHA`), passed
+into the args namespace; `dcc_scripts/decoding/decoding_dcc.py` calls
+`apply_electrode_definition_split` in a guarded block right after electrode
+filtering and tags outputs with `_defsplit`.
+
+> **Status: primitives implemented and unit-tested; wiring off by default.** Flip
+> `ELECTRODE_DEFINITION_SPLIT = True` to enable. The orchestration is I/O glue
+> that can't be validated outside the cluster — **smoke-test it on one subject**
+> (confirm trial counts drop ~`frac_def`, that a plausible electrode set survives
+> selection, and that the decode still runs) before a full re-run. Residual
+> caveat: the split is applied per condition object, so a physical trial shared
+> across overlapping condition keys can land in `P_def` for one and `P_dec` for
+> another — a single decode comparison uses disjoint event sets, so its split is
+> clean, but prefer stratifying on a stable trial id if your metadata carries one.

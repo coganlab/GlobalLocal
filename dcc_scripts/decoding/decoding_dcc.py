@@ -137,7 +137,30 @@ def main(args):
     electrodes = filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_mne_objects)
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
-    
+
+    # --- Optional: disjoint electrode-definition / decoding trial split ---
+    # Avoids circularity between electrode selection and decoding accuracy by
+    # (re)selecting electrodes on a held-out definition partition and decoding
+    # only on the disjoint decode partition. Off by default. See
+    # docs/decoding_and_electrode_definition_notes.md §C.
+    if getattr(args, 'electrode_definition_split', False):
+        from src.analysis.decoding.trial_splitting import apply_electrode_definition_split
+        print(f"\n{'='*20} DISJOINT ELECTRODE-DEFINITION / DECODING SPLIT "
+              f"(frac_def={args.electrode_definition_split_frac}) {'='*20}\n")
+        subjects_mne_objects, electrodes = apply_electrode_definition_split(
+            subjects_mne_objects,
+            electrodes,
+            rois,
+            frac_def=args.electrode_definition_split_frac,
+            strata_cols=args.electrode_definition_split_strata,
+            seed=args.electrode_definition_split_seed,
+            alpha=args.electrode_definition_split_alpha,
+        )
+        for roi in rois:
+            n_sel = sum(len(v) for v in electrodes.get(roi, {}).values())
+            print(f"  [def-split] {roi}: {n_sel} electrodes selected on the definition partition")
+        elec_string_to_add_to_filename += '_defsplit'
+
     condition_comparisons = get_comparisons(args.condition_label)
  
     # get the confusion matrix using the downsampled version

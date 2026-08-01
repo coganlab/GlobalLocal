@@ -192,6 +192,19 @@ ROIS_DICT = {
 
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
 ELECTRODES = 'sig'
+
+# --- Disjoint electrode-definition / decoding split (circularity control) ---
+# When True, each subject's trials are split into a definition set and a decode
+# set; electrodes are (re)selected on the definition set and decoding runs only
+# on the disjoint decode set, so electrode selection can't inflate decoding
+# accuracy. Off by default so existing runs reproduce. See
+# docs/decoding_and_electrode_definition_notes.md §C. VALIDATE on one subject
+# before a full re-run.
+ELECTRODE_DEFINITION_SPLIT = False
+ELECTRODE_DEFINITION_SPLIT_FRAC = 0.5          # fraction of trials used to define electrodes
+ELECTRODE_DEFINITION_SPLIT_STRATA = ['congruency', 'switchType', 'blockType']
+ELECTRODE_DEFINITION_SPLIT_SEED = 0
+ELECTRODE_DEFINITION_SPLIT_ALPHA = 0.05        # FDR q for the held-out responsiveness selector
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
@@ -258,7 +271,12 @@ def run_analysis():
         run_visualization_debug=RUN_VISUALIZATION_DEBUG,
         condition_label=CONDITION_LABEL,
         save_dir=SAVE_DIR,
-        held_out_subject=LEAVE_OUT
+        held_out_subject=LEAVE_OUT,
+        electrode_definition_split=ELECTRODE_DEFINITION_SPLIT,
+        electrode_definition_split_frac=ELECTRODE_DEFINITION_SPLIT_FRAC,
+        electrode_definition_split_strata=ELECTRODE_DEFINITION_SPLIT_STRATA,
+        electrode_definition_split_seed=ELECTRODE_DEFINITION_SPLIT_SEED,
+        electrode_definition_split_alpha=ELECTRODE_DEFINITION_SPLIT_ALPHA,
         # cluster_tails=CLUSTER_TAILS,
     )
 
