@@ -99,14 +99,14 @@ def resolve_contrast(contrast):
 # Double-dipping guard for the electrode-definition <-> decode diagonal
 # ---------------------------------------------------------------------------
 # Electrodes are defined by one of the FOUR two-way interactions
-# (`per_electrode_anova_labels`: S, F, CS, SI). The within-block decoding 2x2
-# decodes {contrast} split by {block modulator}, and each of those four decode
-# cells is the multivariate readout analog of exactly one interaction. Decoding a
-# cell on the electrode set that same interaction *defined* is circular
-# (double-dipping / selection bias, plan §0.1): the electrodes were chosen for
-# having that very difference-of-differences, so its decodability is guaranteed
-# to be inflated. The clean cells are the OFF-diagonal ones (define on one
-# interaction, decode a different cell) -- the "define on LWPC, test LWPS"
+# (`per_electrode_anova_labels`: CPC, SPS, CPS, SPC -- named {condition}P{modulator}).
+# The within-block decoding 2x2 decodes {contrast} split by {block modulator}, and
+# each of those four decode cells is the multivariate readout analog of exactly one
+# interaction. Decoding a cell on the electrode set that same interaction *defined*
+# is circular (double-dipping / selection bias, plan §0.1): the electrodes were
+# chosen for having that very difference-of-differences, so its decodability is
+# guaranteed to be inflated. The clean cells are the OFF-diagonal ones (define on
+# one interaction, decode a different cell) -- the "define on LWPC, test LWPS"
 # workhorse generalized to all four groups.
 #
 # Map: definition-group flag -> the (decode contrast, block modulator) it must
@@ -114,17 +114,17 @@ def resolve_contrast(contrast):
 # below to skip (or flag) the diagonal cell when a decode is restricted to a
 # defined electrode group.
 DEFINITION_DECODE_DIAGONAL = {
-    "S":  ("congruency", "incongruent_proportion"),   # LWPC  = congruency x inc_prop
-    "F":  ("switchType", "switch_proportion"),         # LWPS  = switchType x switch_prop
-    "CS": ("congruency", "switch_proportion"),         # cross = congruency x switch_prop
-    "SI": ("switchType", "incongruent_proportion"),    # cross = switchType x inc_prop
+    "CPC": ("congruency", "incongruent_proportion"),   # congruency x proportion-congruent (LWPC)
+    "SPS": ("switchType", "switch_proportion"),         # switchType x switch-proportion (LWPS)
+    "CPS": ("congruency", "switch_proportion"),         # congruency x switch-proportion (cross)
+    "SPC": ("switchType", "incongruent_proportion"),    # switchType x proportion-congruent (cross)
 }
 
 
 def circular_decode_for_group(definition_group):
     """The (contrast, block_col) within-block decode cell that would double-dip on
-    electrodes selected by `definition_group` ('S'|'F'|'CS'|'SI'), or None if the
-    group name is unknown (e.g. 'both', 'all' -- not a single interaction)."""
+    electrodes selected by `definition_group` ('CPC'|'SPS'|'CPS'|'SPC'), or None if
+    the group name is unknown (e.g. 'both', 'all' -- not a single interaction)."""
     return DEFINITION_DECODE_DIAGONAL.get(definition_group)
 
 

@@ -250,11 +250,11 @@ def _electrode_groups(df, alpha, require_sign):
 
 def _interaction_groups(labels):
     """The FOUR interaction-defined electrode sets (possibly overlapping), keyed by
-    the definition-group flag so `cd.is_circular_decode` can name each set's
-    double-dip cell. Used for the per-group within-block 2x2 that skips the
-    diagonal (define==decode) cell."""
+    the definition-group flag (CPC/SPS/CPS/SPC) so `cd.is_circular_decode` can name
+    each set's double-dip cell. Used for the per-group within-block 2x2 that skips
+    the diagonal (define==decode) cell."""
     return {flag: labels.loc[labels[flag] == 1, 'electrode'].tolist()
-            for flag in ('S', 'F', 'CS', 'SI') if flag in labels.columns}
+            for flag in ('CPC', 'SPS', 'CPS', 'SPC') if flag in labels.columns}
 
 
 # ---------------------------------------------------------------------------

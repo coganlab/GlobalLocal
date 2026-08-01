@@ -758,28 +758,33 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
                                require_sign=False):
     """Parametric per-electrode selectivity labels from the two-way interaction
     ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
-    Drop-in `labels` for `cmh_conjunction`: output columns match
-    `per_electrode_labels` (subject, electrode, p_cong, q_cong, S, p_switch,
-    q_switch, F, plus signs), and add the two cross interactions as their own
-    FDR'd, flagged electrode-definition groups.
+    Drop-in `labels` for `cmh_conjunction`.
 
-    The four interaction groups (each a balanced 2x2 difference-of-differences,
-    FDR'd across electrodes, flagged at `alpha`):
+    The four interaction groups are named `{condition}P{modulator}` -- each a
+    balanced 2x2 difference-of-differences, FDR'd across electrodes, flagged at
+    `alpha`:
 
-    - `S`  (LWPC / stability)  <= congruency x incongruent_proportion
-    - `F`  (LWPS / flexibility) <= switchType x switch_proportion
-    - `CS`                      <= congruency x switch_proportion   (cross)
-    - `SI`                      <= switchType x incongruent_proportion (cross)
+    - `CPC` = congruency x proportion-congruent (incongruent_proportion) -- LWPC / stability
+    - `SPS` = switchType x switch-proportion                             -- LWPS / flexibility
+    - `CPS` = congruency x switch-proportion                             -- cross
+    - `SPC` = switchType x proportion-congruent (incongruent_proportion) -- cross
 
-    Why the two cross interactions are now *defined* groups, not just report-only
-    p-values: the decoding battery (§4) decodes a 2x2 of {contrast} x {block
-    modulator}, and every one of those four decode cells is the readout analog of
-    one of these four interactions. To keep the decoding non-circular we must be
-    able to name the electrode set each cell would double-dip on -- i.e. we need
-    the CS/SI electrode groups, not only the CS/SI p-values. In *univariate HG*
-    the two cross interactions are still expected to be ~null, so their surviving
-    counts double as the specificity control they always were (`include_cross_
-    controls=False` drops them for the pure S/F conjunction path).
+    Why the two cross interactions (CPS, SPC) are *defined* groups, not just
+    report-only p-values: the decoding battery (§4) decodes a 2x2 of {contrast} x
+    {block modulator}, and every one of those four decode cells is the readout
+    analog of one of these four interactions. To keep the decoding non-circular we
+    must be able to name the electrode set each cell would double-dip on -- i.e.
+    we need the CPS/SPC electrode groups, not only their p-values. In *univariate
+    HG* the two cross interactions are still expected to be ~null, so their
+    surviving counts double as the specificity control they always were
+    (`include_cross_controls=False` drops them for the pure conjunction path).
+
+    Columns per group `G` in {CPC, SPS, CPS, SPC}: `p_<g>`, `F_<g>`, `q_<g>`,
+    `<g>_sign`, and the binary flag `G` (lowercase `<g>` in the effect columns).
+    **Backward-compatible aliases** are also emitted so the conjunction / anatomy
+    / brain-behavior stack keeps working unchanged: `S` = `CPC`, `F` = `SPS`, and
+    the older effect columns `p_cong`/`q_cong`/`F_cong`/`s_sign` (= the CPC
+    columns) and `p_switch`/`q_switch`/`F_switch`/`f_sign` (= the SPS columns).
 
     The ANOVA F is UNSIGNED, so the direction (whether the effect grows the
     predicted way) is taken from the module's own equal-cell-weight estimator
@@ -789,48 +794,39 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     sign (`require_sign`)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
+    # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
+    # mod_sublabel). The sub-label columns were attached by _canonical_labels:
+    # _scond=congruency, _smod=incongruent_proportion, _fcond=switchType,
+    # _fmod=switch_proportion -- so the two cross specs are just those recombined.
+    specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+             ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+    if include_cross_controls:
+        specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+                  ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
         hg = g['hg'].to_numpy()
-        scond, smod = g['_scond'].to_numpy(), g['_smod'].to_numpy()   # congruency, inc_prop
-        fcond, fmod = g['_fcond'].to_numpy(), g['_fmod'].to_numpy()   # switchType, switch_prop
-        st = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
-        fl = _anova_interaction_stats(g, 'switchType', 'switch_proportion')
-        s_sign = np.sign(_interaction_effect(hg, scond, smod, 'cohens_d', alpha))
-        f_sign = np.sign(_interaction_effect(hg, fcond, fmod, 'cohens_d', alpha))
-        rec = dict(subject=subj, electrode=elec,
-                   p_cong=st['p'], F_cong=st['F'], s_sign=s_sign,
-                   p_switch=fl['p'], F_switch=fl['F'], f_sign=f_sign)
-        if include_cross_controls:                        # cross interactions -> real groups
-            cs = _anova_interaction_stats(g, 'congruency', 'switch_proportion')
-            si = _anova_interaction_stats(g, 'switchType', 'incongruent_proportion')
-            # reuse the already-attached sub-factor labels: CS = congruency (_scond)
-            # x switch_proportion (_fmod); SI = switchType (_fcond) x inc_prop (_smod).
-            rec['p_cross_cs'] = cs['p']; rec['F_cross_cs'] = cs['F']
-            rec['p_cross_si'] = si['p']; rec['F_cross_si'] = si['F']
-            rec['cs_sign'] = np.sign(_interaction_effect(hg, scond, fmod, 'cohens_d', alpha))
-            rec['si_sign'] = np.sign(_interaction_effect(hg, fcond, smod, 'cohens_d', alpha))
+        rec = dict(subject=subj, electrode=elec)
+        for name, cond_col, mod_col, cond_sub, mod_sub in specs:
+            stats = _anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+            rec[f'p_{name}'] = stats['p']
+            rec[f'F_{name}'] = stats['F']
+            rec[f'{name}_sign'] = np.sign(_interaction_effect(     # signed d-o-d direction
+                hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
         recs.append(rec)
     out = pd.DataFrame(recs)
-    out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
-    out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
-    S = out['q_cong'] < alpha
-    F = out['q_switch'] < alpha
-    if require_sign:                                      # keep only predicted-direction growth
-        S = S & (out['s_sign'] > 0)
-        F = F & (out['f_sign'] > 0)
-    out['S'] = S.astype(int)
-    out['F'] = F.astype(int)
-    if include_cross_controls:
-        out['q_cross_cs'] = multipletests(out['p_cross_cs'].fillna(1), method='fdr_bh')[1]
-        out['q_cross_si'] = multipletests(out['p_cross_si'].fillna(1), method='fdr_bh')[1]
-        CS = out['q_cross_cs'] < alpha
-        SI = out['q_cross_si'] < alpha
-        if require_sign:
-            CS = CS & (out['cs_sign'] > 0)
-            SI = SI & (out['si_sign'] > 0)
-        out['CS'] = CS.astype(int)
-        out['SI'] = SI.astype(int)
+    for name, *_ in specs:
+        out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+        flag = out[f'q_{name}'] < alpha
+        if require_sign:                                  # keep only predicted-direction growth
+            flag = flag & (out[f'{name}_sign'] > 0)
+        out[name.upper()] = flag.astype(int)
+    # backward-compatible aliases (the stability/flexibility pair + old effect names)
+    out['S'] = out['CPC']; out['F'] = out['SPS']
+    out['p_cong'] = out['p_cpc']; out['q_cong'] = out['q_cpc']
+    out['F_cong'] = out['F_cpc']; out['s_sign'] = out['cpc_sign']
+    out['p_switch'] = out['p_sps']; out['q_switch'] = out['q_sps']
+    out['F_switch'] = out['F_sps']; out['f_sign'] = out['sps_sign']
     return out
 
 

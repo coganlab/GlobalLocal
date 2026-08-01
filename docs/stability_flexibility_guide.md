@@ -150,16 +150,23 @@ mean difference.
 ### 3.2 The four groups and the double-dipping rule
 
 We now define **all four** two-way interactions as electrode-selection groups, not
-just the two constructs of interest:
+just the two constructs of interest. Each is named **`{condition}P{modulator}`**:
 
 | Flag | Interaction | Meaning |
 |---|---|---|
-| `S`  | congruency × incongruent_proportion | **LWPC** (stability) |
-| `F`  | switchType × switch_proportion | **LWPS** (flexibility) |
-| `CS` | congruency × switch_proportion | cross (a *flexibility* manipulation moving a *stability* readout) |
-| `SI` | switchType × incongruent_proportion | cross (a *stability* manipulation moving a *flexibility* readout) |
+| `CPC` | **C**ongruency × **P**roportion-**C**ongruent (incongruent_proportion) | **LWPC** (stability) |
+| `SPS` | **S**witch-type × **P**roportion-**S**witch (switch_proportion) | **LWPS** (flexibility) |
+| `CPS` | **C**ongruency × **P**roportion-**S**witch | cross (a *flexibility* manipulation moving a *stability* readout) |
+| `SPC` | **S**witch-type × **P**roportion-**C**ongruent | cross (a *stability* manipulation moving a *flexibility* readout) |
 
-In **univariate HG** the two cross groups (`CS`, `SI`) are expected to be
+> **Naming.** These replace the earlier `S`/`F`/`CS`/`SI` labels. `CPC` and `SPS`
+> are still the stability and flexibility constructs; the code keeps `S` = `CPC`
+> and `F` = `SPS` as backward-compatible aliases so the conjunction/anatomy stack
+> is untouched (`cmh_conjunction` still works on `S`/`F`). "Proportion-congruent"
+> is the classic LWPC term; the modulator column in the data is
+> `incongruent_proportion`.
+
+In **univariate HG** the two cross groups (`CPS`, `SPC`) are expected to be
 near-null — that is their long-standing role as *specificity controls*. So why
 promote them from report-only p-values to full FDR'd, flagged electrode groups?
 
@@ -169,10 +176,10 @@ analog of exactly one of these four interactions:**
 
 | Decode cell (what × split-by) | Readout analog of |
 |---|---|
-| congruency × inc-prop | `S` (LWPC) |
-| switchType × switch-prop | `F` (LWPS) |
-| congruency × switch-prop | `CS` |
-| switchType × inc-prop | `SI` |
+| congruency × inc-prop | `CPC` (LWPC) |
+| switchType × switch-prop | `SPS` (LWPS) |
+| congruency × switch-prop | `CPS` |
+| switchType × inc-prop | `SPC` |
 
 **The rule (bullet 1's "ignore the diagonal").** When a decode cell is restricted
 to the electrode set that *the same interaction* defined, its accuracy is
@@ -188,10 +195,10 @@ The diagonal map lives in code as a single table, so nothing hand-tracks it:
 ```python
 # src/analysis/decoding/cross_decoding.py
 DEFINITION_DECODE_DIAGONAL = {
-    "S":  ("congruency", "incongruent_proportion"),   # LWPC  = congruency x inc_prop
-    "F":  ("switchType", "switch_proportion"),         # LWPS  = switchType x switch_prop
-    "CS": ("congruency", "switch_proportion"),         # cross = congruency x switch_prop
-    "SI": ("switchType", "incongruent_proportion"),    # cross = switchType x inc_prop
+    "CPC": ("congruency", "incongruent_proportion"),   # congruency x proportion-congruent (LWPC)
+    "SPS": ("switchType", "switch_proportion"),         # switchType x switch-proportion (LWPS)
+    "CPS": ("congruency", "switch_proportion"),         # congruency x switch-proportion (cross)
+    "SPC": ("switchType", "incongruent_proportion"),    # switchType x proportion-congruent (cross)
 }
 ```
 
@@ -222,14 +229,14 @@ def is_circular_decode(definition_group, contrast, block_col):
 - **`diag == (contrast, block_col)`** is an exact tuple match, not a
   `contrast in diag` membership test, because a cell is only circular when *both*
   the decoded contrast **and** the block modulator match the defining interaction.
-  Decoding congruency split by *switch*-prop on `S` electrodes is off-diagonal
-  (clean) even though the contrast `congruency` appears in `S`'s diagonal.
+  Decoding congruency split by *switch*-prop on `CPC` electrodes is off-diagonal
+  (clean) even though the contrast `congruency` appears in `CPC`'s diagonal.
 
 The DCC orchestrator (`stability_flexibility_cross_decoding_dcc.py`) builds the
 four groups and runs the per-group 2×2, skipping the diagonal:
 
 ```python
-for gflag, elset in interaction_groups.items():         # S, F, CS, SI
+for gflag, elset in interaction_groups.items():         # CPC, SPS, CPS, SPC
     ...
     for contrast, block_col in decode_cells:            # the four decode cells
         if cd.is_circular_decode(gflag, contrast, block_col):
@@ -264,99 +271,94 @@ work = _canonical_labels(df, contrasts)      # attaches _scond/_smod/_fcond/_fmo
   disagree on direction.
 
 ```python
+specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+         ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+if include_cross_controls:
+    specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+              ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
+```
+- **One spec table drives all four interactions.** Each row is `(flag, condition
+  column, modulator column, condition sub-label, modulator sub-label)`. *Why a
+  data-driven list rather than four copy-pasted blocks:* the four interactions are
+  the *same computation* on different column pairs, so expressing them as data
+  removes the risk that a future edit fixes a bug in the `CPC` branch but not the
+  `SPS` one. Note the two cross specs (`cps`, `spc`) are just the construct
+  sub-labels **recombined** — `cps` pairs congruency (`_scond`) with switch-prop
+  (`_fmod`); `spc` pairs switchType (`_fcond`) with inc-prop (`_smod`) — which is
+  exactly why `_canonical_labels` attaches all four sub-labels up front. Appending
+  the cross specs only under `include_cross_controls` is what makes the pure
+  conjunction path (`include_cross_controls=False`) byte-for-byte unchanged.
+
+```python
 for (subj, elec), g in work.groupby(['subject', 'electrode']):
     hg = g['hg'].to_numpy()
-    scond, smod = g['_scond'].to_numpy(), g['_smod'].to_numpy()
-    fcond, fmod = g['_fcond'].to_numpy(), g['_fmod'].to_numpy()
+    rec = dict(subject=subj, electrode=elec)
+    for name, cond_col, mod_col, cond_sub, mod_sub in specs:
+        stats = _anova_interaction_stats(g, cond_col, mod_col)     # Type III, sum-coded
+        rec[f'p_{name}'] = stats['p']
+        rec[f'F_{name}'] = stats['F']
+        rec[f'{name}_sign'] = np.sign(_interaction_effect(         # signed d-o-d direction
+            hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
 ```
-- One ANOVA **per electrode** (grouped by `(subject, electrode)`). Electrode ids
-  are subject-scoped (`f'{subject}_{elec}'`) so two subjects' "channel 5" never
-  collide in the groupby.
-
-```python
-    st = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
-    fl = _anova_interaction_stats(g, 'switchType', 'switch_proportion')
-```
+- One ANOVA **per electrode** (grouped by `(subject, electrode)`; electrode ids are
+  subject-scoped `f'{subject}_{elec}'`, so two subjects' "channel 5" never
+  collide), looping the spec table so all four interactions get the identical
+  treatment.
 - **`_anova_interaction_stats`** fits `hg ~ C(a, Sum) * C(b, Sum)` and pulls the
-  interaction row's `F` and `PR(>F)` from `anova_lm(model, typ=3)`. The
-  **`Sum` (effect) coding + Type III** is the whole subtlety — see §4's coding
-  note. It is wrapped in try/except → `NaN` for a singular fit (an electrode
-  missing a 2×2 cell), mirroring how the effect helpers return `NaN` for too-few
-  trials, so one degenerate electrode never crashes the sweep.
-
-```python
-    s_sign = np.sign(_interaction_effect(hg, scond, smod, 'cohens_d', alpha))
-    f_sign = np.sign(_interaction_effect(hg, fcond, fmod, 'cohens_d', alpha))
-```
+  interaction row's `F` and `PR(>F)` from `anova_lm(model, typ=3)`. The **`Sum`
+  (effect) coding + Type III** is the whole subtlety — see §4's coding note. It is
+  wrapped in try/except → `NaN` for a singular fit (an electrode missing a 2×2
+  cell), so one degenerate electrode never crashes the sweep.
 - **The ANOVA F is unsigned**; the difference-of-differences can grow the
-  *predicted* way or the opposite. We take the sign from the module's own
+  *predicted* way or the opposite. The sign comes from the module's own
   equal-cell-weight estimator `_interaction_effect(..., 'cohens_d')` — *the very
   quantity the §5 continuous correlation uses* — so the sign the labels carry and
-  the sign the correlation sees can never disagree. (Using `np.sign` of the F, or
-  of a treatment-coded contrast, would risk exactly that disagreement.)
+  the sign the correlation sees can never disagree. (Signing off the F, or off a
+  treatment-coded contrast, would risk exactly that disagreement.)
 
 ```python
-    if include_cross_controls:
-        cs = _anova_interaction_stats(g, 'congruency', 'switch_proportion')
-        si = _anova_interaction_stats(g, 'switchType', 'incongruent_proportion')
-        rec['p_cross_cs'] = cs['p']; rec['F_cross_cs'] = cs['F']
-        rec['p_cross_si'] = si['p']; rec['F_cross_si'] = si['F']
-        rec['cs_sign'] = np.sign(_interaction_effect(hg, scond, fmod, 'cohens_d', alpha))
-        rec['si_sign'] = np.sign(_interaction_effect(hg, fcond, smod, 'cohens_d', alpha))
-```
-- **The two cross interactions**, now recorded with F, p, and sign — the same
-  three quantities as S/F. *Why the sign reuses the already-attached sub-factors*:
-  `CS` = congruency (`scond`) × switch-prop (`fmod`); `SI` = switchType (`fcond`)
-  × inc-prop (`smod`). No new label construction is needed — the four cross
-  sub-factors are just the S and F sub-factors recombined, which is exactly why
-  `_canonical_labels` attaches all four up front.
-
-```python
-out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
-out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
-```
-- **FDR across electrodes**, per interaction, on the p-values. `fillna(1)` makes a
-  singular-fit electrode (p = NaN) count as "not significant" rather than dropping
-  it, so the number of tests in the FDR denominator stays honest (dropping NaNs
-  would inflate every other electrode's significance).
-
-```python
-S = out['q_cong'] < alpha
-F = out['q_switch'] < alpha
-if require_sign:
-    S = S & (out['s_sign'] > 0)
-    F = F & (out['f_sign'] > 0)
-out['S'] = S.astype(int); out['F'] = F.astype(int)
-```
-- Flag at `alpha` on the FDR q-value. **`require_sign`** optionally keeps only
-  electrodes whose effect grows in the *predicted* (positive) direction — an
-  electrode whose congruency effect *shrinks* with inc-proportion is a significant
-  interaction but not an LWPC electrode. It is a parameter, not hard-coded on,
-  because the conjunction sometimes wants the symmetric "any interaction" set.
-
-```python
-if include_cross_controls:
-    out['q_cross_cs'] = multipletests(out['p_cross_cs'].fillna(1), method='fdr_bh')[1]
-    out['q_cross_si'] = multipletests(out['p_cross_si'].fillna(1), method='fdr_bh')[1]
-    CS = out['q_cross_cs'] < alpha
-    SI = out['q_cross_si'] < alpha
+for name, *_ in specs:
+    out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+    flag = out[f'q_{name}'] < alpha
     if require_sign:
-        CS = CS & (out['cs_sign'] > 0); SI = SI & (out['si_sign'] > 0)
-    out['CS'] = CS.astype(int); out['SI'] = SI.astype(int)
+        flag = flag & (out[f'{name}_sign'] > 0)
+    out[name.upper()] = flag.astype(int)
 ```
-- The **new** block: the cross interactions get their own FDR sweep and flags,
-  turning them into full selection groups. *Why a separate FDR per interaction*
-  rather than one FDR over all four pooled: each interaction is a distinct family
-  of hypotheses with its own null rate; pooling them would let a strong S effect
-  borrow significance for a weak CS effect. Keeping `CS`/`SI` under
-  `include_cross_controls` means the pure S/F conjunction path
-  (`include_cross_controls=False`) is byte-for-byte unchanged — backward
-  compatibility the tests pin down.
+- **FDR across electrodes, per interaction**, then flag at `alpha` on the q-value.
+  `fillna(1)` makes a singular-fit electrode (p = NaN) count as "not significant"
+  rather than dropping it, so the FDR denominator stays honest (dropping NaNs would
+  inflate every other electrode's significance). *Why a separate FDR per
+  interaction* rather than one pooled FDR over all four: each interaction is a
+  distinct hypothesis family with its own null rate; pooling would let a strong
+  `CPC` effect borrow significance for a weak `CPS` effect.
+- **`require_sign`** optionally keeps only electrodes whose effect grows in the
+  *predicted* (positive) direction — an electrode whose congruency effect *shrinks*
+  with inc-proportion is a significant interaction but not a `CPC` electrode. It is
+  a parameter, not hard-coded on, because the conjunction sometimes wants the
+  symmetric "any interaction" set. `name.upper()` turns `cpc → CPC`, so the flag
+  column and the effect columns share one source of truth.
 
-**Output contract.** One row per electrode with `subject, electrode, S, F` (and,
-under `include_cross_controls`, `CS, SI`), plus each interaction's `F`, `p`, `q`,
-and sign. Because `subject, S, F` are present and column-compatible with
-`per_electrode_labels`, the table drops straight into `cmh_conjunction` unchanged.
+```python
+out['S'] = out['CPC']; out['F'] = out['SPS']
+out['p_cong'] = out['p_cpc']; out['q_cong'] = out['q_cpc']
+out['F_cong'] = out['F_cpc']; out['s_sign'] = out['cpc_sign']
+out['p_switch'] = out['p_sps']; out['q_switch'] = out['q_sps']
+out['F_switch'] = out['F_sps']; out['f_sign'] = out['sps_sign']
+```
+- **Backward-compatible aliases.** `CPC`/`SPS` are the stability/flexibility
+  constructs, so the conjunction, anatomy (`attach_roi`/`_derive_group`), and
+  brain-behavior code that keys on `S`/`F` and the old `p_cong`/`q_cong`/… effect
+  columns keeps working unchanged. *Why alias rather than rename everywhere:* `S`
+  (stability) and `F` (flexibility) are a meaningful two-construct abstraction the
+  whole `cmh_conjunction` machinery is built on; the four-way `CPC/SPS/CPS/SPC`
+  names describe the *contrasts*. Keeping both lets the conjunction speak in
+  constructs while the electrode-definition/decoding layer speaks in contrasts.
+
+**Output contract.** One row per electrode with the four flags `CPC, SPS`
+(and, under `include_cross_controls`, `CPS, SPC`), each with `p_<g>`, `F_<g>`,
+`q_<g>`, `<g>_sign`, plus the `S`/`F` and old-effect-column aliases. Because
+`subject, S, F` are present and column-compatible with `per_electrode_labels`, the
+table drops straight into `cmh_conjunction` unchanged.
 
 ### 3.4 Line-by-line: the balanced difference-of-differences (`_interaction_cohens_d`)
 
@@ -409,7 +411,7 @@ temporal, cluster-corrected interaction test, emitting a signed graded scalar.
 - **Anatomy (A3):** `stability_flexibility_anatomy.py` calls
   `per_electrode_anova_labels(contrast_mode='proportion')` for its S/F groups.
 - **Cross-decoding (A4):** `_electrode_groups` builds `both/S_only/F_only` and
-  `_interaction_groups` builds the four `S/F/CS/SI` selection sets used by the
+  `_interaction_groups` builds the four `CPC/SPS/CPS/SPC` selection sets used by the
   per-group 2×2 with the diagonal skipped (§3.2).
 - **Brain plots (A3 vis):** re-pointing the brain maps at A1's groups (rather than
   the `power_traces` sig-chans) is the remaining wiring task — see §4's "which
@@ -477,7 +479,7 @@ temporal, cluster-corrected interaction test *and* emits it in the right shape:
 - **`USE_TIME_PERM_CLUSTER=True`** swaps the fast parametric threshold for the real
   `ieeg.calc.stats.time_perm_cluster` permutation mask.
 - **"Keep electrodes with any surviving cluster"** is then simply thresholding that
-  cluster mass at its permutation-significant value → the same S/F/CS/SI flags,
+  cluster mass at its permutation-significant value → the same CPC/SPS/CPS/SPC flags,
   computed from the *temporal* statistic.
 
 So the principled recommendation is: **run A1 with `effect_measure='cluster'` as
@@ -520,7 +522,7 @@ brain-map / ROI-histogram / F-trace visualizers read **power_traces**
 (`dcc_scripts/vis/plot_sig_electrodes_dcc.py` imports
 `load_significant_electrodes`; `power_traces_anova_f_traces_vis.py` reads the
 F-trace `.npz`). A1's labels currently feed only the segregation statistics.
-Re-pointing the anatomical brain plots at A1's S/F/CS/SI groups is assignment **A3**
+Re-pointing the anatomical brain plots at A1's CPC/SPS/CPS/SPC groups is assignment **A3**
 and is not fully wired. Once done, `power_traces` stops being a *competing
 electrode definition* and becomes your **temporal-profile figure** (the F-traces:
 "when does the effect emerge") — a different question, so it raises no reviewer
@@ -748,7 +750,7 @@ The dependency chain is **A0 → A1 → {A2, A3, A6} → A4 → A5**:
 
 1. **A0 — get the pipeline running and read the segregation module.** Everything
    either calls into or mirrors `stability_flexibility_segregation.py`.
-2. **A1 — electrode definition** (§3). Produces the S/F/CS/SI labels every later
+2. **A1 — electrode definition** (§3). Produces the CPC/SPS/CPS/SPC labels every later
    step consumes. Nothing downstream is trustworthy until A1 is.
 3. **A2 — conjunction** (§5). Needs A1's labels. Natural next step: it and A1 share
    most scaffolding.
