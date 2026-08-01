@@ -747,6 +747,12 @@ unit-tested primitives and one orchestration helper:
 | `select_responsive_channels(window_means, baseline_means, alpha)` | Held-out selector: per-channel responsiveness t-test with **FDR across channels**; drops dead/zero-variance channels. Run on the *definition* partition only. |
 | `apply_electrode_definition_split(subjects_mne_objects, electrodes, rois, ...)` | Orchestration glue: splits every `(subject, condition)` epochs object, selects responsive channels on the pooled definition trials, restricts `electrodes` to them, and returns the **decode partition** so the decoder never sees the definition trials. |
 
+**Tutorial:** `src/analysis/decoding/trial_splitting_tutorial.ipynb` — a
+synthetic, runs-anywhere walk-through of every primitive, including the
+double-dipping demo (selecting on the scored trials inflates accuracy on
+pure-noise data; the disjoint split returns it to chance) and a guarded MNE
+`apply_electrode_definition_split` example.
+
 **Tests:** `tests/analysis/decoding/test_trial_splitting.py` (16 tests — disjointness,
 stratum-proportion preservation, determinism, singleton handling, the FDR selector,
 zero-variance rejection). The primitives carry the correctness guarantees; the
