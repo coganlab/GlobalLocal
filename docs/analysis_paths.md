@@ -529,13 +529,16 @@ battery attacks that one question from six complementary angles. Each angle is a
 numbered assignment (`A1`–`A6`) with a production module, a **tutorial
 notebook**, and — for A1–A4 — a **DCC launcher**.
 
-**The two governing documents** (read these for the *why*):
-- `docs/stability_flexibility_analysis_plan.md` — the scientific plan; §0 is the
-  cross-cutting statistical-rigor checklist (double-dipping, disjoint halves,
-  power matching, FDR, coverage bias, latency–amplitude, decoding confounds).
-- `docs/stability_flexibility_coding_assignments.md` — the staged build plan;
-  each assignment states why it exists, where the code goes, and its acceptance
-  criteria. Runnable stubs live in `docs/skeletons/aN_*.py`.
+**The governing document** (read this for the *why*, the how, and the run order):
+- **`docs/stability_flexibility_guide.md`** — the single merged guide: scientific
+  plan, the §2 statistical-rigor checklist, the **four-interaction electrode
+  definition** and the double-dipping "ignore the diagonal decode" rule (§3), the
+  window-mean vs per-timepoint-cluster ANOVA decision (§4), the staged build plan
+  and run order (§9), and line-by-line function walk-throughs. It supersedes the
+  former `stability_flexibility_analysis_plan.md`,
+  `stability_flexibility_coding_assignments.md`, and
+  `decoding_and_electrode_definition_notes.md` (now redirect stubs). Runnable
+  stubs still live in `docs/skeletons/aN_*.py`.
 
 **Learn-by-doing sandbox.** `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb`
 is a single notebook that walks A1→A6 with fill-in-the-blank cells, on-demand

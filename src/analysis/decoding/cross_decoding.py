@@ -96,6 +96,48 @@ def resolve_contrast(contrast):
 
 
 # ---------------------------------------------------------------------------
+# Double-dipping guard for the electrode-definition <-> decode diagonal
+# ---------------------------------------------------------------------------
+# Electrodes are defined by one of the FOUR two-way interactions
+# (`per_electrode_anova_labels`: CPC, SPS, CPS, SPC -- named {condition}P{modulator}).
+# The within-block decoding 2x2 decodes {contrast} split by {block modulator}, and
+# each of those four decode cells is the multivariate readout analog of exactly one
+# interaction. Decoding a cell on the electrode set that same interaction *defined*
+# is circular (double-dipping / selection bias, plan §0.1): the electrodes were
+# chosen for having that very difference-of-differences, so its decodability is
+# guaranteed to be inflated. The clean cells are the OFF-diagonal ones (define on
+# one interaction, decode a different cell) -- the "define on LWPC, test LWPS"
+# workhorse generalized to all four groups.
+#
+# Map: definition-group flag -> the (decode contrast, block modulator) it must
+# NOT be scored on. Use `circular_decode_for_group` / `is_circular_decode`
+# below to skip (or flag) the diagonal cell when a decode is restricted to a
+# defined electrode group.
+DEFINITION_DECODE_DIAGONAL = {
+    "CPC": ("congruency", "incongruent_proportion"),   # congruency x proportion-congruent (LWPC)
+    "SPS": ("switchType", "switch_proportion"),         # switchType x switch-proportion (LWPS)
+    "CPS": ("congruency", "switch_proportion"),         # congruency x switch-proportion (cross)
+    "SPC": ("switchType", "incongruent_proportion"),    # switchType x proportion-congruent (cross)
+}
+
+
+def circular_decode_for_group(definition_group):
+    """The (contrast, block_col) within-block decode cell that would double-dip on
+    electrodes selected by `definition_group` ('CPC'|'SPS'|'CPS'|'SPC'), or None if
+    the group name is unknown (e.g. 'both', 'all' -- not a single interaction)."""
+    return DEFINITION_DECODE_DIAGONAL.get(definition_group)
+
+
+def is_circular_decode(definition_group, contrast, block_col):
+    """True when decoding `contrast` split by `block_col` on the `definition_group`
+    electrode set is on the *defining* interaction (double-dipping) and its result
+    must be ignored. Off-diagonal (cross) cells return False -- those are the
+    non-circular tests to keep."""
+    diag = circular_decode_for_group(definition_group)
+    return diag is not None and diag == (contrast, block_col)
+
+
+# ---------------------------------------------------------------------------
 # classifier
 # ---------------------------------------------------------------------------
 def _sklearn_pipeline(explained_variance=0.8, random_state=None):
