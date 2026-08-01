@@ -200,11 +200,29 @@ ELECTRODES = 'sig'
 # accuracy. Off by default so existing runs reproduce. See
 # docs/decoding_and_electrode_definition_notes.md §C. VALIDATE on one subject
 # before a full re-run.
-ELECTRODE_DEFINITION_SPLIT = False
-ELECTRODE_DEFINITION_SPLIT_FRAC = 0.5          # fraction of trials used to define electrodes
-ELECTRODE_DEFINITION_SPLIT_STRATA = ['congruency', 'switchType', 'blockType']
-ELECTRODE_DEFINITION_SPLIT_SEED = 0
-ELECTRODE_DEFINITION_SPLIT_ALPHA = 0.05        # FDR q for the held-out responsiveness selector
+#
+# Every value below can be overridden from the environment so a submit/sbatch
+# script can turn the split on without editing this file (the hardcoded values
+# are the defaults). The dedicated launcher
+# ``submit_decoding_with_electrode_definition_split_dcc.sh`` sets these.
+def _env_bool(name, default):
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+ELECTRODE_DEFINITION_SPLIT = _env_bool('ELECTRODE_DEFINITION_SPLIT', False)
+ELECTRODE_DEFINITION_SPLIT_FRAC = float(
+    os.environ.get('ELECTRODE_DEFINITION_SPLIT_FRAC', 0.5))   # fraction of trials used to define electrodes
+ELECTRODE_DEFINITION_SPLIT_STRATA = (
+    os.environ['ELECTRODE_DEFINITION_SPLIT_STRATA'].split(',')
+    if os.environ.get('ELECTRODE_DEFINITION_SPLIT_STRATA')
+    else ['congruency', 'switchType', 'blockType'])
+ELECTRODE_DEFINITION_SPLIT_SEED = int(
+    os.environ.get('ELECTRODE_DEFINITION_SPLIT_SEED', 0))
+ELECTRODE_DEFINITION_SPLIT_ALPHA = float(
+    os.environ.get('ELECTRODE_DEFINITION_SPLIT_ALPHA', 0.05))  # FDR q for the held-out responsiveness selector
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
@@ -289,6 +307,12 @@ def run_analysis():
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
+    print(f"Electrode-definition split:    {ELECTRODE_DEFINITION_SPLIT}"
+          + (f" (frac_def={ELECTRODE_DEFINITION_SPLIT_FRAC}, "
+             f"strata={ELECTRODE_DEFINITION_SPLIT_STRATA}, "
+             f"seed={ELECTRODE_DEFINITION_SPLIT_SEED}, "
+             f"alpha={ELECTRODE_DEFINITION_SPLIT_ALPHA})"
+             if ELECTRODE_DEFINITION_SPLIT else ""))
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")
     print(f"Balance strata:     {BALANCE_STRATA}")
