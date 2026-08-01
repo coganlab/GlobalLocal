@@ -1,5 +1,12 @@
 # A4 — Cross-decoding of the stability/flexibility subpopulations
 
+> **Method & rationale:** see the merged guide
+> [`docs/stability_flexibility_guide.md`](../../docs/stability_flexibility_guide.md)
+> — §7.1 (cross-decoding), and §3.2 for the four interaction-defined electrode
+> groups and the **ignore-the-diagonal** double-dipping rule this job now applies
+> (`within_block_by_group` in the outputs).
+
+
 Runs the representation-level test in `src/analysis/decoding/cross_decoding.py` on
 the cluster: co-localization (A1/A2) shows the *same electrodes* are selective for
 both **stability** (LWPC) and **flexibility** (LWPS), but does an electrode carry

@@ -756,53 +756,77 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
 def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
                                contrasts=None, include_cross_controls=True,
                                require_sign=False):
-    """Parametric per-electrode S (stability/LWPC) and F (flexibility/LWPS) labels
-    from the two-way interaction ANOVA. Drop-in `labels` for `cmh_conjunction`:
-    output columns match `per_electrode_labels` (subject, electrode, p_cong,
-    q_cong, S, p_switch, q_switch, F, plus signs and cross-control p-values).
+    """Parametric per-electrode selectivity labels from the two-way interaction
+    ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
+    Drop-in `labels` for `cmh_conjunction`.
 
-    - LWPC electrode <= significant congruency x incongruent_proportion interaction.
-    - LWPS electrode <= significant switchType x switch_proportion interaction.
+    The four interaction groups are named `{condition}P{modulator}` -- each a
+    balanced 2x2 difference-of-differences, FDR'd across electrodes, flagged at
+    `alpha`:
+
+    - `CPC` = congruency x proportion-congruent (incongruent_proportion) -- LWPC / stability
+    - `SPS` = switchType x switch-proportion                             -- LWPS / flexibility
+    - `CPS` = congruency x switch-proportion                             -- cross
+    - `SPC` = switchType x proportion-congruent (incongruent_proportion) -- cross
+
+    Why the two cross interactions (CPS, SPC) are *defined* groups, not just
+    report-only p-values: the decoding battery (§4) decodes a 2x2 of {contrast} x
+    {block modulator}, and every one of those four decode cells is the readout
+    analog of one of these four interactions. To keep the decoding non-circular we
+    must be able to name the electrode set each cell would double-dip on -- i.e.
+    we need the CPS/SPC electrode groups, not only their p-values. In *univariate
+    HG* the two cross interactions are still expected to be ~null, so their
+    surviving counts double as the specificity control they always were
+    (`include_cross_controls=False` drops them for the pure conjunction path).
+
+    Columns per group `G` in {CPC, SPS, CPS, SPC}: `p_<g>`, `F_<g>`, `q_<g>`,
+    `<g>_sign`, and the binary flag `G` (lowercase `<g>` in the effect columns).
+    **Backward-compatible aliases** are also emitted so the conjunction / anatomy
+    / brain-behavior stack keeps working unchanged: `S` = `CPC`, `F` = `SPS`, and
+    the older effect columns `p_cong`/`q_cong`/`F_cong`/`s_sign` (= the CPC
+    columns) and `p_switch`/`q_switch`/`F_switch`/`f_sign` (= the SPS columns).
 
     The ANOVA F is UNSIGNED, so the direction (whether the effect grows the
     predicted way) is taken from the module's own equal-cell-weight estimator
     `_interaction_effect(..., 'cohens_d')` -- the same quantity the continuous
-    §2 correlation uses. FDR (Benjamini-Hochberg) across electrodes sets q; S/F
-    flag at `alpha`, optionally gated on a positive sign (`require_sign`). The
-    two cross interactions (congruency x switch_proportion, switchType x
-    incongruent_proportion) are recorded as specificity controls, never selected
-    on (they should be ~null)."""
+    §2 correlation uses. FDR (Benjamini-Hochberg) is applied across electrodes
+    per interaction; each flag is set at `alpha`, optionally gated on a positive
+    sign (`require_sign`)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
-    work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/...
+    work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
+    # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
+    # mod_sublabel). The sub-label columns were attached by _canonical_labels:
+    # _scond=congruency, _smod=incongruent_proportion, _fcond=switchType,
+    # _fmod=switch_proportion -- so the two cross specs are just those recombined.
+    specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+             ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+    if include_cross_controls:
+        specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+                  ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
-        st = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
-        fl = _anova_interaction_stats(g, 'switchType', 'switch_proportion')
-        s_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
-                                             g['_scond'].to_numpy(),
-                                             g['_smod'].to_numpy(), 'cohens_d', alpha))
-        f_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
-                                             g['_fcond'].to_numpy(),
-                                             g['_fmod'].to_numpy(), 'cohens_d', alpha))
-        rec = dict(subject=subj, electrode=elec,
-                   p_cong=st['p'], F_cong=st['F'], s_sign=s_sign,
-                   p_switch=fl['p'], F_switch=fl['F'], f_sign=f_sign)
-        if include_cross_controls:                        # specificity controls (report only)
-            rec['p_cross_cs'] = _anova_interaction_stats(
-                g, 'congruency', 'switch_proportion')['p']
-            rec['p_cross_si'] = _anova_interaction_stats(
-                g, 'switchType', 'incongruent_proportion')['p']
+        hg = g['hg'].to_numpy()
+        rec = dict(subject=subj, electrode=elec)
+        for name, cond_col, mod_col, cond_sub, mod_sub in specs:
+            stats = _anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+            rec[f'p_{name}'] = stats['p']
+            rec[f'F_{name}'] = stats['F']
+            rec[f'{name}_sign'] = np.sign(_interaction_effect(     # signed d-o-d direction
+                hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
         recs.append(rec)
     out = pd.DataFrame(recs)
-    out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
-    out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
-    S = out['q_cong'] < alpha
-    F = out['q_switch'] < alpha
-    if require_sign:                                      # keep only predicted-direction growth
-        S = S & (out['s_sign'] > 0)
-        F = F & (out['f_sign'] > 0)
-    out['S'] = S.astype(int)
-    out['F'] = F.astype(int)
+    for name, *_ in specs:
+        out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+        flag = out[f'q_{name}'] < alpha
+        if require_sign:                                  # keep only predicted-direction growth
+            flag = flag & (out[f'{name}_sign'] > 0)
+        out[name.upper()] = flag.astype(int)
+    # backward-compatible aliases (the stability/flexibility pair + old effect names)
+    out['S'] = out['CPC']; out['F'] = out['SPS']
+    out['p_cong'] = out['p_cpc']; out['q_cong'] = out['q_cpc']
+    out['F_cong'] = out['F_cpc']; out['s_sign'] = out['cpc_sign']
+    out['p_switch'] = out['p_sps']; out['q_switch'] = out['q_sps']
+    out['F_switch'] = out['F_sps']; out['f_sign'] = out['sps_sign']
     return out
 
 
