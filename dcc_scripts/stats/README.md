@@ -173,3 +173,203 @@ Written to `results/<epochs_or_synthetic_tag>/anatomy_window_<tmin>to<tmax>s_<el
 **Reading:** a significant test means selectivity-group membership is associated
 with ROI *beyond* what electrode placement forces; per-ROI coverage is reported so
 no claim rests on where the grid happens to be.
+
+---
+
+# A5 — Timing: relative onset of stability vs. flexibility
+
+Does the **LWPC** (stability) interaction arise *earlier* in the trial than the
+**LWPS** (flexibility) interaction, or later? A *sequence* question neither the
+conjunction (A2) nor the cross-decoding (A4) layer speaks to. Analysis code lives
+in `src/analysis/stats/stability_flexibility_timing.py`; a step-by-step
+walk-through is in `stability_flexibility_a5_a6_tutorial.ipynb` (next to that
+module).
+
+## Files
+
+| File | Role |
+|---|---|
+| `stability_flexibility_timing_dcc.py` | Core: assembles the long df in **time-course** mode, builds the per-bin interaction traces, measures onsets/peaks, runs the jackknife, writes figures + `summary.txt`. Exposes `main(args)`. |
+| `run_stability_flexibility_timing_dcc.py` | Entrypoint: sets parameters (env-overridable) and calls `main`. |
+| `sbatch_stability_flexibility_timing_dcc.sh` | SLURM wrapper (`conda activate ieeg` → entrypoint). |
+| `submit_stability_flexibility_timing_dcc.sh` | Sets `EPOCHS_ROOT_FILE`/window/etc. and `sbatch`-submits. |
+
+## Quick start
+
+```bash
+cd dcc_scripts/stats
+# validate the whole path in seconds against a PLANTED onset ordering
+# (stability at 0.20 s, flexibility at 0.40 s — the job should recover both):
+DATA_SOURCE=synthetic bash submit_stability_flexibility_timing_dcc.sh
+# the falsification: plant the REVERSE ordering; the reported sign must flip:
+DATA_SOURCE=synthetic SYNTHETIC_STAB_ONSET=0.40 SYNTHETIC_FLEX_ONSET=0.20 \
+    bash submit_stability_flexibility_timing_dcc.sh
+# real run — set EPOCHS_ROOT_FILE in the submit script, then:
+bash submit_stability_flexibility_timing_dcc.sh
+```
+
+## What it does
+
+0. Runs `_assert_amplitude_invariance` **first** — the latency–amplitude guard as a
+   live assertion (scaling a waveform by `k` must not move its 50 %-of-peak onset).
+   A failure there would invalidate every onset the job goes on to report.
+1. Assembles the long table with `effect_measure='cluster'`, so `hg` holds each
+   trial's **time course** over the window, plus the window time axis
+   (`window_times`, which also verifies every subject shares one axis — bin-by-bin
+   grand-averaging is meaningless otherwise).
+2. `interaction_time_course` per process: the **equal-cell-weight
+   difference-of-differences** of the four `(cond, mod)` cell means per time bin,
+   combined across electrodes. Equal cell weighting keeps the estimate orthogonal
+   to both main effects, so the ~75/25 proportion imbalance can't leak a main
+   effect in as a fake interaction.
+3. `onset_50pct_peak` (onset) and `peak_latency` (shape cross-check) on each trace.
+   Normalizing to each effect's **own** peak is what defeats the latency–amplitude
+   confound: a bigger effect crosses any *absolute* threshold sooner, so without it
+   "earlier" would just rename "larger".
+4. `jackknife_onset_difference`: onsets read off **smooth leave-one-subject-out
+   grand averages**, jackknife SE, and the Ulrich–Miller `(N−1)`-corrected paired
+   *t* on the LWPC − LWPS difference.
+
+## Key knobs (env vars)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DATA_SOURCE` | `real` | `real` = epoched HG time courses; `synthetic` = planted-onset dry run. |
+| `SYNTHETIC_STAB_ONSET` / `SYNTHETIC_FLEX_ONSET` | `0.20` / `0.40` | synthetic only: the planted onsets (s). Swap them for the falsification run. |
+| `SYNTHETIC_N_SUBJ` | `12` | synthetic only: number of subjects. |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `-0.2` / `0.8` | analysis window (s from stimulus onset) — **wider than the A1/A2 default on purpose**: A5 reads a rising flank, so the window must include the baseline and enough post-stimulus time for both effects to turn over. |
+| `ELECTRODES` | `all` | `all` or `sig`. |
+| `STATISTIC` | `mean` | `mean` = grand-average the per-electrode d-o-d(t); `t` = t across electrodes (noise-normalized, often a cleaner flank). |
+| `ALPHA` | `0.05` | significance threshold for the reported verdict. |
+
+## Outputs
+
+Written to `results/<epochs_or_synthetic_tag>/timing_window_<tmin>to<tmax>s_<electrodes>_<statistic>/`:
+
+- `interaction_time_courses.csv` — `time`, `lwpc`, `lwps`: the per-bin
+  difference-of-differences behind every onset (the reusable artifact; the
+  time-course long table itself is far too large to serialize).
+- `jackknife_leave_one_out.csv` — the `N` leave-one-out onset pairs and differences.
+- `onset_difference.json` — full-sample onsets/peaks, the jackknife SE, `t_raw`,
+  `t_corrected`, `p`, and the 95 % CI.
+- `timing_summary.png` — 3 panels: the two traces with onset/peak markers, the
+  leave-one-out onsets, and the distribution of leave-one-out differences.
+- `summary.txt` — printed verdict.
+
+**Reading:** the **sign** of the onset difference says which process's information
+arises first (negative = stability leads); the CI / `(N−1)`-corrected *t* say
+whether that ordering is reliable. Claim an ordering only when **onset and peak
+latency agree** — `summary.txt` checks that for you, and warns instead when an
+effect is still at its ceiling at `WINDOW_TMAX` (its "peak" is then just the last
+bin and carries no latency information — widen the window).
+
+---
+
+# A6 — Brain–behavior correlation
+
+Does the A1 neural selectivity predict the **actual behavioral control
+adjustment**? Analysis code lives in
+`src/analysis/stats/stability_flexibility_brain_behavior.py`; a step-by-step
+walk-through is in `stability_flexibility_a5_a6_tutorial.ipynb`.
+
+## Files
+
+| File | Role |
+|---|---|
+| `stability_flexibility_brain_behavior_dcc.py` | Core: runs A1 for the S/F flags, derives the per-subject behavioral LWPC/LWPS RT magnitudes, runs both correlation levels with their cross-pairing controls, writes figures + `summary.txt`. Exposes `main(args)`. |
+| `run_stability_flexibility_brain_behavior_dcc.py` | Entrypoint: sets parameters (env-overridable) and calls `main`. |
+| `sbatch_stability_flexibility_brain_behavior_dcc.sh` | SLURM wrapper (`conda activate ieeg` → entrypoint). |
+| `submit_stability_flexibility_brain_behavior_dcc.sh` | Sets `EPOCHS_ROOT_FILE`/`BEHAVIOR_CSV`/window/etc. and `sbatch`-submits. |
+
+## Quick start
+
+```bash
+cd dcc_scripts/stats
+# validate the whole path in seconds — a planted matched coupling that beats its
+# cross control at BOTH levels:
+DATA_SOURCE=synthetic bash submit_stability_flexibility_brain_behavior_dcc.sh
+# the falsification: make each neural group drive BOTH adjustments equally;
+# `specificity_ok` must stop holding:
+DATA_SOURCE=synthetic SYNTHETIC_CROSS_FRAC=1.0 \
+    bash submit_stability_flexibility_brain_behavior_dcc.sh
+# real run — set EPOCHS_ROOT_FILE (and BEHAVIOR_CSV if not the repo-root copy):
+bash submit_stability_flexibility_brain_behavior_dcc.sh
+```
+
+## What it does
+
+1. Assembles the same window-mean long table as the A1/A2/A3 jobs and runs the A1
+   electrode definition (`per_electrode_anova_labels`, `contrast_mode='proportion'`)
+   → per-electrode `S`/`F` flags.
+2. **Behavior**: per-subject LWPC/LWPS RT magnitudes from the raw trial table
+   (`combinedData.csv`; `subject_ID` is renamed to `subject` on load) via
+   `behavioral_lwpc_lwps_magnitudes` — the **same** equal-cell-weight
+   difference-of-differences used for the neural interaction, so brain and behavior
+   are measured on the identical contrast.
+3. **(1) Across subjects** (`subject_level_brain_behavior`) for all three neural
+   summaries — `count` (`n_S`/`n_F`), `frac`, and `effect` (mean interaction F) —
+   each with its **cross-pairing** control. Underpowered at *n* = subjects by
+   design; reported with that caveat attached.
+4. **(2) Within subject, single trial** (`trialwise_brain_behavior`) — the powered
+   test. `assemble_trial_table` builds a per-(subject, trial) table with RT and the
+   window-mean HG averaged over the LWPC and LWPS electrode groups; the mixed model
+   `adjustment ~ group HG` with a subject random intercept is then fit for the
+   **matched** and the **cross** adjustment.
+
+### How the trial-level adjustment columns are defined
+
+`trialwise_brain_behavior` deliberately takes the adjustment columns as *input* —
+the operationalization is a design choice, so this job makes it explicit
+(`add_adjustment_columns`). Each adjustment is the trial's **signed contribution to
+the very difference-of-differences the rest of the battery is built on**:
+
+```
+adj_congruency(t) = w(t) * (RT_t − mean RT of that subject)
+w(t) = +1 for (i, high-incongruent) and (c, low-incongruent)
+       −1 for (c, high-incongruent) and (i, low-incongruent)
+```
+
+those being exactly the four cell weights of the LWPC d-o-d — so a subject's mean
+`adj_congruency` *is* their (trial-count-weighted) behavioral LWPC / 4, and a
+positive slope means "trials with more HG in this electrode group push the
+behavioral interaction harder". `adj_switch` is the same construction on
+switchType × switch_proportion. **RT and the group HG are both centered within
+subject**, so the slope is a purely within-subject quantity — with an uncentered
+predictor, between-subject differences in mean HG would leak into the common slope,
+which is exactly what the "within subject" framing is meant to exclude.
+
+## Key knobs (env vars)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `DATA_SOURCE` | `real` | `real` = epoched data + behavioral CSV; `synthetic` = ground-truth dry run. |
+| `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
+| `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only: planted coupling strengths. |
+| `BEHAVIOR_CSV` | repo-root `combinedData.csv` | raw trial-level behavior. |
+| `BEHAVIOR_RT_COL` | `RT` | RT column in that table. |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset). |
+| `ELECTRODES` | `all` | `all` or `sig`. |
+| `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
+| `NEURAL_SUMMARY` | `count` | which per-subject neural summary headlines the across-subject level (`count`/`frac`/`effect`); all three are computed. |
+| `RUN_TRIALWISE` | `1` | set `0` for the across-subject level only (the single-trial level needs per-trial RT in the epochs metadata). |
+
+## Outputs
+
+Written to `results/<epochs_or_synthetic_tag>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<neural_summary>/`:
+
+- `electrode_labels.csv` — the A1 per-electrode S/F labels A6 sits on.
+- `behavioral_magnitudes.csv` — per-subject `lwpc`/`lwps` RT d-o-d (signed, ms).
+- `subject_table_<mode>.csv` — the merged neural × behavioral table per neural summary.
+- `across_subject.json` — matched and cross correlations, `n`, and the caveat.
+- `trial_df.csv` (real runs) — the single-trial table with group HG and both adjustments.
+- `trialwise.json` — matched/cross slopes, p, z, and `specificity_ok` per group.
+- `brain_behavior_summary.png` — 4 panels: both matched scatters, the across-subject
+  specificity bars, and the within-subject slopes with 95 % CIs.
+- `summary.txt` — printed verdict.
+
+**Reading:** the headline is the **specificity gap**, not a p-value. With thousands
+of trials every slope is "significant", so the claim rests on the matched pairing
+being *stronger* than the cross pairing (`specificity_ok`) at both levels. The
+across-subject correlation is reported with its *n* and an honest underpowered
+caveat — a null there is uninformative; the within-subject mixed model is the real
+test.
