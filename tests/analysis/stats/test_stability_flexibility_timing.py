@@ -55,6 +55,40 @@ def test_onset_nan_when_no_effect_in_expected_direction():
     assert np.isfinite(onset_50pct_peak(times, wave, expected_sign=-1))
 
 
+# ---------------------------------------------------------------------------
+# direction-agnostic onset (no assumed modulation direction)
+# ---------------------------------------------------------------------------
+# A neural population's interaction may run either way, so the DEFAULT must read
+# an onset off a shrinking (negative-going) d-o-d rather than returning NaN.
+def test_onset_default_handles_negative_going_interaction():
+    times = np.linspace(-0.2, 0.8, 300)
+    wave = -_bump(times, 0.25, 0.03, 1.0)          # effect shrinks with proportion
+    onset = onset_50pct_peak(times, wave)          # default expected_sign='auto'
+    assert np.isfinite(onset), (
+        "a negative-going interaction yielded no onset under the default — the "
+        "timing analysis appears to assume a modulation direction"
+    )
+
+
+def test_onset_default_is_sign_symmetric():
+    """Flipping the waveform's sign must not move its onset or peak latency."""
+    times = np.linspace(-0.2, 0.8, 300)
+    wave = _bump(times, 0.25, 0.03, 1.0)
+    assert onset_50pct_peak(times, wave) == pytest.approx(
+        onset_50pct_peak(times, -wave))
+    assert peak_latency(times, wave) == pytest.approx(peak_latency(times, -wave))
+
+
+def test_jackknife_default_works_when_both_effects_invert():
+    """Onset ordering is recovered when BOTH interactions run the other way."""
+    df, times = _synthetic_timecourse_df(stab_onset=0.20, flex_onset=0.45, seed=5)
+    df = df.copy()
+    df['hg'] = df['hg'].apply(lambda a: -np.asarray(a, float))   # invert direction
+    jk = jackknife_onset_difference(df, times=times)             # 'auto' signs
+    assert jk['diff'] < 0          # stability still leads
+    assert jk['p'] < 0.05
+
+
 def test_peak_latency_after_onset():
     times = np.linspace(-0.2, 0.8, 300)
     wave = _bump(times, 0.25, 0.03, 1.0)

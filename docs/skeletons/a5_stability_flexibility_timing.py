@@ -54,13 +54,18 @@ def interaction_time_course(df, key, contrast_mode="proportion", contrasts=None)
     raise NotImplementedError("A5: time-resolved interaction (d-o-d over time)")
 
 
-def onset_50pct_peak(times, effect, expected_sign=+1):
+def onset_50pct_peak(times, effect, expected_sign='auto'):
     """First upward crossing of 50% of the peak, on the rising flank = onset.
 
     Steps
     -----
-    1. Take the peak in the expected direction within the window (or of |effect|):
-       peak = max(effect * expected_sign).
+    1. Orient the waveform and take its peak within the window:
+       peak = max(effect * sign). DEFAULT `expected_sign='auto'` derives the sign
+       from the waveform's own dominant deflection — do NOT hard-code +1. The
+       direction in which a block proportion modulates a condition effect is not
+       known a priori for a neural population (behaviorally the congruency effect
+       and switch cost SHRINK in high-proportion blocks), so an interaction that
+       runs "the other way" must still produce an onset rather than NaN.
     2. threshold = 0.5 * peak.
     3. Walk from the start; return the time of the FIRST sample where the rising
        signal crosses `threshold` upward (linear-interpolate between samples for
@@ -75,7 +80,7 @@ def onset_50pct_peak(times, effect, expected_sign=+1):
     raise NotImplementedError("A5: 50%-of-peak onset (with the k-scaling unit test)")
 
 
-def peak_latency(times, effect, expected_sign=+1):
+def peak_latency(times, effect, expected_sign='auto'):
     """Time of the peak — reported ALONGSIDE onset as a shape cross-check.
 
     A broad plateau vs a sharp transient can move the 50%-of-peak point (a real
@@ -85,7 +90,7 @@ def peak_latency(times, effect, expected_sign=+1):
     raise NotImplementedError("A5: peak latency")
 
 
-def jackknife_onset_difference(df_by_subject, expected_signs=(+1, +1)):
+def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto')):
     """Ulrich–Miller jackknifed comparison of LWPC vs LWPS onset.
 
     Single-subject onsets are too noisy, so measure onset on SMOOTH
@@ -94,7 +99,9 @@ def jackknife_onset_difference(df_by_subject, expected_signs=(+1, +1)):
     Parameters
     ----------
     df_by_subject : the long time-course table, groupable by subject.
-    expected_signs : (stability_sign, flexibility_sign).
+    expected_signs : (stability_sign, flexibility_sign). Default ('auto', 'auto')
+        — each process's onset direction is read from its own waveform, so no
+        modulation direction is assumed for either.
 
     Returns
     -------

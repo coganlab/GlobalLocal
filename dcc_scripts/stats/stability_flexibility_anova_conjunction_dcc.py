@@ -285,8 +285,7 @@ def main(args):
     # 2. A1 — parametric per-electrode ANOVA labels -------------------------------
     print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
     anova_labels = sfs.per_electrode_anova_labels(
-        df, alpha=alpha, contrast_mode=CONTRAST_MODE,
-        require_sign=getattr(args, 'require_sign', False))
+        df, alpha=alpha, contrast_mode=CONTRAST_MODE)
 
     # optional cross-check vs the nonparametric definition (same balanced
     # interaction, permutation estimator) — a sanity check, not part of the result

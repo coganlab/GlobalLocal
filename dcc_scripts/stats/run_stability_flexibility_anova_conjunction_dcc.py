@@ -67,9 +67,6 @@ ROIS_DICT = None
 
 # --- A1/A2 hyperparameters ---
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
-# require the interaction sign to be in the predicted (growing) direction for a
-# positive S/F flag. Default False to match the nonparametric per_electrode_labels.
-REQUIRE_SIGN = os.environ.get('REQUIRE_SIGN', '0') in ('1', 'true', 'True')
 N_PERM_NULL = int(os.environ.get('N_PERM_NULL', '10000'))  # A2 overlap-null perms
 SEED = int(os.environ.get('SEED', '0'))
 # also cross-check A1's ANOVA flags against the nonparametric permutation
@@ -104,7 +101,6 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
-        require_sign=REQUIRE_SIGN,
         n_perm_null=N_PERM_NULL,
         seed=SEED,
         crosscheck_nonparametric=CROSSCHECK_NONPARAMETRIC,
@@ -123,7 +119,7 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print("-" * 70)
-    print(f"alpha:            {ALPHA} | require_sign: {REQUIRE_SIGN}")
+    print(f"alpha:            {ALPHA}")
     print(f"n_perm_null:      {N_PERM_NULL} | seed: {SEED}")
     print(f"thresholds:       {THRESHOLDS}")
     print(f"crosscheck:       {CROSSCHECK_NONPARAMETRIC}"

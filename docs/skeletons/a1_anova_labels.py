@@ -99,8 +99,9 @@ def per_electrode_anova_labels(
     2. For each (subject, electrode) group:
          a. stability  = _anova_interaction_stats(g, 'congruency', 'incongruent_proportion')
          b. flexibility= _anova_interaction_stats(g, 'switchType', 'switch_proportion')
-         c. SIGN: the F-test is unsigned. Get the signed effect from the module's
-            own estimator so your sign matches the §2 correlation exactly:
+         c. SIGN: the F-test is unsigned — which is what we want for SELECTION
+            (see step 4). Still record the signed effect, for REPORTING, from the
+            module's own estimator so your sign matches the §2 correlation exactly:
                 s_sign = np.sign(_interaction_effect(g['hg'].to_numpy(),
                                                      g['_scond'].to_numpy(),
                                                      g['_smod'].to_numpy(),
@@ -111,8 +112,13 @@ def per_electrode_anova_labels(
     3. FDR across electrodes (Benjamini-Hochberg) on p_cong and p_switch:
            q = multipletests(p.fillna(1), method='fdr_bh')[1]
     4. S = (q_cong < alpha).astype(int); F = (q_switch < alpha).astype(int).
-       Optionally require the sign to be in the predicted (positive) direction
-       before setting the flag — decide and document which you do.
+       Flag on the TWO-SIDED q-value only — do NOT gate on the sign. The direction
+       in which a block proportion modulates a condition effect is not known a
+       priori for a neural population: behaviorally the congruency effect and the
+       switch cost SHRINK in high-proportion blocks, but a given population may
+       show either direction, and an electrode is LWPC/LWPS-selective as long as it
+       carries the interaction. Keep `s_sign`/`f_sign` so the growing-vs-shrinking
+       split within each group can be reported as a result.
 
     Acceptance check to write yourself
     -----------------------------------

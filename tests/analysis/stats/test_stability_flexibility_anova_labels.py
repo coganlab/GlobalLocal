@@ -74,3 +74,41 @@ def test_still_drops_into_cmh_conjunction(labels):
     # output stays a valid `labels` input to the conjunction (needs subject, S, F)
     res = sfs.cmh_conjunction(labels)
     assert "mh_odds_ratio" in res
+
+
+# ---------------------------------------------------------------------------
+# direction-agnostic selection
+# ---------------------------------------------------------------------------
+# In behavior the congruency effect SHRINKS in high-incongruent-proportion blocks
+# (and the switch cost shrinks in high-switch-proportion blocks), but for a neural
+# population the direction of the block-proportion modulation is not known a
+# priori. Selection must therefore key on the two-sided interaction only.
+def test_selection_keeps_both_modulation_directions(labels):
+    """Electrodes whose condition effect SHRINKS with the modulator are kept."""
+    for flag, sign_col in (("CPC", "cpc_sign"), ("SPS", "sps_sign")):
+        selected = labels[labels[flag] == 1]
+        assert (selected[sign_col] > 0).any(), f"{flag}: no growing-direction electrodes"
+        assert (selected[sign_col] < 0).any(), (
+            f"{flag}: no shrinking-direction electrodes survived selection — the "
+            "definition appears to assume a modulation direction"
+        )
+
+
+def test_flag_is_exactly_the_two_sided_q_threshold(labels):
+    """The flag is the FDR'd two-sided q-value alone — no sign gate anywhere."""
+    alpha = 0.05
+    for flag, qcol in (("CPC", "q_cpc"), ("SPS", "q_sps"),
+                       ("CPS", "q_cps"), ("SPC", "q_spc")):
+        expected = (labels[qcol] < alpha).astype(int)
+        assert (labels[flag] == expected).all(), (
+            f"{flag} is not exactly (q < alpha); a directional filter may have "
+            "been reintroduced"
+        )
+
+
+def test_no_sign_gating_option_is_exposed():
+    """No `require_sign`-style knob — a directional filter shouldn't be offerable."""
+    import inspect
+
+    params = inspect.signature(sfs.per_electrode_anova_labels).parameters
+    assert "require_sign" not in params

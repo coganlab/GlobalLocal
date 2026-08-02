@@ -16,10 +16,18 @@ The two behavioral constructs mirror the neural ones exactly:
 
 - **LWPC (stability) behavioral magnitude** = the congruency × incongruent-
   proportion interaction on RT — how much the congruency effect (RT_i − RT_c)
-  GROWS in high-incongruent-proportion blocks.
+  CHANGES in high- vs low-incongruent-proportion blocks. Empirically this is a
+  *shrinking* adjustment (the congruency effect is smaller in mostly-incongruent
+  blocks), so the signed d-o-d below is typically negative.
 - **LWPS (flexibility) behavioral magnitude** = the switchType × switch-
-  proportion interaction on RT — how much the switch cost (RT_s − RT_r) grows in
-  high-switch-proportion blocks.
+  proportion interaction on RT — how much the switch cost (RT_s − RT_r) changes in
+  high- vs low-switch-proportion blocks; likewise typically a *shrinking* effect.
+
+The magnitudes are kept SIGNED rather than sign-corrected, and every test built on
+them is two-sided, so nothing here assumes which way an effect must run. That
+matters most on the neural side: the direction in which a block proportion
+modulates a condition effect in a given population is not known a priori, so the
+A1 electrode groups these correlate against are themselves direction-agnostic.
 
 Both are scored as the same equal-cell-weight difference-of-differences the
 segregation module uses for the neural interaction, so brain and behavior are
@@ -100,8 +108,9 @@ def behavioral_lwpc_lwps_magnitudes(behav_df, rt_col='RT', subject_col='subject'
     Returns
     -------
     DataFrame: one row per subject with ``lwpc`` and ``lwps`` RT magnitudes
-    (difference-of-differences, in RT units; positive = the effect grows in the
-    high-proportion block) plus ``n_trials``.
+    (difference-of-differences, in RT units; SIGNED — positive = the condition
+    effect is larger in the high-proportion block, negative = smaller, which is
+    the usual behavioral direction) plus ``n_trials``.
     """
     d = behav_df.copy()
     if correct_only and 'acc' in d.columns:
