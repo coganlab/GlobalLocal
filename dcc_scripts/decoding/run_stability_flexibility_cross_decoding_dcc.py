@@ -65,7 +65,6 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
-REQUIRE_SIGN = os.environ.get('REQUIRE_SIGN', '0') in ('1', 'true', 'True')
 
 # --- A4 decoding hyperparameters ---
 N_PER_CELL = int(os.environ.get('N_PER_CELL', '5'))         # trials averaged/pseudo-trial
@@ -97,7 +96,6 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
-        require_sign=REQUIRE_SIGN,
         n_per_cell=N_PER_CELL,
         n_pseudo=N_PSEUDO,
         n_folds=N_FOLDS,
@@ -118,7 +116,7 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES}")
     print("-" * 72)
-    print(f"alpha (A1):       {ALPHA} | require_sign: {REQUIRE_SIGN}")
+    print(f"alpha (A1):       {ALPHA}")
     print(f"n_per_cell:       {N_PER_CELL} | n_pseudo: {N_PSEUDO} | n_folds: {N_FOLDS}")
     print(f"n_perm:           {N_PERM} | min_group_size: {MIN_GROUP_SIZE} | seed: {SEED}")
     print(f"Save dir:         {SAVE_DIR}")

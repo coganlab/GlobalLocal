@@ -754,8 +754,7 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
 
 
 def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
-                               contrasts=None, include_cross_controls=True,
-                               require_sign=False):
+                               contrasts=None, include_cross_controls=True):
     """Parametric per-electrode selectivity labels from the two-way interaction
     ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
     Drop-in `labels` for `cmh_conjunction`.
@@ -786,12 +785,22 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     the older effect columns `p_cong`/`q_cong`/`F_cong`/`s_sign` (= the CPC
     columns) and `p_switch`/`q_switch`/`F_switch`/`f_sign` (= the SPS columns).
 
-    The ANOVA F is UNSIGNED, so the direction (whether the effect grows the
-    predicted way) is taken from the module's own equal-cell-weight estimator
-    `_interaction_effect(..., 'cohens_d')` -- the same quantity the continuous
-    §2 correlation uses. FDR (Benjamini-Hochberg) is applied across electrodes
-    per interaction; each flag is set at `alpha`, optionally gated on a positive
-    sign (`require_sign`)."""
+    The ANOVA F is UNSIGNED, and the flag is deliberately DIRECTION-AGNOSTIC: an
+    electrode is selected for an interaction whenever the (two-sided) interaction
+    is significant, whether the condition effect GROWS or SHRINKS across the
+    modulator's levels. This is on purpose -- in behavior the congruency effect
+    shrinks in high-incongruent-proportion blocks (and the switch cost shrinks in
+    high-switch-proportion blocks), but in a given neural population the sign of
+    the block-proportion modulation is not known a priori, so we do not assume it.
+    An electrode counts as an LWPC/LWPS electrode as long as it carries the
+    interaction, regardless of direction.
+
+    A signed direction is still recorded per electrode in `<g>_sign` (from the
+    module's own equal-cell-weight estimator `_interaction_effect(..., 'cohens_d')`
+    -- the same quantity the continuous §2 correlation uses) so the direction can
+    be REPORTED downstream, but it is not used to include or exclude electrodes.
+    FDR (Benjamini-Hochberg) is applied across electrodes per interaction; each
+    flag is set at `alpha`."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
     # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
@@ -817,9 +826,11 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     out = pd.DataFrame(recs)
     for name, *_ in specs:
         out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+        # Direction-agnostic: flag on the two-sided interaction significance only.
+        # The `<g>_sign` column still records which way each electrode's effect
+        # goes for downstream reporting, but the sign is NOT used to gate selection
+        # -- the modulation direction is not assumed for any neural population.
         flag = out[f'q_{name}'] < alpha
-        if require_sign:                                  # keep only predicted-direction growth
-            flag = flag & (out[f'{name}_sign'] > 0)
         out[name.upper()] = flag.astype(int)
     # backward-compatible aliases (the stability/flexibility pair + old effect names)
     out['S'] = out['CPC']; out['F'] = out['SPS']
@@ -950,10 +961,16 @@ def _synthetic_df(effect_measure='cohens_d', n_time=20, seed=0):
         for e in range(rng.integers(15, 40)):  # unequal electrode counts
             gain = rng.lognormal(0, 0.5)      # per-electrode SNR (gain confound)
             bx, by = rng.normal(0, .4), rng.normal(0, .4)   # true sensitivities
-            # bx drives the congruency effect AND lets it grow with incongruent
+            # bx drives the congruency effect AND makes it depend on incongruent
             # proportion (a congruency x proportion INTERACTION = LWPC); likewise
             # by for switch x switch-proportion (LWPS). So condition mode recovers
             # bx via the main effect and proportion mode via the interaction.
+            # bx/by are drawn from a ZERO-MEAN normal, so across electrodes the
+            # interaction runs in BOTH directions (the condition effect is larger
+            # in the high-proportion block for some electrodes, smaller for
+            # others). That is deliberate: the electrode definition must recover
+            # an interaction regardless of its sign, since the direction of the
+            # block-proportion modulation is not assumed for any population.
             base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
                     + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
             fr = dict(subject=s, electrode=f'{s}_{e}',

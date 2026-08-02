@@ -168,10 +168,13 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
         for e in range(int(rng.integers(15, 26))):
             gain = rng.lognormal(0, gain_sd)
             bx, by = rng.multivariate_normal([0, 0], cov)
-            # bx: congruency effect that grows with incongruent proportion (LWPC
-            # interaction); by: switch effect that grows with switch proportion
+            # bx: congruency effect modulated by incongruent proportion (LWPC
+            # interaction); by: switch effect modulated by switch proportion
             # (LWPS). Condition mode recovers bx/by via the main effect,
-            # proportion mode via the interaction.
+            # proportion mode via the interaction. bx/by are zero-mean, so the
+            # modulation runs in BOTH directions across electrodes — the
+            # definition must detect the interaction either way, since the sign
+            # of the block-proportion modulation is not assumed.
             base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
                     + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
             fr = dict(subject=f"S{s:02d}", electrode=f"S{s:02d}-e{e}",
