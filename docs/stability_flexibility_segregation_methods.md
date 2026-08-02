@@ -6,7 +6,7 @@ Two interchangeable, self-contained Methods write-ups for the analysis implement
 
 | Version | Effect measure | Launcher setting | HG input per trial |
 |---|---|---|---|
-| **A** | signed cluster mass over the analysis window | `EFFECT_MEASURE=cluster` | time course over `[tmin, tmax]` |
+| **A** | signed supra-threshold *t* mass over the analysis window | `EFFECT_MEASURE=cluster` | time course over `[tmin, tmax]` |
 | **B** | Cohen's *d* on the window-mean HG | `EFFECT_MEASURE=cohens_d` | scalar window mean |
 
 Everything else — contrasts, disjoint-half estimator, gain control, subject-aware
@@ -22,7 +22,7 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 
 ---
 
-## Version A — cluster-mass effect measure (`effect_measure='cluster'`)
+## Version A — time-resolved ("cluster") effect measure (`effect_measure='cluster'`)
 
 ### Single-trial high-gamma
 
@@ -76,35 +76,48 @@ required to mirror it, so no sign was imposed at any selection step. The signed
 direction of every electrode's interaction was nevertheless recorded and is
 reported descriptively.
 
-### Effect measure: signed cluster mass over time
+### Effect measure: signed supra-threshold *t* mass over time
 
 Because the interaction may be transient within the analysis window, each
-electrode's interaction magnitude was quantified with a **time-resolved,
-cluster-based statistic** rather than a window average. For each electrode and
-each contrast, the balanced difference-of-differences was computed **at every
-time bin** in the window and converted to a per-bin *t* statistic
-(`d-o-d(t) / SE(t)`, with SE pooled across the four cells). Bins whose |*t*|
-exceeded the two-tailed critical *t* at α = 0.05 were retained, and the effect
-was defined as the **signed cluster mass**, i.e. the sum of *t* over
-supra-threshold bins (0 when no bin survived). This is a per-timepoint,
-cluster-corrected interaction test that returns a single **signed, graded scalar
-per electrode** — the property the continuous correlation and the 2×2
-conjunction both require, and which a per-effect pass/fail mask cannot provide.
+electrode's interaction magnitude was quantified with a **time-resolved**
+statistic rather than a window average. For each electrode and each contrast, the
+balanced difference-of-differences was computed **at every time bin** in the
+window and converted to a per-bin *t* statistic (`d-o-d(t) / SE(t)`, with SE
+pooled across the four cells). Bins whose |*t*| exceeded the two-tailed critical
+*t* at α = 0.05 were retained, and the effect was defined as the **signed mass**
+of those bins, i.e. the sum of the signed *t* over all supra-threshold bins
+(0 when no bin survived). This yields a single **signed, graded scalar per
+electrode** — the property the continuous correlation and the 2×2 conjunction
+both require, and which a per-effect pass/fail mask cannot provide.
 
-Two implementation notes. First, the significance mask can optionally be
-obtained from the pipeline's permutation cluster test
-(`ieeg.calc.stats.time_perm_cluster`, `USE_TIME_PERM_CLUSTER = True`,
-1000 permutations, two-tailed) instead of the parametric threshold; the fast
-parametric threshold is used by default because the effect is re-evaluated
-inside the disjoint-half resampling and the per-electrode permutation null, where
-a nested permutation test would be prohibitive. Second, a 2×2 interaction is a
-four-cell difference-of-differences, not a two-sample contrast, so the generic
-two-condition permutation cluster test does not apply to it directly; the
-per-bin d-o-d *t* above is its four-cell analogue.
+Three properties of this statistic should be stated explicitly. First, **no
+contiguity is imposed**: every bin clearing the threshold contributes, whether or
+not it is adjacent to another such bin, so the measure is a thresholded integral
+over the window rather than a contiguous-cluster statistic in the
+Maris–Oostenveld sense. Second, the sum is **signed**, so bins of opposite sign
+partially cancel; the measure is therefore the *net* signed evidence for the
+interaction across the window, which is what allows it to substitute for a signed
+effect size in the correlation and conjunction. Third, the per-bin α = 0.05
+threshold is a **statistic-forming** threshold, not a correction: it applies no
+cluster-level or across-time multiple-comparison control by itself. Inference is
+performed one level up, on this statistic as a whole — its null distribution is
+obtained per electrode by permuting the block-proportion modulator within each
+level of the condition factor (below), and the resulting *p* values are
+FDR-corrected across electrodes.
+
+One implementation note. A 2×2 interaction is a four-cell
+difference-of-differences, not a two-sample contrast, so the pipeline's
+two-condition permutation cluster test (`ieeg.calc.stats.time_perm_cluster`) does
+not apply to it: permuting a two-group label would null the main effects rather
+than the interaction. The interaction path therefore always uses the parametric
+per-bin threshold described above, and the module's `USE_TIME_PERM_CLUSTER`
+switch — which substitutes the permutation-derived cluster mask — takes effect
+only for the two-group (main-effect) contrasts described at the end of this
+section.
 
 As a robustness complement, the whole analysis was repeated with an
 **amplitude-only** measure (`effect_measure='peak_t'`): the signed per-bin d-o-d
-*t* at the instant of maximal |*t*|. Cluster mass grows with an effect's
+*t* at the instant of maximal |*t*|. The mass statistic grows with an effect's
 *duration* as well as its amplitude and is mildly trial-count sensitive; peak
 *t* is timing- and duration-invariant, so a segregation verdict that holds under
 both measures is not an artifact of one contrast simply lasting longer.
@@ -153,7 +166,7 @@ segregation.
 
 Each electrode was independently labelled as stability-selective (S) and/or
 flexibility-selective (F). Labels were obtained from a within-electrode
-permutation test on the same cluster-mass statistic: the block-proportion
+permutation test on the same supra-threshold *t* mass: the block-proportion
 modulator was permuted **within each level of the condition factor** (2,000
 permutations), which holds both main effects and all cell counts fixed and nulls
 the interaction alone — unlike a free label shuffle, which under unequal cells
@@ -273,9 +286,9 @@ conditions, an interaction that is present only transiently within the window is
 attenuated in proportion to its duration relative to the window length. The
 window-mean measure is therefore reported as a simple, assumption-light
 quantification of interaction magnitude, and the same analysis was repeated with
-a time-resolved cluster-mass measure (`effect_measure='cluster'`; per-bin
-difference-of-differences *t*, thresholded at α = 0.05 and summed over
-supra-threshold bins) as a sensitivity analysis for transient effects.
+a time-resolved measure (`effect_measure='cluster'`; per-bin
+difference-of-differences *t*, thresholded at α = 0.05 and summed with sign over
+all supra-threshold bins) as a sensitivity analysis for transient effects.
 
 ### Per-electrode sensitivities on disjoint trial halves
 
@@ -383,7 +396,7 @@ are unchanged.
 | Trials | correct only; undefined task sequence dropped | `ACC_TRIALS_ONLY`, `assemble_long_df` |
 | Contrasts | `proportion` (LWPC / LWPS interactions) | `CONTRAST_MODE` |
 | Effect measure | `cluster` (A) / `cohens_d` (B) | `EFFECT_MEASURE` |
-| Cluster-forming threshold | two-tailed *t* at α = 0.05 | `alpha` (`_interaction_cluster`) |
+| Per-bin statistic-forming threshold (measure A) | two-tailed *t* at α = 0.05; no contiguity requirement, no cluster-level correction | `alpha` (`_interaction_cluster`) |
 | Disjoint-half resamples | 200 | `N_SPLITS` |
 | Continuous-test permutations | 10,000 (within-subject) | `N_PERM_CORR` |
 | Per-electrode label permutations | 2,000 (modulator within condition level) | `N_PERM_LABEL` |
