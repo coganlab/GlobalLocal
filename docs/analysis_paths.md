@@ -113,7 +113,8 @@ dcc_scripts/      # Cluster launchers (what you actually run)
 ├── power/        # run_power_traces_dcc.py, power_traces_dcc.py, sbatch/submit *.sh
 ├── decoding/     # run_decoding_dcc.py, decoding_dcc.py, sbatch/submit *.sh
 │                 # + stability_flexibility_cross_decoding (A4) + def-split launcher (§13)
-└── stats/        # A1/A2 (anova_conjunction, segregation) + A3 (anatomy) launchers (§12)
+└── stats/        # A1/A2 (anova_conjunction, segregation) + A3 (anatomy)
+                  # + A5 (timing) + A6 (brain_behavior) launchers (§12)
 ```
 
 ---
@@ -527,7 +528,7 @@ list-wide proportion-switch adjustment, i.e. reactive/task-switching control)
 carried by the **same** neural machinery or by **distinct** machinery? The
 battery attacks that one question from six complementary angles. Each angle is a
 numbered assignment (`A1`–`A6`) with a production module, a **tutorial
-notebook**, and — for A1–A4 — a **DCC launcher**.
+notebook**, and a **DCC launcher**.
 
 **The governing document** (read this for the *why*, the how, and the run order):
 - **`docs/stability_flexibility_guide.md`** — the single merged guide: scientific
@@ -555,8 +556,8 @@ whole battery end to end.
 | **A2** | §2 | Do S and F co-occur on the same electrodes more/less than chance? | `stats/stability_flexibility_segregation.py` (`cmh_conjunction`, permutation null, threshold sweep, `subject_clustered_corr`) | same as A1 | same as A1 (+ `submit_stability_flexibility_segregation_dcc.sh` for the continuous/CMH-only run) |
 | **A3** | §3 | Are the distinct subpopulations in different **places** (conditioned on coverage)? | `stats/stability_flexibility_anatomy.py` | `stats/stability_flexibility_anatomy_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh` |
 | **A4** | §4 | One **shared code** or two **orthogonal codes** on the `both` electrodes? | `decoding/cross_decoding.py` | `decoding/cross_decoding_tutorial.ipynb` | `dcc_scripts/decoding/submit_stability_flexibility_cross_decoding_dcc.sh` |
-| **A5** | §5 | Does stability information arise **earlier** than flexibility (or vice versa)? | `stats/stability_flexibility_timing.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | none — notebook + module smoke test |
-| **A6** | §6 | Does the neural selectivity predict the actual **behavioral** control adjustment? | `stats/stability_flexibility_brain_behavior.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | none — notebook + module smoke test |
+| **A5** | §5 | Does stability information arise **earlier** than flexibility (or vice versa)? | `stats/stability_flexibility_timing.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_timing_dcc.sh` |
+| **A6** | §6 | Does the neural selectivity predict the actual **behavioral** control adjustment? | `stats/stability_flexibility_brain_behavior.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_brain_behavior_dcc.sh` |
 
 **Consumes:** the same saved HG epochs as power/decoding, assembled into a
 **long single-trial table** (`subject | electrode | hg | congruency | switchType
@@ -693,11 +694,23 @@ the **latency–amplitude confound** — a bigger effect crosses any *absolute*
 threshold sooner, so without this "earlier" would just mean "larger" (baked into a
 unit test: `stab(t) = k·flex(t)` ⇒ equal onsets).
 
-**Run it** (no DCC launcher — notebook + module smoke test):
+**Run on DCC** (from `dcc_scripts/stats`):
 ```bash
-python src/analysis/stats/stability_flexibility_timing.py   # synthetic smoke test
+DATA_SOURCE=synthetic bash submit_stability_flexibility_timing_dcc.sh   # dry run
+# falsification — plant the REVERSE ordering; the reported sign must flip:
+DATA_SOURCE=synthetic SYNTHETIC_STAB_ONSET=0.40 SYNTHETIC_FLEX_ONSET=0.20 \
+    bash submit_stability_flexibility_timing_dcc.sh
+bash submit_stability_flexibility_timing_dcc.sh                        # real (set EPOCHS_ROOT_FILE first)
 ```
-then walk `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
+Note the launcher's window defaults to `[-0.2, 0.8]s` rather than the A1/A2
+`[0.0, 0.5]s`: A5 reads a **rising flank**, so the window must contain the
+baseline and enough post-stimulus time for both effects to turn over — a
+50 %-of-peak threshold is meaningless while an effect is still climbing at
+`WINDOW_TMAX` (the job warns when that happens).
+
+For a no-cluster check: `python src/analysis/stats/stability_flexibility_timing.py`
+(module smoke test), then walk
+`src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
 
 **Interpret the output.** The signed **onset difference with a CI** (from
 `jackknife_onset_difference`) is the headline: its sign says which process's
@@ -717,11 +730,28 @@ adjustment), via a mixed model with a subject random effect? Behavioral effects
 come from the same design as `stats/erin_linear_mixed_effects_model.py` /
 `combinedData.csv`.
 
-**Run it** (no DCC launcher — notebook + module smoke test):
+**Run on DCC** (from `dcc_scripts/stats`):
 ```bash
-python src/analysis/stats/stability_flexibility_brain_behavior.py   # synthetic smoke test
+DATA_SOURCE=synthetic bash submit_stability_flexibility_brain_behavior_dcc.sh   # dry run
+# falsification — each neural group drives BOTH adjustments equally, so
+# `specificity_ok` must stop holding:
+DATA_SOURCE=synthetic SYNTHETIC_CROSS_FRAC=1.0 \
+    bash submit_stability_flexibility_brain_behavior_dcc.sh
+bash submit_stability_flexibility_brain_behavior_dcc.sh                        # real (set EPOCHS_ROOT_FILE, BEHAVIOR_CSV)
 ```
-then walk `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
+`trialwise_brain_behavior` takes the per-trial behavioral adjustment columns as
+*input* — the operationalization is a design choice, so the launcher makes it
+explicit: `adj_congruency(t) = w(t) · (RT_t − that subject's mean RT)`, where
+`w(t)` is the trial's cell weight in the LWPC difference-of-differences (`+1` on
+the (i, high-incongruent) / (c, low-incongruent) diagonal, `−1` on the other).
+A subject's mean `adj_congruency` is therefore their behavioral LWPC / 4, and RT
+and the group HG are both **centered within subject** so the mixed-model slope is
+a purely within-subject quantity. See `dcc_scripts/stats/README.md` (A6) for the
+full statement.
+
+For a no-cluster check:
+`python src/analysis/stats/stability_flexibility_brain_behavior.py` (module smoke
+test), then walk `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb`.
 
 **Interpret the output.** The **matched** pairing (LWPC group ↔ congruency-sequence
 adjustment; LWPS group ↔ switch adjustment) should be **stronger than the cross**

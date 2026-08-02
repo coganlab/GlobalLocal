@@ -851,7 +851,33 @@ FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,switchType,blockType \
     bash submit_decoding_with_electrode_definition_split_dcc.sh
 ```
 
-**A5 / A6 — timing + brain–behavior** (no DCC launcher; notebook + smoke test):
+**A5 — timing** (from `dcc_scripts/stats`):
+```bash
+DATA_SOURCE=synthetic bash submit_stability_flexibility_timing_dcc.sh                    # planted onset ordering
+DATA_SOURCE=synthetic SYNTHETIC_STAB_ONSET=0.40 SYNTHETIC_FLEX_ONSET=0.20 \
+    bash submit_stability_flexibility_timing_dcc.sh                                      # reversed -> sign must flip
+bash submit_stability_flexibility_timing_dcc.sh                                          # real
+```
+The window defaults to `[-0.2, 0.8]s`, wider than the A1/A2 `[0.0, 0.5]s`: A5 reads
+a **rising flank**, so it needs the baseline plus enough post-stimulus time for both
+effects to turn over. `STATISTIC=t` swaps the grand-average d-o-d(t) for a
+noise-normalized t across electrodes (often a cleaner flank).
+
+**A6 — brain–behavior** (from `dcc_scripts/stats`):
+```bash
+DATA_SOURCE=synthetic bash submit_stability_flexibility_brain_behavior_dcc.sh                       # planted matched > cross
+DATA_SOURCE=synthetic SYNTHETIC_CROSS_FRAC=1.0 bash submit_stability_flexibility_brain_behavior_dcc.sh  # specificity destroyed
+bash submit_stability_flexibility_brain_behavior_dcc.sh                                             # real
+```
+Set `BEHAVIOR_CSV` if the raw trial-level behavior is not the repo-root
+`combinedData.csv`; `RUN_TRIALWISE=0` runs the across-subject level only. The
+launcher defines the per-trial adjustment columns `trialwise_brain_behavior` takes
+as input — each trial's signed contribution to its process's difference-of-
+differences (d-o-d cell weight × subject-centered RT) — documented in
+`dcc_scripts/stats/README.md` (A6).
+
+Either module also runs standalone as a synthetic smoke test with no cluster
+environment:
 ```bash
 python src/analysis/stats/stability_flexibility_timing.py          # synthetic smoke test
 python src/analysis/stats/stability_flexibility_brain_behavior.py  # synthetic smoke test
