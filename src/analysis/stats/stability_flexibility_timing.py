@@ -81,10 +81,12 @@ def _dod_over_time(cells):
         [ mean(cond=1,mod=1) - mean(cond=0,mod=1) ]        # cond effect, HIGH block
       - [ mean(cond=1,mod=0) - mean(cond=0,mod=0) ]        # cond effect, LOW  block
 
-    i.e. how much the condition effect (e.g. congruency) GROWS in the high-
-    proportion block, as a function of time. Equal weighting of the four cells
-    makes it orthogonal to both main effects (the same balance the scalar
-    ``_interaction_cohens_d`` enforces), so a pure main effect can't leak in."""
+    i.e. how much the condition effect (e.g. congruency) CHANGES between the high-
+    and low-proportion blocks, as a function of time — signed, so it captures the
+    modulation whether the condition effect grows or shrinks (the direction is not
+    assumed). Equal weighting of the four cells makes it orthogonal to both main
+    effects (the same balance the scalar ``_interaction_cohens_d`` enforces), so a
+    pure main effect can't leak in."""
     means = {k: np.asarray(v, float).mean(axis=0) for k, v in cells.items()}
     return ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
             - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
@@ -168,13 +170,38 @@ def interaction_time_course(df, key, contrast_mode='proportion', contrasts=None,
 # ----------------------------------------------------------------------------
 # onset (50%-of-peak) and peak latency
 # ----------------------------------------------------------------------------
-def onset_50pct_peak(times, effect, expected_sign=+1):
+def _resolve_sign(effect, expected_sign):
+    """Resolve the orientation applied to an interaction time course.
+
+    ``expected_sign='auto'`` (the default) means DO NOT assume a direction: orient
+    the waveform by its own dominant deflection (the sign of the finite sample
+    with the largest magnitude), so the onset of the interaction is read off
+    whichever way it goes. In behavior the congruency effect SHRINKS in high-
+    incongruent-proportion blocks (a negative-going d-o-d) while another neural
+    population may grow it (positive-going); the sign is a property of the data,
+    not something to fix in advance. Pass an explicit ``+1``/``-1`` only to force a
+    particular direction (e.g. a hypothesis test on a pre-registered sign)."""
+    if expected_sign == 'auto':
+        s = np.asarray(effect, float)
+        finite = np.isfinite(s)
+        if not finite.any():
+            return 1.0
+        peak = s[finite][np.argmax(np.abs(s[finite]))]
+        return -1.0 if peak < 0 else 1.0
+    return expected_sign
+
+
+def onset_50pct_peak(times, effect, expected_sign='auto'):
     """First upward crossing of 50 % of the peak, on the rising flank = onset.
 
     Steps
     -----
-    1. Orient the waveform to the expected direction (``signal = effect *
-       expected_sign``) and take its peak within the window.
+    1. Orient the waveform (``signal = effect * sign``) and take its peak within
+       the window. By default (``expected_sign='auto'``) the sign is taken from
+       the waveform's OWN dominant deflection, so the direction of the block-
+       proportion modulation is NOT assumed — an interaction that grows or shrinks
+       the condition effect is treated symmetrically. Pass an explicit ``+1``/``-1``
+       to force a direction.
     2. ``threshold = 0.5 * peak``.
     3. Walk from the window start toward the peak; return the time of the FIRST
        sample where the rising signal crosses ``threshold`` upward, linearly
@@ -186,11 +213,11 @@ def onset_50pct_peak(times, effect, expected_sign=+1):
     amplitude-match; that only costs power without adding protection.
 
     Returns the onset time in the units of ``times``; NaN if the oriented peak is
-    not positive (no effect in the expected direction) or no upward crossing
-    exists before the peak.
+    not positive (with an explicit ``expected_sign``, no effect in that direction)
+    or no upward crossing exists before the peak.
     """
     times = np.asarray(times, float)
-    signal = np.asarray(effect, float) * expected_sign
+    signal = np.asarray(effect, float) * _resolve_sign(effect, expected_sign)
     finite = np.isfinite(signal)
     if finite.sum() < 2:
         return np.nan
@@ -214,13 +241,15 @@ def onset_50pct_peak(times, effect, expected_sign=+1):
     return np.nan
 
 
-def peak_latency(times, effect, expected_sign=+1):
-    """Time of the peak in the expected direction — reported ALONGSIDE onset as a
+def peak_latency(times, effect, expected_sign='auto'):
+    """Time of the peak in the effect's direction — reported ALONGSIDE onset as a
     shape cross-check. A broad plateau vs. a sharp transient can shift the
     50 %-of-peak point (a real dynamics difference, not an artifact), so a
-    consistent onset+peak story is the robust claim. NaN if no finite sample."""
+    consistent onset+peak story is the robust claim. By default the direction is
+    taken from the waveform itself (``expected_sign='auto'``, no assumed sign);
+    pass ``+1``/``-1`` to force one. NaN if no finite sample."""
     times = np.asarray(times, float)
-    signal = np.asarray(effect, float) * expected_sign
+    signal = np.asarray(effect, float) * _resolve_sign(effect, expected_sign)
     finite = np.isfinite(signal)
     if not finite.any():
         return np.nan
@@ -243,7 +272,7 @@ def _onsets_from_df(sub_df, times, statistic, contrast_mode, contrasts,
             peak_latency(t, stab, s_sign), peak_latency(t, flex, f_sign))
 
 
-def jackknife_onset_difference(df_by_subject, expected_signs=(+1, +1),
+def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto'),
                                contrast_mode='proportion', contrasts=None,
                                times=None, statistic='mean'):
     """Ulrich–Miller jackknifed comparison of the LWPC vs LWPS onset.
@@ -256,7 +285,9 @@ def jackknife_onset_difference(df_by_subject, expected_signs=(+1, +1),
     ----------
     df_by_subject : the long time-course table, groupable by ``subject``.
     expected_signs : (stability_sign, flexibility_sign) passed to
-        ``onset_50pct_peak`` for each process.
+        ``onset_50pct_peak`` for each process. Default ``('auto', 'auto')`` — the
+        onset direction of each interaction is read from its own waveform, so no
+        sign is assumed for either process.
     times, statistic, contrast_mode, contrasts : threaded to
         ``interaction_time_course``.
 

@@ -235,10 +235,10 @@ def write_summary(results, save_dir, meta):
 # ---------------------------------------------------------------------------
 # electrode-group derivation from the A1 labels
 # ---------------------------------------------------------------------------
-def _electrode_groups(df, alpha, require_sign):
+def _electrode_groups(df, alpha):
     from src.analysis.stats import stability_flexibility_segregation as sfs
     labels = sfs.per_electrode_anova_labels(
-        df, alpha=alpha, contrast_mode=CONTRAST_MODE, require_sign=require_sign)
+        df, alpha=alpha, contrast_mode=CONTRAST_MODE)
     S = (labels.S == 1); F = (labels.F == 1)
     groups = {
         'both': labels.loc[S & F, 'electrode'].tolist(),
@@ -289,7 +289,7 @@ def main(args):
                               electrodes_to_keep=keep, effect_measure=EFFECT_MEASURE)
         print(f"assembled cluster df: {len(df)} rows | {df.subject.nunique()} subjects | "
               f"{df.electrode.nunique()} electrodes")
-        labels, a1_groups = _electrode_groups(df, args.alpha, getattr(args, 'require_sign', False))
+        labels, a1_groups = _electrode_groups(df, args.alpha)
         labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
         groups = dict(a1_groups)
         print("A1 electrode groups: "

@@ -234,8 +234,7 @@ def main(args):
         # 2. A1 electrode definition ---------------------------------------------
         print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
         labels = sfs.per_electrode_anova_labels(
-            df, alpha=alpha, contrast_mode=CONTRAST_MODE,
-            require_sign=getattr(args, 'require_sign', False))
+            df, alpha=alpha, contrast_mode=CONTRAST_MODE)
 
         # 3. electrode -> ROI map from the shared atlas --------------------------
         from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict

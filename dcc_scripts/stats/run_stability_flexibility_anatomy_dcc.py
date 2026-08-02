@@ -67,7 +67,6 @@ ROIS_DICT = None
 
 # --- A1 hyperparameter (the electrode definition A3 sits on) ---
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
-REQUIRE_SIGN = os.environ.get('REQUIRE_SIGN', '0') in ('1', 'true', 'True')
 
 # --- A3 hyperparameters ---
 # keep only ROIs sampled in >= MIN_SUBJECTS subjects (the coverage condition).
@@ -99,7 +98,6 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
-        require_sign=REQUIRE_SIGN,
         min_subjects=MIN_SUBJECTS,
         n_perm=N_PERM,
         seed=SEED,
@@ -118,7 +116,7 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES}")
     print("-" * 70)
-    print(f"alpha (A1):       {ALPHA} | require_sign: {REQUIRE_SIGN}")
+    print(f"alpha (A1):       {ALPHA}")
     print(f"min_subjects:     {MIN_SUBJECTS} | n_perm: {N_PERM} | seed: {SEED}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 70)

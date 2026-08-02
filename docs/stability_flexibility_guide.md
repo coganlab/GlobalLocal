@@ -43,9 +43,17 @@ other, or only *shared populations* carrying both — and if shared, is it the s
 Two constructs, each a **two-way interaction** on single-trial high-gamma (HG):
 
 - **LWPC (stability)** = `congruency × incongruent_proportion` — the congruency
-  effect grows in high-incongruent-proportion blocks.
-- **LWPS (flexibility)** = `switchType × switch_proportion` — the switch effect
-  grows in high-switch-proportion blocks.
+  effect is *modulated* by incongruent-proportion. **In behavior the congruency
+  effect shrinks in high-incongruent-proportion blocks** (the classic proactive-
+  control adjustment). In the neural signal the *direction* of this modulation is
+  not known a priori and can differ across populations, so the code treats an
+  electrode as LWPC-selective whenever it carries the interaction — larger *or*
+  smaller congruency effect in high-incongruent blocks — and never assumes a sign.
+- **LWPS (flexibility)** = `switchType × switch_proportion` — the switch effect is
+  *modulated* by switch-proportion. **In behavior the switch cost shrinks in high-
+  switch-proportion blocks.** As with LWPC, the neural modulation direction is not
+  assumed: an electrode is LWPS-selective if it carries the interaction in either
+  direction.
 
 "Shared vs distinct" is **three questions, not one**, and the answer can differ at
 each level:
@@ -142,10 +150,23 @@ An earlier framing selected electrodes on the **main effects** — congruency
 wrong selector for this paper: a congruency *main effect* means "this electrode
 responds to conflict," not "this electrode implements the *list-wide adjustment*."
 The constructs of interest **are the interactions** — the congruency effect
-*growing with incongruent-proportion* (LWPC) and the switch effect *growing with
+*changing with incongruent-proportion* (LWPC) and the switch effect *changing with
 switch-proportion* (LWPS). So selection uses `contrast_mode='proportion'`, and the
 selected quantity is a balanced 2×2 **difference-of-differences**, not a two-group
 mean difference.
+
+**The interaction is two-sided, by design.** Selection asks *"is this electrode's
+condition effect modulated by the block proportion?"*, not *"is it modulated in
+direction X?"*. Behaviorally the modulation is a *shrinking* one (congruency effect
+smaller in mostly-incongruent blocks; switch cost smaller in mostly-switch blocks),
+but no neural population is required to mirror that sign — a site could plausibly
+show a larger congruency effect under high incongruent-proportion and still be
+implementing list-wide control. Fixing a direction would silently discard half the
+candidate electrodes on an assumption the data have not been asked to support, so
+the flags are set on the two-sided q-value alone. The signed direction is still
+computed and stored per electrode (`<g>_sign`) so it can be **reported** — e.g.
+"of N LWPC electrodes, k showed a larger and N−k a smaller congruency effect in
+mostly-incongruent blocks" — which is a result worth describing, not a filter.
 
 ### 3.2 The four groups and the double-dipping rule
 
@@ -309,8 +330,9 @@ for (subj, elec), g in work.groupby(['subject', 'electrode']):
   (effect) coding + Type III** is the whole subtlety — see §4's coding note. It is
   wrapped in try/except → `NaN` for a singular fit (an electrode missing a 2×2
   cell), so one degenerate electrode never crashes the sweep.
-- **The ANOVA F is unsigned**; the difference-of-differences can grow the
-  *predicted* way or the opposite. The sign comes from the module's own
+- **The ANOVA F is unsigned**, which is exactly what selection wants here: the
+  difference-of-differences may run either way and both count. The sign is still
+  recorded — for description, not selection — from the module's own
   equal-cell-weight estimator `_interaction_effect(..., 'cohens_d')` — *the very
   quantity the §5 continuous correlation uses* — so the sign the labels carry and
   the sign the correlation sees can never disagree. (Signing off the F, or off a
@@ -320,8 +342,6 @@ for (subj, elec), g in work.groupby(['subject', 'electrode']):
 for name, *_ in specs:
     out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
     flag = out[f'q_{name}'] < alpha
-    if require_sign:
-        flag = flag & (out[f'{name}_sign'] > 0)
     out[name.upper()] = flag.astype(int)
 ```
 - **FDR across electrodes, per interaction**, then flag at `alpha` on the q-value.
@@ -331,12 +351,17 @@ for name, *_ in specs:
   interaction* rather than one pooled FDR over all four: each interaction is a
   distinct hypothesis family with its own null rate; pooling would let a strong
   `CPC` effect borrow significance for a weak `CPS` effect.
-- **`require_sign`** optionally keeps only electrodes whose effect grows in the
-  *predicted* (positive) direction — an electrode whose congruency effect *shrinks*
-  with inc-proportion is a significant interaction but not a `CPC` electrode. It is
-  a parameter, not hard-coded on, because the conjunction sometimes wants the
-  symmetric "any interaction" set. `name.upper()` turns `cpc → CPC`, so the flag
-  column and the effect columns share one source of truth.
+- **No sign gate.** The flag is the two-sided q-value threshold and nothing else:
+  an electrode whose congruency effect *shrinks* with inc-proportion and one whose
+  effect *grows* are both `CPC` electrodes, because both carry the interaction.
+  There is deliberately no `require_sign`-style option — offering one would invite
+  a directional assumption the neural data do not license (and would make the
+  electrode counts depend on a guess about the sign). `name.upper()` turns
+  `cpc → CPC`, so the flag column and the effect columns share one source of truth.
+- **The sign is kept, not used.** `<g>_sign` still records each electrode's
+  direction, so downstream code can report the split of growing vs. shrinking
+  modulations within a group. That is a descriptive result about the population,
+  and it stays out of the selection rule.
 
 ```python
 out['S'] = out['CPC']; out['F'] = out['SPS']
@@ -697,6 +722,15 @@ first upward crossing of 50% of that effect's own peak**, compared with the
 `(N−1)`-corrected paired t). Peak-normalization neutralizes the latency–amplitude
 confound: if `stab(t) = k·flex(t)`, both cross 50%-of-peak at the same time (a unit
 test pins this). Report onset **and** peak latency; a claim rests on both agreeing.
+
+**Direction is not assumed here either.** `onset_50pct_peak` / `peak_latency` take
+`expected_sign='auto'` by default: each interaction time course is oriented by its
+*own* dominant deflection, so an interaction that shrinks the condition effect
+(a negative-going d-o-d) yields a real onset instead of `NaN`. Otherwise a
+population whose modulation runs opposite to a hard-coded `+1` would silently drop
+out of the jackknife and bias the LWPC-vs-LWPS onset comparison toward whichever
+process happened to match the assumed sign. Pass an explicit `+1`/`-1` only when
+you genuinely want to test a pre-specified direction.
 
 ### 7.3 Brain–behavior (§6)
 
