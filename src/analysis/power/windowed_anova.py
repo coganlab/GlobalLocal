@@ -307,6 +307,29 @@ def run_within_electrode_windowed_anova_cluster_correction(
                 if ext > extent_thresh:
                     sig_subs.append({**c, 'extent': ext, 'p_value': p})
 
+            # The electrode's BEST cluster, whether or not it survived the extent
+            # threshold. `cluster_p_value` below is the min over SURVIVING
+            # clusters and falls back to exactly 1.0 when none survived, which
+            # makes every non-surviving electrode indistinguishable -- any
+            # across-electrode correction downstream (BH over electrodes, the
+            # family a test that COUNTS electrodes needs) is then unable to rank
+            # near-misses against true nulls. Recording the best cluster's p
+            # unconditionally keeps that information.
+            #
+            # This has to happen here rather than being reconstructed later from
+            # the saved .npz: `null_sign` exists in memory at this point, so the
+            # sign-split can be applied symmetrically to the observed AND null
+            # clusters. The .npz stores `signed_contrast` for the observed trace
+            # only, so a post-hoc recompute must drop sign-splitting entirely to
+            # avoid shortening observed clusters while leaving null ones intact.
+            if obs_sub:
+                best = max(obs_sub, key=lambda c: c['end'] - c['start'] + 1)
+                best_extent = best['end'] - best['start'] + 1
+                best_cluster_p = float((null_max_extents >= best_extent).mean())
+                best_cluster_sign = int(best['sign'])
+            else:
+                best_extent, best_cluster_p, best_cluster_sign = 0, 1.0, 0
+
             window_mask = np.zeros(n_windows, dtype=bool)
             pos_window_mask = np.zeros(n_windows, dtype=bool)
             neg_window_mask = np.zeros(n_windows, dtype=bool)
@@ -346,6 +369,11 @@ def run_within_electrode_windowed_anova_cluster_correction(
                               if peak_idx >= 0 else np.nan),
                 'cluster_p_value': min_p,
                 'any_sig_cluster': bool(sig_subs),
+                # graded, defined for every electrode (see the comment above)
+                'best_cluster_p': best_cluster_p,
+                'best_cluster_extent': best_extent,
+                'best_cluster_sign': best_cluster_sign,
+                'extent_threshold': float(extent_thresh),
             }
 
         # 3e. Stream-write per-electrode npz (memory: drop null_F after this)
@@ -363,6 +391,12 @@ def run_within_electrode_windowed_anova_cluster_correction(
                 neg_window_mask=np.array([per_effect[e]['neg_window_mask'] for e in effect_names]),
                 effect_names=np.array(effect_names),
                 window_centers=window_centers,
+                best_cluster_p=np.array(
+                    [per_effect[e]['best_cluster_p'] for e in effect_names]),
+                best_cluster_extent=np.array(
+                    [per_effect[e]['best_cluster_extent'] for e in effect_names]),
+                best_cluster_sign=np.array(
+                    [per_effect[e]['best_cluster_sign'] for e in effect_names]),
             )
 
         return {'skipped': False,
@@ -398,6 +432,9 @@ def run_within_electrode_windowed_anova_cluster_correction(
                         'cluster_offset': float(window_centers[c['end']]),
                         'cluster_p_value': c['p_value'],
                         'peak_F': info['peak_F'], 'peak_time': info['peak_time'],
+                        'best_cluster_p': info['best_cluster_p'],
+                        'best_cluster_extent': info['best_cluster_extent'],
+                        'best_cluster_sign': info['best_cluster_sign'],
                     })
             else:
                 summary_rows.append({
@@ -407,19 +444,27 @@ def run_within_electrode_windowed_anova_cluster_correction(
                     'cluster_onset': np.nan, 'cluster_offset': np.nan,
                     'cluster_p_value': 1.0,
                     'peak_F': info['peak_F'], 'peak_time': info['peak_time'],
+                    # NOT 1.0 by fiat -- the real p of this electrode's largest
+                    # sub-threshold cluster, so downstream ranking is possible.
+                    'best_cluster_p': info['best_cluster_p'],
+                    'best_cluster_extent': info['best_cluster_extent'],
+                    'best_cluster_sign': info['best_cluster_sign'],
                 })
     summary_df = pd.DataFrame(summary_rows)
 
     # === 6. BH-FDR across electrodes (per roi, per effect) ===
     if not summary_df.empty:
-        def _fdr(g):
-            p = g['cluster_p_value'].fillna(1.0).values
+        # Assign in place rather than via groupby().apply(): from pandas 2.2 the
+        # grouping columns are excluded from the frame handed to the callable, so
+        # the old version silently returned a summary_df with no 'roi'/'effect'
+        # columns and every downstream groupby on them raised KeyError.
+        summary_df['cluster_p_fdr'] = np.nan
+        summary_df['sig_after_fdr'] = False
+        for _, idx in summary_df.groupby(['roi', 'effect']).groups.items():
+            p = summary_df.loc[idx, 'cluster_p_value'].fillna(1.0).to_numpy()
             reject, p_adj, _, _ = multipletests(p, alpha=0.05, method='fdr_bh')
-            g = g.copy()
-            g['cluster_p_fdr'] = p_adj
-            g['sig_after_fdr'] = reject
-            return g
-        summary_df = summary_df.groupby(['roi', 'effect'], group_keys=False).apply(_fdr)
+            summary_df.loc[idx, 'cluster_p_fdr'] = p_adj
+            summary_df.loc[idx, 'sig_after_fdr'] = reject
 
     # === 7. Disk writes: summary.csv, skipped.csv, sig_electrodes_*.json,
     #        significant_effects_structure.json (legacy compat) ===

@@ -18,11 +18,18 @@ from src.analysis.stats import power_traces_conjunction as ptc
 # ----------------------------------------------------------------------------
 # fixtures: a fake within-electrode ANOVA run on disk
 # ----------------------------------------------------------------------------
-def _summary_rows(subject, electrode, roi, effect, p, extent=0, sign=0):
-    return dict(subject=subject, electrode=electrode, roi=roi, effect=effect,
-                cluster_idx=0 if extent else -1, sign=sign,
-                extent_windows=extent, cluster_onset=0.1, cluster_offset=0.3,
-                cluster_p_value=p, peak_F=5.0, peak_time=0.2)
+def _summary_rows(subject, electrode, roi, effect, p, extent=0, sign=0,
+                  best_p=None):
+    """A summary.csv row. `best_p=None` omits the graded columns entirely, which
+    is how legacy runs (written before `best_cluster_p` existed) look on disk."""
+    row = dict(subject=subject, electrode=electrode, roi=roi, effect=effect,
+               cluster_idx=0 if extent else -1, sign=sign,
+               extent_windows=extent, cluster_onset=0.1, cluster_offset=0.3,
+               cluster_p_value=p, peak_F=5.0, peak_time=0.2)
+    if best_p is not None:
+        row.update(best_cluster_p=best_p, best_cluster_extent=extent,
+                   best_cluster_sign=sign)
+    return row
 
 
 def _write_run(tmp_path, name, effect, entries, roi='lpfc'):
@@ -252,6 +259,50 @@ def test_npz_absent_falls_back_to_summary(four_runs):
     lab = ptc.electrode_labels(four_runs, roi='lpfc', correction='cluster',
                                use_npz=True)
     assert len(lab) == 8
+
+
+# ----------------------------------------------------------------------------
+# the graded cluster p recorded at run time (preferred over both fallbacks)
+# ----------------------------------------------------------------------------
+def test_best_cluster_p_is_preferred_over_cluster_p_value(tmp_path):
+    """A near-miss electrode: no surviving cluster (cluster_p_value floored at
+    1.0) but a real graded p of 0.08. The graded value must win, otherwise it is
+    indistinguishable from a true null and BH cannot rank it."""
+    run = tmp_path / 'r'
+    run.mkdir()
+    rows = [_summary_rows('S1', 'e0', 'lpfc', CPC_EFFECT, 1.0, 0, 0, best_p=0.08),
+            _summary_rows('S1', 'e1', 'lpfc', CPC_EFFECT, 1.0, 0, 0, best_p=0.97)]
+    pd.DataFrame(rows).to_csv(run / 'summary.csv', index=False)
+    tbl = ptc._best_cluster_per_electrode(
+        ptc.load_run_summary(run),
+        ptc._effect_name_variants('congruency', 'incongruentProportion'),
+        roi='lpfc')
+    assert sorted(tbl['p_cluster']) == pytest.approx([0.08, 0.97])
+
+
+def test_graded_p_beats_npz_recompute_when_present(tmp_path):
+    """When summary.csv carries the graded column, the npz is not consulted --
+    the run-time value is the more correct one (symmetric sign-split)."""
+    run = tmp_path / 'r'
+    run.mkdir()
+    pd.DataFrame([_summary_rows('S1', 'e0', 'lpfc', CPC_EFFECT, 1.0, 0, 0,
+                                best_p=0.11)]).to_csv(run / 'summary.csv',
+                                                      index=False)
+    rng = np.random.default_rng(0)
+    _write_npz(run, 'lpfc', 'S1', 'e0', np.zeros((1, 12)),
+               rng.chisquare(2, size=(50, 1, 12)).astype(np.float32), [CPC_EFFECT])
+    sps = _write_run(tmp_path, 'sps', SPS_EFFECT, [('S1', 'e0', 1.0, 0, 0)])
+    lab = ptc.electrode_labels({'CPC': run, 'SPS': sps}, roi='lpfc',
+                               correction='fdr_bh', use_npz=True)
+    assert lab['p_cpc'].iloc[0] == pytest.approx(0.11)   # not the npz's 1.0
+
+
+def test_legacy_summary_without_graded_column_still_works(four_runs):
+    """The fixture writes no best_cluster_p, i.e. a pre-existing run."""
+    lab = ptc.electrode_labels(four_runs, roi='lpfc', correction='cluster',
+                               use_npz=False)
+    assert len(lab) == 8
+    assert lab['CPC'].sum() == 5
 
 
 # ----------------------------------------------------------------------------

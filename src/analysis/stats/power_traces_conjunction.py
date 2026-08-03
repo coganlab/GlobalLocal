@@ -150,8 +150,17 @@ def load_run_summary(run_dir):
 def _best_cluster_per_electrode(summary, effect_names, roi=None):
     """Collapse a run's clusters to ONE row per electrode for a single effect.
 
-    The electrode's verdict is its best cluster: smallest cluster p, ties broken
-    by largest extent. Returns columns
+    Prefers the `best_cluster_p` / `best_cluster_extent` / `best_cluster_sign`
+    columns, which `run_within_electrode_windowed_anova_cluster_correction`
+    records for EVERY electrode whether or not its cluster survived the extent
+    threshold. That is the graded p an across-electrode correction needs, and it
+    is computed at run time where the null sign traces are still in memory, so
+    the sign-split is applied symmetrically to observed and null clusters.
+
+    Runs written before those columns existed fall back to the surviving-cluster
+    p (`cluster_p_value`), which is floored at exactly 1.0 for every electrode
+    that missed the threshold; `refine_cluster_pvalues_from_npz` recovers a
+    graded p for those, minus the sign-split. Returns columns
     `subject, electrode, roi, p_cluster, sign, extent, peak_F`.
 
     `effect_names` is the tuple of acceptable spellings (factor order can differ
@@ -175,10 +184,16 @@ def _best_cluster_per_electrode(summary, effect_names, roi=None):
     df = df.sort_values(['cluster_p_value', 'extent_windows'],
                         ascending=[True, False])
     best = df.groupby(['subject', 'electrode', 'roi'], as_index=False).first()
-    out = best[['subject', 'electrode', 'roi', 'cluster_p_value']].copy()
-    out = out.rename(columns={'cluster_p_value': 'p_cluster'})
-    out['sign'] = best['sign'].to_numpy() if 'sign' in best else 0
-    out['extent'] = best['extent_windows'].to_numpy()
+
+    out = best[['subject', 'electrode', 'roi']].copy()
+    if 'best_cluster_p' in best.columns and best['best_cluster_p'].notna().any():
+        out['p_cluster'] = best['best_cluster_p'].to_numpy()
+        out['sign'] = best['best_cluster_sign'].to_numpy()
+        out['extent'] = best['best_cluster_extent'].to_numpy()
+    else:
+        out['p_cluster'] = best['cluster_p_value'].to_numpy()
+        out['sign'] = best['sign'].to_numpy() if 'sign' in best else 0
+        out['extent'] = best['extent_windows'].to_numpy()
     out['peak_F'] = best['peak_F'].to_numpy() if 'peak_F' in best else np.nan
     return out
 
@@ -308,9 +323,11 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
                      a like-for-like comparison against existing lab numbers.
         `none`    -- flag every electrode that had any surviving cluster.
     use_npz : bool
-        Recover honest uncorrected cluster p-values from the per-electrode `.npz`
-        files when available (see `refine_cluster_pvalues_from_npz`). Falls back
-        to `summary.csv` silently when they are absent.
+        Only consulted for LEGACY runs whose `summary.csv` predates the
+        `best_cluster_p` column. Current runs record a graded cluster p for every
+        electrode at run time, which is strictly better (the null sign traces are
+        still in memory there, so the sign-split stays symmetric), and this flag
+        is then ignored.
     require_all : bool
         Keep only electrodes present in EVERY requested run. Different runs can
         contain different electrode sets (different `min_trials_per_cell`
@@ -344,12 +361,16 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
                            f"known: {sorted(interactions)}")
         names = _effect_name_variants(*interactions[group])
 
-        tbl = pd.DataFrame()
-        if use_npz:
-            tbl = refine_cluster_pvalues_from_npz(run_dir, names, roi=roi)
-        if tbl.empty:
-            tbl = _best_cluster_per_electrode(load_run_summary(run_dir),
-                                              names, roi=roi)
+        # Preference order: the graded p the run recorded for every electrode;
+        # else a recompute from the saved null; else the surviving-cluster p.
+        summary = load_run_summary(run_dir)
+        if 'best_cluster_p' in summary.columns:
+            tbl = _best_cluster_per_electrode(summary, names, roi=roi)
+        else:
+            tbl = (refine_cluster_pvalues_from_npz(run_dir, names, roi=roi)
+                   if use_npz else pd.DataFrame())
+            if tbl.empty:
+                tbl = _best_cluster_per_electrode(summary, names, roi=roi)
         per_group[group] = tbl.set_index(['subject', 'electrode', 'roi'])
 
     # Align on a single electrode universe across the four runs.
