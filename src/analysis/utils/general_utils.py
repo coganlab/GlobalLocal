@@ -109,6 +109,39 @@ def resolve_lab_root(explicit=None):
     else:
         return get_default_LAB_root()
     
+# Subjects whose recon folder doesn't survive the BIDS-label -> FreeSurfer-code
+# conversion gen_labels does internally (it strips the zero padding numerically,
+# which chokes on the alphanumeric ids), so we hand gen_labels the code directly.
+FS_SUBJECT_OVERRIDES = {'D0107A': 'D107A', 'D0139A': 'D139A'}
+
+def get_recon_subj_dir(subj_dir=None):
+    """Recon directory that ieeg resolves to when gen_labels isn't given one."""
+    if subj_dir is not None:
+        return subj_dir
+    try:
+        from ieeg.viz.mri import get_sub_dir
+        return get_sub_dir()
+    except ImportError:
+        return os.path.join(os.path.expanduser("~"), "Box", "ECoG_Recon")
+
+def get_fs_subject_code(sub):
+    """Map a BIDS subject label to its FreeSurfer/recon code ('D0057' -> 'D57')."""
+    if sub in FS_SUBJECT_OVERRIDES:
+        return FS_SUBJECT_OVERRIDES[sub]
+    digits = sub.lstrip('D')
+    return f"D{int(digits)}" if digits.isdigit() else sub
+
+def get_elec_location_csv_path(sub, subj_dir=None, radius=10,
+                               atlas='aparc.a2009s+aseg.mgz'):
+    """Path of the recon CSV gen_labels reads for `sub`.
+
+    gen_labels resolves this itself, so this is only a best-effort prediction
+    used to pre-filter channels; treat a miss as "unknown", not as "absent".
+    """
+    fs_sub = get_fs_subject_code(sub)
+    return os.path.join(get_recon_subj_dir(subj_dir), fs_sub, 'elec_recon',
+                        f"{fs_sub}_elec_location_radius_{radius}mm_{atlas}.csv")
+
 def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root=None, save_dir=None, filename='subjects_electrodes_to_ROIs_dict.json', layout=None):
     """
     Creates mappings for each electrode to its corresponding Region of Interest (ROI)
@@ -179,29 +212,29 @@ def make_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', LAB_root
         seeg_picks = mne.pick_types(good.info, seeg=True, exclude='bads')
         seeg_ch_names = [good.info['ch_names'][i] for i in seeg_picks]
 
-        try:
-            # Load recon CSV to check which channels have localizations
-            # Note: this only works on PC where ECoG_Recon is accessible, not on the cluster
-            recon_path = os.path.join(LAB_root.replace("CoganLab", "ECoG_Recon"), 
-                                    sub.replace("D0", "D"), "elec_recon",
-                                    f"{sub.replace('D0', 'D')}_elec_location_radius_10mm_aparc.a2009s+aseg.mgz.csv")
+        # Drop channels with no localization so gen_labels doesn't KeyError on
+        # them. This reads the same CSV gen_labels does; if our predicted path
+        # is wrong gen_labels may still find it, so a miss here is not fatal.
+        recon_path = get_elec_location_csv_path(sub)
+        if os.path.isfile(recon_path):
             recon_df = pd.read_csv(recon_path, skiprows=1, header=None)
             localized_channels = set(recon_df[1].astype(str).values)
             missing = [ch for ch in seeg_ch_names if ch not in localized_channels]
             if missing:
                 print(f"  Skipping channels not in recon CSV: {missing}")
             seeg_ch_names = [ch for ch in seeg_ch_names if ch in localized_channels]
-        except (FileNotFoundError, OSError) as e:
-            print(f"  Could not load recon CSV for {sub} (probably on cluster): {e}")
-            # Proceed without filtering - gen_labels will raise KeyError if there are orphan channels
-
-        # D0107A requires a different subject code ('D107A') for the gen_labels function due to a naming inconsistency.
-        if sub == 'D0107A':
-            default_dict = gen_labels(good.info, sub='D107A', picks=seeg_ch_names)
-        elif sub == 'D0139A':
-            default_dict = gen_labels(good.info, sub='D139A', picks=seeg_ch_names)
         else:
-            default_dict = gen_labels(good.info, picks=seeg_ch_names)
+            print(f"  No recon CSV at {recon_path}; letting gen_labels resolve it")
+
+        try:
+            default_dict = gen_labels(good.info, sub=FS_SUBJECT_OVERRIDES.get(sub),
+                                      picks=seeg_ch_names)
+        except FileNotFoundError as e:
+            raise FileNotFoundError(
+                f"gen_labels could not find the recon files for {sub} ({e}). "
+                "Building the electrodes-to-ROIs dict needs the FreeSurfer recons "
+                "under ECoG_Recon, which aren't available on the cluster. Build "
+                "the dict on a machine that has them and copy the json over.") from e
 
         # Create rawROI_dict for the subject
         rawROI_dict = defaultdict(list)
@@ -332,6 +365,54 @@ def make_or_load_subjects_electrodes_to_ROIs_dict(subjects, task='GlobalLocal', 
 
     return subjects_electrodes_to_ROIs_dict
 
+# default location + name of the checked-in electrodes-to-ROIs dict. Note this
+# is NOT the default filename of make_subjects_electrodes_to_ROIs_dict — the
+# file that actually exists uses the 'electrodestoROIs' spelling.
+ROI_DICT_FILENAME = 'subjects_electrodestoROIs_dict.json'
+
+def get_default_roi_dict_dir():
+    """Directory holding the checked-in electrodes-to-ROIs dict."""
+    return os.path.join(project_root, 'src', 'analysis', 'config')
+
+def load_existing_subjects_electrodes_to_ROIs_dict(save_dir=None, filename=ROI_DICT_FILENAME):
+    """Load a pre-made electrodes-to-ROIs dict, never regenerating it.
+
+    Regenerating the dict reads the FreeSurfer recons under ECoG_Recon, which
+    aren't available on the cluster. Callers that only ever consume the dict
+    should use this instead of `make_or_load_subjects_electrodes_to_ROIs_dict`,
+    so a missing/misspelled path surfaces here rather than as a FileNotFoundError
+    from deep inside gen_labels.
+
+    Parameters:
+    ----------
+    save_dir : str, optional
+        Directory to load from. Defaults to src/analysis/config.
+    filename : str, optional
+        Name of the JSON file.
+
+    Raises:
+    ------
+    FileNotFoundError
+        If the dict isn't on disk.
+    ValueError
+        If it's there but can't be parsed.
+    """
+    if save_dir is None:
+        save_dir = get_default_roi_dict_dir()
+
+    filepath = os.path.join(save_dir, filename)
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(
+            f"electrodes-to-ROIs dict not found at {filepath}. Generate it on a "
+            "machine with ECoG_Recon access (see make_subjects_electrodes_to_ROIs_dict) "
+            "and copy the json over, or run without ROI filtering.")
+
+    subjects_electrodes_to_ROIs_dict = load_subjects_electrodes_to_ROIs_dict(save_dir, filename)
+    if subjects_electrodes_to_ROIs_dict is None:
+        raise ValueError(f"Could not parse the electrodes-to-ROIs dict at {filepath}.")
+
+    return subjects_electrodes_to_ROIs_dict
+
 # ---------------------------------------------------------------------------
 # electrode selection (optional ROI / significance filtering)
 # ---------------------------------------------------------------------------
@@ -344,22 +425,8 @@ def resolve_electrodes_to_keep(args, LAB_root):
     if args.rois_dict is None:
         return None
 
-    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    roi_dict_filename = 'subjects_electrodestoROIs_dict.json'
-    roi_dict_path = os.path.join(config_dir, roi_dict_filename)
-
-    # Building the dict from scratch needs the FreeSurfer recon CSVs under
-    # ECoG_Recon, which don't exist on the cluster. Fail loudly here instead of
-    # letting make_or_load_... quietly try to regenerate it.
-    if not os.path.isfile(roi_dict_path):
-        raise FileNotFoundError(
-            f"electrodes-to-ROIs dict not found at {roi_dict_path}. "
-            "Generate it on a machine with ECoG_Recon access (see "
-            "make_subjects_electrodes_to_ROIs_dict) and copy it there, or set "
-            "rois_dict=None to keep every channel.")
-
-    subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(
-        save_dir=config_dir, filename=roi_dict_filename)
+    subjects_electrodestoROIs_dict = load_existing_subjects_electrodes_to_ROIs_dict(
+        save_dir=getattr(args, 'roi_dict_dir', None))
 
     sig_chans_per_subject = get_sig_chans_per_subject(
         args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
