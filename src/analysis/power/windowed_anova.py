@@ -17,7 +17,10 @@ from statsmodels.stats.anova import anova_lm
 from statsmodels.stats.multitest import multipletests
 from joblib import Parallel, delayed
 
-from src.analysis.utils.general_utils import windower
+# `windower` is imported lazily inside `process_windowed_data_for_anova` (its only
+# caller). Importing it at module level pulls in `general_utils` -> `ieeg`, which
+# made this whole module -- including the pure-numpy cluster helpers and the
+# summary/FDR machinery -- unimportable off-cluster.
 
 
 def _parse_effect_factors(effect_name):
@@ -558,6 +561,8 @@ def process_windowed_data_for_anova(subjects_mne_objects, condition_names, rois,
         (n_trials, n_windows, n_channels) ndarray, one per subject that had
         electrodes for that ROI, in the same order as ``subjects``.
     """
+    from src.analysis.utils.general_utils import windower   # lazy: pulls in `ieeg`
+
     windowed_data = {}
 
     for condition_name in condition_names:

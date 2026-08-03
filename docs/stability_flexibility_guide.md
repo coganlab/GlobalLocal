@@ -495,16 +495,29 @@ wrong, and if the pushback ever read that way, this section is the correction.
 time dimension to satisfy 1–3. The segregation module already implements the
 temporal, cluster-corrected interaction test *and* emits it in the right shape:
 
-- **`effect_measure='cluster'`** scores each interaction by its **signed cluster
-  mass over time** (`_interaction_cluster`, §3.4) — a per-bin difference-of-
-  differences t, thresholded and summed over contiguous supra-threshold runs. That
-  is a per-timepoint ANOVA-style test, cluster-corrected across time, returning a
-  **signed graded scalar per electrode** (need #1), co-registered for S, F, CS, SI
-  on the same row (need #2), FDR'd across electrodes (need #3).
-- **`USE_TIME_PERM_CLUSTER=True`** swaps the fast parametric threshold for the real
-  `ieeg.calc.stats.time_perm_cluster` permutation mask.
+- **`effect_measure='cluster'`** scores each interaction by its **signed
+  supra-threshold *t* mass over time** (`_interaction_cluster`, §3.4) — a per-bin
+  difference-of-differences t, thresholded and summed with sign. That is a
+  per-timepoint statistic returning a **signed graded scalar per electrode**
+  (need #1), co-registered for S, F, CS, SI on the same row (need #2), FDR'd
+  across electrodes (need #3).
+  > **This is not cluster correction.** `_interaction_cluster` imposes **no
+  > contiguity requirement** — every bin clearing the per-bin threshold
+  > contributes, adjacent or not — and applies no cluster-level control. It is a
+  > thresholded signed integral over the window, not a Maris–Oostenveld cluster
+  > statistic. The per-bin α is *statistic-forming*; all inference happens one
+  > level up (per-electrode permutation, then FDR across electrodes). If you want
+  > genuine cluster-extent or cluster-mass correction across time, that is what
+  > `power_traces`' `run_within_electrode_windowed_anova_cluster_correction`
+  > does, and §4a below routes it into the conjunction.
+- **`USE_TIME_PERM_CLUSTER=True`** swaps in the real
+  `ieeg.calc.stats.time_perm_cluster` permutation mask — but **only on the
+  two-group (`contrast_mode='condition'`) path**, via `_cluster_effect`.
+  `_interaction_cluster` never reads the flag, correctly: `time_perm_cluster` is a
+  two-condition test and a 2×2 interaction has four cells. Setting the flag under
+  `contrast_mode='proportion'` is a no-op.
 - **"Keep electrodes with any surviving cluster"** is then simply thresholding that
-  cluster mass at its permutation-significant value → the same CPC/SPS/CPS/SPC flags,
+  mass at its permutation-significant value → the same CPC/SPS/CPS/SPC flags,
   computed from the *temporal* statistic.
 
 So the principled recommendation is: **run A1 with `effect_measure='cluster'` as
