@@ -2,8 +2,7 @@ import sys
 import os
 
 # Get the absolute path to the directory containing the current script
-# For GlobalLocal/src/analysis/preproc/make_epoched_data.py, this is GlobalLocal/src/analysis/preproc
-# Get the absolute path to the directory containing the current script
+# For GlobalLocal/src/analysis/utils/general_utils.py, this is GlobalLocal/src/analysis/utils
 try:
     # This will work if running as a .py script
     current_file_path = os.path.abspath(__file__)
@@ -12,8 +11,28 @@ except NameError:
     # This will be executed if __file__ is not defined (e.g., in a Jupyter Notebook)
     current_script_dir = os.getcwd()
 
-# Navigate up two levels to get to the 'GlobalLocal' directory
-project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
+
+def _find_project_root(start_dir):
+    """Walk up from `start_dir` to the 'GlobalLocal' directory.
+
+    The repo root is the directory that holds src/analysis/config. Walking up
+    (rather than hardcoding a number of '..') keeps this correct both when
+    running as a script and when __file__ is undefined and `start_dir` is the
+    notebook's cwd.
+    """
+    d = os.path.abspath(start_dir)
+    while True:
+        if os.path.isdir(os.path.join(d, 'src', 'analysis', 'config')):
+            return d
+        parent = os.path.dirname(d)
+        if parent == d:
+            # nothing matched (e.g. an unusual install layout); fall back to
+            # three levels up, which is the repo root for this file's location
+            return os.path.abspath(os.path.join(start_dir, '..', '..', '..'))
+        d = parent
+
+
+project_root = _find_project_root(current_script_dir)
 
 # Add the 'GlobalLocal' directory to sys.path if it's not already there
 if project_root not in sys.path:
@@ -326,9 +345,21 @@ def resolve_electrodes_to_keep(args, LAB_root):
         return None
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
-    subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
-        subjects=args.subjects, save_dir=config_dir,
-        filename='subjects_electrodestoROIs_dict.json')
+    roi_dict_filename = 'subjects_electrodestoROIs_dict.json'
+    roi_dict_path = os.path.join(config_dir, roi_dict_filename)
+
+    # Building the dict from scratch needs the FreeSurfer recon CSVs under
+    # ECoG_Recon, which don't exist on the cluster. Fail loudly here instead of
+    # letting make_or_load_... quietly try to regenerate it.
+    if not os.path.isfile(roi_dict_path):
+        raise FileNotFoundError(
+            f"electrodes-to-ROIs dict not found at {roi_dict_path}. "
+            "Generate it on a machine with ECoG_Recon access (see "
+            "make_subjects_electrodes_to_ROIs_dict) and copy it there, or set "
+            "rois_dict=None to keep every channel.")
+
+    subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(
+        save_dir=config_dir, filename=roi_dict_filename)
 
     sig_chans_per_subject = get_sig_chans_per_subject(
         args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
