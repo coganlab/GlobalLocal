@@ -326,6 +326,7 @@ def resolve_electrodes_to_keep(args, LAB_root):
         return None
 
     config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
+    print(config_dir)
     subjects_electrodestoROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
         subjects=args.subjects, save_dir=config_dir,
         filename='subjects_electrodestoROIs_dict.json')
