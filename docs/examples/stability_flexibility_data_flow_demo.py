@@ -222,34 +222,42 @@ def stage_a3():
 # A4 — cross-decoding
 # ---------------------------------------------------------------------------
 def stage_a4():
+    import importlib.util
+
     from src.analysis.decoding.cross_decoding import (
-        _synthetic_cross_df, cross_decode, circular_decode_for_group,
-        is_circular_decode)
+        build_cross_decoding_arrays, circular_decode_for_group, filter_conditions,
+        is_circular_decode, synthetic_roi_labeled_arrays)
+
+    STAB = [['_i_'], ['_c_']]        # congruency
+    FLEX = [['_s_'], ['_r_']]        # switch type
 
     banner("A4 — cross-decoding: one shared code, or two orthogonal codes?")
-    for code in ('shared', 'orthogonal'):
-        dfx = _synthetic_cross_df(code=code, n_subj=4, n_elec_per_subj=10, n_time=16)
-        if code == 'shared':
-            print('input is the SAME long table shape, `hg` = per-trial time course:')
-            print('  columns:', list(dfx.columns), '| shape', dfx.shape,
-                  '| hg cell len', len(dfx.hg.iloc[0]))
-        out = cross_decode(dfx, train_contrast='congruency', test_contrast='switchType',
-                           n_perm=200, rng=np.random.default_rng(0))
-        print('  %-10s train=congruency -> test=switchType: acc = %.4f  '
-              'null_mean = %.4f  p = %.3f  (n_channels=%d)'
-              % (code, out['accuracy'], out['null_mean'], out['p'], out['n_channels']))
+    arrs = synthetic_roi_labeled_arrays(code='shared', seed=1)
+    conds = list(arrs['synthetic'])
+    print('input is the ordinary ROI LabeledArray — the SAME structure the normal')
+    print('decoding path consumes: {roi: {condition: (trials, channels, time)}}')
+    print('  %d conditions, e.g. %s' % (len(conds), conds[:2]))
+    print('  each: %s' % (arrs['synthetic'][conds[0]].shape,))
 
-    # The `strip_condition_means=True` control, on the SAME contrast (train ==
-    # test) where the code is unambiguously real. See the caveat in
-    # docs/stability_flexibility_data_flow.md §A4.
-    dfx = _synthetic_cross_df(code='shared', n_subj=4, n_elec_per_subj=10, n_time=16)
-    print("\nper-condition mean removal, train == test == congruency:")
-    for strip in (False, True):
-        out = cross_decode(dfx, 'congruency', 'congruency',
-                           strip_condition_means=strip, n_perm=200,
-                           rng=np.random.default_rng(0))
-        print('  strip_condition_means=%-5s -> acc = %.4f  null_mean = %.4f  p = %.3f'
-              % (strip, out['accuracy'], out['null_mean'], out['p']))
+    out = build_cross_decoding_arrays(arrs, 'synthetic', STAB, FLEX)
+    print('\nbuild_cross_decoding_arrays -> TWO labellings of the SAME trials:')
+    print('  data          %s' % (out['data'].shape,))
+    print('  labels_train  %s  (congruency, cats=%s)'
+          % (out['labels_train'][:12], out['cats_train']))
+    print('  labels_test   %s  (switchType, cats=%s)'
+          % (out['labels_test'][:12], out['cats_test']))
+    print('  strata        %s  (%d source conditions)'
+          % (out['strata'][:12], len(set(out['strata']))))
+    pairs, counts = np.unique(
+        np.stack([out['labels_train'], out['labels_test']], axis=1),
+        axis=0, return_counts=True)
+    print('  joint (train, test) cells: %s -> counts %s  <-- the contrasts CROSS'
+          % ([tuple(p) for p in pairs], list(counts)))
+
+    sub = filter_conditions(arrs, 'synthetic', '25inc')
+    print('\nfilter_conditions(..., "25inc") -> %d of %d conditions '
+          '(this is how the within-block 2x2 is expressed)'
+          % (len(sub['synthetic']), len(conds)))
 
     print("\ndouble-dipping guard — which decode each electrode group must NOT run:")
     for g in ('CPC', 'SPS', 'CPS', 'SPC'):
@@ -258,6 +266,32 @@ def stage_a4():
           is_circular_decode('CPC', 'congruency', 'incongruent_proportion'))
     print('  is_circular_decode("CPC", "switchType", "switch_proportion")      =',
           is_circular_decode('CPC', 'switchType', 'switch_proportion'))
+
+    # The decode itself goes through the project Decoder, which needs `ieeg`.
+    # Everything above is pure numpy, so this stage still demonstrates the data
+    # flow off-cluster; only the ground-truth check needs the full environment.
+    if importlib.util.find_spec('ieeg') is None:
+        print('\n[`ieeg` not installed — skipping the decode itself. The arrays above')
+        print(' are exactly what `Decoder.cv_cm_jim_window_shuffle(data, labels_train,')
+        print(' labels_test=..., stratify_labels=strata)` consumes.]')
+        return
+
+    from src.analysis.decoding.accuracy_stats import compute_accuracies
+    from src.analysis.decoding.cross_decoding import run_cross_decoding
+    # Deliberately small (20 channels, 20 trials/cell, 3 CV folds x 2 repeats) —
+    # enough to recover the planted answer in ~45 s per decode.
+    small = dict(n_channels=20, n_trials_per_cell=20, n_time=32)
+    print('\nground truth — a shared code transfers, an orthogonal one does not')
+    print('(~45 s per decode; this is the only slow stage in the script):')
+    for code in ('shared', 'orthogonal'):
+        a = synthetic_roi_labeled_arrays(code=code, seed=1, **small)
+        for name, (tr, te) in (('within congruency', (STAB, STAB)),
+                               ('cross stab->flex ', (STAB, FLEX))):
+            res = run_cross_decoding(a, 'synthetic', tr, te, n_splits=3,
+                                     n_repeats=2, window=16, step_size=16)
+            acc_t, acc_s = compute_accuracies(res['cm_true'], res['cm_shuffle'])
+            print('  %-10s %s  true = %.3f   shuffle = %.3f'
+                  % (code, name, acc_t.mean(), acc_s.mean()))
 
 
 # ---------------------------------------------------------------------------

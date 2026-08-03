@@ -1,60 +1,54 @@
-"""A4 — cross-decoding: pseudo-trials + label / set / temporal transfer (plan §4).
+"""A4 — cross-decoding: train on one contrast, score against another (plan §4).
 
 Co-localization != shared CODE. The counting analyses (A1/A2) can show that the
 *same electrodes* are selective for both stability (LWPC) and flexibility (LWPS),
 but they cannot say whether those "both" electrodes carry ONE shared
-representational geometry or a mix of two orthogonal codes. This module is the
-representation-level test that disambiguates them.
+representational geometry or a mix of two orthogonal codes. Cross-decoding is the
+representation-level test that disambiguates them: fit a classifier on one
+contrast and ask whether its decision axis transfers to the other.
 
-Data model
-----------
-Everything runs on the SAME long-format single-trial table the A1-A3 jobs use,
-built with ``effect_measure='cluster'`` so each row's ``hg`` is that trial's HG
-**time course** over the window (a 1-D array), not the window mean:
+This module is deliberately thin. The decoding pipeline it needs already exists:
 
-    subject | electrode (= subject-channel) | congruency (c/i) | switchType (s/r)
-            | incongruent_proportion | switch_proportion | hg = ndarray(n_time)
+- **Pseudopopulation** — `put_data_in_labeled_array_per_roi_subject` pads each
+  subject's trials to the per-condition max with NaN and concatenates subjects
+  along the CHANNEL axis, so an ROI's LabeledArray is already a cross-subject
+  pseudopopulation; `mixup2` fills the padding.
+- **Disjoint train/test** — `Decoder.cv_cm_jim_window_shuffle` cross-validates,
+  so the trials a transferred accuracy is scored on were never trained on. That
+  is the circularity guard; nothing extra is required.
+- **The null** — `shuffle=True` permutes the TRAIN labels and refits, so the null
+  carries the variance of the entire estimation pipeline. For a cross-decode it
+  is exactly the right null: "does an axis trained on real congruency labels
+  predict switchType better than one trained on scrambled labels?"
+- **Multiple comparisons** — the ordinary bootstrap + `time_perm_cluster` stack
+  corrects the time-resolved accuracy trace across windows.
 
-Subjects don't share trials, so we pool electrodes into a **pseudopopulation** and
-synthesize **pseudo-trials** by matching on the full condition cell
-(congruency × inc_prop × switchType × switch_prop). Train and test pseudo-trials
-are drawn from DISJOINT reservoirs of the underlying single trials, so the
-electrodes/trials used to define/train are never the ones a transferred accuracy
-is computed on (the plan's circularity guard, §0.8).
+So all this module supplies is (1) the contrast definitions, (2) the
+electrode-definition ↔ decode double-dipping table, and (3) the glue that turns
+an ROI LabeledArray into the two label vectors `cv_cm_jim_window_shuffle` needs.
 
-The non-negotiable confound controls (plan §0.8) are baked in:
-- ``remove_condition_means`` — subtract each condition's per-feature mean; a
-  cross-decoding effect that doesn't survive this is a univariate offset, not a
-  code. Every ``cross_decode`` call reports accuracy both raw and mean-removed.
-- trial-count matching — pseudo-trials are built with a fixed ``n_per_cell`` per
-  electrode per cell, and cells enter symmetrically, so class/block trial counts
-  are equal by construction.
-- label-permutation null — chance level is estimated by permuting the transferred
-  (test) labels, not assumed to be 0.5.
+Everything else — pseudo-trial synthesis, reservoir splitting, a private
+classifier factory, a bespoke permutation null — used to live here and has been
+removed in favour of the pipeline above.
 
-Classifier
-----------
-The classifier is the same scaler -> PCA -> LDA pipeline the project ``Decoder``
-wraps (``ieeg.decoding.models.PcaEstimateDecoder``). We reuse ``Decoder`` when it
-imports (on the cluster); otherwise we fall back to an equivalent scikit-learn
-``Pipeline`` so the pseudo-trial / transfer logic — the genuinely new code — runs
-anywhere (see ``make_classifier``). Pass your own via ``classifier_factory``.
-
-Designs implemented
--------------------
-- ``within_block_decoding_baseline`` (Design 0, Fig 9): decode a contrast within
-  each block type and compare — the decoding analog of the univariate LWPC/LWPS
-  effects, and where neural cross-effects surface.
-- ``cross_decode`` (Designs a/b): label transfer (train on one contrast, test on
-  another, same electrodes) and set comparison (same label, each electrode set).
-- ``temporal_generalization`` (Design c, Fig 10): train at time t, test at t' ->
-  a train×test accuracy matrix, within and across contrasts.
+Designs
+-------
+- **Label transfer** (Design a): `run_cross_decoding(..., train_strings=STABILITY,
+  test_strings=FLEXIBILITY)`. Run it per electrode group (LWPC-only, LWPS-only,
+  `both`); the prediction is that only `both` transfers above chance.
+- **Set comparison** (Design b): the same contrast decoded within each electrode
+  set — an ordinary decode, just with `electrodes` restricted. Use the normal
+  decoding path.
+- **Temporal generalization** (Design c, Fig 10): pass
+  `temporal_generalization=True` to get a train-window × test-window matrix.
+- **Within-block 2×2** (Design 0, Fig 9): decode a contrast separately within each
+  block level — ordinary condition comparisons in `condition_registry`. Use
+  `is_circular_decode` to skip the cell that would double-dip (below).
 """
 
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
 
 # ---------------------------------------------------------------------------
 # contrasts: a contrast maps a condition cell to a binary class {0, 1} (or None
@@ -76,7 +70,7 @@ def _switch_label(cell):
 
 
 # named contrasts. 'stability' == congruency (i vs c), 'flexibility' == switchType
-# (s vs r); the process aliases make cross_decode calls read like the plan.
+# (s vs r); the process aliases make cross-decoding calls read like the plan.
 CONTRASTS = {
     "congruency": _congruency_label,
     "switchType": _switch_label,
@@ -113,6 +107,11 @@ def resolve_contrast(contrast):
 # NOT be scored on. Use `circular_decode_for_group` / `is_circular_decode`
 # below to skip (or flag) the diagonal cell when a decode is restricted to a
 # defined electrode group.
+#
+# The other way to keep the diagonal cell is `trial_splitting.py`: define the
+# electrodes on one set of trials and decode on a disjoint set. Cross-validation
+# alone does NOT fix this, because the selection happened before the CV split,
+# using every trial.
 DEFINITION_DECODE_DIAGONAL = {
     "CPC": ("congruency", "incongruent_proportion"),   # congruency x proportion-congruent (LWPC)
     "SPS": ("switchType", "switch_proportion"),         # switchType x switch-proportion (LWPS)
@@ -138,463 +137,245 @@ def is_circular_decode(definition_group, contrast, block_col):
 
 
 # ---------------------------------------------------------------------------
-# classifier
+# LabeledArray -> the two label vectors the Decoder needs
 # ---------------------------------------------------------------------------
-def _sklearn_pipeline(explained_variance=0.8, random_state=None):
-    from sklearn.pipeline import Pipeline
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.decomposition import PCA
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    return Pipeline([
-        ("scaler", StandardScaler()),
-        ("pca", PCA(n_components=explained_variance, random_state=random_state)),
-        ("lda", LinearDiscriminantAnalysis()),
-    ])
+def _class_of(condition_name, string_groups):
+    """Index of the first string group that matches `condition_name`, else None.
 
-
-# Resolve the classifier backend ONCE (importing ieeg's Decoder is cluster-only
-# and, on failure, must not be retried on every fold). None => not yet resolved.
-_DECODER_AVAILABLE = None
-
-
-def make_classifier(explained_variance: float = 0.8, random_state=None):
-    """Return a fresh scaler -> PCA -> LDA classifier.
-
-    Uses the project ``Decoder``'s underlying sklearn pipeline when ``ieeg`` is
-    importable (so cluster runs share the exact estimator the rest of the decoding
-    pipeline uses); otherwise an equivalent scikit-learn ``Pipeline``. The choice
-    is resolved once and cached. The returned object exposes ``.fit(X, y)`` /
-    ``.predict(X)`` on 2-D feature matrices."""
-    global _DECODER_AVAILABLE
-    if _DECODER_AVAILABLE is None:
-        try:                                # pragma: no cover - cluster-only path
-            from src.analysis.decoding.decoder import Decoder  # leaf module, no plotting
-            Decoder(categories={}, explained_variance=explained_variance,
-                    n_splits=2, n_repeats=1, oversample=False)
-            _DECODER_AVAILABLE = True
-        except Exception:
-            _DECODER_AVAILABLE = False
-    if _DECODER_AVAILABLE:
-        from src.analysis.decoding.decoder import Decoder
-        return Decoder(categories={}, explained_variance=explained_variance,
-                       n_splits=2, n_repeats=1, oversample=False,
-                       random_state=random_state).model
-    return _sklearn_pipeline(explained_variance, random_state)
-
-
-# ---------------------------------------------------------------------------
-# pseudopopulation assembly
-# ---------------------------------------------------------------------------
-def _cell_key(row, cell_cols):
-    return tuple(row[c] for c in cell_cols)
-
-
-def assemble_pseudopopulation(df, electrodes=None, cell_cols=DEFAULT_CELL_COLS):
-    """Index the long df into ``{electrode: {cell_key: ndarray(n_trials, n_time)}}``.
-
-    ``electrodes`` restricts the pseudopopulation (e.g. to the A1 'both' group);
-    None uses every electrode in ``df``. Returns ``(pop, channels, n_time,
-    cell_cols)`` where ``channels`` is the sorted electrode list = feature axis.
+    Same substring convention as `gather_class_data_by_stratum` /
+    `concatenate_conditions_by_string`: `string_groups` is a list of classes, each
+    a list of substrings, and a condition joins a class if ANY of that class's
+    substrings occur in the condition name.
     """
-    if electrodes is not None:
-        electrodes = list(electrodes)
-        df = df[df["electrode"].isin(electrodes)]
-    channels = sorted(df["electrode"].unique())
-    if not channels:
-        raise ValueError("no electrodes in the (restricted) pseudopopulation")
-
-    # infer n_time from the first hg cell
-    first = df["hg"].iloc[0]
-    n_time = int(np.asarray(first).shape[0]) if np.ndim(first) else 1
-
-    pop = {}
-    for elec, g in df.groupby("electrode"):
-        cells = {}
-        for key, gg in g.groupby(list(cell_cols)):
-            key = key if isinstance(key, tuple) else (key,)
-            arr = np.stack([np.asarray(a, dtype=float).reshape(-1)[:n_time]
-                            for a in gg["hg"].to_numpy()])
-            cells[key] = arr
-        pop[elec] = cells
-    return pop, channels, n_time, tuple(cell_cols)
+    for class_idx, group in enumerate(string_groups):
+        if any(s in condition_name for s in group):
+            return class_idx
+    return None
 
 
-def _split_reservoirs(pop, rng, frac_train=0.5):
-    """Per (electrode, cell), split trial rows into disjoint train/test index sets.
-
-    Splitting the underlying single trials BEFORE any pseudo-trial is drawn is the
-    circularity guard: a trial that helps build a train pseudo-trial can never
-    reappear in a test pseudo-trial."""
-    reservoir = {}
-    for elec, cells in pop.items():
-        reservoir[elec] = {}
-        for key, arr in cells.items():
-            n = len(arr)
-            idx = rng.permutation(n)
-            cut = max(1, int(round(frac_train * n))) if n > 1 else 1
-            reservoir[elec][key] = (idx[:cut], idx[cut:] if n > 1 else idx[:cut])
-    return reservoir
+def _normalize_groups(strings_to_find):
+    """Accept ['a', 'b'] or [['a1','a2'], ['b']] and return the nested form."""
+    if all(isinstance(s, str) for s in strings_to_find):
+        return [[s] for s in strings_to_find]
+    return [list(g) for g in strings_to_find]
 
 
-def build_pseudo_trials(pop, channels, n_time, cell_cols, contrast,
-                        reservoir, side, n_per_cell=5, n_pseudo=60, rng=None):
-    """Construct pseudo-trials for one side (train/test) of a transfer.
+def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
+                                test_strings, obs_axs=0):
+    """Turn one ROI's LabeledArray into the arrays `cv_cm_jim_window_shuffle` needs.
 
-    For each condition cell that the ``contrast`` labels {0,1}, and for each of
-    ``n_pseudo`` draws, every channel contributes the average of ``n_per_cell``
-    trials sampled from that channel's ``side`` reservoir for that cell; the
-    channels are stacked into a ``(n_channel, n_time)`` pseudo-trial. A channel
-    with no trials in a cell contributes zeros (mean-centred), so a missing cell
-    neither helps nor hurts the decode.
+    A cross-decode needs TWO labellings of the SAME trials, so a condition only
+    enters if both contrasts assign it a class. Conditions labelled by only one
+    contrast are dropped (they could train but never be scored, or vice versa).
 
     Parameters
     ----------
-    pop, channels, n_time, cell_cols : from ``assemble_pseudopopulation``.
-    contrast : cell->{0,1,None} callable (see ``resolve_contrast``).
-    reservoir : from ``_split_reservoirs``.
-    side : 0 for the train reservoir, 1 for the test reservoir.
-    n_per_cell : trials averaged per channel to form one pseudo-trial.
-    n_pseudo : pseudo-trials per class-labelled cell.
+    roi_labeled_arrays : {roi: LabeledArray} keyed [condition][trial][channel][time]
+    roi : which ROI to pull.
+    train_strings, test_strings : class definitions in the project's substring
+        convention, e.g. ``[['_i_'], ['_c_']]`` for congruency and
+        ``[['_s_'], ['_r_']]`` for switch type. A flat list of strings is accepted
+        and treated as one substring per class.
+    obs_axs : trials axis within a condition's array (0 in the standard layout).
 
     Returns
     -------
-    X : ndarray (n_pseudo_total, n_channel, n_time)
-    y : ndarray (n_pseudo_total,)          — binary class from the contrast
-    cell_id : ndarray (n_pseudo_total,)    — index of the source cell (for
-              per-condition mean removal)
+    dict with
+        data          : (n_trials, n_channels, n_time) — conditions concatenated
+        labels_train  : (n_trials,) class from `train_strings`
+        labels_test   : (n_trials,) class from `test_strings`
+        strata        : (n_trials,) the source condition index — pass this as
+                        `stratify_labels` so every fold stays balanced on the
+                        condition CELL, hence on both labellings at once
+        cats_train, cats_test : {tuple(group): class_idx}, for the Decoder and plots
+        conditions    : the condition names that survived, in concatenation order
+
+    Notes
+    -----
+    Stratifying on `strata` rather than on `labels_train` is the point: a split
+    balanced only on the training contrast can hand you a test fold that is
+    lopsided on — or entirely missing — a class of the contrast you SCORE.
     """
-    rng = rng if rng is not None else np.random.default_rng()
-    contrast = resolve_contrast(contrast)
+    train_groups = _normalize_groups(train_strings)
+    test_groups = _normalize_groups(test_strings)
 
-    # collect the labelled cells (any cell present on any channel)
-    all_cells = {}
-    for elec in channels:
-        for key in pop.get(elec, {}):
-            all_cells.setdefault(key, dict(zip(cell_cols, key)))
-    labelled = [(key, contrast(cd)) for key, cd in all_cells.items()]
-    labelled = [(key, lab) for key, lab in labelled if lab is not None]
-    if not labelled:
-        raise ValueError("contrast labelled no cells in this pseudopopulation")
+    if roi not in roi_labeled_arrays:
+        raise KeyError(f"ROI {roi!r} not in roi_labeled_arrays "
+                       f"(have {list(roi_labeled_arrays)})")
 
-    X, y, cid = [], [], []
-    for ci, (key, lab) in enumerate(sorted(labelled, key=lambda t: str(t[0]))):
-        for _ in range(n_pseudo):
-            feat = np.zeros((len(channels), n_time))
-            for k, elec in enumerate(channels):
-                cell = pop.get(elec, {}).get(key)
-                if cell is None or len(cell) == 0:
-                    continue
-                pool = reservoir[elec][key][side]
-                if len(pool) == 0:
-                    pool = reservoir[elec][key][1 - side]   # degenerate: reuse
-                take = rng.choice(pool, size=n_per_cell,
-                                  replace=len(pool) < n_per_cell)
-                feat[k] = cell[take].mean(axis=0)
-            X.append(feat)
-            y.append(lab)
-            cid.append(ci)
-    return np.asarray(X), np.asarray(y), np.asarray(cid)
+    chunks, ltrain, ltest, strata, kept = [], [], [], [], []
+    for condition_name in roi_labeled_arrays[roi].keys():
+        c_train = _class_of(condition_name, train_groups)
+        c_test = _class_of(condition_name, test_groups)
+        if c_train is None or c_test is None:
+            continue                      # not labelled by BOTH contrasts -> unusable
+        arr = np.asarray(roi_labeled_arrays[roi][condition_name])
+        n = arr.shape[obs_axs]
+        chunks.append(arr)
+        ltrain.append(np.full(n, c_train))
+        ltest.append(np.full(n, c_test))
+        strata.append(np.full(n, len(kept)))
+        kept.append(condition_name)
 
+    if not chunks:
+        raise ValueError(
+            f"no condition in ROI {roi!r} is labelled by BOTH contrasts "
+            f"({train_strings} / {test_strings}); a cross-decode needs conditions "
+            f"that cross the two factors, e.g. a block-balanced 2x2 condition set")
 
-# ---------------------------------------------------------------------------
-# confound control: per-condition mean removal
-# ---------------------------------------------------------------------------
-def remove_condition_means(X, condition_labels):
-    """Subtract each condition's per-feature mean (the univariate-offset control).
+    labels_train = np.concatenate(ltrain)
+    labels_test = np.concatenate(ltest)
+    for name, lab in (("train", labels_train), ("test", labels_test)):
+        if len(set(lab)) < 2:
+            raise ValueError(f"the {name} contrast labelled every surviving "
+                             f"condition the same class; nothing to decode")
 
-    ``X`` is (n_trials, ...); ``condition_labels`` is length n_trials. For every
-    feature and every condition, the condition's mean over its trials is removed.
-    If cross-decoding survives this, it is multivariate structure, not a mean
-    shift. Returns a copy of ``X``."""
-    X = np.asarray(X, dtype=float).copy()
-    labels = np.asarray(condition_labels)
-    for c in np.unique(labels):
-        m = labels == c
-        X[m] -= X[m].mean(axis=0, keepdims=True)
-    return X
+    return dict(
+        data=np.concatenate(chunks, axis=obs_axs),
+        labels_train=labels_train,
+        labels_test=labels_test,
+        strata=np.concatenate(strata),
+        cats_train={tuple(g): i for i, g in enumerate(train_groups)},
+        cats_test={tuple(g): i for i, g in enumerate(test_groups)},
+        conditions=kept,
+    )
 
 
-# ---------------------------------------------------------------------------
-# small scoring helpers
-# ---------------------------------------------------------------------------
-def _flatten(X):
-    return X.reshape(X.shape[0], -1)
+def filter_conditions(roi_labeled_arrays, roi, keep_substring, new_roi=None):
+    """Keep only the conditions whose name contains `keep_substring`.
 
+    How the within-block 2x2 (Design 0 / Fig 9) is expressed: decoding a contrast
+    *within one block level* is just an ordinary decode over that block's
+    conditions, so restrict here and run `run_cross_decoding` with the same
+    contrast for train and test. Comparing the two block levels' accuracies is the
+    decoding analogue of the univariate LWPC / LWPS effect.
 
-def _fit_transfer_accuracy(Xtr, ytr, Xte, yte, classifier_factory):
-    clf = classifier_factory()
-    clf.fit(_flatten(Xtr), ytr)
-    pred = clf.predict(_flatten(Xte))
-    return float(np.mean(pred == yte))
-
-
-def _perm_null(yte, observed_acc, n_perm, rng, Xtr, ytr, Xte, classifier_factory):
-    """Chance distribution by permuting the (test) labels. Statistic = accuracy;
-    we report the two-sided deviation from 0.5 so it is robust to which class the
-    transferred decoder happens to align with."""
-    clf = classifier_factory()
-    clf.fit(_flatten(Xtr), ytr)
-    pred = clf.predict(_flatten(Xte))
-    null = np.empty(n_perm)
-    for i in range(n_perm):
-        null[i] = np.mean(pred == rng.permutation(yte))
-    p = (np.sum(np.abs(null - 0.5) >= abs(observed_acc - 0.5)) + 1) / (n_perm + 1)
-    return null, float(p)
-
-
-# ---------------------------------------------------------------------------
-# Design 0 / Fig 9 — within-block decoding baseline
-# ---------------------------------------------------------------------------
-def within_block_decoding_baseline(df, contrast="congruency", block_col=None,
-                                   electrodes=None, n_per_cell=5, n_pseudo=80,
-                                   n_folds=5, n_perm=200, rng=None,
-                                   classifier_factory=None,
-                                   cell_cols=DEFAULT_CELL_COLS):
-    """Decode a contrast within each block type and compare accuracies (Fig 9).
-
-    E.g. decode congruency (inc/con) within the mostly-congruent vs
-    mostly-incongruent blocks (``contrast='congruency'``, block =
-    ``incongruent_proportion``), or switch/repeat within mostly-repeat vs
-    mostly-switch blocks (``contrast='switchType'``, block =
-    ``switch_proportion``). This is the decoding analog of the univariate
-    LWPC/LWPS effects; a block difference in decodability is a neural cross-effect.
-
-    Trial counts are matched across blocks by construction (fixed ``n_per_cell`` /
-    ``n_pseudo`` per cell). Returns per-block accuracy (mean over CV folds) with a
-    label-permutation null, plus the block difference and its null.
+    Returns a `{roi: {condition: array}}` dict ready to pass back in. Raises if the
+    substring matches nothing, since a silently empty ROI would look like a failed
+    decode rather than a bad filter.
     """
-    rng = rng if rng is not None else np.random.default_rng(0)
-    classifier_factory = classifier_factory or make_classifier
-    if block_col is None:
-        block_col = ("incongruent_proportion" if resolve_contrast(contrast) is _congruency_label
-                     else "switch_proportion")
-
-    blocks = sorted(pd.unique(df[block_col].dropna()))
-    per_block = {}
-    for b in blocks:
-        sub = df[df[block_col] == b]
-        pop, channels, n_time, cc = assemble_pseudopopulation(sub, electrodes, cell_cols)
-        accs = []
-        for _ in range(n_folds):
-            res = _split_reservoirs(pop, rng)
-            Xtr, ytr, ctr = build_pseudo_trials(pop, channels, n_time, cc, contrast,
-                                                res, side=0, n_per_cell=n_per_cell,
-                                                n_pseudo=n_pseudo, rng=rng)
-            Xte, yte, cte = build_pseudo_trials(pop, channels, n_time, cc, contrast,
-                                                res, side=1, n_per_cell=n_per_cell,
-                                                n_pseudo=n_pseudo, rng=rng)
-            accs.append(_fit_transfer_accuracy(Xtr, ytr, Xte, yte, classifier_factory))
-        acc = float(np.mean(accs))
-        null, p = _perm_null(yte, acc, n_perm, rng, Xtr, ytr, Xte, classifier_factory)
-        per_block[b] = dict(accuracy=acc, acc_folds=np.array(accs),
-                            null_mean=float(null.mean()), p=p, n_channels=len(channels))
-
-    result = dict(contrast=contrast if isinstance(contrast, str) else "custom",
-                  block_col=block_col, blocks=list(blocks), per_block=per_block)
-    if len(blocks) == 2:
-        b0, b1 = blocks
-        result["block_difference"] = (per_block[b1]["accuracy"]
-                                      - per_block[b0]["accuracy"])
-    return result
+    kept = {name: arr for name, arr in roi_labeled_arrays[roi].items()
+            if keep_substring in name}
+    if not kept:
+        raise ValueError(
+            f"no condition in ROI {roi!r} contains {keep_substring!r}; "
+            f"have {sorted(roi_labeled_arrays[roi].keys())[:6]}...")
+    return {new_roi or roi: kept}
 
 
-# ---------------------------------------------------------------------------
-# Designs a/b — cross-decode
-# ---------------------------------------------------------------------------
-def cross_decode(df, train_contrast, test_contrast=None, electrodes=None,
-                 mode="label_transfer", strip_condition_means=False,
-                 electrode_sets=None, n_per_cell=5, n_pseudo=80, n_folds=5,
-                 n_perm=200, rng=None, classifier_factory=None,
-                 cell_cols=DEFAULT_CELL_COLS):
-    """Train a decoder on one contrast/set and test it on another.
+def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
+                       n_splits=5, n_repeats=10, n_shuffle_repeats=None,
+                       explained_variance=0.8, obs_axs=0, time_axs=-1,
+                       window=None, step_size=1, frac_train=None,
+                       temporal_generalization=False, folds_as_samples=False,
+                       oversample=True, random_state=42):
+    """Train on `train_strings`, score against `test_strings`, plus a shuffle null.
 
-    mode='label_transfer' (Design a)
-        Same electrodes; train on ``train_contrast`` (e.g. stability), test on
-        ``test_contrast`` (e.g. flexibility). Run separately on the LWPC-only,
-        LWPS-only, and 'both' electrode groups via ``electrodes``. Prediction:
-        only the 'both' group cross-decodes above chance. Train and test
-        pseudo-trials come from DISJOINT reservoirs (circularity guard).
+    A thin wrapper over `Decoder.cv_cm_jim_window_shuffle` — it exists so the
+    train/test label pair and the condition-cell stratification are constructed
+    the same way everywhere, not to add any statistics of its own. The returned
+    confusion matrices have exactly the shape the ordinary decoding path produces,
+    so `compute_accuracies`, the bootstrap aggregation and
+    `perform_time_perm_cluster_test_for_accuracies` all apply unchanged.
 
-    mode='set_transfer' (Design b)
-        Same label (``train_contrast``), decoded WITHIN each electrode set in
-        ``electrode_sets`` ({name: [electrodes]}), so you can compare where the
-        code lives. (True cross-feature transfer across *non-corresponding*
-        electrodes is not identifiable — different channels are different feature
-        axes — so this reports each set's same-label decodability with its own
-        null rather than pretending to port an LDA axis across disjoint features.)
+    Parameters
+    ----------
+    frac_train : proportion of trials to train on. None (default) keeps
+        `StratifiedKFold`, i.e. (n_splits-1)/n_splits. Set it to sweep the
+        train/test proportion directly (`StratifiedShuffleSplit`); `n_splits`
+        then counts random resamples per repeat rather than folds.
+    n_shuffle_repeats : repeats for the shuffle run. Defaults to `n_repeats`;
+        raise it for a smoother null without paying for it on the true run.
+    temporal_generalization : return a train-window × test-window matrix (Fig 10).
+    others : passed through to the Decoder / `cv_cm_jim_window_shuffle`.
 
-    Confound controls: with ``strip_condition_means=True`` each condition's
-    per-feature mean is removed before fitting (report both, per §0.8). Chance is
-    estimated by permuting the test labels (``n_perm``).
-
-    Returns a dict with observed accuracy, CV-fold accuracies, null mean and p
-    (per group/set as applicable).
+    Returns
+    -------
+    dict with `cm_true`, `cm_shuffle` (confusion matrices), plus `cats`,
+    `conditions`, `labels_train`, `labels_test`, `strata` for bookkeeping.
     """
-    rng = rng if rng is not None else np.random.default_rng(0)
-    classifier_factory = classifier_factory or make_classifier
-    test_contrast = test_contrast if test_contrast is not None else train_contrast
+    arrays = build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
+                                         test_strings, obs_axs=obs_axs)
+    from .decoder import Decoder      # local import: keeps `ieeg` off the import path
+                                      # for callers that only want the tables above
 
-    if mode == "set_transfer":
-        if not electrode_sets:
-            raise ValueError("mode='set_transfer' needs electrode_sets={name:[...]}")
-        out = {}
-        for name, elset in electrode_sets.items():
-            out[name] = cross_decode(
-                df, train_contrast, train_contrast, electrodes=elset,
-                mode="label_transfer", strip_condition_means=strip_condition_means,
-                n_per_cell=n_per_cell, n_pseudo=n_pseudo, n_folds=n_folds,
-                n_perm=n_perm, rng=rng, classifier_factory=classifier_factory,
-                cell_cols=cell_cols)
-        return dict(mode="set_transfer", contrast=train_contrast, per_set=out)
+    common = dict(normalize='true', obs_axs=obs_axs, time_axs=time_axs,
+                  window=window, step_size=step_size, oversample=oversample,
+                  folds_as_samples=folds_as_samples,
+                  labels_test=arrays['labels_test'],
+                  stratify_labels=arrays['strata'],
+                  frac_train=frac_train,
+                  temporal_generalization=temporal_generalization)
 
-    # ---- label_transfer ----
-    pop, channels, n_time, cc = assemble_pseudopopulation(df, electrodes, cell_cols)
-    accs = []
-    Xtr = ytr = Xte = yte = None
-    for _ in range(n_folds):
-        res = _split_reservoirs(pop, rng)
-        Xtr, ytr, ctr = build_pseudo_trials(pop, channels, n_time, cc, train_contrast,
-                                            res, side=0, n_per_cell=n_per_cell,
-                                            n_pseudo=n_pseudo, rng=rng)
-        Xte, yte, cte = build_pseudo_trials(pop, channels, n_time, cc, test_contrast,
-                                            res, side=1, n_per_cell=n_per_cell,
-                                            n_pseudo=n_pseudo, rng=rng)
-        if strip_condition_means:
-            Xtr = remove_condition_means(Xtr, ctr)
-            Xte = remove_condition_means(Xte, cte)
-        accs.append(_fit_transfer_accuracy(Xtr, ytr, Xte, yte, classifier_factory))
-    acc = float(np.mean(accs))
-    null, p = _perm_null(yte, acc, n_perm, rng, Xtr, ytr, Xte, classifier_factory)
-    return dict(mode="label_transfer",
-                train_contrast=train_contrast if isinstance(train_contrast, str) else "custom",
-                test_contrast=test_contrast if isinstance(test_contrast, str) else "custom",
-                strip_condition_means=strip_condition_means,
-                accuracy=acc, acc_folds=np.array(accs),
-                null_mean=float(null.mean()), null=null, p=p,
-                n_channels=len(channels), n_pseudo_per_class=n_pseudo)
+    def _decoder(n_rep):
+        return Decoder(arrays['cats_test'], explained_variance, oversample=oversample,
+                       n_splits=n_splits, n_repeats=n_rep, random_state=random_state)
+
+    cm_true = _decoder(n_repeats).cv_cm_jim_window_shuffle(
+        arrays['data'], arrays['labels_train'], shuffle=False, **common)
+    cm_shuffle = _decoder(n_shuffle_repeats or n_repeats).cv_cm_jim_window_shuffle(
+        arrays['data'], arrays['labels_train'], shuffle=True, **common)
+
+    return dict(cm_true=cm_true, cm_shuffle=cm_shuffle,
+                cats=arrays['cats_test'], conditions=arrays['conditions'],
+                labels_train=arrays['labels_train'],
+                labels_test=arrays['labels_test'], strata=arrays['strata'])
 
 
 # ---------------------------------------------------------------------------
-# Design c / Fig 10 — temporal generalization
+# synthetic ground truth — a LabeledArray-shaped pseudopopulation with a KNOWN
+# answer, so every launcher keeps its no-data dry run
 # ---------------------------------------------------------------------------
-def temporal_generalization(df, train_contrast, test_contrast=None, electrodes=None,
-                            n_per_cell=5, n_pseudo=60, n_folds=3, rng=None,
-                            classifier_factory=None, strip_condition_means=False,
-                            cell_cols=DEFAULT_CELL_COLS):
-    """Train at time t, test at t' -> a (n_train_time × n_test_time) accuracy matrix.
+def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell=40,
+                                 n_time=32, seed=0, amp=1.2, noise=1.0, roi="synthetic"):
+    """`{roi: {condition_name: ndarray(trials, channels, time)}}` with a known truth.
 
-    ``test_contrast=None`` runs WITHIN a contrast (is the code stable or moving
-    across the trial?); passing a different ``test_contrast`` gives a
-    cross-temporal LABEL transfer. Off-diagonal generalization -> a
-    sustained/stable code; a narrow diagonal -> a moving/phasic code (Fig 10).
-    Reuses the disjoint pseudo-trial discipline. Features at each time bin are the
-    channel vector (no time flattening), so the classifier is time-bin-local.
-    """
-    rng = rng if rng is not None else np.random.default_rng(0)
-    classifier_factory = classifier_factory or make_classifier
-    test_contrast = test_contrast if test_contrast is not None else train_contrast
-
-    pop, channels, n_time, cc = assemble_pseudopopulation(df, electrodes, cell_cols)
-    acc_sum = np.zeros((n_time, n_time))
-    for _ in range(n_folds):
-        res = _split_reservoirs(pop, rng)
-        Xtr, ytr, ctr = build_pseudo_trials(pop, channels, n_time, cc, train_contrast,
-                                            res, side=0, n_per_cell=n_per_cell,
-                                            n_pseudo=n_pseudo, rng=rng)
-        Xte, yte, cte = build_pseudo_trials(pop, channels, n_time, cc, test_contrast,
-                                            res, side=1, n_per_cell=n_per_cell,
-                                            n_pseudo=n_pseudo, rng=rng)
-        if strip_condition_means:
-            Xtr = remove_condition_means(Xtr, ctr)
-            Xte = remove_condition_means(Xte, cte)
-        # fit one classifier per train time bin, predict at every test time bin
-        clfs = []
-        for tt in range(n_time):
-            clf = classifier_factory()
-            clf.fit(Xtr[:, :, tt], ytr)
-            clfs.append(clf)
-        for tt in range(n_time):
-            clf = clfs[tt]
-            for te in range(n_time):
-                acc_sum[tt, te] += np.mean(clf.predict(Xte[:, :, te]) == yte)
-    matrix = acc_sum / n_folds
-    return dict(matrix=matrix, n_time=n_time, n_channels=len(channels),
-                train_contrast=train_contrast if isinstance(train_contrast, str) else "custom",
-                test_contrast=test_contrast if isinstance(test_contrast, str) else "custom")
-
-
-# ---------------------------------------------------------------------------
-# synthetic ground truth — SHARED vs ORTHOGONAL code, no data on disk
-# ---------------------------------------------------------------------------
-def _synthetic_cross_df(code="shared", n_subj=4, n_elec_per_subj=10, n_time=16,
-                        seed=0, amp=1.2, noise=1.0):
-    """Pseudopopulation with a KNOWN cross-decoding truth, for validation/tutorial.
-
-    code='shared'      : congruency and switchType load on the SAME population
-                         axis -> a decoder trained on one contrast should transfer
-                         to the other (cross-decoding above chance).
-    code='orthogonal'  : congruency loads on axis w1, switchType on w2 ⟂ w1 ->
-                         training on one contrast should NOT transfer to the other
-                         (cross-decoding ≈ chance) even though BOTH are individually
+    code='shared'      : congruency and switchType load on the SAME population axis
+                         -> a decoder trained on one should transfer to the other.
+    code='orthogonal'  : congruency on axis w1, switchType on w2 ⟂ w1 -> training on
+                         one should NOT transfer, even though BOTH are individually
                          decodable.
 
-    The effect is injected into the middle of the window (bins n_time/4..3n_time/4),
-    so ``temporal_generalization`` shows an on-effect block. Returns a cluster-mode
-    long df (hg column = per-trial time course).
+    Condition names follow the project's substring convention
+    (``Stimulus_<c|i>_<r|s>_<25|75>inc_<25|75>sw``) so the same
+    `train_strings` / `test_strings` work on synthetic and real data. The effect
+    occupies the middle half of the window, so temporal generalization shows an
+    on-effect block rather than a full square.
     """
     rng = np.random.default_rng(seed)
-    n_elec = n_subj * n_elec_per_subj
-    # two population axes over electrodes
-    w1 = rng.normal(size=n_elec); w1 /= np.linalg.norm(w1)
-    w2 = rng.normal(size=n_elec)
-    w2 -= (w2 @ w1) * w1                     # orthogonalize w2 ⟂ w1
-    w2 /= np.linalg.norm(w2)
+    w1 = rng.normal(size=n_channels); w1 /= np.linalg.norm(w1)
+    w2 = rng.normal(size=n_channels); w2 -= (w2 @ w1) * w1; w2 /= np.linalg.norm(w2)
     cong_axis = w1
     switch_axis = w1 if code == "shared" else w2
-
     win = slice(n_time // 4, 3 * n_time // 4)
-    rows = []
-    e_global = 0
-    for s in range(n_subj):
-        subject = f"S{s:02d}"
-        n_tr = int(rng.integers(160, 240))
-        cong = rng.choice(["c", "i"], n_tr)
-        sw = rng.choice(["s", "r"], n_tr)
-        inc_prop = rng.choice([25.0, 75.0], n_tr)
-        sw_prop = rng.choice([25.0, 75.0], n_tr)
-        # latent per-trial coordinate along each axis
-        cscore = amp * (cong == "i").astype(float)      # congruency signal
-        sscore = amp * (sw == "s").astype(float)        # switch signal
-        for _ in range(n_elec_per_subj):
-            electrode = f"{subject}-e{e_global}"
-            a1 = cong_axis[e_global]
-            a2 = switch_axis[e_global]
-            base = np.outer(cscore, [a1]).ravel() + np.outer(sscore, [a2]).ravel()
-            tc = rng.normal(0, noise, (n_tr, n_time))
-            tc[:, win] += base[:, None]
-            col = np.empty(n_tr, dtype=object)
-            for i in range(n_tr):
-                col[i] = tc[i]
-            rows.append(pd.DataFrame(dict(
-                subject=subject, electrode=electrode,
-                congruency=cong, switchType=sw,
-                incongruent_proportion=inc_prop, switch_proportion=sw_prop,
-                hg=col)))
-            e_global += 1
-    return pd.concat(rows, ignore_index=True)
+
+    conditions = {}
+    for cong in ("c", "i"):
+        for sw in ("r", "s"):
+            for inc_prop in (25, 75):
+                for sw_prop in (25, 75):
+                    name = f"Stimulus_{cong}_{sw}_{inc_prop}inc_{sw_prop}sw"
+                    x = rng.normal(0, noise, (n_trials_per_cell, n_channels, n_time))
+                    pattern = (amp * (cong == "i") * cong_axis
+                               + amp * (sw == "s") * switch_axis)
+                    x[:, :, win] += pattern[None, :, None]
+                    conditions[name] = x
+    return {roi: conditions}
 
 
 if __name__ == "__main__":
-    # smoke test: SHARED code cross-decodes; ORTHOGONAL code does not — even though
-    # each contrast is individually decodable in both.
+    # smoke test: a SHARED code cross-decodes; an ORTHOGONAL one does not, even
+    # though each contrast is individually decodable in both worlds.
+    from .accuracy_stats import compute_accuracies
+
+    STAB = [["_i_"], ["_c_"]]        # congruency
+    FLEX = [["_s_"], ["_r_"]]        # switch type
     for code in ("shared", "orthogonal"):
-        df = _synthetic_cross_df(code=code, seed=1)
-        rng = np.random.default_rng(0)
-        within = cross_decode(df, "congruency", "congruency", n_folds=3, n_perm=200, rng=rng)
-        cross = cross_decode(df, "stability", "flexibility", n_folds=3, n_perm=200, rng=rng)
-        cross_mr = cross_decode(df, "stability", "flexibility", strip_condition_means=True,
-                                n_folds=3, n_perm=200, rng=rng)
-        print(f"[{code:>10}] within congruency acc={within['accuracy']:.3f} "
-              f"(p={within['p']:.3f}) | cross stab->flex acc={cross['accuracy']:.3f} "
-              f"(p={cross['p']:.3f}) | mean-removed acc={cross_mr['accuracy']:.3f} "
-              f"(p={cross_mr['p']:.3f})")
+        arrs = synthetic_roi_labeled_arrays(code=code, seed=1)
+        for label, (tr, te) in (("within congruency", (STAB, STAB)),
+                                ("cross stab->flex", (STAB, FLEX))):
+            out = run_cross_decoding(arrs, "synthetic", tr, te,
+                                     n_splits=5, n_repeats=3, window=16, step_size=8)
+            acc_t, acc_s = compute_accuracies(out['cm_true'], out['cm_shuffle'])
+            print(f"[{code:>10}] {label:<18} true={acc_t.mean():.3f} "
+                  f"shuffle={acc_s.mean():.3f}")

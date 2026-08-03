@@ -262,9 +262,10 @@ for gflag, elset in interaction_groups.items():         # CPC, SPS, CPS, SPC
     for contrast, block_col in decode_cells:            # the four decode cells
         if cd.is_circular_decode(gflag, contrast, block_col):
             continue                                    # double-dipping: ignore
-        cells[...] = cd.within_block_decoding_baseline(df, contrast=contrast,
-                                                       block_col=block_col,
-                                                       electrodes=elset, ...)
+        # an ordinary decode over that block's conditions, on this group's
+        # electrodes -- train contrast == test contrast
+        sub = cd.filter_conditions(restricted, roi, block_token)
+        cells[...] = cd.run_cross_decoding(sub, roi, strings, strings, ...)
 ```
 
 > Every result kept here is a decode of one interaction's electrodes on a
@@ -688,23 +689,46 @@ restrict a cell to a defined electrode group.**
 > (ii) tiny min-balanced samples on the rare cross cell; (iii) sequence carryover
 > (legitimate for switch type, a confound for congruency). Fixes, in order:
 > time-/run-aware folds (leave-one-run-out / `GroupKFold`), baseline-correct the
-> accuracy trace before cluster-forming, match trial counts, re-run after
-> `remove_condition_means`.
+> accuracy trace before cluster-forming, match trial counts. `frac_train` is a
+> quick probe here: if the pre-stimulus cluster shrinks as the training set does,
+> it is a fold-leakage artifact rather than signal.
 
 **(a) Label transfer.** Train on stability, test on flexibility (and vice versa),
 on the *same* electrodes, separately per group. Prediction: only the `both` group
-cross-decodes. Run raw **and** per-condition-mean-removed (a transfer that
-collapses after mean removal was a univariate offset, not a code).
+cross-decodes.
 
 **(b) Set transfer.** The same label decoded within each electrode set (compare
-where a code lives).
+where a code lives) — an ordinary decode with `electrodes` restricted, which the
+per-group 2×2 above already covers, so it has no separate code path.
 
 **(c) Temporal generalization (Fig 10).** Train at *t*, test at *t′*; off-diagonal
 generalization → sustained/stable code, narrow diagonal → moving/phasic code.
+`cv_cm_jim_window_shuffle(..., temporal_generalization=True)`.
 
-**Pseudopopulation.** Subjects don't share trials, so pool electrodes and build
-**pseudo-trials** by matching on the full condition cell, with train/test drawn
-from **disjoint reservoirs** (the circularity guard).
+**This runs on the ordinary decoding pipeline.** The ROI LabeledArray is already a
+cross-subject pseudopopulation — `put_data_in_labeled_array_per_roi_subject`
+NaN-pads each subject to the per-condition max and concatenates subjects along the
+**channel** axis, and `mixup2` fills the padding. Cross-validation supplies the
+disjoint train/test guarantee (the circularity guard), `shuffle=True` permutes the
+**train** labels and refits for the null, and `time_perm_cluster` corrects the
+accuracy trace across windows. The only thing cross-decoding adds is a second
+label vector:
+
+```python
+decoder.cv_cm_jim_window_shuffle(data, labels_train,
+                                 labels_test=labels_test,   # score the OTHER contrast
+                                 stratify_labels=strata)    # the condition cell
+```
+
+`cd.build_cross_decoding_arrays` produces those three arrays from an ROI
+LabeledArray; a condition enters only if **both** contrasts can label it, since a
+transfer is not identifiable unless the two factors cross. Stratifying on the
+condition cell (not on the train labels) is what keeps each fold balanced on the
+contrast you *score*.
+
+> **Cross-validation does not fix the electrode-definition circularity** — that
+> selection happened before the split, on every trial. Skip the diagonal cell
+> (§3.2) or earn it with a disjoint definition/decode trial split (§8).
 
 **The payoff 2×2** (reading §5 and §7 together):
 
@@ -905,9 +929,9 @@ The `<name>` it writes (e.g. `Stimulus_1sec_preStimulusBase_decFactor_10`) is th
 | Permutation null / threshold sweep | `conjunction_permutation_null`, `conjunction_threshold_sweep` | same |
 | Continuous correlation | `subject_clustered_corr` | same |
 | Double-dip diagonal map + predicates | `DEFINITION_DECODE_DIAGONAL`, `is_circular_decode`, `circular_decode_for_group` | `src/analysis/decoding/cross_decoding.py` |
-| Within-block 2×2 decode | `within_block_decoding_baseline` | same |
-| Cross-decode (label/set transfer) | `cross_decode` | same |
-| Temporal generalization | `temporal_generalization` | same |
+| Within-block condition restriction | `filter_conditions` | same |
+| Cross-decode label pair + strata | `build_cross_decoding_arrays`, `run_cross_decoding` | same |
+| Cross-decode / train-test proportion / temporal generalization | `Decoder.cv_cm_jim_window_shuffle(labels_test=, frac_train=, temporal_generalization=)` | `src/analysis/decoding/decoder.py` |
 | Four-group derivation (DCC) | `_interaction_groups`, `_electrode_groups` | `dcc_scripts/decoding/stability_flexibility_cross_decoding_dcc.py` |
 | Anatomy join | `attach_roi`, `_derive_group` | `src/analysis/stats/stability_flexibility_anatomy.py` |
 | Coverage + enrichment | `build_coverage_matrix`, `roi_group_enrichment_test` | same |

@@ -42,57 +42,75 @@ bash submit_stability_flexibility_cross_decoding_dcc.sh
 You can also run the entrypoint directly (no SLURM) for a fast local sanity check:
 
 ```bash
-DATA_SOURCE=synthetic SYNTHETIC_CODE=shared N_PSEUDO=40 N_FOLDS=3 N_PERM=200 \
+DATA_SOURCE=synthetic SYNTHETIC_CODE=shared \
+    WINDOW_SIZE=16 STEP_SIZE=16 N_SPLITS=3 N_REPEATS=2 N_PERM=50 \
     python run_stability_flexibility_cross_decoding_dcc.py
 ```
 
-## The data model
+## The data model — this is the ordinary decoding pipeline
 
-A4 runs on the **same** long-format single-trial table as A1–A3, assembled with
-`effect_measure='cluster'` so each row's `hg` is that trial's HG **time course**
-over the window (not the window mean). Subjects don't share trials, so electrodes
-are pooled into a **pseudopopulation** and **pseudo-trials** are synthesized by
-matching on the full condition cell (congruency × inc_prop × switchType ×
-switch_prop). Train and test pseudo-trials are drawn from **disjoint reservoirs**
-of the underlying single trials (the circularity guard).
+A4 does **not** have its own decoding machinery. It runs on the same stack as the
+main decoding job, which already supplies everything a transfer needs:
 
-## What it does — the four designs
+| Requirement | Where it comes from |
+|---|---|
+| cross-subject **pseudopopulation** | the ROI LabeledArray — `put_data_in_labeled_array_per_roi_subject` NaN-pads each subject to the per-condition max and concatenates subjects along the **channel** axis; `mixup2` fills the padding |
+| **disjoint train/test** (circularity guard) | the CV split inside `cv_cm_jim_window_shuffle` |
+| **null centred at chance** | `shuffle=True` permutes the TRAIN labels and **refits**, so the null carries the variance of the whole pipeline (scaler → PCA → LDA, mixup, folds) |
+| **multiple comparisons** | `time_perm_cluster` over the time-resolved accuracy trace |
+| classifier | the project `Decoder` (scaler → PCA → LDA) |
+
+The only thing A4 adds is a **second label vector**: train on one labelling of
+the trials, score against another.
+
+```python
+decoder.cv_cm_jim_window_shuffle(data, labels_train,
+                                 labels_test=labels_test,   # <- the whole of A4
+                                 stratify_labels=strata)
+```
+
+`cross_decoding.build_cross_decoding_arrays` produces those three arrays from an
+ROI LabeledArray. A condition only enters if **both** contrasts can label it —
+the two factors have to cross, or a transfer is not identifiable. `strata` is the
+source condition index; stratifying the folds on it keeps every fold balanced on
+the label you *score*, not just the one you train on.
+
+The A1 electrode definition still needs the long single-trial table
+(`effect_measure='cluster'`), so a real run assembles both.
+
+## What it does — the designs
 
 - **(0) within-block decoding baseline (Fig 9):** decode congruency within
   low/high incongruent-proportion blocks and switchType within low/high
   switch-proportion blocks; the block difference is a neural cross-effect (the
-  decoding analog of the univariate LWPC/LWPS effects).
+  decoding analogue of the univariate LWPC/LWPS effects). This is an ordinary
+  decode over a restricted condition set — `cd.filter_conditions(...)`, then the
+  same contrast for train and test.
+- **(0b) the per-group within-block 2×2**, restricted to each interaction-defined
+  electrode group (CPC/SPS/CPS/SPC), **skipping the diagonal** cell that would
+  double-dip — see `cd.is_circular_decode`. Only the off-diagonal cells are kept.
 - **(a) label transfer:** train on stability, test on flexibility (and vice
   versa), **separately** on the A1 `both`/`S_only`/`F_only` electrode groups.
-  Prediction: only the `both` group cross-decodes. Run **raw and
-  per-condition-mean-removed**.
-- **(b) set comparison:** the same label decoded within each electrode group (so
-  you can compare where a code lives).
-- **(c) temporal generalization (Fig 10):** train-time × test-time accuracy
+  Prediction: only the `both` group cross-decodes.
+- **(c) temporal generalization (Fig 10):** train-window × test-window accuracy
   matrix, within a contrast and across contrasts. Off-diagonal generalization →
   sustained/stable code; a narrow diagonal → moving/phasic code.
 
-## The confound controls (plan §0.8 — non-negotiable)
+Design **(b) "set comparison"** — the same label decoded within each electrode
+group — is just an ordinary decode with the electrodes restricted, which (0b)
+already covers per group, so it no longer has its own code path.
 
-- **Circularity guard** — train/test pseudo-trials come from disjoint reservoirs;
-  the electrodes/trials used to *define* a group are never the ones a transferred
-  accuracy is computed on.
-- **Trial-count matched** — fixed `N_PER_CELL`/`N_PSEUDO` per condition cell, so
-  class/block counts are equal by construction.
-- **Survives per-condition mean removal** — `strip_condition_means=True` subtracts
-  each condition's per-feature mean; a transfer that collapses to chance after
-  removal was a univariate offset, not a genuine multivariate code. Every transfer
-  is reported both raw and mean-removed.
-- **Null centred at chance** — chance is estimated by permuting the transferred
-  (test) labels, not assumed to be 0.5.
+## Circularity: what CV does and does not fix
 
-## Classifier
+Cross-validation makes the *decode* honest: the trials a transferred accuracy is
+scored on were never trained on. It does **not** fix selection bias from the
+electrode definition, because that selection happened *before* the split, using
+every trial. Two options for the diagonal (define == decode) cell:
 
-The classifier is the same scaler → PCA → LDA pipeline the project `Decoder`
-wraps (`ieeg.decoding.models.PcaEstimateDecoder`). `cross_decoding.make_classifier`
-reuses `Decoder` when `ieeg` imports (on the cluster) and otherwise falls back to
-an equivalent scikit-learn `Pipeline`, so the pseudo-trial / transfer logic runs
-anywhere. The backend is resolved once and cached.
+1. **Skip it** — `cd.is_circular_decode(group, contrast, block_col)` names it; the
+   job omits it and keeps the three off-diagonal cells.
+2. **Earn it** — define the electrodes on a disjoint set of trials
+   (`trial_splitting.apply_electrode_definition_split`, `FRAC_DEF` env var).
 
 ## Key knobs (env vars)
 
@@ -100,28 +118,34 @@ anywhere. The backend is resolved once and cached.
 |---|---|---|
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_CODE` | `shared` | synthetic only: `shared` (should cross-decode) or `orthogonal` (should not). |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset). |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset) for the A1 definition. |
 | `ELECTRODES` | `all` | `all` or `sig`. |
+| `ROI` | `all` | which ROI's LabeledArray to decode. |
 | `ALPHA` | `0.05` | A1 FDR threshold for the electrode groups. |
-| `N_PER_CELL` | `5` | trials averaged per electrode to form one pseudo-trial. |
-| `N_PSEUDO` | `80` | pseudo-trials per class-labelled condition cell. |
-| `N_FOLDS` | `5` | disjoint pseudo-trial folds (CV). |
-| `N_PERM` | `500` | label-permutation null draws. |
+| `WINDOW_SIZE` | `20` | decoding window, in samples. |
+| `STEP_SIZE` | `10` | window stride, in samples. |
+| `N_SPLITS` | `5` | CV folds — or random resamples per repeat when `FRAC_TRAIN` is set. |
+| `N_REPEATS` | `10` | CV repeats. |
+| `FRAC_TRAIN` | unset | **proportion of trials used for training.** Unset keeps `StratifiedKFold` at `(N_SPLITS-1)/N_SPLITS`; setting it switches to `StratifiedShuffleSplit` at exactly this fraction. |
+| `EXPLAINED_VARIANCE` | `0.8` | PCA variance retained. |
+| `N_PERM` | `500` | permutations for the cluster test over windows. |
 | `MIN_GROUP_SIZE` | `5` | skip electrode groups smaller than this. |
 
 ## Outputs
 
 Written to `results/<epochs_or_synthetic_tag>/cross_decoding_window_<tmin>to<tmax>s_<electrodes>/`:
 
-- `cross_decoding.json` — accuracies, nulls, and p-values for every design/group
-  (bulky arrays stripped).
+- `cross_decoding.json` — per design/group: mean and peak accuracy, shuffle mean,
+  number of cluster-significant windows (bulky arrays stripped).
+- `accuracy_traces.npz` — the true and shuffle accuracy traces, for re-plotting.
 - `tempgen_*.npy` — the temporal-generalization matrices.
 - `anova_labels.csv` — the A1 electrode groups (real runs).
-- `cross_decoding_summary.png` — within-block bars, label-transfer-by-group,
-  temporal-generalization matrices.
+- `cross_decoding_summary.png` — within-block bars, label-transfer traces by
+  group, temporal-generalization matrices.
 - `summary.txt` — printed verdicts.
 
-**Reading:** cross-decoding above chance (and surviving per-condition mean
-removal) on the `both` group = a **shared** code; chance on `both` while each
-process is individually decodable = **orthogonal** codes (segregation at the
-representational level).
+**Reading:** cross-decoding above chance on the `both` group = a **shared** code;
+chance on `both` while each process is individually decodable = **orthogonal**
+codes (segregation at the representational level). Read `n_sig_windows` rather
+than any single window's accuracy — the verdict is cluster-corrected across time,
+and chance is the refit shuffle null rather than an assumed 0.5.

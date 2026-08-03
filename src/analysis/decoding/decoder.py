@@ -2,7 +2,8 @@
 
 import numpy as np
 from scipy.stats import norm, t
-from sklearn.model_selection import cross_val_score, StratifiedKFold
+from sklearn.model_selection import (cross_val_score, StratifiedKFold,
+                                     StratifiedShuffleSplit)
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.base import BaseEstimator
@@ -185,98 +186,190 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
     #         divisor = 1
     #     return mats / divisor
 
-    def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None, 
-        obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1, 
-        shuffle: bool = False, oversample: bool = True, folds_as_samples: bool = False) -> np.ndarray:
+    def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None,
+        obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1,
+        shuffle: bool = False, oversample: bool = True, folds_as_samples: bool = False,
+        labels_test: np.ndarray = None, stratify_labels: np.ndarray = None,
+        frac_train: float = None, temporal_generalization: bool = False) -> np.ndarray:
         """
         Cross-validated confusion matrix with windowing, optional shuffling, and an option to treat folds as independent samples.
-        
+
         This function performs cross-validated decoding with optional sliding windows over time.
         It can shuffle labels (for permutation testing) and handles missing data via mixup.
+
+        Cross-decoding (`labels_test`)
+        ------------------------------
+        Pass `labels_test` to train on one labelling of the trials and score against
+        a DIFFERENT one — e.g. fit on congruency (stability) and test whether that
+        decision axis predicts switchType (flexibility). Both vectors index the same
+        trials, so the CV split still guarantees train and test trials are disjoint;
+        that is the circularity guard, no extra machinery needed. `labels_test=None`
+        (default) keeps the ordinary same-label behaviour.
+
+        When cross-decoding, pass `stratify_labels` = the joint condition cell
+        (e.g. congruency x switchType) so each fold stays balanced on the label you
+        SCORE, not just the one you train on. Stratifying on the train labels alone
+        can leave a test fold with a lopsided (or absent) test class.
+
+        `shuffle=True` permutes the TRAIN labels and refits, so the null carries the
+        variance of the whole estimation pipeline (scaler -> PCA -> LDA, mixup, fold
+        structure). For a cross-decode this is exactly the right null: "does an axis
+        trained on real congruency labels predict switchType better than an axis
+        trained on scrambled ones?"
+
+        Train/test proportion (`frac_train`)
+        ------------------------------------
+        By default the split is `StratifiedKFold(n_splits)`, i.e. a fixed
+        (n_splits-1)/n_splits train fraction. Pass `frac_train` (0 < f < 1) to use
+        `StratifiedShuffleSplit` instead and set the proportion directly; `n_splits`
+        then means "number of random resamples per repeat" rather than "folds", and
+        the resamples are no longer a partition of the data.
+
+        Temporal generalization (`temporal_generalization`)
+        --------------------------------------------------
+        With `True`, fit at each train window and predict at EVERY test window,
+        returning a (n_train_windows, n_test_windows, ...) matrix instead of the
+        diagonal only. Cost scales with n_windows^2 predictions (but only n_windows
+        fits), so start with a coarse `step_size`.
+
+        Returns
+        -------
+        Without windowing              : (n_repeats, n_cats, n_cats)
+        With `window`                  : (n_windows, n_samples, n_cats, n_cats)
+        With `temporal_generalization` : (n_train_windows, n_test_windows, n_samples, n_cats, n_cats)
+
+        where `n_samples` is `n_repeats` (default) or `n_repeats * n_splits`
+        (`folds_as_samples=True`).
         """
-        
+
         # Step 1: Setup basic parameters
-        # Count unique classes in the labels (e.g., 2 for binary classification)
-        n_cats = len(set(labels))
-        
+        # Count unique classes. With a separate test labelling both vectors must
+        # use the same class coding, so the count comes from their union.
+        if labels_test is not None:
+            labels_test = np.asarray(labels_test)
+            if len(labels_test) != len(labels):
+                raise ValueError(
+                    f"labels_test has {len(labels_test)} entries but labels has "
+                    f"{len(labels)}; both must label the SAME trials")
+            n_cats = len(set(labels) | set(labels_test))
+        else:
+            n_cats = len(set(labels))
+        cm_labels = np.arange(n_cats)   # pin the CM axes so an absent class can't reshape it
+
+        # What the fold split is stratified on. Defaults to the train labels
+        # (the historical behaviour); for a cross-decode pass the joint cell.
+        strat = labels if stratify_labels is None else np.asarray(stratify_labels)
+        if len(strat) != len(labels):
+            raise ValueError(
+                f"stratify_labels has {len(strat)} entries but labels has {len(labels)}")
+
         # Convert negative time axis to positive (e.g., -1 becomes 3 for 4D array)
         time_axs_positive = time_axs % x_data.ndim
-        
+
         # Step 2: Determine output shape based on windowing
         # Base shape without windows: (repeats, splits, classes, classes)
         base_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
-        
+
         if window is not None:
             # Calculate how many windows fit with the given step size
             # E.g., 256 samples, window=64, step=32 → (256-64)/32 + 1 = 7 windows
             steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
-            
-            # Add windows dimension: (repeats, splits, windows, classes, classes)
-            out_shape = (self.n_repeats, self.n_splits, steps, n_cats, n_cats)
+
+            if temporal_generalization:
+                # (repeats, splits, train_windows, test_windows, classes, classes)
+                out_shape = (self.n_repeats, self.n_splits, steps, steps, n_cats, n_cats)
+            else:
+                # Add windows dimension: (repeats, splits, windows, classes, classes)
+                out_shape = (self.n_repeats, self.n_splits, steps, n_cats, n_cats)
         else:
+            if temporal_generalization:
+                raise ValueError("temporal_generalization=True requires `window`")
             # No windowing - use base shape
             out_shape = base_shape
-        
+
         # Step 3: Initialize output array and prepare data
         # Create array to store all confusion matrices
         mats = np.zeros(out_shape, dtype=np.float32)
-        
+
         # Move observations/trials to first axis for easier indexing
         # E.g., (trials, channels, freqs, time) stays same if obs_axs=0
         data = x_data.swapaxes(0, obs_axs)
-        
+
         # Initialize random state for reproducibility
         rng = np.random.RandomState(seed=self.random_state if hasattr(self, 'random_state') else None)
-        
+
+        if frac_train is not None and not 0 < frac_train < 1:
+            raise ValueError(f"frac_train must be in (0, 1); got {frac_train}")
+
         # Step 4: Main cross-validation loop
         for i in range(self.n_repeats):
-            # Each repeat gets a different random split of the data
-            skf = StratifiedKFold(n_splits=self.n_splits, shuffle=True, random_state=rng)
-            
+            # Each repeat gets a different random split of the data. StratifiedKFold
+            # partitions the trials; StratifiedShuffleSplit instead draws n_splits
+            # independent train/test resamples at the requested proportion.
+            if frac_train is None:
+                splitter = StratifiedKFold(n_splits=self.n_splits, shuffle=True,
+                                           random_state=rng)
+            else:
+                splitter = StratifiedShuffleSplit(n_splits=self.n_splits,
+                                                  train_size=frac_train,
+                                                  random_state=rng)
+
             # Iterate through each fold
-            for f, (train_idx, test_idx) in enumerate(skf.split(data, labels)):
+            for f, (train_idx, test_idx) in enumerate(splitter.split(data, strat)):
                 # Extract train/test data for this fold
                 x_train = data[train_idx]
                 y_train = labels[train_idx].copy()  # Copy to avoid modifying original
                 x_test = data[test_idx]
-                y_test = labels[test_idx]
-                
+                # Cross-decoding scores against the OTHER labelling of the same trials
+                y_test = (labels if labels_test is None else labels_test)[test_idx]
+
                 # Step 5: Optional label shuffling (for permutation testing)
                 if shuffle:
-                    # Randomly permute training labels to break label-data relationship
+                    # Randomly permute training labels to break label-data relationship.
+                    # The model is refit below, so the null reflects the full pipeline.
                     rng.shuffle(y_train)
-                
+
                 # Step 6: Window and predict
                 # This returns confusion matrix(es) for this fold
                 cm_windowed = self._window_and_predict_minimal(
-                    x_train, y_train, x_test, y_test, 
-                    window, step_size, time_axs_positive, oversample
+                    x_train, y_train, x_test, y_test,
+                    window, step_size, time_axs_positive, oversample,
+                    temporal_generalization=temporal_generalization,
+                    cm_labels=cm_labels
                 )
-                
+
                 # Step 7: Store results
                 if window is not None:
-                    # cm_windowed shape: (n_windows, n_cats, n_cats)
+                    # cm_windowed shape: (n_windows, n_cats, n_cats), or
+                    # (n_train_windows, n_test_windows, n_cats, n_cats) for tempgen
                     mats[i, f, :] = cm_windowed
                 else:
-                    # cm_windowed shape: (n_cats, n_cats) 
+                    # cm_windowed shape: (n_cats, n_cats)
                     mats[i, f] = cm_windowed
-        
+
         # Step 8: Reorganize dimensions for output
+        # n_win_axes is how many window axes sit between (repeats, splits) and the
+        # two class axes: 0 without windowing, 1 normally, 2 for temporal generalization.
+        n_win_axes = 0 if window is None else (2 if temporal_generalization else 1)
+        win_axes = tuple(range(2, 2 + n_win_axes))
+
         if folds_as_samples:
-            # Current shape: (n_repeats, n_splits, n_windows, n_cats, n_cats)
-            # First, move n_windows to the front to get a new shape of (n_windows, n_repeats, n_splits, n_cats, n_cats)
-            mats = np.transpose(mats, (2, 0, 1, 3, 4))
-            
-            # now, reshape to combine n_repeats and n_splits into a single 'samples' dimension
-            n_windows, n_repeats, n_splits, n_cats, _ = mats.shape
-            mats = mats.reshape(n_windows, n_repeats * n_splits, n_cats, n_cats)
-            # final desired shape: (n_windows, n_repeats * n_splits, n_cats, n_cats)
+            # (n_repeats, n_splits, *win, n_cats, n_cats)
+            #   -> (*win, n_repeats, n_splits, n_cats, n_cats)
+            mats = np.transpose(mats, win_axes + (0, 1, mats.ndim - 2, mats.ndim - 1))
+            # then collapse repeats x splits into one 'samples' dimension
+            win_shape = mats.shape[:n_win_axes]
+            n_repeats, n_splits = mats.shape[n_win_axes:n_win_axes + 2]
+            mats = mats.reshape(win_shape + (n_repeats * n_splits, n_cats, n_cats))
+            # final: (*win, n_repeats * n_splits, n_cats, n_cats)
         else:
-            # sum over splits
-            # orig shape: (n_repeats, n_splits, n_windows, n_cats, n_cats)
-            mats = np.sum(mats, axis=1) # -> (n_repeats, n_windows, n_cats, n_cats)
-            mats = np.transpose(mats, (1,0,2,3)) # -> (n_windows, n_repeats, n_cats, n_cats)
-        
+            # sum over splits, then bring the window axes to the front
+            mats = np.sum(mats, axis=1)   # -> (n_repeats, *win, n_cats, n_cats)
+            win_axes_after_sum = tuple(range(1, 1 + n_win_axes))
+            mats = np.transpose(
+                mats, win_axes_after_sum + (0, mats.ndim - 2, mats.ndim - 1))
+            # final: (*win, n_repeats, n_cats, n_cats)
+
         # Step 9: Apply normalization
         if normalize == 'true':
             # Normalize by row sums (true class totals)
@@ -299,8 +392,9 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         
         return result
 
-    def _window_and_predict_minimal(self, x_train, y_train, x_test, y_test, 
-                                window, step_size, time_axs, oversample):
+    def _window_and_predict_minimal(self, x_train, y_train, x_test, y_test,
+                                window, step_size, time_axs, oversample,
+                                temporal_generalization=False, cm_labels=None):
         """
         helper function that handles windowing and prediction for a single CV fold
 
@@ -330,10 +424,20 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
         5. Return: (7, 2, 2) for binary classification with 7 windows
 
+        With `temporal_generalization=True`, step 4 becomes a double loop: fit once
+        per train window, then predict at every test window, returning (7, 7, 2, 2).
+
+        `cm_labels` pins the confusion-matrix axes (e.g. `np.arange(n_cats)`) so a
+        fold in which one class never appears still returns a full-size matrix
+        instead of a smaller one that would fail to broadcast into the output.
         """
         # step 1: get number of classes from decoder configuration
         n_cats = len(self.categories)
-        
+        if cm_labels is None:
+            cm_labels = np.arange(n_cats) if n_cats else None
+        elif n_cats == 0:
+            n_cats = len(cm_labels)
+
         # step 2: combine combine train and test data for consistent windowing
         # this ensures windows align properly across train/test boundary
         x_stacked = np.concatenate((x_train, x_test), axis=0)
@@ -366,33 +470,39 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
             # (100, 10, 256) -> (1, 100, 10, 256)
             windowed = x_processed[np.newaxis, ...]
         
-        # Step 6: Process each time window independently 
-        out_cm = [] # list to collect confusion matrices
-
-        for x_window in windowed: 
-            '''
-            would need to modify this step for temporal generalization matrices. 
-            Maybe chunk the code before and after this into functions that can be reused in two versions of _window_and_predict_minimal - one as is and one with temporal generalization matrices
-            Though cv_cm_jim_window_shuffle would also need to be modified to output (n_windows, n_windows, n_repeats, n_cats, n_cats) instead of the current hsape.
-            '''
-            # Step 6a: Flatten all features except trials dimension
-            # E.g., (100, 10, 64) -> (100, 640)
-            # This creates feature vector for each trial
+        # Step 6: Flatten each window and split it back into train / test.
+        # Done up front so temporal generalization can pair any train window with
+        # any test window without re-windowing.
+        # E.g., (100, 10, 64) -> (100, 640): one feature vector per trial.
+        n_train = len(y_train_proc)
+        per_window = []
+        for x_window in windowed:
             x_flat = x_window.reshape(x_window.shape[0], -1)
+            # We know the first n_train samples are training (sample_fold ordered them)
+            per_window.append(np.split(x_flat, [n_train], axis=0))
 
-            # Step 6b: Split back into train and test sets
-            # We know first len(y_train_proc) samples are training
-            x_train_w, x_test_w = np.split(x_flat, [len(y_train_proc)], axis=0)
-            
-            # Step 6c: Train model and predict
-            self.fit(x_train_w, y_train_proc) # train on this window's features
-            preds = self.predict(x_test_w) # predict test labels
+        # Step 7: Fit and predict
+        if temporal_generalization:
+            # Fit ONCE per train window, then predict at every test window.
+            # n_windows fits, n_windows^2 predictions.
+            n_win = len(per_window)
+            out_cm = np.zeros((n_win, n_win, n_cats, n_cats))
+            for i, (x_train_w, _) in enumerate(per_window):
+                self.fit(x_train_w, y_train_proc)
+                for j, (_, x_test_w) in enumerate(per_window):
+                    preds = self.predict(x_test_w)
+                    out_cm[i, j] = confusion_matrix(y_test_proc, preds, labels=cm_labels)
+            return out_cm   # Shape: (n_train_windows, n_test_windows, n_cats, n_cats)
 
-            # Step 6d: Create confusion matrix for this window
-            # Compares true test labels with predictions
-            out_cm.append(confusion_matrix(y_test_proc, preds))
-        
-        # Step 7: Format output
+        out_cm = []  # list to collect confusion matrices
+        for x_train_w, x_test_w in per_window:
+            self.fit(x_train_w, y_train_proc)   # train on this window's features
+            preds = self.predict(x_test_w)      # predict test labels
+            # Compares true test labels with predictions. With a separate test
+            # labelling (cross-decoding) y_test_proc is the OTHER label vector.
+            out_cm.append(confusion_matrix(y_test_proc, preds, labels=cm_labels))
+
+        # Step 8: Format output
         # If only one window, remove the window dimension
         # otherwise, return array of confusion matrices
         if len(out_cm) == 1:
