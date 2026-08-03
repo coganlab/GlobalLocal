@@ -59,7 +59,7 @@ def compute_accuracies(cm_true, cm_shuffle):
     return accuracies_true, accuracies_shuffle
 
 
-def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_shuffle, p_thresh=0.05, n_perm=50, seed=42):
+def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_shuffle, p_thresh=0.05, n_perm=50, seed=42, stat_func=None):
     """
     Perform a time permutation cluster test on true vs. shuffled accuracies.
 
@@ -80,6 +80,9 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
         Number of permutations for the cluster test. Default is 50.
     seed : int, optional
         Random seed for reproducibility of the permutation test. Default is 42.
+    stat_func : callable, optional
+        Per-window statistic passed to `time_perm_cluster`. None (default) uses
+        the library's own default (`ieeg.calc.stats.ttest`).
 
     Returns
     -------
@@ -93,6 +96,11 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
     accuracies_true_T = accuracies_true.T
     accuracies_shuffle_T = accuracies_shuffle.T
 
+    # `stat_func` used to be referenced here without ever being defined or passed,
+    # so every call raised NameError. It is now an optional argument; omitting it
+    # lets `time_perm_cluster` apply its own default rather than inventing one.
+    optional = {} if stat_func is None else {'stat_func': stat_func}
+
     significant_clusters, p_values = time_perm_cluster(
         accuracies_true_T,
         accuracies_shuffle_T,
@@ -100,9 +108,9 @@ def perform_time_perm_cluster_test_for_accuracies(accuracies_true, accuracies_sh
         n_perm=n_perm,
         tails=1,
         axis=0,
-        stat_func=stat_func,
         n_jobs=1,
-        seed=seed
+        seed=seed,
+        **optional
     )
     return significant_clusters, p_values
 
