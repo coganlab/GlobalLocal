@@ -685,11 +685,34 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
             return (cnt + 1) / (n_perm + 1)
 
         def perm_p_interaction(condcol, modcol):
-            # Balanced difference-of-differences, with a main-effect-preserving
-            # null: permute the modulator WITHIN each condition level, so both
-            # main effects (and cell counts) are held fixed and only the
-            # interaction is nulled -- unlike a free label shuffle, which lets a
-            # main effect masquerade as an interaction under cell imbalance.
+            # Balanced difference-of-differences, nulled by permuting the
+            # modulator WITHIN each condition level. Cell counts are held fixed
+            # and the interaction is nulled -- unlike a free label shuffle, which
+            # lets a main effect masquerade as an interaction under cell
+            # imbalance.
+            #
+            # Two honest caveats about this null:
+            #
+            # (1) It does NOT hold both main effects fixed. Permuting `mod`
+            #     within each `cond` level preserves the CONDITION main effect
+            #     exactly but destroys the MODULATOR main effect, which reappears
+            #     as extra variance in the permuted cell means and widens the
+            #     null -- i.e. conservative. The mirror scheme (permute `cond`
+            #     within each `mod` level) is equally valid and conservative in
+            #     the other direction; this one is preferred only because
+            #     congruency/switch main effects in HG are typically much larger
+            #     than block-proportion main effects, so less variance leaks in.
+            #
+            # (2) The modulator is a BLOCK-level variable (constant within a
+            #     block), so permuting it trial-by-trial builds label
+            #     configurations the design cannot produce and ignores
+            #     within-block dependence (drift, fatigue, tonic block state).
+            #     Trials within a block are not exchangeable in `mod`, so this
+            #     null is anticonservative on that axis. The mirror scheme does
+            #     not have this problem -- congruency and switchType ARE
+            #     randomized trial-to-trial within a block, so they are genuinely
+            #     exchangeable. Permuting the condition within block is the
+            #     stricter choice; see `docs/stability_flexibility_guide.md` §4.
             cond = sub[condcol].to_numpy(); mod = sub[modcol].to_numpy()
             valid = ~(np.isnan(cond) | np.isnan(mod))
             cond = cond[valid]; mod = mod[valid]; h = hg[valid]
