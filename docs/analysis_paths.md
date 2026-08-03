@@ -14,6 +14,18 @@ this doc is to make it obvious *where each path lives*, *what it eats*, and
 > All source lives under `src/analysis/`. Cluster entry points (the scripts you
 > actually launch) live under `dcc_scripts/`. Tests live under `tests/analysis/`.
 
+### The other docs in `docs/`
+
+| Doc | Read it when you want |
+|---|---|
+| **`analysis_paths.md`** (this) | *Where does each analysis live, and what does it eat?* |
+| `stability_flexibility_guide.md` | The **why** behind the A1–A6 battery — scientific plan, statistical-rigor checklist, the four-interaction electrode definition, line-by-line walk-throughs |
+| `stability_flexibility_data_flow.md` | The **shape of the data at every step** of A1–A7 — one fake dataset followed end to end, with the actual tables printed. Backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py` |
+| `stability_flexibility_segregation_methods.md` | Manuscript-ready **Methods** text for the segregation analysis, in a `cluster` and a `cohens_d` version |
+| `refactoring_guide.md` | How the big modules were split (and how to split the next one). Records what has already been done to `decoding/` and `power/` |
+| `learning_assignments/segregation_bootstrap/` | **A7** — a build-a-feature self-check with a pytest grader (§12.7) |
+| `skeletons/` | Runnable stubs `aN_*.py` for each assignment |
+
 ---
 
 ## 1. The big picture
@@ -28,10 +40,13 @@ flowchart TD
 
     HGEP -->|create_subjects_mne_objects_dict| POWER[POWER TRACES<br/>src/analysis/power]
     HGEP -->|create_subjects_mne_objects_dict → LabeledArray| DEC[DECODING<br/>src/analysis/decoding]
+    HGEP -->|window-mean or time-course<br/>per electrode × trial| LONG[long single-trial table]
     CLEAN -->|get_good_data → get_trials → scaleogram| SPEC[SPECTRAL / WAVELETS<br/>src/analysis/spec]
     BIP -->|load_epochs| PAC[PAC / CONNECTIVITY<br/>src/analysis/pac]
 
     BEH[behavioral CSVs] --> STATS[BEHAVIORAL STATS<br/>src/analysis/stats]
+    LONG --> SF[STABILITY vs FLEXIBILITY<br/>A1–A7 battery §12]
+    BEH --> SF
 
     POWER --> VIS[VISUALIZATION<br/>src/analysis/vis]
     DEC --> VIS
@@ -49,6 +64,13 @@ The power and decoding paths share the *exact same* pre-computed high-gamma
 epochs. The spectral and PAC paths re-epoch the cleaned raw data themselves
 because they need the full-band (not high-gamma-only) signal.
 
+There is also a **third shape**, derived from the first: the stability/flexibility
+battery (§12) flattens the saved HG epochs into a **long single-trial table**, one
+row per (electrode, trial), where `hg` is either the window mean or the window's
+time course. Every module in that battery consumes only that table — which is why
+each one can be run end to end on synthetic ground truth with no data on disk.
+See `docs/stability_flexibility_data_flow.md`.
+
 ---
 
 ## 2. Directory map
@@ -59,6 +81,7 @@ src/analysis/
 │   ├── plot_clean.py                     # line-noise filtering → derivatives/clean
 │   ├── make_epoched_data.py              # high-gamma epochs (main shared input)
 │   ├── make_epoched_data_with_phase.py   # variant that keeps complex/phase
+│   ├── epoch_helpers.py                  # shared epoching/outlier helpers
 │   ├── save_bipolar_derivatives.py       # bipolar-referenced derivatives (feeds PAC)
 │   ├── makeRawBehavioralData.py          # accuracy/RT behavioral arrays
 │   └── parcellation.py                   # anatomy / atlas labels
@@ -80,11 +103,21 @@ src/analysis/
 │   └── subjects_tfr_objects_functions.py
 │
 ├── power/       # ANALYSIS PATH: high-gamma power traces + windowed ANOVA
-│   ├── power_traces.py
+│   ├── power_traces.py                   # FACADE — re-exports the three modules below
+│   ├── evoked_builders.py                # per-ROI/condition evoked construction + subtraction
+│   ├── windowed_anova.py                 # windowed ANOVA, cluster correction, FDR
+│   ├── plots.py                          # power traces + interaction plots
 │   └── roi_analysis.py
 │
 ├── decoding/    # ANALYSIS PATH: time-resolved decoding
-│   ├── decoding.py                       # Decoder class + all decoding helpers
+│   ├── decoding.py                       # FACADE — re-exports every public name below
+│   ├── decoder.py                        # the Decoder class + cv_cm_* methods
+│   ├── data_prep.py                      # balancing, mixup2, flatten_features, sample_fold
+│   ├── accuracy_stats.py                 # permutation / bootstrap / cluster stats on accuracies
+│   ├── roi_confusion.py                  # per-ROI confusion-matrix orchestration
+│   ├── tfr_cluster.py                    # sig-TFR masks + cluster decoding (bridge from spec/)
+│   ├── context_comparison.py             # cross-block / context comparisons + overlay
+│   ├── plots/                            # accuracies.py, confusion.py, trajectories.py, style.py
 │   ├── process_bootstrap.py
 │   ├── cross_decoding.py                 # A4: stability↔flexibility cross-decoding (§12)
 │   ├── trial_splitting.py                # disjoint def/decode split (circularity control, §13)
@@ -110,12 +143,26 @@ src/analysis/
     └── power_traces_anova_f_traces_vis.py
 
 dcc_scripts/      # Cluster launchers (what you actually run)
+├── preproc/      # submit_plot_clean.sh, submit_make_epoched_data.sh
+├── spec/         # make_wavelets, plot_wavelets, wavelet_differences,
+│                 # get_sig_tfr_differences + sbatch/submit *.sh
 ├── power/        # run_power_traces_dcc.py, power_traces_dcc.py, sbatch/submit *.sh
 ├── decoding/     # run_decoding_dcc.py, decoding_dcc.py, sbatch/submit *.sh
 │                 # + stability_flexibility_cross_decoding (A4) + def-split launcher (§13)
-└── stats/        # A1/A2 (anova_conjunction, segregation) + A3 (anatomy)
-                  # + A5 (timing) + A6 (brain_behavior) launchers (§12)
+├── stats/        # A1/A2 (anova_conjunction, segregation) + A3 (anatomy)
+│                 # + A5 (timing) + A6 (brain_behavior) launchers (§12)
+└── vis/          # plot_sig_electrodes_dcc.py + condition_plot_specs.py
+
+docs/examples/    # Runnable doc companions
+└── stability_flexibility_data_flow_demo.py   # every table in the data-flow doc
 ```
+
+> **Two facades.** `decoding/decoding.py` and `power/power_traces.py` used to be
+> ~4.7k- and ~2.4k-line monoliths. They are now thin re-export shims, so every
+> existing `from src.analysis.decoding.decoding import ...` still resolves — but
+> **new code should import from the specific submodule** (`decoding.decoder`,
+> `power.windowed_anova`, …). See `docs/refactoring_guide.md` for the full map
+> and for two pre-existing bugs the split surfaced.
 
 ---
 
@@ -228,6 +275,11 @@ It does *not* use the saved HG epochs, because it needs the full-band signal.
 - `spec/wavelet_functions.py` — the low-level TFR computations (wavelet scaleogram
   and multitaper), plus significance testing between conditions.
 - `spec/subjects_tfr_objects_functions.py` — the per-subject / per-ROI orchestration.
+- **Runners:** `dcc_scripts/spec/` — `make_wavelets_dcc.py` (compute TFRs),
+  `plot_wavelets_dcc.py`, `wavelet_differences_dcc.py`, and
+  `get_sig_tfr_differences_dcc.py`, each with a `run_*.py` config and
+  `sbatch_*.sh` / `submit_*.sh` pair, in the same shape as the power and decoding
+  launchers.
 
 ### Function-call structure
 
@@ -270,7 +322,15 @@ windowed ANOVA** F-traces and interaction plots.
 **Consumes:** the saved HG epochs, via `create_subjects_mne_objects_dict`.
 
 **Key files:**
-- `power/power_traces.py` — all the evoked-averaging, ANOVA, and plotting functions.
+- `power/power_traces.py` — **facade only**; re-exports the three modules below so
+  old imports keep working. New code should import from the specific module:
+  - `power/evoked_builders.py` — per-subject/ROI/condition evoked construction,
+    grand averages, subtraction pairs, `time_perm_cluster_between_two_evokeds`.
+  - `power/windowed_anova.py` — `process_windowed_data_for_anova`,
+    `create_windowed_anova_dataframe`,
+    `run_within_electrode_windowed_anova_cluster_correction`, FDR helpers.
+  - `power/plots.py` — `plot_power_trace_for_roi`, the 2-way / 16-condition
+    interaction plots, `DEFAULT_PLOT_STYLE`.
 - `power/roi_analysis.py` — an older per-subject stats entry (`main()` currently
   being refactored; not the primary path).
 - **Runner:** `dcc_scripts/power/power_traces_dcc.py` (`main(args)`), configured
@@ -334,18 +394,27 @@ context/cross-block comparisons and low-dimensional (PCA/UMAP) trajectories.
 its ROI×condition; then downsampled again to the min across the two conditions
 being compared).
 
-**Key files:**
-- `decoding/decoding.py` — the `Decoder` class and *every* decoding helper
-  (stats, plotting, PCA/UMAP, TFR-cluster decoding). It is large (~4.8k lines);
-  the `Decoder` class and the `get_confusion_matrices_*` / `plot_accuracies_*`
-  families are the parts you'll touch most.
-- `decoding/process_bootstrap.py` — the per-bootstrap unit of work (run in parallel).
-- `decoding/run_*.py` — orchestration helpers for aggregation, context
-  comparisons, and debugging visualizations.
+**Key files:** `decoding/decoding.py` used to hold the whole pipeline in one
+~4.8k-line file. It is now a **125-line facade** that re-exports everything, so
+every old `from src.analysis.decoding.decoding import ...` still works — but the
+code now lives in focused modules, and that's where to make changes:
+
+| Module | Holds |
+|---|---|
+| `decoder.py` | the **`Decoder`** class + its `cv_cm_*` methods |
+| `data_prep.py` | balancing, `mixup2`, `flatten_features`, `sample_fold` |
+| `accuracy_stats.py` | permutation / bootstrap / cluster stats on accuracies |
+| `roi_confusion.py` | `get_confusion_matrices_for_rois_*` orchestration |
+| `tfr_cluster.py` | sig-TFR masks + cluster decoding (the bridge from §5) |
+| `context_comparison.py` | `run_context_comparison_analysis`, `plot_cross_block_overlay` |
+| `plots/accuracies.py`, `plots/confusion.py`, `plots/trajectories.py`, `plots/style.py` | all plotting |
+| `process_bootstrap.py` | the per-bootstrap unit of work (run in parallel) |
+| `run_*.py` | orchestration helpers for aggregation, context comparisons, debug viz |
+
 - **Runner:** `dcc_scripts/decoding/decoding_dcc.py` (`main(args)`), configured by
   `run_decoding_dcc.py`, launched via `submit_specific_conditions_decoding_dcc.sh`.
 
-### The `Decoder` class (`decoding.py`)
+### The `Decoder` class (`decoding/decoder.py`)
 
 `Decoder(PcaEstimateDecoder, MinimumNaNSplit)` — a cross-validated decoder that
 handles NaN trials and PCA dimensionality reduction. Key methods:
@@ -465,12 +534,13 @@ per-(electrode, trial) high-gamma dataframe for the segregation analysis.
   (`contrast_mode`, `effect_measure`) let stability/flexibility be defined by the
   LWPC / LWPS interactions (congruency×`incongruent_proportion`,
   switchType×`switch_proportion`) instead of the trial condition, and let each
-  contrast be scored by its aggregate cluster-mass statistic instead of Cohen's
-  _d_ on the window-mean HG.
+  contrast be scored by an aggregate cluster-mass statistic or a peak-*t* instead
+  of Cohen's _d_ on the window-mean HG (see §12).
 - `post_error_slowing_analysis.py` (repo root) — related behavioral analysis.
 
-These are mostly standalone scripts/notebooks rather than a multi-stage cluster
-pipeline.
+The behavioral model is a standalone script; the stability/flexibility modules
+(`stability_flexibility_{segregation,anatomy,timing,brain_behavior}.py`) are the
+one part of `stats/` with a real cluster pipeline behind it — see §12.
 
 ---
 
@@ -492,12 +562,13 @@ Cross-path plotting and anatomy figures:
 | Path | Source dir | Cluster launcher | Input (epoched data) | Core function(s) | Output |
 |------|-----------|------------------|----------------------|------------------|--------|
 | **Preproc** | `preproc/` | `make_epoched_data.py` | cleaned raw (`derivatives/clean`) | `make_epoched_data.main` | saved HG epochs `.fif` |
-| **Spectral / Wavelets** | `spec/` | (script/notebook) | cleaned raw, re-epoched | `make_subjects_tfr_objects` → `get_uncorrected_wavelets` | TFRs + sig masks |
-| **Power traces** | `power/` | `power_traces_dcc.py` | saved HG epochs | `make_multi_channel_evokeds_for_all_conditions_and_rois` → `plot_power_traces_for_all_rois` | ROI power traces + ANOVA |
-| **Decoding** | `decoding/` | `decoding_dcc.py` | saved HG epochs → LabeledArray | `process_bootstrap` → `Decoder.cv_cm_jim_window_shuffle` | accuracy traces + CMs |
+| **Spectral / Wavelets** | `spec/` | `dcc_scripts/spec/make_wavelets_dcc.py`, `get_sig_tfr_differences_dcc.py` | cleaned raw, re-epoched | `make_subjects_tfr_objects` → `get_uncorrected_wavelets` | TFRs + sig masks |
+| **Power traces** | `power/` (`evoked_builders`, `windowed_anova`, `plots`) | `power_traces_dcc.py` | saved HG epochs | `make_multi_channel_evokeds_for_all_conditions_and_rois` → `plot_power_traces_for_all_rois` | ROI power traces + ANOVA |
+| **Decoding** | `decoding/` (`decoder`, `data_prep`, `accuracy_stats`, `plots/`) | `decoding_dcc.py` | saved HG epochs → LabeledArray | `process_bootstrap` → `Decoder.cv_cm_jim_window_shuffle` | accuracy traces + CMs |
 | **PAC / Connectivity** | `pac/` | `theta_connect.py` | bipolar derivatives | `compute_alltrial_coherence_and_permutation` | ROI–ROI coherence |
 | **Behavioral stats** | `stats/` | (script) | behavioral CSV / long-format HG | mixed LM / CMH | statistical models |
 | **Stability/flexibility A1–A6** (§12) | `stats/`, `decoding/` | `dcc_scripts/stats/*`, `dcc_scripts/decoding/*cross_decoding*` | long-format single-trial HG | `per_electrode_anova_labels`, `cmh_conjunction`, `roi_group_enrichment_test`, `cross_decode`, `jackknife_onset_difference`, brain–behavior | segregation / anatomy / code / timing / behavior verdicts |
+| **A7 self-check** (§12.7) | `docs/learning_assignments/segregation_bootstrap/` | `pytest` | A1 labels + sensitivities | `bootstrap_conjunction_or`, `segregation_verdict` | OR CI + reconciled verdict |
 | **Def/decode trial split** (§13) | `decoding/trial_splitting.py` | `dcc_scripts/decoding/submit_decoding_with_electrode_definition_split_dcc.sh` | saved HG epochs | `apply_electrode_definition_split` | non-circular decoding accuracies |
 
 ### Where to make common changes
@@ -509,18 +580,35 @@ Cross-path plotting and anatomy figures:
 - **Change how epochs are loaded into a path** → `utils/general_utils.py`
   (`load_mne_objects` / `create_subjects_mne_objects_dict` / `get_good_data`).
 - **Change decoding balancing/bootstrapping** → `utils/labeled_array_utils.py`.
+- **Change the `Decoder` itself** → `decoding/decoder.py` (not `decoding.py`,
+  which is now only a re-export facade).
+- **Change accuracy stats / cluster tests** → `decoding/accuracy_stats.py`.
+- **Change a power-path plot** → `power/plots.py`; the windowed ANOVA →
+  `power/windowed_anova.py`.
+- **Change how stability/flexibility electrodes are defined** →
+  `stats/stability_flexibility_segregation.py` (`per_electrode_anova_labels`).
 
 ### Tests
 
-Path-level tests live under `tests/analysis/` (e.g.
-`tests/analysis/decoding/test_decoding.py`,
-`tests/analysis/utils/test_labeled_array_utils.py`,
-`tests/analysis/utils/test_general_utils.py`). Run with `pytest` (see
-`pytest.ini`).
+Path-level tests live under `tests/analysis/`:
+
+| File | Covers |
+|---|---|
+| `decoding/test_decoding.py` | the decoding stack |
+| `decoding/test_trial_splitting.py` | the disjoint split (§13) — 16 tests |
+| `decoding/test_cross_decoding_circularity.py` | A4's double-dipping guard |
+| `stats/test_stability_flexibility_anova_labels.py` | A1's four-interaction definition |
+| `stats/test_stability_flexibility_timing.py` | A5, incl. the amplitude-invariance guard |
+| `stats/test_stability_flexibility_brain_behavior.py` | A6 |
+| `utils/test_labeled_array_utils.py`, `utils/test_general_utils.py` | shared plumbing |
+| `preproc/test_time_perm_cluster.py` | cluster permutation |
+
+Run with `pytest` (see `pytest.ini`). The A7 grader lives outside this tree, at
+`docs/learning_assignments/segregation_bootstrap/test_a7_segregation_verdict.py`.
 
 ---
 
-## 12. Analysis path: Stability vs. Flexibility population battery (A1–A6)
+## 12. Analysis path: Stability vs. Flexibility population battery (A1–A7)
 
 **The question.** Are **stability** (LWPC — the list-wide proportion-congruent
 adjustment, i.e. proactive/congruency control) and **flexibility** (LWPS — the
@@ -528,18 +616,29 @@ list-wide proportion-switch adjustment, i.e. reactive/task-switching control)
 carried by the **same** neural machinery or by **distinct** machinery? The
 battery attacks that one question from six complementary angles. Each angle is a
 numbered assignment (`A1`–`A6`) with a production module, a **tutorial
-notebook**, and a **DCC launcher**.
+notebook**, and a **DCC launcher**. `A7` (§12.7) is a self-check assignment on
+top, not a production analysis.
 
-**The governing document** (read this for the *why*, the how, and the run order):
-- **`docs/stability_flexibility_guide.md`** — the single merged guide: scientific
-  plan, the §2 statistical-rigor checklist, the **four-interaction electrode
-  definition** and the double-dipping "ignore the diagonal decode" rule (§3), the
-  window-mean vs per-timepoint-cluster ANOVA decision (§4), the staged build plan
-  and run order (§9), and line-by-line function walk-throughs. It supersedes the
-  former `stability_flexibility_analysis_plan.md`,
+**The governing documents:**
+- **`docs/stability_flexibility_guide.md`** — read this for the *why*. The single
+  merged guide: scientific plan, the §2 statistical-rigor checklist, the
+  **four-interaction electrode definition** and the double-dipping "ignore the
+  diagonal decode" rule (§3), the window-mean vs per-timepoint-cluster ANOVA
+  decision (§4), the staged build plan and run order (§9), and line-by-line
+  function walk-throughs. It supersedes the former
+  `stability_flexibility_analysis_plan.md`,
   `stability_flexibility_coding_assignments.md`, and
   `decoding_and_electrode_definition_notes.md` (now redirect stubs). Runnable
   stubs still live in `docs/skeletons/aN_*.py`.
+- **`docs/stability_flexibility_data_flow.md`** — read this for the *shape of the
+  data*. One fake dataset followed through A1→A7 with the actual intermediate
+  table printed at every hand-off, plus the design detour showing what the
+  balanced difference-of-differences is protecting you from. Everything in it is
+  produced by `docs/examples/stability_flexibility_data_flow_demo.py`, which runs
+  in about a minute with no cluster, no MNE, and no data on disk.
+- **`docs/stability_flexibility_segregation_methods.md`** — manuscript-ready
+  Methods text, in a `cluster` and a `cohens_d` version that can be swapped
+  one-for-one.
 
 **Learn-by-doing sandbox.** `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb`
 is a single notebook that walks A1→A6 with fill-in-the-blank cells, on-demand
@@ -558,6 +657,7 @@ whole battery end to end.
 | **A4** | §4 | One **shared code** or two **orthogonal codes** on the `both` electrodes? | `decoding/cross_decoding.py` | `decoding/cross_decoding_tutorial.ipynb` | `dcc_scripts/decoding/submit_stability_flexibility_cross_decoding_dcc.sh` |
 | **A5** | §5 | Does stability information arise **earlier** than flexibility (or vice versa)? | `stats/stability_flexibility_timing.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_timing_dcc.sh` |
 | **A6** | §6 | Does the neural selectivity predict the actual **behavioral** control adjustment? | `stats/stability_flexibility_brain_behavior.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_brain_behavior_dcc.sh` |
+| **A7** | — | *(self-check)* Do the continuous and categorical layers **agree**, and how uncertain is the odds ratio? | `docs/learning_assignments/segregation_bootstrap/a7_segregation_verdict.py` (stubs — you implement it) | — | `pytest` (§12.7) |
 
 **Consumes:** the same saved HG epochs as power/decoding, assembled into a
 **long single-trial table** (`subject | electrode | hg | congruency | switchType
@@ -565,22 +665,54 @@ whole battery end to end.
 (A4/A5) the `hg` column holds each trial's HG *time course* over the window
 instead of the window mean.
 
+**Two knobs shared across the segregation module:**
+
+| Knob | Values | Effect |
+|---|---|---|
+| `contrast_mode` | `'condition'` (default) / `'proportion'` | Define stability/flexibility by the **trial condition** (congruency, switchType) or by the **LWPC/LWPS interactions** (congruency×`incongruent_proportion`, switchType×`switch_proportion`). The battery uses `'proportion'`. |
+| `effect_measure` | `'cohens_d'` (default) / `'cluster'` / `'peak_t'` | Score each contrast as a standardized mean difference on window-mean HG; as a signed supra-threshold *t* mass over the window (time-resolved `hg`); or as the signed per-bin *t* at the instant of maximal \|t\| — amplitude only, invariant to how long the effect lasts. `peak_t` is the robustness complement to `cluster`, which conflates amplitude with duration and is mildly trial-count sensitive. |
+
 > **Every DCC launcher has a `DATA_SOURCE=synthetic` dry-run** that validates the
 > whole path in seconds with ground-truth data — run that first to confirm your
 > environment before pointing `EPOCHS_ROOT_FILE` at real data. Every module is
 > also directly runnable (`python src/analysis/stats/<module>.py`) for a
 > synthetic smoke test.
 
-### 12.1 · A1 — per-electrode ANOVA electrode definition
+### 12.1 · A1 — per-electrode ANOVA electrode definition (four interaction groups)
 
-**What it does.** For each electrode, fits a two-way **Type III** (sum-coded)
-ANOVA on window-mean HG — `hg ~ C(congruency)*C(incongruent_proportion)` for
-stability and `hg ~ C(switchType)*C(switch_proportion)` for flexibility — and
-FDR-corrects the interaction p-values across electrodes to set the `S`/`F` flags.
-Sum coding makes the Type III interaction orthogonal to the main effects, which
-is essential because the proportion cells are deliberately unequal (~75/25) and
-treatment coding would leak a main effect into the "interaction". It also fits
-the two **cross** interactions as specificity controls (report-only).
+**What it does.** For each electrode, `per_electrode_anova_labels` fits **all four**
+two-way **Type III** (sum-coded) ANOVAs on window-mean HG and FDR-corrects each
+interaction's p-values across electrodes to set a binary flag:
+
+| Group | Interaction | Reads as |
+|---|---|---|
+| **`CPC`** | congruency × incongruent-proportion | **LWPC / stability** (aliased `S`) |
+| **`SPS`** | switchType × switch-proportion | **LWPS / flexibility** (aliased `F`) |
+| **`CPS`** | congruency × switch-proportion | cross |
+| **`SPC`** | switchType × incongruent-proportion | cross |
+
+Sum coding keeps the model well posed over the deliberately unequal (~75/25)
+proportion cells, and Type III makes the interaction row orthogonal to both main
+effects, so a pure congruency or switch main effect cannot inflate it.
+
+> **Why the two cross interactions are *defined groups*, not just report-only
+> p-values** (this changed): A4 decodes a **2×2 of {contrast} × {block
+> modulator}**, and each of those four decode cells is the readout analogue of one
+> of these four interactions. To keep A4 non-circular you have to be able to
+> *name* the electrode set each cell would double-dip on — hence `CPS` and `SPC`
+> get real flags. In *univariate* HG they are still expected to be ~null, so their
+> surviving counts double as the specificity control they always were. Pass
+> `include_cross_controls=False` for the two-group version.
+
+Flags are **direction-agnostic**: an electrode is selected whenever its
+(two-sided) interaction is significant, whether the condition effect grows or
+shrinks across the modulator's levels — the sign of a neural block-proportion
+modulation is not known a priori. The signed direction is still recorded per
+electrode in `<g>_sign` for reporting.
+
+**Backward-compatible aliases** are emitted so nothing downstream had to change:
+`S` = `CPC`, `F` = `SPS`, plus the old `p_cong`/`q_cong`/`F_cong`/`s_sign` and
+`p_switch`/`q_switch`/`F_switch`/`f_sign` columns.
 
 **Run on DCC** (from `dcc_scripts/stats`):
 ```bash
@@ -589,10 +721,14 @@ bash submit_stability_flexibility_anova_conjunction_dcc.sh                      
 ```
 
 **Interpret the output.** `anova_labels.csv` / `labels.csv` gives each electrode
-its interaction F, p, FDR q, signed effect direction, and `S`/`F` flags. A `both`
-electrode (S=1 & F=1) is selective for *both* processes. The **cross-interaction
-terms should be near-null** — if they aren't, the sum-coding orthogonalization
-didn't take and the S/F flags are suspect.
+its interaction F, p, FDR q, signed effect direction, and the four flags. A `both`
+electrode (`CPC`=1 & `SPS`=1) is selective for *both* processes. The
+**cross-interaction groups (`CPS`, `SPC`) should be near-empty** — if they aren't,
+the orthogonalization didn't take and the CPC/SPS flags are suspect.
+
+See `stability_flexibility_data_flow.md` §2 for a worked example on planted
+ground truth, including the near-miss electrode that raw *p* selects and FDR
+correctly rejects.
 
 ### 12.2 · A2 — conjunction: overlap vs. chance
 
@@ -677,10 +813,21 @@ bash submit_stability_flexibility_cross_decoding_dcc.sh                         
   removal** → a **shared** code (the classifier's axis is reused across processes).
 - **Chance on `both`** while each process is *individually* decodable →
   **orthogonal** codes = representational-level segregation.
-- A transfer that **collapses to chance after mean removal** was a univariate
-  offset, not a genuine multivariate code — discount it.
 - **Temporal generalization matrix**: broad off-diagonal generalization → a
   sustained/stable code; a narrow diagonal → a moving/phasic code.
+- ⚠️ **The `strip_condition_means=True` control is currently degenerate — don't
+  read anything into it.** `build_pseudo_trials` labels each pseudo-trial by its
+  source *condition cell*, and the class label is a function of that cell, so
+  `remove_condition_means` subtracts 100 % of the class-relevant signal and leaves
+  only resampling noise. Empirically it drives even a train==test decode on a
+  known-real code from 0.754 to 0.502 (chance). Report the raw transfer; treat the
+  mean-removed number as uninformative until the control is redefined. Reproduce
+  it with `python docs/examples/stability_flexibility_data_flow_demo.py a4`.
+
+Also exported for the double-dipping guard: `circular_decode_for_group(group)`
+returns the one `(contrast, block_col)` decode each electrode group must *not*
+run on itself, and `is_circular_decode(group, contrast, block_col)` checks a
+specific cell.
 
 ### 12.5 · A5 — timing: relative onset of stability vs. flexibility
 
@@ -758,6 +905,37 @@ adjustment; LWPS group ↔ switch adjustment) should be **stronger than the cros
 pairing — that gap is the specificity result and the whole point of A6. Report the
 across-subject correlation with its n and the honest "underpowered at n = subjects"
 caveat; lean on the within-subject mixed model for the real test.
+
+### 12.7 · A7 — bootstrap OR CI + a reconciled segregation verdict *(self-check)*
+
+**What it is.** Not a production analysis and not one of the official A1–A6 items
+— a **build-a-feature assignment** that checks you understand how the battery's
+two inference layers relate. It lives outside `src/` on purpose:
+`docs/learning_assignments/segregation_bootstrap/`.
+
+**Why it exists.** A2's two layers can disagree, and they disagree in a specific,
+diagnosable way: the continuous correlation is far better powered than the
+categorical CMH on the same electrodes (on the worked example in the data-flow
+doc, `corr = −0.71, p = 0.0005` next to `OR = 0.75, p = 0.67`). A7 makes you
+build the machinery that turns that into one honest verdict.
+
+| # | Function to implement | What it tests that you understand |
+|---|---|---|
+| 1 | `bootstrap_conjunction_or` | inference resamples **subjects, not electrodes** — and a subject drawn twice must become two separate CMH strata |
+| 2 | `classify_segregation` | what `OR < 1` / `corr < 0` vs `OR > 1` / `corr > 0` *mean*, and that a genuine disagreement is its own outcome |
+| 3 | `segregation_verdict` | the pipeline order — sensitivities → responsiveness → residualise → correlate, in parallel with labels → CMH → null → bootstrap |
+
+**Run the grader** (from the repo root):
+```bash
+python -m pytest docs/learning_assignments/segregation_bootstrap/test_a7_segregation_verdict.py -q
+```
+It is **red until you implement the stubs**, and there is no solution file. The
+acceptance criteria are the point: the bootstrap point estimate must equal
+`cmh_conjunction(labels)['mh_odds_ratio']` exactly; on the synthetic data (where
+`bx`/`by` are drawn independently) the OR CI must **cover 1** and the verdict must
+be `inconclusive`; and the subject-resampled CI must be **no tighter** than one
+that wrongly treats each electrode as its own stratum — the nesting principle
+turned into a test.
 
 ---
 
