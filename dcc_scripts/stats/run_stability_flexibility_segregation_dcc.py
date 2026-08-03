@@ -63,24 +63,24 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 #                 'proportion' -> stability=incongruent_proportion, flexibility=switch_proportion
 # effect_measure: 'cohens_d'   -> standardized mean diff on window-mean HG
 #                 'cluster'     -> aggregate cluster-mass statistic on windowed HG time courses
-CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'condition')
-EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cohens_d')
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
 
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 # ROIS_DICT = None keeps every channel. Provide a dict to restrict to ROIs,
 # e.g. the LPFC/occipital set used by the power-traces script:
-# ROIS_DICT = {
-#     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul",
-#              "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont",
-#              "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup",
-#              "S_front_inf", "S_front_middle", "S_front_sup"],
-#     'occ':  ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle",
-#              "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual",
-#              "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus",
-#              "S_oc_sup_and_transversal", "S_occipital_ant"],
-# }
-ROIS_DICT = None
+ROIS_DICT = {
+    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul",
+             "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont",
+             "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup",
+             "S_front_inf", "S_front_middle", "S_front_sup"],
+    'occ':  ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle",
+             "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual",
+             "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus",
+             "S_oc_sup_and_transversal", "S_occipital_ant"],
+}
+# ROIS_DICT = None
 
 # --- responsiveness (gain control). None -> mean|HG| fallback inside the analysis.
 # Prefer passing a {electrode: baseline-vs-signal cluster stat} dict here.
@@ -95,7 +95,7 @@ MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subj
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
-SAVE_DIR = os.path.join(current_script_dir, 'results', _tag,
+SAVE_DIR = os.path.join(current_script_dir, 'segregation_results', _tag,
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
                         f'_{CONTRAST_MODE}_{EFFECT_MEASURE}')
 

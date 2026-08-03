@@ -14,17 +14,20 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # Analysis window (seconds relative to stimulus onset) and electrode set.
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
-WINDOW_TMAX=0.5
-ELECTRODES=all            # 'all' or 'sig'
+WINDOW_TMAX=1.5
+ELECTRODES=sig            # 'all' or 'sig'
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
 DATA_SOURCE=${DATA_SOURCE:-real}
 
 # Permutation counts (lower these for a quick test run).
-N_SPLITS=${N_SPLITS:-200}
-N_PERM_CORR=${N_PERM_CORR:-10000}
-N_PERM_LABEL=${N_PERM_LABEL:-2000}
+# N_SPLITS=${N_SPLITS:-200}
+# N_PERM_CORR=${N_PERM_CORR:-1000}
+# N_PERM_LABEL=${N_PERM_LABEL:-1000}
 
+N_SPLITS=${N_SPLITS:-50}
+N_PERM_CORR=${N_PERM_CORR:-100}
+N_PERM_LABEL=${N_PERM_LABEL:-100}
 mkdir -p out
 
 echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE)"
