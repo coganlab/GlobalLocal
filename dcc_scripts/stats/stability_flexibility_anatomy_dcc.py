@@ -237,12 +237,13 @@ def main(args):
             df, alpha=alpha, contrast_mode=CONTRAST_MODE)
 
         # 3. electrode -> ROI map from the shared atlas --------------------------
-        from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict
+        from src.analysis.utils.general_utils import load_existing_subjects_electrodes_to_ROIs_dict
         from src.analysis.config.rois import rois_dict
-        roi_save_dir = getattr(args, 'roi_dict_dir', None) or args.save_dir
-        subjects_rois_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
-            subjects=args.subjects, task=args.task, LAB_root=LAB_root,
-            save_dir=roi_save_dir)
+        # ROI_DICT_DIR overrides; otherwise fall back to the checked-in dict in
+        # src/analysis/config. Never rebuild it here - that needs the ECoG_Recon
+        # FreeSurfer files, which the cluster doesn't have.
+        subjects_rois_dict = load_existing_subjects_electrodes_to_ROIs_dict(
+            save_dir=getattr(args, 'roi_dict_dir', None))
         e2r = sfa.build_electrode_roi_map(subjects_rois_dict, rois_dict)
         print(f"electrode->ROI map: {len(e2r)} electrodes fall in a known ROI group")
 
