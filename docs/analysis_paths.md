@@ -131,7 +131,7 @@ src/analysis/
 ├── stats/       # ANALYSIS PATH: behavioral / mixed-effects models + stability/flexibility battery (§12)
 │   ├── erin_linear_mixed_effects_model.py
 │   ├── stability_flexibility_segregation.py    # A1 ANOVA defn + A2 conjunction + continuous corr/CMH
-│   ├── stability_flexibility_anatomy.py        # A3: coverage-conditioned ROI enrichment
+│   ├── stability_flexibility_anatomy.py        # A3: coverage-conditioned ROI/Destrieux enrichment + group brain maps
 │   ├── stability_flexibility_timing.py         # A5: relative onset (50%-of-peak + jackknife)
 │   ├── stability_flexibility_brain_behavior.py # A6: brain↔behavior correlation
 │   ├── stability_flexibility_*_tutorial.ipynb  # per-analysis walk-throughs
@@ -664,7 +664,7 @@ whole battery end to end.
 |---|---|---|---|---|---|
 | **A1** | §1 | Which electrodes are stability-(S) and/or flexibility-(F) selective? | `stats/stability_flexibility_segregation.py` (`per_electrode_anova_labels`) | `stats/stability_flexibility_segregation_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anova_conjunction_dcc.sh` |
 | **A2** | §2 | Do S and F co-occur on the same electrodes more/less than chance? | `stats/stability_flexibility_segregation.py` (`cmh_conjunction`, permutation null, threshold sweep, `subject_clustered_corr`) | same as A1 | same as A1 (+ `submit_stability_flexibility_segregation_dcc.sh` for the continuous/CMH-only run) |
-| **A3** | §3 | Are the distinct subpopulations in different **places** (conditioned on coverage)? | `stats/stability_flexibility_anatomy.py` | `stats/stability_flexibility_anatomy_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh` |
+| **A3** | §3 | Are the distinct subpopulations in different **places** (conditioned on coverage)? Electrodes from A1 **or** `power_traces`; ROI-group or Destrieux level; brain maps per group. | `stats/stability_flexibility_anatomy.py` | `stats/stability_flexibility_anatomy_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh` |
 | **A4** | §4 | One **shared code** or two **orthogonal codes** on the `both` electrodes? | `decoding/cross_decoding.py` | `decoding/cross_decoding_tutorial.ipynb` | `dcc_scripts/decoding/submit_stability_flexibility_cross_decoding_dcc.sh` |
 | **A5** | §5 | Does stability information arise **earlier** than flexibility (or vice versa)? | `stats/stability_flexibility_timing.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_timing_dcc.sh` |
 | **A6** | §6 | Does the neural selectivity predict the actual **behavioral** control adjustment? | `stats/stability_flexibility_brain_behavior.py` | `stats/stability_flexibility_a5_a6_tutorial.ipynb` | `dcc_scripts/stats/submit_stability_flexibility_brain_behavior_dcc.sh` |
@@ -774,29 +774,52 @@ correlation + CMH on their own (see `dcc_scripts/stats/README.md`).
 
 ### 12.3 · A3 — anatomy: coverage-conditioned ROI enrichment
 
-**What it does.** Joins the A1 labels to each electrode's ROI, then asks whether
-selectivity-group membership (`S_only` / `F_only` / `both`) is associated with
-**ROI** — **conditioned on coverage**, because iEEG coverage is clinical and a raw
-ROI difference can just reflect where electrodes happen to be. It restricts to
-ROIs sampled in ≥ `MIN_SUBJECTS` subjects, runs a Pearson χ² on the group × ROI
-table, and builds the null by permuting the group label **within each subject**
-(so the null respects both the subject nesting and the coverage). Reports
-per-ROI coverage alongside, and renders a Glasser brain-surface figure (falls
-back to the ROI histogram off-cluster).
+**What it does.** Joins the per-electrode S/F labels to each electrode's anatomy,
+then asks whether selectivity-group membership (`S_only` / `F_only` / `both`) is
+associated with **location** — **conditioned on coverage**, because iEEG coverage
+is clinical and a raw ROI difference can just reflect where electrodes happen to
+be. It restricts to ROIs sampled in ≥ `MIN_SUBJECTS` subjects, runs a Pearson χ²
+on the group × ROI table, and builds the null by permuting the group label
+**within each subject** (so the null respects both the subject nesting and the
+coverage). Reports per-ROI coverage alongside, and draws the selective electrodes
+themselves on the fsaverage brain (one colour per group) through the same
+`vis/jim_mri.plot_on_average` renderer `plot_sig_electrodes_dcc.py` uses.
+
+**Two electrode definitions.** `LABEL_SOURCE=a1` (default) fits the window-mean
+interaction ANOVA on the epoched data. `LABEL_SOURCE=power_traces` instead reads
+finished **within-electrode windowed ANOVA + cluster correction** runs via
+`power_traces_conjunction.electrode_labels` — the more sensitive detector for
+transient interactions, and it needs no epoched data (point it at the run dirs).
+
+**Two anatomical levels.** `ANAT_LEVEL=group` counts/tests the coarse ROI groups
+of `config/rois.py`; `ANAT_LEVEL=destrieux` uses the **raw Destrieux labels**.
+`auto` (default) picks Destrieux whenever the analysis is restricted to one ROI
+group — inside an lpfc-only run every electrode's ROI is `lpfc`, so only the
+Destrieux labels still resolve location. `ROI_FILTER=lpfc` is the restriction
+knob; it subsets `rois_dict` before mapping, because the groups overlap
+(`dlpfc` is listed first and would otherwise claim `G_front_middle`,
+`S_front_inf`, … out from under `lpfc`).
 
 **Run on DCC** (from `dcc_scripts/stats`):
 ```bash
 DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh                    # planted enrichment
 DATA_SOURCE=synthetic SYNTHETIC_ENRICHMENT=0.0 bash submit_stability_flexibility_anatomy_dcc.sh  # null → n.s.
-bash submit_stability_flexibility_anatomy_dcc.sh                                          # real
+bash submit_stability_flexibility_anatomy_dcc.sh                                          # real, A1 electrodes
+
+# power_traces electrodes, lpfc only, counted by raw Destrieux label:
+LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
+  PT_RUN_DIR=<power figs>/<epochs_root>/anova_within_electrode/stimulus_experiment_conditions_24_subjects \
+  bash submit_stability_flexibility_anatomy_dcc.sh
 ```
 
 **Interpret the output** (`roi_enrichment.json`, `roi_group_histogram.png`,
-`anatomy_coverage_enrichment.png`, `selectivity_groups_on_brain.svg`):
-a **significant** permutation p means group membership is associated with ROI
-*beyond* what placement forces. Read the χ² p **together with `per_roi_coverage`**
-— every anatomical claim is only as strong as the number of subjects wired in
-that ROI. ROIs below the `MIN_SUBJECTS` threshold are excluded by design.
+`destrieux_group_histogram.png`, `anatomy_coverage_enrichment.png`,
+`selectivity_groups_on_brain.png`): a **significant** permutation p means group
+membership is associated with location *beyond* what placement forces. Read the
+χ² p **together with `per_roi_coverage`** — every anatomical claim is only as
+strong as the number of subjects wired in that ROI. ROIs below the
+`MIN_SUBJECTS` threshold are excluded by design, and the histograms are raw
+counts (not the test).
 
 ### 12.4 · A4 — cross-decoding: shared vs. orthogonal code
 
