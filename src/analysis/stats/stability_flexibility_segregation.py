@@ -59,6 +59,8 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
 """
 
 import copy
+from collections import namedtuple
+
 import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr, pearsonr, fisher_exact
@@ -884,29 +886,94 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     return out
 
 
-def cmh_conjunction(labels):
+# A stratum with a zero MARGINAL (no S electrodes, no F electrodes, or all of
+# them S / all of them F) carries no information about the S-F association: with
+# a+b == 0 both `a*d` and `b*c` are zero, so it contributes nothing to either
+# side of the Mantel-Haenszel ratio, and its CMH variance term is zero too.
+# Dropping it is therefore a no-op on an UNSHIFTED analysis -- but it is not a
+# no-op once `shift_zeros=True` is in play, which is why this exists.
+_NullTest = namedtuple('_NullTest', 'statistic pvalue')
+
+
+def _informative_stratum(a, b, c, e):
+    """True when a subject's 2x2 can speak to the S-F association at all."""
+    return (a + b) > 0 and (c + e) > 0 and (a + c) > 0 and (b + e) > 0
+
+
+def cmh_conjunction(labels, drop_uninformative_strata=True):
     """Cochran-Mantel-Haenszel: is S-selectivity associated with F-selectivity,
-    pooling over subject strata (each subject its own 2x2)?"""
-    tables, per_subj = [], []
+    pooling over subject strata (each subject its own 2x2)?
+
+    Uninformative strata are dropped before pooling, and this is load-bearing
+    rather than cosmetic. `StratifiedTable(..., shift_zeros=True)` adds 0.5 to
+    ALL FOUR cells of any stratum containing a zero -- the standard fix for a
+    single empty cell in an otherwise informative table, but a fabricator of
+    evidence when the whole stratum is empty. A subject with no S electrodes has
+    the table `[[0, 0], [c, e]]`, which says nothing about whether S predicts F;
+    shifted, it becomes `[[.5, .5], [c + .5, e + .5]]` and starts contributing a
+    positive association to the pool. Two ways that bites:
+
+      * A selection threshold at which NOTHING is selected gives every subject
+        `[[0, 0], [0, n]]` -> `[[.5, .5], [.5, n + .5]]`, whose pooled OR is
+        ~2n with a vanishing p. A threshold sweep run through the unguarded
+        version reports its STRONGEST shared-core evidence exactly where it has
+        no evidence at all (8 subjects x 25 electrodes: OR = 51, p = 4e-12).
+      * Real runs are affected too, not just sweep endpoints. Adding four
+        subjects with no S electrodes to four genuinely informative strata moves
+        the pooled OR from 4.00 to 4.10 and the CMH p from 6.9e-4 to 1.6e-4 --
+        entirely from subjects that carry no information.
+
+    When NO stratum is informative the odds ratio is genuinely undefined, and
+    that is reported as NaN rather than as a number: `mh_odds_ratio` is NaN and
+    `cmh`/`homogeneity` carry NaN statistics. Callers should test
+    `n_informative_strata` before reading the OR.
+
+    Pass `drop_uninformative_strata=False` to reproduce the old (biased)
+    behaviour for comparison against previously-recorded numbers.
+
+    Adds to the returned dict: `n_strata`, `n_informative_strata`,
+    `n_dropped_strata`, and an `informative` column on `per_subject`.
+    """
+    tables, per_subj, keep = [], [], []
     for subj, g in labels.dropna(subset=['S', 'F']).groupby('subject'):
         a = int(((g.S == 1) & (g.F == 1)).sum())   # both
         b = int(((g.S == 1) & (g.F == 0)).sum())   # stability only
         c = int(((g.S == 0) & (g.F == 1)).sum())   # flexibility only
         e = int(((g.S == 0) & (g.F == 0)).sum())   # neither
+        ok = _informative_stratum(a, b, c, e)
         tables.append([[a, b], [c, e]])
-        per_subj.append(dict(subject=subj, both=a, stab_only=b, flex_only=c, neither=e))
+        keep.append(ok)
+        per_subj.append(dict(subject=subj, both=a, stab_only=b, flex_only=c,
+                             neither=e, informative=ok))
 
-    st = StratifiedTable(tables, shift_zeros=True)
-    res = dict(mh_odds_ratio=st.oddsratio_pooled,
-               cmh=st.test_null_odds(),            # H0: common OR = 1
-               homogeneity=st.test_equal_odds(),   # H0: OR equal across subjects
-               per_subject=pd.DataFrame(per_subj),
-               summary=st.summary())
-    try:
-        res['or_95ci'] = st.oddsratio_pooled_confint()
-    except Exception:
-        pass
-    pooled = np.sum(tables, axis=0)                 # descriptive, ignores nesting
+    used = ([t for t, ok in zip(tables, keep) if ok]
+            if drop_uninformative_strata else list(tables))
+    res = dict(per_subject=pd.DataFrame(per_subj),
+               n_strata=len(tables), n_informative_strata=int(sum(keep)),
+               n_dropped_strata=int(len(tables) - sum(keep))
+               if drop_uninformative_strata else 0)
+
+    if not used:
+        # No stratum can speak to the association. The OR is undefined; say so.
+        res.update(mh_odds_ratio=np.nan,
+                   cmh=_NullTest(np.nan, np.nan),
+                   homogeneity=_NullTest(np.nan, np.nan),
+                   summary=None)
+    else:
+        st = StratifiedTable(used, shift_zeros=True)
+        res.update(mh_odds_ratio=st.oddsratio_pooled,
+                   cmh=st.test_null_odds(),            # H0: common OR = 1
+                   homogeneity=st.test_equal_odds(),   # H0: OR equal across subjects
+                   summary=st.summary())
+        try:
+            res['or_95ci'] = st.oddsratio_pooled_confint()
+        except Exception:
+            pass
+
+    # Descriptive only, and deliberately over ALL strata: this is the count
+    # readout the reader checks against `n_both` / `n_stab_only` / ..., not an
+    # input to the stratified inference above (it ignores the nesting entirely).
+    pooled = np.sum(tables, axis=0) if tables else np.zeros((2, 2), int)
     res['pooled_table'] = pooled
     res['pooled_fisher_or'], res['pooled_fisher_p'] = fisher_exact(pooled)
     return res
@@ -953,7 +1020,16 @@ def conjunction_threshold_sweep(labels_by_threshold, thresholds):
     threshold -> labels DataFrame (S/F recomputed at that cutoff); keeping it a
     callable makes the sweep agnostic to whether you threshold ANOVA q-values,
     permutation q-values, or effect-size percentiles. Returns a tidy DataFrame:
-    threshold, n_S, n_F, n_both, mh_odds_ratio, cmh_p."""
+    threshold, n_S, n_F, n_both, mh_odds_ratio, cmh_p, n_informative_strata.
+
+    The strict end of a sweep is where selection runs out, so `mh_odds_ratio` is
+    NaN there by design (see `cmh_conjunction`): with no informative stratum the
+    odds ratio is undefined, and a sweep is a claim about STABILITY across
+    thresholds, which an undefined endpoint cannot support either way. Read
+    `n_informative_strata` alongside every row -- a row resting on one or two
+    subjects is not evidence that the verdict is threshold-stable, even when its
+    OR is finite.
+    """
     rows = []
     for t in thresholds:
         lab = labels_by_threshold(t)                 # fresh S/F at this threshold
@@ -962,7 +1038,8 @@ def conjunction_threshold_sweep(labels_by_threshold, thresholds):
                          n_S=int(lab.S.sum()), n_F=int(lab.F.sum()),
                          n_both=int(((lab.S == 1) & (lab.F == 1)).sum()),
                          mh_odds_ratio=res['mh_odds_ratio'],
-                         cmh_p=res['cmh'].pvalue))
+                         cmh_p=res['cmh'].pvalue,
+                         n_informative_strata=res['n_informative_strata']))
     return pd.DataFrame(rows)
 
 
