@@ -155,7 +155,7 @@ ROIS_DICT = {
 
 
 # which electrodes to use (all or sig)
-ELECTRODES = 'sig'
+ELECTRODES = 'all'
 
 # plotting
 PLOT_STYLE = {
