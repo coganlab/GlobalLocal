@@ -398,10 +398,29 @@ def _stack(vals):
     return np.vstack([np.asarray(v, float) for v in vals])
 
 
+def _require_scalar_hg(arr, effect_measure):
+    """Guard: 'cohens_d' is only defined on scalar (window-mean) HG.
+
+    `_cohens_d` / `_interaction_cohens_d` standardise a per-time-bin mean by a
+    SCALAR pooled SD, so handing them time courses returns a length-T vector
+    rather than one number. That propagates silently into `compute_sensitivities`
+    as an array-valued sensitivity and corrupts the correlation instead of
+    failing. Assemble the table with window means for 'cohens_d', or use
+    'cluster' / 'peak_t' for time courses.
+    """
+    if effect_measure == 'cohens_d' and np.ndim(arr) > 1 and arr.shape[1] > 1:
+        raise ValueError(
+            "effect_measure='cohens_d' requires scalar (window-mean) hg, but the "
+            f"table holds time courses of length {arr.shape[1]}. Either build the "
+            "long table with window means, or use effect_measure='cluster' / "
+            "'peak_t', which are defined on time courses.")
+
+
 def _effect_from_arrays(hg, lab, effect_measure, alpha):
     """Effect between the label==1 and label==0 trials of one electrode."""
     pos = _stack(hg[lab == 1])
     neg = _stack(hg[lab == 0])
+    _require_scalar_hg(pos, effect_measure)
     if effect_measure == 'cluster':
         return _cluster_effect(pos, neg, alpha=alpha)
     if effect_measure == 'peak_t':
@@ -503,6 +522,7 @@ def _interaction_effect(hg, cond, mod, effect_measure, alpha):
     cells = _dod_cells(hg[valid], cond[valid], mod[valid])
     if cells is None:
         return np.nan
+    _require_scalar_hg(next(iter(cells.values())), effect_measure)
     if effect_measure == 'cluster':
         return _interaction_cluster(cells, alpha)
     if effect_measure == 'peak_t':
@@ -1000,7 +1020,7 @@ def _synthetic_df(effect_measure='cohens_d', n_time=20, seed=0):
                       congruency=cong, switchType=sw,
                       incongruent_proportion=inc_prop, switch_proportion=sw_prop)
             frame = pd.DataFrame(fr)
-            if effect_measure == 'cluster':
+            if effect_measure in ('cluster', 'peak_t'):   # both need time courses
                 tc = rng.normal(0, 1, (n_tr, n_time)) * gain
                 w = slice(n_time // 4, 3 * n_time // 4)
                 tc[:, w] += (gain * base)[:, None]

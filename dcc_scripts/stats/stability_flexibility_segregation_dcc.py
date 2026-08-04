@@ -87,7 +87,11 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
                 = metadata block proportions (for contrast_mode='proportion')
     electrode   = f"{subject}-{channel}"  (unique across subjects)
     """
-    cluster = (effect_measure == 'cluster')
+    # Both time-resolved measures need the per-trial time COURSE. 'peak_t'
+    # was previously excluded here, so it silently received window means and
+    # collapsed to a single-bin t -- losing exactly the duration-invariance
+    # it exists to provide.
+    cluster = effect_measure in ('cluster', 'peak_t')
     frames = []
     for sub, epochs in subjects_epochs.items():
         md = epochs.metadata
@@ -155,7 +159,11 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
     INTERACTION, so contrast_mode='proportion' has recoverable signal. When
     effect_measure='cluster', emits per-trial HG *time courses* (the effect
     injected into the middle of the window) instead of scalar window means."""
-    cluster = (effect_measure == 'cluster')
+    # Both time-resolved measures need the per-trial time COURSE. 'peak_t'
+    # was previously excluded here, so it silently received window means and
+    # collapsed to a single-bin t -- losing exactly the duration-invariance
+    # it exists to provide.
+    cluster = effect_measure in ('cluster', 'peak_t')
     rng = np.random.default_rng(seed)
     cov = np.array([[0.4**2, rho_true*0.16], [rho_true*0.16, 0.4**2]])
     rows = []

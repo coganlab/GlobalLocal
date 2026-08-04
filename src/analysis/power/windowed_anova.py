@@ -504,6 +504,36 @@ def run_within_electrode_windowed_anova_cluster_correction(
         with open(run_dir / 'significant_effects_structure.json', 'w') as f:
             json.dump(sig_struct, f, indent=2)
 
+        # Run manifest. The window geometry in particular has to survive the run:
+        # any analysis that wants to be comparable to this one (e.g. the
+        # continuous segregation correlation, which is estimated independently
+        # but must cover the SAME stretch of time to be interpretable alongside
+        # these labels) needs to know the exact extent the windows tiled, and
+        # `window_centers` alone understates it by half a window at each end.
+        with open(run_dir / 'run_config.json', 'w') as f:
+            json.dump({
+                'window_centers': [float(w) for w in window_centers],
+                'window_size': int(window_size),
+                'step_size': int(step_size),
+                'sampling_rate': float(sampling_rate),
+                'n_windows': int(n_windows),
+                'times_min': float(times[0]),
+                'times_max': float(times[-1]),
+                # the extent actually covered by the windows, in seconds
+                'analysis_tmin': float(times[win_to_samples[0][0]]),
+                'analysis_tmax': float(times[win_to_samples[-1][1]]),
+                'anova_factors': list(anova_factors),
+                'effect_names': list(effect_names),
+                'rois': list(rois),
+                'subjects': list(subjects),
+                'n_perm': int(n_perm),
+                'percentile': float(percentile),
+                'cluster_percentile': float(cluster_percentile),
+                'min_trials_per_cell': int(min_trials_per_cell),
+                'split_clusters_by_sign': bool(split_clusters_by_sign),
+                'seed': int(seed),
+            }, f, indent=2)
+
     return results, window_centers, summary_df, skipped
 
 def load_significant_electrodes(within_elec_anova_run_dir, roi=None, effect=None,

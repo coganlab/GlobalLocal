@@ -58,6 +58,30 @@ if DATA_SOURCE == 'real' and EPOCHS_ROOT_FILE is None:
 WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimulus
 WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
+# --- window alignment with a power_traces electrode-definition run -----------
+# When the 2x2 counts come from the cluster-corrected windowed ANOVA
+# (`power_traces_conjunction`), this continuous correlation is the CONFOUND
+# CONTROL for those counts, not a second headline: it is the only route that
+# residualises on responsiveness and estimates the two sensitivities on disjoint
+# trial halves, which are the two things the count test cannot control.
+#
+# It stays an independent estimate -- different estimator, different temporal
+# model -- but a control that covers a different stretch of the epoch than the
+# thing it is controlling is not a control at all. Setting
+# ALIGN_TO_POWER_TRACES_RUN to a windowed-ANOVA run directory overrides
+# WINDOW_TMIN/WINDOW_TMAX with the extent that run's windows actually tiled.
+#
+#   ALIGN_TO_POWER_TRACES_RUN=/path/to/within_elec_anova/<run_label> \
+#       bash submit_stability_flexibility_segregation_dcc.sh
+ALIGN_TO_POWER_TRACES_RUN = os.environ.get('ALIGN_TO_POWER_TRACES_RUN')
+_ALIGNMENT_NOTE = None
+if ALIGN_TO_POWER_TRACES_RUN:
+    from src.analysis.stats.power_traces_conjunction import (
+        analysis_window_from_run, describe_window_alignment)
+    _ALIGNMENT_NOTE = describe_window_alignment(
+        ALIGN_TO_POWER_TRACES_RUN, WINDOW_TMIN, WINDOW_TMAX)
+    WINDOW_TMIN, WINDOW_TMAX = analysis_window_from_run(ALIGN_TO_POWER_TRACES_RUN)
+
 # --- analysis options (default to the original behaviour) ---
 # contrast_mode : 'condition'  -> stability=congruency(i vs c), flexibility=switchType(s vs r)
 #                 'proportion' -> stability=incongruent_proportion, flexibility=switch_proportion
@@ -134,6 +158,13 @@ def run_analysis():
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
+    if _ALIGNMENT_NOTE:
+        print("Window aligned to a power_traces electrode-definition run; this "
+              "continuous correlation is the CONFOUND CONTROL for that run's "
+              "2x2 counts (responsiveness residualisation + disjoint trial "
+              "halves), not an independent headline result.")
+        for _line in _ALIGNMENT_NOTE.splitlines():
+            print(f"  {_line}")
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"Contrast mode:    {CONTRAST_MODE}")
     print(f"Effect measure:   {EFFECT_MEASURE}")

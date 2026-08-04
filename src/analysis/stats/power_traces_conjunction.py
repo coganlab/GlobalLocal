@@ -412,6 +412,190 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
 
 
 # ----------------------------------------------------------------------------
+# window alignment: making the independent continuous route comparable
+# ----------------------------------------------------------------------------
+def load_run_config(run_dir):
+    """Read a windowed-ANOVA run's `run_config.json`.
+
+    Falls back to reconstructing the window geometry from any per-electrode
+    `.npz` (which stores `window_centers`) for runs written before the manifest
+    existed. In that fallback `analysis_tmin`/`analysis_tmax` are the first and
+    last window CENTRES, which understates the true extent by half a window at
+    each end -- the returned dict flags this as `exact=False`.
+    """
+    run_dir = Path(run_dir)
+    cfg_path = run_dir / 'run_config.json'
+    if cfg_path.exists():
+        cfg = json.loads(cfg_path.read_text())
+        cfg['exact'] = True
+        return cfg
+
+    for npz_path in sorted(run_dir.glob('*/*/*.npz')):
+        with np.load(npz_path, allow_pickle=True) as z:
+            if 'window_centers' not in z:
+                continue
+            centers = np.asarray(z['window_centers'], float)
+        return dict(window_centers=[float(c) for c in centers],
+                    n_windows=int(centers.size),
+                    analysis_tmin=float(centers.min()),
+                    analysis_tmax=float(centers.max()),
+                    exact=False)
+
+    raise FileNotFoundError(
+        f"{run_dir} has neither run_config.json nor any per-electrode .npz; "
+        "cannot recover the window geometry")
+
+
+def analysis_window_from_run(run_dir):
+    """`(tmin, tmax)` in seconds covered by a windowed-ANOVA run.
+
+    This is what an independently-estimated analysis should be told to use so it
+    describes the same stretch of the epoch. It is NOT a claim that the two
+    analyses become equivalent -- the windowed ANOVA fits per sliding window and
+    cluster-corrects across them, while a single-window estimator integrates over
+    the whole extent. Aligning the extent only removes the trivial objection that
+    the two were looking at different data.
+    """
+    cfg = load_run_config(run_dir)
+    return float(cfg['analysis_tmin']), float(cfg['analysis_tmax'])
+
+
+def describe_window_alignment(run_dir, current_tmin, current_tmax):
+    """Human-readable diff between a segregation window and a power_traces run."""
+    cfg = load_run_config(run_dir)
+    tmin, tmax = float(cfg['analysis_tmin']), float(cfg['analysis_tmax'])
+    lines = [
+        f"power_traces run: {run_dir}",
+        f"  windows        : {cfg.get('n_windows', '?')} "
+        f"(size={cfg.get('window_size', '?')} samples, "
+        f"step={cfg.get('step_size', '?')})",
+        f"  covered extent : [{tmin:.4f}, {tmax:.4f}] s"
+        + ("" if cfg.get('exact') else "   (window CENTRES only -- no "
+                                        "run_config.json; true extent is wider)"),
+        f"  current window : [{current_tmin:.4f}, {current_tmax:.4f}] s",
+    ]
+    if abs(tmin - current_tmin) > 1e-9 or abs(tmax - current_tmax) > 1e-9:
+        lines.append("  -> MISALIGNED; the continuous estimate covers a "
+                     "different stretch of the epoch than the labels.")
+    else:
+        lines.append("  -> aligned.")
+    return '\n'.join(lines)
+
+
+# ----------------------------------------------------------------------------
+# the continuous route, in its confound-control role
+# ----------------------------------------------------------------------------
+def _window_mean_df(df):
+    """Collapse an array-valued `hg` column to its per-trial window mean."""
+    if df['hg'].dtype != object:
+        return df
+    return df.assign(hg=df['hg'].apply(lambda a: float(np.nanmean(a))))
+
+
+def continuous_confound_control(df, responsiveness=None, n_splits=200,
+                                n_perm=10000, min_elec=3,
+                                contrast_mode='proportion', contrasts=None,
+                                effect_measures=('peak_t', 'cluster', 'cohens_d'),
+                                alpha=0.05, seed=1):
+    """Run the continuous correlation under EVERY effect measure, as a control.
+
+    Why this shape. The count test (`run_power_traces_conjunction`) is the primary
+    result, but it has two confounds that both bias it toward "shared", which is
+    usually the hypothesis under test:
+
+      1. Per-electrode detection power. An electrode with high SNR or more trials
+         is likelier to clear alpha on BOTH interactions from power alone, which
+         inflates the "both" cell. Subject stratification does not fix this --
+         the variation is across electrodes within a subject.
+      2. Shared trial noise. S and F labels are estimated from the same trials, so
+         coupled noise inflates co-occurrence.
+
+    The continuous route carries the controls for exactly those two: it
+    residualises each sensitivity on the electrode's overall responsiveness
+    (`add_responsiveness` + `prepare_continuous`), and it estimates the two
+    sensitivities on DISJOINT trial halves (`compute_sensitivities`). Its job here
+    is to check that the count result is not manufactured by either -- not to be a
+    second headline.
+
+    Why all three measures rather than one pinned choice. Reducing a per-trial HG
+    time course to one scalar is under-determined: mass grows with duration and is
+    mildly trial-count sensitive, Cohen's d on the window mean attenuates transient
+    effects, peak t is amplitude-only. As a headline that arbitrariness is a real
+    weakness. As a CONTROL it is not, provided the verdict does not depend on the
+    choice -- so run all three and report the range. Divergence across measures is
+    itself the finding, and should be reported rather than resolved by picking the
+    convenient one.
+
+    Returns dict keyed by effect measure, each with `rho`, `p`, `n_electrodes`,
+    `n_subjects`, plus a top-level `agreement` summary.
+    """
+    from src.analysis.stats.stability_flexibility_segregation import (
+        add_responsiveness, compute_sensitivities, prepare_continuous,
+        subject_clustered_corr)
+
+    out = {}
+    for measure in effect_measures:
+        # 'cohens_d' standardises by a scalar pooled SD and is only defined on
+        # window-mean HG; 'cluster' and 'peak_t' need the time course. When the
+        # table carries time courses, reduce a copy for the window-mean measure
+        # -- the same reduction `_anova_interaction_stats` applies.
+        use = _window_mean_df(df) if measure == 'cohens_d' else df
+        elec = add_responsiveness(
+            compute_sensitivities(use, n_splits, contrast_mode=contrast_mode,
+                                  contrasts=contrasts, effect_measure=measure,
+                                  alpha=alpha),
+            use, responsiveness)
+        cont = prepare_continuous(elec, min_elec=min_elec)
+        corr = subject_clustered_corr(cont, n_perm=n_perm, seed=seed)
+        out[measure] = dict(
+            rho=float(corr['corr']), p=float(corr['p']),
+            n_electrodes=int(corr['n_electrodes']),
+            n_subjects=int(corr['n_subjects']))
+
+    rhos = [v['rho'] for v in out.values()]
+    ps = [v['p'] for v in out.values()]
+    out['agreement'] = dict(
+        rho_min=float(min(rhos)), rho_max=float(max(rhos)),
+        all_same_sign=bool(all(r > 0 for r in rhos) or all(r < 0 for r in rhos)),
+        all_significant=bool(all(p < alpha for p in ps)),
+        all_null=bool(all(p >= alpha for p in ps)),
+    )
+    return out
+
+
+def summarize_confound_control(res, alpha=0.05):
+    """One-screen readout of `continuous_confound_control`, with the verdict."""
+    lines = ["continuous correlation (responsiveness-residualised, "
+             "disjoint trial halves, within-subject centred):"]
+    for measure, v in res.items():
+        if measure == 'agreement':
+            continue
+        lines.append(f"    {measure:<10} rho = {v['rho']:+.3f}  p = {v['p']:.4g}"
+                     f"   ({v['n_electrodes']} electrodes, "
+                     f"{v['n_subjects']} subjects)")
+    a = res['agreement']
+    lines.append(f"  rho range across measures: "
+                 f"[{a['rho_min']:+.3f}, {a['rho_max']:+.3f}]")
+    if not a['all_same_sign']:
+        lines.append("  -> MEASURES DISAGREE IN SIGN. The continuous estimate is "
+                     "not stable under the scalarisation choice; report this "
+                     "rather than picking one.")
+    elif a['all_significant'] and a['rho_min'] > 0:
+        lines.append("  -> Positive under every measure: co-selectivity survives "
+                     "responsiveness residualisation and disjoint halves, so the "
+                     "count result is not explained by shared gain or shared "
+                     "trial noise.")
+    elif a['all_null']:
+        lines.append("  -> Null under every measure. Note a null correlation is "
+                     "NOT evidence for distinctness; only the count test's "
+                     "OR < 1 can supply that.")
+    else:
+        lines.append("  -> Mixed significance across measures; treat the control "
+                     "as inconclusive.")
+    return '\n'.join(lines)
+
+
+# ----------------------------------------------------------------------------
 # the count test
 # ----------------------------------------------------------------------------
 def both_vs_distinct_test(labels, n_perm=10000, seed=0):
