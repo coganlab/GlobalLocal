@@ -1,0 +1,32 @@
+========================================================================
+STABILITY vs FLEXIBILITY - CONJUNCTION ON power_traces ELECTRODES
+========================================================================
+               data_source: real
+                      runs: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/figs/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_within_electrode/stimulus_experiment_conditions_24_subjects
+                       roi: lpfc
+                correction: fdr_bh
+                     alpha: 0.05
+               require_all: True
+               n_perm_null: 10000
+                thresholds: [0.01]
+        continuous_control: False
+                  save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/power_traces_conjunction_results/stimulus_experiment_conditions_24_subjects/fdr_bh_alpha0.05/lpfc
+------------------------------------------------------------------------
+electrodes: 195  subjects: 11  (roi=lpfc, correction=fdr_bh)
+  both=0  S-only=1  F-only=5  neither=189
+  MH odds ratio = nan   CMH p = nan   homogeneity p = nan
+  shared - distinct = -6  (null -6.0 +/- 0.0, z = nan)
+  p(shared > distinct, one-sided) = 1   two-sided = 1
+  cross controls (should be near-null):
+    CPC  congruency x incongruentProportion               1/195 (0.5%)
+    SPS  switchType x switchProportion                    5/195 (2.6%)
+    CPS  congruency x switchProportion                    0/195 (0.0%)
+    SPC  switchType x incongruentProportion               0/195 (0.0%)
+  threshold sweep:
+    q<0.01  n_S=  1 n_F=  5 n_both=  0 OR=nan p=nan
+  WARNING: sweep row(s) q<0.01 (OR undefined; 0 informative subject(s); n_both = 0) are too thin to support a threshold-stability claim; ignore them when reading the sweep. An undefined OR means no subject stratum had both an S and an F electrode at that cutoff.
+------------------------------------------------------------------------
+continuous confound control: NOT RUN. The count test cannot correct for per-electrode detection power or shared trial noise, and both bias it toward 'shared'. Re-run with RUN_CONTINUOUS=1 before reporting a shared-core claim.
+========================================================================
+Reading: MH OR < 1 / overlap below null -> segregation (distinct populations); OR > 1 / overlap above null -> shared core; ~1 -> independent.
+Note 'shared - distinct' is a monotone function of the 'both' count under this null, so it is the SAME test as the joint-count permutation -- not a second, independent line of evidence.

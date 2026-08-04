@@ -22,8 +22,8 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # Analysis window (seconds relative to stimulus onset) and electrode set.
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
-WINDOW_TMAX=0.5
-ELECTRODES=all            # 'all' or 'sig'
+WINDOW_TMAX=1.5
+ELECTRODES=sig            # 'all' or 'sig'
 
 # Data source: 'real' loads epoched data + the ROI atlas; 'synthetic' validates
 # the whole path with a ground-truth electrode->ROI map.

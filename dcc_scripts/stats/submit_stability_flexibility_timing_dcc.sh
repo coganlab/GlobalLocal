@@ -24,9 +24,9 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # for BOTH interactions to reach their peak (the 50%-of-peak threshold is
 # meaningless if an effect is still climbing at WINDOW_TMAX).
 # ---------------------------------------------------------------------------
-WINDOW_TMIN=${WINDOW_TMIN:--0.2}
-WINDOW_TMAX=${WINDOW_TMAX:-0.8}
-ELECTRODES=${ELECTRODES:-all}       # 'all' or 'sig'
+WINDOW_TMIN=${WINDOW_TMIN:--1.0}
+WINDOW_TMAX=${WINDOW_TMAX:-1.5}
+ELECTRODES=${ELECTRODES:-sig}       # 'all' or 'sig'
 
 # Data source: 'real' loads epoched HG time courses; 'synthetic' validates the
 # whole path against a planted onset ordering.

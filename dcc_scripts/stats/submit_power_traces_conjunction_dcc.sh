@@ -43,7 +43,7 @@ PT_RUN="${PT_RUN:-$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_e
 # Label / conjunction knobs.
 # ---------------------------------------------------------------------------
 ROIS=${ROIS:-lpfc}                 # comma-separated, or 'all' to pool over ROIs
-CORRECTION=${CORRECTION:-fdr_bh}   # fdr_bh | cluster | none
+CORRECTION=${CORRECTION:-cluster}   # fdr_bh | cluster | none
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
 THRESHOLDS=${THRESHOLDS:-0.01,0.025,0.05,0.10}

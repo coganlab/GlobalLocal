@@ -1,0 +1,36 @@
+======================================================================
+STABILITY vs FLEXIBILITY — A5 TIMING (relative onset)
+======================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+            n_subjects: 24
+          n_electrodes: 4412
+                window: [-1.000, 1.500]s (641 bins)
+         contrast_mode: proportion
+        effect_measure: cluster
+             statistic: mean
+                 alpha: 0.05
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/timing_window_-1.0to1.5s_sig_mean
+----------------------------------------------------------------------
+latency-amplitude guard: PASSED (50%-of-peak onset invariant under k-scaling; onset=0.2500s)
+----------------------------------------------------------------------
+FULL-SAMPLE LATENCIES (descriptive):
+      LWPC (stability)   onset = -0.7556 s   peak = -0.4414 s
+      LWPS (flexibility) onset = 1.0235 s   peak = 1.0859 s
+      onset difference (LWPC - LWPS) = -1.7791 s
+      peak  difference (LWPC - LWPS) = -1.5273 s
+      onset and peak agree on the ordering: True
+----------------------------------------------------------------------
+JACKKNIFE (Ulrich-Miller, N = 24 subjects):
+      mean leave-one-out difference = -1.5329 s
+      jackknife SE                  = 2.5026 s
+      95% CI                        = [-6.7099, +3.6442] s
+      t_raw = -14.088  ->  t_corrected = t_raw/(N-1) = -0.613   (df = 23)
+      p = 0.5462   ->  ordering NOT reliable   [stability (LWPC) leads]
+======================================================================
+Reading: the SIGN of the onset difference says which process's information
+arises first (negative = stability leads); the CI / (N-1)-corrected t say
+whether that ordering is reliable. Onset is measured at 50% of each
+effect's OWN peak, so a pure amplitude difference cannot masquerade as an
+onset difference. Claim an ordering only when onset AND peak latency agree.
