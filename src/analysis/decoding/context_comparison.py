@@ -22,11 +22,12 @@ def run_context_comparison_analysis(
     args,
     rois,
     save_dir,
-    analysis_params_str
+    analysis_params_str,
+    electrode_set_desc_fn=None
 ):
     """
     Run comparison analysis between two conditions with pooled shuffle distribution.
-    
+
     Parameters
     ----------
     condition_name : str
@@ -61,8 +62,12 @@ def run_context_comparison_analysis(
         Base save directory
     analysis_params_str : str
         String describing analysis parameters for filenames
+    electrode_set_desc_fn : callable(roi) -> str, optional
+        One-line description of the electrode set being decoded from, added to
+        every figure title so the electrode set is never implicit.
     """
-    
+    from .anova_electrode_selection import decoding_figure_title
+
     print(f"\n--- Running {condition_name} Comparison Statistics ({condition_comparison_1} vs {condition_comparison_2}) using '{args.unit_of_analysis}' as unit of analysis ---")
     
     for roi in rois:
@@ -160,6 +165,10 @@ def run_context_comparison_analysis(
             ylim=(0.3, 0.8),
             ylabel=ylabel,
             show_chance_level=False,
+            title=decoding_figure_title(
+                f"{condition_name}: {condition_comparison_1} vs {condition_comparison_2}",
+                roi,
+                electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
             filename_suffix=analysis_params_str,
             show_sig_legend=True,
             sig_bar_base_position=0.72,
@@ -201,6 +210,11 @@ def run_context_comparison_analysis(
             ylabel=f"Accuracy Difference ({condition_comparison_1.replace('_', ' ')} - {condition_comparison_2.replace('_', ' ')})",
             show_chance_level=True,
             chance_level=0,
+            title=decoding_figure_title(
+                f"{condition_name} accuracy difference: "
+                f"{condition_comparison_1} − {condition_comparison_2}",
+                roi,
+                electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
             filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
             show_sig_legend=False,
             sig_bar_base_position=diff_ylim[1] * 0.8,
@@ -222,12 +236,18 @@ def plot_cross_block_overlay(
     args,
     rois,
     save_dir,
-    analysis_params_str
+    analysis_params_str,
+    electrode_set_desc_fn=None
 ):
     """
     Overlay decoding accuracy from multiple blocks on a single plot,
     and store pooled shuffle data in master_results for later re-plotting.
+
+    ``electrode_set_desc_fn`` : callable(roi) -> str, optional -- electrode-set
+    description for the figure title.
     """
+    from .anova_electrode_selection import decoding_figure_title
+
     print(f"\n📊 Generating cross-block {variable_name.upper()} overlay plots...")
 
     # Pool shuffle distributions across bootstraps
@@ -286,6 +306,9 @@ def plot_cross_block_overlay(
             show_chance_level=False,
             show_legend=True,
             ylabel=ylabel,
+            title=decoding_figure_title(
+                f"{variable_name} decoding across blocks", roi,
+                electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
             filename_suffix=analysis_params_str,
             single_column=False,
         )
