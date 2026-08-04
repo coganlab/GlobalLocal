@@ -21,7 +21,7 @@
 #       bash submit_..._dcc.sh                                                 # define electrodes from
 #                                                                              # the power-trace runs
 #
-# See README_stability_flexibility_cross_decoding.md for what each knob does.
+# See docs/analysis_guide.md §17 for what each knob does and how to read the output.
 
 # ---------------------------------------------------------------------------
 # Data in: epochs file (high-gamma, rescaled) and the condition set.
