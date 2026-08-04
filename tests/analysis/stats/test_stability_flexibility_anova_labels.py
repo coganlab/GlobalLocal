@@ -14,6 +14,7 @@ module's synthetic generator, whose ground truth has NO cross-effect, so CPS/SPC
 should stay ~null while CPC/SPS recover the planted interactions.
 """
 
+import numpy as np
 import pytest
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
@@ -112,3 +113,53 @@ def test_no_sign_gating_option_is_exposed():
 
     params = inspect.signature(sfs.per_electrode_anova_labels).parameters
     assert "require_sign" not in params
+
+
+# ---------------------------------------------------------------------------
+# time-course (cluster-mode) input
+# ---------------------------------------------------------------------------
+# `assemble_long_df(..., effect_measure='cluster' | 'peak_t')` stores each trial's
+# windowed time COURSE in `hg`, and the cross-decoding battery builds its table
+# that way before calling this (window-mean) definition. The ANOVA fit already
+# reduced those cells to window means; the `<g>_sign` direction did not, so it
+# reached `_interaction_effect(..., 'cohens_d')` with a (n, T) array and raised
+# "effect_measure='cohens_d' requires scalar (window-mean) hg".
+@pytest.fixture(scope="module")
+def cluster_labels():
+    df = sfs._synthetic_df(effect_measure="cluster", n_time=12, seed=1)
+    assert df["hg"].dtype == object, "fixture is not a time-course table"
+    return sfs.per_electrode_anova_labels(df, alpha=0.05, contrast_mode="proportion")
+
+
+def test_accepts_time_course_table(cluster_labels):
+    """A cluster-mode table runs through instead of raising on the sign step."""
+    assert len(cluster_labels) > 0
+    for flag in ("CPC", "SPS", "CPS", "SPC"):
+        assert set(cluster_labels[flag].unique()) <= {0, 1}
+    assert cluster_labels["CPC"].sum() > 0 and cluster_labels["SPS"].sum() > 0
+
+
+def test_time_course_signs_are_scalar_and_signed(cluster_labels):
+    """Signs stay per-electrode scalars in {-1, +1} — not length-T vectors."""
+    for col in ("cpc_sign", "sps_sign", "cps_sign", "spc_sign"):
+        vals = cluster_labels[col].to_numpy()
+        assert vals.ndim == 1, f"{col} is not scalar per electrode"
+        assert set(np.unique(vals)) <= {-1.0, 0.0, 1.0}
+    # both modulation directions still represented (as in the scalar path)
+    assert (cluster_labels["cpc_sign"] > 0).any()
+    assert (cluster_labels["cpc_sign"] < 0).any()
+
+
+def test_time_course_matches_window_mean_table():
+    """Reduction is exactly the window mean: pre-averaging the cells gives the
+    same labels, so cluster-mode input is not a different analysis."""
+    df = sfs._synthetic_df(effect_measure="cluster", n_time=12, seed=3)
+    reduced = df.assign(hg=df["hg"].apply(np.nanmean))
+
+    from_courses = sfs.per_electrode_anova_labels(df, contrast_mode="proportion")
+    from_means = sfs.per_electrode_anova_labels(reduced, contrast_mode="proportion")
+
+    for col in ("q_cpc", "q_sps", "cpc_sign", "sps_sign"):
+        np.testing.assert_allclose(from_courses[col], from_means[col], rtol=1e-9)
+    for flag in ("CPC", "SPS", "CPS", "SPC"):
+        assert (from_courses[flag] == from_means[flag]).all()

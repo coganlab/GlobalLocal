@@ -46,6 +46,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import sys
 import os
+import re
 import json
 
 # ---------------------------------------------------------------------------
@@ -129,7 +130,9 @@ def save_results(results, save_dir):
                 arrays[f'labeltransfer_{group}_{direction}_true'] = r['acc_true']
                 arrays[f'labeltransfer_{group}_{direction}_shuffle'] = r['acc_shuffle']
     for name, res in results.get('temporal', {}).items():
-        np.save(os.path.join(save_dir, f'tempgen_{name}.npy'), res['matrix'])
+        # the keys carry '->', spaces and the '[group]' tag — keep them off disk
+        safe = re.sub(r'[^A-Za-z0-9]+', '_', name).strip('_')
+        np.save(os.path.join(save_dir, f'tempgen_{safe}.npy'), res['matrix'])
     if arrays:
         np.savez(os.path.join(save_dir, 'accuracy_traces.npz'), **arrays)
 
@@ -259,7 +262,13 @@ def write_summary(results, save_dir, meta):
 
     lines += ["-" * 72,
               "A4(a) label transfer (train stability, test flexibility) by group:",
-              "      prediction: only the 'both' group cross-decodes."]
+              "      prediction: only the 'both' group cross-decodes.",
+              f"      '{meta.get('reference_group') or 'all'}' is the UNSELECTED "
+              "reference set (every electrode in the",
+              "      decoded ROI array, i.e. what `electrodes` above already "
+              "restricted it to) —",
+              "      no interaction defined it, so it is the honest baseline for "
+              "the selected groups."]
     for g, res in results.get('label_transfer', {}).items():
         for direction, r in res.items():
             lines.append(
@@ -294,17 +303,84 @@ def write_summary(results, save_dir, meta):
 # ---------------------------------------------------------------------------
 # electrode-group derivation from the A1 labels
 # ---------------------------------------------------------------------------
-def _electrode_groups(df, alpha):
+# Two interchangeable routes to the same labels table (same columns, same
+# CPC/SPS/CPS/SPC + S/F contract), selected by `args.electrode_definition`:
+#
+#   'anova'        -- `sfs.per_electrode_anova_labels`: ONE two-way ANOVA per
+#                     electrode on the window-MEAN HG over [window_tmin,
+#                     window_tmax], BH-FDR'd across electrodes. Self-contained
+#                     (it only needs the epochs this job already loads), which
+#                     is why it was the original and only route here.
+#   'power_traces' -- `ptc.electrode_labels`: reads the already-computed
+#                     within-electrode WINDOWED ANOVA runs and their permutation
+#                     cluster correction, so an electrode counts as selective if
+#                     any cluster survives across time. Strictly more sensitive
+#                     to strong-but-transient interactions that the window mean
+#                     dilutes, and it makes the decoded electrode sets literally
+#                     the ones the power-trace figures call significant -- but it
+#                     needs finished run directories, which is the only reason it
+#                     is not the default.
+ELECTRODE_DEFINITIONS = ('anova', 'power_traces')
+
+
+def _channel_keys(labels):
+    """Labels rows -> the ROI LabeledArray's channel names (`f'{subject}-{elec}'`).
+
+    `put_data_in_labeled_array_per_roi_subject` labels channels `subject-electrode`
+    so they stay unique across the pseudopopulation. `per_electrode_anova_labels`
+    already emits that prefixed form in `electrode`; the power-traces route keeps
+    `subject` and a BARE `electrode` in separate columns. Normalising here is what
+    keeps `_restrict_to_electrodes` from silently matching nothing (which would
+    read as "this group has no electrode in the ROI" rather than as a key
+    mismatch).
+    """
+    subj = labels['subject'].astype(str)
+    elec = labels['electrode'].astype(str)
+    prefix = (subj + '-').to_numpy()
+    elec = elec.to_numpy()
+    # elementwise, since `Series.str.startswith` only takes a literal prefix
+    prefixed = np.fromiter((e.startswith(p) for e, p in zip(elec, prefix)),
+                           dtype=bool, count=len(elec))
+    return np.where(prefixed, elec, np.char.add(prefix.astype(str), elec.astype(str)))
+
+
+def _resolve_labels(args, df=None):
+    """The per-electrode S/F definition table, from whichever route is selected."""
+    definition = getattr(args, 'electrode_definition', 'anova')
+    if definition not in ELECTRODE_DEFINITIONS:
+        raise ValueError(f"electrode_definition must be one of {ELECTRODE_DEFINITIONS}; "
+                         f"got {definition!r}")
+
+    if definition == 'power_traces':
+        from src.analysis.stats import power_traces_conjunction as ptc
+        runs = getattr(args, 'power_traces_runs', None)
+        if not runs:
+            raise ValueError(
+                "electrode_definition='power_traces' needs `power_traces_runs`: "
+                "either one run directory whose ANOVA carried all four "
+                "interactions, or {'CPC': dir, 'SPS': dir, 'CPS': dir, 'SPC': dir}. "
+                "Set POWER_TRACES_RUN_DIR (or POWER_TRACES_CPC/SPS/CPS/SPC).")
+        return ptc.electrode_labels(
+            runs=runs,
+            roi=getattr(args, 'power_traces_roi', None),
+            alpha=args.alpha,
+            correction=getattr(args, 'power_traces_correction', 'fdr_bh'))
+
     from src.analysis.stats import stability_flexibility_segregation as sfs
-    labels = sfs.per_electrode_anova_labels(
-        df, alpha=alpha, contrast_mode=CONTRAST_MODE)
-    S = (labels.S == 1); F = (labels.F == 1)
-    groups = {
-        'both': labels.loc[S & F, 'electrode'].tolist(),
-        'S_only': labels.loc[S & ~F, 'electrode'].tolist(),
-        'F_only': labels.loc[~S & F, 'electrode'].tolist(),
+    return sfs.per_electrode_anova_labels(
+        df, alpha=args.alpha, contrast_mode=CONTRAST_MODE)
+
+
+def _electrode_groups(labels):
+    """The three DISJOINT label-transfer groups, as ROI-array channel names."""
+    chan = _channel_keys(labels)
+    S = (labels['S'] == 1).to_numpy()
+    F = (labels['F'] == 1).to_numpy()
+    return {
+        'both': chan[S & F].tolist(),
+        'S_only': chan[S & ~F].tolist(),
+        'F_only': chan[~S & F].tolist(),
     }
-    return labels, groups
 
 
 def _interaction_groups(labels):
@@ -312,8 +388,40 @@ def _interaction_groups(labels):
     the definition-group flag (CPC/SPS/CPS/SPC) so `cd.is_circular_decode` can name
     each set's double-dip cell. Used for the per-group within-block 2x2 that skips
     the diagonal (define==decode) cell."""
-    return {flag: labels.loc[labels[flag] == 1, 'electrode'].tolist()
+    chan = _channel_keys(labels)
+    return {flag: chan[(labels[flag] == 1).to_numpy()].tolist()
             for flag in ('CPC', 'SPS', 'CPS', 'SPC') if flag in labels.columns}
+
+
+def _add_reference_group(groups, channel_names, args):
+    """Add the UNSELECTED reference set: every channel in the decoded ROI array.
+
+    Without it, the label-transfer and temporal-generalization designs only ever
+    run on interaction-selected subsets (both / S_only / F_only), so there is no
+    baseline for "does this ROI cross-decode at all" -- and every one of those
+    subsets was chosen for carrying an interaction, which is exactly the
+    selection that inflates within-contrast decodability. The reference group is
+    defined by NOTHING the decode is about, so it is the honest comparison.
+
+    What "all" means is set upstream by `args.electrodes`: 'sig' restricts the
+    ROI array to the baseline task-significant electrodes, 'all' keeps every
+    electrode in the ROI. Either way this group is that array's full channel
+    list, so it is never a superset of what was actually loaded. Set
+    `args.reference_group` to None/'' to drop it.
+    """
+    name = getattr(args, 'reference_group', 'all')
+    if not name:
+        return groups
+    if name in groups:
+        raise ValueError(f"reference_group={name!r} collides with an existing "
+                         f"electrode group; pick another name")
+    channel_names = list(channel_names)
+    # On the synthetic path 'both' is already every channel by construction;
+    # adding a byte-identical group would just decode the same thing twice.
+    if any(set(v) == set(channel_names) for v in groups.values()):
+        return groups
+    groups[name] = channel_names
+    return groups
 
 
 def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
@@ -367,20 +475,29 @@ def main(args):
             resolve_lab_root, resolve_electrodes_to_keep, load_HG_ev1_rescaled_per_subject)
         from src.analysis.utils.labeled_array_utils import (
             put_data_in_labeled_array_per_roi_subject)
-        from dcc_scripts.stats.stability_flexibility_segregation_dcc import assemble_long_df
 
+        definition = getattr(args, 'electrode_definition', 'anova')
+        print(f"ELECTRODE DEFINITION: {definition}")
         LAB_root = resolve_lab_root(args.LAB_root)
-        subjects_epochs = load_HG_ev1_rescaled_per_subject(
-            subjects=args.subjects, epochs_root_file=args.epochs_root_file,
-            task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
-        keep = resolve_electrodes_to_keep(args, LAB_root)
 
-        # (i) the A1 electrode definition needs the long single-trial table
-        df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
-                              electrodes_to_keep=keep, effect_measure=EFFECT_MEASURE)
-        print(f"assembled cluster df: {len(df)} rows | {df.subject.nunique()} subjects | "
-              f"{df.electrode.nunique()} electrodes")
-        labels, a1_groups = _electrode_groups(df, args.alpha)
+        # (i) the electrode definition. The power-traces route reads finished
+        #     windowed-ANOVA runs, so it needs neither the epochs nor the long
+        #     single-trial table; the in-job ANOVA route builds both.
+        if definition == 'power_traces':
+            labels = _resolve_labels(args)
+        else:
+            from dcc_scripts.stats.stability_flexibility_segregation_dcc import assemble_long_df
+            subjects_epochs = load_HG_ev1_rescaled_per_subject(
+                subjects=args.subjects, epochs_root_file=args.epochs_root_file,
+                task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
+            keep = resolve_electrodes_to_keep(args, LAB_root)
+            df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
+                                  electrodes_to_keep=keep, effect_measure=EFFECT_MEASURE)
+            print(f"assembled cluster df: {len(df)} rows | {df.subject.nunique()} subjects | "
+                  f"{df.electrode.nunique()} electrodes")
+            labels = _resolve_labels(args, df)
+
+        a1_groups = _electrode_groups(labels)
         labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
         interaction_groups = _interaction_groups(labels)
         print("A1 electrode groups: "
@@ -393,6 +510,12 @@ def main(args):
             args.electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2,
             random_state=getattr(args, 'seed', 42))
         channel_names = list(args.roi_channel_names)
+
+    # The unselected reference set, so label transfer / temporal generalization
+    # are not only ever read off interaction-selected subsets.
+    a1_groups = _add_reference_group(a1_groups, channel_names, args)
+    print("decoded electrode groups: "
+          + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
 
     results = {}
 
@@ -475,23 +598,33 @@ def main(args):
         lt[g] = entry
     results['label_transfer'] = lt
 
-    # 4. (c) temporal generalization (Fig 10) on the 'both' group ----------------
-    print("A4(c): temporal generalization (Fig 10)")
-    tg_set = a1_groups.get('both')
-    restricted, n_kept = (_restrict_to_electrodes(arrays, roi, channel_names, tg_set)
-                          if tg_set else (None, 0))
-    if n_kept >= args.min_group_size:
+    # 4. (c) temporal generalization (Fig 10) -----------------------------------
+    # Each matrix costs n_windows^2 decodes, so this runs on `args.tempgen_groups`
+    # (default: the 'both' group only) rather than on every group above. Add the
+    # reference group there to get the unselected comparison matrix too.
+    tempgen_groups = getattr(args, 'tempgen_groups', None) or ('both',)
+    print(f"A4(c): temporal generalization (Fig 10) on {list(tempgen_groups)}")
+    results['temporal'] = {}
+    for g in tempgen_groups:
+        tg_set = a1_groups.get(g)
+        restricted, n_kept = (_restrict_to_electrodes(arrays, roi, channel_names, tg_set)
+                              if tg_set else (None, 0))
+        if n_kept < args.min_group_size:
+            print(f"     group '{g}' has {n_kept} electrodes in ROI "
+                  f"(< {args.min_group_size}); skipping")
+            continue
         # n_windows^2 predictions — halve the repeats to keep the runtime sane
         tg_kw = dict(dec_kw, n_repeats=max(2, args.n_repeats // 2),
                      temporal_generalization=True)
-        results['temporal'] = {}
         for name, (tr, te) in (
                 ('stability (within)', (STAB_STRINGS, STAB_STRINGS)),
                 ('flexibility (within)', (FLEX_STRINGS, FLEX_STRINGS)),
                 ('stability->flexibility (cross)', (STAB_STRINGS, FLEX_STRINGS))):
             out = cd.run_cross_decoding(restricted, roi, tr, te, **tg_kw)
-            results['temporal'][name] = dict(matrix=_tempgen_matrix(out),
-                                             n_channels=n_kept)
+            results['temporal'][f'{name} [{g}]'] = dict(
+                matrix=_tempgen_matrix(out), n_channels=n_kept, group=g)
+    if not results['temporal']:
+        del results['temporal']
 
     # 5. persist + plot + summarize ----------------------------------------------
     save_results(results, args.save_dir)
@@ -501,6 +634,13 @@ def main(args):
         synthetic_code=getattr(args, 'synthetic_code', None),
         task=getattr(args, 'task', None),
         epochs_root_file=getattr(args, 'epochs_root_file', None),
+        electrodes=getattr(args, 'electrodes', None),
+        electrode_definition=getattr(args, 'electrode_definition', 'anova'),
+        power_traces_correction=(getattr(args, 'power_traces_correction', None)
+                                 if getattr(args, 'electrode_definition', 'anova')
+                                 == 'power_traces' else None),
+        reference_group=getattr(args, 'reference_group', 'all'),
+        electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
         window=f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s",
         window_size=args.window_size, step_size=args.step_size,
         n_splits=args.n_splits, n_repeats=args.n_repeats,
