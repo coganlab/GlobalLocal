@@ -587,12 +587,55 @@ same time.
   is randomized — the exact null CMH assumes; a global shuffle would break the
   nesting and manufacture significance.
 - **Threshold sweep** (`conjunction_threshold_sweep`): recompute OR across cutoffs;
-  a real claim is stable across α (principle §2.3).
+  a real claim is stable across α (principle §2.3). Read `n_informative_strata`
+  with every row — see the box below for why the strict end of a sweep reports
+  `OR = nan` and why that is the correct answer there.
 - **Continuous, threshold-free (Fig 7 headline):** correlate each electrode's LWPC
   effect size against its LWPS effect size across all electrodes
   (`subject_clustered_corr`), estimated on **disjoint trial halves** so shared
   trial noise cannot inflate it; null by within-subject permutation. Positive →
   shared tuning; ≈0 → segregation.
+
+> **Uninformative subject strata (a fixed bias worth understanding).**
+> `cmh_conjunction` pools with `StratifiedTable(..., shift_zeros=True)`, which
+> adds 0.5 to *all four* cells of any stratum containing a zero. That is the
+> right continuity fix for a sparse-but-real table, and a fabricator of evidence
+> for a stratum with a zero **marginal**: a subject with no S electrodes has
+> `[[0,0],[c,e]]`, which cannot speak to whether S predicts F, but shifted to
+> `[[.5,.5],[c+.5,e+.5]]` it starts contributing a positive association.
+> Measured: four such subjects added to four informative ones moved the pooled OR
+> 4.00 → 4.10 and the CMH p 6.9e-4 → 1.6e-4; and at a threshold where nothing is
+> selected, all-empty strata pooled to **OR = 51, p = 4e-12**. Such strata are
+> now dropped before pooling (a no-op on an unshifted analysis), and when none
+> are informative the OR is **NaN**, not a number. Re-run any CMH result recorded
+> before this fix in which some subject had no S or no F electrodes.
+
+### 5.0 How the continuous route aggregates across subjects
+
+Worth being precise about, because "correlate across electrodes" and "subjects
+are nested" sound like they need a two-stage estimator, and this is **not** one.
+There is no per-subject correlation anywhere in the code.
+
+Each electrode is reduced to **one point** `(x, y)` — its LWPC sensitivity and
+its LWPS sensitivity, each a signed scalar estimated on a disjoint trial half
+(`compute_sensitivities`). Then, once for the whole dataset:
+
+1. `prepare_continuous` regresses `x` and `y` on responsiveness (one pooled OLS)
+   and **subtracts each subject's own mean** from both → `x_resid`, `y_resid`.
+2. `subject_clustered_corr` takes **a single Spearman correlation over every
+   electrode at once**, pooled across subjects.
+3. Its null shuffles `y` **within each subject**, so each subject's own
+   distribution is preserved and only the within-subject pairing is randomized.
+
+So the aggregation is *pooling after within-subject centering* — a fixed-effects
+/ "within" estimator. Between-subject differences in mean sensitivity cannot
+drive it (step 1 removes them), and the null matches the estimand (step 3). Two
+consequences to state when reporting it: subjects contribute **in proportion to
+their electrode count**, so a subject with 60 electrodes weighs 10× one with 6;
+and the estimate is a within-subject association only — it is silent on whether
+subjects with stronger LWPC also have stronger LWPS. `mixedlm_check` (`y1 ~ x1`
+with a subject random intercept) is the alternative aggregation if you want a
+subject-weighted slope as a cross-check.
 
 **Why the conjunction matters most:** it is the only test in the battery that can
 give **positive evidence for distinctness** (OR < 1). Decoding can only *fail* to

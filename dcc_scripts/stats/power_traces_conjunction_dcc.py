@@ -264,36 +264,44 @@ def save_continuous(control, save_dir):
 # ---------------------------------------------------------------------------
 # threshold-sweep hygiene
 # ---------------------------------------------------------------------------
-def degenerate_sweep_rows(sweep):
-    """Boolean mask of sweep rows whose odds ratio is an artifact, not a result.
+def degenerate_sweep_rows(sweep, min_strata=3):
+    """Boolean mask of sweep rows too thin to say anything about stability.
 
-    `cmh_conjunction` builds each subject's 2x2 with `StratifiedTable(...,
-    shift_zeros=True)`, which adds 0.5 to every cell of a table containing a
-    zero. That is the standard fix for a single empty cell, but at a strict
-    cutoff where NOTHING is selected the table is `[[0, 0], [0, n]]` and the
-    shift turns it into `[[.5, .5], [.5, n + .5]]` -- an odds ratio that grows
-    with the number of unselected electrodes and a vanishing p-value, out of a
-    table with no selected electrodes in it at all. Read literally, the sweep
-    then reports its STRONGEST shared-core evidence exactly where it has no
-    evidence.
+    `cmh_conjunction` now drops subject strata that carry no information about
+    the S-F association and returns NaN when none are left, so an all-empty
+    threshold no longer fabricates an odds ratio. What it cannot do is decide how
+    many subjects are ENOUGH: a row resting on one or two informative strata has
+    a finite OR that is nonetheless not evidence the verdict is threshold-stable.
 
-    A row is only informative if both marginals are non-empty; a row with
-    `n_both == 0` is additionally driven entirely by the shift. Flag both, and
-    keep them out of the plotted trend line.
+    So flag three things: an undefined OR, fewer than `min_strata` informative
+    subjects, and `n_both == 0` (an OR built entirely from the off-diagonal).
+    These stay out of the plotted trend line and are named in `summary.txt`.
     """
     s = sweep
-    return ((s['n_S'] == 0) | (s['n_F'] == 0) | (s['n_both'] == 0)).to_numpy()
+    thin = (s['n_informative_strata'] < min_strata
+            if 'n_informative_strata' in s.columns
+            else (s['n_S'] == 0) | (s['n_F'] == 0))
+    return (~np.isfinite(s['mh_odds_ratio']) | thin | (s['n_both'] == 0)).to_numpy()
 
 
-def _sweep_warning(sweep):
-    bad = degenerate_sweep_rows(sweep)
+def _sweep_warning(sweep, min_strata=3):
+    bad = degenerate_sweep_rows(sweep, min_strata=min_strata)
     if not bad.any():
         return []
-    ts = ", ".join(f"q<{t}" for t in sweep.loc[bad, 'threshold'])
-    return ["  WARNING: sweep row(s) " + ts + " have an empty marginal or "
-            "n_both = 0. Their OR/p come from StratifiedTable's shift_zeros "
-            "correction on an (almost) empty table, not from data -- ignore "
-            "them when judging whether the verdict is threshold-stable."]
+    bits = []
+    for _, r in sweep[bad].iterrows():
+        why = []
+        if not np.isfinite(r['mh_odds_ratio']):
+            why.append("OR undefined")
+        if r.get('n_informative_strata', np.inf) < min_strata:
+            why.append(f"{int(r['n_informative_strata'])} informative subject(s)")
+        if r['n_both'] == 0:
+            why.append("n_both = 0")
+        bits.append(f"q<{r['threshold']} ({'; '.join(why)})")
+    return ["  WARNING: sweep row(s) " + ", ".join(bits) + " are too thin to "
+            "support a threshold-stability claim; ignore them when reading the "
+            "sweep. An undefined OR means no subject stratum had both an S and "
+            "an F electrode at that cutoff."]
 
 
 # ---------------------------------------------------------------------------

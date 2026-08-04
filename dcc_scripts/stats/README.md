@@ -111,8 +111,8 @@ Written to `results/<epochs_or_synthetic_tag>/window_<tmin>to<tmax>s_<electrodes
 
 # A3 — Anatomy of the stability/flexibility subpopulations
 
-Sits on the A1 electrode definition and asks: *are the distinct subpopulations in
-different **places**?* — while conditioning every claim on iEEG **coverage**
+Sits on a per-electrode S/F definition and asks: *are the distinct subpopulations
+in different **places**?* — while conditioning every claim on iEEG **coverage**
 (clinically-placed electrodes are the main confound here). Analysis code lives in
 `src/analysis/stats/stability_flexibility_anatomy.py`; a step-by-step walk-through
 is in `stability_flexibility_anatomy_tutorial.ipynb` (next to that module).
@@ -121,10 +121,10 @@ is in `stability_flexibility_anatomy_tutorial.ipynb` (next to that module).
 
 | File | Role |
 |---|---|
-| `stability_flexibility_anatomy_dcc.py` | Core: assembles the long df, runs A1 to get S/F flags, maps electrodes → ROIs, builds the coverage matrix, runs the coverage-conditioned enrichment test, writes figures + `summary.txt`. Exposes `main(args)`. |
+| `stability_flexibility_anatomy_dcc.py` | Core: gets S/F flags (A1 **or** `power_traces`), maps electrodes → ROI group **and** raw Destrieux label, applies the optional ROI restriction, builds the coverage matrix, runs the coverage-conditioned enrichment test, writes figures (incl. the electrodes on the brain) + `summary.txt`. Exposes `main(args)`. |
 | `run_stability_flexibility_anatomy_dcc.py` | Entrypoint: sets parameters (env-overridable) and calls `main`. |
-| `sbatch_stability_flexibility_anatomy_dcc.sh` | SLURM wrapper (`conda activate ieeg` → entrypoint). |
-| `submit_stability_flexibility_anatomy_dcc.sh` | Sets `EPOCHS_ROOT_FILE`/window/etc. and `sbatch`-submits. |
+| `sbatch_stability_flexibility_anatomy_dcc.sh` | SLURM wrapper (`conda activate ieeg` → `xvfb-run python` so the brain render has a display). |
+| `submit_stability_flexibility_anatomy_dcc.sh` | Sets `EPOCHS_ROOT_FILE`/window/label source/ROI filter and `sbatch`-submits. |
 
 ## Quick start
 
@@ -134,45 +134,103 @@ cd dcc_scripts/stats
 DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh
 # the NULL version (no association — the test must come back n.s.):
 DATA_SOURCE=synthetic SYNTHETIC_ENRICHMENT=0.0 bash submit_stability_flexibility_anatomy_dcc.sh
-# real run — set EPOCHS_ROOT_FILE in the submit script, then:
+# real run on the A1 electrodes — set EPOCHS_ROOT_FILE in the submit script:
 bash submit_stability_flexibility_anatomy_dcc.sh
+
+# real run on the POWER_TRACES electrodes (cluster-corrected), lpfc only,
+# counted by raw Destrieux label. Loads no epoched data — just the finished run:
+POWER_FIGS=/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs
+EPOCHS_ROOT=Stimulus_-1.0to1.5sec_..._nan_policy_omit   # the ANOVA's dir name
+LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
+  PT_RUN_DIR="$POWER_FIGS/$EPOCHS_ROOT/anova_within_electrode/stimulus_experiment_conditions_24_subjects" \
+  bash submit_stability_flexibility_anatomy_dcc.sh
 ```
 
 ## What it does
 
-1. Assembles the same long-format single-trial HG table as the A1/A2 job.
-2. **A1** (`per_electrode_anova_labels`, `contrast_mode='proportion'`) → per-electrode `S`/`F` flags → 4-way group (`both`/`S_only`/`F_only`/`neither`).
-3. Maps each electrode to a coarse ROI (`build_electrode_roi_map` over the shared `subjects_electrodes_to_ROIs_dict` + `config/rois.py`).
-4. **Coverage**: subject × ROI boolean matrix (does subject *s* have any electrode in ROI *r*?).
-5. **Coverage-conditioned enrichment test** (`roi_group_enrichment_test`): Pearson χ² on the group × ROI table with a **within-subject permutation null** (shuffle the group label within each subject, so the null respects nesting *and* coverage), restricted to ROIs sampled in ≥ `MIN_SUBJECTS` subjects.
-6. Figures: ROI-group histograms (annotated with per-ROI coverage), the coverage heatmap + enrichment null, and a Glasser brain-surface figure via the existing `vis/` renderer (falls back to the ROI histogram off-cluster).
+1. **Electrode definition** (`LABEL_SOURCE`):
+   * `a1` — assembles the long-format single-trial HG table and fits
+     `per_electrode_anova_labels` (`contrast_mode='proportion'`) → `S`/`F` flags.
+   * `power_traces` — reads finished **within-electrode windowed ANOVA with
+     cluster correction** runs through `power_traces_conjunction.electrode_labels`
+     (BH across electrodes by default). Same `S`/`F` contract, no epoched data.
+   Either way → the 4-way group (`both`/`S_only`/`F_only`/`neither`).
+2. Maps each electrode to **both** anatomical levels: the coarse ROI group
+   (`build_electrode_roi_map` + `config/rois.py`) and the **raw Destrieux label**
+   (`build_electrode_anat_map`, white-matter/unknown dropped).
+3. Optional **ROI restriction** (`ROI_FILTER=lpfc`). The ROI groups overlap
+   (`dlpfc`/`lpfc` share `G_front_middle`, `S_front_inf`, …), so the job subsets
+   `rois_dict` to the requested group *before* building the map — otherwise
+   `dlpfc` claims the shared labels and the lpfc filter would silently keep only
+   lpfc's exclusive ones.
+4. Picks the level to count/test on (`ANAT_LEVEL`, default `auto`): raw Destrieux
+   labels whenever the analysis sits inside a single ROI group — inside an
+   lpfc-only analysis every electrode's ROI *is* `lpfc`, so a group-level
+   histogram is one bar and the group × ROI test has one column.
+5. **Coverage**: subject × ROI boolean matrix at that level (does subject *s* have
+   any electrode in ROI *r*?).
+6. **Coverage-conditioned enrichment test** (`roi_group_enrichment_test`): Pearson χ² on the group × ROI table with a **within-subject permutation null** (shuffle the group label within each subject, so the null respects nesting *and* coverage), restricted to ROIs sampled in ≥ `MIN_SUBJECTS` subjects.
+7. Figures: ROI-group **and** Destrieux histograms (annotated with per-ROI coverage), the coverage heatmap + enrichment null, and the selective electrodes themselves on the fsaverage brain — one colour per group, rendered through the same `vis/jim_mri.plot_on_average` path as `plot_sig_electrodes_dcc.py` (falls back to the ROI histogram when the surface stack isn't available).
 
 ## Key knobs (env vars)
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `DATA_SOURCE` | `real` | `real` = epoched data + ROI atlas; `synthetic` = ground-truth dry run. |
+| `DATA_SOURCE` | `real` | `real` = real electrodes + ROI atlas; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_ENRICHMENT` | `0.6` | synthetic only: strength of the planted group×ROI association (`0.0` = null). |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset). |
-| `ELECTRODES` | `all` | `all` or `sig`. |
+| `LABEL_SOURCE` | `a1` | `a1` = fit the window-mean ANOVA here; `power_traces` = read finished cluster-corrected runs. |
+| `PT_RUN_DIR` | — | `power_traces` only: one 4-factor run dir (containing `summary.csv`). |
+| `PT_RUN_CPC` / `PT_RUN_SPS` / `PT_RUN_CPS` / `PT_RUN_SPC` | — | …or one run dir per interaction (CPC + SPS required). |
+| `PT_CORRECTION` | `fdr_bh` | `fdr_bh` (BH across electrodes — the right family for a count test), `cluster` (raw cluster p, the existing lab convention), `none`. |
+| `PT_ALPHA` | = `ALPHA` | selection cutoff for the `power_traces` labels. |
+| `PT_ROI` | — | restrict to one ROI **of the ANOVA run** (e.g. `lpfc`). |
+| `ROI_FILTER` | — | restrict the **anatomy** to one/several ROI groups of `config/rois.py` (e.g. `lpfc`). Empty = whole brain. |
+| `ANAT_LEVEL` | `auto` | `auto` \| `group` \| `destrieux` — level for the histogram + enrichment test. |
+| `HIST_TOP_N` | — | cap the Destrieux histogram at the N most-populated labels. |
+| `MAKE_BRAIN` / `BRAIN_HEMI` | `1` / `both` | render the brain figure; hemisphere(s) to draw. |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset). A1 route only. |
+| `ELECTRODES` | `all` | `all` or `sig`. A1 route only. |
 | `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
 | `MIN_SUBJECTS` | `3` | keep only ROIs sampled in ≥ this many subjects (the coverage condition). |
 | `N_PERM` | `10000` | within-subject permutations for the enrichment null. |
 
 ## Outputs
 
-Written to `results/<epochs_or_synthetic_tag>/anatomy_window_<tmin>to<tmax>s_<electrodes>/`:
+Written to `results/<epochs_or_pt_or_synthetic_tag>/anatomy_<label_source>_<roi_or_wholebrain>_window_<tmin>to<tmax>s_<electrodes>/`:
 
-- `anatomy_labels_roi.csv` — per-electrode S/F, ROI, group.
-- `coverage_matrix.csv` — subject × ROI coverage.
-- `group_roi_contingency.csv`, `roi_group_histogram.csv` — the tables behind the test/figure.
-- `roi_enrichment.json` (+ `roi_enrichment_null.npy`) — ROIs tested, χ², permutation p, per-ROI coverage.
-- `roi_group_histogram.png`, `anatomy_coverage_enrichment.png`, `selectivity_groups_on_brain.svg` (or `..._roi_hist.png` fallback).
+- `electrode_labels.csv` — the raw upstream labels (per-effect p/q + S/F), before anatomy.
+- `anatomy_labels_roi.csv` — per-electrode S/F, ROI group, Destrieux label, group.
+- `coverage_matrix.csv` — subject × ROI coverage, at the level being tested.
+- `group_roi_contingency.csv` — the table the χ² is computed on.
+- `roi_group_histogram.csv` / `.png` — counts per **ROI group**.
+- `destrieux_group_histogram.csv` / `.png` — counts per **raw Destrieux label** (the one to read for an lpfc-only run).
+- `roi_enrichment.json` (+ `roi_enrichment_null.npy`) — level tested, ROIs tested, χ², permutation p, per-ROI coverage.
+- `anatomy_coverage_enrichment.png` — coverage heatmap + the permutation null with the observed χ².
+- `selectivity_groups_on_brain.png` (+ `..._both.png` / `..._S_only.png` / `..._F_only.png`), or `..._roi_hist.png` when the surface stack is unavailable.
 - `summary.txt` — printed verdict.
 
 **Reading:** a significant test means selectivity-group membership is associated
-with ROI *beyond* what electrode placement forces; per-ROI coverage is reported so
-no claim rests on where the grid happens to be.
+with ROI (or Destrieux label) *beyond* what electrode placement forces; per-ROI
+coverage is reported so no claim rests on where the grid happens to be. The
+histograms are raw counts, not the test — read them alongside the coverage row.
+
+## A3 vs `dcc_scripts/vis/plot_sig_electrodes_dcc.py`
+
+They overlap in *output* (both can draw significant electrodes on fsaverage and
+histogram their Destrieux labels) but answer different questions, and A3 now
+**calls** the vis stack rather than duplicating it (`plot_on_average` +
+`build_global_index_map` / `electrodes_to_global_indices`), so the two figures are
+directly comparable.
+
+| | `plot_sig_electrodes_dcc.py` | A3 anatomy |
+|---|---|---|
+| Unit | one colour per **condition/effect** (any `sig_chans` contrast or any ANOVA effect, from the registry in `condition_plot_specs.py`) | one colour per **selectivity group** (`both` / `S_only` / `F_only`), i.e. the S×F conjunction |
+| Output | figures + `sig_electrodes_<condition>.json` | figures **+ the coverage-conditioned enrichment statistic** (χ², permutation p, coverage matrix, contingency) |
+| Overlap handling | electrodes significant in >1 condition drawn in `overlap_color` | overlap *is* the `both` group — mutually exclusive by construction |
+
+Use `plot_sig_electrodes` when you want a picture of "where are the electrodes
+significant for effect X (and Y)"; use A3 when the claim is "the S and F
+subpopulations sit in different places, and that isn't just coverage".
 
 ---
 
@@ -476,9 +534,43 @@ Two things the summary flags, because both read as findings if you skip them:
   monotone function of the `both` count and returns an identical p. Both are
   printed so the equivalence is visible — never report them as two lines of
   evidence.
-- **Degenerate sweep rows.** `cmh_conjunction` uses `StratifiedTable(...,
-  shift_zeros=True)`. At a cutoff where nothing is selected, the shift turns
-  `[[0,0],[0,n]]` into `[[.5,.5],[.5,n+.5]]` — a large OR and a tiny p out of a
-  table with no selected electrodes in it. Rows with an empty marginal or
-  `n_both = 0` are named in `summary.txt` and drawn hollow (and excluded from the
-  trend line) in the sweep panel.
+- **Thin sweep rows.** `cmh_conjunction` now drops subject strata that carry no
+  information about the S–F association and returns `OR = nan` when none are
+  left, so the strict end of a sweep no longer fabricates evidence (see the note
+  below). What remains is a judgement call it can't make for you: a row resting
+  on one or two informative subjects has a finite OR that still says nothing
+  about threshold stability. Rows with an undefined OR, fewer than three
+  informative subjects, or `n_both = 0` are named in `summary.txt` and drawn
+  hollow (outside the trend line) in the sweep panel.
+
+---
+
+## Note: uninformative subject strata in the CMH (fixed)
+
+`cmh_conjunction` pools per-subject 2×2 tables with `StratifiedTable(...,
+shift_zeros=True)`, which adds 0.5 to **all four cells** of any stratum
+containing a zero. On a sparse-but-real table (`[[2,0],[1,30]]`) that is the
+standard continuity correction. On a stratum with a zero **marginal** it invents
+evidence from a subject that has none:
+
+- A subject with no S electrodes has the table `[[0,0],[c,e]]`, which cannot
+  speak to whether S predicts F. Shifted, it becomes `[[.5,.5],[c+.5,e+.5]]` and
+  starts contributing a positive association to the pool.
+- Measured: adding four such subjects to four genuinely informative strata moved
+  the pooled OR from **4.00 → 4.10** and the CMH p from **6.9e-4 → 1.6e-4**.
+- At a threshold where *nothing* is selected, every stratum is `[[0,0],[0,n]]`
+  and the pooled result was **OR = 51 at p = 4e-12** — a threshold sweep reported
+  its strongest shared-core evidence exactly where it had none.
+
+Both the A1/A2 job and the A1′/A2 job consumed this. Strata with a zero marginal
+are now dropped before pooling (a no-op on an unshifted analysis — such a table
+contributes nothing to either side of the MH ratio), and when none are
+informative the odds ratio is reported as **NaN** rather than as a number.
+`cmh_conjunction` gained `n_strata` / `n_informative_strata` /
+`n_dropped_strata`, `per_subject` gained an `informative` column, and the sweep
+gained `n_informative_strata`. Pass `drop_uninformative_strata=False` to
+reproduce the old numbers. Pinned by
+`tests/analysis/stats/test_cmh_uninformative_strata.py`.
+
+**If you have already recorded CMH numbers, re-run them** — any run where some
+subject had no S electrodes or no F electrodes was biased toward "shared".

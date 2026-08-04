@@ -163,7 +163,10 @@ def make_plots(anova_labels, conj, null, sweep, save_dir):
                        f"p={null['p_two_sided']:.3g}, z={null['z']:+.2f}",
                  xlabel="# 'both' electrodes", ylabel="# permutations")
 
-    # E: OR vs threshold sweep
+    # E: OR vs threshold sweep. A row with no informative subject stratum has an
+    # undefined OR (cmh_conjunction returns NaN rather than the odds ratio
+    # shift_zeros would fabricate from an empty table), so it simply does not
+    # plot -- a gap at the strict end is the expected shape, not a bug.
     ax[1, 1].plot(sweep['threshold'], sweep['mh_odds_ratio'], 'o-', color="#31a354")
     ax[1, 1].axhline(1.0, ls='--', c='k', lw=1, label="OR = 1 (independence)")
     ax[1, 1].legend()
@@ -234,8 +237,21 @@ def write_summary(anova_labels, conj, null, sweep, save_dir, meta, alpha=0.05):
         "A2  threshold sweep (MH OR across q-cutoffs — a robust verdict is stable):",
     ]
     for _, r in sweep.iterrows():
+        strata = (f"  subjects={int(r['n_informative_strata']):<3}"
+                  if 'n_informative_strata' in sweep.columns else "")
         lines.append(f"      q<{r['threshold']:<5}  n_S={int(r['n_S']):<4} n_F={int(r['n_F']):<4} "
-                     f"n_both={int(r['n_both']):<4} OR={r['mh_odds_ratio']:.3f}  CMH p={r['cmh_p']:.3g}")
+                     f"n_both={int(r['n_both']):<4} OR={r['mh_odds_ratio']:.3f}  "
+                     f"CMH p={r['cmh_p']:.3g}{strata}")
+    if 'n_informative_strata' in sweep.columns:
+        thin = sweep[(~np.isfinite(sweep['mh_odds_ratio']))
+                     | (sweep['n_informative_strata'] < 3)]
+        if len(thin):
+            lines.append(
+                "      NOTE: row(s) " + ", ".join(f"q<{t}" for t in thin['threshold'])
+                + " rest on fewer than 3 informative subjects (OR = nan means "
+                  "none at all -- no subject had both an S and an F electrode at "
+                  "that cutoff). They cannot support a threshold-stability claim "
+                  "either way; ignore them when reading the sweep.")
     lines += [
         "=" * 68,
         "Reading: MH OR < 1 / overlap below null -> segregation (distinct "
