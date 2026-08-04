@@ -90,6 +90,136 @@ def resolve_contrast(contrast):
 
 
 # ---------------------------------------------------------------------------
+# condition cells -> the class groups `build_cross_decoding_arrays` wants
+# ---------------------------------------------------------------------------
+# The Decoder identifies classes by SUBSTRINGS of the condition name, which makes
+# the class definitions a hostage to the naming convention. The two conventions
+# in play here really do collide:
+#
+#   real (`experiment_conditions.stimulus_experiment_conditions`)
+#       Stimulus_{c|i}{25|75}{s|r}{25|75}      e.g. Stimulus_i25s75
+#   synthetic (`synthetic_roi_labeled_arrays`)
+#       Stimulus_{c|i}_{r|s}_{25|75}inc_{25|75}sw   e.g. Stimulus_i_s_25inc_75sw
+#
+# '75s' means "switch trial in the 75%-incongruent block" in the first and
+# "75%-switch block" in the second, so ONE hand-written substring set cannot
+# serve both -- and getting it wrong does not raise, it silently decodes the
+# wrong contrast.
+#
+# So don't parse names at all. Each condition already declares its factor levels
+# (the real conditions in their config entry, the synthetic ones via
+# `synthetic_condition_cells`); read those, and emit the class groups as the FULL
+# condition names belonging to each level. A full name is trivially a substring
+# of itself, so the existing substring machinery works unchanged and no collision
+# is possible.
+CELL_FIELDS = ("congruency", "switchType",
+               "incongruent_proportion", "switch_proportion")
+
+# The config spells the proportions in camelCase; the long-table / stats side of
+# the project uses snake_case. Accept either so a condition dict from either
+# convention drops in.
+_FIELD_ALIASES = {
+    "congruency": ("congruency",),
+    "switchType": ("switchType", "switch_type", "task_sequence"),
+    "incongruent_proportion": ("incongruentProportion", "incongruent_proportion"),
+    "switch_proportion": ("switchProportion", "switch_proportion"),
+}
+
+
+def _as_proportion(value):
+    """'25%' / '25' / 25.0 / 25 -> 25 (int). None if it isn't a proportion."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        value = value.strip().rstrip('%')
+    try:
+        return int(round(float(value)))
+    except (TypeError, ValueError):
+        return None
+
+
+def condition_cells(conditions):
+    """`{condition_name: {field: level}}` from an `experiment_conditions`-style dict.
+
+    `conditions` maps condition name -> its metadata entry (the same dict the
+    decoding pipeline is driven by, e.g.
+    ``experiment_conditions.stimulus_experiment_conditions``). Conditions that do
+    not declare all four factors are dropped: a cross-decode needs every cell of
+    the 2x2x2x2, and a partially-specified condition cannot be placed in it.
+    """
+    cells = {}
+    for name, meta in conditions.items():
+        if not isinstance(meta, dict):
+            continue
+        cell = {}
+        for field, aliases in _FIELD_ALIASES.items():
+            value = next((meta[a] for a in aliases if a in meta), None)
+            if field.endswith('proportion'):
+                value = _as_proportion(value)
+            cell[field] = value
+        if any(v is None for v in cell.values()):
+            continue                       # not a full 4-factor cell
+        cells[name] = cell
+    if not cells:
+        raise ValueError(
+            "no condition declares all of "
+            f"{CELL_FIELDS}; a cross-decode needs the full 2x2x2x2 condition set "
+            "(e.g. experiment_conditions.stimulus_experiment_conditions)")
+    return cells
+
+
+def class_strings(cells, field, pos, neg):
+    """Class groups (`[[pos names], [neg names]]`) for one factor of the cells.
+
+    Emitted as full condition names rather than shorthand substrings, so the
+    grouping is exactly the factor level the condition declared.
+    """
+    groups = []
+    for level in (pos, neg):
+        names = sorted(n for n, c in cells.items() if c[field] == level)
+        if not names:
+            raise ValueError(
+                f"no condition has {field}={level!r}; "
+                f"levels present: {sorted({c[field] for c in cells.values()})}")
+        groups.append(names)
+    return groups
+
+
+def stability_flexibility_strings(cells):
+    """The two contrasts A4 transfers between: (congruency i-vs-c, switch s-vs-r)."""
+    return (class_strings(cells, 'congruency', 'i', 'c'),
+            class_strings(cells, 'switchType', 's', 'r'))
+
+
+def block_condition_sets(cells, field):
+    """`{level: [condition names]}` for a block factor, low level first.
+
+    Feeds the within-block designs: "decode a contrast inside one block level" is
+    `filter_conditions(..., block_condition_sets(cells, field)[level])`.
+    """
+    levels = sorted({c[field] for c in cells.values()})
+    return {level: sorted(n for n, c in cells.items() if c[field] == level)
+            for level in levels}
+
+
+def synthetic_condition_cells(**kwargs):
+    """The `condition_cells` table for `synthetic_roi_labeled_arrays`' conditions.
+
+    Kept next to the generator so the two can never drift: both build the same
+    names from the same nested loop.
+    """
+    cells = {}
+    for cong in ("c", "i"):
+        for sw in ("r", "s"):
+            for inc_prop in (25, 75):
+                for sw_prop in (25, 75):
+                    cells[f"Stimulus_{cong}_{sw}_{inc_prop}inc_{sw_prop}sw"] = dict(
+                        congruency=cong, switchType=sw,
+                        incongruent_proportion=inc_prop, switch_proportion=sw_prop)
+    return cells
+
+
+# ---------------------------------------------------------------------------
 # Double-dipping guard for the electrode-definition <-> decode diagonal
 # ---------------------------------------------------------------------------
 # Electrodes are defined by one of the FOUR two-way interactions
@@ -241,8 +371,14 @@ def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
     )
 
 
-def filter_conditions(roi_labeled_arrays, roi, keep_substring, new_roi=None):
-    """Keep only the conditions whose name contains `keep_substring`.
+def filter_conditions(roi_labeled_arrays, roi, keep, new_roi=None):
+    """Keep only the conditions matching `keep`.
+
+    `keep` is one substring, or a collection of them — a condition is kept if ANY
+    matches. The collection form is what `block_condition_sets` returns (full
+    condition names), and it is what a real block level NEEDS: with the real
+    naming, "the 25%-incongruent block" is the conditions matching `i25` OR `c25`,
+    which no single substring picks out.
 
     How the within-block 2x2 (Design 0 / Fig 9) is expressed: decoding a contrast
     *within one block level* is just an ordinary decode over that block's
@@ -250,15 +386,16 @@ def filter_conditions(roi_labeled_arrays, roi, keep_substring, new_roi=None):
     contrast for train and test. Comparing the two block levels' accuracies is the
     decoding analogue of the univariate LWPC / LWPS effect.
 
-    Returns a `{roi: {condition: array}}` dict ready to pass back in. Raises if the
-    substring matches nothing, since a silently empty ROI would look like a failed
-    decode rather than a bad filter.
+    Returns a `{roi: {condition: array}}` dict ready to pass back in. Raises if
+    nothing matches, since a silently empty ROI would look like a failed decode
+    rather than a bad filter.
     """
+    wanted = [keep] if isinstance(keep, str) else list(keep)
     kept = {name: arr for name, arr in roi_labeled_arrays[roi].items()
-            if keep_substring in name}
+            if any(w in name for w in wanted)}
     if not kept:
         raise ValueError(
-            f"no condition in ROI {roi!r} contains {keep_substring!r}; "
+            f"no condition in ROI {roi!r} matches {wanted!r}; "
             f"have {sorted(roi_labeled_arrays[roi].keys())[:6]}...")
     return {new_roi or roi: kept}
 
