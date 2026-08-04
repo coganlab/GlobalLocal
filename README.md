@@ -6,6 +6,12 @@ jim.zhang@duke.edu, raphael.geddert@duke.edu
 
 Last edited: 01/16/2024
 
+> **Analysis code: start with [`docs/analysis_guide.md`](docs/analysis_guide.md).**
+> It is the single guide to every analysis path — motivation, method, and the
+> scripts/knobs/outputs for each one, including the stability-vs-flexibility
+> A1–A7 battery. This README covers environment setup, BIDS conversion, cluster
+> access, and the experiment itself.
+
 ### Python environment setup
 
 The analysis code lives in the importable `src` package. Set it up once per

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 DCC core for A5 — relative onset of stability vs. flexibility information
-(`docs/stability_flexibility_guide.md` §5).
+(`docs/analysis_guide.md` §18).
 
 Answers a *sequence* question the conjunction (A2) and cross-decoding (A4) layers
 are silent on: does the **LWPC** (congruency x incongruent-proportion, stability)

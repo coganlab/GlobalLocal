@@ -734,7 +734,7 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
             #     not have this problem -- congruency and switchType ARE
             #     randomized trial-to-trial within a block, so they are genuinely
             #     exchangeable. Permuting the condition within block is the
-            #     stricter choice; see `docs/stability_flexibility_guide.md` §4.
+            #     stricter choice; see `docs/analysis_guide.md` §14.2.
             cond = sub[condcol].to_numpy(); mod = sub[modcol].to_numpy()
             valid = ~(np.isnan(cond) | np.isnan(mod))
             cond = cond[valid]; mod = mod[valid]; h = hg[valid]

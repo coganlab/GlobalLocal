@@ -5,7 +5,7 @@ break up the large `.py` files in `src/analysis/` so that implementing a new
 feature means reading **one small file**, not scrolling through a 4,700-line
 monolith.
 
-It is a companion to `docs/analysis_paths.md` (which tells you *where each
+It is a companion to `docs/analysis_guide.md` (which tells you *where each
 analysis lives*). This doc tells you *how to reshape a file once it has grown
 too big to hold in your head*.
 

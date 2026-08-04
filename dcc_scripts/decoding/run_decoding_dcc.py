@@ -198,7 +198,7 @@ ELECTRODES = 'sig'
 # set; electrodes are (re)selected on the definition set and decoding runs only
 # on the disjoint decode set, so electrode selection can't inflate decoding
 # accuracy. Off by default so existing runs reproduce. See
-# docs/decoding_and_electrode_definition_notes.md §C. VALIDATE on one subject
+# docs/analysis_guide.md §21. VALIDATE on one subject
 # before a full re-run.
 #
 # Every value below can be overridden from the environment so a submit/sbatch

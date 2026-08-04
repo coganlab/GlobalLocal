@@ -385,7 +385,7 @@ def main(args):
     # Avoids circularity between electrode selection and decoding accuracy by
     # (re)selecting electrodes on a held-out definition partition and decoding
     # only on the disjoint decode partition. Off by default. See
-    # docs/decoding_and_electrode_definition_notes.md §C.
+    # docs/analysis_guide.md §21.
     if getattr(args, 'electrode_definition_split', False):
         from src.analysis.decoding.trial_splitting import apply_electrode_definition_split
         print(f"\n{'='*20} DISJOINT ELECTRODE-DEFINITION / DECODING SPLIT "
