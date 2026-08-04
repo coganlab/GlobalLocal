@@ -665,6 +665,7 @@ Path-level tests live under `tests/analysis/`:
 | `decoding/test_anova_electrode_selection_integration.py` | the real ANOVA selector on planted synthetic effects (marked `slow`) |
 | `decoding/test_cross_decoding_circularity.py` | A4's double-dipping guard |
 | `decoding/test_cross_decoding_electrode_groups.py` | A4's electrode groups incl. the unselected reference group (§17.1) |
+| `decoding/test_cross_decoding_condition_scheme.py` | A4's contrast/block definitions derived from the condition cells, and the real branch end to end (§17.2) |
 | `stats/test_stability_flexibility_anova_labels.py` | A1's four-interaction definition |
 | `stats/test_cmh_uninformative_strata.py` | the CMH empty-marginal fix (§14.5) |
 | `stats/test_stability_flexibility_timing.py` | A5, incl. the amplitude-invariance guard |
@@ -1831,16 +1832,21 @@ covers per group, so it has no separate code path.
 
 ### 17.1 Which electrodes are decoded
 
-Two independent choices, easy to conflate:
+Three independent choices, easy to conflate:
 
-1. **Which electrodes are loaded at all** — `ELECTRODES`. `sig` keeps the
-   baseline task-significant electrodes in the ROIs, `all` keeps every electrode
-   in them. (With `ROIS_DICT = None`, the current default, no ROI/significance
-   filter is applied and every channel is used.)
-2. **How those loaded electrodes are split for the decodes** — the groups.
+1. **Which region** — `ROI`, a key of `src/analysis/config/rois.py`
+   (`lpfc`, `acc`, `dlpfc`, `parietal`, `occ`, `v1`). Default `lpfc`.
+2. **Which of that region's electrodes are loaded at all** — `ELECTRODES`.
+   `sig` (default) keeps the baseline task-significant ones, `all` keeps every
+   electrode in the ROI.
+3. **How those loaded electrodes are split for the decodes** — the groups.
    `both`/`S_only`/`F_only` come from the interaction labels, and
    `REFERENCE_GROUP` (default `all`) adds the **unselected** set: every channel
    in the decoded ROI array.
+
+So "the `all` group" means *all the electrodes this run loaded* — with
+`ELECTRODES=sig` that is all baseline-significant electrodes in the ROI, with
+`ELECTRODES=all` it is every electrode in the ROI.
 
 The reference group matters because `both`, `S_only` and `F_only` were each
 *chosen* for carrying an interaction, so none of them is a baseline for "does
@@ -1852,7 +1858,40 @@ Temporal generalization costs `n_windows²` decodes per matrix, so it runs only 
 `TEMPGEN_GROUPS` (default `both`); use `TEMPGEN_GROUPS=both,all` to get the
 unselected comparison matrix too.
 
-### 17.2 Electrode definition: `anova` vs `power_traces`
+### 17.2 Conditions and contrasts — why the classes are derived, not written
+
+A4 needs the **full 2×2×2×2** condition set — every {congruency} × {incongruent
+proportion} × {switchType} × {switch proportion} cell — because it decodes one
+contrast, scores the other, and splits each by a block factor.
+`stimulus_experiment_conditions` is that set (16 conditions, `Stimulus_i75s25`
+and friends), and it is the `CONDITIONS` default.
+
+The class definitions are **derived from each condition's declared factor
+levels** (`cd.condition_cells`), not hand-written as substrings of the condition
+names. That is not fussiness: the Decoder matches classes by substring (§7), and
+the real and synthetic naming conventions collide —
+
+```
+real       Stimulus_{c|i}{25|75}{s|r}{25|75}            Stimulus_i75s25
+synthetic  Stimulus_{c|i}_{r|s}_{25|75}inc_{25|75}sw    Stimulus_i_s_75inc_25sw
+```
+
+`75s` means "switch trial in the 75%-incongruent block" in the first and
+"75%-switch block" in the second. Tokens that are right for one **silently decode
+the wrong contrast** on the other — no exception, just an answer to a different
+question (half the synthetic conditions get the wrong class from the real
+tokens; pinned by `test_cross_decoding_condition_scheme.py`). Since each
+condition already declares its levels, `cd.condition_cells` reads those and emits
+the class groups as full condition names, which no naming change can
+misinterpret. Swapping in a different condition dict works as long as its entries
+carry `congruency`, `switchType`, `incongruentProportion` and
+`switchProportion`.
+
+For the same reason `cd.filter_conditions` takes a *collection* of substrings,
+not just one: with the real naming, "the 25%-incongruent block" is the conditions
+matching `i25` **or** `c25`, which no single substring picks out.
+
+### 17.3 Electrode definition: `anova` vs `power_traces`
 
 `ELECTRODE_DEFINITION` picks how the S/F labels are derived. Both routes emit the
 same table (`CPC`/`SPS`/`CPS`/`SPC` + `S`/`F` aliases), so everything downstream
@@ -1877,57 +1916,117 @@ or one directory per interaction (`POWER_TRACES_CPC`, `POWER_TRACES_SPS`,
 needs), `cluster` (raw cluster p, matching the existing lab convention), or
 `none`.
 
-### 17.3 Scripts
+### 17.4 Scripts — how to run it
 
-`dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. The
-`anova` electrode definition still needs the long single-trial table
-(`effect_measure='cluster'`), so a real run assembles both; the `power_traces`
-route skips the long-table assembly entirely:
+`dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. Every knob
+below is settable from the environment, so no run needs a file edited; each is
+also commented where it is defined in
+`run_stability_flexibility_cross_decoding_dcc.py`, which is the file to read if
+you want to know what one does.
+
+**1. Sanity-check the pipeline first (~1 minute, no data needed).** The synthetic
+path plants a code with *known* ground truth, so it tells you the analysis can
+tell the two answers apart before you spend cluster time:
 
 ```bash
 cd dcc_scripts/decoding
-# validate the discrimination in ~a minute with a PLANTED shared code (should transfer):
-DATA_SOURCE=synthetic SYNTHETIC_CODE=shared bash submit_stability_flexibility_cross_decoding_dcc.sh
-# the ORTHOGONAL code (each contrast decodable, but should NOT cross-decode):
-DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal bash submit_stability_flexibility_cross_decoding_dcc.sh
-# real run — set EPOCHS_ROOT_FILE in the submit script, then:
-bash submit_stability_flexibility_cross_decoding_dcc.sh
-# sweep the train/test proportion (StratifiedShuffleSplit instead of StratifiedKFold):
-FRAC_TRAIN=0.5 bash submit_stability_flexibility_cross_decoding_dcc.sh
 
-# no SLURM, fast local sanity check:
+# a SHARED code — label transfer SHOULD come out above chance
 DATA_SOURCE=synthetic SYNTHETIC_CODE=shared \
+    WINDOW_SIZE=16 STEP_SIZE=16 N_SPLITS=3 N_REPEATS=2 N_PERM=50 \
+    python run_stability_flexibility_cross_decoding_dcc.py
+
+# an ORTHOGONAL code — each contrast decodable, transfer should be AT chance
+DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal \
     WINDOW_SIZE=16 STEP_SIZE=16 N_SPLITS=3 N_REPEATS=2 N_PERM=50 \
     python run_stability_flexibility_cross_decoding_dcc.py
 ```
 
-The hyperparameters are the **ordinary decoding ones**:
+If `shared` transfers and `orthogonal` doesn't, the machinery works and a null
+result on real data means something.
+
+**2. The real run.**
+
+```bash
+EPOCHS_ROOT_FILE=Stimulus_-1.0to1.5sec_..._nan_policy_omit \
+    bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
+Everything else has a working default: `ROI=lpfc`, `ELECTRODES=sig`,
+`CONDITIONS=stimulus_experiment_conditions`, window `[0.0, 0.5]s`,
+`ELECTRODE_DEFINITION=anova`. The `anova` definition needs the long single-trial
+table (`effect_measure='cluster'`), so a real run assembles both; the
+`power_traces` route skips the long-table assembly entirely.
+
+**3. What you'd usually tweak, in order of how often.**
+
+| Want to… | Set |
+|---|---|
+| decode a different region | `ROI=acc` (keys of `src/analysis/config/rois.py`) |
+| use every electrode, not just baseline-significant ones | `ELECTRODES=all` |
+| move the definition window | `WINDOW_TMIN=0.2 WINDOW_TMAX=0.7` |
+| define electrodes from the power-trace runs instead | `ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=...` (§17.3) |
+| get the unselected temporal-generalization matrix too | `TEMPGEN_GROUPS=both,all` |
+| make it finish faster (at the cost of precision) | `N_REPEATS=5 N_PERM=200 STEP_SIZE=20` |
+| sweep the train/test proportion | `FRAC_TRAIN=0.5` (StratifiedShuffleSplit instead of StratifiedKFold) |
+
+**4. Reading the output.** Start with `summary.txt`. The one number that answers
+the question is `n_sig_windows` for **label transfer on the `both` group** — not
+any single window's accuracy, since the verdict is cluster-corrected across time.
+Compare against the `all` (reference) group in the same table: it is every
+electrode in the ROI, selected by nothing, so it says what the region does before
+any interaction-based selection (§17.1).
+
+**All knobs.** Grouped by what each group controls.
+
+*What data goes in*
 
 | Variable | Default | Meaning |
 |---|---|---|
+| `EPOCHS_ROOT_FILE` | *required for real runs* | which epoched dataset to load. |
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_CODE` | `shared` | synthetic only: `shared` (should cross-decode) or `orthogonal` (should not). |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window for the A1 definition. |
-| `ELECTRODES` | `all` | `all` or `sig` (baseline task-significant) — which electrodes are **loaded** (§17.1). |
-| `ROI` | `all` | which ROI's LabeledArray to decode. |
-| `ALPHA` | `0.05` | A1 FDR threshold for the electrode groups. |
-| `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs) — §17.2. |
+| `CONDITIONS` | `stimulus_experiment_conditions` | name of a dict in `config/experiment_conditions.py`. Must carry the full 2×2×2×2 (§17.2). |
+
+*Which electrodes* (§17.1)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ROI` | `lpfc` | which region to decode — a key of `config/rois.py`. |
+| `ELECTRODES` | `sig` | `sig` (baseline task-significant) or `all` — which of the ROI's electrodes are **loaded**. |
+| `REFERENCE_GROUP` | `all` | name of the unselected all-electrode group; `''` drops it. |
+| `MIN_GROUP_SIZE` | `5` | skip electrode groups too small to decode. |
+
+*How the S/F electrode groups are defined* (§17.3)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs). |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | `anova` only: definition window, in seconds from stimulus onset. |
+| `ALPHA` | `0.05` | FDR threshold for the electrode groups. |
 | `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
 | `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
 | `POWER_TRACES_CORRECTION` | `fdr_bh` | `fdr_bh`, `cluster`, or `none`. |
 | `POWER_TRACES_ROI` | unset | `power_traces` only: restrict the labels to one ROI. |
-| `REFERENCE_GROUP` | `all` | name of the unselected all-electrode group; `''` drops it (§17.1). |
-| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. |
-| `WINDOW_SIZE` / `STEP_SIZE` | `20` / `10` | decoding window and stride, in samples. |
+
+*Decoding hyperparameters* — the **ordinary decoding ones** (§7)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `WINDOW_SIZE` / `STEP_SIZE` | `20` / `10` | decoding window and stride, in samples. Bigger stride = fewer windows = faster. |
 | `N_SPLITS` | `5` | CV folds — or random resamples per repeat when `FRAC_TRAIN` is set. |
-| `N_REPEATS` | `10` | CV repeats. |
+| `N_REPEATS` | `10` | CV repeats. The main runtime lever. |
 | `FRAC_TRAIN` | unset | **proportion of trials used for training.** Unset keeps `StratifiedKFold` at `(N_SPLITS-1)/N_SPLITS`; setting it switches to `StratifiedShuffleSplit` at exactly this fraction. |
 | `EXPLAINED_VARIANCE` | `0.8` | PCA variance retained. |
 | `N_PERM` | `500` | permutations for the cluster test over windows. |
-| `MIN_GROUP_SIZE` | `5` | skip electrode groups too small to decode. |
+| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. |
+| `SEED` | `0` | random seed. |
+| `SAVE_DIR` | derived | override the output directory. |
 
 **Outputs** →
-`results/<epochs_or_synthetic_tag>/cross_decoding_window_<tmin>to<tmax>s_<electrodes>/`:
+`results/<epochs_or_synthetic_tag>/cross_decoding_<roi>_window_<tmin>to<tmax>s_<electrodes>_<definition>/`
+— the ROI, electrode set and definition route are all in the path, so runs that
+differ in any of them don't overwrite each other:
 
 - `cross_decoding.json` — per design/group: mean and peak accuracy, shuffle mean,
   number of cluster-significant windows (bulky arrays stripped).
