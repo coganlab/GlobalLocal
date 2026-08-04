@@ -925,6 +925,28 @@ real permutation cluster mask (slower). Outputs land in
 `results/<tag>/window_<tmin>to<tmax>s_<electrodes>/<CONTRAST_MODE>_<EFFECT_MEASURE>/`
 (`labels.csv`, `conjunction.json`, `correlation.json`, `segregation_summary.png`).
 
+**A1′ / A2 — the same conjunction on `power_traces` electrodes** (§4a, §5.1;
+from `dcc_scripts/stats`). Swaps the electrode definition for the cluster-corrected
+windowed ANOVA and reads it back from a finished `power_traces` run — no ANOVA is
+re-fit, so the count test costs seconds and needs no epoched data:
+```bash
+DATA_SOURCE=synthetic bash submit_power_traces_conjunction_dcc.sh                       # planted overlap
+DATA_SOURCE=synthetic SYNTHETIC_OVERLAP=0.25 bash submit_power_traces_conjunction_dcc.sh  # null -> OR ~ 1
+PT_RUN=/path/to/anova_within_electrode/<conditions_save_name> \
+    bash submit_power_traces_conjunction_dcc.sh                                          # real
+RUN_CONTINUOUS=1 bash submit_power_traces_conjunction_dcc.sh                             # + confound control
+```
+Key knobs: `PT_RUN` (one 4-factor run) **or** `PT_RUN_CPC`/`_SPS`/`_CPS`/`_SPC`
+(four two-factor runs; only CPC and SPS required), `ROIS`, `CORRECTION`
+(`fdr_bh` | `cluster` | `none`), `ALPHA`, `REQUIRE_ALL`, `N_PERM_NULL`,
+`THRESHOLDS`, and — for the control — `RUN_CONTINUOUS`, `EPOCHS_ROOT_FILE`,
+`EFFECT_MEASURES`, `N_SPLITS`, `N_PERM_CORR`. The control's window is taken from
+the run's `run_config.json`, **not** from `WINDOW_TMIN/TMAX` (§5.1). Outputs land in
+`power_traces_conjunction_results/<run_tag>/<CORRECTION>_alpha<ALPHA>/<roi>/`; see
+`dcc_scripts/stats/README.md` for the full table, including why
+`shared − distinct` is *not* a second line of evidence and why sweep rows with an
+empty marginal must be ignored.
+
 **A3 — anatomy** (from `dcc_scripts/stats`):
 ```bash
 DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh                        # planted enrichment
