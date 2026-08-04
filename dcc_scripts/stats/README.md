@@ -373,3 +373,112 @@ being *stronger* than the cross pairing (`specificity_ok`) at both levels. The
 across-subject correlation is reported with its *n* and an honest underpowered
 caveat — a null there is uninformative; the within-subject mixed model is the real
 test.
+
+---
+
+# A1′/A2 — Conjunction on `power_traces` cluster-corrected electrodes
+
+Same conjunction as the A1/A2 job above, with the **electrode definition
+swapped**. Instead of one ANOVA on window-mean HG, the S/F flags are read back
+from a finished **within-electrode windowed ANOVA + cluster-correction** run
+(`src/analysis/power/windowed_anova.py`, launched by
+`dcc_scripts/power/run_power_traces_dcc.py` with `ANOVA_UNIT='electrode'`), which
+fits the ANOVA at every window and cluster-corrects across time. Bridge code:
+`src/analysis/stats/power_traces_conjunction.py`; rationale in guide §4/§4a/§5.1.
+
+Nothing here re-fits an ANOVA. The count test is a **pure read** of a finished
+run, so it costs seconds, needs no epoched data, and can be re-run at several
+alphas / corrections for free.
+
+## Files
+
+| File | Role |
+|---|---|
+| `power_traces_conjunction_dcc.py` | Core: resolves the run dir(s), builds labels, runs the count battery, optionally the continuous confound control, writes results + figures. Exposes `main(args)`. |
+| `run_power_traces_conjunction_dcc.py` | Entrypoint: sets parameters (env-overridable) and calls `main`. |
+| `sbatch_power_traces_conjunction_dcc.sh` | SLURM wrapper (`conda activate ieeg` → entrypoint). |
+| `submit_power_traces_conjunction_dcc.sh` | Sets `PT_RUN`/ROI/correction and `sbatch`-submits. |
+
+## Quick start
+
+```bash
+cd dcc_scripts/stats
+
+# validate the whole path in seconds against a KNOWN planted overlap:
+DATA_SOURCE=synthetic bash submit_power_traces_conjunction_dcc.sh
+# the NULL version (overlap == base rate — MH OR must come back ≈ 1):
+DATA_SOURCE=synthetic SYNTHETIC_OVERLAP=0.25 bash submit_power_traces_conjunction_dcc.sh
+
+# real: point PT_RUN at a finished within-electrode ANOVA run, then
+bash submit_power_traces_conjunction_dcc.sh
+RUN_CONTINUOUS=1 bash submit_power_traces_conjunction_dcc.sh   # + confound control
+```
+
+A **run directory** is the one holding `summary.csv` + `run_config.json`:
+`dcc_scripts/power/figs/<EPOCHS_ROOT_FILE>/anova_within_electrode/<conditions_save_name>`.
+
+## What it does
+
+1. **Labels.** `ptc.electrode_labels` reads the run's `summary.csv`, pivots the
+   four interactions (CPC/SPS/CPS/SPC) onto one row per electrode, and corrects
+   **across electrodes** — the family a test that *counts electrodes* needs.
+   `summary.csv` carries every electrode that was **tested**, not just the
+   winners, which is what makes the 2×2 denominator honest.
+2. **Counts.** `ptc.run_power_traces_conjunction`: CMH (subject-stratified),
+   within-subject permutation null on the joint count, shared-vs-distinct, the
+   two cross-interaction specificity controls, and a threshold sweep.
+3. **Confound control** (optional, `RUN_CONTINUOUS=1` — the only step that loads
+   epochs). Re-estimates each electrode's two sensitivities on **disjoint trial
+   halves**, residualised on responsiveness, over the **same window the run
+   tiled** (read from `run_config.json`, not from `WINDOW_TMIN/TMAX`), and under
+   **all three** effect measures. It is the control on the counts, not a second
+   headline (guide §5.1).
+
+## Key knobs (env vars)
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `PT_RUN` | — | One run whose ANOVA held all four factors (`stimulus_experiment_conditions`). Preferred: all four interactions then come from the same electrodes and trials. |
+| `PT_RUN_CPC` / `_SPS` / `_CPS` / `_SPC` | — | Or four separate two-factor runs. Only CPC and SPS are required. |
+| `ROIS` | `lpfc` | Comma-separated ROI names, or `all` for one analysis pooled over ROIs. Each ROI gets its own output subdirectory. |
+| `CORRECTION` | `fdr_bh` | `fdr_bh` = BH across electrodes within (roi, effect); `cluster` = raw cluster p < α, no across-electrode correction (the like-for-like port of what `load_significant_electrodes` does today); `none` = any surviving cluster. |
+| `ALPHA` | `0.05` | Selection cutoff. |
+| `REQUIRE_ALL` | `1` | Keep only electrodes present in every requested run — different runs can end up with different electrode sets (`min_trials_per_cell`), and a 2×2 over inconsistent denominators is not interpretable. |
+| `USE_NPZ` | `1` | Legacy runs only (no `best_cluster_p` column): recompute a graded cluster p per electrode from the saved `.npz` null. |
+| `N_PERM_NULL` / `THRESHOLDS` | `10000` / `0.01,0.025,0.05,0.10` | Permutation count and sweep cutoffs. |
+| `RUN_CONTINUOUS` | `0` | `1` also runs the continuous confound control (needs `EPOCHS_ROOT_FILE`). |
+| `EFFECT_MEASURES` | `peak_t,cluster,cohens_d` | Which scalarisations the control runs. Run all three: divergence in sign is itself the finding. |
+| `N_SPLITS` / `N_PERM_CORR` / `MIN_ELEC` / `ELECTRODES` | `200` / `10000` / `3` / `all` | Control-only knobs (as in the segregation job). |
+
+## Outputs
+
+Written to `power_traces_conjunction_results/<run_tag>/<correction>_alpha<α>/<roi>/`:
+
+- `labels.csv` — one row per electrode: `p_/q_/<g>_sign/<g>_extent` per group, the
+  binary CPC/SPS/CPS/SPC flags, and the `S`/`F` aliases.
+- `conjunction.json`, `conjunction_per_subject.csv` — MH OR, CMH p, homogeneity p,
+  pooled 2×2, per-subject tables.
+- `counts.json` — the four cells plus both permutation tests.
+- `joint_count_null.npy`, `shared_minus_distinct_null.npy` — the raw nulls.
+- `cross_controls.csv`, `threshold_sweep.csv`.
+- `power_traces_conjunction_summary.png` (6 panels) and
+  `power_traces_conjunction_evidence.png` (q-values + cluster extents).
+- `continuous_confound_control.json` — ρ and p per effect measure, when run.
+- `summary.txt` — printed verdicts.
+
+**Reading:** MH `OR < 1` / overlap below null → **segregation**; `OR > 1` /
+overlap above null → **shared core**; ≈1 → independent.
+
+Two things the summary flags, because both read as findings if you skip them:
+
+- **`shared − distinct` is the same test as the joint count.** With the marginals
+  fixed by the within-subject shuffle, `D = 3·both − n_S − n_F`, so it is a
+  monotone function of the `both` count and returns an identical p. Both are
+  printed so the equivalence is visible — never report them as two lines of
+  evidence.
+- **Degenerate sweep rows.** `cmh_conjunction` uses `StratifiedTable(...,
+  shift_zeros=True)`. At a cutoff where nothing is selected, the shift turns
+  `[[0,0],[0,n]]` into `[[.5,.5],[.5,n+.5]]` — a large OR and a tiny p out of a
+  table with no selected electrodes in it. Rows with an empty marginal or
+  `n_both = 0` are named in `summary.txt` and drawn hollow (and excluded from the
+  trend line) in the sweep panel.
