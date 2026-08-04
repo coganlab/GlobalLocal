@@ -419,3 +419,163 @@ def test_sweep_present_only_with_fdr(four_runs):
 def test_bad_correction_mode_raises(four_runs):
     with pytest.raises(ValueError, match='correction must be'):
         ptc.electrode_labels(four_runs, roi='lpfc', correction='bonferroni')
+
+
+# ----------------------------------------------------------------------------
+# window alignment
+# ----------------------------------------------------------------------------
+def _write_run_config(run_dir, tmin, tmax, n_windows=8, window_size=4, step=2):
+    (run_dir / 'run_config.json').write_text(json.dumps({
+        'window_centers': list(np.linspace(tmin, tmax, n_windows)),
+        'window_size': window_size, 'step_size': step, 'sampling_rate': 256.0,
+        'n_windows': n_windows, 'times_min': tmin, 'times_max': tmax,
+        'analysis_tmin': tmin, 'analysis_tmax': tmax,
+        'anova_factors': ['congruency', 'incongruentProportion'],
+        'effect_names': [CPC_EFFECT], 'rois': ['lpfc'], 'subjects': ['S1'],
+        'n_perm': 100, 'percentile': 95.0, 'cluster_percentile': 95.0,
+        'min_trials_per_cell': 2, 'split_clusters_by_sign': True, 'seed': 42,
+    }))
+
+
+def test_analysis_window_read_from_run_config(tmp_path):
+    run = tmp_path / 'r'
+    run.mkdir()
+    _write_run_config(run, -0.2, 0.8)
+    assert ptc.analysis_window_from_run(run) == pytest.approx((-0.2, 0.8))
+    assert ptc.load_run_config(run)['exact'] is True
+
+
+def test_window_falls_back_to_npz_centres_and_flags_inexactness(tmp_path):
+    """Legacy run: only window centres survive, which understate the true extent
+    by half a window at each end. The caller must be able to tell."""
+    run = tmp_path / 'r'
+    _write_npz(run, 'lpfc', 'S1', 'e0', np.zeros((1, 6)),
+               np.zeros((5, 1, 6)), [CPC_EFFECT])
+    cfg = ptc.load_run_config(run)
+    assert cfg['exact'] is False
+    assert ptc.analysis_window_from_run(run) == pytest.approx((0.0, 5.0))
+
+
+def test_missing_geometry_raises(tmp_path):
+    (tmp_path / 'bare').mkdir()
+    with pytest.raises(FileNotFoundError, match='window geometry'):
+        ptc.load_run_config(tmp_path / 'bare')
+
+
+def test_describe_alignment_detects_mismatch(tmp_path):
+    run = tmp_path / 'r'
+    run.mkdir()
+    _write_run_config(run, -0.2, 0.8)
+    assert 'MISALIGNED' in ptc.describe_window_alignment(run, 0.0, 0.5)
+    assert 'aligned.' in ptc.describe_window_alignment(run, -0.2, 0.8)
+
+
+def test_describe_alignment_warns_when_extent_is_inexact(tmp_path):
+    run = tmp_path / 'r'
+    _write_npz(run, 'lpfc', 'S1', 'e0', np.zeros((1, 6)),
+               np.zeros((5, 1, 6)), [CPC_EFFECT])
+    assert 'CENTRES only' in ptc.describe_window_alignment(run, 0.0, 5.0)
+
+
+# ----------------------------------------------------------------------------
+# the continuous route as confound control
+# ----------------------------------------------------------------------------
+@pytest.fixture(scope='module')
+def timecourse_df():
+    """Small long-format table with per-trial HG TIME COURSES.
+
+    Mirrors the structure of `stability_flexibility_segregation._synthetic_df`
+    (per-electrode gain, LWPC and LWPS interactions, 75/25 proportion cells) but
+    sized for a fast test. Kept local so the test does not import the DCC entry
+    point, which pulls in `ieeg`.
+    """
+    rng = np.random.default_rng(0)
+    n_time = 8
+    frames = []
+    for s in range(5):
+        n_tr = 160
+        cong = rng.choice(['c', 'i'], n_tr)
+        sw = rng.choice(['s', 'r'], n_tr)
+        inc_prop = rng.choice([25.0, 75.0], n_tr)
+        sw_prop = rng.choice([25.0, 75.0], n_tr)
+        for e in range(6):
+            gain = rng.lognormal(0, 0.5)              # the gain confound
+            b = rng.normal(0, 0.4)                    # shared x/y sensitivity
+            bx, by = b + rng.normal(0, .1), b + rng.normal(0, .1)
+            base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
+                    + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
+            tc = rng.normal(0, 1, (n_tr, n_time)) * gain
+            tc[:, n_time // 4:3 * n_time // 4] += (gain * base)[:, None]
+            col = np.empty(n_tr, dtype=object)
+            for i in range(n_tr):
+                col[i] = tc[i]
+            frames.append(pd.DataFrame(dict(
+                subject=s, electrode=f'{s}_{e}', congruency=cong, switchType=sw,
+                incongruent_proportion=inc_prop, switch_proportion=sw_prop,
+                hg=col)))
+    return pd.concat(frames, ignore_index=True)
+
+
+def test_confound_control_runs_every_measure(timecourse_df):
+    res = ptc.continuous_confound_control(
+        timecourse_df, n_splits=8, n_perm=200, contrast_mode='proportion')
+    for m in ('peak_t', 'cluster', 'cohens_d'):
+        assert m in res
+        assert np.isfinite(res[m]['rho'])
+        assert 0 < res[m]['p'] <= 1
+        assert res[m]['n_electrodes'] > 0
+
+
+def test_cohens_d_is_reduced_to_window_means_not_crashed(timecourse_df):
+    """The table holds time courses; cohens_d is only defined on scalars, so the
+    battery must reduce a copy rather than propagate an array-valued sensitivity."""
+    assert timecourse_df['hg'].dtype == object          # really time courses
+    res = ptc.continuous_confound_control(
+        timecourse_df, n_splits=8, n_perm=100,
+        contrast_mode='proportion', effect_measures=('cohens_d',))
+    assert np.isscalar(res['cohens_d']['rho'])
+    assert np.isfinite(res['cohens_d']['rho'])
+
+
+def test_cohens_d_on_timecourses_raises_when_called_directly(timecourse_df):
+    """The guard itself: without it this silently returns a length-T vector."""
+    from src.analysis.stats.stability_flexibility_segregation import (
+        compute_sensitivities)
+    with pytest.raises(ValueError, match="requires scalar"):
+        compute_sensitivities(timecourse_df, n_splits=2,
+                              contrast_mode='proportion',
+                              effect_measure='cohens_d')
+
+
+def test_agreement_block_reports_range_and_sign(timecourse_df):
+    res = ptc.continuous_confound_control(
+        timecourse_df, n_splits=8, n_perm=200, contrast_mode='proportion')
+    a = res['agreement']
+    rhos = [res[m]['rho'] for m in ('peak_t', 'cluster', 'cohens_d')]
+    assert a['rho_min'] == pytest.approx(min(rhos))
+    assert a['rho_max'] == pytest.approx(max(rhos))
+    assert isinstance(a['all_same_sign'], bool)
+
+
+def test_summary_flags_sign_disagreement():
+    res = {'peak_t': dict(rho=0.4, p=0.01, n_electrodes=50, n_subjects=8),
+           'cluster': dict(rho=-0.3, p=0.02, n_electrodes=50, n_subjects=8),
+           'agreement': dict(rho_min=-0.3, rho_max=0.4, all_same_sign=False,
+                             all_significant=True, all_null=False)}
+    assert 'DISAGREE IN SIGN' in ptc.summarize_confound_control(res)
+
+
+def test_summary_states_null_is_not_evidence_for_distinctness():
+    res = {'peak_t': dict(rho=0.01, p=0.8, n_electrodes=50, n_subjects=8),
+           'agreement': dict(rho_min=0.01, rho_max=0.01, all_same_sign=True,
+                             all_significant=False, all_null=True)}
+    text = ptc.summarize_confound_control(res)
+    assert 'NOT evidence for distinctness' in text
+
+
+def test_summary_confirms_control_when_all_positive():
+    res = {'peak_t': dict(rho=0.4, p=0.001, n_electrodes=50, n_subjects=8),
+           'agreement': dict(rho_min=0.4, rho_max=0.4, all_same_sign=True,
+                             all_significant=True, all_null=False)}
+    text = ptc.summarize_confound_control(res)
+    assert 'survives' in text

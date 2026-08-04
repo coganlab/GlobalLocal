@@ -601,6 +601,67 @@ find a shared code, which is weaker.
 can be a genuinely shared representation *or* mixed selectivity with orthogonal
 codes. Counting cannot tell them apart.
 
+### 5.1 The division of labour: counts are the result, the correlation is the control
+
+When the labels come from the cluster-corrected windowed ANOVA
+(`power_traces_conjunction`, §4a), the **2×2 counts are the primary result** and
+the continuous correlation is **the confound control for them** — not a second
+headline. The reason is that the count test has two confounds it cannot correct,
+and *both bias it toward "shared"*, which is usually the hypothesis under test:
+
+1. **Per-electrode detection power.** An electrode with high SNR or more trials is
+   likelier to clear α on *both* interactions from power alone, inflating the
+   "both" cell. Subject stratification does not help — the variation is across
+   electrodes *within* a subject.
+2. **Shared trial noise.** S and F labels are estimated from the same trials, so
+   coupled noise inflates co-occurrence. (The continuous route uses disjoint
+   halves; the categorical route does not.)
+
+The continuous route carries the correction for exactly those two — responsiveness
+residualisation (`prepare_continuous`) and disjoint trial halves
+(`compute_sensitivities`) — so its job is to show the count result is not
+manufactured by either.
+
+**Two consequences for how it is run and reported.**
+
+*It must cover the same stretch of the epoch.* It stays an independent estimate
+(different estimator, different temporal model), but a control that looks at
+different data than the thing it controls is not a control. The windowed-ANOVA run
+writes `run_config.json` with the extent its windows tiled; point the segregation
+launcher at it:
+
+```bash
+ALIGN_TO_POWER_TRACES_RUN=/path/to/within_elec_anova/<run_label> \
+    bash submit_stability_flexibility_segregation_dcc.sh
+```
+
+This overrides `WINDOW_TMIN`/`WINDOW_TMAX` and prints the alignment it applied.
+Note the alignment is of *extent only* — the ANOVA fits per sliding window and
+cluster-corrects across them, while the segregation estimator integrates over the
+whole extent. The two do not become equivalent, and should not be described as
+such.
+
+*Run every effect measure, not one.* Reducing a per-trial time course to one
+scalar is under-determined — mass grows with duration and is mildly trial-count
+sensitive, Cohen's *d* on the window mean attenuates transient effects, peak *t*
+is amplitude-only. As a **headline** that arbitrariness is a real weakness. As a
+**control** it is not, *provided the verdict does not depend on the choice* — so
+`continuous_confound_control` runs all three and reports the range.
+Disagreement in sign across measures is itself the finding and must be reported,
+not resolved by picking the convenient one.
+
+Reporting template: "The 2×2 conjunction gives MH OR = […]. Because a count test
+cannot correct for per-electrode detection power or shared trial noise, both of
+which inflate co-occurrence, we repeated the analysis continuously over the same
+analysis window, residualising each electrode's sensitivity on its overall
+responsiveness and estimating the two sensitivities on disjoint trial halves.
+ρ = […] to […] across the three effect measures."
+
+One asymmetry to keep straight: a **null correlation is not evidence for
+distinctness**. Only the count test's OR < 1 can supply that (see the box above).
+So the control can *undermine* a shared-core claim but cannot *establish* a
+segregated one.
+
 ---
 
 ## 6. Anatomy — brain maps, ROI histograms, coverage-conditioned test (§3 → Fig 5)
