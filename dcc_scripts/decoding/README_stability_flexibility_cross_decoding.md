@@ -90,7 +90,8 @@ The A1 electrode definition still needs the long single-trial table
   electrode group (CPC/SPS/CPS/SPC), **skipping the diagonal** cell that would
   double-dip — see `cd.is_circular_decode`. Only the off-diagonal cells are kept.
 - **(a) label transfer:** train on stability, test on flexibility (and vice
-  versa), **separately** on the A1 `both`/`S_only`/`F_only` electrode groups.
+  versa), **separately** on the A1 `both`/`S_only`/`F_only` electrode groups,
+  plus the unselected reference group (`REFERENCE_GROUP`, default `all`).
   Prediction: only the `both` group cross-decodes.
 - **(c) temporal generalization (Fig 10):** train-window × test-window accuracy
   matrix, within a contrast and across contrasts. Off-diagonal generalization →
@@ -112,6 +113,54 @@ every trial. Two options for the diagonal (define == decode) cell:
 2. **Earn it** — define the electrodes on a disjoint set of trials
    (`trial_splitting.apply_electrode_definition_split`, `FRAC_DEF` env var).
 
+## Which electrodes are decoded
+
+Two independent choices, easy to conflate:
+
+1. **Which electrodes are loaded at all** — `ELECTRODES`. `sig` keeps the
+   baseline task-significant electrodes in the ROIs, `all` keeps every electrode
+   in them. (With `ROIS_DICT = None`, the current default, no ROI/significance
+   filter is applied and every channel is used.)
+2. **How those loaded electrodes are split for the decodes** — the groups.
+   `both`/`S_only`/`F_only` come from the interaction labels, and
+   `REFERENCE_GROUP` (default `all`) adds the **unselected** set: every channel
+   in the decoded ROI array.
+
+The reference group matters because `both`, `S_only` and `F_only` were each
+*chosen* for carrying an interaction, so none of them is a baseline for "does
+this ROI cross-decode at all" — the selection is exactly what inflates
+within-contrast decodability. The reference group is defined by nothing the
+decode is about. Set `REFERENCE_GROUP=''` to drop it.
+
+Temporal generalization costs `n_windows²` decodes per matrix, so it runs only on
+`TEMPGEN_GROUPS` (default `both`); use `TEMPGEN_GROUPS=both,all` to get the
+unselected comparison matrix too.
+
+## Electrode definition: `anova` vs `power_traces`
+
+`ELECTRODE_DEFINITION` picks how the S/F labels are derived. Both routes emit the
+same table (`CPC`/`SPS`/`CPS`/`SPC` + `S`/`F` aliases), so everything downstream
+is unchanged.
+
+| Route | What it fits | Trade-off |
+|---|---|---|
+| `anova` (default) | one two-way ANOVA per electrode on the **window-mean** HG over `[WINDOW_TMIN, WINDOW_TMAX]`, BH-FDR'd across electrodes | self-contained — it only needs the epochs this job already loads, which is why it is the default. A strong but **transient** interaction is diluted by the window mean. |
+| `power_traces` | reads the finished **within-electrode windowed ANOVA** runs and their permutation cluster correction (`power_traces_conjunction.electrode_labels`) | strictly more sensitive to transient interactions, and the decoded sets become literally the electrodes the power-trace figures call significant. Needs finished run directories. |
+
+For the `power_traces` route, point at either one run whose ANOVA carried all
+four interactions:
+
+```bash
+ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=/path/to/run \
+  bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
+or one directory per interaction (`POWER_TRACES_CPC`, `POWER_TRACES_SPS`,
+`POWER_TRACES_CPS`, `POWER_TRACES_SPC`). `POWER_TRACES_CORRECTION` chooses
+`fdr_bh` (BH across electrodes — the family a test that *counts* electrodes
+needs), `cluster` (raw cluster p, matching the existing lab convention), or
+`none`.
+
 ## Key knobs (env vars)
 
 | Variable | Default | Meaning |
@@ -119,9 +168,16 @@ every trial. Two options for the diagonal (define == decode) cell:
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_CODE` | `shared` | synthetic only: `shared` (should cross-decode) or `orthogonal` (should not). |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window (s from stimulus onset) for the A1 definition. |
-| `ELECTRODES` | `all` | `all` or `sig`. |
+| `ELECTRODES` | `all` | `all` or `sig` (baseline task-significant) — which electrodes are loaded. |
 | `ROI` | `all` | which ROI's LabeledArray to decode. |
 | `ALPHA` | `0.05` | A1 FDR threshold for the electrode groups. |
+| `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs). |
+| `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
+| `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
+| `POWER_TRACES_CORRECTION` | `fdr_bh` | `fdr_bh`, `cluster`, or `none`. |
+| `POWER_TRACES_ROI` | unset | `power_traces` only: restrict the labels to one ROI. |
+| `REFERENCE_GROUP` | `all` | name of the unselected all-electrode group; `''` drops it. |
+| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. |
 | `WINDOW_SIZE` | `20` | decoding window, in samples. |
 | `STEP_SIZE` | `10` | window stride, in samples. |
 | `N_SPLITS` | `5` | CV folds — or random resamples per repeat when `FRAC_TRAIN` is set. |
@@ -139,7 +195,8 @@ Written to `results/<epochs_or_synthetic_tag>/cross_decoding_window_<tmin>to<tma
   number of cluster-significant windows (bulky arrays stripped).
 - `accuracy_traces.npz` — the true and shuffle accuracy traces, for re-plotting.
 - `tempgen_*.npy` — the temporal-generalization matrices.
-- `anova_labels.csv` — the A1 electrode groups (real runs).
+- `anova_labels.csv` — the per-electrode definition table (real runs; written by
+  whichever `ELECTRODE_DEFINITION` route ran).
 - `cross_decoding_summary.png` — within-block bars, label-transfer traces by
   group, temporal-generalization matrices.
 - `summary.txt` — printed verdicts.
