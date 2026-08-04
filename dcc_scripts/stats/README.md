@@ -547,30 +547,25 @@ Two things the summary flags, because both read as findings if you skip them:
 
 ## Note: uninformative subject strata in the CMH (fixed)
 
-`cmh_conjunction` pools per-subject 2×2 tables with `StratifiedTable(...,
-shift_zeros=True)`, which adds 0.5 to **all four cells** of any stratum
-containing a zero. On a sparse-but-real table (`[[2,0],[1,30]]`) that is the
-standard continuity correction. On a stratum with a zero **marginal** it invents
-evidence from a subject that has none:
+A subject with no S electrodes (or no F electrodes) carries **no information**
+about whether S predicts F, but `StratifiedTable(..., shift_zeros=True)` used to
+turn its empty table into a positive association anyway — biasing every pooled OR
+toward "shared", most severely at the strict end of a threshold sweep. The
+measured size of that bias, and why the shift is right for a sparse-but-real
+table and wrong for an empty-marginal one, is in
+[guide §5](../../docs/stability_flexibility_guide.md) (the "uninformative subject
+strata" box).
 
-- A subject with no S electrodes has the table `[[0,0],[c,e]]`, which cannot
-  speak to whether S predicts F. Shifted, it becomes `[[.5,.5],[c+.5,e+.5]]` and
-  starts contributing a positive association to the pool.
-- Measured: adding four such subjects to four genuinely informative strata moved
-  the pooled OR from **4.00 → 4.10** and the CMH p from **6.9e-4 → 1.6e-4**.
-- At a threshold where *nothing* is selected, every stratum is `[[0,0],[0,n]]`
-  and the pooled result was **OR = 51 at p = 4e-12** — a threshold sweep reported
-  its strongest shared-core evidence exactly where it had none.
+What changed here, for both the A1/A2 and the A1′/A2 job:
 
-Both the A1/A2 job and the A1′/A2 job consumed this. Strata with a zero marginal
-are now dropped before pooling (a no-op on an unshifted analysis — such a table
-contributes nothing to either side of the MH ratio), and when none are
-informative the odds ratio is reported as **NaN** rather than as a number.
-`cmh_conjunction` gained `n_strata` / `n_informative_strata` /
-`n_dropped_strata`, `per_subject` gained an `informative` column, and the sweep
-gained `n_informative_strata`. Pass `drop_uninformative_strata=False` to
-reproduce the old numbers. Pinned by
-`tests/analysis/stats/test_cmh_uninformative_strata.py`.
+- Strata with a zero marginal are **dropped before pooling** (a no-op on an
+  unshifted analysis — such a table contributes nothing to either side of the MH
+  ratio); when none are informative the odds ratio is **NaN**, not a number.
+- `cmh_conjunction` gained `n_strata` / `n_informative_strata` /
+  `n_dropped_strata`, `per_subject` gained an `informative` column, and the
+  threshold sweep gained `n_informative_strata` — read it with every sweep row.
+- Pass `drop_uninformative_strata=False` to reproduce the old numbers. Pinned by
+  `tests/analysis/stats/test_cmh_uninformative_strata.py`.
 
 **If you have already recorded CMH numbers, re-run them** — any run where some
 subject had no S electrodes or no F electrodes was biased toward "shared".

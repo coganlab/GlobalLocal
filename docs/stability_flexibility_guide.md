@@ -12,7 +12,11 @@ It supersedes and folds together what used to be four separate files:
 
 The operational per-job READMEs (`dcc_scripts/stats/README.md`,
 `dcc_scripts/decoding/README_stability_flexibility_cross_decoding.md`) stay next
-to their scripts as launch references; §10 here tells you which to run when.
+to their scripts and **own the launch details** — quick starts, every env-var
+knob, every output file, and how to read each job's verdict. This guide owns the
+method and the order; §9.2 tells you which job to run when and links to the
+matching README rather than repeating it. `docs/analysis_paths.md` §12 is the
+map of where each module, notebook, and launcher lives.
 
 **How to read this guide.**
 - §1–§2: the question and the statistical principles everything obeys.
@@ -21,10 +25,12 @@ to their scripts as launch references; §10 here tells you which to run when.
   full).
 - §4: the **window-mean vs. per-timepoint-cluster ANOVA** decision, answered
   honestly and at the level of the actual code lines.
-- §5–§7: the rest of the battery, the anatomy line-by-line worked example
-  (`attach_roi`), and the circularity control.
-- §8: **what order to walk the tutorials and run the code**, and how to run each.
-- §9: a function/file map you can grep from.
+- §5–§7: the rest of the battery — conjunction, anatomy (with the `attach_roi`
+  line-by-line worked example), cross-decoding, timing, brain–behavior.
+- §8: the **circularity control** — the two disjoint def/decode trial splits and
+  their launchers.
+- §9: **what order to walk the tutorials and run the code**, and how to run each.
+- §10: a function/file map you can grep from.
 
 Where a design decision hinges on a specific line of code, this guide quotes the
 line and says **what it does** and **why it is written that way rather than the
@@ -904,6 +910,41 @@ across channels), and the orchestrator `apply_electrode_definition_split`. Wirin
 ~`frac_def`, a plausible electrode set survives, the decode still runs) before a
 full re-run.
 
+**The launcher** — "define held-out significant electrodes, then decode" in one
+job (define on `P_def` → decode on the disjoint `P_dec`), reusing the ordinary
+`sbatch_decoding_dcc.sh`:
+
+```bash
+cd dcc_scripts/decoding
+bash submit_decoding_with_electrode_definition_split_dcc.sh
+FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,task_sequence,block_type \
+    CONDITIONS="stimulus_congruency_by_switch_prop_block_balanced_conditions" \
+    bash submit_decoding_with_electrode_definition_split_dcc.sh
+```
+
+| Env var | Default | Meaning |
+|---|---|---|
+| `FRAC_DEF` | `0.5` | fraction of each subject's trials used to **define** electrodes |
+| `STRATA` | `congruency,switchType,blockType` | metadata columns to stratify the split on |
+| `SEED` | `0` | RNG seed for the split (reproducible) |
+| `ALPHA` | `0.05` | FDR q-value for the held-out responsiveness selector |
+| `CONDITIONS` | two block-balanced conditions | space-separated condition labels to decode |
+
+> **`STRATA` gotcha.** `STRATA` must name **real metadata columns** — the ones
+> `parse_event_name` writes: `congruency`, `task_sequence`, `block_type`,
+> `incongruent_proportion`, `switch_proportion`. The default's `switchType` and
+> `blockType` are *not* among them, and `strata_key_from_metadata` warns and skips
+> names it cannot find, so the default silently stratifies on `congruency` alone.
+> Pass `STRATA=congruency,task_sequence,block_type` for the intended
+> stratification. (§8.2's launcher already defaults to the correct names.)
+
+**Interpret the output.** Read the `_defsplit` accuracy traces exactly like the
+ordinary decoding output — the only difference is that the electrode set was
+chosen on trials the decoder never scored, so the accuracy is **not** inflated by
+selection. Expect it to be **lower than the non-split run**; that gap is roughly
+the double-dipping bias the control removes. The job log prints how many
+electrodes survived the held-out selector per ROI.
+
 **Which guard when.** Selecting on an *orthogonal* contrast (task-responsiveness,
 `electrodes='sig'`) is the standard Kriegeskorte defense and only modestly inflates.
 Selecting on the *decode contrast itself* (the diagonal) is full double-dipping and
@@ -961,9 +1002,36 @@ electrodes defined *by process*, which is what §8.2 does.
 
 ```bash
 # 30% of trials define electrodes, 70% decode; all six sets
+cd dcc_scripts/decoding
 bash submit_decoding_with_anova_electrode_selection_dcc.sh
 FRAC_SELECT=0.3 N_PERM=500 SETS=lwpc_only,lwps_only,overlap \
+    SEL_LABELS=stimulus_lwpc_conditions,stimulus_lwps_conditions \
     bash submit_decoding_with_anova_electrode_selection_dcc.sh
+```
+
+| Env var | Default | Meaning |
+|---|---|---|
+| `FRAC_SELECT` | `0.3` | fraction of each subject's trials spent **defining** electrodes (rest decodes) |
+| `SEL_LABELS` | `stimulus_lwpc_conditions,stimulus_lwps_conditions` | registry keys whose ANOVA defines the sets (each needs `anova_factors`) |
+| `SETS` | all | subset of `lwpc, lwps, lwpc_only, lwps_only, overlap, union` |
+| `EFFECT` | `interaction` | ANOVA effect to select on; also `any`, a factor name, or an explicit `C(a):C(b)` |
+| `N_PERM` | `200` | permutations per electrode — **the cost driver** |
+| `ALPHA` / `USE_FDR` | `0.05` / `true` | electrode threshold (BH-FDR across electrodes by default) |
+| `STRATA` | `congruency,task_sequence,block_type` | real metadata columns to stratify on (already the correct names here — see §8's gotcha) |
+
+**Output layout.** One subdirectory per set, and both the decoded condition and
+the electrode set in every title and file name:
+
+```
+figs/<epochs_root_file>/
+├── electrode_selection/
+│   ├── electrode_selection_report.json          # counts + the electrode lists per set
+│   ├── lwpc_congruency_x_incongruentProportion/ # a normal within-elec ANOVA run dir
+│   └── lwps_switchType_x_switchProportion/
+├── elecset_lwpc_only/<comparison>/<roi>/...     # titled "… — lpfc / LWPC-only electrodes (n = …)"
+├── elecset_lwps_only/...
+├── elecset_overlap/...
+└── elecset_union/...
 ```
 
 **What the result means, and what it does not.** The intended read is the
@@ -1057,13 +1125,12 @@ bash submit_stability_flexibility_anova_conjunction_dcc.sh                      
 # continuous correlation + CMH on their own:
 DATA_SOURCE=synthetic bash submit_stability_flexibility_segregation_dcc.sh
 ```
-Key knobs (env vars): `EPOCHS_ROOT_FILE`, `WINDOW_TMIN/TMAX` (default 0.0/0.5),
-`CONTRAST_MODE` (**use `proportion`** for the interactions, §3.1), `EFFECT_MEASURE`
-(**use `cluster`** to keep the time dimension, §4), `N_SPLITS`, `N_PERM_CORR`,
-`N_PERM_LABEL`. Set `USE_TIME_PERM_CLUSTER = True` in the segregation module for the
-real permutation cluster mask (slower). Outputs land in
-`results/<tag>/window_<tmin>to<tmax>s_<electrodes>/<CONTRAST_MODE>_<EFFECT_MEASURE>/`
-(`labels.csv`, `conjunction.json`, `correlation.json`, `segregation_summary.png`).
+The two choices that are *methodological*, not operational: **use
+`CONTRAST_MODE=proportion`** so selection is on the interactions (§3.1), and
+**use `EFFECT_MEASURE=cluster`** so the definition keeps the time dimension (§4).
+Set `USE_TIME_PERM_CLUSTER = True` in the segregation module for the real
+permutation cluster mask (slower). Every other knob, and the full output listing,
+is in `dcc_scripts/stats/README.md`.
 
 **A1′ / A2 — the same conjunction on `power_traces` electrodes** (§4a, §5.1;
 from `dcc_scripts/stats`). Swaps the electrode definition for the cluster-corrected
@@ -1076,16 +1143,13 @@ PT_RUN=/path/to/anova_within_electrode/<conditions_save_name> \
     bash submit_power_traces_conjunction_dcc.sh                                          # real
 RUN_CONTINUOUS=1 bash submit_power_traces_conjunction_dcc.sh                             # + confound control
 ```
-Key knobs: `PT_RUN` (one 4-factor run) **or** `PT_RUN_CPC`/`_SPS`/`_CPS`/`_SPC`
-(four two-factor runs; only CPC and SPS required), `ROIS`, `CORRECTION`
-(`fdr_bh` | `cluster` | `none`), `ALPHA`, `REQUIRE_ALL`, `N_PERM_NULL`,
-`THRESHOLDS`, and — for the control — `RUN_CONTINUOUS`, `EPOCHS_ROOT_FILE`,
-`EFFECT_MEASURES`, `N_SPLITS`, `N_PERM_CORR`. The control's window is taken from
-the run's `run_config.json`, **not** from `WINDOW_TMIN/TMAX` (§5.1). Outputs land in
-`power_traces_conjunction_results/<run_tag>/<CORRECTION>_alpha<ALPHA>/<roi>/`; see
-`dcc_scripts/stats/README.md` for the full table, including why
-`shared − distinct` is *not* a second line of evidence and why sweep rows with an
-empty marginal must be ignored.
+Point it at either one 4-factor run (`PT_RUN`) or four two-factor runs
+(`PT_RUN_CPC`/`_SPS`/`_CPS`/`_SPC`; only CPC and SPS required). The one thing to
+know here rather than in the README: the confound control's window is taken from
+the run's `run_config.json`, **not** from `WINDOW_TMIN/TMAX` (§5.1). Knobs,
+outputs, and the two ways this job's summary can be misread (`shared − distinct`
+is *not* a second line of evidence; sweep rows with an empty marginal must be
+ignored) are in `dcc_scripts/stats/README.md`.
 
 **A3 — anatomy** (from `dcc_scripts/stats`):
 ```bash
@@ -1104,23 +1168,12 @@ On real data this now also emits `within_block_by_group` — the per-group 2×2 
 the diagonal (define==decode) cell ignored (§3.2). `ALPHA` sets the A1 FDR
 threshold for the four groups; `MIN_GROUP_SIZE` skips groups too small to decode.
 
-**Disjoint def/decode split, responsiveness selector** (from `dcc_scripts/decoding`):
+**The two disjoint def/decode splits** (from `dcc_scripts/decoding`) — commands,
+env vars, and the `STRATA` gotcha are in **§8** (responsiveness selector) and
+**§8.2** (ANOVA electrode sets):
 ```bash
-bash submit_decoding_with_electrode_definition_split_dcc.sh
-FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,task_sequence,block_type \
-    bash submit_decoding_with_electrode_definition_split_dcc.sh
-```
-> `STRATA` must name **real metadata columns** (`parse_event_name`): `congruency`,
-> `task_sequence`, `block_type`, `incongruent_proportion`, `switch_proportion`.
-> The old default `congruency,switchType,blockType` silently stratified on
-> `congruency` alone — `strata_key_from_metadata` warns and skips names it cannot
-> find.
-
-**Disjoint split, ANOVA electrode sets** (§8.2 — LWPC/LWPS unique + overlap):
-```bash
-bash submit_decoding_with_anova_electrode_selection_dcc.sh
-FRAC_SELECT=0.3 N_PERM=500 SETS=lwpc_only,lwps_only,overlap \
-    bash submit_decoding_with_anova_electrode_selection_dcc.sh
+bash submit_decoding_with_electrode_definition_split_dcc.sh   # §8
+bash submit_decoding_with_anova_electrode_selection_dcc.sh    # §8.2
 ```
 
 **A5 — timing** (from `dcc_scripts/stats`):

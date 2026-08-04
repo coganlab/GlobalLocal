@@ -84,19 +84,10 @@ to module level (and dropping the now-redundant local import).
 ### Installation (needed now that the path hacks are gone)
 
 The decoding modules no longer patch `sys.path`, so `src` and `ieeg` must be
-importable the normal way. Dependencies (including `ieeg`, which is a normal
-PyPI package) are declared in `setup.py`, so a single command does it — from
-the repo root, once per environment:
-
-```bash
-pip install -e .    # installs the project AND its dependencies (ieeg, mne, umap-learn, ...)
-```
-
-`-e` is an *editable* install: it links to the source folder, so your edits to
-`src/...` take effect immediately with no reinstall. You only run it once per
-environment (per machine / per conda env), not once per session. In the
-existing `ieeg` conda env most deps are already present, so pip just adds what's
-missing.
+importable the normal way — i.e. **`pip install -e .` from the repo root is now
+a prerequisite, not a convenience**. The instructions are in the repo-root
+[`README.md`](../README.md) ("Python environment setup"); run it once per
+environment, not once per session.
 
 The other analysis files (preproc, spec, dcc_scripts) still carry the old
 `sys.path.append("C:/Users/jz421/...")` line; sweeping those is the natural
