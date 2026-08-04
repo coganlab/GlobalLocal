@@ -23,10 +23,21 @@ Designs:
       Per interaction-defined electrode group, the diagonal (define == decode)
       cell is SKIPPED — see `cd.is_circular_decode`.
   (a) label transfer: train on stability, test on flexibility (and vice versa),
-      SEPARATELY on the A1 both / S_only / F_only groups. Prediction: only
-      'both' cross-decodes.
+      SEPARATELY on the both / S_only / F_only groups, plus the UNSELECTED
+      reference group (`args.reference_group`, default 'all' = every electrode in
+      the decoded ROI array). Prediction: only 'both' cross-decodes; the
+      reference group says what the region does before any selection.
   (c) temporal generalization (Fig 10): train-window × test-window accuracy
-      matrix, within a contrast and across contrasts (on the 'both' group).
+      matrix, within a contrast and across contrasts, on `args.tempgen_groups`
+      (default: the 'both' group).
+
+The S/F electrode groups come from either route — see `ELECTRODE_DEFINITIONS`:
+`args.electrode_definition='anova'` fits one window-mean ANOVA per electrode in
+this job, 'power_traces' reads the finished cluster-corrected windowed-ANOVA runs.
+
+Contrast and block definitions are read off each condition's declared factor
+levels (`cd.condition_cells`), not parsed out of condition names — the real and
+synthetic naming conventions collide on the obvious shorthand tokens.
 
 Design (b) "set comparison" is just the same contrast decoded within each
 electrode set — an ordinary decode with `electrodes` restricted — and is covered
@@ -83,11 +94,16 @@ STAB, FLEX, BOTH = "#2c7fb8", "#d95f0e", "#31a354"
 CONTRAST_MODE = 'proportion'
 EFFECT_MEASURE = 'cluster'
 
-# Class definitions in the project's substring convention. These must match how
-# the condition names are built (`config/experiment_conditions.py`); the synthetic
-# generator uses the same tokens so one set of strings drives both paths.
-STAB_STRINGS = [['_i_'], ['_c_']]        # congruency  : incongruent vs congruent
-FLEX_STRINGS = [['_s_'], ['_r_']]        # switch type : switch vs repeat
+# Class definitions are DERIVED from each condition's declared factor levels
+# (`cd.condition_cells`), not hand-written as substrings of the condition names.
+# The real and synthetic naming conventions collide on shorthand tokens — '75s'
+# is "switch trial in the 75%-incongruent block" under
+# `stimulus_experiment_conditions` and "75%-switch block" under the synthetic
+# generator — and picking the wrong one decodes the wrong contrast silently
+# rather than raising. See the note above `cd.condition_cells`.
+
+# how each block factor is spelled in result keys and figures
+_BLOCK_TAG = {'incongruent_proportion': 'incongruent', 'switch_proportion': 'switch'}
 
 
 # ---------------------------------------------------------------------------
@@ -441,6 +457,97 @@ def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
 
 
 # ---------------------------------------------------------------------------
+# the decoded ROI pseudopopulation (real data)
+# ---------------------------------------------------------------------------
+def _build_roi_arrays(args, LAB_root):
+    """Load the epochs and build the ROI LabeledArray this job decodes.
+
+    Mirrors `decoding_dcc.main`'s setup so A4 decodes exactly what the ordinary
+    decoding job would: the same ROI/significance electrode resolution, the same
+    "filter against what actually survived epoching" step, and the same
+    pseudopopulation builder.
+
+    Returns `(roi, arrays, channel_names, cells)`, where `channel_names` is the
+    array's own channel labelling (`subject-electrode`, in order — the thing
+    `_restrict_to_electrodes` slices against) and `cells` is the condition->factor
+    table the contrasts are derived from.
+    """
+    from src.analysis.utils.general_utils import (
+        get_sig_chans_per_subject, make_sig_electrodes_per_subject_and_roi_dict,
+        load_subjects_electrodes_to_ROIs_dict, create_subjects_mne_objects_dict,
+        filter_electrode_lists_against_subjects_mne_objects,
+        print_summary_of_dropped_electrodes)
+    from src.analysis.utils.labeled_array_utils import (
+        put_data_in_labeled_array_per_roi_subject)
+
+    roi = args.roi
+    if args.rois_dict is None or roi not in args.rois_dict:
+        raise ValueError(
+            f"ROI {roi!r} is not in rois_dict (have "
+            f"{sorted(args.rois_dict or [])}); set ROI to one of them, or extend "
+            "ROIS_DICT in the runner.")
+
+    config_dir = os.path.join(project_root, 'src', 'analysis', 'config')
+    subjects_electrodestoROIs_dict = load_subjects_electrodes_to_ROIs_dict(
+        save_dir=config_dir, filename='subjects_electrodestoROIs_dict.json')
+    sig_chans_per_subject = get_sig_chans_per_subject(
+        args.subjects, args.epochs_root_file, task=args.task, LAB_root=LAB_root)
+    all_elecs, sig_elecs = make_sig_electrodes_per_subject_and_roi_dict(
+        args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
+
+    if args.electrodes == 'all':
+        raw_electrodes = all_elecs
+    elif args.electrodes == 'sig':
+        raw_electrodes = sig_elecs
+    else:
+        raise ValueError(f"electrodes must be 'all' or 'sig'; got {args.electrodes!r}")
+
+    cells = cd.condition_cells(args.conditions)
+    condition_names = list(cells)
+    print(f"conditions: {len(condition_names)} full 2x2x2x2 cells "
+          f"(of {len(args.conditions)} in the condition set)")
+
+    subjects_mne_objects = create_subjects_mne_objects_dict(
+        subjects=args.subjects, epochs_root_file=args.epochs_root_file,
+        conditions={name: args.conditions[name] for name in condition_names},
+        task=args.task, just_HG_ev1_rescaled=True, LAB_root=LAB_root,
+        acc_trials_only=args.acc_trials_only)
+
+    # An electrode in the ROI dict may have been dropped during epoching; asking
+    # for it would index past the epochs object.
+    electrodes = filter_electrode_lists_against_subjects_mne_objects(
+        [roi], raw_electrodes, subjects_mne_objects)
+    print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
+
+    arrays = put_data_in_labeled_array_per_roi_subject(
+        subjects_mne_objects, condition_names, [roi], args.subjects,
+        electrodes, obs_axs=0, chans_axs=1, time_axs=2,
+        random_state=getattr(args, 'seed', 42))
+    channel_names = _roi_channel_names(arrays, roi)
+    print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
+          f"({args.electrodes} electrodes)")
+    return roi, arrays, channel_names, cells
+
+
+def _roi_channel_names(arrays, roi):
+    """The ROI LabeledArray's channel labels, in array order.
+
+    Layout is [Conditions, Trials, Channels, Timepoints], so channels are
+    `labels[2]`. Falls back to positional names only if the array carries no
+    labelling — in which case the electrode groups cannot match anything and the
+    caller is told rather than left with silently empty groups.
+    """
+    arr = arrays[roi]
+    labels = getattr(arr, 'labels', None)
+    if labels is not None and len(labels) > 2:
+        return [str(c) for c in labels[2]]
+    raise ValueError(
+        f"the ROI {roi!r} array carries no channel labelling, so the electrode "
+        "groups cannot be matched against it; expected a LabeledArray with "
+        "[Conditions, Trials, Channels, Timepoints] labels")
+
+
+# ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
 def main(args):
@@ -462,6 +569,7 @@ def main(args):
         roi = 'synthetic'
         arrays = cd.synthetic_roi_labeled_arrays(
             code=args.synthetic_code, seed=getattr(args, 'seed', 0))
+        cells = cd.synthetic_condition_cells()
         n_ch = next(iter(arrays[roi].values())).shape[1]
         channel_names = [f'ch{i}' for i in range(n_ch)]
         half = n_ch // 2
@@ -473,8 +581,6 @@ def main(args):
         print("DATA SOURCE: real epoched data")
         from src.analysis.utils.general_utils import (
             resolve_lab_root, resolve_electrodes_to_keep, load_HG_ev1_rescaled_per_subject)
-        from src.analysis.utils.labeled_array_utils import (
-            put_data_in_labeled_array_per_roi_subject)
 
         definition = getattr(args, 'electrode_definition', 'anova')
         print(f"ELECTRODE DEFINITION: {definition}")
@@ -504,18 +610,21 @@ def main(args):
               + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
 
         # (ii) the decode runs on the ordinary ROI LabeledArray pseudopopulation
-        roi = args.roi
-        arrays = put_data_in_labeled_array_per_roi_subject(
-            args.subjects_mne_objects, args.condition_names, [roi], args.subjects,
-            args.electrodes_per_subject_roi, obs_axs=0, chans_axs=1, time_axs=2,
-            random_state=getattr(args, 'seed', 42))
-        channel_names = list(args.roi_channel_names)
+        roi, arrays, channel_names, cells = _build_roi_arrays(args, LAB_root)
 
     # The unselected reference set, so label transfer / temporal generalization
     # are not only ever read off interaction-selected subsets.
     a1_groups = _add_reference_group(a1_groups, channel_names, args)
     print("decoded electrode groups: "
           + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
+
+    # Contrasts and block sets, read off each condition's declared factor levels
+    # rather than parsed out of its name (see `cd.condition_cells`).
+    stab_strings, flex_strings = cd.stability_flexibility_strings(cells)
+    blocks = {'incongruent_proportion': cd.block_condition_sets(cells, 'incongruent_proportion'),
+              'switch_proportion': cd.block_condition_sets(cells, 'switch_proportion')}
+    print("block levels: "
+          + "  ".join(f"{f}={sorted(levels)}" for f, levels in blocks.items()))
 
     results = {}
 
@@ -524,21 +633,23 @@ def main(args):
     # block's conditions — restrict the conditions, then train == test contrast.
     print("A4(0): within-block decoding baseline (Fig 9)")
     within_block = {}
-    for cname, strings, block_tokens in (
-            ('congruency (LWPC)', STAB_STRINGS, ('25inc', '75inc')),
-            ('switchType (LWPS)', FLEX_STRINGS, ('25sw', '75sw'))):
+    for cname, strings, block_col in (
+            ('congruency (LWPC)', stab_strings, 'incongruent_proportion'),
+            ('switchType (LWPS)', flex_strings, 'switch_proportion')):
         per_block = {}
-        for token in block_tokens:
+        for level, conds in blocks[block_col].items():
+            tag = f'{level}% {_BLOCK_TAG[block_col]}'
             try:
-                sub_arrays = cd.filter_conditions(arrays, roi, token)
+                sub_arrays = cd.filter_conditions(arrays, roi, conds)
             except ValueError as e:
-                print(f"     skipping block {token}: {e}")
+                print(f"     skipping block {tag}: {e}")
                 continue
             out = cd.run_cross_decoding(sub_arrays, roi, strings, strings, **dec_kw)
-            per_block[token] = _summarise(out, **cluster_kw)
+            per_block[tag] = _summarise(out, **cluster_kw)
+        # low level first (block_condition_sets sorts), so this is high - low
         if len(per_block) == 2:
-            a, b = (per_block[t]['mean_accuracy'] for t in per_block)
-            diff = b - a
+            low, high = (per_block[t]['mean_accuracy'] for t in per_block)
+            diff = high - low
         else:
             diff = None
         within_block[cname] = dict(per_block=per_block, block_difference=diff)
@@ -553,10 +664,10 @@ def main(args):
     #     set of trials (`trial_splitting.apply_electrode_definition_split`).
     if interaction_groups:
         print("A4(0b): per-group within-block 2x2 (diagonal define==decode cells ignored)")
-        decode_cells = [('congruency', 'incongruent_proportion', STAB_STRINGS, ('25inc', '75inc')),
-                        ('congruency', 'switch_proportion', STAB_STRINGS, ('25sw', '75sw')),
-                        ('switchType', 'switch_proportion', FLEX_STRINGS, ('25sw', '75sw')),
-                        ('switchType', 'incongruent_proportion', FLEX_STRINGS, ('25inc', '75inc'))]
+        decode_cells = [('congruency', 'incongruent_proportion', stab_strings),
+                        ('congruency', 'switch_proportion', stab_strings),
+                        ('switchType', 'switch_proportion', flex_strings),
+                        ('switchType', 'incongruent_proportion', flex_strings)]
         per_group = {}
         for gflag, elset in interaction_groups.items():
             restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
@@ -564,20 +675,21 @@ def main(args):
                 print(f"     group '{gflag}' has {n_kept} electrodes in ROI "
                       f"(< {args.min_group_size}); skipping")
                 continue
-            cells = {}
-            for contrast, block_col, strings, tokens in decode_cells:
+            decoded = {}
+            for contrast, block_col, strings in decode_cells:
                 if cd.is_circular_decode(gflag, contrast, block_col):
                     continue                     # double-dipping: ignore this result
-                for token in tokens:
+                for level, conds in blocks[block_col].items():
                     try:
-                        sub_arrays = cd.filter_conditions(restricted, roi, token)
+                        sub_arrays = cd.filter_conditions(restricted, roi, conds)
                     except ValueError:
                         continue
                     out = cd.run_cross_decoding(sub_arrays, roi, strings, strings, **dec_kw)
-                    cells[f'{contrast} by {block_col} [{token}]'] = _summarise(out, **cluster_kw)
+                    tag = f'{contrast} by {block_col} [{level}%]'
+                    decoded[tag] = _summarise(out, **cluster_kw)
             per_group[gflag] = dict(n_electrodes=n_kept,
                                     ignored_cell=cd.circular_decode_for_group(gflag),
-                                    cells=cells)
+                                    cells=decoded)
         results['within_block_by_group'] = per_group
 
     # 3. (a) label transfer per electrode group ----------------------------------
@@ -590,8 +702,8 @@ def main(args):
                   f"(< {args.min_group_size}); skipping")
             continue
         entry = {}
-        for direction, (tr, te) in (('stab_to_flex', (STAB_STRINGS, FLEX_STRINGS)),
-                                    ('flex_to_stab', (FLEX_STRINGS, STAB_STRINGS))):
+        for direction, (tr, te) in (('stab_to_flex', (stab_strings, flex_strings)),
+                                    ('flex_to_stab', (flex_strings, stab_strings))):
             out = cd.run_cross_decoding(restricted, roi, tr, te, **dec_kw)
             entry[direction] = _summarise(out, **cluster_kw)
             entry[direction]['n_channels'] = n_kept
@@ -606,9 +718,13 @@ def main(args):
     print(f"A4(c): temporal generalization (Fig 10) on {list(tempgen_groups)}")
     results['temporal'] = {}
     for g in tempgen_groups:
-        tg_set = a1_groups.get(g)
-        restricted, n_kept = (_restrict_to_electrodes(arrays, roi, channel_names, tg_set)
-                              if tg_set else (None, 0))
+        if g not in a1_groups:
+            # e.g. the reference group was folded into an identical existing one
+            print(f"     no electrode group named '{g}' "
+                  f"(have {sorted(a1_groups)}); skipping")
+            continue
+        restricted, n_kept = _restrict_to_electrodes(
+            arrays, roi, channel_names, a1_groups[g])
         if n_kept < args.min_group_size:
             print(f"     group '{g}' has {n_kept} electrodes in ROI "
                   f"(< {args.min_group_size}); skipping")
@@ -617,9 +733,9 @@ def main(args):
         tg_kw = dict(dec_kw, n_repeats=max(2, args.n_repeats // 2),
                      temporal_generalization=True)
         for name, (tr, te) in (
-                ('stability (within)', (STAB_STRINGS, STAB_STRINGS)),
-                ('flexibility (within)', (FLEX_STRINGS, FLEX_STRINGS)),
-                ('stability->flexibility (cross)', (STAB_STRINGS, FLEX_STRINGS))):
+                ('stability (within)', (stab_strings, stab_strings)),
+                ('flexibility (within)', (flex_strings, flex_strings)),
+                ('stability->flexibility (cross)', (stab_strings, flex_strings))):
             out = cd.run_cross_decoding(restricted, roi, tr, te, **tg_kw)
             results['temporal'][f'{name} [{g}]'] = dict(
                 matrix=_tempgen_matrix(out), n_channels=n_kept, group=g)

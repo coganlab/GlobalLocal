@@ -39,6 +39,8 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
 from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import main
+from src.analysis.config import experiment_conditions
+from src.analysis.config.rois import rois_dict as ALL_ROIS_DICT
 
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
@@ -67,17 +69,32 @@ if DATA_SOURCE == 'real' and EPOCHS_ROOT_FILE is None:
 WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimulus
 WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
-# --- electrode selection + A1 electrode definition ---
-# Two independent choices, easy to conflate:
-#   ELECTRODES  = which electrodes are LOADED into the decoded ROI array at all.
-#                 'sig' keeps the baseline task-significant ones in the ROIs,
-#                 'all' keeps every electrode in the ROIs. (With ROIS_DICT=None
-#                 no ROI/significance filter is applied and every channel is used.)
-#   the GROUPS   = how those loaded electrodes are then split for the decodes:
-#                 both / S_only / F_only from the interaction labels, plus the
-#                 unselected REFERENCE_GROUP over all of them.
-ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
-ROIS_DICT = None
+# --- conditions ---
+# A4 transfers a classifier between congruency and switchType, and splits each by
+# a block proportion, so it needs the FULL 2x2x2x2 condition set — every
+# {congruency} x {incongruent proportion} x {switchType} x {switch proportion}
+# cell. `stimulus_experiment_conditions` is that set. The contrast and block
+# definitions are read off each condition's declared factor levels, so swapping
+# in another condition dict works as long as its entries carry `congruency`,
+# `switchType`, `incongruentProportion` and `switchProportion`.
+CONDITIONS = getattr(experiment_conditions,
+                     os.environ.get('CONDITIONS', 'stimulus_experiment_conditions'))
+
+# --- ROI + electrode selection ---
+# Three independent choices, easy to conflate:
+#   ROI + ROIS_DICT = which anatomical region's electrodes are decoded.
+#   ELECTRODES      = which of that region's electrodes are LOADED at all.
+#                     'sig' keeps the baseline task-significant ones, 'all' keeps
+#                     every electrode in the ROI.
+#   the GROUPS      = how those loaded electrodes are then split for the decodes:
+#                     both / S_only / F_only from the interaction labels, plus the
+#                     unselected REFERENCE_GROUP over all of them.
+ROI = os.environ.get('ROI', 'lpfc')                         # a key of ROIS_DICT
+ROIS_DICT = {ROI: ALL_ROIS_DICT[ROI]} if ROI in ALL_ROIS_DICT else None
+if DATA_SOURCE == 'real' and ROIS_DICT is None:
+    raise ValueError(f"ROI={ROI!r} is not in src/analysis/config/rois.py "
+                     f"(have {sorted(ALL_ROIS_DICT)}).")
+ELECTRODES = os.environ.get('ELECTRODES', 'sig')            # 'all' or 'sig'
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 
 # Which route defines the S/F electrode labels:
@@ -124,7 +141,6 @@ EXPLAINED_VARIANCE = float(os.environ.get('EXPLAINED_VARIANCE', '0.8'))
 N_PERM = int(os.environ.get('N_PERM', '500'))               # cluster-test permutations
 MIN_GROUP_SIZE = int(os.environ.get('MIN_GROUP_SIZE', '5'))  # min electrodes per group
 SEED = int(os.environ.get('SEED', '0'))
-ROI = os.environ.get('ROI', 'all')                          # which ROI's LabeledArray to decode
 
 # Proportion of trials used for TRAINING in each split. Unset (the default) keeps
 # StratifiedKFold, i.e. (N_SPLITS-1)/N_SPLITS. Set it to sweep the train/test
@@ -135,9 +151,13 @@ FRAC_TRAIN = os.environ.get('FRAC_TRAIN')
 FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
 
 # --- output ---
+# The ROI, electrode set and definition route all change what was decoded, so
+# they go in the path — otherwise two runs overwrite each other's results.
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_{SYNTHETIC_CODE}'
-SAVE_DIR = os.path.join(current_script_dir, 'results', _tag,
-                        f'cross_decoding_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}')
+SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
+    current_script_dir, 'results', _tag,
+    f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
+    f'{ELECTRODES}_{ELECTRODE_DEFINITION}')
 
 
 def run_analysis():
@@ -153,6 +173,7 @@ def run_analysis():
         epochs_root_file=EPOCHS_ROOT_FILE,
         window_tmin=WINDOW_TMIN,
         window_tmax=WINDOW_TMAX,
+        conditions=CONDITIONS,
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
@@ -184,14 +205,15 @@ def run_analysis():
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
-    print(f"Electrodes:       {ELECTRODES}")
+    print(f"Conditions:       {len(CONDITIONS)} cells")
+    print(f"ROI:              {ROI} | electrodes: {ELECTRODES}")
     print("-" * 72)
     print(f"Elec definition:  {ELECTRODE_DEFINITION}"
           + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
              f"roi={POWER_TRACES_ROI})" if ELECTRODE_DEFINITION == 'power_traces' else ""))
     print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
           f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
-    print(f"alpha (A1):       {ALPHA} | ROI: {ROI}")
+    print(f"alpha (A1):       {ALPHA}")
     print(f"window/step:      {WINDOW_SIZE}/{STEP_SIZE} samples "
           f"| n_splits: {N_SPLITS} | n_repeats: {N_REPEATS}")
     print("train fraction:   "
