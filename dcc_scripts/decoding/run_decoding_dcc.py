@@ -223,6 +223,53 @@ ELECTRODE_DEFINITION_SPLIT_SEED = int(
     os.environ.get('ELECTRODE_DEFINITION_SPLIT_SEED', 0))
 ELECTRODE_DEFINITION_SPLIT_ALPHA = float(
     os.environ.get('ELECTRODE_DEFINITION_SPLIT_ALPHA', 0.05))  # FDR q for the held-out responsiveness selector
+
+# --- ANOVA-defined electrode sets on a held-out trial split ------------------
+# Same disjoint-trial idea as ELECTRODE_DEFINITION_SPLIT above, but the selector
+# is the power-traces within-electrode windowed ANOVA with permutation cluster
+# correction, run once per selection condition set. That gives named electrode
+# sets (lwpc, lwps, lwpc_only, lwps_only, overlap, union) and the decoding
+# battery is run once per set, each into its own subdirectory with the set in
+# every figure title and filename.
+#
+#   ANOVA_ELECTRODE_SELECTION      turn it on
+#   ELECTRODE_SELECTION_FRAC       fraction of trials spent on SELECTION
+#                                  (0.3 -> 30% select / 70% decode)
+#   ELECTRODE_SELECTION_LABELS     comma-separated condition_registry keys whose
+#                                  ANOVA defines the electrodes
+#   ELECTRODE_SELECTION_SETS       comma-separated subset of the available set
+#                                  names; empty -> all of them
+#   ELECTRODE_SELECTION_EFFECT     'interaction' (default; the LWPC/LWPS term),
+#                                  'any', a factor name, or an explicit
+#                                  statsmodels effect name
+#   ELECTRODE_SELECTION_N_PERM     permutations per electrode. This is the cost
+#                                  driver: the ANOVA refits at every window on
+#                                  every permutation. Start at 200.
+ANOVA_ELECTRODE_SELECTION = _env_bool('ANOVA_ELECTRODE_SELECTION', False)
+ELECTRODE_SELECTION_FRAC = float(os.environ.get('ELECTRODE_SELECTION_FRAC', 0.3))
+ELECTRODE_SELECTION_CONDITION_LABELS = (
+    os.environ['ELECTRODE_SELECTION_LABELS'].split(',')
+    if os.environ.get('ELECTRODE_SELECTION_LABELS')
+    else ['stimulus_lwpc_conditions', 'stimulus_lwps_conditions'])
+ELECTRODE_SELECTION_SETS = (
+    os.environ['ELECTRODE_SELECTION_SETS'].split(',')
+    if os.environ.get('ELECTRODE_SELECTION_SETS')
+    else None)   # None -> every set: each label, each *_only, overlap, union
+ELECTRODE_SELECTION_EFFECT = os.environ.get('ELECTRODE_SELECTION_EFFECT', 'interaction')
+ELECTRODE_SELECTION_N_PERM = int(os.environ.get('ELECTRODE_SELECTION_N_PERM', 200))
+ELECTRODE_SELECTION_SEED = int(os.environ.get('ELECTRODE_SELECTION_SEED', 0))
+ELECTRODE_SELECTION_ALPHA = float(os.environ.get('ELECTRODE_SELECTION_ALPHA', 0.05))
+ELECTRODE_SELECTION_USE_FDR = _env_bool('ELECTRODE_SELECTION_USE_FDR', True)
+ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL = int(
+    os.environ.get('ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL', 2))
+# Metadata columns to stratify the trial split on. These must be REAL metadata
+# columns (see parse_event_name): congruency, task_sequence, block_type,
+# incongruent_proportion, switch_proportion, ...
+ELECTRODE_SELECTION_STRATA = (
+    os.environ['ELECTRODE_SELECTION_STRATA'].split(',')
+    if os.environ.get('ELECTRODE_SELECTION_STRATA')
+    else ['congruency', 'task_sequence', 'block_type'])
+
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
@@ -295,6 +342,17 @@ def run_analysis():
         electrode_definition_split_strata=ELECTRODE_DEFINITION_SPLIT_STRATA,
         electrode_definition_split_seed=ELECTRODE_DEFINITION_SPLIT_SEED,
         electrode_definition_split_alpha=ELECTRODE_DEFINITION_SPLIT_ALPHA,
+        anova_electrode_selection=ANOVA_ELECTRODE_SELECTION,
+        electrode_selection_frac=ELECTRODE_SELECTION_FRAC,
+        electrode_selection_condition_labels=ELECTRODE_SELECTION_CONDITION_LABELS,
+        electrode_selection_sets=ELECTRODE_SELECTION_SETS,
+        electrode_selection_effect=ELECTRODE_SELECTION_EFFECT,
+        electrode_selection_n_perm=ELECTRODE_SELECTION_N_PERM,
+        electrode_selection_seed=ELECTRODE_SELECTION_SEED,
+        electrode_selection_alpha=ELECTRODE_SELECTION_ALPHA,
+        electrode_selection_use_fdr=ELECTRODE_SELECTION_USE_FDR,
+        electrode_selection_min_trials_per_cell=ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL,
+        electrode_selection_strata=ELECTRODE_SELECTION_STRATA,
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -313,6 +371,16 @@ def run_analysis():
              f"seed={ELECTRODE_DEFINITION_SPLIT_SEED}, "
              f"alpha={ELECTRODE_DEFINITION_SPLIT_ALPHA})"
              if ELECTRODE_DEFINITION_SPLIT else ""))
+    print(f"ANOVA electrode selection:     {ANOVA_ELECTRODE_SELECTION}")
+    if ANOVA_ELECTRODE_SELECTION:
+        print(f"  Selection/decode split:    {ELECTRODE_SELECTION_FRAC:.0%} select / "
+              f"{1 - ELECTRODE_SELECTION_FRAC:.0%} decode (seed={ELECTRODE_SELECTION_SEED})")
+        print(f"  Selection condition sets:  {ELECTRODE_SELECTION_CONDITION_LABELS}")
+        print(f"  Electrode sets to decode:  {ELECTRODE_SELECTION_SETS or 'all (labels, *_only, overlap, union)'}")
+        print(f"  ANOVA effect:              {ELECTRODE_SELECTION_EFFECT}")
+        print(f"  ANOVA perms / alpha / FDR: {ELECTRODE_SELECTION_N_PERM} / "
+              f"{ELECTRODE_SELECTION_ALPHA} / {ELECTRODE_SELECTION_USE_FDR}")
+        print(f"  Split strata:              {ELECTRODE_SELECTION_STRATA}")
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")
     print(f"Balance strata:     {BALANCE_STRATA}")

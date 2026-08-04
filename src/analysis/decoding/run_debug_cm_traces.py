@@ -40,6 +40,7 @@ def run_debug_cm_traces(
     args,
     save_dir,
     analysis_params_str,
+    electrode_set_desc_fn=None,
 ):
     """
     Extract and plot pooled CM traces for debugging.
@@ -60,8 +61,13 @@ def run_debug_cm_traces(
         Base save directory.
     analysis_params_str : str
         String to append to filenames.
+    electrode_set_desc_fn : callable(roi) -> str, optional
+        One-line description of the electrode set decoded from; goes into the
+        figure title so a trace is attributable to its electrode set.
     """
     import os
+
+    from src.analysis.decoding.anova_electrode_selection import decoding_figure_title
 
     print("\n Extracting and plotting pooled CM traces for debugging...")
 
@@ -133,5 +139,8 @@ def run_debug_cm_traces(
                 single_column=args.single_column,
                 show_legend=True,
                 ylabel="Mean Trial Count",
+                title=decoding_figure_title(
+                    f"CM traces: {condition_comparison}", roi,
+                    electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
                 filename_suffix=analysis_params_str,
             )

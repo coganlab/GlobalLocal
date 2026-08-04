@@ -910,6 +910,103 @@ Selecting on the *decode contrast itself* (the diagonal) is full double-dipping 
 must use the disjoint split **or** be dropped by §3.2. `electrodes='all'` has no
 selection and no circularity — the currently-safe default for the decoding figures.
 
+### 8.1 Two selectors on the same split — which one, and why
+
+The split above and the one in §8.2 differ **only in the selector**, and the
+choice is not cosmetic:
+
+| | `electrode_definition_split` (§8) | `anova_electrode_selection` (§8.2) |
+|---|---|---|
+| Selector | responsiveness *t*-test, window vs. baseline, FDR over channels (`select_responsive_channels`) | within-electrode windowed ANOVA + permutation cluster correction (`run_within_electrode_windowed_anova_cluster_correction`) — **the power-traces selector** |
+| What it asks | "does this electrode respond to the task at all?" | "does this electrode carry the LWPC / LWPS interaction?" |
+| Relation to the decode | approximately orthogonal | *the same construct*, which is why the trial split is mandatory, not optional |
+| Electrode sets produced | one | one per selection condition set, **plus** unique / overlap / union |
+| Cost | seconds | permutations × windows × electrodes — the expensive part of the job |
+
+The responsiveness selector answers "am I decoding from live tissue"; it cannot
+answer "do different neuronal subpopulations encode stability vs. flexibility
+adaptation", because every set it produces is the same set. That question needs
+electrodes defined *by process*, which is what §8.2 does.
+
+### 8.2 ANOVA-defined electrode sets (LWPC vs LWPS, unique and overlapping)
+
+`src/analysis/decoding/anova_electrode_selection.py` +
+`run_anova_electrode_selection.py`. One job:
+
+1. **Split trials once, on a stable trial id.** `collect_subject_trial_strata`
+   pools every structure's trials per subject keyed on
+   `metadata['trial_count']`, and `assign_trial_partitions` cuts each subject's
+   trials `frac_select` / `1 − frac_select`, stratified. Keying on the id rather
+   than the position is what makes the split hold **across condition sets** —
+   selection runs over the LWPC 2×2 and the LWPS 2×2 while the decode runs over
+   whatever you are decoding, and all three slice the same physical trials
+   differently. A positional split would put trial 7 in the selection half of one
+   and the decode half of another; the old `apply_electrode_definition_split`
+   documents exactly this as a residual leak.
+2. **Select on the selection side, per condition set.**
+   `select_electrodes_by_windowed_anova` runs the power-traces ANOVA and keeps
+   the electrodes with a surviving cluster on the requested effect — by default
+   the **highest-order interaction** (`C(congruency):C(incongruentProportion)`
+   for LWPC, `C(switchType):C(switchProportion)` for LWPS), because the construct
+   is the interaction, not the main effect (§3.1). It writes an ordinary
+   within-electrode-ANOVA run directory (`summary.csv`, per-electrode `.npz`,
+   `run_config.json`), so a selection run is inspectable with the same tooling as
+   a power-traces run.
+3. **Set algebra.** `combine_electrode_sets` builds `lwpc`, `lwps`, `lwpc_only`,
+   `lwps_only`, `overlap`, `union`. `<label>_only` is the electrode-level analogue
+   of the conjunction's `S_only`/`F_only` cells (§5).
+4. **Decode each set** on the disjoint remainder, into `elecset_<name>/`, with
+   the decoded condition **and** the electrode set in every figure title and
+   every file name.
+
+```bash
+# 30% of trials define electrodes, 70% decode; all six sets
+bash submit_decoding_with_anova_electrode_selection_dcc.sh
+FRAC_SELECT=0.3 N_PERM=500 SETS=lwpc_only,lwps_only,overlap \
+    bash submit_decoding_with_anova_electrode_selection_dcc.sh
+```
+
+**What the result means, and what it does not.** The intended read is the
+*pattern across sets*: if LWPC-only electrodes decode congruency-by-block but not
+switch-by-block, and LWPS-only electrodes do the reverse, that is a double
+dissociation over disjoint electrode populations — the multivariate counterpart
+of the conjunction's OR < 1. Three caveats that decide whether it is worth
+believing:
+
+- **The comparison is between sets, not against chance.** Set sizes differ (the
+  stronger effect recruits more electrodes at fixed α — principle §2.3), and
+  decoding accuracy grows with electrode count. A raw "LWPC-only decodes better
+  than LWPS-only" is confounded by n. Compare each set on *its own* two decode
+  cells (matched vs. cross), which is within-set and so n-invariant, and sweep
+  `ELECTRODE_SELECTION_ALPHA` before believing any of it.
+- **`overlap` is where mixed selectivity hides.** An electrode significant for
+  both can carry one shared code or two orthogonal ones; only cross-decoding
+  (§7.1) separates those. `overlap` decoding both contrasts is *not* evidence of
+  a shared code.
+- **The split costs power twice.** The ANOVA sees `frac_select` of the trials, so
+  fewer electrodes clear the threshold (and more are skipped by
+  `min_trials_per_cell` — the run prints the count); the decoder sees the rest,
+  so its accuracy is noisier. 0.3/0.7 is a starting point, not a derived optimum;
+  a null at 0.3 is weak evidence of absence.
+- **A temporally flat effect is the extent test's blind spot.** The permutation
+  null shuffles trial labels within an electrode and reuses that one shuffle at
+  every window, so whatever structure a shuffle accidentally retains appears at
+  *every* window at once. When the true effect is large and constant across the
+  analysis window, the null's cluster-extent distribution piles up at full
+  extent, `extent_threshold` rises to meet it, and the strict
+  `extent > threshold` comparison can reject a real effect. This was reproduced
+  on synthetic data while writing
+  `tests/analysis/decoding/test_anova_electrode_selection_integration.py` (a
+  3 σ planted interaction was missed; 0.8 σ was found). If a selection run
+  returns implausibly few electrodes, check the per-electrode F traces before
+  concluding the effect is not there.
+
+Unit tests: `tests/analysis/decoding/test_anova_electrode_selection.py` (split
+disjointness across condition sets, summary filter, set algebra, naming);
+`..._integration.py` runs the real ANOVA on synthetic data with a planted
+interaction and asserts a main-effect-only electrode does **not** leak into the
+interaction set.
+
 ---
 
 ## 9. How to run everything, and in what order (start here to *do* the analysis)
@@ -1007,11 +1104,23 @@ On real data this now also emits `within_block_by_group` — the per-group 2×2 
 the diagonal (define==decode) cell ignored (§3.2). `ALPHA` sets the A1 FDR
 threshold for the four groups; `MIN_GROUP_SIZE` skips groups too small to decode.
 
-**Disjoint def/decode split** (from `dcc_scripts/decoding`):
+**Disjoint def/decode split, responsiveness selector** (from `dcc_scripts/decoding`):
 ```bash
 bash submit_decoding_with_electrode_definition_split_dcc.sh
-FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,switchType,blockType \
+FRAC_DEF=0.6 SEED=1 ALPHA=0.05 STRATA=congruency,task_sequence,block_type \
     bash submit_decoding_with_electrode_definition_split_dcc.sh
+```
+> `STRATA` must name **real metadata columns** (`parse_event_name`): `congruency`,
+> `task_sequence`, `block_type`, `incongruent_proportion`, `switch_proportion`.
+> The old default `congruency,switchType,blockType` silently stratified on
+> `congruency` alone — `strata_key_from_metadata` warns and skips names it cannot
+> find.
+
+**Disjoint split, ANOVA electrode sets** (§8.2 — LWPC/LWPS unique + overlap):
+```bash
+bash submit_decoding_with_anova_electrode_selection_dcc.sh
+FRAC_SELECT=0.3 N_PERM=500 SETS=lwpc_only,lwps_only,overlap \
+    bash submit_decoding_with_anova_electrode_selection_dcc.sh
 ```
 
 **A5 — timing** (from `dcc_scripts/stats`):
@@ -1075,6 +1184,10 @@ The `<name>` it writes (e.g. `Stimulus_1sec_preStimulusBase_decFactor_10`) is th
 | Anatomy join | `attach_roi`, `_derive_group` | `src/analysis/stats/stability_flexibility_anatomy.py` |
 | Coverage + enrichment | `build_coverage_matrix`, `roi_group_enrichment_test` | same |
 | Disjoint trial split | `stratified_trial_split`, `apply_electrode_definition_split` | `src/analysis/decoding/trial_splitting.py` |
+| Trial-id-keyed split (holds across condition sets) | `collect_subject_trial_strata`, `assign_trial_partitions`, `apply_trial_partition` | `src/analysis/decoding/anova_electrode_selection.py` |
+| ANOVA-defined electrode sets + set algebra | `select_electrodes_by_windowed_anova`, `combine_electrode_sets` | same |
+| Electrode-set figure titles / file slugs | `decoding_figure_title`, `describe_electrode_set`, `electrode_set_slug` | same |
+| Selection → decode orchestration (DCC) | `build_anova_selected_electrode_sets` | `src/analysis/decoding/run_anova_electrode_selection.py` |
 | power_traces windowed ANOVA (temporal-profile figure) | `run_within_electrode_windowed_anova_cluster_correction`, `load_significant_electrodes` | `src/analysis/power/windowed_anova.py` |
 | Timing | `interaction_time_course`, `onset_50pct_peak`, `jackknife_onset_difference` | `src/analysis/stats/stability_flexibility_timing.py` |
 | Brain–behavior | `subject_level_brain_behavior`, `trialwise_brain_behavior` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |

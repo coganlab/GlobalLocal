@@ -88,11 +88,254 @@ from src.analysis.decoding.run_visualization_debug import run_visualization_debu
 from src.analysis.decoding.run_debug_cm_traces import run_debug_cm_traces
 from src.analysis.decoding.run_aggregate_and_plot_time_averaged_cms import run_aggregate_and_plot_time_averaged_cms
 from src.analysis.decoding.run_context_comparisons import run_all_context_comparisons
+
+from src.analysis.decoding.anova_electrode_selection import (
+    decoding_figure_title,
+    electrode_set_counts,
+    electrode_set_counts_for_roi,
+    electrode_set_slug,
+)
+from src.analysis.decoding.run_anova_electrode_selection import (
+    build_anova_selected_electrode_sets,
+)
 '''
-when adding a new condition to decoding - 
+when adding a new condition to decoding -
 1. update config/condition_registry.py
 
 '''
+def run_decoding_for_one_electrode_set(
+    args,
+    rois,
+    condition_names,
+    condition_comparisons,
+    electrodes,
+    subjects_mne_objects,
+    base_save_dir,
+    elec_string_to_add_to_filename,
+    folds_info_str,
+    electrode_set_name=None,
+):
+    """Run the whole bootstrap decoding battery on ONE electrode set.
+
+    Pulled out of ``main`` so the same battery can be run several times over
+    different electrode sets in a single job (LWPC-only, LWPS-only, overlap, …)
+    without re-loading the epochs. With ``electrode_set_name=None`` this is
+    exactly the pre-existing single-run behaviour, writing to the same
+    directory as before.
+
+    Every figure produced here is titled with **what is being decoded** and
+    **which electrodes it was decoded from**, and every filename carries the
+    condition label and the electrode-set slug, because with several sets in
+    flight an untitled accuracy trace is unattributable.
+    """
+    if electrode_set_name:
+        set_slug = electrode_set_slug(electrode_set_name)
+        save_dir = os.path.join(base_save_dir, f"elecset_{set_slug}")
+        elec_string_to_add_to_filename = f"{elec_string_to_add_to_filename}_elecset-{set_slug}"
+        set_label = electrode_set_name
+    else:
+        save_dir = base_save_dir
+        set_label = elec_string_to_add_to_filename
+    os.makedirs(save_dir, exist_ok=True)
+
+    def elec_desc(roi):
+        """Per-ROI electrode-set description for figure titles."""
+        n_elec, n_subs = electrode_set_counts_for_roi(electrodes, roi)
+        return f"{set_label} electrodes (n = {n_elec}, {n_subs} subjects)"
+
+    n_total, n_subs_total = electrode_set_counts(electrodes)
+    print(f"\n{'='*20} DECODING ON ELECTRODE SET '{set_label}' "
+          f"({n_total} electrodes, {n_subs_total} subjects) {'='*20}\n")
+    print(f"  save_dir: {save_dir}")
+    if n_total == 0:
+        print(f"  ✗ Electrode set '{set_label}' is empty; skipping.")
+        return None
+
+    # get the confusion matrix using the downsampled version
+    # add elec and subject info to filename 6/11/25
+    other_string_to_add = (
+        f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}_ev_{args.explained_variance}"
+    )
+    # append left out subject to file name for leave-one-subject out decoding debugging. Can delete after. 4/28/26.
+    if getattr(args, 'held_out_subject', None):
+        other_string_to_add += f"_loo-{args.held_out_subject}"
+
+    time_window_decoding_results = {}
+
+    print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
+
+    if args.run_visualization_debug: # this needs to be pulled into its own function so that this can be a one liner.
+        run_visualization_debug(args, rois, args.condition_label, electrodes, subjects_mne_objects, save_dir)
+
+    # use joblib to run the bootstrap processing in parallel
+    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
+        delayed(process_bootstrap)(
+            bootstrap_idx,
+            subjects_mne_objects,
+            args,
+            rois,
+            condition_names,
+            electrodes,
+            condition_comparisons,
+            save_dir
+        ) for bootstrap_idx in range(args.bootstraps)
+    )
+
+    # reconstruct the main results dictionary from the list returned by the parallel jobs
+    time_window_decoding_results = {i: result['time_window_results'] for i, result in enumerate(bootstrap_results_list) if result is not None}
+    time_averaged_cms_list = [result['time_averaged_cms'] for result in bootstrap_results_list if result]
+
+    ## Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
+    ## This is necessary to get the correct labels for plotting the confusion matrices.
+    cats_by_roi = {}
+    first_valid_result = next((res for res in bootstrap_results_list if res), None)
+    if first_valid_result:
+        cats_by_roi = first_valid_result.get('cats_by_roi', {})
+
+    # --- Step 1: Aggregate and Plot Time-Averaged CMs ---
+    run_aggregate_and_plot_time_averaged_cms(
+        time_averaged_cms_list, condition_comparisons, rois, cats_by_roi, args, save_dir,
+        electrode_set_desc_fn=elec_desc,
+        filename_suffix=elec_string_to_add_to_filename,
+    )
+
+    if not time_window_decoding_results:
+        print("\n✗ Analysis failed: No bootstrap samples were successfully processed.")
+        return None
+
+    print(f"\n{'-'*20} PARALLEL BOOTSTRAPPING COMPLETE {'='*20}\n")
+
+    # after all bootstraps complete, run pooled statistics
+    all_bootstrap_stats = compute_pooled_bootstrap_statistics(
+        time_window_decoding_results,
+        args.bootstraps,
+        condition_comparisons,
+        rois,
+        percentile=args.percentile,
+        cluster_percentile=args.cluster_percentile,
+        n_cluster_perms=args.n_cluster_perms,
+        random_state=args.random_state,
+        unit_of_analysis=args.unit_of_analysis
+    )
+
+    sub_str = str(len(args.subjects))
+    sub_str_with_ids = "_".join([str(len(args.subjects))] + [s.strip().replace('D00', "").replace('D0', "") for s in args.subjects])
+
+    # The condition label and the electrode set both live in the filename stem:
+    # two runs of this job differ only in what was decoded and from where, so
+    # both have to be recoverable from a file name alone.
+    analysis_params_str = (
+            f"job{args.slurm_job_id}_{args.condition_label}_"
+            f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_"
+            f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
+            f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
+        )
+
+    master_results = {
+        'stats': all_bootstrap_stats,
+        'metadata': {
+            'args': vars(args), # Save all arguments from the run
+            'analysis_params_str': analysis_params_str,
+            'electrode_set_name': electrode_set_name,
+            'electrode_set_label': set_label,
+            'electrodes': electrodes,
+            'n_electrodes': n_total,
+        },
+        'comparison_clusters': {} # We will populate this in the loops below
+    }
+
+    # define color and linestyle for plotting true vs shuffle
+    colors = {
+        'true': '#0173B2',  # Blue
+        'shuffle': '#949494'  # Gray
+    }
+
+    linestyles = {
+        'true': '-',
+        'shuffle': '--'
+    }
+
+    # then plot using the pooled statistics
+    for condition_comparison in condition_comparisons.keys():
+        for roi in rois:
+            if roi in all_bootstrap_stats[condition_comparison]:
+                stats = all_bootstrap_stats[condition_comparison][roi]
+                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
+
+                # extract the correct keys based on unit_of_analysis
+                unit = stats['unit_of_analysis']
+
+                plot_accuracies_nature_style(
+                    time_points=time_window_centers,
+                    accuracies_dict={
+                        'true': stats[f'{unit}_true_accs'], # use the full distribution
+                        'shuffle': stats[f'{unit}_shuffle_accs']
+                    },
+                    significant_clusters=stats['significant_clusters'],
+                    window_size=args.window_size,
+                    step_size=args.step_size,
+                    sampling_rate=args.sampling_rate,
+                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}',
+                    roi=roi,
+                    save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                    timestamp=args.timestamp,
+                    p_thresh=args.percentile,
+                    colors=colors,
+                    linestyles=linestyles,
+                    single_column=args.single_column,
+                    show_legend=args.show_legend,
+                    ylim=(0.3, 1.0),
+                    show_chance_level=False, # The pooled shuffle line is the new chance level
+                    title=decoding_figure_title(condition_comparison, roi, elec_desc(roi)),
+                    filename_suffix=analysis_params_str
+                )
+
+    # pooled cm traces for debugging
+    run_debug_cm_traces(
+        time_window_decoding_results=time_window_decoding_results,
+        condition_comparisons=condition_comparisons,
+        rois=rois,
+        cats_by_roi=cats_by_roi,
+        args=args,
+        save_dir=save_dir,
+        analysis_params_str=analysis_params_str,
+        electrode_set_desc_fn=elec_desc,
+    )
+
+    # run context comparisons comparing true vs. true decoding and also true vs. shuffle decoding for lwpc, lwps, etc.
+    run_all_context_comparisons(
+        args=args,
+        time_window_decoding_results=time_window_decoding_results,
+        all_bootstrap_stats=all_bootstrap_stats,
+        master_results=master_results,
+        rois=rois,
+        save_dir=save_dir,
+        analysis_params_str=analysis_params_str,
+        electrode_set_desc_fn=elec_desc,
+    )
+
+    # --- Save all results to a single file ---
+    results_filename = f"{args.timestamp}_MASTER_RESULTS_{analysis_params_str}_{args.condition_label}.pkl"
+
+    results_save_path = os.path.join(save_dir, results_filename)
+
+    # Try to grab time_window_centers and add to metadata
+    try:
+        first_comp = list(time_window_decoding_results[0].keys())[0]
+        first_roi = list(time_window_decoding_results[0][first_comp].keys())[0]
+        twc = time_window_decoding_results[0][first_comp][first_roi]['time_window_centers']
+        master_results['metadata']['time_window_centers'] = twc
+    except Exception as e:
+        print(f"Warning: Could not save time_window_centers to metadata. {e}")
+
+    print(f"\n💾 Saving all statistical results to: {results_save_path}")
+    with open(results_save_path, 'wb') as f:
+        pickle.dump(master_results, f)
+
+    print(f"\n✅ Analysis and saving complete for electrode set '{set_label}'.")
+    return master_results
+
+
 def main(args):
     # Determine LAB_root based on the operating system and environment
     if args.LAB_root is None:
@@ -162,177 +405,83 @@ def main(args):
         elec_string_to_add_to_filename += '_defsplit'
 
     condition_comparisons = get_comparisons(args.condition_label)
- 
-    # get the confusion matrix using the downsampled version
-    # add elec and subject info to filename 6/11/25
-    other_string_to_add = (
-        f"{elec_string_to_add_to_filename}_{str(len(args.subjects))}_subjects_{folds_info_str}_ev_{args.explained_variance}"
-    )
-    # append left out subject to file name for leave-one-subject out decoding debugging. Can delete after. 4/28/26. 
-    if getattr(args, 'held_out_subject', None):
-        other_string_to_add += f"_loo-{args.held_out_subject}"
-            
-    time_window_decoding_results = {}     
-     
-    print(f"\n{'='*20} STARTING PARALLEL BOOTSTRAPPING ({args.bootstraps} samples across {args.n_jobs} jobs) {'='*20}\n")
 
-    if args.run_visualization_debug: # this needs to be pulled into its own function so that this can be a one liner.
-        run_visualization_debug(args, rois, args.condition_label, electrodes, subjects_mne_objects, save_dir)
-        
-    # use joblib to run the bootstrap processing in parallel
-    bootstrap_results_list = Parallel(n_jobs=args.n_jobs, verbose=10, backend='loky')(
-        delayed(process_bootstrap)(
-            bootstrap_idx,
-            subjects_mne_objects,
-            args,
-            rois,
-            condition_names,
-            electrodes,
-            condition_comparisons,
-            save_dir
-        ) for bootstrap_idx in range(args.bootstraps)
-    )
+    # --- Optional: ANOVA-defined electrode sets on a held-out trial partition ---
+    # The same split idea as `electrode_definition_split` above, but the selector
+    # is the power-traces within-electrode windowed ANOVA with permutation
+    # cluster correction rather than a responsiveness t-test — so the electrodes
+    # decoded from are literally the ones the power-trace figures call
+    # significant. Because selection can be run for several condition sets
+    # (e.g. LWPC and LWPS), this yields *several* electrode sets — each label's
+    # electrodes, each label's unique electrodes, their overlap, their union —
+    # and the decoding battery below is run once per requested set.
+    electrode_sets = None
+    if getattr(args, 'anova_electrode_selection', False):
+        if getattr(args, 'electrode_definition_split', False):
+            # Both would split the trials, so the second split would run on a
+            # structure that had already lost its held-out trials — the ANOVA
+            # would be selecting on a fraction of a fraction, and the "70%
+            # decode" in the file name would be a lie. Pick one.
+            raise ValueError(
+                "electrode_definition_split and anova_electrode_selection both "
+                "hold out trials; enable only one. Use "
+                "anova_electrode_selection for cluster-corrected ANOVA electrode "
+                "sets, electrode_definition_split for the responsiveness t-test.")
+        subjects_mne_objects, electrode_sets, selection_report = \
+            build_anova_selected_electrode_sets(
+                args=args,
+                rois=rois,
+                electrodes=electrodes,
+                decode_subjects_mne_objects=subjects_mne_objects,
+                save_dir=save_dir,
+                LAB_root=LAB_root,
+            )
+        # A subject can be dropped entirely by the split (no trials left in some
+        # condition); its electrodes have to go with it or the labelled-array
+        # builder will look up a subject key that no longer exists.
+        electrode_sets = {
+            name: filter_electrode_lists_against_subjects_mne_objects(
+                rois, elecset, subjects_mne_objects)
+            for name, elecset in electrode_sets.items()
+        }
+        elec_string_to_add_to_filename += (
+            f"_anovasel-{selection_report['frac_select']:g}"
+        )
 
-    # reconstruct the main results dictionary from the list returned by the parallel jobs
-    time_window_decoding_results = {i: result['time_window_results'] for i, result in enumerate(bootstrap_results_list) if result is not None}
-    time_averaged_cms_list = [result['time_averaged_cms'] for result in bootstrap_results_list if result]
-
-    ## Extract the 'cats_by_roi' dictionary from the first valid bootstrap result.
-    ## This is necessary to get the correct labels for plotting the confusion matrices.
-    cats_by_roi = {}
-    first_valid_result = next((res for res in bootstrap_results_list if res), None)
-    if first_valid_result:
-        cats_by_roi = first_valid_result.get('cats_by_roi', {})
-
-    # --- Step 1: Aggregate and Plot Time-Averaged CMs ---
-    run_aggregate_and_plot_time_averaged_cms(
-        time_averaged_cms_list, condition_comparisons, rois, cats_by_roi, args, save_dir
-    )
-    
-    if not time_window_decoding_results:
-        print("\n✗ Analysis failed: No bootstrap samples were successfully processed.")
+    # Run the battery once per electrode set. With the option off this is a
+    # single unnamed set — byte-for-byte the previous behaviour.
+    if not electrode_sets:
+        run_decoding_for_one_electrode_set(
+            args=args,
+            rois=rois,
+            condition_names=condition_names,
+            condition_comparisons=condition_comparisons,
+            electrodes=electrodes,
+            subjects_mne_objects=subjects_mne_objects,
+            base_save_dir=save_dir,
+            elec_string_to_add_to_filename=elec_string_to_add_to_filename,
+            folds_info_str=folds_info_str,
+            electrode_set_name=None,
+        )
         return
-    
-    print(f"\n{'-'*20} PARALLEL BOOTSTRAPPING COMPLETE {'='*20}\n")
-    
-    # after all bootstraps complete, run pooled statistics
-    all_bootstrap_stats = compute_pooled_bootstrap_statistics(
-        time_window_decoding_results,
-        args.bootstraps,
-        condition_comparisons,
-        rois,
-        percentile=args.percentile,
-        cluster_percentile=args.cluster_percentile,
-        n_cluster_perms=args.n_cluster_perms,
-        random_state=args.random_state,
-        unit_of_analysis=args.unit_of_analysis
-    )
-    
-    sub_str = str(len(args.subjects))
-    sub_str_with_ids = "_".join([str(len(args.subjects))] + [s.strip().replace('D00', "").replace('D0', "") for s in args.subjects])
-    
-    analysis_params_str = (
-            f"job{args.slurm_job_id}_"
-            f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_" 
-            f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
-            f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
-        )   
-                
-    master_results = {
-        'stats': all_bootstrap_stats,
-        'metadata': {
-            'args': vars(args), # Save all arguments from the run
-            'analysis_params_str': analysis_params_str
-        },
-        'comparison_clusters': {} # We will populate this in the loops below
-    }
-       
-    # define color and linestyle for plotting true vs shuffle
-    colors = {
-        'true': '#0173B2',  # Blue
-        'shuffle': '#949494'  # Gray
-    }
-    
-    linestyles = {
-        'true': '-',
-        'shuffle': '--'
-    }  
-    
-    # then plot using the pooled statistics
-    for condition_comparison in condition_comparisons.keys():
-        for roi in rois:
-            if roi in all_bootstrap_stats[condition_comparison]:
-                stats = all_bootstrap_stats[condition_comparison][roi] 
-                time_window_centers = time_window_decoding_results[0][condition_comparison][roi]['time_window_centers']
-                
-                # extract the correct keys based on unit_of_analysis
-                unit = stats['unit_of_analysis']
-                
-                plot_accuracies_nature_style(
-                    time_points=time_window_centers,
-                    accuracies_dict={
-                        'true': stats[f'{unit}_true_accs'], # use the full distribution
-                        'shuffle': stats[f'{unit}_shuffle_accs']
-                    },
-                    significant_clusters=stats['significant_clusters'],
-                    window_size=args.window_size,
-                    step_size=args.step_size,
-                    sampling_rate=args.sampling_rate,
-                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}',
-                    roi=roi,
-                    save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
-                    timestamp=args.timestamp,
-                    p_thresh=args.percentile,
-                    colors=colors,
-                    linestyles=linestyles,
-                    single_column=args.single_column,
-                    show_legend=args.show_legend,
-                    ylim=(0.3, 1.0),
-                    show_chance_level=False, # The pooled shuffle line is the new chance level 
-                    filename_suffix=analysis_params_str  
-                )    
-                
-    # pooled cm traces for debugging        
-    run_debug_cm_traces(
-        time_window_decoding_results=time_window_decoding_results,
-        condition_comparisons=condition_comparisons,
-        rois=rois,
-        cats_by_roi=cats_by_roi,
-        args=args,
-        save_dir=save_dir,
-        analysis_params_str=analysis_params_str,
-    )
-    
-    # run context comparisons comparing true vs. true decoding and also true vs. shuffle decoding for lwpc, lwps, etc.         
-    run_all_context_comparisons(
-        args=args,
-        time_window_decoding_results=time_window_decoding_results,
-        all_bootstrap_stats=all_bootstrap_stats,
-        master_results=master_results,
-        rois=rois,
-        save_dir=save_dir,
-        analysis_params_str=analysis_params_str,
-    )
-                
-    # --- Save all results to a single file ---
-    results_filename = f"{args.timestamp}_MASTER_RESULTS_{analysis_params_str}_{args.condition_label}.pkl"
-    
-    results_save_path = os.path.join(save_dir, results_filename)
-    
-    # Try to grab time_window_centers and add to metadata
-    try:
-        first_comp = list(time_window_decoding_results[0].keys())[0]
-        first_roi = list(time_window_decoding_results[0][first_comp].keys())[0]
-        twc = time_window_decoding_results[0][first_comp][first_roi]['time_window_centers']
-        master_results['metadata']['time_window_centers'] = twc
-    except Exception as e:
-        print(f"Warning: Could not save time_window_centers to metadata. {e}")
 
-    print(f"\n💾 Saving all statistical results to: {results_save_path}")
-    with open(results_save_path, 'wb') as f:
-        pickle.dump(master_results, f)
+    print(f"\n{'='*20} RUNNING DECODING FOR {len(electrode_sets)} ELECTRODE SETS: "
+          f"{list(electrode_sets)} {'='*20}\n")
+    for set_name, elecset in electrode_sets.items():
+        run_decoding_for_one_electrode_set(
+            args=args,
+            rois=rois,
+            condition_names=condition_names,
+            condition_comparisons=condition_comparisons,
+            electrodes=elecset,
+            subjects_mne_objects=subjects_mne_objects,
+            base_save_dir=save_dir,
+            elec_string_to_add_to_filename=elec_string_to_add_to_filename,
+            folds_info_str=folds_info_str,
+            electrode_set_name=set_name,
+        )
 
-    print("\n✅ Analysis and saving complete.")
+
                   
 if __name__ == "__main__":
     # This block is only executed when someone runs this script directly

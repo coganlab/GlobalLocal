@@ -25,8 +25,19 @@ def run_aggregate_and_plot_time_averaged_cms(
     cats_by_roi,
     args,
     save_dir,
+    electrode_set_desc_fn=None,
+    filename_suffix="",
 ):
-    
+    """Aggregate and plot the time-averaged confusion matrices.
+
+    ``electrode_set_desc_fn`` : callable(roi) -> str, optional
+        Returns a one-line description of the electrode set these CMs were
+        decoded from; appended to the title so a figure is attributable when
+        several electrode sets are run in one job.
+    ``filename_suffix`` : str, optional
+        Appended to the filename for the same reason.
+    """
+
     # --- Step 1: Aggregate and Plot Time-Averaged CMs ---
     print("\n📊 Aggregating and plotting time-averaged confusion matrices...")
     for condition_comparison in condition_comparisons.keys():
@@ -58,10 +69,16 @@ def run_aggregate_and_plot_time_averaged_cms(
             fig, ax = plt.subplots()
             disp = ConfusionMatrixDisplay(confusion_matrix=normalized_cm, display_labels=display_labels)
             disp.plot(ax=ax, im_kw={"vmin": 0, "vmax": 1}, colorbar=True)
-            ax.set_title(f'{roi} - {condition_comparison}\n(Counts summed across {args.bootstraps} bootstraps)')
+            title_lines = [f'{roi} - {condition_comparison}']
+            if electrode_set_desc_fn is not None:
+                title_lines.append(electrode_set_desc_fn(roi))
+            title_lines.append(f'(Counts summed across {args.bootstraps} bootstraps)')
+            ax.set_title("\n".join(title_lines), fontsize=9)
 
+            suffix = f'_{filename_suffix}' if filename_suffix else ''
             filename = (
-                f'{args.timestamp}_{roi}_{condition_comparison}_SUMMED_{args.bootstraps}boots_ev_{args.explained_variance}'
+                f'{args.timestamp}_{args.condition_label}_{roi}_{condition_comparison}_SUMMED_'
+                f'{args.bootstraps}boots_ev_{args.explained_variance}{suffix}_'
                 f'time_averaged_confusion_matrix.png'
             )
             plot_save_path = os.path.join(save_dir, condition_comparison, roi)
