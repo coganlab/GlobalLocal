@@ -775,6 +775,24 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
 # interaction but with a Type III ANOVA F rather than a within-electrode
 # permutation, so the two should agree closely and cross-check each other's
 # assumptions. Both feed `cmh_conjunction` unchanged (same output columns).
+def _scalar_hg(hg):
+    """Per-trial hg as plain scalars, reducing time-course cells to window means.
+
+    `assemble_long_df(..., effect_measure='cluster' | 'peak_t')` stores each
+    trial's windowed time COURSE in `hg` (one object cell per trial) so the
+    time-resolved measures can use it. The parametric ANOVA route in this
+    section is defined on the window MEAN, so every quantity it reports has to
+    be computed on that same reduction -- the fit in `_anova_interaction_stats`
+    and the `<g>_sign` direction that accompanies each F/p alike. Reducing in
+    only one of the two places is what made `per_electrode_anova_labels` raise
+    from `_require_scalar_hg` on a cluster-mode table.
+    """
+    hg = pd.Series(hg)
+    if hg.dtype == object:                   # cluster-mode time courses
+        return hg.apply(np.nanmean).to_numpy(dtype=float)
+    return hg.to_numpy(dtype=float)
+
+
 def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
     """One electrode's two-way Type III ANOVA; return {'F', 'p'} for the
     interaction term (NaN, NaN on a singular fit / missing cell).
@@ -786,7 +804,7 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
     is the window-mean scalar; a time-course cell is reduced to its mean."""
     d = elec_df
     if d[hg_col].dtype == object:            # cluster-mode time courses -> window mean
-        d = d.assign(**{hg_col: d[hg_col].apply(lambda a: np.nanmean(a))})
+        d = d.assign(**{hg_col: _scalar_hg(d[hg_col])})
     try:
         formula = f"{hg_col} ~ C({cond_col}, Sum) * C({mod_col}, Sum)"
         model = smf.ols(formula, data=d).fit()
@@ -844,6 +862,13 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     module's own equal-cell-weight estimator `_interaction_effect(..., 'cohens_d')`
     -- the same quantity the continuous §2 correlation uses) so the direction can
     be REPORTED downstream, but it is not used to include or exclude electrodes.
+
+    This is the window-MEAN route throughout. A table built for a time-resolved
+    measure (`assemble_long_df(..., effect_measure='cluster' | 'peak_t')`) holds
+    per-trial time courses in `hg`; they are reduced to window means here, so
+    passing one is fine and the F/p and `<g>_sign` still describe the same
+    statistic. For a cluster-corrected, time-resolved definition use
+    `power_traces_conjunction` instead.
     FDR (Benjamini-Hochberg) is applied across electrodes per interaction; each
     flag is set at `alpha`."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
@@ -859,7 +884,10 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
                   ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
-        hg = g['hg'].to_numpy()
+        # Window means, matching the ANOVA fit below: a cluster-mode table holds
+        # per-trial time courses, and the signed direction has to describe the
+        # same statistic its F/p does (see `_scalar_hg`).
+        hg = _scalar_hg(g['hg'])
         rec = dict(subject=subj, electrode=elec)
         for name, cond_col, mod_col, cond_sub, mod_sub in specs:
             stats = _anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded

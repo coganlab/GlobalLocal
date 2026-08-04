@@ -68,9 +68,52 @@ WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimu
 WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
 # --- electrode selection + A1 electrode definition ---
+# Two independent choices, easy to conflate:
+#   ELECTRODES  = which electrodes are LOADED into the decoded ROI array at all.
+#                 'sig' keeps the baseline task-significant ones in the ROIs,
+#                 'all' keeps every electrode in the ROIs. (With ROIS_DICT=None
+#                 no ROI/significance filter is applied and every channel is used.)
+#   the GROUPS   = how those loaded electrodes are then split for the decodes:
+#                 both / S_only / F_only from the interaction labels, plus the
+#                 unselected REFERENCE_GROUP over all of them.
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
+
+# Which route defines the S/F electrode labels:
+#   'anova'        -- one ANOVA per electrode on window-mean HG over [WINDOW_TMIN,
+#                     WINDOW_TMAX], computed in this job (self-contained default).
+#   'power_traces' -- read the finished within-electrode WINDOWED ANOVA runs and
+#                     their permutation cluster correction, so the decoded sets
+#                     are exactly the electrodes the power-trace figures call
+#                     significant. More sensitive to transient interactions the
+#                     window mean dilutes; requires the run directories below.
+ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
+
+# power_traces route: either ONE run whose ANOVA carried all four interactions,
+#   POWER_TRACES_RUN_DIR=/path/to/run
+# or one directory per interaction,
+#   POWER_TRACES_CPC=... POWER_TRACES_SPS=... POWER_TRACES_CPS=... POWER_TRACES_SPC=...
+_pt_single = os.environ.get('POWER_TRACES_RUN_DIR')
+_pt_per_group = {g: os.environ.get(f'POWER_TRACES_{g}')
+                 for g in ('CPC', 'SPS', 'CPS', 'SPC')}
+_pt_per_group = {g: p for g, p in _pt_per_group.items() if p}
+POWER_TRACES_RUNS = _pt_per_group or _pt_single
+# 'fdr_bh' (BH across electrodes — the family a test that COUNTS electrodes
+# needs), 'cluster' (raw cluster p, matching the existing lab convention), or 'none'.
+POWER_TRACES_CORRECTION = os.environ.get('POWER_TRACES_CORRECTION', 'fdr_bh')
+POWER_TRACES_ROI = os.environ.get('POWER_TRACES_ROI')       # None = don't filter by ROI
+
+# The unselected reference set decoded alongside both/S_only/F_only: every
+# electrode in the decoded ROI array (so ELECTRODES above decides whether that
+# means "all" or "all baseline-significant"). Set REFERENCE_GROUP='' to drop it.
+REFERENCE_GROUP = os.environ.get('REFERENCE_GROUP', 'all')
+
+# Temporal generalization costs n_windows^2 decodes per matrix, so it runs on a
+# chosen subset of the groups. TEMPGEN_GROUPS='both,all' adds the unselected
+# reference matrix; TEMPGEN_GROUPS='' skips the design entirely.
+TEMPGEN_GROUPS = tuple(g.strip() for g in
+                       os.environ.get('TEMPGEN_GROUPS', 'both').split(',') if g.strip())
 
 # --- decoding hyperparameters (the ordinary pipeline's) ---
 WINDOW_SIZE = int(os.environ.get('WINDOW_SIZE', '20'))      # samples per decoding window
@@ -113,6 +156,12 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
+        electrode_definition=ELECTRODE_DEFINITION,
+        power_traces_runs=POWER_TRACES_RUNS,
+        power_traces_correction=POWER_TRACES_CORRECTION,
+        power_traces_roi=POWER_TRACES_ROI,
+        reference_group=REFERENCE_GROUP,
+        tempgen_groups=TEMPGEN_GROUPS,
         roi=ROI,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
@@ -137,6 +186,11 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES}")
     print("-" * 72)
+    print(f"Elec definition:  {ELECTRODE_DEFINITION}"
+          + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
+             f"roi={POWER_TRACES_ROI})" if ELECTRODE_DEFINITION == 'power_traces' else ""))
+    print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
+          f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
     print(f"alpha (A1):       {ALPHA} | ROI: {ROI}")
     print(f"window/step:      {WINDOW_SIZE}/{STEP_SIZE} samples "
           f"| n_splits: {N_SPLITS} | n_repeats: {N_REPEATS}")
