@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 DCC core for A3 — anatomy of the stability/flexibility subpopulations
-(`docs/stability_flexibility_analysis_plan.md` §3).
+(`docs/analysis_guide.md` §16).
 
 Takes a per-electrode S/F definition and asks the descriptive-anatomy question on
 top of it: *are the distinct subpopulations in different PLACES?* — while

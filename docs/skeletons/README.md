@@ -4,9 +4,9 @@ Runnable-but-unimplemented stubs for the A1–A6 assignments. Each `aN_*.py` fil
 is the strongest hint for assignment `AN`: real function signatures, docstrings
 with numbered implementation steps, and `raise NotImplementedError` bodies to
 fill in. The assignment order and each assignment's method live in
-[`../stability_flexibility_guide.md`](../stability_flexibility_guide.md) (§9.0
-for the order; A1 → §3, A2 → §5, A3 → §6, A4 → §7.1, A5 → §7.2, A6 → §7.3), and
-the cross-cutting acceptance checklist is guide §2.
+[`../analysis_guide.md`](../analysis_guide.md) (§22.1 for the order; A1/A2 →
+§14, A3 → §16, A4 → §17, A5 → §18, A6 → §19), and the cross-cutting acceptance
+checklist is §12.1.
 
 - Every file's **module docstring** names its **drop-in target** — the
   production module the finished code belongs in — and the exact existing
@@ -44,5 +44,5 @@ The one assignment with **no** reference solution is **A7**, the self-check in
    target + imports to reuse).
 2. Implement each function, following the numbered steps in its docstring.
 3. Test against the synthetic generator (`_synthetic_df` in the segregation
-   module) and the acceptance criteria in guide §2.
+   module) and the acceptance criteria in §12.1 of the analysis guide.
 4. Compare against the production module named above.

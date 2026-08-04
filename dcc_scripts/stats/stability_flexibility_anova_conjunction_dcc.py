@@ -5,7 +5,7 @@ parametric per-electrode ANOVA electrode definition (A1) and the overlap /
 conjunction inference (A2).
 
 This is the *population-organization* answer from
-`docs/stability_flexibility_analysis_plan.md` (§1 electrode definition, §2
+`docs/analysis_guide.md` §14 (§14.1 electrode definition, §14.3
 conjunction), the parametric sibling of the continuous/CMH job in
 `stability_flexibility_segregation_dcc.py`. It:
 

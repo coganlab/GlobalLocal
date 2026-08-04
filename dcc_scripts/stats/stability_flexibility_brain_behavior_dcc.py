@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 DCC core for A6 — brain-behavior correlation
-(`docs/stability_flexibility_guide.md` §6).
+(`docs/analysis_guide.md` §19).
 
 Ties the A1 neural selectivity to the ACTUAL behavioral control adjustment, so the
 substrates are shown to be *functional* rather than incidental. Two levels with

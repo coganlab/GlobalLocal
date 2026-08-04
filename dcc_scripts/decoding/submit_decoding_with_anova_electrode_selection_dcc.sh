@@ -26,7 +26,7 @@
 #
 # Splitting on trials is what makes the "define on X, decode X" cells readable
 # at all: the decoder never sees a selection trial. The contrast-level guard
-# still applies on top -- see docs/stability_flexibility_guide.md §3.2 and §8.
+# still applies on top -- see docs/analysis_guide.md §14.1 and §21.
 #
 # Usage:
 #   bash submit_decoding_with_anova_electrode_selection_dcc.sh

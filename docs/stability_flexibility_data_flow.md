@@ -9,8 +9,7 @@ function turn it into?"* — the thing that is hard to see from the source alone
 
 | Doc | Answers |
 |---|---|
-| `docs/analysis_paths.md` | *Where does each analysis live?* (§12 is the battery's map) |
-| `docs/stability_flexibility_guide.md` | *Why is it designed this way?* (plan, rigor checklist, line-by-line) |
+| `docs/analysis_guide.md` | *Where does each analysis live, why is it designed this way, and how do I run it?* (Part III is the battery) |
 | `docs/stability_flexibility_segregation_methods.md` | *How do I write it up?* (manuscript Methods) |
 | **this doc** | ***What does the data look like at each step?*** |
 
@@ -51,7 +50,7 @@ per (electrode, trial)**.
 | `switch_proportion` | block-level, `25.0` / `75.0` |
 
 **Where it comes from on real data.** The saved high-gamma epochs (§4 of
-`analysis_paths.md`) are loaded with `create_subjects_mne_objects_dict`, the
+`analysis_guide.md`) are loaded with `create_subjects_mne_objects_dict`, the
 window is averaged (or kept, for the time-resolved measures), and the epochs'
 `metadata` supplies the four design columns. The DCC launchers in
 `dcc_scripts/stats/` do this for you; `DATA_SOURCE=synthetic` swaps in the fake
@@ -563,7 +562,7 @@ where `w(t)` is the trial's cell weight in the LWPC difference-of-differences
 other). A subject's mean `adj_congruency` is therefore their behavioral LWPC / 4.
 RT and the group HG are both **centred within subject**, so the mixed-model slope
 is a purely within-subject quantity. Full statement in
-`dcc_scripts/stats/README.md` (A6).
+`docs/analysis_guide.md` §19.
 
 ---
 
@@ -680,10 +679,9 @@ A1  ->  A6           (function)
 
 | Want | Go to |
 |---|---|
-| Where each analysis lives, and its launcher | `docs/analysis_paths.md` §12 |
-| Why it's designed this way, line-by-line | `docs/stability_flexibility_guide.md` |
+| Where each analysis lives, why, and how to launch it | `docs/analysis_guide.md` (Part III) |
 | Manuscript Methods text | `docs/stability_flexibility_segregation_methods.md` |
 | Fill-in-the-blank practice, A1→A6 | `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb` |
 | Per-analysis tutorials | `stability_flexibility_*_tutorial.ipynb`, `cross_decoding_tutorial.ipynb`, `trial_splitting_tutorial.ipynb` |
 | Runnable stubs | `docs/skeletons/aN_*.py` |
-| How to launch on DCC | `dcc_scripts/stats/README.md`, `dcc_scripts/decoding/README_stability_flexibility_cross_decoding.md` |
+| How to launch on DCC | `docs/analysis_guide.md` §§14–21 (per-analysis "Scripts") |

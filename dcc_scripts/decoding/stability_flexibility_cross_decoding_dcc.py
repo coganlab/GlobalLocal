@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 DCC core for A4 — cross-decoding of the stability/flexibility subpopulations
-(`docs/stability_flexibility_guide.md` §7.1).
+(`docs/analysis_guide.md` §17).
 
 Co-localization != shared CODE. A1/A2 can show the *same electrodes* are selective
 for both stability (LWPC) and flexibility (LWPS); this job asks the

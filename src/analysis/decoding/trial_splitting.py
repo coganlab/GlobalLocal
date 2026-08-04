@@ -4,8 +4,8 @@ Motivation
 ----------
 When decoding is restricted to a *selected* electrode set, and that selection is
 computed on the **same trials** the decoder then scores, the selection biases the
-decoding accuracy upward (double-dipping; see plan §0.1/§0.2 and
-`docs/decoding_and_electrode_definition_notes.md` §C). The bulletproof fix is a
+decoding accuracy upward (double-dipping; see `docs/analysis_guide.md` §12.1
+principle 1 and §21). The bulletproof fix is a
 disjoint trial partition:
 
     1. split each subject's trials into a definition set (``P_def``) and a

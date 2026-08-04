@@ -4,8 +4,8 @@
 # between electrode selection and decoding accuracy.
 #
 # This is the "generate significant electrodes -> run decoding" pipeline done the
-# bulletproof way (plan §0.1/§0.2; docs/decoding_and_electrode_definition_notes.md
-# §C). It reuses the ordinary decoding job (sbatch_decoding_dcc.sh ->
+# bulletproof way (docs/analysis_guide.md §12.1 principle 1; §21.2 documents
+# this launcher). It reuses the ordinary decoding job (sbatch_decoding_dcc.sh ->
 # run_decoding_dcc.py -> decoding_dcc.py) but flips on the disjoint
 # electrode-definition / decoding split via environment variables:
 #
