@@ -223,6 +223,24 @@ def stability_flexibility_strings(cells):
             class_strings(cells, 'switchType', 's', 'r'))
 
 
+def factors_are_crossed(cells):
+    """True when congruency and switchType CROSS in `cells` — every combination of
+    their levels is present, so the two labellings are separable.
+
+    This is what makes a transfer identifiable, and it is not implied by both
+    factors being declared. `stimulus_iS_cR_err_conditions` declares both but
+    only as the cells iS and cR, so congruency and switchType split those trials
+    IDENTICALLY: a classifier trained on congruency and scored against switchType
+    is scored on the contrast it was trained on, and reports the within-contrast
+    accuracy as if it were perfect transfer. Nothing downstream can detect that —
+    it is a high number, not an error — so callers running a genuine cross-decode
+    must check here.
+    """
+    combos = {(c['congruency'], c['switchType']) for c in cells.values()}
+    levels = [{c[f] for c in cells.values()} for f in CROSS_DECODE_FIELDS]
+    return all(len(l) > 1 for l in levels) and len(combos) == len(levels[0]) * len(levels[1])
+
+
 def has_block_factor(cells, field):
     """True when `cells` can be split on `field` — every cell declares it and at
     least two levels are present.
@@ -341,6 +359,17 @@ def _normalize_groups(strings_to_find):
     return [list(g) for g in strings_to_find]
 
 
+def _same_partition(a, b):
+    """True when two labellings of the same trials split them the SAME way —
+    identical, or a pure renaming of the classes (e.g. 0/1 flipped).
+
+    Two labellings induce one partition exactly when the observed (a, b) pairs
+    number no more than the classes of either side: a genuinely crossed 2x2 shows
+    all four pairs, a confounded one only two.
+    """
+    return len({(x, y) for x, y in zip(a, b)}) <= max(len(set(a)), len(set(b)))
+
+
 def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
                                 test_strings, obs_axs=0):
     """Turn one ROI's LabeledArray into the arrays `cv_cm_jim_window_shuffle` needs.
@@ -410,6 +439,23 @@ def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
         if len(set(lab)) < 2:
             raise ValueError(f"the {name} contrast labelled every surviving "
                              f"condition the same class; nothing to decode")
+
+    # A CROSS-decode over two factors that are CONFOUNDED in the surviving
+    # conditions is not a transfer at all: the two labellings split the trials
+    # identically, so scoring against `labels_test` scores the contrast that was
+    # trained on and the "transfer" accuracy is just the within-contrast decode.
+    # Nothing downstream can detect this -- it does not error, it returns a high
+    # number that reads as perfect transfer. Requesting the same contrast for
+    # train and test is the legitimate case (that IS the within-block design), so
+    # only a genuine cross-decode is rejected.
+    if train_groups != test_groups and _same_partition(labels_train, labels_test):
+        raise ValueError(
+            f"the two contrasts are CONFOUNDED across the surviving conditions "
+            f"{kept}: they split the trials the same way, so training on one and "
+            f"scoring the other measures the trained contrast, not a transfer. A "
+            f"cross-decode needs conditions in which the two factors CROSS (all "
+            f"four congruency x switchType combinations present), e.g. "
+            f"stimulus_experiment_conditions or stimulus_main_effect_conditions.")
 
     return dict(
         data=np.concatenate(chunks, axis=obs_axs),

@@ -87,9 +87,18 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 # every 'i' cell vs every 'c' cell. The 16-cell set does not restrict the
 # transfer to within a block — only designs (0)/(0b) split by block.
 #
-# Condition sets carrying just one factor (stimulus_congruency_conditions,
-# stimulus_switch_type_conditions) cannot be used: the two labellings would come
-# from separate epoch sets over the same trials, so train and test would overlap.
+# `response_experiment_conditions` is the response-locked 16-cell equivalent and
+# works the same way (pair it with a response-locked EPOCHS_ROOT_FILE).
+#
+# What CANNOT be used, and why:
+#   - sets carrying just one factor (stimulus_congruency_conditions,
+#     stimulus_switch_type_conditions): the two labellings would come from
+#     separate epoch sets over the same trials, so train and test would overlap.
+#   - sets where the two factors are CONFOUNDED rather than crossed
+#     (stimulus_iS_cR_err_conditions and its iR_cS / response_* siblings): they
+#     declare both factors, but only on cells like iS and cR, where congruency
+#     and switchType split the trials identically. main() rejects these — see
+#     `cd.factors_are_crossed`.
 CONDITIONS = getattr(experiment_conditions,
                      os.environ.get('CONDITIONS', 'stimulus_experiment_conditions'))
 

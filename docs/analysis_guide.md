@@ -1870,14 +1870,32 @@ it is the ALL-congruency vs ALL-switchType decode over all trials. Using the
 (0)/(0b) split by block, and comparing their two block levels' accuracies is what
 makes them the decoding analogue of LWPC / LWPS.
 
-A condition must declare `congruency` **and** `switchType` on the same cell —
-that is the only hard requirement, because a transfer needs both labellings of
-the *same trial*. Two sets are useful (`CONDITIONS=<name>`):
+A condition set must satisfy two things, because a transfer needs both labellings
+of the *same trial* and needs them to be separable:
+
+1. every condition declares `congruency` **and** `switchType`;
+2. the two factors **cross** — all four combinations present
+   (`cd.factors_are_crossed`).
+
+Condition (2) is not implied by (1), and this is the trap:
+`stimulus_iS_cR_err_conditions` (and its `iR_cS` / `response_*` siblings) declare
+both factors but only on the cells `iS` and `cR`, where congruency and switchType
+split the trials **identically**. Training on one and scoring the other then
+measures the contrast that was trained on, and reports the within-contrast
+accuracy as perfect transfer — a high number, not an error. `main` refuses such a
+set up front, and `build_cross_decoding_arrays` refuses the same confound when it
+arises from *filtering* instead of from the config.
+
+Two sets are useful (`CONDITIONS=<name>`):
 
 | `CONDITIONS` | Cells | Designs that run | Why pick it |
 |---|---|---|---|
 | `stimulus_experiment_conditions` (default) | 16 — the full 2×2×2×2 | all of (0), (0b), (a), (c) | the only set that supports the within-block designs; also stratifies the CV folds on **all four** factors, so no fold can be lopsided on a proportion |
 | `stimulus_main_effect_conditions` | 4 — `Stimulus_i{r,s}` / `Stimulus_c{r,s}`, both proportions collapsed | (a) and (c); (0)/(0b) skipped | same pooled transfer with **~4× the trials per cell**, hence less NaN padding / `mixup2` fill in the pseudopopulation. Folds are then stratified on congruency × switchType only |
+
+`response_experiment_conditions` is the response-locked 16-cell equivalent of the
+default and works identically (pair it with a response-locked `EPOCHS_ROOT_FILE`).
+No other dict in `experiment_conditions.py` passes both requirements.
 
 `cd.has_block_factor` is what decides: it returns False for a proportion the
 condition set pools over, and the block-split designs are **skipped with a

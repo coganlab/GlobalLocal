@@ -630,6 +630,21 @@ def main(args):
 
     # Contrasts and block sets, read off each condition's declared factor levels
     # rather than parsed out of its name (see `cd.condition_cells`).
+    # A transfer is only identifiable if the two factors CROSS. Declaring both is
+    # not enough: a set like `stimulus_iS_cR_err_conditions` holds only the iS and
+    # cR cells, where congruency and switchType split the trials identically, so
+    # every "cross" decode below would silently re-report the within-contrast
+    # decode as perfect transfer. Fail here rather than emit that number.
+    if not cd.factors_are_crossed(cells):
+        raise ValueError(
+            f"congruency and switchType do not CROSS in this condition set "
+            f"(cells: {sorted(cells)}), so a cross-decode is not identifiable — "
+            "training on one contrast and scoring the other would measure the "
+            "contrast that was trained on. Use a set in which all four "
+            "congruency x switchType combinations are present: "
+            "stimulus_experiment_conditions (full 2x2x2x2) or "
+            "stimulus_main_effect_conditions (pooled over both proportions).")
+
     stab_strings, flex_strings = cd.stability_flexibility_strings(cells)
     # A condition set that POOLS over a proportion (e.g.
     # `stimulus_main_effect_conditions`, the 2x2 for the all-vs-all transfer) has

@@ -105,6 +105,54 @@ def test_has_block_factor_separates_the_two_condition_sets(real_cells, pooled_ce
             cd.block_condition_sets(pooled_cells, field)
 
 
+@pytest.mark.parametrize('name', ['stimulus_iS_cR_err_conditions',
+                                  'stimulus_iR_cS_err_conditions',
+                                  'response_iS_cR_err_conditions',
+                                  'response_iR_cS_err_conditions'])
+def test_confounded_condition_sets_are_not_crossed(name):
+    """These declare BOTH factors, but only on cells like iS and cR — congruency
+    and switchType then split the trials IDENTICALLY (for iR/cS the two labellings
+    come out complementary, which is the same partition under a renaming), so a
+    transfer would silently report the within-contrast decode as perfect."""
+    cells = cd.condition_cells(getattr(ec, name))
+    stab, flex = cd.stability_flexibility_strings(cells)
+    assert cd._same_partition([cd._class_of(n, stab) for n in cells],
+                              [cd._class_of(n, flex) for n in cells])
+    assert not cd.factors_are_crossed(cells)
+
+
+def test_the_usable_condition_sets_are_crossed(real_cells, pooled_cells):
+    assert cd.factors_are_crossed(real_cells)
+    assert cd.factors_are_crossed(pooled_cells)
+
+
+def test_main_refuses_a_confounded_condition_set(tmp_path, monkeypatch):
+    cells = cd.condition_cells(ec.stimulus_iS_cR_err_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+    with pytest.raises(ValueError, match='do not CROSS'):
+        xd.main(_stub_args(tmp_path, ec.stimulus_iS_cR_err_conditions))
+
+
+def test_a_filter_that_leaves_a_confounded_pair_is_caught(pooled_cells):
+    """The same confound can arise from FILTERING rather than from the config —
+    here the contrasts differ as strings, so the label-vector guard is what
+    catches it."""
+    arrays = {'roi': {n: np.zeros((4, 2, 3)) for n in pooled_cells}}
+    stab, flex = cd.stability_flexibility_strings(pooled_cells)
+    kept = cd.filter_conditions(arrays, 'roi', ['Stimulus_is', 'Stimulus_cr'])
+    with pytest.raises(ValueError, match='CONFOUNDED'):
+        cd.build_cross_decoding_arrays(kept, 'roi', stab, flex)
+
+
+def test_the_same_contrast_twice_is_still_allowed(pooled_cells):
+    """Train == test is the within-block design, not a confound — it must not
+    trip the crossing guard."""
+    arrays = {'roi': {n: np.zeros((4, 2, 3)) for n in pooled_cells}}
+    stab, _ = cd.stability_flexibility_strings(pooled_cells)
+    built = cd.build_cross_decoding_arrays(arrays, 'roi', stab, stab)
+    assert np.array_equal(built['labels_train'], built['labels_test'])
+
+
 def test_the_pooled_transfer_uses_every_trial(pooled_cells):
     """The point of the pooled set: each class spans all four proportion cells, so
     the transfer is trained and scored on ALL trials, not within a block."""
