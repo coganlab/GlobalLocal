@@ -7,7 +7,7 @@ Wrapped by sbatch_stability_flexibility_anova_conjunction_dcc.sh for the cluster
 
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ALPHA,
-N_PERM_NULL, THRESHOLDS) so you can rerun without editing Python.
+N_PERM_NULL, THRESHOLDS, CONTRAST_MODE, FDR_CORRECTION) so you can rerun without editing Python.
 """
 import sys
 import os
@@ -66,6 +66,8 @@ ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 
 # --- A1/A2 hyperparameters ---
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 N_PERM_NULL = int(os.environ.get('N_PERM_NULL', '10000'))  # A2 overlap-null perms
 SEED = int(os.environ.get('SEED', '0'))
@@ -82,7 +84,8 @@ THRESHOLDS = ([float(x) for x in _thr_env.split(',')] if _thr_env
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag,
-                        f'anova_conjunction_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}')
+                        f'anova_conjunction_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
+                        f'_{CONTRAST_MODE}_{FDR_CORRECTION}')
 
 
 def run_analysis():
@@ -101,6 +104,8 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
+        contrast_mode=CONTRAST_MODE,
+        fdr_correction=FDR_CORRECTION,
         n_perm_null=N_PERM_NULL,
         seed=SEED,
         crosscheck_nonparametric=CROSSCHECK_NONPARAMETRIC,
@@ -119,6 +124,8 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print("-" * 70)
+    print(f"contrast_mode:    {CONTRAST_MODE}")
+    print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"alpha:            {ALPHA}")
     print(f"n_perm_null:      {N_PERM_NULL} | seed: {SEED}")
     print(f"thresholds:       {THRESHOLDS}")

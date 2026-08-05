@@ -681,13 +681,15 @@ def mixedlm_check(d):
 # ----------------------------------------------------------------------------
 def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
                          contrast_mode='condition', contrasts=None,
-                         effect_measure='cohens_d'):
+                         effect_measure='cohens_d', fdr_correction='fdr_bh'):
     """Binary S (stability-selective) and F (flexibility-selective) per electrode,
-    from within-electrode permutation p-values, FDR-corrected across electrodes.
+    from within-electrode permutation p-values, optionally FDR-corrected across electrodes.
 
     `contrast_mode`/`contrasts`/`effect_measure` behave as in
     `compute_sensitivities`. Output columns keep the names `p_cong`/`q_cong`
-    (stability) and `p_switch`/`q_switch` (flexibility) whatever the contrast."""
+    (stability) and `p_switch`/`q_switch` (flexibility) whatever the contrast.
+    `fdr_correction='none'` leaves q-values equal to raw p-values and flags at
+    raw p < alpha for exploratory threshold-sensitivity runs."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)
     rng = np.random.default_rng(seed)
@@ -760,8 +762,14 @@ def per_electrode_labels(df, n_perm=2000, alpha=0.05, seed=2,
                          p_cong=perm_p('stability', '_slab', '_scond', '_smod'),
                          p_switch=perm_p('flexibility', '_flab', '_fcond', '_fmod')))
     out = pd.DataFrame(recs)
-    out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
-    out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
+    if fdr_correction not in ('fdr_bh', 'none'):
+        raise ValueError("fdr_correction must be 'fdr_bh' or 'none'")
+    if fdr_correction == 'fdr_bh':
+        out['q_cong'] = multipletests(out['p_cong'].fillna(1), method='fdr_bh')[1]
+        out['q_switch'] = multipletests(out['p_switch'].fillna(1), method='fdr_bh')[1]
+    else:
+        out['q_cong'] = out['p_cong']
+        out['q_switch'] = out['p_switch']
     out['S'] = (out['q_cong'] < alpha).astype(int)
     out['F'] = (out['q_switch'] < alpha).astype(int)
     return out
@@ -816,8 +824,28 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
         return {'F': np.nan, 'p': np.nan}                  # singular / missing cell
 
 
+def _anova_simple_stats(elec_df, lab_col, hg_col='hg'):
+    """One electrode's one-factor ANOVA for a simple two-level contrast."""
+    d = elec_df
+    if d[hg_col].dtype == object:
+        d = d.assign(**{hg_col: _scalar_hg(d[hg_col])})
+    try:
+        sub = d.dropna(subset=[lab_col, hg_col])
+        if sub[lab_col].nunique() < 2:
+            return {'F': np.nan, 'p': np.nan}
+        formula = f"{hg_col} ~ C({lab_col}, Sum)"
+        model = smf.ols(formula, data=sub).fit()
+        aov = anova_lm(model, typ=3)
+        row = f"C({lab_col}, Sum)"
+        return {'F': float(aov.loc[row, 'F']),
+                'p': float(aov.loc[row, 'PR(>F)'])}
+    except Exception:
+        return {'F': np.nan, 'p': np.nan}
+
+
 def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
-                               contrasts=None, include_cross_controls=True):
+                               contrasts=None, include_cross_controls=True,
+                               fdr_correction='fdr_bh'):
     """Parametric per-electrode selectivity labels from the two-way interaction
     ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
     Drop-in `labels` for `cmh_conjunction`.
@@ -869,19 +897,28 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     passing one is fine and the F/p and `<g>_sign` still describe the same
     statistic. For a cluster-corrected, time-resolved definition use
     `power_traces_conjunction` instead.
-    FDR (Benjamini-Hochberg) is applied across electrodes per interaction; each
-    flag is set at `alpha`."""
+    FDR (Benjamini-Hochberg) is applied across electrodes per interaction by
+    default; each flag is set at `alpha`. Set `fdr_correction='none'` to copy
+    raw p-values into the q-value columns and flag on raw p < alpha for
+    exploratory threshold-sensitivity runs."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
-    # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
-    # mod_sublabel). The sub-label columns were attached by _canonical_labels:
-    # _scond=congruency, _smod=incongruent_proportion, _fcond=switchType,
-    # _fmod=switch_proportion -- so the two cross specs are just those recombined.
-    specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
-             ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
-    if include_cross_controls:
-        specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
-                  ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
+    if _is_interaction(contrasts['stability']) or _is_interaction(contrasts['flexibility']):
+        # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
+        # mod_sublabel). The sub-label columns were attached by _canonical_labels:
+        # _scond=congruency, _smod=incongruent_proportion, _fcond=switchType,
+        # _fmod=switch_proportion -- so the two cross specs are just those recombined.
+        specs = [('cpc', 'interaction', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+                 ('sps', 'interaction', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+        if include_cross_controls:
+            specs += [('cps', 'interaction', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+                      ('spc', 'interaction', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
+    else:
+        # Main-effect reanalysis: keep the downstream CPC/SPS/S/F schema, but the
+        # two flags now mean the simple stability/flexibility contrasts selected
+        # by `contrast_mode='condition'` (congruency and switchType by default).
+        specs = [('cpc', 'simple', None, None, '_slab', None),
+                 ('sps', 'simple', None, None, '_flab', None)]
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
         # Window means, matching the ANOVA fit below: a cluster-mode table holds
@@ -889,16 +926,26 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
         # same statistic its F/p does (see `_scalar_hg`).
         hg = _scalar_hg(g['hg'])
         rec = dict(subject=subj, electrode=elec)
-        for name, cond_col, mod_col, cond_sub, mod_sub in specs:
-            stats = _anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+        for name, kind, cond_col, mod_col, cond_sub, mod_sub in specs:
+            stats = (_anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+                     if kind == 'interaction' else _anova_simple_stats(g, cond_sub))
             rec[f'p_{name}'] = stats['p']
             rec[f'F_{name}'] = stats['F']
-            rec[f'{name}_sign'] = np.sign(_interaction_effect(     # signed d-o-d direction
-                hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
+            if kind == 'interaction':
+                effect = _interaction_effect(     # signed d-o-d direction
+                    hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha)
+            else:
+                effect = _contrast_effect(g.assign(hg=hg), cond_sub, 'cohens_d', alpha)
+            rec[f'{name}_sign'] = np.sign(effect)
         recs.append(rec)
     out = pd.DataFrame(recs)
+    if fdr_correction not in ('fdr_bh', 'none'):
+        raise ValueError("fdr_correction must be 'fdr_bh' or 'none'")
     for name, *_ in specs:
-        out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+        if fdr_correction == 'fdr_bh':
+            out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
+        else:
+            out[f'q_{name}'] = out[f'p_{name}']
         # Direction-agnostic: flag on the two-sided interaction significance only.
         # The `<g>_sign` column still records which way each electrode's effect
         # goes for downstream reporting, but the sign is NOT used to gate selection
@@ -1078,7 +1125,8 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                                     n_splits=200, n_perm_corr=10000,
                                     n_perm_label=2000, alpha=0.05, min_elec=3,
                                     contrast_mode='condition', contrasts=None,
-                                    effect_measure='cohens_d'):
+                                    effect_measure='cohens_d',
+                                    fdr_correction='fdr_bh'):
     elec = add_responsiveness(
         compute_sensitivities(df, n_splits, contrast_mode=contrast_mode,
                               contrasts=contrasts, effect_measure=effect_measure,
@@ -1088,7 +1136,8 @@ def run_joint_distribution_analysis(df, responsiveness=None,
     corr = subject_clustered_corr(cont, n_perm=n_perm_corr)
     labels = per_electrode_labels(df, n_perm=n_perm_label, alpha=alpha,
                                   contrast_mode=contrast_mode, contrasts=contrasts,
-                                  effect_measure=effect_measure)
+                                  effect_measure=effect_measure,
+                                  fdr_correction=fdr_correction)
     conj = cmh_conjunction(labels)
     return dict(electrodes=elec.merge(labels[['electrode', 'S', 'F']], on='electrode'),
                 continuous=cont, correlation=corr, labels=labels, conjunction=conj,
