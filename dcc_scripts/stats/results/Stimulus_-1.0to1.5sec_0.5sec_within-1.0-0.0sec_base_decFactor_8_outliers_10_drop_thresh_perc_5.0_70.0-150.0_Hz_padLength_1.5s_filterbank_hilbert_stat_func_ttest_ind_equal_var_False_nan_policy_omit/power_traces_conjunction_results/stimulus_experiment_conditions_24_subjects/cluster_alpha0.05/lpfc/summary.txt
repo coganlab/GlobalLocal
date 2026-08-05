@@ -1,0 +1,32 @@
+========================================================================
+STABILITY vs FLEXIBILITY - CONJUNCTION ON power_traces ELECTRODES
+========================================================================
+               data_source: real
+                      runs: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/figs/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_within_electrode/stimulus_experiment_conditions_24_subjects
+                       roi: lpfc
+                correction: cluster
+                     alpha: 0.05
+               require_all: True
+               n_perm_null: 10000
+                thresholds: [0.01]
+        continuous_control: True
+                  save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/power_traces_conjunction_results/stimulus_experiment_conditions_24_subjects/cluster_alpha0.05/lpfc
+------------------------------------------------------------------------
+electrodes: 195  subjects: 11  (roi=lpfc, correction=cluster)
+  both=2  S-only=11  F-only=20  neither=162
+  MH odds ratio = 3.647   CMH p = 0.06518   homogeneity p = 0.2235
+  shared - distinct = -29  (null -32.1 +/- 2.2, z = 1.40)
+  p(shared > distinct, one-sided) = 0.2154   two-sided = 0.2154
+  cross controls (should be near-null):
+    CPC  congruency x incongruentProportion              13/195 (6.7%)
+    SPS  switchType x switchProportion                   22/195 (11.3%)
+    CPS  congruency x switchProportion                    5/195 (2.6%)
+    SPC  switchType x incongruentProportion               5/195 (2.6%)
+------------------------------------------------------------------------
+continuous correlation (responsiveness-residualised, disjoint trial halves, within-subject centred):
+    peak_t     rho = +0.090  p = 0.4565   (85 electrodes, 9 subjects)
+  rho range across measures: [+0.090, +0.090]
+  -> Null under every measure. Note a null correlation is NOT evidence for distinctness; only the count test's OR < 1 can supply that.
+========================================================================
+Reading: MH OR < 1 / overlap below null -> segregation (distinct populations); OR > 1 / overlap above null -> shared core; ~1 -> independent.
+Note 'shared - distinct' is a monotone function of the 'both' count under this null, so it is the SAME test as the joint-count permutation -- not a second, independent line of evidence.

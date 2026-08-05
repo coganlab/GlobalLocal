@@ -119,7 +119,7 @@ MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subj
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
-SAVE_DIR = os.path.join(current_script_dir, 'segregation_results', _tag,
+SAVE_DIR = os.path.join(current_script_dir, _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
                         f'_{CONTRAST_MODE}_{EFFECT_MEASURE}')
 

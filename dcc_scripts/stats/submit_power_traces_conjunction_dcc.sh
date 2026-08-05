@@ -55,8 +55,8 @@ REQUIRE_ALL=${REQUIRE_ALL:-1}
 # noise, and both inflate the 'both' cell. Turn this on before reporting a
 # shared-core claim. Its window is taken from the run, not set here.
 # ---------------------------------------------------------------------------
-RUN_CONTINUOUS=${RUN_CONTINUOUS:-0}
-ELECTRODES=${ELECTRODES:-all}      # 'all' or 'sig'
+RUN_CONTINUOUS=${RUN_CONTINUOUS:-1}
+ELECTRODES=${ELECTRODES:-sig}      # 'all' or 'sig'
 EFFECT_MEASURES=${EFFECT_MEASURES:-peak_t,cluster,cohens_d}
 N_SPLITS=${N_SPLITS:-50}
 N_PERM_CORR=${N_PERM_CORR:-1000}

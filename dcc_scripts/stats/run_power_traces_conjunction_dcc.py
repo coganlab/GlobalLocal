@@ -159,7 +159,7 @@ if DATA_SOURCE == 'synthetic':
 else:
     _ref = PT_RUN if PT_RUN else (PT_RUN_DIRS.get('CPC') or 'unknown_run')
     _tag = os.path.basename(os.path.normpath(_ref))
-SAVE_DIR = os.path.join(current_script_dir, 'power_traces_conjunction_results',
+SAVE_DIR = os.path.join(current_script_dir, 'results', EPOCHS_ROOT_FILE, 'power_traces_conjunction_results',
                         _tag, f'{CORRECTION}_alpha{ALPHA}')
 
 
