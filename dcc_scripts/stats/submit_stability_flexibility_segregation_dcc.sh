@@ -20,6 +20,13 @@ ELECTRODES=sig            # 'all' or 'sig'
 # Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
 DATA_SOURCE=${DATA_SOURCE:-real}
 
+# Contrast/electrode-label options.
+CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+EFFECT_MEASURE=${EFFECT_MEASURE:-cluster}    # cohens_d | cluster | peak_t
+ALPHA=${ALPHA:-0.05}
+MIN_ELEC=${MIN_ELEC:-3}
+
 # Permutation counts (lower these for a quick test run).
 # N_SPLITS=${N_SPLITS:-200}
 # N_PERM_CORR=${N_PERM_CORR:-1000}
@@ -30,7 +37,7 @@ N_PERM_CORR=${N_PERM_CORR:-100}
 N_PERM_LABEL=${N_PERM_LABEL:-100}
 mkdir -p out
 
-echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE)"
+echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
 sbatch --job-name="segreg_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC" \
     sbatch_stability_flexibility_segregation_dcc.sh
