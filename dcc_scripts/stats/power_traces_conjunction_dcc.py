@@ -208,6 +208,9 @@ def save_results(labels, res, save_dir):
     """Write the label table, the conjunction/null JSONs, and the raw nulls."""
     os.makedirs(save_dir, exist_ok=True)
     labels.to_csv(os.path.join(save_dir, 'labels.csv'), index=False)
+    funnel = pd.DataFrame(labels.attrs.get('label_funnel', []))
+    if not funnel.empty:
+        funnel.to_csv(os.path.join(save_dir, 'label_funnel.csv'), index=False)
     res['cross_controls'].to_csv(
         os.path.join(save_dir, 'cross_controls.csv'), index=False)
     if 'sweep' in res:
@@ -433,6 +436,15 @@ def write_summary(labels, res, save_dir, meta, control=None, alpha=0.05):
         lines.append(f"  NOTE: {labels.attrs['n_dropped']} electrode(s) dropped -- "
                      "not present in every requested run (require_all=True). A 2x2 "
                      "built over inconsistent denominators is not interpretable.")
+    funnel = pd.DataFrame(labels.attrs.get('label_funnel', []))
+    if not funnel.empty:
+        lines += [
+            "  label funnel (where power_traces counts can drop):",
+            funnel.to_string(index=False),
+            "  Reading: run_raw_p_lt_alpha is the like-for-like raw cluster count "
+            "from the power-traces run. final_flagged is the count actually used "
+            "here after run alignment and the requested correction.",
+        ]
     if control is not None:
         lines += ["-" * 72, ptc.summarize_confound_control(control, alpha=alpha)]
     else:
