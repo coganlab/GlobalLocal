@@ -357,6 +357,10 @@ def load_power_traces_labels(args, alpha):
           f"S={int(labels['S'].sum())} F={int(labels['F'].sum())} "
           f"(dropped {labels.attrs.get('n_dropped', 0)} electrodes missing from "
           f"some run)")
+    funnel = pd.DataFrame(labels.attrs.get('label_funnel', []))
+    if not funnel.empty:
+        print("power_traces label funnel:")
+        print(funnel.to_string(index=False))
     return labels
 
 
@@ -402,6 +406,10 @@ def main(args):
             labels = load_power_traces_labels(args, alpha)
         labels.to_csv(os.path.join(args.save_dir, 'electrode_labels.csv'),
                       index=False)
+        funnel = pd.DataFrame(labels.attrs.get('label_funnel', []))
+        if not funnel.empty:
+            funnel.to_csv(os.path.join(args.save_dir, 'label_funnel.csv'),
+                          index=False)
 
         # electrode -> anatomy maps from the shared atlas, at BOTH levels -------
         from src.analysis.utils.general_utils import load_existing_subjects_electrodes_to_ROIs_dict

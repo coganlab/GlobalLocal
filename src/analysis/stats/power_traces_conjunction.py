@@ -198,6 +198,51 @@ def _best_cluster_per_electrode(summary, effect_names, roi=None):
     return out
 
 
+def label_funnel(per_group, final_labels, alpha=0.05, correction=None):
+    """Count how the power-traces electrode universe shrinks at each step.
+
+    The power-traces run itself can have many significant electrodes for a single
+    interaction, but the conjunction/anatomy scripts ask a stricter question:
+    "among electrodes that are co-registered across the requested interaction
+    runs, how many survive the requested correction for CPC and SPS on the same
+    denominator?"  This helper makes that drop-off explicit.
+
+    Returns a DataFrame with one row per interaction group and columns for the
+    run-level tested/surviving counts, the post-alignment denominator, and the
+    final flagged count used by the conjunction table.
+    """
+    rows = []
+    final_index = final_labels.set_index(['subject', 'electrode', 'roi']).index
+    for group, tbl in per_group.items():
+        g = group.lower()
+        tested = int(len(tbl))
+        p = pd.Series(tbl['p_cluster']).fillna(1.0).to_numpy()
+        raw = int((p < alpha).sum())
+        in_final = int(tbl.index.isin(final_index).sum())
+        aligned = tbl.reindex(final_index)
+        aligned_p = pd.Series(aligned['p_cluster']).fillna(1.0).to_numpy()
+        aligned_raw = int((aligned_p < alpha).sum())
+        final_sig = (int(final_labels[group].sum())
+                     if group in final_labels.columns else np.nan)
+        final_q = (f'q_{g}' if f'q_{g}' in final_labels.columns
+                   and final_labels[f'q_{g}'].notna().any() else None)
+        rows.append(dict(
+            group=group,
+            run_tested_electrodes=tested,
+            run_raw_p_lt_alpha=raw,
+            run_raw_p_lt_alpha_frac=(raw / tested if tested else np.nan),
+            present_after_alignment=in_final,
+            dropped_by_alignment=tested - in_final,
+            aligned_raw_p_lt_alpha=aligned_raw,
+            final_flagged=final_sig,
+            final_flagged_frac=(final_sig / len(final_labels)
+                                if len(final_labels) and not pd.isna(final_sig)
+                                else np.nan),
+            final_correction=(correction or ('fdr_bh' if final_q else None)),
+        ))
+    return pd.DataFrame(rows)
+
+
 # ----------------------------------------------------------------------------
 # honest uncorrected cluster p-values, recomputed from the saved null
 # ----------------------------------------------------------------------------
@@ -406,8 +451,10 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
 
     out['S'] = out['CPC']
     out['F'] = out['SPS']
+    funnel = label_funnel(per_group, out, alpha=alpha, correction=correction)
     out.attrs.update(n_dropped=int(n_union - len(out)), correction=correction,
-                     alpha=alpha, roi=roi, source='power_traces')
+                     alpha=alpha, roi=roi, source='power_traces',
+                     label_funnel=funnel.to_dict(orient='records'))
     return out
 
 
