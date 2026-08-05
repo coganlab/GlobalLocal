@@ -36,6 +36,7 @@ SYNTHETIC_STAB_ONSET=${SYNTHETIC_STAB_ONSET:-0.20}
 SYNTHETIC_FLEX_ONSET=${SYNTHETIC_FLEX_ONSET:-0.40}
 
 # A5 hyperparameters.
+CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS; condition=congruency/switch main effects (exploratory)
 # STATISTIC: 'mean' = grand-average d-o-d(t); 't' = t across electrodes (noise-
 # normalized, often a cleaner flank). Report both if they disagree.
 STATISTIC=${STATISTIC:-mean}
@@ -44,7 +45,7 @@ SEED=${SEED:-0}
 
 mkdir -p out
 
-echo "Submitting stability/flexibility A5 timing (source=$DATA_SOURCE)"
+echo "Submitting stability/flexibility A5 timing (source=$DATA_SOURCE, contrast=$CONTRAST_MODE)"
 sbatch --job-name="sf_timing_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_N_SUBJ="$SYNTHETIC_N_SUBJ",SYNTHETIC_STAB_ONSET="$SYNTHETIC_STAB_ONSET",SYNTHETIC_FLEX_ONSET="$SYNTHETIC_FLEX_ONSET",STATISTIC="$STATISTIC",ALPHA="$ALPHA",SEED="$SEED" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_N_SUBJ="$SYNTHETIC_N_SUBJ",SYNTHETIC_STAB_ONSET="$SYNTHETIC_STAB_ONSET",SYNTHETIC_FLEX_ONSET="$SYNTHETIC_FLEX_ONSET",STATISTIC="$STATISTIC",CONTRAST_MODE="$CONTRAST_MODE",ALPHA="$ALPHA",SEED="$SEED" \
     sbatch_stability_flexibility_timing_dcc.sh

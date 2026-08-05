@@ -26,7 +26,7 @@ cluster; call `main(args)` with a populated argument namespace.
 The df assembly and synthetic generator are reused verbatim from the sibling
 segregation DCC core, so the input table is built identically. A1 needs the
 window-MEAN scalar HG, so this job always runs with effect_measure='cohens_d'
-and contrast_mode='proportion' (the LWPC/LWPS interactions).
+and contrast_mode from the environment (default 'proportion', the LWPC/LWPS interactions).
 """
 
 import warnings
@@ -68,8 +68,10 @@ from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
 
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
-# A1 is defined on the LWPC/LWPS interactions, scored on window-mean HG.
-CONTRAST_MODE = 'proportion'
+# A1 defaults to LWPC/LWPS interactions, scored on window-mean HG.
+# Set CONTRAST_MODE=condition to rerun the same A1/A2 machinery on congruency
+# and switchType main-effect electrode definitions.
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cohens_d'
 
 
@@ -271,8 +273,10 @@ def main(args):
     alpha = getattr(args, 'alpha', 0.05)
 
     print(f"LAB_root: {LAB_root}")
-    print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE} "
-          f"(A1 needs window-mean scalar HG)")
+    contrast_mode = getattr(args, 'contrast_mode', CONTRAST_MODE)
+    fdr_correction = getattr(args, 'fdr_correction', 'fdr_bh')
+    print(f"contrast_mode: {contrast_mode} | effect_measure: {EFFECT_MEASURE} "
+          f"(A1 needs window-mean scalar HG) | fdr_correction: {fdr_correction}")
     os.makedirs(args.save_dir, exist_ok=True)
 
     # 1. build the long-format df -------------------------------------------------
@@ -294,14 +298,15 @@ def main(args):
     for col in ('incongruent_proportion', 'switch_proportion'):
         if col not in df.columns or df[col].isna().all():
             raise RuntimeError(
-                f"df is missing usable '{col}' — the A1/A2 (proportion) analysis "
+                f"df is missing usable '{col}' — the A1/A2 proportion analysis "
                 "needs the block-proportion columns. Check the epochs metadata.")
     df.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
 
     # 2. A1 — parametric per-electrode ANOVA labels -------------------------------
     print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
     anova_labels = sfs.per_electrode_anova_labels(
-        df, alpha=alpha, contrast_mode=CONTRAST_MODE)
+        df, alpha=alpha, contrast_mode=contrast_mode,
+        fdr_correction=fdr_correction)
 
     # optional cross-check vs the nonparametric definition (same balanced
     # interaction, permutation estimator) — a sanity check, not part of the result
@@ -309,7 +314,7 @@ def main(args):
         print("     cross-checking against nonparametric per_electrode_labels ...")
         nonpar = sfs.per_electrode_labels(
             df, n_perm=getattr(args, 'n_perm_label', 2000), alpha=alpha,
-            contrast_mode=CONTRAST_MODE)
+            contrast_mode=contrast_mode, fdr_correction=fdr_correction)
         m = anova_labels.merge(nonpar[['electrode', 'S', 'F']], on='electrode',
                                suffixes=('_anova', '_nonpar'))
         for col in ('S', 'F'):
@@ -346,7 +351,7 @@ def main(args):
                       window=f"[{args.window_tmin}, {args.window_tmax}]s",
                       electrodes=args.electrodes,
                       rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
-                      contrast_mode=CONTRAST_MODE, effect_measure=EFFECT_MEASURE,
-                      alpha=alpha, n_perm_null=args.n_perm_null,
+                      contrast_mode=contrast_mode, effect_measure=EFFECT_MEASURE,
+                      fdr_correction=fdr_correction, alpha=alpha, n_perm_null=args.n_perm_null,
                       thresholds=list(args.thresholds), save_dir=args.save_dir))
     return dict(anova_labels=anova_labels, conjunction=conj, null=null, sweep=sweep)

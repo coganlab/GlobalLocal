@@ -86,7 +86,7 @@ from src.analysis.stats import stability_flexibility_timing as sft
 # analysis modules import — including a laptop with no cluster environment.
 
 # A5 is only defined for the 2x2 LWPC/LWPS interactions, and needs time courses.
-CONTRAST_MODE = 'proportion'
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cluster'
 
 

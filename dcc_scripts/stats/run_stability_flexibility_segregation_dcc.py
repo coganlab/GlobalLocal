@@ -6,7 +6,7 @@ Wrapped by sbatch_stability_flexibility_segregation_dcc.sh for cluster submissio
 
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES,
-N_SPLITS, N_PERM_CORR, N_PERM_LABEL) so you can rerun without editing Python.
+N_SPLITS, N_PERM_CORR, N_PERM_LABEL, FDR_CORRECTION) so you can rerun without editing Python.
 """
 import sys
 import os
@@ -114,6 +114,7 @@ RESPONSIVENESS = None
 N_SPLITS = int(os.environ.get('N_SPLITS', '200'))          # disjoint-half resamples
 N_PERM_CORR = int(os.environ.get('N_PERM_CORR', '10000'))  # continuous-test perms
 N_PERM_LABEL = int(os.environ.get('N_PERM_LABEL', '2000')) # per-electrode label perms
+FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subject
 
@@ -121,7 +122,7 @@ MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subj
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
 SAVE_DIR = os.path.join(current_script_dir, _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
-                        f'_{CONTRAST_MODE}_{EFFECT_MEASURE}')
+                        f'_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
 
 
 def run_analysis():
@@ -146,6 +147,7 @@ def run_analysis():
         n_perm_corr=N_PERM_CORR,
         n_perm_label=N_PERM_LABEL,
         alpha=ALPHA,
+        fdr_correction=FDR_CORRECTION,
         min_elec=MIN_ELEC,
         save_dir=SAVE_DIR,
     )
@@ -173,6 +175,7 @@ def run_analysis():
     print(f"n_perm_corr:      {N_PERM_CORR}")
     print(f"n_perm_label:     {N_PERM_LABEL}")
     print(f"alpha:            {ALPHA} | min_elec: {MIN_ELEC}")
+    print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 70)
 

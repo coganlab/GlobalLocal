@@ -76,6 +76,7 @@ ROIS_DICT = None
 # 'mean' = grand-average the per-electrode d-o-d(t) (the information time course);
 # 't'    = noise-normalized t across electrodes, often a cleaner rising flank.
 STATISTIC = os.environ.get('STATISTIC', 'mean')
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 SEED = int(os.environ.get('SEED', '0'))
 
@@ -106,6 +107,7 @@ def run_analysis():
         rois_dict=ROIS_DICT,
         statistic=STATISTIC,
         alpha=ALPHA,
+        contrast_mode=CONTRAST_MODE,
         seed=SEED,
         save_dir=SAVE_DIR,
     )

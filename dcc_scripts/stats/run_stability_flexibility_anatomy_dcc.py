@@ -119,6 +119,8 @@ ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 
 # --- A1 hyperparameter (the electrode definition A3 sits on) ---
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 
 # --- A3 hyperparameters ---
@@ -184,6 +186,8 @@ def run_analysis():
         make_brain=MAKE_BRAIN,
         brain_hemi=BRAIN_HEMI,
         alpha=ALPHA,
+        contrast_mode=CONTRAST_MODE,
+        fdr_correction=FDR_CORRECTION,
         min_subjects=MIN_SUBJECTS,
         n_perm=N_PERM,
         seed=SEED,
@@ -210,6 +214,8 @@ def run_analysis():
     print(f"Anatomical level: {ANAT_LEVEL}")
     print(f"Brain figure:     {'yes' if MAKE_BRAIN else 'no'} (hemi={BRAIN_HEMI})")
     print("-" * 70)
+    print(f"contrast_mode:    {CONTRAST_MODE}")
+    print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"alpha (A1):       {ALPHA}")
     print(f"min_subjects:     {MIN_SUBJECTS} | n_perm: {N_PERM} | seed: {SEED}")
     print(f"Save dir:         {SAVE_DIR}")
