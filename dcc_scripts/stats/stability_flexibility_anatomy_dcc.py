@@ -91,7 +91,7 @@ from src.analysis.stats import stability_flexibility_anatomy as sfa
 from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
 
 # A3 is defined on the A1 electrodes: LWPC/LWPS interactions on window-mean HG.
-CONTRAST_MODE = 'proportion'
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cohens_d'
 
 # column the counting/testing runs on, per ANAT_LEVEL
@@ -325,8 +325,9 @@ def load_a1_labels(args, LAB_root, alpha):
     df.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
 
     print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
-    return sfs.per_electrode_anova_labels(df, alpha=alpha,
-                                          contrast_mode=CONTRAST_MODE)
+    return sfs.per_electrode_anova_labels(
+        df, alpha=alpha, contrast_mode=CONTRAST_MODE,
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
 
 def load_power_traces_labels(args, alpha):
@@ -382,7 +383,7 @@ def main(args):
         print(f"LAB_root: {LAB_root}")
     print(f"label source: {label_source} | ROI filter: {roi_filter or 'none (whole brain)'} "
           f"| anatomical level: {anat_level}")
-    print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE}")
+    print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE} | fdr_correction: {getattr(args, 'fdr_correction', 'fdr_bh')}")
     os.makedirs(args.save_dir, exist_ok=True)
 
     # 1. per-electrode S/F labels (+ electrode -> anatomy maps) -------------------
@@ -487,6 +488,7 @@ def main(args):
                       window=f"[{getattr(args, 'window_tmin', None)}, "
                              f"{getattr(args, 'window_tmax', None)}]s",
                       contrast_mode=CONTRAST_MODE, effect_measure=EFFECT_MEASURE,
+                      fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
                       alpha=alpha, min_subjects=min_subjects,
                       n_perm=args.n_perm, save_dir=args.save_dir))
     return dict(labels_with_roi=lab_roi, coverage=coverage, enrichment=enrich,

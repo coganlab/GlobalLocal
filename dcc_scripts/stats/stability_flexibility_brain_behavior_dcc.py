@@ -108,7 +108,7 @@ from src.analysis.stats import stability_flexibility_brain_behavior as sbb
 # job's own logic anywhere the analysis modules import.
 
 # A6 sits on the A1 electrodes: LWPC/LWPS interactions on window-mean HG.
-CONTRAST_MODE = 'proportion'
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cohens_d'
 
 STAB, FLEX = "#2c7fb8", "#d95f0e"
@@ -511,7 +511,7 @@ def main(args):
     run_trialwise = getattr(args, 'run_trialwise', True)
     notes = []
 
-    print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE}")
+    print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE} | fdr_correction: {getattr(args, 'fdr_correction', 'fdr_bh')}")
     os.makedirs(args.save_dir, exist_ok=True)
 
     trial_df = None
@@ -556,7 +556,8 @@ def main(args):
 
         print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
         labels = sfs.per_electrode_anova_labels(
-            df, alpha=alpha, contrast_mode=CONTRAST_MODE)
+            df, alpha=alpha, contrast_mode=CONTRAST_MODE,
+            fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
         # 2. behavior ---------------------------------------------------------------
         print(f"behavior: {args.behavior_csv}")
@@ -642,6 +643,7 @@ def main(args):
                       window=f"[{getattr(args, 'window_tmin', None)}, "
                              f"{getattr(args, 'window_tmax', None)}]s",
                       contrast_mode=CONTRAST_MODE, effect_measure=EFFECT_MEASURE,
+                      fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
                       primary_neural_summary=primary, alpha=alpha,
                       save_dir=args.save_dir))
     return dict(labels=labels, behavior=behavior, across=across,
