@@ -99,8 +99,18 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 #     declare both factors, but only on cells like iS and cR, where congruency
 #     and switchType split the trials identically. main() rejects these — see
 #     `cd.factors_are_crossed`.
-CONDITIONS = getattr(experiment_conditions,
-                     os.environ.get('CONDITIONS', 'stimulus_experiment_conditions'))
+CONDITIONS_NAME = os.environ.get('CONDITIONS', '').strip() or 'stimulus_experiment_conditions'
+if not hasattr(experiment_conditions, CONDITIONS_NAME):
+    valid_conditions = sorted(
+        name for name, value in vars(experiment_conditions).items()
+        if name.endswith('_conditions') and isinstance(value, dict)
+    )
+    raise ValueError(
+        f"CONDITIONS={CONDITIONS_NAME!r} is not defined in "
+        "src.analysis.config.experiment_conditions. "
+        f"Choose one of: {valid_conditions}"
+    )
+CONDITIONS = getattr(experiment_conditions, CONDITIONS_NAME)
 
 # --- ROI + electrode selection ---
 # Three independent choices, easy to conflate:
