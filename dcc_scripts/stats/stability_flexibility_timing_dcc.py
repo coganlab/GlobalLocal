@@ -22,7 +22,7 @@ Pipeline:
      each trace. Normalizing to each effect's OWN peak is what defeats the
      latency-amplitude confound -- a bigger effect crosses any *absolute*
      threshold sooner, so without it "earlier" would just rename "larger".
-  4. `sft.jackknife_onset_difference`: onsets read off SMOOTH leave-one-subject-out
+  4. `sft.jackknife_onset_difference`: onsets read off SMOOTH leave-one-electrode-out
      grand averages, jackknife SE, and the Ulrich-Miller `(N-1)`-corrected paired
      t on the LWPC - LWPS difference. That signed difference with its CI is the
      headline.
@@ -153,7 +153,7 @@ def save_results(times, traces, onsets, jk, save_dir):
         os.path.join(save_dir, 'interaction_time_courses.csv'), index=False)
 
     # the N leave-one-out onset pairs behind the jackknife SE
-    pd.DataFrame(dict(left_out_index=np.arange(len(jk['onset_lwpc_loo'])),
+    pd.DataFrame(dict(left_out_unit=jk.get('left_out_units', np.arange(len(jk['onset_lwpc_loo']))),
                       onset_lwpc=jk['onset_lwpc_loo'],
                       onset_lwps=jk['onset_lwps_loo'],
                       diff=jk['diffs'])).to_csv(
@@ -161,7 +161,7 @@ def save_results(times, traces, onsets, jk, save_dir):
 
     # the headline test (arrays stripped -- they are in the CSVs above)
     payload = {k: v for k, v in jk.items()
-               if k not in ('onset_lwpc_loo', 'onset_lwps_loo', 'diffs')}
+               if k not in ('onset_lwpc_loo', 'onset_lwps_loo', 'diffs', 'left_out_units')}
     payload.update(onsets)
     with open(os.path.join(save_dir, 'onset_difference.json'), 'w') as f:
         json.dump(_json_safe(payload), f, indent=2)
@@ -201,8 +201,8 @@ def make_plots(times, traces, onsets, jk, save_dir, statistic='mean'):
     x = np.arange(len(jk['onset_lwpc_loo']))
     ax[1].plot(x, jk['onset_lwpc_loo'], 'o-', color='#2c7fb8', label='LWPC onset')
     ax[1].plot(x, jk['onset_lwps_loo'], 'o-', color='#d95f0e', label='LWPS onset')
-    ax[1].set(title="A5 · leave-one-subject-out onsets",
-              xlabel="index of the left-out subject", ylabel="onset (s)")
+    ax[1].set(title="A5 · leave-one-electrode-out onsets",
+              xlabel="index of the left-out electrode", ylabel="onset (s)")
     ax[1].legend(fontsize=8)
 
     # (3) the leave-one-out differences + the CI on the jackknife estimate
@@ -276,7 +276,7 @@ def write_summary(times, onsets, jk, save_dir, meta, guard_onset, alpha=0.05):
         f"      peak  difference (LWPC - LWPS) = {jk['peak_diff']:+.4f} s",
         f"      onset and peak agree on the ordering: {peak_check}",
         "-" * 70,
-        f"JACKKNIFE (Ulrich-Miller, N = {jk['n_subjects']} subjects):",
+        f"JACKKNIFE (Ulrich-Miller, N = {jk['n_electrodes']} electrodes):",
         f"      mean leave-one-out difference = {jk['diff']:+.4f} s",
         f"      jackknife SE                  = {jk['se']:.4f} s",
         f"      95% CI                        = [{jk['ci'][0]:+.4f}, {jk['ci'][1]:+.4f}] s",
@@ -332,8 +332,9 @@ def main(args):
             seed=getattr(args, 'seed', 0),
             stab_onset=getattr(args, 'synthetic_stab_onset', 0.20),
             flex_onset=getattr(args, 'synthetic_flex_onset', 0.40))
+        n_elec = int(df[['subject', 'electrode']].drop_duplicates().shape[0])
         print(f"synthetic df: {len(df)} rows | {df.subject.nunique()} subjects | "
-              f"{df.electrode.nunique()} electrodes | {len(times)} time bins")
+              f"{n_elec} electrodes | {len(times)} time bins")
         print(f"planted onsets: LWPC={getattr(args, 'synthetic_stab_onset', 0.20)}s "
               f"LWPS={getattr(args, 'synthetic_flex_onset', 0.40)}s")
     else:
@@ -353,8 +354,9 @@ def main(args):
         times = window_times(subjects_epochs, args.window_tmin, args.window_tmax)
         df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
                               electrodes_to_keep=keep, effect_measure=EFFECT_MEASURE)
+        n_elec = int(df[['subject', 'electrode']].drop_duplicates().shape[0])
         print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
-              f"{df.electrode.nunique()} electrodes | {len(times)} time bins "
+              f"{n_elec} electrodes | {len(times)} time bins "
               f"({times[0]:.3f} -> {times[-1]:.3f}s)")
         for col in ('incongruent_proportion', 'switch_proportion'):
             if col not in df.columns or df[col].isna().all():
@@ -367,9 +369,10 @@ def main(args):
         # reusable artifact.
 
     n_subj = int(df['subject'].nunique())
-    if n_subj < 3:
-        raise RuntimeError(f"the jackknife needs >= 3 subjects; the assembled "
-                           f"table has {n_subj}")
+    n_electrodes = int(df[['subject', 'electrode']].drop_duplicates().shape[0])
+    if n_electrodes < 3:
+        raise RuntimeError(f"the jackknife needs >= 3 electrodes; the assembled "
+                           f"table has {n_electrodes}")
 
     # 2. interaction magnitude over time, per process ------------------------------
     print("A5: per-bin equal-cell-weight difference-of-differences, per process")
@@ -388,7 +391,7 @@ def main(args):
           f"LWPS onset={onsets['onset_lwps']:.4f}s peak={onsets['peak_lwps']:.4f}s")
 
     # 4. jackknifed onset-difference test ------------------------------------------
-    print(f"A5: Ulrich-Miller jackknife over {n_subj} leave-one-subject-out "
+    print(f"A5: Ulrich-Miller jackknife over {n_electrodes} leave-one-electrode-out "
           f"grand averages")
     jk = sft.jackknife_onset_difference(
         df, contrast_mode=CONTRAST_MODE, times=times, statistic=statistic)
@@ -401,7 +404,7 @@ def main(args):
                       data_source=args.data_source, task=args.task,
                       epochs_root_file=getattr(args, 'epochs_root_file', None),
                       n_subjects=n_subj,
-                      n_electrodes=int(df['electrode'].nunique()),
+                      n_electrodes=n_electrodes,
                       window=f"[{times[0]:.3f}, {times[-1]:.3f}]s "
                              f"({len(times)} bins)",
                       contrast_mode=CONTRAST_MODE, effect_measure=EFFECT_MEASURE,
