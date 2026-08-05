@@ -27,6 +27,9 @@ Designs:
       reference group (`args.reference_group`, default 'all' = every electrode in
       the decoded ROI array). Prediction: only 'both' cross-decodes; the
       reference group says what the region does before any selection.
+      This design is ALREADY pooled: its classes are every 'i' cell vs every 'c'
+      cell and every 's' cell vs every 'r' cell, across both block proportions.
+      Only design (0)/(0b) splits by proportion.
   (c) temporal generalization (Fig 10): train-window × test-window accuracy
       matrix, within a contrast and across contrasts, on `args.tempgen_groups`
       (default: the 'both' group).
@@ -38,6 +41,13 @@ this job, 'power_traces' reads the finished cluster-corrected windowed-ANOVA run
 Contrast and block definitions are read off each condition's declared factor
 levels (`cd.condition_cells`), not parsed out of condition names — the real and
 synthetic naming conventions collide on the obvious shorthand tokens.
+
+A condition set only has to declare congruency AND switchType on the same
+condition. With the full 2x2x2x2 (`stimulus_experiment_conditions`, the default)
+every design above runs. With the pooled 2x2 (`stimulus_main_effect_conditions`,
+which collapses both proportions into 4 cells and so puts ~4x the trials in each)
+designs (a) and (c) run unchanged over more trials per cell, and (0)/(0b) are
+skipped — see `cd.has_block_factor`.
 
 Design (b) "set comparison" is just the same contrast decoded within each
 electrode set — an ordinary decode with `electrodes` restricted — and is covered
@@ -504,7 +514,7 @@ def _build_roi_arrays(args, LAB_root):
 
     cells = cd.condition_cells(args.conditions)
     condition_names = list(cells)
-    print(f"conditions: {len(condition_names)} full 2x2x2x2 cells "
+    print(f"conditions: {len(condition_names)} decodable cells "
           f"(of {len(args.conditions)} in the condition set)")
 
     subjects_mne_objects = create_subjects_mne_objects_dict(
@@ -621,10 +631,21 @@ def main(args):
     # Contrasts and block sets, read off each condition's declared factor levels
     # rather than parsed out of its name (see `cd.condition_cells`).
     stab_strings, flex_strings = cd.stability_flexibility_strings(cells)
-    blocks = {'incongruent_proportion': cd.block_condition_sets(cells, 'incongruent_proportion'),
-              'switch_proportion': cd.block_condition_sets(cells, 'switch_proportion')}
-    print("block levels: "
-          + "  ".join(f"{f}={sorted(levels)}" for f, levels in blocks.items()))
+    # A condition set that POOLS over a proportion (e.g.
+    # `stimulus_main_effect_conditions`, the 2x2 for the all-vs-all transfer) has
+    # no block contrast to make, so the block-split designs below are skipped
+    # rather than run on a constant. Label transfer and temporal generalization
+    # are unaffected: they never split by block in the first place.
+    blocks = {f: cd.block_condition_sets(cells, f)
+              for f in ('incongruent_proportion', 'switch_proportion')
+              if cd.has_block_factor(cells, f)}
+    if blocks:
+        print("block levels: "
+              + "  ".join(f"{f}={sorted(levels)}" for f, levels in blocks.items()))
+    else:
+        print("block levels: none — the condition set pools over both proportions, "
+              "so the within-block designs A4(0)/A4(0b) are skipped and only the "
+              "pooled label transfer / temporal generalization run")
 
     results = {}
 
@@ -636,6 +657,9 @@ def main(args):
     for cname, strings, block_col in (
             ('congruency (LWPC)', stab_strings, 'incongruent_proportion'),
             ('switchType (LWPS)', flex_strings, 'switch_proportion')):
+        if block_col not in blocks:
+            print(f"     skipping {cname}: the condition set pools over {block_col}")
+            continue
         per_block = {}
         for level, conds in blocks[block_col].items():
             tag = f'{level}% {_BLOCK_TAG[block_col]}'
@@ -662,12 +686,15 @@ def main(args):
     #     cells, never on congruency/inc_prop (the interaction that defined it).
     #     To keep the diagonal cell instead, define the electrodes on a disjoint
     #     set of trials (`trial_splitting.apply_electrode_definition_split`).
-    if interaction_groups:
+    if interaction_groups and blocks:
         print("A4(0b): per-group within-block 2x2 (diagonal define==decode cells ignored)")
-        decode_cells = [('congruency', 'incongruent_proportion', stab_strings),
-                        ('congruency', 'switch_proportion', stab_strings),
-                        ('switchType', 'switch_proportion', flex_strings),
-                        ('switchType', 'incongruent_proportion', flex_strings)]
+        decode_cells = [(contrast, block_col, strings)
+                        for contrast, block_col, strings in (
+                            ('congruency', 'incongruent_proportion', stab_strings),
+                            ('congruency', 'switch_proportion', stab_strings),
+                            ('switchType', 'switch_proportion', flex_strings),
+                            ('switchType', 'incongruent_proportion', flex_strings))
+                        if block_col in blocks]
         per_group = {}
         for gflag, elset in interaction_groups.items():
             restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
