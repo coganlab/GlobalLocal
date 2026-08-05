@@ -35,7 +35,10 @@ Designs
 -------
 - **Label transfer** (Design a): `run_cross_decoding(..., train_strings=STABILITY,
   test_strings=FLEXIBILITY)`. Run it per electrode group (LWPC-only, LWPS-only,
-  `both`); the prediction is that only `both` transfers above chance.
+  `both`); the prediction is that only `both` transfers above chance. This is
+  the ALL-congruency vs ALL-switchType decode: the classes span every condition
+  cell, so it is already pooled over both block proportions. Only the
+  within-block designs below split by proportion.
 - **Set comparison** (Design b): the same contrast decoded within each electrode
   set — an ordinary decode, just with `electrodes` restricted. Use the normal
   decoding path.
@@ -115,6 +118,14 @@ def resolve_contrast(contrast):
 CELL_FIELDS = ("congruency", "switchType",
                "incongruent_proportion", "switch_proportion")
 
+# The two factors a cross-decode transfers BETWEEN. They are the only ones a
+# condition must declare: the block proportions are needed by the within-block
+# designs, not by the transfer itself, so a condition set that pools over them
+# (`stimulus_main_effect_conditions` — Stimulus_i{r,s} / Stimulus_c{r,s}, each
+# collapsing all four proportion cells) is a legitimate — and larger-per-cell —
+# input for "ALL congruency vs ALL switch type". See `has_block_factor`.
+CROSS_DECODE_FIELDS = ("congruency", "switchType")
+
 # The config spells the proportions in camelCase; the long-table / stats side of
 # the project uses snake_case. Accept either so a condition dict from either
 # convention drops in.
@@ -138,15 +149,31 @@ def _as_proportion(value):
         return None
 
 
-def condition_cells(conditions):
+def condition_cells(conditions, required=CROSS_DECODE_FIELDS):
     """`{condition_name: {field: level}}` from an `experiment_conditions`-style dict.
 
     `conditions` maps condition name -> its metadata entry (the same dict the
     decoding pipeline is driven by, e.g.
-    ``experiment_conditions.stimulus_experiment_conditions``). Conditions that do
-    not declare all four factors are dropped: a cross-decode needs every cell of
-    the 2x2x2x2, and a partially-specified condition cannot be placed in it.
+    ``experiment_conditions.stimulus_experiment_conditions``). A condition is kept
+    only if it declares every factor in `required`; undeclared factors are
+    recorded as None.
+
+    `required` defaults to the two factors the transfer runs BETWEEN
+    (`CROSS_DECODE_FIELDS`), so both of these are valid inputs:
+
+    - the full 2x2x2x2 (`stimulus_experiment_conditions`, 16 cells) — needed by
+      the within-block designs, and stratifying folds on all four factors;
+    - the pooled 2x2 (`stimulus_main_effect_conditions`, 4 cells) — congruency x
+      switchType collapsed over BOTH proportions, i.e. "all congruency vs all
+      switch type" with ~4x the trials per cell. `has_block_factor` reports
+      False for both proportions there, and the block-split designs are skipped.
+
+    Pass `required=CELL_FIELDS` to demand the full four-factor cell.
     """
+    unknown = set(required) - set(CELL_FIELDS)
+    if unknown:
+        raise ValueError(f"unknown required field(s) {sorted(unknown)}; "
+                         f"condition cells carry {CELL_FIELDS}")
     cells = {}
     for name, meta in conditions.items():
         if not isinstance(meta, dict):
@@ -157,14 +184,19 @@ def condition_cells(conditions):
             if field.endswith('proportion'):
                 value = _as_proportion(value)
             cell[field] = value
-        if any(v is None for v in cell.values()):
-            continue                       # not a full 4-factor cell
+        if any(cell[f] is None for f in required):
+            continue                       # missing a factor the decode needs
         cells[name] = cell
     if not cells:
         raise ValueError(
-            "no condition declares all of "
-            f"{CELL_FIELDS}; a cross-decode needs the full 2x2x2x2 condition set "
-            "(e.g. experiment_conditions.stimulus_experiment_conditions)")
+            f"no condition declares all of {tuple(required)}; a cross-decode "
+            "transfers BETWEEN congruency and switchType, so both must be "
+            "declared on the SAME condition (e.g. "
+            "experiment_conditions.stimulus_experiment_conditions for the full "
+            "2x2x2x2, or stimulus_main_effect_conditions for the 2x2 pooled over "
+            "the proportions). Condition sets that carry only one of the two "
+            "factors (stimulus_congruency_conditions, stimulus_switch_type_conditions) "
+            "cannot be crossed: a transfer needs both labellings of the same trial.")
     return cells
 
 
@@ -191,12 +223,31 @@ def stability_flexibility_strings(cells):
             class_strings(cells, 'switchType', 's', 'r'))
 
 
+def has_block_factor(cells, field):
+    """True when `cells` can be split on `field` — every cell declares it and at
+    least two levels are present.
+
+    False for a condition set that POOLS over a proportion (e.g.
+    `stimulus_main_effect_conditions`, which collapses both): the label-transfer
+    and temporal-generalization designs still run there, the block-split designs
+    cannot and are skipped rather than silently splitting on a constant.
+    """
+    levels = {c.get(field) for c in cells.values()}
+    return None not in levels and len(levels) > 1
+
+
 def block_condition_sets(cells, field):
     """`{level: [condition names]}` for a block factor, low level first.
 
     Feeds the within-block designs: "decode a contrast inside one block level" is
     `filter_conditions(..., block_condition_sets(cells, field)[level])`.
     """
+    if not has_block_factor(cells, field):
+        raise ValueError(
+            f"the condition set cannot be split on {field!r} (levels present: "
+            f"{sorted({str(c.get(field)) for c in cells.values()})}). It either "
+            "pools over that factor or declares only one level, so there is no "
+            "block contrast to make; check `has_block_factor` before calling.")
     levels = sorted({c[field] for c in cells.values()})
     return {level: sorted(n for n, c in cells.items() if c[field] == level)
             for level in levels}

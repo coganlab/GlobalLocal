@@ -70,13 +70,26 @@ WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimu
 WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
 # --- conditions ---
-# A4 transfers a classifier between congruency and switchType, and splits each by
-# a block proportion, so it needs the FULL 2x2x2x2 condition set — every
-# {congruency} x {incongruent proportion} x {switchType} x {switch proportion}
-# cell. `stimulus_experiment_conditions` is that set. The contrast and block
-# definitions are read off each condition's declared factor levels, so swapping
-# in another condition dict works as long as its entries carry `congruency`,
-# `switchType`, `incongruentProportion` and `switchProportion`.
+# A4 transfers a classifier between congruency and switchType, so a condition
+# must declare BOTH on the same cell — that is the only hard requirement. Two
+# sets are useful, chosen with CONDITIONS=<name>:
+#
+#   stimulus_experiment_conditions   (default) the full 2x2x2x2, 16 cells. Needed
+#       for the within-block designs A4(0)/A4(0b), and it stratifies the CV folds
+#       on all four factors, so a fold can never be lopsided on a proportion.
+#   stimulus_main_effect_conditions  the pooled 2x2 (Stimulus_i{r,s}/c{r,s}), 4
+#       cells collapsing BOTH proportions — "ALL congruency vs ALL switch type"
+#       with ~4x the trials per cell, hence less NaN padding / mixup in the
+#       pseudopopulation. A4(0)/A4(0b) are skipped (no block factor to split on);
+#       label transfer A4(a) and temporal generalization A4(c) run unchanged.
+#
+# Note A4(a) is pooled over the proportions under EITHER set: its classes are
+# every 'i' cell vs every 'c' cell. The 16-cell set does not restrict the
+# transfer to within a block — only designs (0)/(0b) split by block.
+#
+# Condition sets carrying just one factor (stimulus_congruency_conditions,
+# stimulus_switch_type_conditions) cannot be used: the two labellings would come
+# from separate epoch sets over the same trials, so train and test would overlap.
 CONDITIONS = getattr(experiment_conditions,
                      os.environ.get('CONDITIONS', 'stimulus_experiment_conditions'))
 

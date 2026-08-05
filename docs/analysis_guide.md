@@ -1797,7 +1797,10 @@ the contrast you *score*.
 - **(a) Label transfer.** Train on stability, test on flexibility (and vice
   versa), on the *same* electrodes, separately per `both`/`S_only`/`F_only`
   group, **plus the unselected reference group** (`REFERENCE_GROUP`, default
-  `all` — see §17.1). Prediction: only the `both` group cross-decodes.
+  `all` — see §17.1). Prediction: only the `both` group cross-decodes. This is
+  the **all-vs-all** decode: its classes span every condition cell, so it is
+  already pooled across both block proportions (§17.2) — only (0)/(0b) split by
+  block.
 - **(c) Temporal generalization (Fig 10).** Train at *t*, test at *t′* →
   off-diagonal generalization = sustained/stable code, narrow diagonal =
   moving/phasic code. `cv_cm_jim_window_shuffle(..., temporal_generalization=True)`.
@@ -1860,11 +1863,34 @@ unselected comparison matrix too.
 
 ### 17.2 Conditions and contrasts — why the classes are derived, not written
 
-A4 needs the **full 2×2×2×2** condition set — every {congruency} × {incongruent
-proportion} × {switchType} × {switch proportion} cell — because it decodes one
-contrast, scores the other, and splits each by a block factor.
-`stimulus_experiment_conditions` is that set (16 conditions, `Stimulus_i75s25`
-and friends), and it is the `CONDITIONS` default.
+**The transfer is already pooled over the proportions.** Design (a)'s classes are
+*every* `i` cell vs *every* `c` cell and *every* `s` cell vs *every* `r` cell, so
+it is the ALL-congruency vs ALL-switchType decode over all trials. Using the
+16-cell condition set does **not** run the transfer inside a block — only designs
+(0)/(0b) split by block, and comparing their two block levels' accuracies is what
+makes them the decoding analogue of LWPC / LWPS.
+
+A condition must declare `congruency` **and** `switchType` on the same cell —
+that is the only hard requirement, because a transfer needs both labellings of
+the *same trial*. Two sets are useful (`CONDITIONS=<name>`):
+
+| `CONDITIONS` | Cells | Designs that run | Why pick it |
+|---|---|---|---|
+| `stimulus_experiment_conditions` (default) | 16 — the full 2×2×2×2 | all of (0), (0b), (a), (c) | the only set that supports the within-block designs; also stratifies the CV folds on **all four** factors, so no fold can be lopsided on a proportion |
+| `stimulus_main_effect_conditions` | 4 — `Stimulus_i{r,s}` / `Stimulus_c{r,s}`, both proportions collapsed | (a) and (c); (0)/(0b) skipped | same pooled transfer with **~4× the trials per cell**, hence less NaN padding / `mixup2` fill in the pseudopopulation. Folds are then stratified on congruency × switchType only |
+
+`cd.has_block_factor` is what decides: it returns False for a proportion the
+condition set pools over, and the block-split designs are **skipped with a
+message** rather than run on a constant.
+
+Condition sets that carry only *one* of the two factors —
+`stimulus_congruency_conditions` (`Stimulus_i`/`Stimulus_c`) and
+`stimulus_switch_type_conditions` (`Stimulus_s`/`Stimulus_r`) — **cannot** be
+used, and `cd.condition_cells` raises on them. They are separate epoch sets over
+the *same* trials, so training on one and scoring on the other would put the same
+trial in train and test: the transfer would be measured on trials the classifier
+was fit on. `stimulus_main_effect_conditions` is the crossed version of exactly
+that pooling, and it keeps the CV split honest.
 
 The class definitions are **derived from each condition's declared factor
 levels** (`cd.condition_cells`), not hand-written as substrings of the condition
@@ -1884,8 +1910,8 @@ tokens; pinned by `test_cross_decoding_condition_scheme.py`). Since each
 condition already declares its levels, `cd.condition_cells` reads those and emits
 the class groups as full condition names, which no naming change can
 misinterpret. Swapping in a different condition dict works as long as its entries
-carry `congruency`, `switchType`, `incongruentProportion` and
-`switchProportion`.
+carry `congruency` and `switchType` (plus `incongruentProportion` and
+`switchProportion` if you want the block-split designs).
 
 For the same reason `cd.filter_conditions` takes a *collection* of substrings,
 not just one: with the real naming, "the 25%-incongruent block" is the conditions
@@ -1963,6 +1989,7 @@ table (`effect_measure='cluster'`), so a real run assembles both; the
 | Want to… | Set |
 |---|---|
 | decode a different region | `ROI=acc` (keys of `src/analysis/config/rois.py`) |
+| run the pooled transfer with 4× the trials per cell (drops the within-block designs) | `CONDITIONS=stimulus_main_effect_conditions` (§17.2) |
 | use every electrode, not just baseline-significant ones | `ELECTRODES=all` |
 | move the definition window | `WINDOW_TMIN=0.2 WINDOW_TMAX=0.7` |
 | define electrodes from the power-trace runs instead | `ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=...` (§17.3) |
@@ -1986,7 +2013,7 @@ any interaction-based selection (§17.1).
 | `EPOCHS_ROOT_FILE` | *required for real runs* | which epoched dataset to load. |
 | `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_CODE` | `shared` | synthetic only: `shared` (should cross-decode) or `orthogonal` (should not). |
-| `CONDITIONS` | `stimulus_experiment_conditions` | name of a dict in `config/experiment_conditions.py`. Must carry the full 2×2×2×2 (§17.2). |
+| `CONDITIONS` | `stimulus_experiment_conditions` | name of a dict in `config/experiment_conditions.py`. Every condition must declare `congruency` **and** `switchType`; declaring the two proportions as well is what enables the within-block designs. `stimulus_main_effect_conditions` is the pooled 2×2 alternative (§17.2). |
 
 *Which electrodes* (§17.1)
 

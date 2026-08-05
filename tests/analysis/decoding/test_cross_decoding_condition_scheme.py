@@ -50,15 +50,70 @@ def test_camelcase_proportions_are_normalised(real_cells):
 
 
 def test_partial_conditions_are_dropped():
-    """A condition missing a factor cannot be placed in the 2x2x2x2."""
+    """A condition that declares only ONE of the two transferred factors cannot be
+    cross-decoded, so it never enters the cells."""
     conditions = dict(ec.stimulus_experiment_conditions)
     conditions['Stimulus_partial'] = {'BIDS_events': ['Stimulus'], 'congruency': 'i'}
     assert 'Stimulus_partial' not in cd.condition_cells(conditions)
 
 
-def test_a_condition_set_without_the_four_factors_raises():
-    with pytest.raises(ValueError, match='full 2x2x2x2'):
-        cd.condition_cells(ec.stimulus_congruency_conditions)
+def test_requiring_all_four_factors_still_drops_partial_cells():
+    conditions = dict(ec.stimulus_main_effect_conditions)
+    assert len(cd.condition_cells(conditions)) == 4
+    with pytest.raises(ValueError, match='no condition declares'):
+        cd.condition_cells(conditions, required=cd.CELL_FIELDS)
+
+
+def test_a_single_factor_condition_set_raises():
+    """`stimulus_congruency_conditions` / `stimulus_switch_type_conditions` carry
+    only one of the two labellings, so no condition can be crossed."""
+    for conditions in (ec.stimulus_congruency_conditions,
+                       ec.stimulus_switch_type_conditions):
+        with pytest.raises(ValueError, match='no condition declares'):
+            cd.condition_cells(conditions)
+
+
+# ---------------------------------------------------------------------------
+# the pooled 2x2: ALL congruency vs ALL switch type, collapsed over proportions
+# ---------------------------------------------------------------------------
+@pytest.fixture(scope="module")
+def pooled_cells():
+    return cd.condition_cells(ec.stimulus_main_effect_conditions)
+
+
+def test_pooled_conditions_are_the_2x2_over_both_proportions(pooled_cells):
+    assert len(pooled_cells) == 4
+    assert {c['congruency'] for c in pooled_cells.values()} == {'i', 'c'}
+    assert {c['switchType'] for c in pooled_cells.values()} == {'s', 'r'}
+    # the proportions are POOLED, not declared
+    for field in ('incongruent_proportion', 'switch_proportion'):
+        assert all(c[field] is None for c in pooled_cells.values())
+
+
+def test_pooled_conditions_still_define_both_contrasts(pooled_cells):
+    stab, flex = cd.stability_flexibility_strings(pooled_cells)
+    for name, cell in pooled_cells.items():
+        assert cd._class_of(name, stab) == (0 if cell['congruency'] == 'i' else 1)
+        assert cd._class_of(name, flex) == (0 if cell['switchType'] == 's' else 1)
+
+
+def test_has_block_factor_separates_the_two_condition_sets(real_cells, pooled_cells):
+    for field in ('incongruent_proportion', 'switch_proportion'):
+        assert cd.has_block_factor(real_cells, field)
+        assert not cd.has_block_factor(pooled_cells, field)
+        with pytest.raises(ValueError, match='cannot be split'):
+            cd.block_condition_sets(pooled_cells, field)
+
+
+def test_the_pooled_transfer_uses_every_trial(pooled_cells):
+    """The point of the pooled set: each class spans all four proportion cells, so
+    the transfer is trained and scored on ALL trials, not within a block."""
+    arrays = {'roi': {n: np.zeros((4, 2, 3)) for n in pooled_cells}}
+    stab, flex = cd.stability_flexibility_strings(pooled_cells)
+    built = cd.build_cross_decoding_arrays(arrays, 'roi', stab, flex)
+    assert set(built['conditions']) == set(pooled_cells)
+    assert built['data'].shape[0] == 4 * len(pooled_cells)
+    assert set(built['labels_train']) == set(built['labels_test']) == {0, 1}
 
 
 # ---------------------------------------------------------------------------
@@ -148,29 +203,11 @@ def _fake_roi_arrays(cells, n_channels=8, n_trials=24, n_time=16, seed=0):
     return arrays
 
 
-def test_real_branch_runs_over_real_condition_names(tmp_path, monkeypatch):
-    cells = cd.condition_cells(ec.stimulus_experiment_conditions)
-    channel_names = [f'D{i // 4}-E{i % 4}' for i in range(8)]
-    arrays = {'lpfc': _fake_roi_arrays(cells)}
-
-    labels = pd.DataFrame(dict(
-        subject=[c.split('-')[0] for c in channel_names],
-        electrode=channel_names,
-        S=[1, 1, 1, 0, 1, 1, 0, 0], F=[1, 1, 1, 1, 0, 0, 1, 0],
-        CPC=[1, 1, 1, 0, 1, 1, 0, 0], SPS=[1, 1, 1, 1, 0, 0, 1, 0],
-        CPS=[0, 0, 0, 0, 0, 0, 0, 0], SPC=[0, 0, 0, 0, 0, 0, 0, 0]))
-
-    # stub out only the two things that need the cluster's data
-    monkeypatch.setattr(xd, '_resolve_labels', lambda args, df=None: labels)
-    monkeypatch.setattr(xd, '_build_roi_arrays',
-                        lambda args, lab_root: ('lpfc', arrays, channel_names, cells))
-    monkeypatch.setattr('src.analysis.utils.general_utils.resolve_lab_root',
-                        lambda explicit=None: '/nonexistent')
-
-    args = SimpleNamespace(
+def _stub_args(tmp_path, conditions):
+    return SimpleNamespace(
         data_source='real', synthetic_code=None, LAB_root=None, subjects=[],
         task='GlobalLocal', acc_trials_only=True, epochs_root_file='epochs',
-        window_tmin=0.0, window_tmax=0.5, conditions=ec.stimulus_experiment_conditions,
+        window_tmin=0.0, window_tmax=0.5, conditions=conditions,
         electrodes='sig', rois_dict={'lpfc': []}, alpha=0.05, roi='lpfc',
         electrode_definition='power_traces', power_traces_runs='run',
         power_traces_correction='fdr_bh', power_traces_roi=None,
@@ -178,7 +215,32 @@ def test_real_branch_runs_over_real_condition_names(tmp_path, monkeypatch):
         window_size=8, step_size=8, n_splits=3, n_repeats=2,
         explained_variance=0.8, frac_train=None, n_perm=10, min_group_size=2,
         seed=0, save_dir=str(tmp_path))
-    results = xd.main(args)
+
+
+def _stub_data_loading(monkeypatch, cells, labels, channel_names):
+    """Stub out only the two things that need the cluster's data."""
+    arrays = {'lpfc': _fake_roi_arrays(cells)}
+    monkeypatch.setattr(xd, '_resolve_labels', lambda args, df=None: labels)
+    monkeypatch.setattr(xd, '_build_roi_arrays',
+                        lambda args, lab_root: ('lpfc', arrays, channel_names, cells))
+    monkeypatch.setattr('src.analysis.utils.general_utils.resolve_lab_root',
+                        lambda explicit=None: '/nonexistent')
+
+
+CHANNEL_NAMES = [f'D{i // 4}-E{i % 4}' for i in range(8)]
+LABELS = pd.DataFrame(dict(
+    subject=[c.split('-')[0] for c in CHANNEL_NAMES],
+    electrode=CHANNEL_NAMES,
+    S=[1, 1, 1, 0, 1, 1, 0, 0], F=[1, 1, 1, 1, 0, 0, 1, 0],
+    CPC=[1, 1, 1, 0, 1, 1, 0, 0], SPS=[1, 1, 1, 1, 0, 0, 1, 0],
+    CPS=[0, 0, 0, 0, 0, 0, 0, 0], SPC=[0, 0, 0, 0, 0, 0, 0, 0]))
+
+
+def test_real_branch_runs_over_real_condition_names(tmp_path, monkeypatch):
+    cells = cd.condition_cells(ec.stimulus_experiment_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+
+    results = xd.main(_stub_args(tmp_path, ec.stimulus_experiment_conditions))
 
     # both contrasts decoded within both levels of their own block factor
     wb = results['within_block']
@@ -196,6 +258,33 @@ def test_real_branch_runs_over_real_condition_names(tmp_path, monkeypatch):
     for gflag, res in results['within_block_by_group'].items():
         diag = cd.circular_decode_for_group(gflag)
         assert not any(f'{diag[0]} by {diag[1]}' in cell for cell in res['cells'])
+
+    assert (tmp_path / 'cross_decoding.json').exists()
+    assert (tmp_path / 'summary.txt').exists()
+
+    # the transfer is POOLED over the proportions even here: its classes span all
+    # 16 cells, so the 16-cell set does not restrict it to within a block
+    assert len(results['label_transfer']['all']['stab_to_flex']['conditions']) == 16
+
+
+def test_pooled_branch_transfers_over_all_trials(tmp_path, monkeypatch):
+    """`stimulus_main_effect_conditions`: ALL congruency vs ALL switch type, with
+    both proportions collapsed. The transfer runs; the block designs are skipped
+    rather than split on a factor the conditions pool over."""
+    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+
+    results = xd.main(_stub_args(tmp_path, ec.stimulus_main_effect_conditions))
+
+    assert results['within_block'] == {}
+    assert results.get('within_block_by_group') is None
+
+    lt = results['label_transfer']
+    assert set(lt) >= {'both', 'all'}
+    for group, res in lt.items():
+        assert set(res) == {'stab_to_flex', 'flex_to_stab'}
+        for direction, r in res.items():
+            assert set(r['conditions']) == set(ec.stimulus_main_effect_conditions)
 
     assert (tmp_path / 'cross_decoding.json').exists()
     assert (tmp_path / 'summary.txt').exists()
