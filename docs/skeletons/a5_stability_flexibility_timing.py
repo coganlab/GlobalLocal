@@ -90,15 +90,15 @@ def peak_latency(times, effect, expected_sign='auto'):
     raise NotImplementedError("A5: peak latency")
 
 
-def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto')):
+def jackknife_onset_difference(df_by_electrode, expected_signs=('auto', 'auto')):
     """Ulrich–Miller jackknifed comparison of LWPC vs LWPS onset.
 
-    Single-subject onsets are too noisy, so measure onset on SMOOTH
-    leave-one-subject-out grand-averages instead.
+    Single-electrode onsets are too noisy, so measure onset on SMOOTH
+    leave-one-electrode-out grand-averages instead.
 
     Parameters
     ----------
-    df_by_subject : the long time-course table, groupable by subject.
+    df_by_electrode : the long time-course table, groupable by subject and electrode.
     expected_signs : (stability_sign, flexibility_sign). Default ('auto', 'auto')
         — each process's onset direction is read from its own waveform, so no
         modulation direction is assumed for either.
@@ -114,7 +114,7 @@ def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto')):
 
     Implementation steps
     ---------------------
-    1. For i in subjects: build the leave-one-out grand average; compute
+    1. For i in electrodes: build the leave-one-out grand average; compute
        onset_lwpc[i], onset_lwps[i] via interaction_time_course + onset_50pct_peak;
        d_i = onset_lwpc[i] - onset_lwps[i].  (N leave-one-out values.)
     2. Jackknife SE of the difference:

@@ -2128,7 +2128,7 @@ neither the conjunction (§14) nor the cross-decoding (§17) speaks to.
    latency–amplitude confound (principle 6): a bigger effect crosses any
    *absolute* threshold sooner, so without it "earlier" would just rename
    "larger". Baked into a unit test: `stab(t) = k·flex(t)` ⇒ equal onsets.
-4. `jackknife_onset_difference`: onsets read off **smooth leave-one-subject-out
+4. `jackknife_onset_difference`: onsets read off **smooth leave-one-electrode-out
    grand averages**, jackknife SE, and the Ulrich–Miller `(N−1)`-corrected paired
    *t* on the LWPC − LWPS difference.
 

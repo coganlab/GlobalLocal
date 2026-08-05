@@ -20,7 +20,7 @@ What this module provides
 - ``peak_latency`` — the time of the peak, reported ALONGSIDE onset as a
   waveform-shape cross-check.
 - ``jackknife_onset_difference`` — the Ulrich–Miller jackknifed comparison of the
-  LWPC vs LWPS onset: onsets measured on smooth leave-one-subject-out
+  LWPC vs LWPS onset: onsets measured on smooth leave-one-electrode-out
   grand-averages, jackknife SE, and the ``(N-1)``-corrected paired t.
 
 The latency–amplitude confound and the guard
@@ -92,18 +92,47 @@ def _dod_over_time(cells):
             - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
 
 
-def _electrode_dod_timecourses(work, key):
+def _electrode_dod_timecourses(work, key, return_ids=False):
     """One d-o-d(t) vector per electrode for the given process. Electrodes with
     any empty (cond, mod) cell are skipped (they can't form a balanced 2x2)."""
     condcol, modcol = _FACTOR_COLS[key]
+    ids = []
     traces = []
-    for (_subj, _elec), g in work.groupby(['subject', 'electrode']):
+    for (subj, elec), g in work.groupby(['subject', 'electrode']):
         hg = np.vstack([np.asarray(v, float) for v in g['hg'].to_numpy()])
         cells = _dod_cells(hg, g[condcol].to_numpy(), g[modcol].to_numpy())
         if cells is None:
             continue
+        ids.append((subj, elec))
         traces.append(_dod_over_time(cells))
-    return traces
+    return (ids, traces) if return_ids else traces
+
+
+def _combine_electrode_traces(traces, times=None, statistic='mean'):
+    """Combine precomputed per-electrode traces into one time course."""
+    if not traces:
+        if times is None:
+            return np.asarray([], float), np.asarray([], float)
+        times = np.asarray(times, float)
+        return times, np.full(times.shape, np.nan, dtype=float)
+
+    mat = np.vstack(traces)
+    n_time = mat.shape[1]
+    if times is None:
+        times = np.arange(n_time)
+    times = np.asarray(times, float)
+
+    if statistic == 'mean':
+        effect = np.nanmean(mat, axis=0)
+    elif statistic == 't':
+        mean = np.nanmean(mat, axis=0)
+        n = mat.shape[0]
+        sem = np.nanstd(mat, axis=0, ddof=1) / np.sqrt(n) if n > 1 else np.full(n_time, np.nan)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            effect = np.where(sem > 0, mean / sem, 0.0)
+    else:
+        raise ValueError(f"statistic must be 'mean' or 't'; got {statistic!r}")
+    return times, effect
 
 
 def interaction_time_course(df, key, contrast_mode='proportion', contrasts=None,
@@ -148,23 +177,7 @@ def interaction_time_course(df, key, contrast_mode='proportion', contrasts=None,
         eff = np.full(n_time, np.nan)
         return (np.arange(n_time) if times is None else np.asarray(times, float)), eff
 
-    mat = np.vstack(traces)                       # (n_elec, n_time)
-    n_time = mat.shape[1]
-    if times is None:
-        times = np.arange(n_time)
-    times = np.asarray(times, float)
-
-    if statistic == 'mean':
-        effect = np.nanmean(mat, axis=0)
-    elif statistic == 't':
-        mean = np.nanmean(mat, axis=0)
-        n = mat.shape[0]
-        sem = np.nanstd(mat, axis=0, ddof=1) / np.sqrt(n) if n > 1 else np.full(n_time, np.nan)
-        with np.errstate(divide='ignore', invalid='ignore'):
-            effect = np.where(sem > 0, mean / sem, 0.0)
-    else:
-        raise ValueError(f"statistic must be 'mean' or 't'; got {statistic!r}")
-    return times, effect
+    return _combine_electrode_traces(traces, times=times, statistic=statistic)
 
 
 # ----------------------------------------------------------------------------
@@ -272,18 +285,18 @@ def _onsets_from_df(sub_df, times, statistic, contrast_mode, contrasts,
             peak_latency(t, stab, s_sign), peak_latency(t, flex, f_sign))
 
 
-def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto'),
+def jackknife_onset_difference(df_by_electrode, expected_signs=('auto', 'auto'),
                                contrast_mode='proportion', contrasts=None,
                                times=None, statistic='mean'):
     """Ulrich–Miller jackknifed comparison of the LWPC vs LWPS onset.
 
-    Single-subject latency estimates are too noisy, so onset is measured on
-    SMOOTH leave-one-subject-out grand-averages, and the jackknife turns the N
+    Single-electrode latency estimates are too noisy, so onset is measured on
+    SMOOTH leave-one-electrode-out grand-averages, and the jackknife turns the N
     leave-one-out values into a corrected paired test.
 
     Parameters
     ----------
-    df_by_subject : the long time-course table, groupable by ``subject``.
+    df_by_electrode : the long time-course table, groupable by ``subject`` and ``electrode``.
     expected_signs : (stability_sign, flexibility_sign) passed to
         ``onset_50pct_peak`` for each process. Default ``('auto', 'auto')`` — the
         onset direction of each interaction is read from its own waveform, so no
@@ -304,13 +317,13 @@ def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto'),
         df          : degrees of freedom (N-1)
         p           : two-sided p from ``t_corrected``
         ci          : 95 % CI on the difference
-        n_subjects  : N
+        n_electrodes : N
         onset_lwpc_loo, onset_lwps_loo, diffs : the per-leaveout arrays
         peak_diff   : full-sample peak-latency difference (LWPC - LWPS)
 
     Implementation
     --------------
-    1. For each subject i, drop subject i, build the leave-one-out grand-average
+    1. For each electrode i, drop electrode i, build the leave-one-out grand-average
        time course for LWPC and LWPS, and read off each onset -> d_i.
     2. Jackknife SE of the difference:
            d_bar = mean(d_i);  se = sqrt((N-1)/N * sum((d_i - d_bar)**2)).
@@ -319,23 +332,40 @@ def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto'),
        (equivalently t_corrected = d_bar / se). The raw jackknife t is inflated
        by (N-1); the division removes it.
     """
-    subjects = list(pd.unique(df_by_subject['subject']))
-    N = len(subjects)
+    contrasts = finalize_contrasts(
+        df_by_electrode, resolve_contrasts(contrast_mode, contrasts))
+    work = _canonical_labels(df_by_electrode, contrasts)
+    electrodes = list(work[['subject', 'electrode']].drop_duplicates().itertuples(index=False, name=None))
+    N = len(electrodes)
     if N < 3:
-        raise ValueError(f"jackknife needs >= 3 subjects; got {N}")
+        raise ValueError(f"jackknife needs >= 3 electrodes; got {N}")
+
+    traces_by_key = {}
+    for key in ('stability', 'flexibility'):
+        ids, traces = _electrode_dod_timecourses(work, key, return_ids=True)
+        traces_by_key[key] = dict(zip(ids, traces))
+
+    def loo_onsets(left_out):
+        out = []
+        for key, sign in zip(('stability', 'flexibility'), expected_signs):
+            traces = [trace for elec_id, trace in traces_by_key[key].items()
+                      if elec_id != left_out]
+            t, effect = _combine_electrode_traces(
+                traces, times=times, statistic=statistic)
+            out.append(onset_50pct_peak(t, effect, sign))
+        return out
 
     onset_lwpc = np.empty(N)
     onset_lwps = np.empty(N)
-    for i, s in enumerate(subjects):
-        loo = df_by_subject[df_by_subject['subject'] != s]
-        o_pc, o_ps, _, _ = _onsets_from_df(loo, times, statistic, contrast_mode,
-                                           contrasts, expected_signs)
-        onset_lwpc[i], onset_lwps[i] = o_pc, o_ps
+    left_out_units = []
+    for i, electrode_id in enumerate(electrodes):
+        onset_lwpc[i], onset_lwps[i] = loo_onsets(electrode_id)
+        left_out_units.append(f"{electrode_id[0]}:{electrode_id[1]}")
 
     diffs = onset_lwpc - onset_lwps
     valid = np.isfinite(diffs)
     if valid.sum() < 3:
-        raise ValueError("too few leave-one-out subaverages produced a finite "
+        raise ValueError("too few leave-one-electrode-out subaverages produced a finite "
                          "onset difference; check the effect direction / window")
     d = diffs[valid]
     n = d.size
@@ -353,14 +383,15 @@ def jackknife_onset_difference(df_by_subject, expected_signs=('auto', 'auto'),
 
     # full-sample descriptives (all subjects)
     o_pc_full, o_ps_full, pk_pc_full, pk_ps_full = _onsets_from_df(
-        df_by_subject, times, statistic, contrast_mode, contrasts, expected_signs)
+        df_by_electrode, times, statistic, contrast_mode, contrasts, expected_signs)
 
     return dict(
         onset_lwpc=o_pc_full, onset_lwps=o_ps_full,
         peak_lwpc=pk_pc_full, peak_lwps=pk_ps_full,
         diff=d_bar, diff_full=(o_pc_full - o_ps_full),
         se=se, t_corrected=t_corrected, t_raw=t_raw, df=dfree,
-        p=p, ci=ci, n_subjects=N,
+        p=p, ci=ci, n_electrodes=N, n_subjects=int(df_by_electrode['subject'].nunique()),
+        left_out_units=np.asarray(left_out_units, dtype=object),
         onset_lwpc_loo=onset_lwpc, onset_lwps_loo=onset_lwps, diffs=diffs,
         peak_diff=(pk_pc_full - pk_ps_full),
     )
@@ -386,7 +417,7 @@ def _synthetic_timecourse_df(n_subj=12, seed=0, n_time=40, t0=-0.2, t1=0.8,
     (flexibility) interaction at ``flex_onset`` (later by default), each entered
     as a PURE 2x2 interaction: the temporal bump is added only to the ``(cond=+,
     mod=high)`` cell, so the equal-cell-weight difference-of-differences recovers
-    exactly the bump. Per-electrode gain and additive noise make single-subject
+    exactly the bump. Per-electrode gain and additive noise make single-electrode
     onsets noisy — which is what the jackknife smooths. Returns a df with the
     ``effect_measure='cluster'`` shape (``hg`` = per-trial time course) plus the
     ``times`` axis it was built on.
@@ -455,6 +486,6 @@ if __name__ == '__main__':
     jk = jackknife_onset_difference(df, times=times)
     print(f"[jackknife] LWPC-LWPS onset diff={jk['diff']:.3f}s "
           f"(95% CI [{jk['ci'][0]:.3f}, {jk['ci'][1]:.3f}]s), "
-          f"t_c={jk['t_corrected']:.2f}, p={jk['p']:.4g}, N={jk['n_subjects']}")
+          f"t_c={jk['t_corrected']:.2f}, p={jk['p']:.4g}, N={jk['n_electrodes']}")
     print(f"            t_raw={jk['t_raw']:.2f} inflated by (N-1)={jk['df']}; "
           f"t_raw/(N-1)={jk['t_raw']/jk['df']:.2f} == t_c  OK")

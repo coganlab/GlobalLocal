@@ -131,7 +131,9 @@ def test_jackknife_detects_onset_difference_and_correction_identity():
     assert jk['ci'][0] < 0 and jk['ci'][1] < 0
 
 
-def test_jackknife_requires_enough_subjects():
-    df, times = _synthetic_timecourse_df(n_subj=2, seed=0)
-    with pytest.raises(ValueError):
+def test_jackknife_requires_enough_electrodes():
+    df, times = _synthetic_timecourse_df(n_subj=1, seed=0)
+    keep = df[['subject', 'electrode']].drop_duplicates().head(2)
+    df = df.merge(keep, on=['subject', 'electrode'])
+    with pytest.raises(ValueError, match='electrodes'):
         jackknife_onset_difference(df, times=times)
