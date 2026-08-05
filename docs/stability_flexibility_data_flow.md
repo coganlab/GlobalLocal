@@ -499,8 +499,8 @@ would just mean "larger". If `stab(t) = k·flex(t)`, the threshold scales by the
 same `k` and both cross at the identical time — baked into a unit test
 (`_assert_amplitude_invariance`).
 
-**Ulrich–Miller.** Single-subject latencies are far too noisy, so onsets are read
-off **leave-one-subject-out grand averages**. Those N values are almost identical
+**Ulrich–Miller.** Single-electrode latencies are far too noisy, so onsets are read
+off **leave-one-electrode-out grand averages**. Those N values are almost identical
 by construction, which inflates the raw t by a factor of `(N−1)`; dividing it out
 gives `t_corrected`. Note `t_raw = −423` vs `t_corrected = −60.5` — reporting
 `t_raw` would be badly wrong.
