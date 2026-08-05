@@ -602,14 +602,38 @@ def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
         # heavy dependency degrades gracefully instead of killing the job.
         import matplotlib.colors as mcolors
         from dcc_scripts.vis.plot_sig_electrodes_dcc import (
-            strip_leading_zeros, build_global_index_map,
-            electrodes_to_global_indices)
+            strip_leading_zeros, electrodes_to_global_indices)
+        from ieeg.viz.mri import subject_to_info
         from src.analysis.vis.jim_mri import plot_on_average
+        from collections import OrderedDict
 
         if subjects is None:
             subjects = sorted(labels_with_roi['subject'].astype(str).unique())
-        subjects_no_zeros = [strip_leading_zeros(s) for s in subjects]
-        offsets = build_global_index_map(subjects_no_zeros)
+
+        # Build the fsaverage index space subject-by-subject. Some cluster runs
+        # have labels for a subject whose ECoG_Recon files are not mounted (for
+        # example D57); the previous all-or-nothing map raised immediately and
+        # caused A3 to write only the histogram fallback even when the remaining
+        # subjects were renderable. Match the old vis behaviour more closely by
+        # skipping only the missing subject and plotting every usable one.
+        offsets = OrderedDict()
+        subjects_no_zeros = []
+        running = 0
+        for subject in subjects:
+            subject_no_zeros = strip_leading_zeros(str(subject))
+            try:
+                info = subject_to_info(subject_no_zeros)
+            except Exception as exc:
+                print(f"[A3] Warning: could not load fsaverage info for "
+                      f"{subject_no_zeros}; skipping this subject in the brain "
+                      f"figure ({type(exc).__name__}: {exc}).")
+                continue
+            offsets[subject_no_zeros] = (running, info["ch_names"])
+            subjects_no_zeros.append(subject_no_zeros)
+            running += len(info["ch_names"])
+
+        if not offsets:
+            raise RuntimeError("no subjects with loadable fsaverage electrode info")
 
         indices = {g: electrodes_to_global_indices(by_subject.get(g, {}), offsets)
                    for g in groups}
