@@ -508,7 +508,8 @@ def main(args):
         df, responsiveness=args.responsiveness,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec,
-        contrast_mode=contrast_mode, effect_measure=effect_measure)
+        contrast_mode=contrast_mode, effect_measure=effect_measure,
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
@@ -524,5 +525,7 @@ def main(args):
         rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
         contrast_mode=contrast_mode, effect_measure=effect_measure,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
-        n_perm_label=args.n_perm_label, save_dir=args.save_dir))
+        n_perm_label=args.n_perm_label,
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
+        save_dir=args.save_dir))
     return out

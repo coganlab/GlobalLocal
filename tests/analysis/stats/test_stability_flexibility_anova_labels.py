@@ -107,6 +107,19 @@ def test_flag_is_exactly_the_two_sided_q_threshold(labels):
         )
 
 
+def test_can_flag_on_uncorrected_p_values_for_sensitivity_runs():
+    """`fdr_correction='none'` keeps the schema but makes q columns raw p-values."""
+    df = sfs._synthetic_df(seed=4)
+    lab = sfs.per_electrode_anova_labels(
+        df, alpha=0.05, contrast_mode="proportion", fdr_correction="none")
+    for flag, pcol, qcol in (("CPC", "p_cpc", "q_cpc"),
+                             ("SPS", "p_sps", "q_sps"),
+                             ("CPS", "p_cps", "q_cps"),
+                             ("SPC", "p_spc", "q_spc")):
+        np.testing.assert_allclose(lab[qcol], lab[pcol], equal_nan=True)
+        assert (lab[flag] == (lab[pcol] < 0.05).astype(int)).all()
+
+
 def test_no_sign_gating_option_is_exposed():
     """No `require_sign`-style knob — a directional filter shouldn't be offerable."""
     import inspect

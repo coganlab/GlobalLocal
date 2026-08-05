@@ -127,6 +127,8 @@ if DATA_SOURCE == 'real' and ROIS_DICT is None:
     raise ValueError(f"ROI={ROI!r} is not in src/analysis/config/rois.py "
                      f"(have {sorted(ALL_ROIS_DICT)}).")
 ELECTRODES = os.environ.get('ELECTRODES', 'sig')            # 'all' or 'sig'
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 
 # Which route defines the S/F electrode labels:
@@ -189,7 +191,7 @@ _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_{SYNTHETIC_CODE}'
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     current_script_dir, 'results', _tag,
     f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
-    f'{ELECTRODES}_{ELECTRODE_DEFINITION}')
+    f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
 
 
 def run_analysis():
@@ -209,6 +211,8 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
+        contrast_mode=CONTRAST_MODE,
+        fdr_correction=FDR_CORRECTION,
         electrode_definition=ELECTRODE_DEFINITION,
         power_traces_runs=POWER_TRACES_RUNS,
         power_traces_correction=POWER_TRACES_CORRECTION,

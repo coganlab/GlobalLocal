@@ -74,6 +74,8 @@ ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 
 # --- A1 hyperparameter (the electrode definition A6 sits on) ---
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 
 # --- A6 hyperparameters ---
@@ -118,6 +120,8 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
+        contrast_mode=CONTRAST_MODE,
+        fdr_correction=FDR_CORRECTION,
         behavior_csv=BEHAVIOR_CSV,
         behavior_rt_col=BEHAVIOR_RT_COL,
         neural_summary=NEURAL_SUMMARY,
@@ -141,6 +145,8 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES}")
     print("-" * 78)
+    print(f"contrast_mode:    {CONTRAST_MODE}")
+    print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"alpha (A1):       {ALPHA}")
     print(f"neural summary:   {NEURAL_SUMMARY} | trial-level: {RUN_TRIALWISE} | "
           f"seed: {SEED}")

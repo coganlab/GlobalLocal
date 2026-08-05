@@ -394,7 +394,8 @@ def _resolve_labels(args, df=None):
 
     from src.analysis.stats import stability_flexibility_segregation as sfs
     return sfs.per_electrode_anova_labels(
-        df, alpha=args.alpha, contrast_mode=CONTRAST_MODE)
+        df, alpha=args.alpha, contrast_mode=getattr(args, 'contrast_mode', CONTRAST_MODE),
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
 
 def _electrode_groups(labels):

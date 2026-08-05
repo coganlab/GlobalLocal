@@ -831,10 +831,11 @@ every hand-off.
 |---|---|---|
 | `contrast_mode` | `'condition'` (default) / `'proportion'` | Define stability/flexibility by the **trial condition** (congruency, switchType) or by the **LWPC/LWPS interactions** (congruency×`incongruent_proportion`, switchType×`switch_proportion`). **The battery uses `'proportion'`** — see §14.1 for why. |
 | `effect_measure` | `'cohens_d'` (default) / `'cluster'` / `'peak_t'` | Score each contrast as a standardized mean difference on window-mean HG; as a signed supra-threshold *t* mass over the window (time-resolved `hg`); or as the signed per-bin *t* at the instant of maximal \|t\| — amplitude only, invariant to how long the effect lasts. `peak_t` is the robustness complement to `cluster`, which conflates amplitude with duration and is mildly trial-count sensitive. **Prefer `'cluster'`** — see §14.2. |
+| `fdr_correction` / `FDR_CORRECTION` | `'fdr_bh'` (default) / `'none'` | Binary electrode labels use Benjamini-Hochberg FDR across electrodes by default. `none` leaves the `q_*` columns equal to raw `p_*` values and flags electrodes at raw `p < alpha`; use this for exploratory threshold-sensitivity runs, not as the primary corrected count. |
 
-They are independent — any of the four combinations is valid, and both default to
-the original behaviour. Results are written under a
-`..._<CONTRAST_MODE>_<EFFECT_MEASURE>` sub-folder so runs don't collide.
+They are independent — any combination is valid, and the defaults preserve the
+primary corrected analysis. Results are written under contrast/effect/correction
+sub-folders where the launcher exposes those knobs, so runs don't collide.
 
 ### 13.3 The shape of every DCC job
 
@@ -1438,6 +1439,7 @@ bash submit_stability_flexibility_anova_conjunction_dcc.sh
 | `ELECTRODES` | `all` | `all` or `sig` (significant channels). |
 | `CONTRAST_MODE` | `condition` | **Use `proportion`** (§14.1). `condition` = stability from congruency (i vs c), flexibility from switchType (s vs r); `proportion` = the LWPC / LWPS interactions. |
 | `EFFECT_MEASURE` | `cohens_d` | **Use `cluster`** (§14.2). `cohens_d` = standardized mean difference on window-mean HG; `cluster` = signed supra-threshold *t* mass on the windowed HG time course. |
+| `FDR_CORRECTION` | `fdr_bh` | `fdr_bh` = BH-FDR across electrodes for binary labels; `none` = raw `p < ALPHA` labels with `q_* = p_*` for exploratory threshold checks. |
 | `N_SPLITS` | `200` | Disjoint trial-half resamples for sensitivity estimation. |
 | `N_PERM_CORR` | `10000` | Permutations for the continuous test. |
 | `N_PERM_LABEL` | `2000` | Permutations per electrode for S/F labeling. |
@@ -2048,7 +2050,9 @@ any interaction-based selection (§17.1).
 |---|---|---|
 | `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs). |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | `anova` only: definition window, in seconds from stimulus onset. |
+| `CONTRAST_MODE` | `proportion` | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. |
 | `ALPHA` | `0.05` | FDR threshold for the electrode groups. |
+| `FDR_CORRECTION` | `fdr_bh` | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. |
 | `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
 | `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
 | `POWER_TRACES_CORRECTION` | `fdr_bh` | `fdr_bh`, `cluster`, or `none`. |
