@@ -23,12 +23,19 @@ four interactions onto one row per electrode, and emits a labels DataFrame with
 exactly the columns `cmh_conjunction` / `conjunction_permutation_null` /
 `conjunction_threshold_sweep` already consume.
 
-The four interaction groups (same naming as `per_electrode_anova_labels`):
+By default, the four interaction groups (same naming as
+`per_electrode_anova_labels`) are:
 
     CPC = congruency  x incongruentProportion   -- LWPC / stability   (alias `S`)
     SPS = switchType  x switchProportion        -- LWPS / flexibility (alias `F`)
     CPS = congruency  x switchProportion        -- cross control
     SPC = switchType  x incongruentProportion   -- cross control
+
+Set ``effect_mode='main'`` to instead build the conjunction from the two main
+effects: congruency (alias ``S``) and switchType (alias ``F``).  The historical
+``CPC``/``SPS`` column names are retained in that mode so the existing
+conjunction stack can consume the labels unchanged; cross-control columns are
+not produced for main effects.
 
 Two correction modes, because they answer different questions
 -------------------------------------------------------------
@@ -91,6 +98,11 @@ DEFAULT_INTERACTIONS = {
     'SPS': ('switchType', 'switchProportion'),        # LWPS / flexibility
     'CPS': ('congruency', 'switchProportion'),        # cross control
     'SPC': ('switchType', 'incongruentProportion'),   # cross control
+}
+
+MAIN_EFFECTS = {
+    'CPC': ('C(congruency)',),     # congruency main effect (alias S)
+    'SPS': ('C(switchType)',),     # switch-type main effect (alias F)
 }
 
 # The two constructs the 2x2 conjunction is actually built on. The cross groups
@@ -336,7 +348,8 @@ def _cluster_pvalue(obs, null, sign_trace, percentile=95,
 # labels: four interactions co-registered on one row per electrode
 # ----------------------------------------------------------------------------
 def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
-                     interactions=None, use_npz=True, require_all=True):
+                     interactions=None, use_npz=True, require_all=True,
+                     effect_mode='interaction'):
     """Per-electrode selectivity labels from `power_traces` cluster-corrected runs.
 
     Drop-in replacement for
@@ -378,6 +391,11 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
         contain different electrode sets (different `min_trials_per_cell`
         outcomes), and a 2x2 table built over inconsistent denominators is not
         interpretable. The number dropped is reported in `.attrs['n_dropped']`.
+    effect_mode : {'interaction', 'main'}
+        ``interaction`` uses LWPC (congruency x incongruentProportion) and LWPS
+        (switchType x switchProportion). ``main`` uses the congruency and
+        switchType main effects. Ignored when a custom ``interactions`` mapping
+        is supplied.
 
     Returns
     -------
@@ -389,10 +407,27 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
     if correction not in ('fdr_bh', 'cluster', 'none'):
         raise ValueError("correction must be 'fdr_bh', 'cluster' or 'none'; "
                          f"got {correction!r}")
-    interactions = dict(interactions or DEFAULT_INTERACTIONS)
+    if effect_mode not in ('interaction', 'main'):
+        raise ValueError("effect_mode must be 'interaction' or 'main'; "
+                         f"got {effect_mode!r}")
+    if interactions is None:
+        effect_names = dict(DEFAULT_INTERACTIONS if effect_mode == 'interaction'
+                            else MAIN_EFFECTS)
+    else:
+        # Backward-compatible custom mapping: values are factor pairs.
+        effect_names = {g: _effect_name_variants(*factors)
+                        for g, factors in interactions.items()}
+
+    if interactions is None and effect_mode == 'interaction':
+        effect_names = {g: _effect_name_variants(*factors)
+                        for g, factors in effect_names.items()}
 
     if isinstance(runs, (str, Path)):
-        runs = {g: runs for g in interactions}
+        runs = {g: runs for g in effect_names}
+    elif effect_mode == 'main' and interactions is None:
+        # Cross-interaction run paths may still be present in the submit
+        # environment; they are irrelevant to a main-effect conjunction.
+        runs = {g: p for g, p in runs.items() if g in effect_names}
     runs = {g: Path(p) for g, p in runs.items()}
     for g in CONSTRUCT_GROUPS:
         if g not in runs:
@@ -401,10 +436,10 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
 
     per_group = {}
     for group, run_dir in runs.items():
-        if group not in interactions:
-            raise KeyError(f"unknown interaction group {group!r}; "
-                           f"known: {sorted(interactions)}")
-        names = _effect_name_variants(*interactions[group])
+        if group not in effect_names:
+            raise KeyError(f"unknown effect group {group!r}; "
+                           f"known: {sorted(effect_names)}")
+        names = effect_names[group]
 
         # Preference order: the graded p the run recorded for every electrode;
         # else a recompute from the saved null; else the surviving-cluster p.
@@ -454,6 +489,7 @@ def electrode_labels(runs, roi=None, alpha=0.05, correction='fdr_bh',
     funnel = label_funnel(per_group, out, alpha=alpha, correction=correction)
     out.attrs.update(n_dropped=int(n_union - len(out)), correction=correction,
                      alpha=alpha, roi=roi, source='power_traces',
+                     effect_mode=effect_mode,
                      label_funnel=funnel.to_dict(orient='records'))
     return out
 
@@ -716,6 +752,9 @@ def cross_control_counts(labels, interactions=None):
     picking up something common to all four contrasts (gain, block-level drift)
     rather than the constructs, and the conjunction should not be interpreted.
     """
+    if interactions is None and labels.attrs.get('effect_mode') == 'main':
+        interactions = {'CPC': ('congruency', 'main effect'),
+                        'SPS': ('switchType', 'main effect')}
     interactions = dict(interactions or DEFAULT_INTERACTIONS)
     rows = []
     for group, (cond, mod) in interactions.items():
@@ -781,7 +820,9 @@ def summarize(res):
         f" z = {bvd['z']:.2f})",
         f"  p(shared > distinct, one-sided) = {bvd['p_shared_greater']:.4g}"
         f"   two-sided = {bvd['p_two_sided']:.4g}",
-        "  cross controls (should be near-null):",
+        ("  selected main effects:"
+         if res['attrs'].get('effect_mode') == 'main'
+         else "  cross controls (should be near-null):"),
     ]
     for _, r in res['cross_controls'].iterrows():
         lines.append(f"    {r['group']:<4} {r['interaction']:<45} "

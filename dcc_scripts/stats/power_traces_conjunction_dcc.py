@@ -126,7 +126,8 @@ def rois_in_run(runs):
 # synthetic run directories (path / plumbing validation, no cluster data)
 # ---------------------------------------------------------------------------
 def make_synthetic_runs(save_dir, n_subj=8, n_elec=25, overlap=0.6, base_rate=0.25,
-                        roi='lpfc', seed=0, tmin=0.0, tmax=1.5, n_windows=30):
+                        roi='lpfc', seed=0, tmin=0.0, tmax=1.5, n_windows=30,
+                        effect_mode='interaction'):
     """Write four fake within-electrode ANOVA runs to disk and return their paths.
 
     Plants a KNOWN degree of S/F co-selectivity so the whole read -> label ->
@@ -146,6 +147,8 @@ def make_synthetic_runs(save_dir, n_subj=8, n_elec=25, overlap=0.6, base_rate=0.
         'CPS': ptc.anova_effect_name('congruency', 'switchProportion'),
         'SPC': ptc.anova_effect_name('switchType', 'incongruentProportion'),
     }
+    if effect_mode == 'main':
+        effects = {'CPC': 'C(congruency)', 'SPS': 'C(switchType)'}
     rows = {g: [] for g in effects}
     for s in range(n_subj):
         for e in range(n_elec):
@@ -385,7 +388,10 @@ def make_plots(labels, res, save_dir, roi_tag=''):
                      color=[colors.get(g, "#999") for g in cc['group']])
         for xi, (n, fr) in enumerate(zip(cc['n_significant'], cc['frac'])):
             ax[1, 2].text(xi, 100 * fr, f"{int(n)}", ha='center', va='bottom')
-    ax[1, 2].set(title="cross controls (CPS/SPC should be near-null)",
+    control_title = ("selected main effects"
+                     if labels.attrs.get('effect_mode') == 'main'
+                     else "cross controls (CPS/SPC should be near-null)")
+    ax[1, 2].set(title=control_title,
                  ylabel="% of electrodes selected")
 
     fig.tight_layout()
@@ -541,7 +547,8 @@ def run_one_roi(args, runs, roi, save_dir):
 
     labels = ptc.electrode_labels(
         runs, roi=roi, alpha=args.alpha, correction=args.correction,
-        use_npz=args.use_npz, require_all=args.require_all)
+        use_npz=args.use_npz, require_all=args.require_all,
+        effect_mode=getattr(args, 'effect_mode', 'interaction'))
     print(f"labels: {len(labels)} electrodes | "
           f"{labels['subject'].nunique()} subjects | "
           f"dropped {labels.attrs.get('n_dropped', 0)} (not in every run)")
@@ -567,7 +574,8 @@ def main(args):
         runs = make_synthetic_runs(
             args.save_dir, overlap=getattr(args, 'synthetic_overlap', 0.6),
             base_rate=getattr(args, 'synthetic_base_rate', 0.25),
-            seed=getattr(args, 'seed', 0))
+            seed=getattr(args, 'seed', 0),
+            effect_mode=getattr(args, 'effect_mode', 'interaction'))
         args.run_dirs, args.run_dir = runs, None
     else:
         print("DATA SOURCE: real power_traces within-electrode ANOVA run(s)")
@@ -609,6 +617,7 @@ def main(args):
                           runs=(runs if isinstance(runs, str)
                                 else {g: os.path.basename(p) for g, p in runs.items()}),
                           roi=tag, correction=args.correction, alpha=args.alpha,
+                          effect_mode=getattr(args, 'effect_mode', 'interaction'),
                           require_all=args.require_all,
                           n_perm_null=args.n_perm_null,
                           thresholds=list(args.thresholds),
