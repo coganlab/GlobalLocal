@@ -603,8 +603,10 @@ def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
         import matplotlib.colors as mcolors
         from dcc_scripts.vis.plot_sig_electrodes_dcc import (
             strip_leading_zeros, electrodes_to_global_indices)
-        from ieeg.viz.mri import subject_to_info
-        from src.analysis.vis.jim_mri import plot_on_average
+        # Use the project's MRI helpers for both loading and rendering.  The
+        # upstream ieeg helper defaults to ~/Box/ECoG_Recon on the cluster,
+        # whereas jim_mri points at the mounted full recon dataset in /cwork.
+        from src.analysis.vis.jim_mri import plot_on_average, subject_to_info
         from collections import OrderedDict
 
         if subjects is None:
