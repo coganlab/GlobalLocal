@@ -58,6 +58,25 @@ def test_roi_map_groups_and_anat_map_keeps_raw_labels(subjects_rois_dict):
     assert 'D0057-LTP4' not in e2a and 'D0059-RTA3' not in e2a
 
 
+def test_roi_map_accepts_freesurfer_hemisphere_qualified_labels():
+    """Newer recon exports prefix cortical parcels with ctx_lh_/ctx_rh_."""
+    atlas = {
+        'D0145': {'default_dict': {
+            'LFM1': 'ctx_lh_G_front_middle',
+            'RFI1': 'ctx_rh_G_front_inf-Triangul',
+            'RAM1': 'Right-Amygdala',
+        }},
+    }
+
+    e2r = sfa.build_electrode_roi_map(atlas, ROIS_DICT)
+    e2a = sfa.build_electrode_anat_map(atlas)
+
+    assert e2r == {'D0145-LFM1': 'lpfc', 'D0145-RFI1': 'lpfc'}
+    # Fine-grained output remains verbatim, including hemisphere information.
+    assert e2a['D0145-LFM1'] == 'ctx_lh_G_front_middle'
+    assert e2a['D0145-RFI1'] == 'ctx_rh_G_front_inf-Triangul'
+
+
 def test_overlapping_groups_need_the_dict_subset_first(subjects_rois_dict):
     """dlpfc is listed before lpfc and shares labels with it — first group wins.
 

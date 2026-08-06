@@ -1,3 +1,12 @@
+"""Bilateral coarse-ROI definitions built from Destrieux parcel names.
+
+These entries are *selectors*, not replacement anatomical labels.  They omit
+FreeSurfer's ``ctx_lh_`` / ``ctx_rh_`` prefix deliberately so one definition
+selects the homologous parcel in either hemisphere.  Electrode tables retain
+the complete atlas label (and the brain renderer uses electrode coordinates),
+so this shorthand does not discard or alter laterality.
+"""
+
 rois_dict = {
     'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
     'acc': ["G_and_S_cingul-Ant", "G_and_S_cingul-Mid-Ant"],
