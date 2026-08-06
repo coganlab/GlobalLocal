@@ -44,6 +44,8 @@ def _write_run(tmp_path, name, effect, entries, roi='lpfc'):
 
 CPC_EFFECT = 'C(congruency):C(incongruentProportion)'
 SPS_EFFECT = 'C(switchType):C(switchProportion)'
+CONGRUENCY_EFFECT = 'C(congruency)'
+SWITCH_TYPE_EFFECT = 'C(switchType)'
 CPS_EFFECT = 'C(congruency):C(switchProportion)'
 SPC_EFFECT = 'C(switchType):C(incongruentProportion)'
 
@@ -120,6 +122,30 @@ def test_labels_have_the_conjunction_contract(four_runs):
     assert (lab['S'] == lab['CPC']).all()
     assert (lab['F'] == lab['SPS']).all()
     assert len(lab) == 8
+
+
+def test_main_effect_mode_uses_congruency_and_switch_type(tmp_path):
+    entries = [('S1', 'e0', 0.01, 3, 1), ('S1', 'e1', 1.0, 0, 0)]
+    main_run = tmp_path / 'main'
+    main_run.mkdir()
+    rows = ([_summary_rows(*row[:2], 'lpfc', CONGRUENCY_EFFECT, *row[2:])
+             for row in entries]
+            + [_summary_rows('S1', 'e0', 'lpfc', SWITCH_TYPE_EFFECT, 1.0, 0, 0),
+               _summary_rows('S1', 'e1', 'lpfc', SWITCH_TYPE_EFFECT, 0.02, 2, 1)])
+    pd.DataFrame(rows).to_csv(main_run / 'summary.csv', index=False)
+
+    lab = ptc.electrode_labels(main_run, roi='lpfc', correction='cluster',
+                               use_npz=False, effect_mode='main')
+
+    assert list(lab['S']) == [1, 0]
+    assert list(lab['F']) == [0, 1]
+    assert set(lab.columns).isdisjoint({'CPS', 'SPC'})
+    assert lab.attrs['effect_mode'] == 'main'
+
+
+def test_bad_effect_mode_raises(four_runs):
+    with pytest.raises(ValueError, match='effect_mode must be'):
+        ptc.electrode_labels(four_runs, effect_mode='simple')
 
 
 def test_cluster_mode_reproduces_raw_thresholding(four_runs):
