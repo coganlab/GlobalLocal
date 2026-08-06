@@ -99,6 +99,23 @@ GROUP_COLORS = {
 NON_CORTICAL_LABELS = ('Unknown', 'unknown', 'White-Matter', 'hypointensities')
 
 
+def _roi_lookup_label(label):
+    """Return the atlas parcel spelling used by ``config/rois.py``.
+
+    Recon dictionaries are not completely uniform: older files store bare
+    Destrieux names (``G_front_middle``), while newer annotation exports store
+    FreeSurfer-qualified names (``ctx_lh_G_front_middle`` or
+    ``ctx_rh_G_front_middle``).  The coarse ROI configuration intentionally
+    omits hemisphere, so remove only that well-defined prefix for lookup.  The
+    original label is still retained by :func:`build_electrode_anat_map`.
+    """
+    label = str(label)
+    for prefix in ("ctx_lh_", "ctx_rh_"):
+        if label.startswith(prefix):
+            return label[len(prefix):]
+    return label
+
+
 # ---------------------------------------------------------------------------
 # electrode -> ROI mapping
 # ---------------------------------------------------------------------------
@@ -112,8 +129,10 @@ def build_electrode_roi_map(subjects_rois_dict, rois_dict, which='default_dict',
         ``{subject: {'default_dict': {channel -> anatomical_label}, ...}}`` as
         returned by ``make_or_load_subjects_electrodes_to_ROIs_dict``.
     rois_dict : dict
-        Coarse ROI groups -> list of anatomical (Destrieux) labels
-        (``src/analysis/config/rois.py``). ROI groups may share labels; the
+    Coarse bilateral ROI groups -> list of hemisphere-neutral Destrieux parcel
+        selectors (``src/analysis/config/rois.py``). This lookup does not modify
+        the raw ``anat`` label or the electrode coordinates used for rendering.
+        ROI groups may share labels; the
         FIRST group (in ``rois_dict`` insertion order) that contains a channel's
         label wins, so the mapping is deterministic. Channels whose label is in
         no group are dropped (returned only if they match some group).
@@ -139,7 +158,7 @@ def build_electrode_roi_map(subjects_rois_dict, rois_dict, which='default_dict',
     for subject, sub in subjects_rois_dict.items():
         chan_to_label = sub.get(which, {}) if isinstance(sub, dict) else {}
         for channel, anat_label in chan_to_label.items():
-            group = label_to_group.get(anat_label)
+            group = label_to_group.get(_roi_lookup_label(anat_label))
             if group is None:
                 continue
             e2r[electrode_fmt.format(subject=subject, channel=channel)] = group
@@ -597,6 +616,18 @@ def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
         out_path = base + '.png'
 
     try:
+        # ``PYVISTA_OFF_SCREEN`` controls the VTK framebuffer, but MNE's
+        # pyvistaqt backend still needs a valid X display while it constructs
+        # the scene.  Batch jobs normally provide one through ``xvfb-run``;
+        # direct invocations of the Python entrypoint do not.  Start the same
+        # virtual display programmatically before importing jim_mri (whose
+        # module import selects the Qt backend).
+        os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
+        import pyvista as pv
+        pv.OFF_SCREEN = True
+        if not os.environ.get("DISPLAY"):
+            pv.start_xvfb()
+
         # Reuse the project's electrode renderer + its index bookkeeping rather
         # than writing new surface code. Kept behind a try/except so a missing
         # heavy dependency degrades gracefully instead of killing the job.
