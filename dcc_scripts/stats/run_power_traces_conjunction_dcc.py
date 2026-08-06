@@ -16,7 +16,7 @@ Everything is overridable from the submit script via environment variables:
     PT_RUN_CPC/_SPS/_CPS/_SPC
                       or four separate two-factor runs (CPC and SPS required)
     ROIS              comma-separated ROI names, or 'all' to pool
-    ALPHA, CORRECTION, N_PERM_NULL, THRESHOLDS, REQUIRE_ALL, USE_NPZ
+    ALPHA, CORRECTION, EFFECT_MODE, N_PERM_NULL, THRESHOLDS, REQUIRE_ALL, USE_NPZ
     RUN_CONTINUOUS    1 to also run the continuous confound control (needs epochs)
     EPOCHS_ROOT_FILE, N_SPLITS, N_PERM_CORR, MIN_ELEC, EFFECT_MEASURES, ELECTRODES
     DATA_SOURCE       'real' (default) or 'synthetic' (fabricates the runs on disk)
@@ -90,6 +90,10 @@ ROIS = 'all' if ROIS.strip() == 'all' else [r.strip() for r in ROIS.split(',') i
 #   'none'    any surviving cluster counts
 CORRECTION = os.environ.get('CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
+# 'interaction': LWPC x LWPS; 'main': congruency x switch-type main effects.
+EFFECT_MODE = os.environ.get('EFFECT_MODE', 'interaction')
+if EFFECT_MODE not in ('interaction', 'main'):
+    raise ValueError("EFFECT_MODE must be 'interaction' or 'main'")
 
 # Keep only electrodes present in EVERY requested run. Different runs can end up
 # with different electrode sets (min_trials_per_cell), and a 2x2 built over
@@ -161,6 +165,10 @@ else:
     _tag = os.path.basename(os.path.normpath(_ref))
 SAVE_DIR = os.path.join(current_script_dir, 'results', EPOCHS_ROOT_FILE, 'power_traces_conjunction_results',
                         _tag, f'{CORRECTION}_alpha{ALPHA}')
+if EFFECT_MODE == 'main':
+    # Keep existing interaction output paths stable and prevent main-effect runs
+    # from overwriting them.
+    SAVE_DIR = os.path.join(SAVE_DIR, 'main_effects')
 
 
 def run_analysis():
@@ -176,6 +184,7 @@ def run_analysis():
         rois=ROIS,
         alpha=ALPHA,
         correction=CORRECTION,
+        effect_mode=EFFECT_MODE,
         require_all=REQUIRE_ALL,
         use_npz=USE_NPZ,
         n_perm_null=N_PERM_NULL,
@@ -211,6 +220,7 @@ def run_analysis():
             print(f"Run {g}:           {p}")
     print(f"ROIs:             {ROIS}")
     print(f"Correction:       {CORRECTION} | alpha: {ALPHA}")
+    print(f"Effect mode:      {EFFECT_MODE}")
     print(f"require_all:      {REQUIRE_ALL} | use_npz (legacy runs): {USE_NPZ}")
     print(f"n_perm_null:      {N_PERM_NULL} | thresholds: {THRESHOLDS}")
     print("-" * 72)
