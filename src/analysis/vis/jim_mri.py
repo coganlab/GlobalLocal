@@ -198,9 +198,7 @@ def get_sub_dir(subj_dir: PathLike = None):
         The subjects directory
     """
     if subj_dir is None:
-        from os import path
-        HOME = path.expanduser("~")
-        subj_dir = op.join(HOME, "Box", "ECoG_Recon")
+        subj_dir = "/cwork/jz421/ECoG_Recon_Full"
     return subj_dir
 
 
@@ -288,7 +286,7 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
         The signal(s) to plot. If a list, all electrodes will be the same
         color. If a single signal, each electrode will be a different color.
     subj_dir : PathLike, optional
-        The subjects directory, by default LAB_root / 'ECoG_Recon'
+        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
     rm_wm : bool, optional
         Whether to remove white matter electrodes, by default True
     picks : list[int | str], optional
@@ -557,7 +555,7 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
     inst : Signal | mne.Info | str
         The subject to plot
     subj_dir : PathLike, optional
-        The subjects directory, by default HOME / 'Box' / 'ECoG_Recon'
+        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
     picks : list[str | int], optional
         The channels to plot, by default all
     no_wm : bool, optional
@@ -740,7 +738,7 @@ def subject_to_info(subject: str, subjects_dir: PathLike = None,
     subject : str
         The subject to get the info for
     subjects_dir : PathLike, optional
-        The subjects directory, by default HOME / 'Box' / 'ECoG_Recon'
+        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
     ch_types : str, optional
         The channel type, by default "seeg"
     sfreq : int, optional
