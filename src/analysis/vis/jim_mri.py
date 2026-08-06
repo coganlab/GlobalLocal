@@ -100,7 +100,7 @@ def show_brain(my_raw: Signal, trans: mne.transforms.Transform,
     sub_id : PathLike
         The subject id
     subjects_dir : PathLike, optional
-        The subjects directory, by default LAB_root / 'ECoG_Recon_Full'
+        The subjects directory, by default LAB_root / 'ECoG_Recon'
     overwrite : bool, optional
         Whether to overwrite the watershed bem, by default False
     """
@@ -190,7 +190,7 @@ def get_sub_dir(subj_dir: PathLike = None):
     Parameters
     ----------
     subj_dir : PathLike, optional
-        The subjects directory, by default LAB_root / 'ECoG_Recon_Full'
+        The subjects directory, by default LAB_root / 'ECoG_Recon'
 
     Returns
     -------
@@ -198,7 +198,7 @@ def get_sub_dir(subj_dir: PathLike = None):
         The subjects directory
     """
     if subj_dir is None:
-        subj_dir = "/cwork/jz421/ECoG_Recon_Full"
+        subj_dir = "/cwork/jz421/ECoG_Recon"
     return subj_dir
 
 
@@ -210,7 +210,7 @@ def plot_gamma(evoked: mne.Evoked, subjects_dir: PathLike = None, **kwargs):
     evoked : mne.Evoked
         The data to plot
     subjects_dir : PathLike, optional
-        The subjects directory, by default LAB_root / 'ECoG_Recon_Full'
+        The subjects directory, by default LAB_root / 'ECoG_Recon'
     **kwargs
         Additional arguments to pass to plot_on_average
         """
@@ -286,7 +286,7 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
         The signal(s) to plot. If a list, all electrodes will be the same
         color. If a single signal, each electrode will be a different color.
     subj_dir : PathLike, optional
-        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
+        The subjects directory, by default /cwork/jz421/ECoG_Recon
     rm_wm : bool, optional
         Whether to remove white matter electrodes, by default True
     picks : list[int | str], optional
@@ -555,7 +555,7 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
     inst : Signal | mne.Info | str
         The subject to plot
     subj_dir : PathLike, optional
-        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
+        The subjects directory, by default /cwork/jz421/ECoG_Recon
     picks : list[str | int], optional
         The channels to plot, by default all
     no_wm : bool, optional
@@ -738,7 +738,7 @@ def subject_to_info(subject: str, subjects_dir: PathLike = None,
     subject : str
         The subject to get the info for
     subjects_dir : PathLike, optional
-        The subjects directory, by default /cwork/jz421/ECoG_Recon_Full
+        The subjects directory, by default /cwork/jz421/ECoG_Recon
     ch_types : str, optional
         The channel type, by default "seeg"
     sfreq : int, optional
@@ -865,7 +865,7 @@ if __name__ == "__main__":
     TASK = "SentenceRep"
     sub_num = 59
     layout = get_data(TASK, root=LAB_root)
-    subj_dir = op.join(LAB_root, "ECoG_Recon_Full")
+    subj_dir = op.join(LAB_root, "ECoG_Recon")
     sub_pad = "D" + str(sub_num).zfill(4)
     # sub = "D{}".format(sub_num)
 

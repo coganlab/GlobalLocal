@@ -67,7 +67,7 @@ MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than th
 # ---------------------------------------------------------------------------
 ELECTRODE_DEFINITION=${ELECTRODE_DEFINITION:-anova}
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (ELECTRODE_DEFINITION=anova)
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none (ELECTRODE_DEFINITION=anova)
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}          # seconds relative to stimulus onset
 WINDOW_TMAX=${WINDOW_TMAX:-0.5}
 ALPHA=${ALPHA:-0.05}

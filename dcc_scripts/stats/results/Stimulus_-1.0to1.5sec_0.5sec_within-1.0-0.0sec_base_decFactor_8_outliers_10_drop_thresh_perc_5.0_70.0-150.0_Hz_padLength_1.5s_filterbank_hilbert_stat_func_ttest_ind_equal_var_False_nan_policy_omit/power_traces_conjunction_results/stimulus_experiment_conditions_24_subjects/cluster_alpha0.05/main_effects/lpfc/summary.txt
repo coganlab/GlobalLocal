@@ -6,29 +6,25 @@ STABILITY vs FLEXIBILITY - CONJUNCTION ON power_traces ELECTRODES
                        roi: lpfc
                 correction: cluster
                      alpha: 0.05
-               effect_mode: interaction
+               effect_mode: main
                require_all: True
                n_perm_null: 10000
                 thresholds: [0.01]
         continuous_control: True
-                  save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/power_traces_conjunction_results/stimulus_experiment_conditions_24_subjects/cluster_alpha0.05/lpfc
+                  save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/power_traces_conjunction_results/stimulus_experiment_conditions_24_subjects/cluster_alpha0.05/main_effects/lpfc
 ------------------------------------------------------------------------
 electrodes: 195  subjects: 11  (roi=lpfc, correction=cluster)
-  both=2  S-only=11  F-only=20  neither=162
-  MH odds ratio = 3.647   CMH p = 0.06518   homogeneity p = 0.2235
-  shared - distinct = -29  (null -32.1 +/- 2.2, z = 1.40)
-  p(shared > distinct, one-sided) = 0.2154   two-sided = 0.2154
-  cross controls (should be near-null):
-    CPC  congruency x incongruentProportion              13/195 (6.7%)
-    SPS  switchType x switchProportion                   22/195 (11.3%)
-    CPS  congruency x switchProportion                    5/195 (2.6%)
-    SPC  switchType x incongruentProportion               5/195 (2.6%)
+  both=4  S-only=39  F-only=12  neither=140
+  MH odds ratio = 3.264   CMH p = 0.0929   homogeneity p = 0.4076
+  shared - distinct = -47  (null -51.9 +/- 3.4, z = 1.43)
+  p(shared > distinct, one-sided) = 0.1562   two-sided = 0.19
+  selected main effects:
+    CPC  congruency x main effect                        43/195 (22.1%)
+    SPS  switchType x main effect                        16/195 (8.2%)
   label funnel (where power_traces counts can drop):
 group  run_tested_electrodes  run_raw_p_lt_alpha  run_raw_p_lt_alpha_frac  present_after_alignment  dropped_by_alignment  aligned_raw_p_lt_alpha  final_flagged  final_flagged_frac final_correction
-  CPC                    195                  13                 0.066667                      195                     0                      13             13            0.066667          cluster
-  SPS                    195                  22                 0.112821                      195                     0                      22             22            0.112821          cluster
-  CPS                    195                   5                 0.025641                      195                     0                       5              5            0.025641          cluster
-  SPC                    195                   5                 0.025641                      195                     0                       5              5            0.025641          cluster
+  CPC                    195                  43                 0.220513                      195                     0                      43             43            0.220513          cluster
+  SPS                    195                  16                 0.082051                      195                     0                      16             16            0.082051          cluster
   Reading: run_raw_p_lt_alpha is the like-for-like raw cluster count from the power-traces run. final_flagged is the count actually used here after run alignment and the requested correction.
 ------------------------------------------------------------------------
 continuous correlation (responsiveness-residualised, disjoint trial halves, within-subject centred):

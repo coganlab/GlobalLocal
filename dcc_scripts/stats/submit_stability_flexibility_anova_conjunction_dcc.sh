@@ -22,8 +22,8 @@ ELECTRODES=sig            # 'all' or 'sig'
 DATA_SOURCE=${DATA_SOURCE:-real}
 
 # A1/A2 hyperparameters (lower N_PERM_NULL for a quick test run).
-CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
 THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}

@@ -1,0 +1,58 @@
+==============================================================================
+STABILITY vs FLEXIBILITY — A6 BRAIN-BEHAVIOR
+==============================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+          behavior_csv: /hpc/home/jz421/coganlab/jz421/GlobalLocal/combinedData.csv
+                window: [0.0, 1.5]s
+         contrast_mode: proportion
+        effect_measure: cohens_d
+        fdr_correction: none
+primary_neural_summary: count
+                 alpha: 0.05
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/brain_behavior_window_0.0to1.5s_sig_count
+------------------------------------------------------------------------------
+electrodes: 4412 | S (LWPC) = 308 | F (LWPS) = 344 | both = 36
+behavioral magnitudes: 23 subjects | mean LWPC = -45.7 ms | mean LWPS = -97.1 ms
+------------------------------------------------------------------------------
+(1) ACROSS SUBJECTS — underpowered by design; supporting, not decisive
+      neural = 'count' (n_S / n_F  (# selective electrodes)) <- primary
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.168  p = 0.493
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.048  p = 0.8461
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.004  p = 0.9858
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.275  p = 0.255
+          specificity (both matched |r| > their cross |r|): False
+      neural = 'frac' (frac_S / frac_F  (proportion of the subject's electrodes))
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.140  p = 0.5663
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.018  p = 0.9425
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.010  p = 0.9683
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.168  p = 0.4922
+          specificity (both matched |r| > their cross |r|): False
+      neural = 'effect' (mean_stab / mean_flex  (mean interaction F))
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.336  p = 0.1601
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.033  p = 0.8946
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.188  p = 0.441
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.183  p = 0.4529
+          specificity (both matched |r| > their cross |r|): False
+      n = 19 subjects. Across-subject correlation is underpowered at n=19 subjects; treat as supporting evidence, not decisive. The powered test is the within-subject single-trial mixed model.
+------------------------------------------------------------------------------
+(2) WITHIN SUBJECT, SINGLE TRIAL — the powered test
+      model: adjustment ~ group HG, subject random intercept (mixedlm);
+      adjustment = the trial's signed contribution to its process's
+      difference-of-differences (d-o-d cell weight x subject-centered RT).
+      [LWPC]  n_trials = 8955  n_subjects = 24
+          MATCHED (adj_congruency): slope = +116.9684  p = 4.672e-10  z = 6.23
+          CROSS   (adj_switch): slope = +130.1341  p = 8.402e-12  z = 6.83
+          specificity_ok (|matched| > |cross|): False
+      [LWPS]  n_trials = 9195  n_subjects = 24
+          MATCHED (adj_switch): slope = +162.7483  p = 2.756e-20  z = 9.23
+          CROSS   (adj_congruency): slope = +153.5213  p = 7.317e-19  z = 8.87
+          specificity_ok (|matched| > |cross|): True
+==============================================================================
+Reading: the headline is the SPECIFICITY GAP, not a p-value. With thousands
+of trials every slope is 'significant', so the claim rests on the matched
+pairing being STRONGER than the cross pairing (`specificity_ok`), at both
+levels. The across-subject correlation is reported with its n and an honest
+underpowered caveat — a null there is uninformative; the within-subject
+mixed model is the real test.
