@@ -29,8 +29,8 @@ BEHAVIOR_RT_COL=${BEHAVIOR_RT_COL:-RT}
 # Analysis window (seconds relative to stimulus onset) and electrode set.
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}
-WINDOW_TMAX=${WINDOW_TMAX:-0.5}
-ELECTRODES=${ELECTRODES:-all}       # 'all' or 'sig'
+WINDOW_TMAX=${WINDOW_TMAX:-1.5}
+ELECTRODES=${ELECTRODES:-sig}       # 'all' or 'sig'
 
 # Data source: 'real' loads epoched data + the behavioral CSV; 'synthetic' plants
 # a matched coupling stronger than its cross control and validates the whole path.
@@ -42,7 +42,7 @@ SYNTHETIC_CROSS_FRAC=${SYNTHETIC_CROSS_FRAC:-0.25}
 
 # A1 electrode definition + A6 hyperparameters.
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
 ALPHA=${ALPHA:-0.05}
 # which per-subject neural summary headlines the across-subject level:
 # 'count' | 'frac' | 'effect' (all three are computed; this picks the primary).

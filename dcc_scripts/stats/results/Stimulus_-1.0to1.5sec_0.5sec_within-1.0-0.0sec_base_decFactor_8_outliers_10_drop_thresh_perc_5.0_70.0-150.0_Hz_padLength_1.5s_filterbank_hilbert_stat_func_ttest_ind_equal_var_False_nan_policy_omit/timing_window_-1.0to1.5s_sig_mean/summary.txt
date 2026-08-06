@@ -22,12 +22,12 @@ FULL-SAMPLE LATENCIES (descriptive):
       peak  difference (LWPC - LWPS) = -1.5273 s
       onset and peak agree on the ordering: True
 ----------------------------------------------------------------------
-JACKKNIFE (Ulrich-Miller, N = 24 subjects):
-      mean leave-one-out difference = -1.5329 s
-      jackknife SE                  = 2.5026 s
-      95% CI                        = [-6.7099, +3.6442] s
-      t_raw = -14.088  ->  t_corrected = t_raw/(N-1) = -0.613   (df = 23)
-      p = 0.5462   ->  ordering NOT reliable   [stability (LWPC) leads]
+JACKKNIFE (Ulrich-Miller, N = 4412 electrodes):
+      mean leave-one-out difference = -1.7791 s
+      jackknife SE                  = 0.0138 s
+      95% CI                        = [-1.8062, -1.7521] s
+      t_raw = -568518.949  ->  t_corrected = t_raw/(N-1) = -128.887   (df = 4411)
+      p = 0   ->  RELIABLE ordering   [stability (LWPC) leads]
 ======================================================================
 Reading: the SIGN of the onset difference says which process's information
 arises first (negative = stability leads); the CI / (N-1)-corrected t say

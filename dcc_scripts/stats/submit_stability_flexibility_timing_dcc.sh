@@ -36,7 +36,7 @@ SYNTHETIC_STAB_ONSET=${SYNTHETIC_STAB_ONSET:-0.20}
 SYNTHETIC_FLEX_ONSET=${SYNTHETIC_FLEX_ONSET:-0.40}
 
 # A5 hyperparameters.
-CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS; condition=congruency/switch main effects (exploratory)
+CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS; condition=congruency/switch main effects (exploratory)
 # STATISTIC: 'mean' = grand-average d-o-d(t); 't' = t across electrodes (noise-
 # normalized, often a cleaner flank). Report both if they disagree.
 STATISTIC=${STATISTIC:-mean}
