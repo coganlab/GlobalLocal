@@ -28,6 +28,8 @@ ANOVA_UNIT='electrode'  # whether to do the stats in terms of 'roi' (across elec
 # with no BH correction use:
 #   ANOVA_LABELS_CSV=/path/to/anova_labels.csv ANOVA_LABEL_EFFECT=lwpc \
 #   ANOVA_LABEL_CORRECTION=none bash submit_specific_conditions_power_traces_dcc.sh
+# Use ANOVA_LABEL_EFFECT=both to require significance for both stability (LWPC)
+# and flexibility (LWPS).
 ANOVA_LABELS_CSV=${ANOVA_LABELS_CSV:-}
 ANOVA_LABEL_EFFECT=${ANOVA_LABEL_EFFECT:-lwpc}
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
