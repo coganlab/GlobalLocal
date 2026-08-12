@@ -6,7 +6,9 @@ cross-decoding entrypoints use exactly the same selection semantics.
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
+import re
 
 import pandas as pd
 
@@ -23,6 +25,32 @@ _EFFECTS = {
 }
 
 _COMBINED_EFFECTS = {"both"}
+
+
+def anova_label_run_slug(path, effect="lwpc", correction="flags", alpha=0.05,
+                         roi=None):
+    """Return a unique, readable output-folder name for an A1 selection.
+
+    The source result-directory name records the statistical window/config.
+    The remaining selection parameters are appended explicitly, while a short
+    hash of the resolved CSV path prevents collisions between equally named
+    result directories in different trees.
+    """
+    csv_path = Path(path).expanduser()
+    if csv_path.name == "anova_labels.csv" or csv_path.suffix.lower() == ".csv":
+        source_name = csv_path.parent.name
+    else:
+        source_name = csv_path.name
+        csv_path = csv_path / "anova_labels.csv"
+
+    def safe(value):
+        return re.sub(r"[^A-Za-z0-9._-]+", "-", str(value)).strip("-_") or "all"
+
+    alpha_text = format(float(alpha), ".12g")
+    path_hash = hashlib.sha1(str(csv_path.resolve()).encode()).hexdigest()[:8]
+    return (f"{safe(source_name)}__effect-{safe(effect)}"
+            f"__correction-{safe(correction)}__alpha-{safe(alpha_text)}"
+            f"__roi-{safe(roi or 'all')}__{path_hash}")
 
 
 def load_anova_labels(path, correction="flags", alpha=0.05, roi=None):
