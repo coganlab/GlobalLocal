@@ -17,6 +17,7 @@
 #   DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal bash submit_..._dcc.sh     # the null code
 #   TEMPGEN_GROUPS=both,all bash submit_..._dcc.sh                             # + unselected tempgen
 #   FRAC_TRAIN=0.5 bash submit_..._dcc.sh                                      # set the train/test split
+#   ANOVA_LABELS_CSV=/path/to/anova_labels.csv bash submit_..._dcc.sh          # one saved A1 run
 #   ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=/path/to/run \
 #       bash submit_..._dcc.sh                                                 # define electrodes from
 #                                                                              # the power-trace runs
@@ -26,19 +27,21 @@
 # ---------------------------------------------------------------------------
 # Data in: epochs file (high-gamma, rescaled) and the condition set.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
+EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
 
 # Default to the full crossed condition set. Keep this non-empty because the
 # Python entrypoint treats a blank CONDITIONS as the default, but exporting an
 # explicit value makes the submitted job log self-documenting.
-CONDITIONS=${CONDITIONS:-stimulus_experiment_conditions}
-
-# ---------------------------------------------------------------------------
-# Analysis window (seconds relative to stimulus onset) and electrode set.
-# ---------------------------------------------------------------------------
-WINDOW_TMIN=0.0
-WINDOW_TMAX=1.5
-ELECTRODES=sig            # 'all' or 'sig'
+# Unlike ordinary decoding, every cross-decoding condition set must carry both
+# congruency and switchType on the same trials.  CONDITIONS may contain one or
+# more compatible registry names, separated by spaces; submit one job per name.
+# The full crossed set is the cross-decoding counterpart to the ordinary
+# launcher's block-balanced condition battery.
+if [[ -n "${CONDITIONS:-}" ]]; then
+    read -r -a CONDITION_LIST <<< "$CONDITIONS"
+else
+    CONDITION_LIST=(stimulus_experiment_conditions)
+fi
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the whole path
 # with a ground-truth pseudopopulation. SYNTHETIC_CODE picks the planted truth:
@@ -66,14 +69,33 @@ MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than th
 #                 their cluster correction (needs the run directories)
 #   csv           reuse S/F flags from an existing A1 anova_labels.csv
 # ---------------------------------------------------------------------------
-ELECTRODE_DEFINITION=${ELECTRODE_DEFINITION:-anova}
-ANOVA_LABELS_CSV=${ANOVA_LABELS_CSV:-}
+if [[ -z "${ELECTRODE_DEFINITION:-}" ]]; then
+    # Real submissions mirror the normal decoder's saved-label selection. The
+    # synthetic validation has planted labels and must remain self-contained.
+    [[ "$DATA_SOURCE" == synthetic ]] && ELECTRODE_DEFINITION=anova || ELECTRODE_DEFINITION=csv
+fi
+
+# Keep this list in step with submit_specific_conditions_decoding_dcc.sh. Paths
+# may name either anova_labels.csv itself or its result directory. As in the
+# ordinary launcher, ANOVA_LABELS_CSV overrides the list with one saved run.
+ANOVA_LABELS_CSVS=(
+    # Add additional saved A1 runs here to submit the same condition battery for
+    # each definition window/correction.
+    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_proportion_none
+)
+if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
+    ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
+fi
+ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
+ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-} # only set when the CSV itself has an roi column
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none (ELECTRODE_DEFINITION=anova)
+# For CSV runs, use the ordinary launcher's ANOVA_LABEL_CORRECTION and
+# ANOVA_LABEL_ALPHA names. Explicit FDR_CORRECTION/ALPHA still take precedence.
+FDR_CORRECTION=${FDR_CORRECTION:-$ANOVA_LABEL_CORRECTION}
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}          # seconds relative to stimulus onset
 WINDOW_TMAX=${WINDOW_TMAX:-0.5}
-ALPHA=${ALPHA:-0.05}
+ALPHA=${ALPHA:-$ANOVA_LABEL_ALPHA}
 # Optional circularity guard for ELECTRODE_DEFINITION=anova. The ANOVA is fit
 # over WINDOW_TMIN..WINDOW_TMAX on this fraction of physical trials; decoding
 # and temporal generalization use only the complementary trials.
@@ -119,8 +141,14 @@ FRAC_TRAIN=${FRAC_TRAIN:-}
 
 mkdir -p out
 
-echo "Submitting stability/flexibility A4 cross-decoding"
-echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$CONTRAST_MODE  fdr=$FDR_CORRECTION"
-sbatch --job-name="sf_xdecode_${DATA_SOURCE}_${ROI}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$CONDITIONS",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TEMPGEN_GROUPS="$TEMPGEN_GROUPS",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
-    sbatch_stability_flexibility_cross_decoding_dcc.sh
+for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
+    ANOVA_LABELS_CSV=${ANOVA_LABELS_CSVS[$CSV_INDEX]}
+    for COND in "${CONDITION_LIST[@]}"; do
+        echo "Submitting stability/flexibility A4 cross-decoding"
+        echo "  condition=$COND  anova_labels=${ANOVA_LABELS_CSV:-none}"
+        echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$CONTRAST_MODE  correction=$FDR_CORRECTION"
+        sbatch --job-name="sf_xdec_a${CSV_INDEX}_${DATA_SOURCE}_${ROI}" \
+            --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$COND",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TEMPGEN_GROUPS="$TEMPGEN_GROUPS",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
+            sbatch_stability_flexibility_cross_decoding_dcc.sh
+    done
+done
