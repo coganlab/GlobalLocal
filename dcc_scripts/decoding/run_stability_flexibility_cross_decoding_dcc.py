@@ -41,6 +41,7 @@ if project_root not in sys.path:
 from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import main
 from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import rois_dict as ALL_ROIS_DICT
+from src.analysis.utils.anova_label_selection import anova_label_run_slug
 
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
@@ -207,7 +208,14 @@ _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_{SYNTHETIC_CODE}'
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     current_script_dir, 'results', _tag,
     f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
-    f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
+    f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}',
+    CONDITIONS_NAME)
+if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
+    SAVE_DIR = os.path.join(
+        SAVE_DIR, 'anova_label_selections',
+        anova_label_run_slug(
+            ANOVA_LABELS_CSV, effect='both', correction=FDR_CORRECTION,
+            alpha=ALPHA, roi=ANOVA_LABEL_ROI))
 
 
 def run_analysis():
