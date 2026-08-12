@@ -131,7 +131,7 @@ PERMUTATION_TYPE = 'independent'
 
 # plotting
 SINGLE_COLUMN = True
-SHOW_LEGEND = False
+SHOW_LEGEND = True
 RUN_VISUALIZATION_DEBUG = True # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
