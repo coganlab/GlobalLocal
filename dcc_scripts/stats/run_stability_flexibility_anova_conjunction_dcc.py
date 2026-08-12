@@ -6,7 +6,7 @@ stability_flexibility_anova_conjunction_dcc.main().
 Wrapped by sbatch_stability_flexibility_anova_conjunction_dcc.sh for the cluster.
 
 Most knobs can be overridden from the submit script via environment variables
-(EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ALPHA,
+(EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ROIS, ALPHA,
 N_PERM_NULL, THRESHOLDS, CONTRAST_MODE, FDR_CORRECTION) so you can rerun without editing Python.
 """
 import sys
@@ -61,9 +61,11 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
-# Restrict to ROIs by providing a dict (see the sibling segregation run script
-# for the LPFC/occipital sets); None keeps every channel.
-ROIS_DICT = None
+# Comma-separated names from src.analysis.config.rois, or 'all' to keep every
+# channel. This mirrors the ROIS interface of power_traces_conjunction_dcc.
+ROIS = os.environ.get('ROIS', 'lpfc')
+from src.analysis.config.rois import select_rois
+ROIS_DICT = select_rois(ROIS)
 
 # --- A1/A2 hyperparameters ---
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
@@ -83,9 +85,10 @@ THRESHOLDS = ([float(x) for x in _thr_env.split(',')] if _thr_env
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
+_roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag,
                         f'anova_conjunction_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
-                        f'_{CONTRAST_MODE}_{FDR_CORRECTION}')
+                        f'_{_roi_tag}_{CONTRAST_MODE}_{FDR_CORRECTION}')
 
 
 def run_analysis():

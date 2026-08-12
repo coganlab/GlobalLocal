@@ -5,7 +5,7 @@ Sets up input args and calls stability_flexibility_segregation_dcc.main().
 Wrapped by sbatch_stability_flexibility_segregation_dcc.sh for cluster submission.
 
 Most knobs can be overridden from the submit script via environment variables
-(EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES,
+(EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ROIS,
 N_SPLITS, N_PERM_CORR, N_PERM_LABEL, FDR_CORRECTION) so you can rerun without editing Python.
 """
 import sys
@@ -92,19 +92,11 @@ EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
 
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
-# ROIS_DICT = None keeps every channel. Provide a dict to restrict to ROIs,
-# e.g. the LPFC/occipital set used by the power-traces script:
-ROIS_DICT = {
-    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul",
-             "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont",
-             "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup",
-             "S_front_inf", "S_front_middle", "S_front_sup"],
-    'occ':  ["G_cuneus", "G_and_S_occipital_inf", "G_occipital_middle",
-             "G_occipital_sup", "G_oc-temp_lat-fusifor", "G_oc-temp_med-Lingual",
-             "Pole_occipital", "S_calcarine", "S_oc_middle_and_Lunatus",
-             "S_oc_sup_and_transversal", "S_occipital_ant"],
-}
-# ROIS_DICT = None
+# Comma-separated names from src.analysis.config.rois, or 'all' to keep every
+# channel. This mirrors the ROIS interface of power_traces_conjunction_dcc.
+ROIS = os.environ.get('ROIS', 'lpfc')
+from src.analysis.config.rois import select_rois
+ROIS_DICT = select_rois(ROIS)
 
 # --- responsiveness (gain control). None -> mean|HG| fallback inside the analysis.
 # Prefer passing a {electrode: baseline-vs-signal cluster stat} dict here.
@@ -120,9 +112,10 @@ MIN_ELEC = int(os.environ.get('MIN_ELEC', '3'))            # min electrodes/subj
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
+_roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
-                        f'_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
+                        f'_{_roi_tag}_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
 
 def run_analysis():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
