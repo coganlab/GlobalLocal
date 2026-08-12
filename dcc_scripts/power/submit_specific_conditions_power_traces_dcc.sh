@@ -72,14 +72,12 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     ANOVA_LABELS_CSV="${ANOVA_LABELS_CSVS[$CSV_INDEX]}"
     for COND in "${CONDITIONS[@]}"; do
         echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none}"
-        sbatch --job-name="dec_a${CSV_INDEX}_${COND}" \
-            --export=ALL,CONDITION_NAME="$COND",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
-            sbatch_decoding_dcc.sh
+        sbatch --job-name="pwr_a${CSV_INDEX}_${COND}" \
+            --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+            sbatch_power_traces_dcc.sh
         # sleep 2
     done
 done
-
-
 
 
 

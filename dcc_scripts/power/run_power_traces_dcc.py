@@ -40,6 +40,7 @@ if project_root not in sys.path:
 # Import after path is set up
 from dcc_scripts.power.power_traces_dcc import main
 from src.analysis.config import experiment_conditions
+from src.analysis.utils.anova_label_selection import anova_label_run_slug
 
 # ============================================================================
 # ANALYSIS PARAMETERS
@@ -205,6 +206,15 @@ PLOT_STYLE = {
 # }
 
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE, 'anova_within_' + ANOVA_UNIT)
+if ANOVA_LABELS_CSV:
+    SAVE_DIR = os.path.join(
+        SAVE_DIR, 'anova_label_selections',
+        anova_label_run_slug(
+            ANOVA_LABELS_CSV, ANOVA_LABEL_EFFECT, ANOVA_LABEL_CORRECTION,
+            ANOVA_LABEL_ALPHA, ANOVA_LABEL_ROI,
+        ),
+        CONDITION_LABEL,
+    )
 
 def run_analysis():
     """Execute the bandpass-filtered decoding analysis."""
@@ -304,4 +314,3 @@ def run_analysis():
 
 if __name__ == "__main__":
     run_analysis()
-
