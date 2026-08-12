@@ -23,13 +23,24 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # anova stats
 ANOVA_UNIT='electrode'  # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
 
+# Optional A1 electrode selection. The CSV's analysis window is the selection
+# window (for example, generate it over 0--0.5 s). For an exploratory LWPC run
+# with no BH correction use:
+#   ANOVA_LABELS_CSV=/path/to/anova_labels.csv ANOVA_LABEL_EFFECT=lwpc \
+#   ANOVA_LABEL_CORRECTION=none bash submit_specific_conditions_power_traces_dcc.sh
+ANOVA_LABELS_CSV=${ANOVA_LABELS_CSV:-}
+ANOVA_LABEL_EFFECT=${ANOVA_LABEL_EFFECT:-lwpc}
+ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
+ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
+ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
+
 # Create output directory if needed
 mkdir -p out
 
 for COND in "${CONDITIONS[@]}"; do
     echo "Submitting: $COND"
     sbatch --job-name="dec_${COND}" \
-        --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT" \
+        --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
         sbatch_power_traces_dcc.sh
     # sleep 2
 done

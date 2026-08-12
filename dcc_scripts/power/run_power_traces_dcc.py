@@ -78,7 +78,12 @@ MIN_TRIALS_PER_CELL=4
 FILTER_EFFECT = 'C(switchType)' # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
 FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
 
-FILTER_ELECTRODES_FROM = None
+FILTER_ELECTRODES_FROM = os.environ.get('FILTER_ELECTRODES_FROM') or None
+ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
+ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'lwpc')
+ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
+ANOVA_LABEL_ALPHA = float(os.environ.get('ANOVA_LABEL_ALPHA', 0.05))
+ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 
 if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
@@ -230,6 +235,11 @@ def run_analysis():
         filter_electrodes_from=FILTER_ELECTRODES_FROM,
         filter_effect=FILTER_EFFECT,
         filter_use_fdr=FILTER_USE_FDR,
+        anova_labels_csv=ANOVA_LABELS_CSV,
+        anova_label_effect=ANOVA_LABEL_EFFECT,
+        anova_label_correction=ANOVA_LABEL_CORRECTION,
+        anova_label_alpha=ANOVA_LABEL_ALPHA,
+        anova_label_roi=ANOVA_LABEL_ROI,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
@@ -270,6 +280,10 @@ def run_analysis():
     print(f" filter electrodes from: {FILTER_ELECTRODES_FROM}"),
     print(f" filter effect: {FILTER_EFFECT}"),
     print(f" filter use fdr: {FILTER_USE_FDR}"),
+    print(f" ANOVA labels CSV: {ANOVA_LABELS_CSV}"),
+    if ANOVA_LABELS_CSV:
+        print(f" label effect/correction/alpha/ROI: {ANOVA_LABEL_EFFECT} / "
+              f"{ANOVA_LABEL_CORRECTION} / {ANOVA_LABEL_ALPHA} / {ANOVA_LABEL_ROI or 'all'}")
     print("=" * 70)
     
     print('plotting parameters:')
@@ -290,5 +304,4 @@ def run_analysis():
 
 if __name__ == "__main__":
     run_analysis()
-
 

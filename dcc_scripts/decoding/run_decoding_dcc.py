@@ -270,6 +270,13 @@ ELECTRODE_SELECTION_STRATA = (
     if os.environ.get('ELECTRODE_SELECTION_STRATA')
     else ['congruency', 'task_sequence', 'block_type'])
 
+# Reuse a completed stats/results/anova_conjunction_windows A1 definition.
+ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
+ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'lwpc')
+ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
+ANOVA_LABEL_ALPHA = float(os.environ.get('ANOVA_LABEL_ALPHA', 0.05))
+ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
+
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
@@ -353,6 +360,11 @@ def run_analysis():
         electrode_selection_use_fdr=ELECTRODE_SELECTION_USE_FDR,
         electrode_selection_min_trials_per_cell=ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL,
         electrode_selection_strata=ELECTRODE_SELECTION_STRATA,
+        anova_labels_csv=ANOVA_LABELS_CSV,
+        anova_label_effect=ANOVA_LABEL_EFFECT,
+        anova_label_correction=ANOVA_LABEL_CORRECTION,
+        anova_label_alpha=ANOVA_LABEL_ALPHA,
+        anova_label_roi=ANOVA_LABEL_ROI,
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -372,6 +384,10 @@ def run_analysis():
              f"alpha={ELECTRODE_DEFINITION_SPLIT_ALPHA})"
              if ELECTRODE_DEFINITION_SPLIT else ""))
     print(f"ANOVA electrode selection:     {ANOVA_ELECTRODE_SELECTION}")
+    print(f"Saved ANOVA-label selection:   {ANOVA_LABELS_CSV or 'off'}")
+    if ANOVA_LABELS_CSV:
+        print(f"  effect/correction/alpha/ROI: {ANOVA_LABEL_EFFECT} / "
+              f"{ANOVA_LABEL_CORRECTION} / {ANOVA_LABEL_ALPHA} / {ANOVA_LABEL_ROI or 'all'}")
     if ANOVA_ELECTRODE_SELECTION:
         print(f"  Selection/decode split:    {ELECTRODE_SELECTION_FRAC:.0%} select / "
               f"{1 - ELECTRODE_SELECTION_FRAC:.0%} decode (seed={ELECTRODE_SELECTION_SEED})")
@@ -432,5 +448,4 @@ def run_analysis():
 
 if __name__ == "__main__":
     run_analysis()
-
 
