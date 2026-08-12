@@ -174,6 +174,24 @@ def main(args):
                 electrodes[roi][sub] = [e for e in elec_list if (sub, e) in keep]
         remaining = sum(len(v) for d in electrodes.values() for v in d.values())
         print(f"[filter] {remaining} electrodes remain after filtering")
+
+    if getattr(args, 'anova_labels_csv', None):
+        from src.analysis.utils.anova_label_selection import (
+            load_anova_label_electrodes, selected_pairs)
+        selection = load_anova_label_electrodes(
+            args.anova_labels_csv, effect=args.anova_label_effect,
+            correction=args.anova_label_correction, alpha=args.anova_label_alpha,
+            roi=args.anova_label_roi)
+        keep = selected_pairs(selection)
+        for roi_name in rois:
+            for sub, elec_list in electrodes[roi_name].items():
+                electrodes[roi_name][sub] = [e for e in elec_list if (sub, e) in keep]
+        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
+        if not remaining:
+            raise ValueError("anova_labels.csv selection matched zero loaded electrodes; "
+                             "check subject/electrode names, ROI, effect, and correction")
+        print(f"[anova-labels] {remaining} electrodes remain for "
+              f"{args.anova_label_effect} ({args.anova_label_correction})")
         
     # ------------------------------------------------------------------
     # 4. Build evokeds for all conditions

@@ -64,13 +64,22 @@ MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than th
 #                 [WINDOW_TMIN, WINDOW_TMAX], computed in this job
 #   power_traces  read the finished within-electrode windowed-ANOVA runs and
 #                 their cluster correction (needs the run directories)
+#   csv           reuse S/F flags from an existing A1 anova_labels.csv
 # ---------------------------------------------------------------------------
 ELECTRODE_DEFINITION=${ELECTRODE_DEFINITION:-anova}
+ANOVA_LABELS_CSV=${ANOVA_LABELS_CSV:-}
+ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-} # only set when the CSV itself has an roi column
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none (ELECTRODE_DEFINITION=anova)
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}          # seconds relative to stimulus onset
 WINDOW_TMAX=${WINDOW_TMAX:-0.5}
 ALPHA=${ALPHA:-0.05}
+# Optional circularity guard for ELECTRODE_DEFINITION=anova. The ANOVA is fit
+# over WINDOW_TMIN..WINDOW_TMAX on this fraction of physical trials; decoding
+# and temporal generalization use only the complementary trials.
+ELECTRODE_SELECTION_SPLIT=${ELECTRODE_SELECTION_SPLIT:-false}
+ELECTRODE_SELECTION_FRAC=${ELECTRODE_SELECTION_FRAC:-0.3}
+ELECTRODE_SELECTION_SEED=${ELECTRODE_SELECTION_SEED:-0}
 
 POWER_TRACES_RUN_DIR=${POWER_TRACES_RUN_DIR:-}   # one run with all four interactions
 POWER_TRACES_CPC=${POWER_TRACES_CPC:-}           # ...or one directory per interaction
@@ -85,6 +94,8 @@ POWER_TRACES_ROI=${POWER_TRACES_ROI:-}
 # ---------------------------------------------------------------------------
 WINDOW_SIZE=${WINDOW_SIZE:-20}       # decoding window, in samples
 STEP_SIZE=${STEP_SIZE:-10}           # window stride, in samples
+SAMPLING_RATE=${SAMPLING_RATE:-256}
+FIRST_TIME_POINT=${FIRST_TIME_POINT:--1.0}
 N_SPLITS=${N_SPLITS:-5}              # CV folds (or resamples per repeat, see FRAC_TRAIN)
 N_REPEATS=${N_REPEATS:-10}           # CV repeats — the main runtime lever
 EXPLAINED_VARIANCE=${EXPLAINED_VARIANCE:-0.8}
@@ -93,7 +104,13 @@ SEED=${SEED:-0}
 
 # Temporal generalization costs n_windows^2 decodes per matrix, so it runs only
 # on these groups. 'both,all' adds the unselected reference matrix; '' skips it.
-TEMPGEN_GROUPS=${TEMPGEN_GROUPS:-both}
+# Use `-` rather than `:-`: unset -> default "both", explicitly empty -> disable.
+TEMPGEN_GROUPS=${TEMPGEN_GROUPS-both}
+# Optional single requested transfer. Same labels = ordinary within-contrast
+# decoding; different labels = cross-decoding. Leave both blank for the full
+# backward-compatible bidirectional battery.
+TRAIN_LABEL=${TRAIN_LABEL:-}
+TEST_LABEL=${TEST_LABEL:-}
 
 # Proportion of trials used for TRAINING in each split. Leave empty to keep
 # StratifiedKFold at (N_SPLITS-1)/N_SPLITS; set it to sweep the proportion
@@ -105,5 +122,5 @@ mkdir -p out
 echo "Submitting stability/flexibility A4 cross-decoding"
 echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$CONTRAST_MODE  fdr=$FDR_CORRECTION"
 sbatch --job-name="sf_xdecode_${DATA_SOURCE}_${ROI}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$CONDITIONS",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TEMPGEN_GROUPS="$TEMPGEN_GROUPS",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$CONDITIONS",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TEMPGEN_GROUPS="$TEMPGEN_GROUPS",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
     sbatch_stability_flexibility_cross_decoding_dcc.sh
