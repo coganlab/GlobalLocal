@@ -15,7 +15,7 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # Analysis window (seconds relative to stimulus onset) and electrode set.
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
-WINDOW_TMAX=1.0
+WINDOW_TMAX=1.5
 ELECTRODES=sig            # 'all' or 'sig'
 ROIS=${ROIS:-lpfc}        # comma-separated config ROI names, or 'all'
 
@@ -23,8 +23,8 @@ ROIS=${ROIS:-lpfc}        # comma-separated config ROI names, or 'all'
 DATA_SOURCE=${DATA_SOURCE:-real}
 
 # A1/A2 hyperparameters (lower N_PERM_NULL for a quick test run).
-CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
 THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}
