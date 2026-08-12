@@ -1,0 +1,27 @@
+====================================================================
+STABILITY vs FLEXIBILITY SEGREGATION - SUMMARY
+====================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+  n_subjects_requested: 24
+                window: [0.0, 1.0]s
+            electrodes: sig
+                  rois: ['lpfc', 'occ']
+         contrast_mode: proportion
+        effect_measure: cohens_d
+              n_splits: 50
+           n_perm_corr: 100
+          n_perm_label: 100
+        fdr_correction: fdr_bh
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/segregation_results/window_0.0to1.0s_sig_proportion_cohens_d_fdr_bh
+--------------------------------------------------------------------
+CONTINUOUS  (spearman): corr = +0.0551  p = 0.3564
+            n_electrodes = 226  n_subjects = 20
+            -> shared core (n.s.)
+--------------------------------------------------------------------
+CATEGORICAL (CMH): MH odds ratio = nan
+            CMH p = nan  homogeneity p = nan
+            -> segregated (n.s.)
+====================================================================
+Reading: corr<=0 / OR<1 -> segregation ; corr>0 / OR>1 -> shared core

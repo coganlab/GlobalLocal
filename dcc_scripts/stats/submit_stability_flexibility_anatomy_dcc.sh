@@ -65,8 +65,8 @@ MAKE_BRAIN=${MAKE_BRAIN:-1}
 BRAIN_HEMI=${BRAIN_HEMI:-both}
 
 # A1 electrode definition + A3 hyperparameters.
-CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none (LABEL_SOURCE=a1)
+CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (LABEL_SOURCE=a1)
 ALPHA=${ALPHA:-0.05}
 MIN_SUBJECTS=${MIN_SUBJECTS:-3}      # keep ROIs sampled in >= this many subjects
 N_PERM=${N_PERM:-10000}             # within-subject permutations for the null

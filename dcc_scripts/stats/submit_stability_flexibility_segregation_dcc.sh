@@ -22,8 +22,8 @@ DATA_SOURCE=${DATA_SOURCE:-real}
 
 # Contrast/electrode-label options.
 CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
-EFFECT_MEASURE=${EFFECT_MEASURE:-cluster}    # cohens_d | cluster | peak_t
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
+EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | cluster | peak_t
 ALPHA=${ALPHA:-0.05}
 MIN_ELEC=${MIN_ELEC:-3}
 
