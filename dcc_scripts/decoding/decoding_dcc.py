@@ -363,9 +363,10 @@ def main(args):
     subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task=args.task, just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
     
     # determine which electrodes to use (all electrodes or just the task-significant ones)
-    if args.electrodes == 'all':
+    if args.electrodes == 'all' or getattr(args, 'anova_labels_csv', None):
         raw_electrodes = all_electrodes_per_subject_roi 
-        elec_string_to_add_to_filename = 'all_elecs'
+        elec_string_to_add_to_filename = ('all_elecs' if not getattr(
+            args, 'anova_labels_csv', None) else 'anova_csv_elecs')
     elif args.electrodes == 'sig':
         raw_electrodes = sig_electrodes_per_subject_roi
         elec_string_to_add_to_filename = 'sig_elecs'
@@ -380,6 +381,24 @@ def main(args):
     electrodes = filter_electrode_lists_against_subjects_mne_objects(rois, raw_electrodes, subjects_mne_objects)
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
+
+    if getattr(args, 'anova_labels_csv', None):
+        from src.analysis.utils.anova_label_selection import (
+            load_anova_label_electrodes, selected_pairs)
+        keep = selected_pairs(load_anova_label_electrodes(
+            args.anova_labels_csv, effect=args.anova_label_effect,
+            correction=args.anova_label_correction, alpha=args.anova_label_alpha,
+            roi=args.anova_label_roi))
+        for roi in rois:
+            for sub, elec_list in electrodes[roi].items():
+                electrodes[roi][sub] = [e for e in elec_list if (sub, e) in keep]
+        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
+        if not remaining:
+            raise ValueError("anova_labels.csv selection matched zero loaded electrodes; "
+                             "check subject/electrode names, ROI, effect, and correction")
+        elec_string_to_add_to_filename += f'_anova_{args.anova_label_effect}'
+        print(f"[anova-labels] decoding with {remaining} electrodes selected for "
+              f"{args.anova_label_effect} ({args.anova_label_correction})")
 
     # --- Optional: disjoint electrode-definition / decoding trial split ---
     # Avoids circularity between electrode selection and decoding accuracy by

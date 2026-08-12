@@ -127,3 +127,15 @@ def test_power_traces_route_requires_run_directories():
     with pytest.raises(ValueError, match='power_traces_runs'):
         xd._resolve_labels(SimpleNamespace(electrode_definition='power_traces',
                                            alpha=0.05, power_traces_runs=None))
+
+
+def test_csv_route_honors_requested_raw_correction(tmp_path):
+    path = tmp_path / 'anova_labels.csv'
+    labels = _anova_style_labels().assign(
+        p_cong=[.01, .01, .5], q_cong=[.01, .01, .5],
+        p_switch=[.5, .01, .01], q_switch=[.5, .5, .01])
+    labels.to_csv(path, index=False)
+    got = xd._resolve_labels(SimpleNamespace(
+        electrode_definition='csv', anova_labels_csv=str(path),
+        anova_label_roi=None, fdr_correction='none', alpha=.05))
+    assert got.loc[got.electrode == 'D1-A2', 'F'].item() == 1
