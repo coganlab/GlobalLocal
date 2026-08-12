@@ -16,6 +16,7 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 WINDOW_TMIN=0.0
 WINDOW_TMAX=1.5
 ELECTRODES=sig            # 'all' or 'sig'
+ROIS=${ROIS:-lpfc}        # comma-separated config ROI names, or 'all'
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
 DATA_SOURCE=${DATA_SOURCE:-real}
@@ -39,5 +40,5 @@ mkdir -p out
 
 echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
 sbatch --job-name="segreg_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",ROIS="$ROIS",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC" \
     sbatch_stability_flexibility_segregation_dcc.sh
