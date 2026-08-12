@@ -282,7 +282,7 @@ ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
 
 # # # # testing params (comment out)
-SUBJECTS = ['D0103']
+# SUBJECTS = ['D0103']
 N_SPLITS = 2
 N_REPEATS = 1
 N_PERM = 2
