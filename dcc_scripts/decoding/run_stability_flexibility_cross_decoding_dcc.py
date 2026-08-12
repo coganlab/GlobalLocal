@@ -130,6 +130,12 @@ ELECTRODES = os.environ.get('ELECTRODES', 'sig')            # 'all' or 'sig'
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
+ELECTRODE_SELECTION_SPLIT = os.environ.get(
+    'ELECTRODE_SELECTION_SPLIT', 'false').lower() in ('1', 'true', 'yes', 'on')
+ELECTRODE_SELECTION_FRAC = float(os.environ.get('ELECTRODE_SELECTION_FRAC', '0.3'))
+ELECTRODE_SELECTION_SEED = int(os.environ.get('ELECTRODE_SELECTION_SEED', '0'))
+if not 0 < ELECTRODE_SELECTION_FRAC < 1:
+    raise ValueError("ELECTRODE_SELECTION_FRAC must be between 0 and 1")
 
 # Which route defines the S/F electrode labels:
 #   'anova'        -- one ANOVA per electrode on window-mean HG over [WINDOW_TMIN,
@@ -140,6 +146,10 @@ ALPHA = float(os.environ.get('ALPHA', '0.05'))
 #                     significant. More sensitive to transient interactions the
 #                     window mean dilutes; requires the run directories below.
 ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
+ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
+# Most A1 files are already generated for one ROI and therefore do not carry a
+# separate ``roi`` column. Leave this unset unless the CSV actually has one.
+ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 
 # power_traces route: either ONE run whose ANOVA carried all four interactions,
 #   POWER_TRACES_RUN_DIR=/path/to/run
@@ -165,10 +175,16 @@ REFERENCE_GROUP = os.environ.get('REFERENCE_GROUP', 'all')
 # reference matrix; TEMPGEN_GROUPS='' skips the design entirely.
 TEMPGEN_GROUPS = tuple(g.strip() for g in
                        os.environ.get('TEMPGEN_GROUPS', 'both').split(',') if g.strip())
+TRAIN_LABEL = os.environ.get('TRAIN_LABEL') or None
+TEST_LABEL = os.environ.get('TEST_LABEL') or None
+if bool(TRAIN_LABEL) != bool(TEST_LABEL):
+    raise ValueError("Set both TRAIN_LABEL and TEST_LABEL, or leave both unset")
 
 # --- decoding hyperparameters (the ordinary pipeline's) ---
 WINDOW_SIZE = int(os.environ.get('WINDOW_SIZE', '20'))      # samples per decoding window
 STEP_SIZE = int(os.environ.get('STEP_SIZE', '10'))          # window stride, in samples
+SAMPLING_RATE = float(os.environ.get('SAMPLING_RATE', '256'))
+FIRST_TIME_POINT = float(os.environ.get('FIRST_TIME_POINT', '-1.0'))
 N_SPLITS = int(os.environ.get('N_SPLITS', '5'))             # CV folds (or resamples, see below)
 N_REPEATS = int(os.environ.get('N_REPEATS', '10'))          # CV repeats
 EXPLAINED_VARIANCE = float(os.environ.get('EXPLAINED_VARIANCE', '0.8'))
@@ -211,17 +227,26 @@ def run_analysis():
         electrodes=ELECTRODES,
         rois_dict=ROIS_DICT,
         alpha=ALPHA,
+        electrode_selection_split=ELECTRODE_SELECTION_SPLIT,
+        electrode_selection_frac=ELECTRODE_SELECTION_FRAC,
+        electrode_selection_seed=ELECTRODE_SELECTION_SEED,
         contrast_mode=CONTRAST_MODE,
         fdr_correction=FDR_CORRECTION,
         electrode_definition=ELECTRODE_DEFINITION,
+        anova_labels_csv=ANOVA_LABELS_CSV,
+        anova_label_roi=ANOVA_LABEL_ROI,
         power_traces_runs=POWER_TRACES_RUNS,
         power_traces_correction=POWER_TRACES_CORRECTION,
         power_traces_roi=POWER_TRACES_ROI,
         reference_group=REFERENCE_GROUP,
         tempgen_groups=TEMPGEN_GROUPS,
+        train_label=TRAIN_LABEL,
+        test_label=TEST_LABEL,
         roi=ROI,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
+        sampling_rate=SAMPLING_RATE,
+        first_time_point=FIRST_TIME_POINT,
         n_splits=N_SPLITS,
         n_repeats=N_REPEATS,
         explained_variance=EXPLAINED_VARIANCE,

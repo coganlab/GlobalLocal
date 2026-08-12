@@ -179,6 +179,7 @@ def _summarise(out, p_thresh=0.05, n_perm=200, seed=42):
     per_window = acc_true.mean(axis=1)
     return dict(
         acc_true=acc_true, acc_shuffle=acc_shuffle,
+        significant_windows=sig,
         mean_accuracy=float(per_window.mean()),
         peak_accuracy=float(per_window.max()),
         peak_window=int(np.argmax(per_window)),
@@ -206,7 +207,8 @@ def _tempgen_matrix(out):
 # ---------------------------------------------------------------------------
 # figures
 # ---------------------------------------------------------------------------
-def make_plots(results, save_dir):
+def make_plots(results, save_dir, *, first_time_point=-1.0,
+               sampling_rate=256, window_size=20, step_size=10):
     fig, ax = plt.subplots(2, 3, figsize=(17, 10))
 
     # A/B: within-block baseline (Fig 9)
@@ -253,6 +255,30 @@ def make_plots(results, save_dir):
     fig.savefig(fig_path, dpi=140, bbox_inches='tight')
     plt.close(fig)
     print(f"saved figure: {fig_path}")
+
+    # Produce the same Nature-style true-vs-shuffle accuracy trace used by the
+    # ordinary decoder, once per direction and electrode group. The overview
+    # above remains useful for comparing groups; these files provide identical
+    # uncertainty bands, chance/onset lines, and significant-cluster markers.
+    from src.analysis.decoding.plots.accuracies import plot_accuracies_nature_style
+    for group, directions in results.get('label_transfer', {}).items():
+        for direction, result in directions.items():
+            if 'acc_true' not in result:
+                continue
+            n_windows = np.asarray(result['acc_true']).shape[0]
+            centers = (first_time_point
+                       + (np.arange(n_windows) * step_size + window_size / 2)
+                       / sampling_rate)
+            plot_accuracies_nature_style(
+                centers,
+                {'true': np.asarray(result['acc_true']),
+                 'shuffle': np.asarray(result['acc_shuffle'])},
+                significant_clusters=np.asarray(result['significant_windows']),
+                window_size=window_size, step_size=step_size,
+                sampling_rate=sampling_rate,
+                comparison_name=direction, roi=group, save_dir=save_dir,
+                title=f'{direction.replace("_", " ")} · {group}',
+                samples_axis=1, filename_suffix='_cross_decoding')
 
 
 # ---------------------------------------------------------------------------
@@ -346,7 +372,7 @@ def write_summary(results, save_dir, meta):
 #                     the ones the power-trace figures call significant -- but it
 #                     needs finished run directories, which is the only reason it
 #                     is not the default.
-ELECTRODE_DEFINITIONS = ('anova', 'power_traces')
+ELECTRODE_DEFINITIONS = ('anova', 'power_traces', 'csv')
 
 
 def _channel_keys(labels):
@@ -376,6 +402,20 @@ def _resolve_labels(args, df=None):
     if definition not in ELECTRODE_DEFINITIONS:
         raise ValueError(f"electrode_definition must be one of {ELECTRODE_DEFINITIONS}; "
                          f"got {definition!r}")
+
+    if definition == 'csv':
+        path = getattr(args, 'anova_labels_csv', None)
+        if not path:
+            raise ValueError("electrode_definition='csv' needs ANOVA_LABELS_CSV")
+        from src.analysis.utils.anova_label_selection import load_anova_labels
+        labels = load_anova_labels(
+            path, correction=getattr(args, 'fdr_correction', 'flags'),
+            alpha=args.alpha, roi=getattr(args, 'anova_label_roi', None))
+        required = {'subject', 'electrode', 'S', 'F'}
+        missing = required - set(labels)
+        if missing:
+            raise ValueError(f"{path} is missing required columns {sorted(missing)}")
+        return labels
 
     if definition == 'power_traces':
         from src.analysis.stats import power_traces_conjunction as ptc
@@ -470,7 +510,7 @@ def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
 # ---------------------------------------------------------------------------
 # the decoded ROI pseudopopulation (real data)
 # ---------------------------------------------------------------------------
-def _build_roi_arrays(args, LAB_root):
+def _build_roi_arrays(args, LAB_root, trial_partitions=None):
     """Load the epochs and build the ROI LabeledArray this job decodes.
 
     Mirrors `decoding_dcc.main`'s setup so A4 decodes exactly what the ordinary
@@ -506,7 +546,9 @@ def _build_roi_arrays(args, LAB_root):
     all_elecs, sig_elecs = make_sig_electrodes_per_subject_and_roi_dict(
         args.rois_dict, subjects_electrodestoROIs_dict, sig_chans_per_subject)
 
-    if args.electrodes == 'all':
+    # A CSV is already the electrode definition; do not silently intersect it
+    # with the unrelated baseline-responsiveness (`sig`) list.
+    if args.electrodes == 'all' or getattr(args, 'electrode_definition', None) == 'csv':
         raw_electrodes = all_elecs
     elif args.electrodes == 'sig':
         raw_electrodes = sig_elecs
@@ -523,6 +565,10 @@ def _build_roi_arrays(args, LAB_root):
         conditions={name: args.conditions[name] for name in condition_names},
         task=args.task, just_HG_ev1_rescaled=True, LAB_root=LAB_root,
         acc_trials_only=args.acc_trials_only)
+    if trial_partitions is not None:
+        from src.analysis.decoding.anova_electrode_selection import apply_trial_partition
+        subjects_mne_objects = apply_trial_partition(
+            subjects_mne_objects, trial_partitions, which='decode')
 
     # An electrode in the ROI dict may have been dropped during epoching; asking
     # for it would index past the epochs object.
@@ -538,6 +584,48 @@ def _build_roi_arrays(args, LAB_root):
     print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
           f"({args.electrodes} electrodes)")
     return roi, arrays, channel_names, cells
+
+
+def _split_subject_epochs(subjects_epochs, frac_select, seed):
+    """Return selection Epochs plus one stable-id partition for later decode.
+
+    The pooled Epochs used by A1 and the condition-specific Epochs used by the
+    decoder both carry ``metadata.trial_count``. Building the partition here and
+    applying it by that physical-trial id is what prevents the same trial from
+    entering electrode selection under one condition and decoding under another.
+    """
+    from src.analysis.decoding.anova_electrode_selection import assign_trial_partitions
+    from src.analysis.decoding.trial_splitting import strata_key_from_metadata
+
+    sub_trials = {}
+    for subject, epochs in subjects_epochs.items():
+        metadata = getattr(epochs, 'metadata', None)
+        if metadata is None or 'trial_count' not in metadata:
+            raise ValueError(
+                "ELECTRODE_SELECTION_SPLIT requires metadata.trial_count on the "
+                f"epochs, but it is absent for {subject}")
+        ids = metadata['trial_count'].to_numpy()
+        strata = strata_key_from_metadata(
+            metadata, ('congruency', 'task_sequence', 'block_type'))
+        # The pooled Epochs should already contain one row per physical trial;
+        # de-duplicate defensively while preserving the first stratum.
+        unique = {}
+        for trial_id, stratum in zip(ids, strata):
+            unique.setdefault(trial_id, stratum)
+        ordered_ids = np.asarray(list(unique))
+        sub_trials[subject] = (
+            ordered_ids, np.asarray([unique[i] for i in ordered_ids], dtype=object))
+
+    partitions = assign_trial_partitions(
+        sub_trials, frac_select=frac_select, seed=seed)
+    selection_epochs = {}
+    for subject, epochs in subjects_epochs.items():
+        keep = partitions[subject]['select']
+        idx = np.flatnonzero(epochs.metadata['trial_count'].isin(keep).to_numpy())
+        selection_epochs[subject] = epochs[idx]
+        print(f"  [trial-split] {subject}: {len(idx)} selection trials / "
+              f"{len(epochs) - len(idx)} decoding trials")
+    return selection_epochs, partitions
 
 
 def _roi_channel_names(arrays, roi):
@@ -574,6 +662,16 @@ def main(args):
                       seed=getattr(args, 'seed', 42))
 
     # 1. assemble the ROI LabeledArrays + electrode groups -----------------------
+    trial_partitions = None
+    if getattr(args, 'electrode_selection_split', False):
+        if args.data_source != 'real' or getattr(args, 'electrode_definition', 'anova') != 'anova':
+            raise ValueError(
+                "ELECTRODE_SELECTION_SPLIT is supported for real data with "
+                "ELECTRODE_DEFINITION=anova. A saved CSV has no trial-membership "
+                "record, so this job cannot prove that its defining trials are "
+                "disjoint; generate the CSV on a saved selection partition or "
+                "use the in-job ANOVA split.")
+
     if args.data_source == 'synthetic':
         print(f"DATA SOURCE: synthetic ({args.synthetic_code} code) — validates the path "
               "and that A4 discriminates shared vs orthogonal codes")
@@ -607,6 +705,14 @@ def main(args):
             subjects_epochs = load_HG_ev1_rescaled_per_subject(
                 subjects=args.subjects, epochs_root_file=args.epochs_root_file,
                 task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
+            if getattr(args, 'electrode_selection_split', False):
+                subjects_epochs, trial_partitions = _split_subject_epochs(
+                    subjects_epochs,
+                    frac_select=args.electrode_selection_frac,
+                    seed=args.electrode_selection_seed)
+                print(f"ANOVA electrode selection uses {args.electrode_selection_frac:.0%} "
+                      f"of trials over [{args.window_tmin}, {args.window_tmax}] s; "
+                      "all decoding uses the disjoint remainder")
             keep = resolve_electrodes_to_keep(args, LAB_root)
             df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
                                   electrodes_to_keep=keep, effect_measure=EFFECT_MEASURE)
@@ -621,7 +727,8 @@ def main(args):
               + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
 
         # (ii) the decode runs on the ordinary ROI LabeledArray pseudopopulation
-        roi, arrays, channel_names, cells = _build_roi_arrays(args, LAB_root)
+        roi, arrays, channel_names, cells = _build_roi_arrays(
+            args, LAB_root, trial_partitions=trial_partitions)
 
     # The unselected reference set, so label transfer / temporal generalization
     # are not only ever read off interaction-selected subsets.
@@ -647,6 +754,22 @@ def main(args):
             "stimulus_main_effect_conditions (pooled over both proportions).")
 
     stab_strings, flex_strings = cd.stability_flexibility_strings(cells)
+    contrast_strings = {'stability': stab_strings, 'congruency': stab_strings,
+                        'flexibility': flex_strings, 'switchtype': flex_strings}
+    requested_train = getattr(args, 'train_label', None)
+    requested_test = getattr(args, 'test_label', None)
+    if requested_train:
+        train_key, test_key = requested_train.lower(), requested_test.lower()
+        unknown = {train_key, test_key} - set(contrast_strings)
+        if unknown:
+            raise ValueError(f"TRAIN_LABEL/TEST_LABEL must be stability, congruency, "
+                             f"flexibility, or switchType; got {sorted(unknown)}")
+        transfer_pairs = [(f'{train_key}_to_{test_key}',
+                           (contrast_strings[train_key], contrast_strings[test_key]))]
+    else:
+        transfer_pairs = [
+            ('stab_to_flex', (stab_strings, flex_strings)),
+            ('flex_to_stab', (flex_strings, stab_strings))]
     # A condition set that POOLS over a proportion (e.g.
     # `stimulus_main_effect_conditions`, the 2x2 for the all-vs-all transfer) has
     # no block contrast to make, so the block-split designs below are skipped
@@ -695,15 +818,19 @@ def main(args):
         within_block[cname] = dict(per_block=per_block, block_difference=diff)
     results['within_block'] = within_block
 
-    # 2b. the within-block 2x2 restricted to each interaction-defined group,
-    #     SKIPPING the diagonal (define == decode) cell to avoid double-dipping.
+    # 2b. the within-block 2x2 restricted to each interaction-defined group.
+    #     Without a disjoint split, SKIP define == decode to avoid double-dipping;
+    #     with the split, selection and decoding trials are independent, so keep it.
     #     Only the OFF-diagonal (cross) cells are computed/kept — e.g. the CPC
     #     electrode set is decoded on switchType/switch_prop and the two cross
     #     cells, never on congruency/inc_prop (the interaction that defined it).
     #     To keep the diagonal cell instead, define the electrodes on a disjoint
     #     set of trials (`trial_splitting.apply_electrode_definition_split`).
     if interaction_groups and blocks:
-        print("A4(0b): per-group within-block 2x2 (diagonal define==decode cells ignored)")
+        diagonal = ("included (disjoint selection/decode trials)"
+                    if getattr(args, 'electrode_selection_split', False)
+                    else "ignored (same-trial circularity guard)")
+        print(f"A4(0b): per-group within-block 2x2 (diagonal {diagonal})")
         decode_cells = [(contrast, block_col, strings)
                         for contrast, block_col, strings in (
                             ('congruency', 'incongruent_proportion', stab_strings),
@@ -720,7 +847,8 @@ def main(args):
                 continue
             decoded = {}
             for contrast, block_col, strings in decode_cells:
-                if cd.is_circular_decode(gflag, contrast, block_col):
+                if (not getattr(args, 'electrode_selection_split', False)
+                        and cd.is_circular_decode(gflag, contrast, block_col)):
                     continue                     # double-dipping: ignore this result
                 for level, conds in blocks[block_col].items():
                     try:
@@ -745,8 +873,7 @@ def main(args):
                   f"(< {args.min_group_size}); skipping")
             continue
         entry = {}
-        for direction, (tr, te) in (('stab_to_flex', (stab_strings, flex_strings)),
-                                    ('flex_to_stab', (flex_strings, stab_strings))):
+        for direction, (tr, te) in transfer_pairs:
             out = cd.run_cross_decoding(restricted, roi, tr, te, **dec_kw)
             entry[direction] = _summarise(out, **cluster_kw)
             entry[direction]['n_channels'] = n_kept
@@ -757,7 +884,9 @@ def main(args):
     # Each matrix costs n_windows^2 decodes, so this runs on `args.tempgen_groups`
     # (default: the 'both' group only) rather than on every group above. Add the
     # reference group there to get the unselected comparison matrix too.
-    tempgen_groups = getattr(args, 'tempgen_groups', None) or ('both',)
+    # The runner supplies the default ('both'). Preserve an explicitly empty
+    # tuple so TEMPGEN_GROUPS='' really disables the expensive n_windows² stage.
+    tempgen_groups = getattr(args, 'tempgen_groups', ('both',))
     print(f"A4(c): temporal generalization (Fig 10) on {list(tempgen_groups)}")
     results['temporal'] = {}
     for g in tempgen_groups:
@@ -775,10 +904,11 @@ def main(args):
         # n_windows^2 predictions — halve the repeats to keep the runtime sane
         tg_kw = dict(dec_kw, n_repeats=max(2, args.n_repeats // 2),
                      temporal_generalization=True)
-        for name, (tr, te) in (
-                ('stability (within)', (stab_strings, stab_strings)),
-                ('flexibility (within)', (flex_strings, flex_strings)),
-                ('stability->flexibility (cross)', (stab_strings, flex_strings))):
+        tempgen_pairs = (transfer_pairs if requested_train else [
+            ('stability (within)', (stab_strings, stab_strings)),
+            ('flexibility (within)', (flex_strings, flex_strings)),
+            ('stability->flexibility (cross)', (stab_strings, flex_strings))])
+        for name, (tr, te) in tempgen_pairs:
             out = cd.run_cross_decoding(restricted, roi, tr, te, **tg_kw)
             results['temporal'][f'{name} [{g}]'] = dict(
                 matrix=_tempgen_matrix(out), n_channels=n_kept, group=g)
@@ -787,7 +917,11 @@ def main(args):
 
     # 5. persist + plot + summarize ----------------------------------------------
     save_results(results, args.save_dir)
-    make_plots(results, args.save_dir)
+    make_plots(
+        results, args.save_dir,
+        first_time_point=getattr(args, 'first_time_point', -1.0),
+        sampling_rate=getattr(args, 'sampling_rate', 256),
+        window_size=args.window_size, step_size=args.step_size)
     write_summary(results, args.save_dir, meta=dict(
         data_source=args.data_source,
         synthetic_code=getattr(args, 'synthetic_code', None),
