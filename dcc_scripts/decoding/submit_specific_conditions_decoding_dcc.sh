@@ -8,6 +8,9 @@ CONDITIONS=(
     stimulus_switch_type_by_incongruent_proportion_block_balanced_conditions
 )
 
+# Override this in the environment when decoding a different epochs dataset.
+EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit}"
+
 # Optional selections from stats/results/anova_conjunction_windows/anova_labels.csv.
 # Add as many CSVs (or result directories containing anova_labels.csv) as needed;
 # one job is submitted for every condition x CSV combination. Leave the array
@@ -52,7 +55,7 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     for COND in "${CONDITIONS[@]}"; do
         echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none}"
         sbatch --job-name="dec_a${CSV_INDEX}_${COND}" \
-            --export=ALL,CONDITION_NAME="$COND",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+            --export=ALL,CONDITION_NAME="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
             sbatch_decoding_dcc.sh
         # sleep 2
     done

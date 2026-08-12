@@ -339,11 +339,19 @@ def subtract_evoked_conditions(evks_dict, cond1, cond2, roi):
 
     Returns
     -------
-    evoked : mne.Evoked
-        Evoked object for the subtracted condition
+    evoked : mne.Evoked or None
+        Evoked object for the subtracted condition, or ``None`` when either
+        condition has no data for the requested ROI.
     """
-    evoked_cond1 = evks_dict[cond1][roi]
-    evoked_cond2 = evks_dict[cond2][roi]
+    evoked_cond1 = evks_dict.get(cond1, {}).get(roi)
+    evoked_cond2 = evks_dict.get(cond2, {}).get(roi)
+
+    # ``combine_single_channel_evokeds`` deliberately returns None when an
+    # ROI has no electrodes.  Preserve that missing-data marker instead of
+    # passing it to MNE, which expects every item to expose ``nave``.
+    if evoked_cond1 is None or evoked_cond2 is None:
+        return None
+
     diff_evoked = mne.combine_evoked([evoked_cond1, evoked_cond2], weights=[1,-1])
     return diff_evoked
 
