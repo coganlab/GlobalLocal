@@ -292,7 +292,7 @@ if ANOVA_LABELS_CSV:
     )
 
 # # # # testing params (comment out)
-SUBJECTS = ['D0103']
+# SUBJECTS = ['D0103']
 N_SPLITS = 2
 N_REPEATS = 1
 N_PERM = 2

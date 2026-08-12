@@ -63,7 +63,7 @@ fi
 ANOVA_LABEL_EFFECT=${ANOVA_LABEL_EFFECT:-both}
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
-ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-lpfc}                    # e.g. lpfc; blank = all
+ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 
 # Create output directory if needed
 mkdir -p out
