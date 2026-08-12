@@ -21,6 +21,8 @@ CONDITIONS=(
 # that single path instead of this list. For example (0--0.5 s, raw/no BH, LWPC):
 #   ANOVA_LABELS_CSV=/path/to/anova_labels.csv ANOVA_LABEL_EFFECT=lwpc \
 #   ANOVA_LABEL_CORRECTION=none bash submit_specific_conditions_decoding_dcc.sh
+# Use ANOVA_LABEL_EFFECT=both to require significance for both stability (LWPC)
+# and flexibility (LWPS).
 ANOVA_LABELS_CSVS=(
     ""
 )
