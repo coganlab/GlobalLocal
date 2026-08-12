@@ -22,6 +22,8 @@ _EFFECTS = {
     "spc": ("SPC", "p_spc", "q_spc"),
 }
 
+_COMBINED_EFFECTS = {"both"}
+
 
 def load_anova_labels(path, correction="flags", alpha=0.05, roi=None):
     """Read an A1 table and consistently (re)compute all available flags.
@@ -76,17 +78,27 @@ def load_anova_labels(path, correction="flags", alpha=0.05, roi=None):
 
 def load_anova_label_electrodes(path, effect="lwpc", correction="flags",
                                 alpha=0.05, roi=None):
-    """Return ``{roi: {subject: [bare electrode names]}}`` from A1 labels."""
+    """Return ``{roi: {subject: [bare electrode names]}}`` from A1 labels.
+
+    ``effect='both'`` selects the intersection of stability (``S``/LWPC) and
+    flexibility (``F``/LWPS): an electrode must be significant for both.
+    """
     key = effect.strip().lower()
-    if key not in _EFFECTS:
+    if key not in _EFFECTS and key not in _COMBINED_EFFECTS:
         raise ValueError(f"Unknown ANOVA effect {effect!r}; choose one of "
-                         f"{sorted(_EFFECTS)}")
+                         f"{sorted(set(_EFFECTS) | _COMBINED_EFFECTS)}")
     labels = load_anova_labels(path, correction=correction, alpha=alpha, roi=roi)
-    flag_col = {"CPC": "S", "SPS": "F"}.get(_EFFECTS[key][0], _EFFECTS[key][0])
-    if flag_col not in labels:
+    if key == "both":
+        flag_cols = ("S", "F")
+    else:
+        flag_col = {"CPC": "S", "SPS": "F"}.get(
+            _EFFECTS[key][0], _EFFECTS[key][0])
+        flag_cols = (flag_col,)
+    missing = [column for column in flag_cols if column not in labels]
+    if missing:
         raise ValueError(f"{path} has no columns needed to define effect={effect!r} "
-                         f"with correction={correction!r}")
-    labels = labels[labels[flag_col] == 1]
+                         f"with correction={correction!r}; missing {missing}")
+    labels = labels[labels[list(flag_cols)].eq(1).all(axis=1)]
 
     selected = {}
     for row in labels.itertuples(index=False):
