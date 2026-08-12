@@ -2,7 +2,8 @@ import pandas as pd
 import pytest
 
 from src.analysis.utils.anova_label_selection import (
-    load_anova_labels, load_anova_label_electrodes, selected_pairs)
+    anova_label_run_slug, load_anova_labels, load_anova_label_electrodes,
+    selected_pairs)
 
 
 def _csv(tmp_path):
@@ -16,6 +17,24 @@ def _csv(tmp_path):
         "p_switch": [.2, .01, .02], "q_switch": [.2, .03, .06],
     }).to_csv(path, index=False)
     return path
+
+
+def test_anova_label_run_slug_records_source_and_selection_parameters(tmp_path):
+    path = tmp_path / "window_0.0to1.5_condition_none" / "anova_labels.csv"
+    slug = anova_label_run_slug(path, "both", "none", 0.05, "lpfc")
+
+    assert slug.startswith("window_0.0to1.5_condition_none__effect-both")
+    assert "__correction-none__alpha-0.05__roi-lpfc__" in slug
+    assert len(slug.rsplit("__", 1)[1]) == 8
+
+
+def test_anova_label_run_slug_changes_with_path_and_parameters(tmp_path):
+    first = tmp_path / "first" / "same" / "anova_labels.csv"
+    second = tmp_path / "second" / "same" / "anova_labels.csv"
+
+    assert anova_label_run_slug(first) != anova_label_run_slug(second)
+    assert anova_label_run_slug(first, effect="lwpc") != anova_label_run_slug(
+        first, effect="lwps")
 
 
 def test_saved_flags_and_prefixed_electrode_names(tmp_path):

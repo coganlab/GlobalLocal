@@ -19,6 +19,46 @@ plotting_parameters = {
     'color': 'red',
     "line_style": "--"
 },
+"Stimulus_c_in_25switchBlock": {
+    "condition_parameter": "congruent, 25% switch",
+    "color": "pink",
+    "line_style": "-",
+},
+"Stimulus_i_in_25switchBlock": {
+    "condition_parameter": "incongruent, 25% switch",
+    "color": "pink",
+    "line_style": "--",
+},
+"Stimulus_c_in_75switchBlock": {
+    "condition_parameter": "congruent, 75% switch",
+    "color": "orange",
+    "line_style": "-",
+},
+"Stimulus_i_in_75switchBlock": {
+    "condition_parameter": "incongruent, 75% switch",
+    "color": "orange",
+    "line_style": "--",
+},
+"Stimulus_s_in_25incongruentBlock": {
+    "condition_parameter": "switch, 25% incongruent",
+    "color": "skyblue",
+    "line_style": "--",
+},
+"Stimulus_r_in_25incongruentBlock": {
+    "condition_parameter": "repeat, 25% incongruent",
+    "color": "skyblue",
+    "line_style": "-",
+},
+"Stimulus_s_in_75incongruentBlock": {
+    "condition_parameter": "switch, 75% incongruent",
+    "color": "purple",
+    "line_style": "--",
+},
+"Stimulus_r_in_75incongruentBlock": {
+    "condition_parameter": "repeat, 75% incongruent",
+    "color": "purple",
+    "line_style": "-",
+},
 "Stimulus_ir": {
     "condition_parameter": "IR",
     "color": "blue",

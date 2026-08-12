@@ -44,6 +44,7 @@ if project_root not in sys.path:
 from dcc_scripts.decoding.decoding_dcc import main
 from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import get_conditions_obj, get_balance_strata
+from src.analysis.utils.anova_label_selection import anova_label_run_slug
 # ============================================================================
 # ANALYSIS PARAMETERS
 # ============================================================================
@@ -280,6 +281,15 @@ ANOVA_LABEL_ALPHA = float(os.environ.get('ANOVA_LABEL_ALPHA', 0.05))
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
+if ANOVA_LABELS_CSV:
+    SAVE_DIR = os.path.join(
+        SAVE_DIR, 'anova_label_selections',
+        anova_label_run_slug(
+            ANOVA_LABELS_CSV, ANOVA_LABEL_EFFECT, ANOVA_LABEL_CORRECTION,
+            ANOVA_LABEL_ALPHA, ANOVA_LABEL_ROI,
+        ),
+        CONDITION_LABEL,
+    )
 
 # # # # testing params (comment out)
 SUBJECTS = ['D0103']
@@ -450,4 +460,3 @@ def run_analysis():
 
 if __name__ == "__main__":
     run_analysis()
-
