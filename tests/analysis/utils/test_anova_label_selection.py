@@ -33,6 +33,25 @@ def test_raw_and_fdr_thresholds_are_explicit(tmp_path):
     assert fdr == {("D1", "A1")}
 
 
+def test_both_selects_stability_flexibility_intersection(tmp_path):
+    path = _csv(tmp_path)
+    saved = selected_pairs(load_anova_label_electrodes(
+        path, "both", correction="flags"))
+    raw = selected_pairs(load_anova_label_electrodes(
+        path, "both", correction="none"))
+    assert saved == {("D2", "B1")}
+    assert raw == {("D1", "A2")}
+
+
+def test_both_requires_stability_and_flexibility_columns(tmp_path):
+    path = tmp_path / "labels.csv"
+    pd.DataFrame({
+        "subject": ["D1"], "electrode": ["A1"], "S": [1],
+    }).to_csv(path, index=False)
+    with pytest.raises(ValueError, match=r"missing \['F'\]"):
+        load_anova_label_electrodes(path, "both")
+
+
 def test_roi_request_requires_roi_column(tmp_path):
     path = tmp_path / "labels.csv"
     pd.DataFrame({"subject": ["D1"], "electrode": ["A1"], "S": [1]}).to_csv(
