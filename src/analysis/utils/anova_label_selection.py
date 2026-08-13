@@ -22,9 +22,21 @@ _EFFECTS = {
     "sps": ("SPS", "p_sps", "q_sps"),
     "cps": ("CPS", "p_cps", "q_cps"),
     "spc": ("SPC", "p_spc", "q_spc"),
+    # A condition-mode A1 table uses the same backward-compatible S/F columns
+    # for the congruency and switch-type main effects.  Giving those effects
+    # explicit names lets callers describe the population they are selecting
+    # rather than having to call a congruency main effect "lwpc".
+    "congruency": ("S", "p_cong", "q_cong"),
+    "switch_type": ("F", "p_switch", "q_switch"),
 }
 
-_COMBINED_EFFECTS = {"both"}
+_SET_EFFECTS = {
+    "both": (("S", "F"), ()),
+    "lwpc_only": (("S",), ("F",)),
+    "lwps_only": (("F",), ("S",)),
+    "congruency_only": (("S",), ("F",)),
+    "switch_type_only": (("F",), ("S",)),
+}
 
 
 def anova_label_run_slug(path, effect="lwpc", correction="flags", alpha=0.05,
@@ -108,25 +120,33 @@ def load_anova_label_electrodes(path, effect="lwpc", correction="flags",
                                 alpha=0.05, roi=None):
     """Return ``{roi: {subject: [bare electrode names]}}`` from A1 labels.
 
-    ``effect='both'`` selects the intersection of stability (``S``/LWPC) and
-    flexibility (``F``/LWPS): an electrode must be significant for both.
+    ``lwpc``/``lwps`` and ``congruency``/``switch_type`` select the complete
+    corresponding set, including overlap.  Their ``*_only`` forms exclude
+    electrodes significant for the other effect. ``both`` selects the
+    intersection.  Use the LWPC/LWPS names with a proportion-mode A1 table and
+    the main-effect names with a condition-mode A1 table; both table modes use
+    the backward-compatible ``S`` and ``F`` flags.
     """
     key = effect.strip().lower()
-    if key not in _EFFECTS and key not in _COMBINED_EFFECTS:
+    if key not in _EFFECTS and key not in _SET_EFFECTS:
         raise ValueError(f"Unknown ANOVA effect {effect!r}; choose one of "
-                         f"{sorted(set(_EFFECTS) | _COMBINED_EFFECTS)}")
+                         f"{sorted(set(_EFFECTS) | set(_SET_EFFECTS))}")
     labels = load_anova_labels(path, correction=correction, alpha=alpha, roi=roi)
-    if key == "both":
-        flag_cols = ("S", "F")
+    if key in _SET_EFFECTS:
+        include_cols, exclude_cols = _SET_EFFECTS[key]
     else:
         flag_col = {"CPC": "S", "SPS": "F"}.get(
             _EFFECTS[key][0], _EFFECTS[key][0])
-        flag_cols = (flag_col,)
-    missing = [column for column in flag_cols if column not in labels]
+        include_cols, exclude_cols = (flag_col,), ()
+    needed_cols = include_cols + exclude_cols
+    missing = [column for column in needed_cols if column not in labels]
     if missing:
         raise ValueError(f"{path} has no columns needed to define effect={effect!r} "
                          f"with correction={correction!r}; missing {missing}")
-    labels = labels[labels[list(flag_cols)].eq(1).all(axis=1)]
+    mask = labels[list(include_cols)].eq(1).all(axis=1)
+    if exclude_cols:
+        mask &= labels[list(exclude_cols)].eq(0).all(axis=1)
+    labels = labels[mask]
 
     selected = {}
     for row in labels.itertuples(index=False):
