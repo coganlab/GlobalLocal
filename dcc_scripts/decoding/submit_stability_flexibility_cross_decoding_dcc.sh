@@ -27,7 +27,7 @@
 # ---------------------------------------------------------------------------
 # Data in: epochs file (high-gamma, rescaled) and the condition set.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_0.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
+EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
 
 # Default to the full crossed condition set. Keep this non-empty because the
 # Python entrypoint treats a blank CONDITIONS as the default, but exporting an
