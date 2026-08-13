@@ -148,6 +148,7 @@ if not 0 < ELECTRODE_SELECTION_FRAC < 1:
 #                     window mean dilutes; requires the run directories below.
 ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
+ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'both')
 # Most A1 files are already generated for one ROI and therefore do not carry a
 # separate ``roi`` column. Leave this unset unless the CSV actually has one.
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
@@ -214,7 +215,7 @@ if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
         anova_label_run_slug(
-            ANOVA_LABELS_CSV, effect='both', correction=FDR_CORRECTION,
+            ANOVA_LABELS_CSV, effect=ANOVA_LABEL_EFFECT, correction=FDR_CORRECTION,
             alpha=ALPHA, roi=ANOVA_LABEL_ROI))
 
 
@@ -242,6 +243,7 @@ def run_analysis():
         fdr_correction=FDR_CORRECTION,
         electrode_definition=ELECTRODE_DEFINITION,
         anova_labels_csv=ANOVA_LABELS_CSV,
+        anova_label_effect=ANOVA_LABEL_EFFECT,
         anova_label_roi=ANOVA_LABEL_ROI,
         power_traces_runs=POWER_TRACES_RUNS,
         power_traces_correction=POWER_TRACES_CORRECTION,
