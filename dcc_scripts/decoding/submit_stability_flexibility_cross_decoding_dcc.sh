@@ -81,7 +81,9 @@ fi
 ANOVA_LABELS_CSVS=(
     # Add additional saved A1 runs here to submit the same condition battery for
     # each definition window/correction.
-    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_proportion_none
+    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none
+    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
+
 )
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
@@ -114,8 +116,8 @@ POWER_TRACES_ROI=${POWER_TRACES_ROI:-}
 # ---------------------------------------------------------------------------
 # Decoding hyperparameters (the ordinary pipeline's).
 # ---------------------------------------------------------------------------
-WINDOW_SIZE=${WINDOW_SIZE:-20}       # decoding window, in samples
-STEP_SIZE=${STEP_SIZE:-10}           # window stride, in samples
+WINDOW_SIZE=${WINDOW_SIZE:-64}       # decoding window, in samples
+STEP_SIZE=${STEP_SIZE:-16}           # window stride, in samples
 SAMPLING_RATE=${SAMPLING_RATE:-256}
 FIRST_TIME_POINT=${FIRST_TIME_POINT:--1.0}
 N_SPLITS=${N_SPLITS:-5}              # CV folds (or resamples per repeat, see FRAC_TRAIN)
