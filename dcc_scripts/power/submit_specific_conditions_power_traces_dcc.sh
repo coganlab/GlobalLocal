@@ -60,7 +60,15 @@ if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
 
-ANOVA_LABEL_EFFECT=${ANOVA_LABEL_EFFECT:-both}
+# Submit every saved-label population by default. Set ANOVA_LABEL_EFFECT to
+# retain the previous single-effect behavior for one-off/environment-driven runs.
+ANOVA_LABEL_EFFECTS=(
+    both lwpc lwps congruency switch_type
+    lwpc_only lwps_only congruency_only switch_type_only
+)
+if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
+    ANOVA_LABEL_EFFECTS=("$ANOVA_LABEL_EFFECT")
+fi
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
@@ -70,15 +78,17 @@ mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     ANOVA_LABELS_CSV="${ANOVA_LABELS_CSVS[$CSV_INDEX]}"
-    for COND in "${CONDITIONS[@]}"; do
-        echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none}"
-        sbatch --job-name="pwr_a${CSV_INDEX}_${COND}" \
-            --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
-            sbatch_power_traces_dcc.sh
-        # sleep 2
+    for EFFECT_INDEX in "${!ANOVA_LABEL_EFFECTS[@]}"; do
+        ANOVA_LABEL_EFFECT="${ANOVA_LABEL_EFFECTS[$EFFECT_INDEX]}"
+        for COND in "${CONDITIONS[@]}"; do
+            echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
+            sbatch --job-name="pwr_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}" \
+                --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+                sbatch_power_traces_dcc.sh
+            # sleep 2
+        done
     done
 done
-
 
 
 
