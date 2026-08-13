@@ -407,10 +407,28 @@ def _resolve_labels(args, df=None):
         path = getattr(args, 'anova_labels_csv', None)
         if not path:
             raise ValueError("electrode_definition='csv' needs ANOVA_LABELS_CSV")
-        from src.analysis.utils.anova_label_selection import load_anova_labels
+        from src.analysis.utils.anova_label_selection import (
+            load_anova_label_electrodes,
+            load_anova_labels,
+            selected_pairs,
+        )
         labels = load_anova_labels(
             path, correction=getattr(args, 'fdr_correction', 'flags'),
             alpha=args.alpha, roi=getattr(args, 'anova_label_roi', None))
+        selection = load_anova_label_electrodes(
+            path, effect=getattr(args, 'anova_label_effect', 'both'),
+            correction=getattr(args, 'fdr_correction', 'flags'),
+            alpha=args.alpha, roi=getattr(args, 'anova_label_roi', None))
+        pairs = selected_pairs(selection)
+        bare_electrodes = [
+            electrode.removeprefix(f"{subject}-")
+            for subject, electrode in zip(
+                labels['subject'].astype(str), labels['electrode'].astype(str))
+        ]
+        labels = labels[
+            [(subject, electrode) in pairs for subject, electrode in zip(
+                labels['subject'].astype(str), bare_electrodes)]
+        ].copy()
         required = {'subject', 'electrode', 'S', 'F'}
         missing = required - set(labels)
         if missing:
