@@ -62,6 +62,21 @@ def test_both_selects_stability_flexibility_intersection(tmp_path):
     assert raw == {("D1", "A2")}
 
 
+@pytest.mark.parametrize("effect, expected", [
+    ("lwpc", {("D1", "A1"), ("D2", "B1")}),
+    ("lwpc_only", {("D1", "A1")}),
+    ("lwps", {("D1", "A2"), ("D2", "B1")}),
+    ("lwps_only", {("D1", "A2")}),
+    ("congruency", {("D1", "A1"), ("D2", "B1")}),
+    ("congruency_only", {("D1", "A1")}),
+    ("switch_type", {("D1", "A2"), ("D2", "B1")}),
+    ("switch_type_only", {("D1", "A2")}),
+])
+def test_full_and_exclusive_effect_sets(tmp_path, effect, expected):
+    assert selected_pairs(load_anova_label_electrodes(
+        _csv(tmp_path), effect, correction="flags")) == expected
+
+
 def test_both_requires_stability_and_flexibility_columns(tmp_path):
     path = tmp_path / "labels.csv"
     pd.DataFrame({
