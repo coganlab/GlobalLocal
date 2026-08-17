@@ -45,7 +45,6 @@ from src.analysis.power.power_traces import (
     anova_results_to_interaction_results_for_plotting,
     plot_anova_interaction_results,
     run_within_electrode_windowed_anova_cluster_correction,
-    load_significant_electrodes, 
 )
 
 from src.analysis.vis.power_traces_anova_f_traces_vis import (
@@ -159,21 +158,6 @@ def main(args):
     # 3b. Optionally filter electrodes to those flagged in a prior
     #     within-electrode ANOVA run.
     # ------------------------------------------------------------------
-    if args.filter_electrodes_from:
-        keep = set(load_significant_electrodes(
-            args.filter_electrodes_from,
-            roi=None,                           # let the filter cover all ROIs
-            effect=args.filter_effect,
-            use_fdr=args.filter_use_fdr,
-            p_thresh=0.05,
-        ))
-        print(f"[filter] loaded {len(keep)} (sub, elec) tuples from "
-              f"{args.filter_electrodes_from}")
-        for roi in rois:
-            for sub, elec_list in list(electrodes[roi].items()):
-                electrodes[roi][sub] = [e for e in elec_list if (sub, e) in keep]
-        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
-        print(f"[filter] {remaining} electrodes remain after filtering")
 
     if getattr(args, 'anova_labels_csv', None):
         from src.analysis.utils.anova_label_selection import (
