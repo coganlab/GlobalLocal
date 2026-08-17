@@ -44,7 +44,7 @@ PT_RUN="${PT_RUN:-$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_e
 # ---------------------------------------------------------------------------
 ROIS=${ROIS:-lpfc}                 # comma-separated, or 'all' to pool over ROIs
 CORRECTION=${CORRECTION:-cluster}   # fdr_bh | cluster | none
-EFFECT_MODE=${EFFECT_MODE:-main} # interaction (LWPC/LWPS) | main (congruency/switchType)
+EFFECT_MODE=${EFFECT_MODE:-interaction} # interaction (LWPC/LWPS) | main (congruency/switchType)
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
 THRESHOLDS=${THRESHOLDS:-0.01,0.025,0.05,0.10}

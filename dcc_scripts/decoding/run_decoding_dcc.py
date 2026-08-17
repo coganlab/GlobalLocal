@@ -293,15 +293,15 @@ if ANOVA_LABELS_CSV:
 
 # # # # testing params (comment out)
 # SUBJECTS = ['D0103']
-N_SPLITS = 2
-N_REPEATS = 1
-N_PERM = 2
-N_CLUSTER_PERMS= 2
-BOOTSTRAPS = 2
-N_JOBS = 1
-ROIS_DICT = {
-  'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
-}
+# N_SPLITS = 2
+# N_REPEATS = 1
+# N_PERM = 2
+# N_CLUSTER_PERMS= 2
+# BOOTSTRAPS = 2
+# N_JOBS = 1
+# ROIS_DICT = {
+#   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
+# }
 
 
 def run_analysis():

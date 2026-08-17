@@ -75,11 +75,7 @@ WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm clu
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 SPLIT_CLUSTERS_BY_SIGN = True
 MIN_TRIALS_PER_CELL=4
-# FILTER_ELECTRODES_FROM = "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/power/figs/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_within_electrode/stimulus_experiment_conditions_24_subjects" # Optional path to a within_elec_anova run directory (the one containing summary.csv and significant_effects_structure.json). When set, restrict the analysis to electrodes flagged significant in that run.
-FILTER_EFFECT = 'C(switchType)' # If filter_electrodes_from is set, restrict to electrodes significant for this specific effect, e.g., 'C(congruency)' or 'C(congruency):C(incongruentProportion)'. Default: any effect.
-FILTER_USE_FDR = True # If filter_electrodes_from is set, filter on sig_after_fdr (default) vs raw p
 
-FILTER_ELECTRODES_FROM = os.environ.get('FILTER_ELECTRODES_FROM') or None
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'lwpc')
 ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')

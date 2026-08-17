@@ -1,0 +1,31 @@
+====================================================================
+STABILITY vs FLEXIBILITY — A1 ANOVA DEFINITION + A2 CONJUNCTION
+====================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit
+  n_subjects_requested: 24
+                window: [1.0, 1.5]s
+            electrodes: sig
+                  rois: ['lpfc']
+         contrast_mode: condition
+        effect_measure: cohens_d
+        fdr_correction: none
+                 alpha: 0.05
+           n_perm_null: 10000
+            thresholds: [0.01]
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_condition_none
+--------------------------------------------------------------------
+A1  electrode definition (Type III interaction ANOVA, FDR across elec):
+      LWPC-selective (S): 56    LWPS-selective (F): 69    both: 24    of 174 electrodes
+--------------------------------------------------------------------
+A2  conjunction (CMH): MH odds ratio = 2.6727
+      CMH p = 0.02412   homogeneity p = 0.9187
+      -> shared / overlap core (significant)
+A2  overlap permutation null (within-subject): observed 'both' = 24, null mean = 18.42
+      p(two-sided) = 0.0127   z = +2.59   -> more overlap than chance (significant)
+--------------------------------------------------------------------
+A2  threshold sweep (MH OR across q-cutoffs — a robust verdict is stable):
+      q<0.01   n_S=45   n_F=52   n_both=17   OR=3.646  CMH p=0.00839  subjects=10 
+====================================================================
+Reading: MH OR < 1 / overlap below null -> segregation (distinct populations); OR > 1 / overlap above null -> shared core; ~1 -> independent.

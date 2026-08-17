@@ -59,7 +59,7 @@ if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
 fi
 ANOVA_LABEL_CORRECTION="${ANOVA_LABEL_CORRECTION:-flags}" # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA="${ANOVA_LABEL_ALPHA:-0.05}"
-ANOVA_LABEL_ROI="${ANOVA_LABEL_ROI:lpfc}"
+ANOVA_LABEL_ROI="${ANOVA_LABEL_ROI:-}"
 
 # Create output directory if needed
 mkdir -p out

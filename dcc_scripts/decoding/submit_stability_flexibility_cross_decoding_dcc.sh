@@ -98,7 +98,7 @@ fi
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-} # only set when the CSV itself has an roi column
-CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 # For CSV runs, use the ordinary launcher's ANOVA_LABEL_CORRECTION and
 # ANOVA_LABEL_ALPHA names. Explicit FDR_CORRECTION/ALPHA still take precedence.
 FDR_CORRECTION=${FDR_CORRECTION:-$ANOVA_LABEL_CORRECTION}
