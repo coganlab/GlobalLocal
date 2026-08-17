@@ -118,14 +118,103 @@ def load_anova_labels(path, correction="flags", alpha=0.05, roi=None):
 
 def load_anova_label_electrodes(path, effect="lwpc", correction="flags",
                                 alpha=0.05, roi=None):
-    """Return ``{roi: {subject: [bare electrode names]}}`` from A1 labels.
+    """Load electrodes associated with a selected effect from an A1 label table.
 
-    ``lwpc``/``lwps`` and ``congruency``/``switch_type`` select the complete
-    corresponding set, including overlap.  Their ``*_only`` forms exclude
-    electrodes significant for the other effect. ``both`` selects the
-    intersection.  Use the LWPC/LWPS names with a proportion-mode A1 table and
-    the main-effect names with a condition-mode A1 table; both table modes use
-    the backward-compatible ``S`` and ``F`` flags.
+    Read an A1 ``anova_labels.csv`` table, select electrodes associated with
+    the requested ANOVA effect, and group the resulting bare electrode names
+    by ROI and subject.
+
+    Parameters
+    ----------
+    path : str or pathlib.Path
+        Path to an A1 ``anova_labels.csv`` file or to the result directory
+        containing that file. The table must contain ``subject`` and
+        ``electrode`` columns, along with the flag, p-value, or q-value columns
+        required by ``effect`` and ``correction``.
+
+    effect : str, default="lwpc"
+        Effect or electrode-set definition to select. The value is
+        case-insensitive and surrounding whitespace is ignored. Supported
+        values are:
+
+        - ``"lwpc"``, ``"s"``, or ``"congruency"``: select every electrode
+          with the ``S`` flag, including electrodes that also have the ``F``
+          flag.
+        - ``"lwps"``, ``"f"``, or ``"switch_type"``: select every electrode
+          with the ``F`` flag, including electrodes that also have the ``S``
+          flag.
+        - ``"lwpc_only"`` or ``"congruency_only"``: select electrodes with
+          ``S == 1`` and ``F == 0``.
+        - ``"lwps_only"`` or ``"switch_type_only"``: select electrodes with
+          ``F == 1`` and ``S == 0``.
+        - ``"both"``: select the intersection, where both ``S == 1`` and
+          ``F == 1``.
+        - ``"cpc"``, ``"sps"``, ``"cps"``, or ``"spc"``: select the
+          corresponding effect. For backward compatibility, ``"cpc"`` uses
+          the ``S`` selection and ``"sps"`` uses the ``F`` selection.
+
+        Use the ``lwpc`` and ``lwps`` names for proportion-mode A1 results,
+        and the ``congruency`` and ``switch_type`` names for condition-mode A1
+        results. Both modes use the backward-compatible ``S`` and ``F`` flags.
+
+    correction : {"flags", "none", "raw", "fdr", "fdr_bh", "q"}, \
+default="flags"
+        Method used to determine whether each effect is significant:
+
+        - ``"flags"`` uses the binary effect flags already stored in the CSV
+          and therefore preserves the correction method used when the table
+          was generated.
+        - ``"none"`` or ``"raw"`` recomputes the flags by testing the
+          applicable raw p-value column against ``alpha``.
+        - ``"fdr"``, ``"fdr_bh"``, or ``"q"`` recomputes the flags by testing
+          the applicable saved q-value column against ``alpha``.
+
+        Significance comparisons are strict: a value is selected when it is
+        less than ``alpha``.
+
+    alpha : float, default=0.05
+        Significance threshold used when ``correction`` selects raw p-values
+        or saved q-values. This argument does not change saved flags when
+        ``correction="flags"``.
+
+    roi : str or None, default=None
+        If provided, restrict rows to those whose ``roi`` value matches this
+        value after conversion to strings. The input table must contain an
+        ``roi`` column when this argument is not ``None``. If omitted, rows
+        from all ROIs are eligible for selection.
+
+    Returns
+    -------
+    dict[str, dict[str, list[str]]]
+        Nested mapping of the form
+        ``{roi: {subject: [electrode, ...]}}``.
+
+        ROI and subject keys are strings. Electrode names are returned in
+        their original table order with duplicates removed. If an electrode
+        name begins with ``"<subject>-"``, that prefix is removed; for
+        example, ``"D1-A1"`` for subject ``"D1"`` is returned as ``"A1"``.
+        If the table has no ``roi`` column and no ROI filter was requested,
+        selected electrodes are placed under the ``"all"`` key. An empty
+        dictionary is returned when no electrodes satisfy the selection.
+
+    Raises
+    ------
+    FileNotFoundError
+        If ``path`` does not identify an existing CSV file or a directory
+        containing ``anova_labels.csv``.
+
+    ValueError
+        If the table lacks the required ``subject`` or ``electrode`` columns;
+        if ``effect`` or ``correction`` is unsupported; if ROI filtering is
+        requested but the table has no ``roi`` column; or if the table lacks
+        the flag, p-value, or q-value columns needed to define the requested
+        selection.
+
+    Notes
+    -----
+    Electrode ordering follows the order of matching rows in the input table.
+    Duplicate electrode names within the same ROI and subject are discarded
+    while preserving their first occurrence.
     """
     key = effect.strip().lower()
     if key not in _EFFECTS and key not in _SET_EFFECTS:
