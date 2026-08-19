@@ -98,6 +98,10 @@ from src.analysis.decoding.anova_electrode_selection import (
 from src.analysis.decoding.run_anova_electrode_selection import (
     build_anova_selected_electrode_sets,
 )
+
+from src.analysis.decoding.run_coupling_electrode_selection import (
+    build_coupling_selected_electrode_sets,
+)
 '''
 when adding a new condition to decoding -
 1. update config/condition_registry.py
@@ -466,6 +470,29 @@ def main(args):
         elec_string_to_add_to_filename += (
             f"_anovasel-{selection_report['frac_select']:g}"
         )
+        
+        # --- Optional: coupling-defined electrode sets (the PAC path's pairs) -----
+        # Electrodes are split by whether they take part in at least one
+        # significantly high gamma-envelope correlation pair, per
+        # `src/analysis/pac/`'s high_corr CSVs. Because the bootstrap resamples
+        # TRIALS and not electrodes, an unmatched coupled-vs-noncoupled decode would
+        # measure set size rather than coupling — so the non-coupled side is not one
+        # set but `coupling_n_draws` independent n-matched draws, and the comparison
+        # is against the distribution over draws. See docs/analysis_guide.md §22.
+        if getattr(args, 'coupling_electrode_selection', False):
+            if electrode_sets:
+                raise ValueError(
+                    "coupling_electrode_selection and anova_electrode_selection both "
+                    "define the electrode sets; enable only one.")
+            electrode_sets, coupling_report = build_coupling_selected_electrode_sets(
+                args=args,
+                rois=rois,
+                electrodes=electrodes,
+                subjects_electrodes_to_rois_dict=subjects_electrodestoROIs_dict,
+                save_dir=save_dir,
+                LAB_root=LAB_root,
+            )
+            elec_string_to_add_to_filename += f"_coupling-{coupling_report['pair_type']}"
 
     # Run the battery once per electrode set. With the option off this is a
     # single unnamed set — byte-for-byte the previous behaviour.
@@ -486,6 +513,7 @@ def main(args):
 
     print(f"\n{'='*20} RUNNING DECODING FOR {len(electrode_sets)} ELECTRODE SETS: "
           f"{list(electrode_sets)} {'='*20}\n")
+    
     for set_name, elecset in electrode_sets.items():
         run_decoding_for_one_electrode_set(
             args=args,
@@ -499,6 +527,25 @@ def main(args):
             folds_info_str=folds_info_str,
             electrode_set_name=set_name,
         )
+        
+    # With coupling sets, the per-set results are only half the analysis: the
+    # question is coupled vs the DISTRIBUTION over matched control draws, which
+    # needs all the sets in hand. Run it here so one job produces the answer.
+    if getattr(args, 'coupling_electrode_selection', False):
+        from src.analysis.decoding.coupling_comparison import run_coupling_comparison
+        try:
+            run_coupling_comparison(
+                base_save_dir=save_dir,
+                args=args,
+                condition_comparisons=list(condition_comparisons.keys()),
+                rois=rois,
+            )
+        except Exception as exc:
+            # The per-set decoding results are already saved; a failure to
+            # aggregate them should not lose the expensive part of the job.
+            print(f"\n✗ coupled-vs-uncoupled comparison failed: {exc}")
+            print("  The per-set results are saved; re-run the comparison with "
+                  "dcc_scripts/decoding/run_coupling_comparison_dcc.py")
 
 
                   

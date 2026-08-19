@@ -193,6 +193,15 @@ ROIS_DICT = {
    'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 }
 
+# A launcher can override the ROIs without editing this file: ROIS=lpfc,occ.
+# Names are resolved against src/analysis/config/rois.py, which raises on a
+# misspelling rather than silently decoding an empty electrode set. The
+# coupling launcher needs this — a cross-region pair type has to decode both
+# of its ROIs.
+if os.environ.get('ROIS'):
+    from src.analysis.config.rois import select_rois
+    ROIS_DICT = select_rois(os.environ['ROIS'])
+    
 # which electrodes to use (all or sig) - TODO: add in an option to include a dictionary of electrodes here, like congruencySigElectrodes
 ELECTRODES = 'sig'
 
@@ -272,6 +281,51 @@ ELECTRODE_SELECTION_STRATA = (
     os.environ['ELECTRODE_SELECTION_STRATA'].split(',')
     if os.environ.get('ELECTRODE_SELECTION_STRATA')
     else ['congruency', 'task_sequence', 'block_type'])
+
+# --- Coupling-defined electrode sets (PAC gamma-envelope correlation) --------
+# Splits the candidate electrodes by whether they take part in at least one
+# significantly high gamma-envelope correlation pair, using the PAC path's
+# per-subject `high_corr_<pairtype>_<condition>_<subject>.csv` files, and runs
+# the decoding battery on the coupled set plus COUPLING_N_DRAWS independent
+# n-matched sets of non-coupled electrodes.
+#
+# The n-match is not optional bookkeeping: the decoding bootstrap resamples
+# TRIALS, not electrodes (labeled_array_utils.make_bootstrapped_labeled_arrays_for_roi),
+# so every electrode in a set is in every bootstrap and accuracy tracks set
+# size. Comparing 15 coupled against 85 non-coupled electrodes measures the 85.
+#
+#   COUPLING_ELECTRODE_SELECTION  turn it on
+#   COUPLING_CSV_DIR              directory holding the high_corr_*.csv files
+#   COUPLING_PAIR_TYPE            lpfc-occ | lpfc-lpfc | occ-occ (any spelling;
+#                                 punctuation is ignored). Determines which ROIs
+#                                 are decoded, so ROIS must contain them.
+#   COUPLING_CONDITION            the condition token in the CSV filenames that
+#                                 DEFINES coupling. Keep this 'Stimulus' (all
+#                                 trials) unless you mean to define coupling on
+#                                 the same labels you decode — that is circular.
+#                                 This does NOT make coupling orthogonal to the
+#                                 decodes: pooled across-trial correlation partly
+#                                 measures shared condition tuning. See
+#                                 analysis_guide.md §22.3.
+#   COUPLING_N_DRAWS              independent matched control draws. This is the
+#                                 cost driver (one full decoding battery each)
+#                                 and it floors the exceedance p-value at
+#                                 1/(N+1): 20 draws cannot go below p = 0.048.
+#   COUPLING_MATCH_LEVEL          'global' (match total n) or 'within_subject'
+#                                 (match n per subject, so subject composition
+#                                 is identical between the sets)
+#   COUPLING_MATCH_DEGREE         match controls to coupled electrodes on how
+#                                 many partners they were tested against.
+#                                 "Coupled" means significant in >=1 pair, so a
+#                                 high-degree electrode qualifies more easily.
+COUPLING_ELECTRODE_SELECTION = _env_bool('COUPLING_ELECTRODE_SELECTION', False)
+COUPLING_CSV_DIR = os.environ.get('COUPLING_CSV_DIR') or None
+COUPLING_PAIR_TYPE = os.environ.get('COUPLING_PAIR_TYPE', 'lpfc-occ')
+COUPLING_CONDITION = os.environ.get('COUPLING_CONDITION', 'Stimulus')
+COUPLING_N_DRAWS = int(os.environ.get('COUPLING_N_DRAWS', 20))
+COUPLING_SEED = int(os.environ.get('COUPLING_SEED', 0))
+COUPLING_MATCH_LEVEL = os.environ.get('COUPLING_MATCH_LEVEL', 'global')
+COUPLING_MATCH_DEGREE = _env_bool('COUPLING_MATCH_DEGREE', False)
 
 # Reuse a completed stats/results/anova_conjunction_windows A1 definition.
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
@@ -372,6 +426,14 @@ def run_analysis():
         electrode_selection_use_fdr=ELECTRODE_SELECTION_USE_FDR,
         electrode_selection_min_trials_per_cell=ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL,
         electrode_selection_strata=ELECTRODE_SELECTION_STRATA,
+        coupling_electrode_selection=COUPLING_ELECTRODE_SELECTION,
+        coupling_csv_dir=COUPLING_CSV_DIR,
+        coupling_pair_type=COUPLING_PAIR_TYPE,
+        coupling_condition=COUPLING_CONDITION,
+        coupling_n_draws=COUPLING_N_DRAWS,
+        coupling_seed=COUPLING_SEED,
+        coupling_match_level=COUPLING_MATCH_LEVEL,
+        coupling_match_degree=COUPLING_MATCH_DEGREE,
         anova_labels_csv=ANOVA_LABELS_CSV,
         anova_label_effect=ANOVA_LABEL_EFFECT,
         anova_label_correction=ANOVA_LABEL_CORRECTION,
@@ -396,6 +458,13 @@ def run_analysis():
              f"alpha={ELECTRODE_DEFINITION_SPLIT_ALPHA})"
              if ELECTRODE_DEFINITION_SPLIT else ""))
     print(f"ANOVA electrode selection:     {ANOVA_ELECTRODE_SELECTION}")
+    print(f"Coupling electrode selection:  {COUPLING_ELECTRODE_SELECTION}"
+          + (f" (pair_type={COUPLING_PAIR_TYPE}, "
+             f"coupling_condition={COUPLING_CONDITION}, "
+             f"draws={COUPLING_N_DRAWS}, seed={COUPLING_SEED}, "
+             f"match={COUPLING_MATCH_LEVEL}"
+             f"{'+degree' if COUPLING_MATCH_DEGREE else ''})"
+             if COUPLING_ELECTRODE_SELECTION else ""))
     print(f"Saved ANOVA-label selection:   {ANOVA_LABELS_CSV or 'off'}")
     if ANOVA_LABELS_CSV:
         print(f"  effect/correction/alpha/ROI: {ANOVA_LABEL_EFFECT} / "
