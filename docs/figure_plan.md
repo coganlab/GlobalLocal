@@ -1,223 +1,253 @@
 # Figure plan — Intracranial EEG correlates of concurrent demands on stability and flexibility
 
 Working plan for the main-text figure sequence. Companion to
-[`analysis_guide.md`](analysis_guide.md) §12 (the analysis-side figure sequence) and
-§14.1 (the four interaction groups). Where the two disagree, this file is the
-paper's plan and `analysis_guide.md` is the analysis battery's plan; the mapping
-between them is in the table at the bottom.
+[`analysis_guide.md`](analysis_guide.md) §12 (the analysis-side figure sequence),
+§14.1 (the four interaction groups), and §21 (disjoint trial splits).
+
+## The narrative
+
+**Zoom-in.** Characterize LPFC as a whole → show it carries both signals (mixed
+selectivity) → drill into subpopulations → show the mixture is driven by the
+`both` electrodes.
+
+This is the right spine, and it beats a partition-first ordering for two reasons:
+it front-loads a result the reader can evaluate before being asked to accept a
+selection procedure, and it makes the all-LPFC level do real inferential work
+rather than serve as description.
+
+**Organize figures by level, not by measure.** Put power *and* decoding together
+at each level (F3 = all of LPFC, F4 = subpopulations) rather than splitting into a
+power figure and a decoding figure. The claim is about levels, so the figures
+should be too — and it collapses the drill-down into one figure instead of three.
 
 ## The claim stack
 
-The paper makes four claims, in this order. Every main-text panel exists to
-support one of them; anything that supports none is supplementary.
-
 | # | Claim | Level | Carried by |
 |---|---|---|---|
-| C1 | Stability and flexibility are adapted **independently in behavior** — a double dissociation of LWPC and LWPS, with null cross-effects | behavior | F1 |
-| C2 | LPFC contains **process-specific** sites (CPC-only, SPS-only) **and process-general** sites (both) | electrodes | F3 |
-| C3 | Those populations show the expected HG dynamics, confirmed **non-circularly** by cross-contrast definition | univariate | F4 |
-| C4 | The population readout reproduces the partition, and **additionally shows neural cross-process effects that behavior does not** | multivariate | F5 |
-| C5 | One adaptation arises **earlier** in the trial than the other | timing | F6 |
+| C1 | Stability and flexibility are adapted **independently in behavior** | behavior | F1 |
+| C2 | LPFC as a whole carries **both** conflict and switching signals — mixed selectivity | population | F3 |
+| C3 | LPFC contains **process-specific** and **process-general** sites, and the population-level mixture is **driven by the process-general sites** | subpopulation | F4 |
+| C4 | One adaptation arises **earlier** in the trial than the other | timing | F5 |
 
-### Vocabulary discipline
+**"Independent" is a behavioral word in this paper.** C1 earns it; nothing neural
+does. For the neural results use **process-specific** / **process-general**. This
+keeps C3 decoupled from the cross-process effects: a site carrying
+`congruency × switch_proportion` is a *different interaction* from
+`congruency × incongruent_proportion`, so its existence is not evidence against
+"some sites are congruency-only."
 
-**"Independent" is a behavioral word in this paper.** C1 earns it; nothing
-neural does. For the neural results use **process-specific** and
-**process-general** populations. This matters because it decouples C2 from the
-cross-process effects: a site carrying `congruency × switch_proportion` (CPS) is
-a *different interaction* from `congruency × incongruent_proportion` (CPC), so
-its existence is not evidence against "some sites are CPC-only." C2 is a claim
-about the partition, and the partition holds whatever CPS/SPC turn out to be.
+## Two structural decisions
 
-Consequence: the cross-process effects are **a designated result with a stated
-caveat**, not a threat to the headline. They get labeled cells in F5 and a
-control panel, and the text says plainly that behavior shows no cross-effects
-while the neural readout does — flagged as pending the §12.1 principle-8
-controls until those are run.
+### Define groups on main effects, test adaptation within them
 
-## The panel budget rule
+The torn-ness between main-effect and interaction electrodes resolves
+hierarchically, and the resolution is better than either option alone:
 
-> A panel earns main-text space if **flipping its result would change a sentence
-> in the abstract.** Otherwise it is a scalar in a summary panel, a supplementary
-> figure, or cut.
+- **Main effects define the subpopulations.** Congruency-sensitive,
+  switch-sensitive, both. Well-powered — this is where the electrode counts are.
+- **Interactions are tested *within* those groups.** "Do the congruency-sensitive
+  electrodes show LWPC? Do the switch-sensitive ones show LWPS?"
 
-The decoding bloat (~45 panels under the original plan) comes from budgeting
-every decode cell as a time-resolved accuracy trace. A trace is the right unit
-only when the *shape over time* is the claim. When the claim is "this cell is
-above chance and larger than that one," the unit is a **scalar with a bootstrap
-CI**, and a dozen of them fit in one panel.
+**This is non-circular by construction.** Under sum coding, main-effect and
+interaction contrasts are orthogonal, and §14.1 already uses Type III SS for
+exactly this reason — the interaction row is orthogonal to both main effects. So
+selecting on a main effect and testing the interaction does not double-dip.
 
-Four collapse rules, applied below:
+*Caveat, and it needs checking:* the cells are deliberately unbalanced (75/25),
+so the orthogonality is approximate rather than exact. Verify empirically before
+relying on it — permute labels, run the full select-on-main-effect →
+test-interaction pipeline, and confirm the false-positive rate is nominal. Cheap
+to run, and it converts an assumption into a reported control.
 
-1. **One panel per comparison, not per condition.** The 25% and 75% block levels
-   of a decode cell are overlaid on one axis, not split across two panels. The
-   pooled ("main effect") decode is a light reference trace *inside* that panel,
-   not two panels of its own. → 6 panels become 4.
-2. **The electrode-group breakdown is a summary panel, not a repeated grid.** Do
-   not re-render the trace grid per group. Plot a single `group × decode-cell`
-   panel of late-window cluster-corrected accuracy (or cluster mass) with
-   bootstrap CIs. One panel replaces 12–16 traces, and it makes the group
-   comparison directly readable instead of requiring the reader to eyeball across
-   a grid. Full traces → supplement. **This deletes the original Figure 7.**
-3. **Temporal generalization is a claim, not a display.** It answers exactly one
-   question: sustained vs. transient code. Two matrices answer it. If more are
-   wanted, reduce each matrix to a scalar generalization index (mean off-diagonal
-   / mean diagonal, or diagonal width at half-max) and plot the indices as a
-   strip. Note `TEMPGEN_GROUPS` already defaults to `both` (§17.1), so this is the
-   intended scope anyway.
-4. **Cross-decoding (A4 label transfer) comes out of the main text.** It adds no
-   claim the partition doesn't already make, and it is the one analysis whose
-   baseline is diagnostically impossible — significant pre-stimulus *congruency*
-   decoding (§17's observed-status caveat). Leading with it invites a reviewer to
-   discredit the whole decoding section. Supplement with the caveat, or hold for
-   a follow-up once the principle-8 controls are in.
+The payoff: this keeps the **adaptation** framing (which is the novel claim)
+while selecting on the **main effects** (which is where the power is). Report the
+interaction-defined counts in the supplement as convergent evidence — with the
+threshold sweep and the continuous effect-size correlation (§14), which is the
+real answer to low counts. The counting analysis is what's underpowered; the
+correlation is not, because it never thresholds.
 
-Net: **~45 decoding panels → 7.**
+### The drill-down's diagonal is circular — fix it with disjoint halves
+
+The expected result as stated — *congruency electrodes decode congruency but not
+switch type; switch electrodes the reverse; both electrodes decode both* — is half
+guaranteed and half a real test:
+
+| Cell | Status |
+|---|---|
+| congruency electrodes → decode congruency | **circular** (selection contrast = decode contrast) |
+| congruency electrodes → decode switch type | **real test** — this is the specificity claim |
+| switch electrodes → decode switch type | **circular** |
+| switch electrodes → decode congruency | **real test** |
+| both electrodes → decode both | **circular on both** |
+
+This is §14.1's "ignore the diagonal" rule. The load-bearing result is the
+**off-diagonal**: process-specific electrodes *fail* to decode the other process.
+
+But don't just drop the diagonal — the diagonal is the intuitive half of the
+story and a reader will want it. **Rescue it with disjoint trial halves** (§21,
+`_stratified_half_split`): select electrodes on half the trials, decode on the
+other half. The diagonal then becomes legitimate and the full 3×2 reads cleanly.
+Cross-validation alone does *not* fix this — selection happened before the CV
+split, on every trial.
 
 ## Main-text sequence
 
 ### F1 — Task, manipulation, behavior *(C1)*
-`a` paradigm · `b` 2×2 block proportion manipulation · `c` RT: switch cost and
-congruency effect by both proportions · `d` error rate, same layout.
+`a` paradigm · `b` 2×2 block proportion manipulation · `c` RT · `d` error rate.
 
-Unchanged from the draft. The double dissociation in `c` is the premise the rest
-of the paper answers; make the **absent cross-effects** visually obvious here,
-because F5's off-diagonal is the payoff.
+Unchanged. Make the **absent behavioral cross-effects** visually obvious — it is
+the contrast against which any neural cross-effect is read.
 
 ### F2 — Coverage and signal validation
 `a` all electrodes on the MNI surface, colored by ROI · `b` per-electrode HG
 traces for one example subject, task-responsive electrodes outlined · `c` example
-spectrogram showing the post-stimulus HG increase.
+spectrogram.
 
-Unchanged. Keep it lean — this figure convinces the reader the recording and
-pipeline work, and nothing more. Per-subject versions → supplement.
+Add a per-ROI, per-subject coverage table to the supplement and cite it here
+(see "Anticipated reviewer objections" below).
 
-### F3 — The electrode partition *(C2 — the headline figure)*
-`a` counts for all four interaction groups (CPC/SPS/CPS/SPC) with the conjunction
-test: observed CPC∩SPS overlap vs. chance, with the CMH odds ratio · `b` the
-threshold sweep (counts and overlap as a function of α), per §12.1 principle 3,
-so the result is not one α snapshot · `c` continuous, threshold-free version: per
-electrode LWPC effect size vs. LWPS effect size, with the correlation · `d`
-anatomical distribution of the groups on the surface, with the
-coverage-conditioned test (A3).
+### F3 — LPFC as a whole *(C2)*
+`a` task-responsive LPFC electrodes on the surface, with counts · `b` HG power
+traces: main effects (switch vs. repeat, incongruent vs. congruent) · `c` HG
+traces: within-process adaptation (LWPC, LWPS) · `d` decoding of congruency and
+switch type across all task-responsive LPFC electrodes.
 
-This is the figure the abstract's main sentence points at. Report the four
-groups, not two — that is what makes the cross-process effects a described
-feature of the taxonomy rather than a hole in it. Also report the **signed
-direction** breakdown per group (`<g>_sign`, §14.1): "of N LWPC electrodes, k
-showed a larger and N−k a smaller congruency effect in mostly-incongruent
-blocks." Selection is two-sided by design, so the sign split is a result worth
-stating, not a filter.
+The point of this figure is **mixed selectivity at the population level**: LPFC
+carries both signals, and nothing here tells you whether that is one mixed
+population or two overlaid specific ones. That question is what F4 answers, so
+state it explicitly in the last line of the caption — it is the hinge of the paper.
 
-### F4 — HG dynamics in the partitioned populations *(C3)*
-`a` main effects on task-responsive LPFC electrodes: switch vs. repeat,
-incongruent vs. congruent *(non-circular — selection is on baseline
-responsiveness, orthogonal to all four interactions)* · `b` within-process
-adaptation: LWPS and LWPC traces · `c` **the orthogonal/cross-contrast panel** —
-define on CPC, plot the LWPS trace; define on SPS, plot the LWPC trace · `d`
-pre-stimulus / tonic effects, plotted explicitly rather than baselined away.
+This level is also the **reference group** for everything in F4 (§17.1's
+`REFERENCE_GROUP`, default `all`). Every subpopulation in F4 was *chosen* for
+carrying an effect, so none of them is a baseline for "does LPFC decode this at
+all." F3 is that baseline. Framing it this way is what makes it earn a figure
+rather than read as throat-clearing — and it is why you should keep it even
+though the narrative could technically skip straight to subpopulations.
 
-Two notes.
+### F4 — Subpopulations *(C3 — the payoff figure)*
+`a` classification of task-responsive LPFC electrodes: congruency-sensitive,
+switch-sensitive, both — counts, conjunction vs. chance (CMH odds ratio), and
+anatomical distribution with the coverage-conditioned test · `b` HG power traces
+per group, **trellis layout** · `c` decoding, trellis: rows = electrode group
+(congruency / switch / both), columns = decode target (congruency / switch type),
+diagonal estimated on held-out trials per §21.
 
-**The draft's Figure 5 is circular as written.** "HG power in LPFC electrodes
-sensitive to main and adaptation effects" defines electrodes on an effect and
-then plots that effect (§12.1 principle 1). Two fixes, take either: estimate
-selection and trace on disjoint trial halves (§21), or replace it with panel `c`
-above. Panel `c` is the better paper: non-circular, a stronger claim, and 2
-panels instead of 6. The draft Figure 4 and Figure 5 merge into this one figure.
+**Layout is what controls the bloat here, not panel count.** A 3×2 trellis with
+shared axes, one row label, one column label, and no per-cell legends or titles
+reads as *one panel*. The same six plots given individual titles, axes, and
+legends read as six subpanels and look like bloat. Small multiples are cheap;
+independently-decorated subpanels are expensive. This is a design decision, not
+an analysis decision, and it is the difference between an 18-panel figure and a
+3-panel figure showing identical data.
 
-**Panel `d` is a result, not cleanup** (§12.1 principle 7). List-wide
-manipulations induce a sustained block-level state present before stimulus onset.
-Report it, use a baseline that predates the block context, and separate tonic
-from phasic. Doing this in the main text also pre-empts the obvious reviewer
-question about F5's pre-stimulus decoding.
+If space is still tight, replace the trellis cells with scalars — late-window
+accuracy with bootstrap CIs — and move the traces to supplement.
 
-### F5 — Population readout *(C4)*
-`a–d` the within-block decoding 2×2, one panel per cell, 25% and 75% block levels
-overlaid within each, pooled decode as a gray reference trace. Lay the panels out
-as an actual 2×2 grid — **diagonal = matched (CPC, SPS), off-diagonal = cross
-(CPS, SPC)** — with the axes labeled so the geometry is self-evident. A reader
-who saw F1 immediately sees that behavior has no off-diagonal and the neural
-readout does.
+### F5 — Timing *(C4)*
+`a` congruency vs. switch main-effect onsets · `b` LWPC vs. LWPS interaction
+onsets, each normalized to its own peak (the latency–amplitude guard, §12.1
+principle 6) · `c` jackknife onset difference with the Ulrich–Miller corrected
+test, overlaid on the permutation null.
 
-`e` the electrode-group summary: late-window accuracy per `group × decode cell`,
-bootstrap CIs, circular diagonal cells omitted per §14.1's rule (each defined
-group yields three usable cells and one ignored). This single panel is the
-entirety of the original Figure 7.
+Restrict to the two within-process comparisons. If the ordering comes back null,
+fold this into F3/F4 as a row and the paper goes to four figures.
 
-`f–g` temporal generalization for the two matched decodes on the `both` group.
-Keep these only if the sustained-vs-transient distinction is doing work in the
-proactive/reactive discussion — it currently is, so keep them.
+## Anticipated reviewer objections
 
-`h` **control panel**: block-identity decoding, and the count-matched /
-mean-removed version of the cross cells. Whether the off-diagonal survives this
-is what decides whether the text calls the cross-effects a finding or a caveat.
-If the panel is too crowded, this moves to supplement and the main text cites it
-— but it must exist somewhere before the cross cells are interpreted.
+### "Why only LPFC?"
 
-### F6 — Timing *(C5)*
-`a` LWPC and LWPS interaction time courses, each normalized to its own peak (the
-latency–amplitude guard, §12.1 principle 6) · `b` jackknife onset difference with
-the Ulrich–Miller corrected test · `c` observed onset difference overlaid on the
-permutation null.
+Coverage genuinely does not support more, but **show it, don't hand-wave it.**
+From `sig_electrodes_per_subject_roi.json` (an older run — the relative picture
+holds, the absolute counts are stale):
 
-You flagged timing as one of the paper's four claims, so it gets a real figure
-rather than being appended to the power traces. **Contingency:** if the ordering
-comes back null, demote this to a row of F4 and the paper goes to five figures.
-Restrict the comparison to LWPC vs. LWPS — cross-process timing is not a claim
-anyone is making.
+| ROI | sig. electrodes | subjects with ≥1 |
+|---|---|---|
+| lpfc | 44 | 12/17 |
+| dlpfc | 25 | 8/17 |
+| occ | 18 | 5/17 |
+| acc | 8 | 4/17 |
+| v1 | 6 | 3/17 |
+| parietal | 5 | 3/17 |
 
-### F7 — Brain–behavior *(optional, A6)*
-If A6 lands, this is the strongest available demonstration that the partition is
-*functional*: across-subject LWPC/LWPS neural summary vs. behavioral magnitude
-with its cross-pairing control, plus the within-subject trialwise mixed model.
-Add it as F7 or fold the trialwise result into F3 as a fifth panel. Not currently
-in hand.
+That is a defensible answer *as a table*. State the minimum coverage you required
+and show the ROIs that failed it. Reviewers accept coverage limits; they do not
+accept unexamined ones.
+
+**Better: turn it into a specificity control.** If any control ROI clears your
+threshold, run the same partition there. "The partition is LPFC-specific, not a
+global property of task-responsive cortex" converts your weakest point into a
+result. Occipital is the natural choice — decent counts, and no one expects
+control-signal structure in visual cortex, so a null there is exactly what you
+want. ACC would be the more interesting positive control but is likely too thin.
+
+### "Why only high gamma?"
+
+Your suspicion that the low bands are a preprocessing artifact is probably
+right, and there are two specific mechanisms in the current pipeline. Both are
+worth resolving *before* deciding what the low-band supplement says, because
+right now you cannot distinguish "no low-frequency effect" from "the pipeline
+removed it."
+
+**1. The baseline is too short for low frequencies.**
+`make_epoched_data.py` uses `base_times_length=0.5` — a 0.5 s baseline. That is
+35–75 cycles at 70–150 Hz, and **2–4 cycles at 4–8 Hz**. Z-scoring against a
+two-cycle baseline puts enormous variance in the denominator for theta, which
+would flatten exactly the effects you are looking for while leaving HG untouched.
+This is arithmetic, not speculation. Fix: use a longer baseline for the low bands
+(≥1 s, ideally scaled to cycles rather than fixed seconds).
+
+**2. The baseline may be subtracting the signal itself.** `within_base_times=(-1, 0)`
+draws the baseline from the pre-stimulus period. Your own §12.1 principle 7 notes
+that list-wide manipulations induce a *sustained block-level state present before
+stimulus onset* — and sustained state is, by definition, low-frequency. So for
+theta/alpha/beta the baseline is not neutral: it plausibly contains the effect,
+and normalizing against it removes it. This bites the low bands far harder than
+HG, and the guide flags the mechanism for HG without noting that it is worse
+downstream. Fix: baseline against `experimentStart` (the code already supports
+`baseline_event="experimentStart"`), which predates the block context.
+
+Re-run one low band with both fixes. Then:
+
+- **Still null** → report it in the supplement with the fixed pipeline. A clean
+  null in theta costs you nothing, and "we checked, with an appropriate baseline"
+  is a complete answer. HG being the informative band is the expected result and
+  is well-precedented.
+- **Not null** → you have a new result, and you would have shipped without it.
+
+Either way you are answering from evidence rather than hand-waving, which is the
+entire point. Do not put the *current* low-band results in the supplement — a
+reviewer who spots the 0.5 s baseline will discount the whole supplement.
+
+## Compression points
+
+Five main figures. To adjust:
+
+- **→ 4:** fold F5 into F4 as a row (do this automatically if the onset ordering
+  is null).
+- **→ 6:** split F4 into partition and drill-down, if `a` crowds `b`/`c`.
+- **→ 7:** promote cross-process effects to their own figure, but only if they
+  survive the §12.1 principle-8 controls (trial-count matching, RT
+  matching/regression, per-condition mean removal, run-aware folds).
 
 ## Supplement
 
-| S | Content | Displaced from |
-|---|---|---|
-| S1 | Full per-electrode-group decoding trace grids | original Fig 7 |
-| S2 | All remaining temporal-generalization matrices | original Fig 6/7 |
-| S3 | Cross-decoding (A4 label transfer) by group, with the pre-stimulus caveat stated | original Fig 6 |
-| S4 | Decoding confound controls: trial-count matching, RT matching/regression, per-condition mean removal, run-aware folds | §12.1 principle 8 |
-| S5 | Per-subject HG traces and electrode tables | Fig 2 |
-| S6 | Low-frequency (theta/alpha/beta) replications of the conjunction and decoding | §12 frequency scope |
-| S7 | Subject demographics, electrode counts, exclusions | Methods |
-
-## Budget and compression points
-
-Six main figures (seven with A6). To compress or expand:
-
-- **→ 5 figures:** merge F6 into F4 as a bottom row (do this automatically if the
-  onset comparison is null).
-- **→ 4 figures:** additionally merge F2 into F3 — coverage panel becomes F3`a`,
-  validation panels go to supplement.
-- **→ 8 figures:** split F5 into "matched decoding" and "cross-process decoding +
-  controls." Only worth it if the cross-effects survive S4 and become
-  main-text-load-bearing.
-
-## Mapping to the analysis guide
-
-| `analysis_guide.md` §12 Fig | Here | Note |
-|---|---|---|
-| 1 behavior | F1 | unchanged |
-| 2 time–frequency | F2`c` | reduced to one example spectrogram |
-| 3 HG rises | F2`b` | merged into validation |
-| 4 HG traces + pre-trial cross-effects | F4`a`,`b`,`d` | |
-| 5 2×2 conjunction counts | F3`a` | |
-| 6 onset latency | F6 | promoted to its own figure |
-| 7 segregation: conjunction + continuous correlation | F3`b`,`c` | |
-| 8 orthogonal power traces | F4`c` | the non-circular confirmation |
-| 9 within-block decoding 2×2 | F5`a–e` | collapsed per rules 1–2 |
-| 10 cross-decoding + tempgen | F5`f`,`g` + S2, S3 | tempgen trimmed to 2, transfer to supplement |
+| S | Content |
+|---|---|
+| S1 | Per-ROI, per-subject coverage table with the inclusion threshold |
+| S2 | Interaction-defined electrode counts, threshold sweep, continuous LWPC/LWPS effect-size correlation |
+| S3 | Low-frequency bands, re-run with the fixed baseline |
+| S4 | Cross-process decoding cells and their confound controls |
+| S5 | Cross-decoding (A4 label transfer), with the pre-stimulus caveat stated |
+| S6 | Temporal generalization matrices |
+| S7 | Per-subject HG traces; demographics, electrode counts, exclusions |
+| S8 | Permutation check that main-effect selection does not inflate the interaction test |
 
 ## Open items before this plan freezes
 
-1. Run the §12.1 principle-8 controls on the cross cells (S4). Their outcome
-   decides F5's framing and whether the paper is 6 or 8 figures.
-2. Decide draft-Figure-5's fix: disjoint trial halves (§21) or the orthogonal
-   panel. The orthogonal panel is recommended.
-3. Confirm the A5 onset ordering is significant — F6 stands or folds on it.
-4. Confirm whether A6 is reachable for this paper or the next.
+1. Run the permutation check on main-effect-selection → interaction-test
+   orthogonality. The hierarchical design rests on it.
+2. Implement the disjoint-half split (§21) so F4's diagonal is reportable.
+3. Re-run one low band with a longer, pre-block baseline before deciding what S3
+   says.
+4. Check whether any control ROI clears threshold for the specificity analysis.
+5. Confirm the A5 onset ordering is significant — F5 stands or folds on it.
