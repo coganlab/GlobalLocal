@@ -1021,7 +1021,6 @@ def run_windowed_anova_cluster_correction(
     electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
     n_perm=1000, percentile=95, cluster_percentile=95,
     split_clusters_by_sign=True,
-    balance_factors=None, analysis_window=None, imbalance_warn_ratio=1.5,
     cluster_stat='extent',
     seed=42, n_jobs=-1, verbose=True,
 ):
@@ -1091,34 +1090,6 @@ def run_windowed_anova_cluster_correction(
         sign. Sign splitting is applied only when a finite signed contrast can
         be computed for the effect; otherwise, clusters are treated as
         unsigned.
-    balance_factors : sequence of str or None, default=None
-        Extra factor columns to average over with **equal weight** before
-        fitting, so the ``anova_factors`` cell means are unweighted (estimated)
-        marginal means rather than trial-count-weighted ones.
-
-        This matters whenever a cell of the ``anova_factors`` design contains a
-        different mixture of ``balance_factors`` levels than its neighbors. In
-        the proportion designs it always does: congruent trials are 75% of a
-        25%-incongruent block but only 25% of a 75%-incongruent block, so
-        pooling them by raw trial count makes the congruent cell ~3:1
-        inc25-block trials while the incongruent cell is ~1:3. Any tonic
-        difference between block types then rides into the contrast — including
-        during the pre-stimulus baseline, where there is no evoked activity to
-        explain it. Averaging the sub-cells with equal weight first makes both
-        cells contain the same block mixture, so that term cancels.
-
-        Pass the factors that are *not* in ``anova_factors`` but which define
-        the underlying cells, e.g. ``anova_factors=['congruency',
-        'switchProportion']`` with ``balance_factors=['incongruentProportion',
-        'switchType']``. Requires a ``conditions_obj`` that keeps those cells
-        separate (``stimulus_experiment_conditions``, not a pre-pooled
-        4-condition set — a pooled set has no column left to balance over).
-    analysis_window : (float, float) or None, default=None
-        ``(tmin, tmax)`` in seconds; only windows whose center falls inside are
-        analyzed. Use this to keep the pre-stimulus baseline out of the cluster
-        search. Cluster extent is measured in *analyzed* windows, so restricting
-        the range also stops a sustained baseline offset from lending its length
-        to a post-stimulus cluster. Default None analyzes the full epoch.
     cluster_stat : {'extent', 'mass'}, default='extent'
         Statistic used to score a candidate cluster. ``'extent'`` counts
         suprathreshold windows and is magnitude-blind — a long weak cluster
@@ -1128,11 +1099,6 @@ def run_windowed_anova_cluster_correction(
         Default stays ``'extent'`` so existing runs reproduce; ``'mass'`` is the
         better choice for new ones. Note this is not what produces a
         baseline-spanning cluster — a sustained offset wins under either.
-    imbalance_warn_ratio : float, default=1.5
-        Warn when the largest/smallest trial count across the cells of the
-        ``anova_factors`` design exceeds this ratio and ``balance_factors`` was
-        not supplied. A warning here means the marginal means being contrasted
-        are trial-count-weighted and may carry the confound described above.
     seed : int, default=42
         Seed for generating reproducible permutation seeds.
     n_jobs : int, default=-1
@@ -1176,9 +1142,7 @@ def run_windowed_anova_cluster_correction(
 
         ROIs with no usable data or no successfully fitted windows are omitted.
     window_centers : numpy.ndarray, shape (n_windows,)
-        Time coordinate of the center of each analyzed window. Reflects
-        ``analysis_window`` when one is given, and is positionally aligned with
-        the window-level masks.
+        Time coordinate of the center of each analyzed window.
 
     Notes
     -----
@@ -1193,8 +1157,7 @@ def run_windowed_anova_cluster_correction(
     and wins the cluster test under either ``cluster_stat``. Inspect
     ``signed_contrast`` before interpreting: an evoked interaction starts near
     zero in the baseline and grows after onset, whereas a confound shows up as a
-    roughly constant offset across the whole epoch. See ``balance_factors`` and
-    ``analysis_window``.
+    roughly constant offset across the whole epoch.
 
     Cluster tests do not localize. A cluster spanning -0.9 to +0.9 s does not
     license the claim that the effect begins at -0.9 s (Sassenhagen &
@@ -1220,29 +1183,10 @@ def run_windowed_anova_cluster_correction(
 
     # Pre-compute window centers (n_windows,) and the corresponding sample mapping
     window_indices = sorted(df['WindowIndex'].unique())
+    n_windows = len(window_indices)
     window_centers = np.array(
         [df[df['WindowIndex'] == w]['WindowCenter'].iloc[0] for w in window_indices]
     )
-
-    # Restrict the cluster search to a time range (e.g. post-stimulus only). Done
-    # here, before anything downstream indexes by window, so window_indices,
-    # window_centers and win_to_samples stay positionally aligned with the masks.
-    if analysis_window is not None:
-        tmin, tmax = analysis_window
-        keep = (window_centers >= tmin) & (window_centers <= tmax)
-        if not keep.any():
-            raise ValueError(
-                f"analysis_window={analysis_window} keeps no windows; window "
-                f"centers span {window_centers.min():.3f}..{window_centers.max():.3f}s"
-            )
-        window_indices = [w for w, k in zip(window_indices, keep) if k]
-        window_centers = window_centers[keep]
-        if verbose:
-            print(f"[anova-cluster] analysis_window={analysis_window}: keeping "
-                  f"{len(window_indices)}/{len(keep)} windows "
-                  f"({window_centers[0]:+.3f}..{window_centers[-1]:+.3f}s)")
-
-    n_windows = len(window_indices)
 
     # Map each window to a (start_sample, end_sample) range, used to expand
     # window-level clusters back to the full sampling-rate mask for plotting.
@@ -1264,40 +1208,18 @@ def run_windowed_anova_cluster_correction(
 
         # Aggregate to electrode × window × cell (across-electrode ANOVA).
         #
-        # With balance_factors, this is a TWO-stage mean: trials -> full cells
-        # (anova_factors x balance_factors), then cells -> anova_factors cells
-        # with equal weight per sub-cell. The second stage is what makes the
-        # marginal means unweighted; a single groupby over anova_factors alone
-        # weights each sub-cell by its trial count, which is exactly the
-        # confound documented on `balance_factors`.
-        base_cols = ['SubjectID', 'Electrode', 'WindowIndex', 'WindowCenter']
-        group_cols = base_cols + list(anova_factors)
-        if balance_factors:
-            missing = [f for f in balance_factors if f not in df_roi.columns]
-            if missing:
-                raise ValueError(
-                    f"balance_factors {missing} are not columns of the windowed "
-                    f"dataframe. The conditions_obj must keep those cells "
-                    f"separate (use stimulus_experiment_conditions, not a "
-                    f"pre-pooled 4-condition set)."
-                )
-            df_cell = df_roi.groupby(group_cols + list(balance_factors),
-                                     as_index=False)['Activity'].mean()
-            df_agg = df_cell.groupby(group_cols, as_index=False)['Activity'].mean()
-        else:
-            _counts = df_roi[df_roi['WindowIndex'] == window_indices[0]] \
-                .groupby(list(anova_factors)).size()
-            if len(_counts) and _counts.min() > 0:
-                _ratio = _counts.max() / _counts.min()
-                if _ratio > imbalance_warn_ratio:
-                    print(f"[anova-cluster] WARNING: ROI {roi} cell trial counts "
-                          f"are unbalanced (max/min = {_ratio:.1f}: "
-                          f"{dict(_counts)}). Cell means are trial-count-weighted, "
-                          f"so a difference in composition between cells will "
-                          f"enter the contrast at every timepoint, baseline "
-                          f"included. Pass balance_factors=[...] to average the "
-                          f"sub-cells with equal weight instead.")
-            df_agg = df_roi.groupby(group_cols, as_index=False)['Activity'].mean()
+        # NOTE: this is a trial-count-weighted mean. It equals an unweighted
+        # (estimated) marginal mean only when every cell of the `anova_factors`
+        # design holds the same mixture of whatever it collapses over -- i.e.
+        # when `conditions_obj` keeps those cells separate AND each is a term in
+        # the model. Run the proportion interactions off a conditions_obj whose
+        # cells are one block type each (the *_by_block_conditions sets) with the
+        # full-factorial `anova_factors`. A pre-pooled 4-condition set mixes
+        # blocks 3:1 vs 1:3 across the cells being contrasted, which puts a
+        # block-level offset into the contrast at every timepoint, baseline
+        # included.
+        group_cols = ['SubjectID', 'Electrode', 'WindowIndex', 'WindowCenter'] + anova_factors
+        df_agg = df_roi.groupby(group_cols, as_index=False)['Activity'].mean()
 
         # === Observed F per effect per window ===
         observed_per_window = {}  # window_idx -> dict(effect -> F)
@@ -1333,43 +1255,31 @@ def run_windowed_anova_cluster_correction(
                     observed_sign[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
 
         # === Permutation null ===
-        # One label permutation per SUBJECT, applied to all of that subject's
-        # electrodes, and held fixed across windows.
+        # We shuffle factor labels per electrode once per perm (same shuffle for
+        # all windows), since each electrode contributes independent rows per
+        # window.
         #
-        # It must be per subject, not per (subject, electrode): every electrode
-        # of a subject is recorded from the SAME trials, so relabeling trials in
-        # that subject moves all of its electrodes together. Drawing an
-        # independent permutation per electrode builds null datasets in which
-        # one trial is "congruent" for contact LFO3 and "incongruent" for LFO4
-        # in the same recording — arrangements no relabeling of the experiment
-        # can produce. Those impossible nulls scatter any offset shared across a
-        # subject's electrodes, while the observed data keeps it aligned, so the
-        # null comes out too narrow and F is over-called at every timepoint.
-        #
-        # This is a validity fix for the permutation scheme, not a change of the
-        # error term: the model, the unit of analysis (the electrode) and the
-        # estimand are all unchanged.
+        # This treats every electrode as its own exchangeable unit -- the
+        # "super-subject" assumption used throughout this codebase, decoding
+        # included. It is a deliberate modelling choice: it assumes no structure
+        # is shared across the electrodes of one subject. Where that assumption
+        # fails, this null is narrower than the data warrants.
+        # Per-perm work: re-fit OLS at every window.
         seeds = rng_master.randint(0, 2**31 - 1, size=n_perm)
 
         def _one_perm(perm_seed):
             rng = np.random.RandomState(perm_seed)
             shuffle_map = {}
-            for sub, grp in df_agg[df_agg['WindowIndex'] == window_indices[0]] \
-                    .groupby('SubjectID'):
-                n_elec_sub = grp['Electrode'].nunique()
-                n_cells = len(grp) // n_elec_sub if n_elec_sub else 0
-                shuffle_map[sub] = rng.permutation(n_cells)
+            for (sub, elec), grp in df_agg[df_agg['WindowIndex'] == window_indices[0]] \
+                    .groupby(['SubjectID', 'Electrode']):
+                n_cells = len(grp)
+                shuffle_map[(sub, elec)] = rng.permutation(n_cells)
             null_F_perm = np.full((len(effect_names), n_windows), np.nan)
             null_sign_perm = np.full((len(effect_names), n_windows), np.nan)   # === NEW ===
             for wi, w in enumerate(window_indices):
                 df_w = df_agg[df_agg['WindowIndex'] == w].copy().reset_index(drop=True)
                 for (sub, elec), idxs in df_w.groupby(['SubjectID', 'Electrode']).groups.items():
-                    # Same permutation for every electrode of this subject: the
-                    # rows within each (sub, elec) group are in a fixed cell
-                    # order (df_agg is sorted by the groupby keys), so applying
-                    # one permutation reproduces one consistent relabeling of
-                    # that subject's trials across all of its contacts.
-                    perm = shuffle_map.get(sub)
+                    perm = shuffle_map.get((sub, elec))
                     if perm is None or len(perm) != len(idxs):
                         continue
                     idxs = np.asarray(idxs)

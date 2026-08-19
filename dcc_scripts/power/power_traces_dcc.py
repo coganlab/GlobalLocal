@@ -258,8 +258,6 @@ def main(args):
                 percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
                 cluster_percentile=int(100 * (1 - args.p_cluster)),
                 split_clusters_by_sign=args.split_clusters_by_sign,
-                balance_factors=getattr(args, 'balance_factors', None),
-                analysis_window=getattr(args, 'analysis_window', None),
                 cluster_stat=getattr(args, 'cluster_stat', 'extent'),
                 seed=42, n_jobs=args.n_jobs, verbose=True,
             )
