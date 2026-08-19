@@ -9,6 +9,21 @@ significant "interaction" clusters spanning the pre-stimulus baseline:
 2. The permutation shuffles labels once per SUBJECT and applies that relabeling
    to all of the subject's electrodes -- electrodes of one subject share trials,
    so per-electrode shuffles build null datasets the experiment cannot produce.
+
+   Measured on synthetic data with NO condition effects (24 sims, AR(1) noise,
+   design-realistic 90/30/30/90 cell counts, and a per-trial offset shared
+   across each subject's electrodes), false-positive rate of the interaction
+   cluster and the fraction of windows exceeding the per-window null 95th
+   percentile (nominal 0.05 for both):
+
+       permutation scheme      interaction FPR    frac. windows above thresh
+       per (subject, electrode)      33%                    0.180
+       per subject (this fix)         0%                    0.036
+
+   Main effects moved 33% -> 8% and 21% -> 4% on the same data. Removing the
+   shared offset instead of fixing the shuffle also restored nominal rates,
+   confirming that shared-across-electrodes structure is what the old scheme
+   could not reproduce in its null.
 3. `analysis_window` restricts the cluster search to a time range.
 
 These drive the real pipeline (no mocks) on small synthetic designs.
