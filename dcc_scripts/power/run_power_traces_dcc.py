@@ -76,6 +76,29 @@ STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm 
 SPLIT_CLUSTERS_BY_SIGN = True
 MIN_TRIALS_PER_CELL=4
 
+# Average the non-tested factors with EQUAL weight before fitting, so the tested
+# cell means are unweighted marginal means. Required for the cross-dimension
+# interactions (congruency x switchProportion, switchType x incongruentProportion):
+# pooling those cells by raw trial count makes them contain 3:1 vs 1:3 mixtures of
+# the other proportion block, which puts a block-level offset into the contrast at
+# every timepoint, baseline included. Needs a CONDITION_LABEL whose conditions keep
+# the 16 cells separate (stimulus_experiment_conditions), since a pre-pooled
+# 4-condition set has no column left to balance over. Empty/None = old behavior.
+# e.g. BALANCE_FACTORS='incongruentProportion switchType'
+BALANCE_FACTORS = (os.environ.get('BALANCE_FACTORS', '').split() or None)
+
+# Restrict the cluster search to a time range, in seconds relative to stimulus
+# onset. The epoch runs -1.0 to 1.5 s, so the default (None) searches 1 s of
+# pre-stimulus baseline where no evoked interaction can exist but a tonic offset
+# can. e.g. ANALYSIS_WINDOW='0 1.5'
+_aw = os.environ.get('ANALYSIS_WINDOW', '').split()
+ANALYSIS_WINDOW = (float(_aw[0]), float(_aw[1])) if len(_aw) == 2 else None
+
+# 'extent' (count of suprathreshold windows) or 'mass' (summed excess F).
+# 'extent' is magnitude-blind and the windows overlap 75%; 'mass' is the better
+# default for new runs. Kept at 'extent' so existing runs reproduce.
+CLUSTER_STAT = os.environ.get('CLUSTER_STAT', 'extent')
+
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'lwpc')
 ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
@@ -236,6 +259,9 @@ def run_analysis():
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
         split_clusters_by_sign=SPLIT_CLUSTERS_BY_SIGN,
+        balance_factors=BALANCE_FACTORS,
+        analysis_window=ANALYSIS_WINDOW,
+        cluster_stat=CLUSTER_STAT,
         anova_unit=ANOVA_UNIT,
         min_trials_per_cell=MIN_TRIALS_PER_CELL,
         filter_electrodes_from=FILTER_ELECTRODES_FROM,
