@@ -12,8 +12,16 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from typing import Union, List, Sequence
 
-from src.analysis.utils.general_utils import _subdir
 from src.analysis.config.plotting_parameters import plotting_parameters
+
+
+def _subdir(directory, subfolder):
+    """Create and return a plot output subdirectory."""
+    if directory is None:
+        return None
+    out = os.path.join(directory, subfolder)
+    os.makedirs(out, exist_ok=True)
+    return out
 
 DEFAULT_PLOT_STYLE = {
     # Toggles
@@ -45,7 +53,52 @@ DEFAULT_PLOT_STYLE = {
     'figsize': (12, 8),
     'text_color': '#002060',
     'sig_cluster_height': 0.3,
+
+    # Electrode-level context.  The colored line remains the across-electrode
+    # mean; thin gray lines show the observations that went into that mean.
+    'show_electrode_traces': True,
+    'electrode_trace_color': '#9e9e9e',
+    'electrode_trace_alpha': 0.25,
+    'electrode_trace_linewidth': 0.7,
+    'label_outliers': True,
+    'n_outlier_labels': 3,
 }
+
+
+def rank_electrode_deviations(evoked):
+    """Rank channels by their RMS deviation from the channel mean trace.
+
+    RMS deviation uses the full displayed time course, so electrodes with a
+    sustained offset and electrodes with a large transient excursion are both
+    surfaced.  NaN-only channels are retained at the bottom of the ranking.
+    """
+    data = np.asarray(evoked.data, dtype=float)
+    if data.ndim != 2:
+        raise ValueError("evoked.data must have shape (channels, times)")
+    with np.errstate(invalid='ignore'):
+        mean_trace = np.nanmean(data, axis=0)
+        scores = np.sqrt(np.nanmean((data - mean_trace) ** 2, axis=1))
+    names = list(getattr(evoked, 'ch_names', []))
+    if len(names) != data.shape[0]:
+        names = [f"channel_{i}" for i in range(data.shape[0])]
+    order = np.argsort(np.nan_to_num(scores, nan=-np.inf))[::-1]
+    return [(names[i], float(scores[i])) for i in order]
+
+
+def _write_electrode_deviation_report(path, roi, rankings):
+    """Write a human-readable, condition-wise electrode outlier ranking."""
+    with open(path, 'w', encoding='utf-8') as report:
+        report.write(f"Electrode deviation report for ROI: {roi}\n")
+        report.write("Metric: RMS deviation of each electrode trace from the "
+                     "condition's across-electrode mean trace.\n")
+        report.write("Larger values indicate greater deviation; this is a "
+                     "diagnostic ranking, not a statistical outlier test.\n\n")
+        for condition, ranking in rankings.items():
+            report.write(f"[{condition}] ({len(ranking)} electrodes)\n")
+            report.write("rank\telectrode\trms_deviation\n")
+            for rank, (electrode, score) in enumerate(ranking, start=1):
+                report.write(f"{rank}\t{electrode}\t{score:.6g}\n")
+            report.write("\n")
 
 
 def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name,
@@ -93,6 +146,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     figsize = s['figsize']
     sig_cluster_height = s['sig_cluster_height']
     fig, ax = plt.subplots(figsize=figsize)
+    deviation_rankings = {}
 
     for condition_name in condition_names:
         evoked = evks_dict[condition_name][roi]
@@ -133,7 +187,31 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         n_channels = data.shape[0]
 
         # Calculate mean across channels
-        mean_data = np.mean(data, axis=0)
+        mean_data = np.nanmean(data, axis=0)
+
+        # Draw these first so the condition mean and uncertainty stay visually
+        # dominant. Labels use the largest pointwise departure of each selected
+        # trace, which puts the name next to the feature that drove the ranking.
+        if s['show_electrode_traces']:
+            ax.plot(times, data.T, color=s['electrode_trace_color'],
+                    alpha=s['electrode_trace_alpha'],
+                    linewidth=s['electrode_trace_linewidth'], zorder=1)
+
+        ranking = rank_electrode_deviations(evoked)
+        deviation_rankings[condition_name] = ranking
+        if s['label_outliers'] and s['show_electrode_traces']:
+            name_to_index = {name: idx for idx, name in enumerate(evoked.ch_names)}
+            for electrode, _ in ranking[:max(0, int(s['n_outlier_labels']))]:
+                channel_idx = name_to_index[electrode]
+                delta = np.abs(data[channel_idx] - mean_data)
+                if np.all(np.isnan(delta)):
+                    continue
+                time_idx = int(np.nanargmax(delta))
+                ax.annotate(electrode,
+                            (times[time_idx], data[channel_idx, time_idx]),
+                            xytext=(3, 3), textcoords='offset points',
+                            fontsize=max(6, s['legend_font_size'] - 2),
+                            color='#555555', alpha=0.9, clip_on=True)
 
         # Plot mean
         ax.plot(times, mean_data, color=color, linestyle=linestyle,
@@ -265,6 +343,9 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             filepath = os.path.join(save_dir, base + ext)
             plt.savefig(filepath, dpi=300, bbox_inches='tight')
             print(f"Saved plot to: {filepath}")
+        report_path = os.path.join(save_dir, base + '_electrode_deviations.txt')
+        _write_electrode_deviation_report(report_path, roi, deviation_rankings)
+        print(f"Saved electrode deviation report to: {report_path}")
 
     plt.close()
     return fig
