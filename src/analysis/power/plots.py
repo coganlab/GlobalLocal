@@ -180,6 +180,19 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
 
         # logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
 
+        # The indices below index `times`, which is at SAMPLE resolution, so the
+        # mask must be sample-resolution too. A window-level mask (one entry per
+        # sliding window) silently draws the bar compressed into the first few
+        # hundred ms of the epoch instead of erroring. Catch it here.
+        n_mask = len(list(significant_clusters))
+        if n_mask != len(times):
+            raise ValueError(
+                f"significant_clusters has {n_mask} entries but the time axis has "
+                f"{len(times)} samples. Pass a sample-level mask (e.g. "
+                f"`sample_mask` from the ANOVA cluster results), not a "
+                f"window-level one — indices are used to index `times` directly."
+            )
+
         clusters = find_clusters(significant_clusters)
 
         # # Determine y position for the bars
@@ -817,6 +830,15 @@ def anova_results_to_interaction_results_for_plotting(
                 continue
             out[roi][inter['name']] = {
                 'mask': info['sample_mask'],
+                # Carry the signed masks through. Without them the caller falls
+                # back to the union `mask` and draws ONE black bar, so a positive
+                # cluster abutting a negative one renders as a single continuous
+                # span — which reads as one long effect rather than two opposite
+                # ones. The plotting code already has a sign-aware branch; it was
+                # just never reachable from this adapter.
+                'pos_sample_mask': info.get('pos_sample_mask'),
+                'neg_sample_mask': info.get('neg_sample_mask'),
+                'signed_contrast': info.get('signed_contrast'),
                 't_obs': info['observed_F'],   # F-trace, but field name kept for compat
                 'cluster_p_values': np.array([]),  # not exposed by the percentile method
                 'factors': (f1, f2),
