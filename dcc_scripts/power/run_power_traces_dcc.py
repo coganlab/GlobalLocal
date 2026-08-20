@@ -161,8 +161,12 @@ ROIS_DICT = {
 }
 
 
-# which electrodes to use (all or sig)
-ELECTRODES = 'all'
+# Which electrodes to use: 'all' (every electrode in the ROI) or 'sig' (those
+# significant vs baseline). This is a different, earlier filter than
+# ANOVA_LABELS_CSV, which narrows further to a saved ANOVA subpopulation.
+ELECTRODES = os.environ.get('ELECTRODES', 'all')
+if ELECTRODES not in ('all', 'sig'):
+    raise ValueError(f"ELECTRODES must be 'all' or 'sig', got {ELECTRODES!r}")
 
 # plotting
 PLOT_STYLE = {
