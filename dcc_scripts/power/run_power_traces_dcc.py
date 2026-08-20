@@ -248,9 +248,6 @@ def run_analysis():
         cluster_stat=CLUSTER_STAT,
         anova_unit=ANOVA_UNIT,
         min_trials_per_cell=MIN_TRIALS_PER_CELL,
-        filter_electrodes_from=FILTER_ELECTRODES_FROM,
-        filter_effect=FILTER_EFFECT,
-        filter_use_fdr=FILTER_USE_FDR,
         anova_labels_csv=ANOVA_LABELS_CSV,
         anova_label_effect=ANOVA_LABEL_EFFECT,
         anova_label_correction=ANOVA_LABEL_CORRECTION,
@@ -293,9 +290,6 @@ def run_analysis():
     print(f"  Split ANOVA Clusters By Sign: {SPLIT_CLUSTERS_BY_SIGN}")
     print(f" ANOVA unit: {ANOVA_UNIT}")
     print(f" Min trials per ANOVA cell: {MIN_TRIALS_PER_CELL}")
-    print(f" filter electrodes from: {FILTER_ELECTRODES_FROM}"),
-    print(f" filter effect: {FILTER_EFFECT}"),
-    print(f" filter use fdr: {FILTER_USE_FDR}"),
     print(f" ANOVA labels CSV: {ANOVA_LABELS_CSV}"),
     if ANOVA_LABELS_CSV:
         print(f" label effect/correction/alpha/ROI: {ANOVA_LABEL_EFFECT} / "
