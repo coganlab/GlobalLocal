@@ -658,6 +658,28 @@ CONDITION_REGISTRY = {
 'stimulus_lwpc_block_balanced_conditions': {
     'conditions_obj': experiment_conditions.stimulus_congruency_by_block_conditions,
     'balance_strata': True,
+    # Full-factorial ANOVA over the 8 block cells. Because every cell is one
+    # block type and every factor is a term in the model, the 2-way terms are
+    # equal-weight (unweighted marginal) contrasts -- a block-level tonic
+    # difference enters both levels of the tested factor identically and cancels.
+    # This is what the pooled 4-condition sets
+    # (stimulus_congruency_by_switch_proportion_conditions et al.) cannot do:
+    # there each cell is a raw union of BIDS events, so the congruent cell is
+    # ~3:1 inc25-block trials while the incongruent cell is ~1:3, and the block
+    # offset rides into the contrast at every timepoint, baseline included.
+    'anova_factors': ['congruency', 'incongruentProportion', 'switchProportion'],
+    'anova_interactions': [
+        {
+            'name': 'congruency_x_incongruentProportion',
+            'factors': ['congruency', 'incongruentProportion'],
+            'label': 'Congruency × Inc. Proportion (block-balanced)',
+        },
+        {
+            'name': 'congruency_x_switchProportion',
+            'factors': ['congruency', 'switchProportion'],
+            'label': 'Congruency × Switch Proportion (block-balanced)',
+        },
+    ],
     'comparisons': {
         # inc_prop=25 → MC blocks (MC_MR, MC_MS)
         'i_vs_c_at_inc25': [
@@ -708,6 +730,28 @@ CONDITION_REGISTRY = {
 'stimulus_lwps_block_balanced_conditions': {
     'conditions_obj': experiment_conditions.stimulus_switch_type_by_block_conditions,
     'balance_strata': True,
+    # Full-factorial ANOVA over the 8 block cells. Because every cell is one
+    # block type and every factor is a term in the model, the 2-way terms are
+    # equal-weight (unweighted marginal) contrasts -- a block-level tonic
+    # difference enters both levels of the tested factor identically and cancels.
+    # This is what the pooled 4-condition sets
+    # (stimulus_congruency_by_switch_proportion_conditions et al.) cannot do:
+    # there each cell is a raw union of BIDS events, so the switch cell is
+    # ~1:3 sw25-block trials while the repeat cell is ~3:1, and the block
+    # offset rides into the contrast at every timepoint, baseline included.
+    'anova_factors': ['switchType', 'incongruentProportion', 'switchProportion'],
+    'anova_interactions': [
+        {
+            'name': 'switchType_x_switchProportion',
+            'factors': ['switchType', 'switchProportion'],
+            'label': 'Switch Type × Switch Proportion (block-balanced)',
+        },
+        {
+            'name': 'switchType_x_incongruentProportion',
+            'factors': ['switchType', 'incongruentProportion'],
+            'label': 'Switch Type × Inc. Proportion (block-balanced)',
+        },
+    ],
     'comparisons': {
         # switch_prop=25 → MR blocks (MI_MR, MC_MR)
         's_vs_r_at_sw25': [
@@ -759,6 +803,28 @@ CONDITION_REGISTRY = {
 'stimulus_congruency_by_switch_prop_block_balanced_conditions': {
     'conditions_obj': experiment_conditions.stimulus_congruency_by_block_conditions,
     'balance_strata': True,
+    # Full-factorial ANOVA over the 8 block cells. Because every cell is one
+    # block type and every factor is a term in the model, the 2-way terms are
+    # equal-weight (unweighted marginal) contrasts -- a block-level tonic
+    # difference enters both levels of the tested factor identically and cancels.
+    # This is what the pooled 4-condition sets
+    # (stimulus_congruency_by_switch_proportion_conditions et al.) cannot do:
+    # there each cell is a raw union of BIDS events, so the congruent cell is
+    # ~3:1 inc25-block trials while the incongruent cell is ~1:3, and the block
+    # offset rides into the contrast at every timepoint, baseline included.
+    'anova_factors': ['congruency', 'incongruentProportion', 'switchProportion'],
+    'anova_interactions': [
+        {
+            'name': 'congruency_x_incongruentProportion',
+            'factors': ['congruency', 'incongruentProportion'],
+            'label': 'Congruency × Inc. Proportion (block-balanced)',
+        },
+        {
+            'name': 'congruency_x_switchProportion',
+            'factors': ['congruency', 'switchProportion'],
+            'label': 'Congruency × Switch Proportion (block-balanced)',
+        },
+    ],
     'comparisons': {
         # switch_prop=25 → MR blocks (MI_MR, MC_MR)
         'i_vs_c_at_sw25': [
@@ -810,6 +876,28 @@ CONDITION_REGISTRY = {
 'stimulus_switch_type_by_inc_prop_block_balanced_conditions': {
     'conditions_obj': experiment_conditions.stimulus_switch_type_by_block_conditions,
     'balance_strata': True,
+    # Full-factorial ANOVA over the 8 block cells. Because every cell is one
+    # block type and every factor is a term in the model, the 2-way terms are
+    # equal-weight (unweighted marginal) contrasts -- a block-level tonic
+    # difference enters both levels of the tested factor identically and cancels.
+    # This is what the pooled 4-condition sets
+    # (stimulus_congruency_by_switch_proportion_conditions et al.) cannot do:
+    # there each cell is a raw union of BIDS events, so the switch cell is
+    # ~1:3 sw25-block trials while the repeat cell is ~3:1, and the block
+    # offset rides into the contrast at every timepoint, baseline included.
+    'anova_factors': ['switchType', 'incongruentProportion', 'switchProportion'],
+    'anova_interactions': [
+        {
+            'name': 'switchType_x_switchProportion',
+            'factors': ['switchType', 'switchProportion'],
+            'label': 'Switch Type × Switch Proportion (block-balanced)',
+        },
+        {
+            'name': 'switchType_x_incongruentProportion',
+            'factors': ['switchType', 'incongruentProportion'],
+            'label': 'Switch Type × Inc. Proportion (block-balanced)',
+        },
+    ],
     'comparisons': {
         # inc_prop=25 → MC blocks (MC_MR, MC_MS)
         's_vs_r_at_inc25': [

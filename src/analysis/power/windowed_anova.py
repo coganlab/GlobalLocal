@@ -1021,6 +1021,7 @@ def run_windowed_anova_cluster_correction(
     electrodes_per_subject_roi, times, window_size, step_size, sampling_rate,
     n_perm=1000, percentile=95, cluster_percentile=95,
     split_clusters_by_sign=True,
+    cluster_stat='extent',
     seed=42, n_jobs=-1, verbose=True,
 ):
     """Run windowed factorial ANOVAs with permutation-based cluster correction.
@@ -1089,6 +1090,15 @@ def run_windowed_anova_cluster_correction(
         sign. Sign splitting is applied only when a finite signed contrast can
         be computed for the effect; otherwise, clusters are treated as
         unsigned.
+    cluster_stat : {'extent', 'mass'}, default='extent'
+        Statistic used to score a candidate cluster. ``'extent'`` counts
+        suprathreshold windows and is magnitude-blind — a long weak cluster
+        outscores a short strong one, and with ``window_size=64``/``step_size=16``
+        the windows overlap 75%, so one 250 ms effect already spans four of
+        them. ``'mass'`` sums each window's excess of F over the threshold.
+        Default stays ``'extent'`` so existing runs reproduce; ``'mass'`` is the
+        better choice for new ones. Note this is not what produces a
+        baseline-spanning cluster — a sustained offset wins under either.
     seed : int, default=42
         Seed for generating reproducible permutation seeds.
     n_jobs : int, default=-1
@@ -1126,7 +1136,9 @@ def run_windowed_anova_cluster_correction(
         ``sig_clusters_with_sign`` : list of dict
             Significant clusters. Each dictionary contains inclusive ``start``
             and ``end`` window indices, ``sign`` (positive, negative, or zero),
-            ``extent`` in windows, and a permutation-based ``p_value``.
+            ``extent`` in windows, ``cluster_stat`` (the value actually
+            thresholded, per ``cluster_stat``), and a permutation-based
+            ``p_value``.
 
         ROIs with no usable data or no successfully fitted windows are omitted.
     window_centers : numpy.ndarray, shape (n_windows,)
@@ -1134,11 +1146,26 @@ def run_windowed_anova_cluster_correction(
 
     Notes
     -----
-    Cluster mass is implemented here as cluster extent—the number of
-    consecutive suprathreshold windows—rather than as the sum of F-statistics.
-    A cluster is retained when its extent is strictly greater than the selected
-    percentile of the permutation maximum-extent distribution.
+    A cluster is retained when its statistic (see ``cluster_stat``) is strictly
+    greater than the selected percentile of the permutation distribution of
+    per-permutation maxima.
+
+    A significant cluster that begins before stimulus onset is a red flag, not a
+    result: the pre-stimulus baseline contains no evoked activity, so a
+    difference there reflects a tonic or compositional difference between cells.
+    Because such an offset is sustained, it produces long suprathreshold runs
+    and wins the cluster test under either ``cluster_stat``. Inspect
+    ``signed_contrast`` before interpreting: an evoked interaction starts near
+    zero in the baseline and grows after onset, whereas a confound shows up as a
+    roughly constant offset across the whole epoch.
+
+    Cluster tests do not localize. A cluster spanning -0.9 to +0.9 s does not
+    license the claim that the effect begins at -0.9 s (Sassenhagen &
+    Draschkow, 2019).
     """
+    if cluster_stat not in ('extent', 'mass'):
+        raise ValueError(f"cluster_stat must be 'extent' or 'mass', got {cluster_stat!r}")
+
     rng_master = np.random.RandomState(seed)
 
     # Build long dataframe (re-uses your existing function)
@@ -1179,7 +1206,18 @@ def run_windowed_anova_cluster_correction(
         if df_roi.empty:
             continue
 
-        # Aggregate to electrode × window × cell (across-electrode ANOVA)
+        # Aggregate to electrode × window × cell (across-electrode ANOVA).
+        #
+        # NOTE: this is a trial-count-weighted mean. It equals an unweighted
+        # (estimated) marginal mean only when every cell of the `anova_factors`
+        # design holds the same mixture of whatever it collapses over -- i.e.
+        # when `conditions_obj` keeps those cells separate AND each is a term in
+        # the model. Run the proportion interactions off a conditions_obj whose
+        # cells are one block type each (the *_by_block_conditions sets) with the
+        # full-factorial `anova_factors`. A pre-pooled 4-condition set mixes
+        # blocks 3:1 vs 1:3 across the cells being contrasted, which puts a
+        # block-level offset into the contrast at every timepoint, baseline
+        # included.
         group_cols = ['SubjectID', 'Electrode', 'WindowIndex', 'WindowCenter'] + anova_factors
         df_agg = df_roi.groupby(group_cols, as_index=False)['Activity'].mean()
 
@@ -1217,8 +1255,15 @@ def run_windowed_anova_cluster_correction(
                     observed_sign[ei, wi] = _signed_contrast_per_window(df_w, eff, anova_factors)
 
         # === Permutation null ===
-        # We shuffle factor labels per electrode once per perm (same shuffle for all windows),
-        # since each electrode contributes independent rows per window.
+        # We shuffle factor labels per electrode once per perm (same shuffle for
+        # all windows), since each electrode contributes independent rows per
+        # window.
+        #
+        # This treats every electrode as its own exchangeable unit -- the
+        # "super-subject" assumption used throughout this codebase, decoding
+        # included. It is a deliberate modelling choice: it assumes no structure
+        # is shared across the electrodes of one subject. Where that assumption
+        # fails, this null is narrower than the data warrants.
         # Per-perm work: re-fit OLS at every window.
         seeds = rng_master.randint(0, 2**31 - 1, size=n_perm)
 
@@ -1279,8 +1324,16 @@ def run_windowed_anova_cluster_correction(
             else:
                 obs_split = [{'start': s, 'end': e, 'sign': 0} for s, e in raw_obs_clusters]
 
-            # 3. Null cluster-mass distribution -- split nulls the SAME way
-            null_max_masses = []
+            # 3. Null cluster-statistic distribution -- split nulls the SAME way
+            def _cluster_stat_value(c, trace):
+                """Extent = number of suprathreshold windows (magnitude-blind).
+                Mass = summed excess of F over the threshold (magnitude-aware)."""
+                if cluster_stat == 'extent':
+                    return float(c['end'] - c['start'] + 1)
+                seg = trace[c['start']:c['end'] + 1]
+                return float((seg - pointwise_thresh[c['start']:c['end'] + 1]).sum())
+
+            null_max_stats = []
             for pi in range(null.shape[0]):
                 above_pi = null[pi] > pointwise_thresh
                 raw_pi = _find_contiguous_runs(above_pi)
@@ -1288,18 +1341,19 @@ def run_windowed_anova_cluster_correction(
                     sub_pi = _split_clusters_at_sign_flips(raw_pi, null_sg[pi])
                 else:
                     sub_pi = [{'start': s, 'end': e, 'sign': 0} for s, e in raw_pi]
-                extents_pi = [c['end'] - c['start'] + 1 for c in sub_pi] or [0]
-                null_max_masses.append(max(extents_pi))   # rename to null_max_extents if you want clarity
-            null_max_masses = np.array(null_max_masses)
-            mass_thresh = np.percentile(null_max_masses, cluster_percentile)
+                stats_pi = [_cluster_stat_value(c, null[pi]) for c in sub_pi] or [0.0]
+                null_max_stats.append(max(stats_pi))
+            null_max_stats = np.array(null_max_stats)
+            stat_thresh = np.percentile(null_max_stats, cluster_percentile)
 
-            # 4. Filter observed sub-clusters by mass and compute p per cluster
+            # 4. Filter observed sub-clusters by the cluster statistic, p per cluster
             sig_subs = []
             for c in obs_split:
-                m = c['end'] - c['start'] + 1   # cluster extent in windows
-                p = float((null_max_masses >= m).mean())
-                if m > mass_thresh:
-                    sig_subs.append({**c, 'extent': m, 'p_value': p})
+                m = _cluster_stat_value(c, obs)
+                p = float((null_max_stats >= m).mean())
+                if m > stat_thresh:
+                    sig_subs.append({**c, 'extent': c['end'] - c['start'] + 1,
+                                     'cluster_stat': m, 'p_value': p})
 
             # 5. Build masks for plotting -- split into pos / neg if sign-aware
             window_mask = np.zeros(n_windows, dtype=bool)

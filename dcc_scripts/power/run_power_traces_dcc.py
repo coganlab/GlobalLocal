@@ -76,6 +76,11 @@ STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm 
 SPLIT_CLUSTERS_BY_SIGN = True
 MIN_TRIALS_PER_CELL=4
 
+# 'extent' (count of suprathreshold windows) or 'mass' (summed excess F).
+# 'extent' is magnitude-blind and the windows overlap 75%; 'mass' is the better
+# default for new runs. Kept at 'extent' so existing runs reproduce.
+CLUSTER_STAT = os.environ.get('CLUSTER_STAT', 'extent')
+
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'lwpc')
 ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
@@ -236,6 +241,7 @@ def run_analysis():
         stat_func_str=STAT_FUNC_STR,
         statistical_method=STATISTICAL_METHOD,
         split_clusters_by_sign=SPLIT_CLUSTERS_BY_SIGN,
+        cluster_stat=CLUSTER_STAT,
         anova_unit=ANOVA_UNIT,
         min_trials_per_cell=MIN_TRIALS_PER_CELL,
         filter_electrodes_from=FILTER_ELECTRODES_FROM,

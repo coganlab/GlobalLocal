@@ -258,6 +258,7 @@ def main(args):
                 percentile=int(100 * (1 - args.p_thresh_for_time_perm_cluster_stats)),
                 cluster_percentile=int(100 * (1 - args.p_cluster)),
                 split_clusters_by_sign=args.split_clusters_by_sign,
+                cluster_stat=getattr(args, 'cluster_stat', 'extent'),
                 seed=42, n_jobs=args.n_jobs, verbose=True,
             )
             # The interaction mega-plot only makes sense for a factorial design;
