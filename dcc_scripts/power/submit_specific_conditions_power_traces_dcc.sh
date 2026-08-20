@@ -1,13 +1,28 @@
 #!/bin/bash
 # Submit power trace jobs for multiple conditions
 
-CONDITIONS=(
-    stimulus_lwpc_conditions
-    stimulus_lwps_conditions
-    stimulus_congruency_by_switch_proportion_conditions
-    stimulus_switch_type_by_incongruent_proportion_conditions
-)
+# The pooled sets below define each cell as a raw union of BIDS events, so the
+# cells being contrasted hold 3:1 vs 1:3 mixtures of the OTHER proportion block
+# and a block-level offset enters the contrast at every timepoint. Kept for
+# reference; prefer the block-balanced sets.
+# CONDITIONS=(
+#     stimulus_lwpc_conditions
+#     stimulus_lwps_conditions
+#     stimulus_congruency_by_switch_proportion_conditions
+#     stimulus_switch_type_by_incongruent_proportion_conditions
+# )
 
+# One cell per block type + full-factorial ANOVA, so the 2-way terms are
+# equal-weight contrasts. Two jobs cover all four interactions: the lwpc set
+# emits congruency x incProportion AND congruency x switchProportion, the lwps
+# set emits switchType x switchProportion AND switchType x incProportion.
+# Do NOT also list the *_by_switch_prop_/_by_inc_prop_block_balanced labels --
+# they share a conditions_obj with these two, so they resolve to the same save
+# name and the jobs would race on one output path.
+CONDITIONS=(
+    stimulus_lwpc_block_balanced_conditions
+    stimulus_lwps_block_balanced_conditions
+)
 
 # CONDITIONS=(
 #     stimulus_experiment_conditions
@@ -60,6 +75,16 @@ if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
 
+# With every path above commented out the array is EMPTY, and a `for` over an
+# empty array runs zero times -- so nothing gets submitted at all. Fall back to a
+# single empty entry, which run_power_traces_dcc.py reads as "no saved-ANOVA
+# selection": it keeps whatever ELECTRODES selects (all / sig) and writes to the
+# plain figs/<epochs>/anova_within_<unit>/ path instead of an
+# anova_label_selections/ subdirectory.
+if [[ ${#ANOVA_LABELS_CSVS[@]} -eq 0 ]]; then
+    ANOVA_LABELS_CSVS=("")
+fi
+
 # Submit every saved-label population by default. Set ANOVA_LABEL_EFFECT to
 # retain the previous single-effect behavior for one-off/environment-driven runs.
 ANOVA_LABEL_EFFECTS=(
@@ -73,17 +98,31 @@ ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 
+# Which electrodes to start from, before any saved-ANOVA selection:
+#   all = every electrode in the ROI, sig = those significant vs baseline.
+ELECTRODES=${ELECTRODES:-sig}
+
 # Create output directory if needed
 mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     ANOVA_LABELS_CSV="${ANOVA_LABELS_CSVS[$CSV_INDEX]}"
-    for EFFECT_INDEX in "${!ANOVA_LABEL_EFFECTS[@]}"; do
-        ANOVA_LABEL_EFFECT="${ANOVA_LABEL_EFFECTS[$EFFECT_INDEX]}"
+
+    # ANOVA_LABEL_EFFECT picks a subpopulation *inside* a labels CSV. With no CSV
+    # there is no subpopulation to pick, so looping the nine effects would submit
+    # nine identical jobs all writing the same output directory. Run once instead.
+    if [[ -z "$ANOVA_LABELS_CSV" ]]; then
+        EFFECTS_THIS_CSV=("all_${ELECTRODES}_elecs")
+    else
+        EFFECTS_THIS_CSV=("${ANOVA_LABEL_EFFECTS[@]}")
+    fi
+
+    for EFFECT_INDEX in "${!EFFECTS_THIS_CSV[@]}"; do
+        ANOVA_LABEL_EFFECT="${EFFECTS_THIS_CSV[$EFFECT_INDEX]}"
         for COND in "${CONDITIONS[@]}"; do
-            echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
+            echo "Submitting: condition=$COND electrodes=$ELECTRODES anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
             sbatch --job-name="pwr_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}" \
-                --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+                --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ELECTRODES="$ELECTRODES",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
                 sbatch_power_traces_dcc.sh
             # sleep 2
         done
