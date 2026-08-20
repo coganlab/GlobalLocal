@@ -10,8 +10,8 @@
 
 
 CONDITIONS=(
-    stimulus_congruency_conditions
-    stimulus_switch_type_conditions
+    stimulus_lwpc_block_balanced_conditions
+    stimulus_lwps_block_balanced_conditions
 )
 
 # Epochs file selection
