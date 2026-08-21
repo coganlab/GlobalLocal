@@ -45,8 +45,38 @@ DEFAULT_PLOT_STYLE = {
     'figsize': (12, 8),
     'text_color': '#002060',
     'sig_cluster_height': 0.3,
+    
+    # per electrode power traces overlaid in thin gray lines
+    'show_electrode_traces': True,
+    'electrode_trace_color': '#9e9e9e',
+    'electrode_trace_alpha': 0.25,
+    'electrode_trace_linewidth': 0.7,
+    'label_outliers': True,
+    'n_outlier_labels': 3,
 }
 
+def rank_electrode_deviations(evoked):
+    '''
+    Rank channels by their RMS deviation from the channel mean trace.
+    
+    RMS deviation uses the full displayed time course, so electrodes
+    with a sustained offset and electrodes with a large transient excursion
+    are both surfaced. NaN-only channels are retained at the bottom of the ranking.
+    '''
+    data = np.asarray(evoked.data, dtype=float)
+    if data.ndim != 2:
+        raise ValueError("evoked.data must have shape (channels, times)")
+    
+    with np.errstate(invalid='ignore'):
+        mean_trace = np.nanmean(data, axis=0)
+        scores = np.sqrt(np.nanmean(data - mean_trace) **2, axis=1)
+    names = list(getattr(evoked, 'ch_names', []))
+    
+    if len(names) != data.shape[0]:
+        names = [f"channel_{i}" for i in range(data.shape[0])]
+    order = np.argsort(np.nan_to_num(scores, nan=-np.inf))[::-1]
+    
+    return [(names[i], float(scores[i])) for i in order]
 
 def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name,
                              plotting_parameters, significant_clusters=None,
