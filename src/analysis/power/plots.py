@@ -78,6 +78,22 @@ def rank_electrode_deviations(evoked):
     
     return [(names[i], float(scores[i])) for i in order]
 
+def _write_electrode_deviation_report(path, roi, rankings):
+    "Write a human-readable, condition-wise electrode outlier ranking"
+    with open(path, 'w', encoding='utf-8') as report:
+        report.write(f"Electrode deviation report for roi: {roi}\n")
+        report.write(f"Metric: RMS deviation of each electrode trace from the "
+                     "condition's across-electrode mean trace.\n")
+        report.write("Larger values indicate greater deviation; this is a "
+                     "diagnostic ranking, not a statistical outlier test. \n\n")
+        for condition, ranking in rankings.items():
+            report.write(f"[{condition}] ({len(ranking)} electrodes]]\n")
+            report.write("rank\telectrode\trms_deviation\n")
+            for rank, (electrode, score) in enumerate(ranking, start=1):
+                report.write(f"{rank}\t{electrode}\t{score:.6g}\n")
+            report.write("\n")
+    
+    
 def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name,
                              plotting_parameters, significant_clusters=None,
                              window_size=None, sampling_rate=None, save_dir=None,
@@ -123,7 +139,8 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     figsize = s['figsize']
     sig_cluster_height = s['sig_cluster_height']
     fig, ax = plt.subplots(figsize=figsize)
-
+    deviation_rankings = {}
+    
     for condition_name in condition_names:
         evoked = evks_dict[condition_name][roi]
         if evoked is None or evoked.data.shape[0] == 0:
@@ -163,8 +180,33 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         n_channels = data.shape[0]
 
         # Calculate mean across channels
-        mean_data = np.mean(data, axis=0)
+        mean_data = np.nanmean(data, axis=0)
 
+        # draw these first so the condition mean and uncertainty stay visually 
+        # dominant. Labels use the largest pointwise departure of each selected
+        # trace, which puts the name next to the feature that drove the ranking.
+        
+        if s['show_electrode_traces']:
+            ax.plot(times, data.T, color=s['electrode_trace_color'],
+                    alpha=s['electrode_trace_alpha'],
+                    linewidth=s['electrode_trace_linewidth'], zorder=1)
+            
+        ranking = rank_electrode_deviations(evoked)
+        deviation_rankings[condition_name] = ranking
+        if s['label_outliers'] and s['show_electrode_traces']:
+            name_to_index = {name: idx for idx, name in enumerate(evoked.ch_names)}
+            for electrode, _ in ranking[:max(0, int(s['n_oulier_labels']))]:
+                channel_idx = name_to_index[electrode]
+                delta = np.abs(data[channel_idx] - mean_data)
+                if np.all(np.isnan(delta)):
+                    continue
+                time_idx = int(np.nanargmax(delta))
+                ax.annotate(electrode,
+                            (times[time_idx], data[channel_idx, time_idx]),
+                            xytext=(3,3), textcoords='offset points', 
+                            fontsize=max(6, s['legend_font_size'] - 2),
+                            color='#555555', alpha=0.9, clip_on=True)
+            
         # Plot mean
         ax.plot(times, mean_data, color=color, linestyle=linestyle,
                 linewidth=2.5, label=label)
