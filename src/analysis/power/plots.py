@@ -333,11 +333,16 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         os.makedirs(save_dir, exist_ok=True)
         error_type = 'std' if show_std else 'sem' if show_sem else 'ci' if show_ci else 'no_error'
         base = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading'
+        
         for ext in ('.pdf', '.png'):
             filepath = os.path.join(save_dir, base + ext)
             plt.savefig(filepath, dpi=300, bbox_inches='tight')
             print(f"Saved plot to: {filepath}")
 
+        report_path = os.path.join(save_dir, base + '_electrode_deviations.txt')
+        _write_electrode_deviation_report(report_path, roi, deviation_rankings)
+        print(f"Saved electrode deviation report to: {report_path}")
+            
     plt.close()
     return fig
 
