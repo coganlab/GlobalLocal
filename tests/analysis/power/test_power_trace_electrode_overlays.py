@@ -21,11 +21,78 @@ def _evoked():
     )
 
 
+def _evoked_with_prestimulus_outlier():
+    """One channel deviates only before t=0, another only after.
+
+    Ranking over the whole epoch is dominated by the post-stimulus channel;
+    ranking over the pre-stimulus window must surface the other one.
+    """
+    times = np.array([-1.0, -0.5, 0.0, 0.5, 1.0])
+    return SimpleNamespace(
+        times=times,
+        data=np.array([
+            [0.0, 0.0, 0.0, 0.0, 0.0],       # E_FLAT
+            [5.0, 5.0, 0.0, 0.0, 0.0],       # E_PRE   -- baseline-period only
+            [0.0, 0.0, 0.0, 20.0, 20.0],     # E_POST  -- response-period only
+        ]),
+        ch_names=["E_FLAT", "E_PRE", "E_POST"],
+    )
+
+
 def test_rank_electrode_deviations_puts_largest_departure_first():
     ranking = rank_electrode_deviations(_evoked())
 
     assert ranking[0][0] == "E_OUTLIER"
     assert ranking[0][1] > ranking[1][1]
+
+
+def test_rank_electrode_deviations_respects_time_window():
+    evoked = _evoked_with_prestimulus_outlier()
+
+    assert rank_electrode_deviations(evoked)[0][0] == "E_POST"
+    # (None, 0.0) == "epoch start through stimulus onset"
+    pre = rank_electrode_deviations(evoked, time_window=(None, 0.0))
+    assert pre[0][0] == "E_PRE"
+
+
+def test_rank_electrode_deviations_falls_back_when_window_is_empty():
+    evoked = _evoked_with_prestimulus_outlier()
+
+    # A window entirely outside the epoch scores on the full epoch instead of
+    # raising on an empty slice.
+    ranking = rank_electrode_deviations(evoked, time_window=(50.0, 60.0))
+    assert ranking[0][0] == "E_POST"
+
+
+def test_power_plot_draws_only_the_top_n_electrode_traces(tmp_path):
+    evoked = _evoked_with_prestimulus_outlier()
+    fig = plot_power_trace_for_roi(
+        {"condition": {"roi": evoked}},
+        "roi",
+        ["condition"],
+        "example",
+        {"condition": {"color": "red", "condition_parameter": "Mean"}},
+        save_dir=tmp_path,
+        show_std=False,
+        plot_style={
+            "n_electrode_traces": 1,
+            "electrode_trace_window": (None, 0.0),
+            "n_outlier_labels": 1,
+        },
+        save_name_suffix="all",
+    )
+
+    ax = fig.axes[0]
+    # 1 electrode trace + the across-electrode mean + the two zero lines.
+    assert len(ax.lines) == 4
+    # Ranked on the pre-stimulus window, so the pre-stimulus deviant is drawn.
+    assert any(text.get_text() == "E_PRE" for text in ax.texts)
+    assert not any(text.get_text() == "E_POST" for text in ax.texts)
+
+    report = tmp_path / "roi_example_all_no_error_shading_electrode_deviations.txt"
+    contents = report.read_text()
+    assert "Scoring window: epoch start to 0s" in contents
+    assert contents.index("E_PRE") < contents.index("E_POST")
 
 
 def test_power_plot_adds_gray_traces_labels_and_report(tmp_path):
