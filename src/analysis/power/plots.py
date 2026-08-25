@@ -87,7 +87,7 @@ def _write_electrode_deviation_report(path, roi, rankings):
         report.write("Larger values indicate greater deviation; this is a "
                      "diagnostic ranking, not a statistical outlier test. \n\n")
         for condition, ranking in rankings.items():
-            report.write(f"[{condition}] ({len(ranking)} electrodes]]\n")
+            report.write(f"[{condition}] ({len(ranking)} electrodes\n")
             report.write("rank\telectrode\trms_deviation\n")
             for rank, (electrode, score) in enumerate(ranking, start=1):
                 report.write(f"{rank}\t{electrode}\t{score:.6g}\n")
@@ -195,7 +195,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         deviation_rankings[condition_name] = ranking
         if s['label_outliers'] and s['show_electrode_traces']:
             name_to_index = {name: idx for idx, name in enumerate(evoked.ch_names)}
-            for electrode, _ in ranking[:max(0, int(s['n_oulier_labels']))]:
+            for electrode, _ in ranking[:max(0, int(s['n_outlier_labels']))]:
                 channel_idx = name_to_index[electrode]
                 delta = np.abs(data[channel_idx] - mean_data)
                 if np.all(np.isnan(delta)):
@@ -221,7 +221,9 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             ax.fill_between(times, mean_data - sem_data, mean_data + sem_data,
                            alpha=0.3, color=color, linewidth=0)
         elif show_ci:
-            ci_data = np.percentile(data, [100 * (1 - ci), 100 * ci], axis=0)
+            lower = 100 * (1 - ci) / 2
+            upper = 100 * (1 + ci) / 2
+            ci_data = np.nanpercentile(data, [lower, upper], axis=0)
             ax.fill_between(times, ci_data[0], ci_data[1],
                            alpha=0.3, color=color, linewidth=0)
 
