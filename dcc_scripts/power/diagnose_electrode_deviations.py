@@ -48,7 +48,11 @@ project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from src.analysis.power.plots import rank_electrode_deviations, _window_slice
+from src.analysis.power.plots import rank_electrode_deviations
+# window_mask rather than the plotting module's private equivalent: there an
+# empty selection returns None so the ranking can fall back to the full epoch,
+# here an all-True mask is exactly the same fallback and needs no special case.
+from src.analysis.power.block_diagnostics import window_mask
 
 
 class _Evoked:
@@ -92,7 +96,7 @@ def load_condition_evokeds(save_dir, roi, conditions_save_name):
     return out
 
 
-def worst_excursion(evoked, channel_index, window_mask):
+def worst_excursion(evoked, channel_index, mask):
     """(time, value, |deviation from the across-electrode median|) of the peak.
 
     The reference is the median, not the mean: one electrode a hundred z-units
@@ -103,8 +107,8 @@ def worst_excursion(evoked, channel_index, window_mask):
     with np.errstate(invalid='ignore'):
         reference = np.nanmedian(data, axis=0)
     delta = np.abs(data[channel_index] - reference)
-    if window_mask is not None:
-        delta = np.where(window_mask, delta, np.nan)
+    if mask is not None:
+        delta = np.where(mask, delta, np.nan)
     if np.all(np.isnan(delta)):
         return None, np.nan, np.nan
     idx = int(np.nanargmax(delta))
@@ -145,7 +149,7 @@ def main(argv=None):
 
     for condition, evoked in evokeds.items():
         n_ch = evoked.data.shape[0]
-        window_mask = _window_slice(evoked.times, window)
+        mask = window_mask(evoked.times, window)
         ranking = rank_electrode_deviations(evoked, window)
         name_to_index = {n: i for i, n in enumerate(evoked.ch_names)}
 
@@ -157,12 +161,11 @@ def main(argv=None):
         # Every channel gets a share, so the cross-condition table below can
         # compare a channel against itself rather than against a rank cutoff.
         for name, idx in name_to_index.items():
-            _, _, dev = worst_excursion(evoked, idx, window_mask)
+            _, _, dev = worst_excursion(evoked, idx, mask)
             share_by_channel[name][condition] = dev / n_ch
 
         for rank, (name, score) in enumerate(ranking[:args.top], start=1):
-            t, value, dev = worst_excursion(evoked, name_to_index[name],
-                                            window_mask)
+            t, value, dev = worst_excursion(evoked, name_to_index[name], mask)
             t_str = 'n/a' if t is None else f'{t:.3f}'
             print(f"{rank:>4}  {name:<14}{score:>10.4g}{dev:>12.4g}"
                   f"{t_str:>9}{value:>10.4g}{dev / n_ch:>16.4g}")
