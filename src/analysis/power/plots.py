@@ -69,7 +69,7 @@ def rank_electrode_deviations(evoked):
     
     with np.errstate(invalid='ignore'):
         mean_trace = np.nanmean(data, axis=0)
-        scores = np.sqrt(np.nanmean(data - mean_trace) **2, axis=1)
+        scores = np.sqrt(np.nanmean((data - mean_trace) ** 2, axis=1))
     names = list(getattr(evoked, 'ch_names', []))
     
     if len(names) != data.shape[0]:

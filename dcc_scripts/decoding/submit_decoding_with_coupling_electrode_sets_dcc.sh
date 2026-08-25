@@ -63,7 +63,9 @@ fi
 if [ -n "$PAIR_TYPES" ]; then
     read -r -a PAIR_TYPE_LIST <<< "$PAIR_TYPES"
 else
-    PAIR_TYPE_LIST=(lpfc-occ lpfc-lpfc occ-occ)
+    # PAIR_TYPE_LIST=(lpfc-occ lpfc-lpfc occ-occ)
+    PAIR_TYPE_LIST=(lpfc-occ)
+
 fi
 
 # ---------------------------------------------------------------------------
