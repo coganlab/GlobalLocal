@@ -43,17 +43,17 @@ def window_mask(times, window):
         mask &= times <= tmax
     return mask if mask.any() else np.ones(times.shape, dtype=bool)
 
+
 def block_deviation_table(data, block_labels, times, ch_names=None,
                           baseline_window=(None, 0.0)):
-    """
-    One row per (channel, block) describing that block's contribution.
-    
+    """One row per (channel, block) describing that block's contribution.
+
     Parameters
     ----------
     data : (n_trials, n_channels, n_times) array
         Single-subject epoch data, NaNs allowed.
     block_labels : sequence of length n_trials
-        Block identity per trial, e.g. ``(75.0, 75.0)`` for 75% incongruent / 
+        Block identity per trial, e.g. ``(75.0, 75.0)`` for 75% incongruent /
         75% switch. Any hashable label works.
     times : (n_times,) array
     ch_names : sequence of str, optional
@@ -61,7 +61,7 @@ def block_deviation_table(data, block_labels, times, ch_names=None,
         Window the statistics are computed over. Defaults to epoch start
         through stimulus onset -- the period where a condition difference
         cannot be a real effect.
-    
+
     Returns
     -------
     pandas.DataFrame with columns:
@@ -85,24 +85,24 @@ def block_deviation_table(data, block_labels, times, ch_names=None,
         raise ValueError(
             f"ch_names has {len(ch_names)} entries for {n_channels} channels"
         )
-    
+
     mask = window_mask(times, baseline_window)
     windowed = data[:, :, mask]
     windowed_times = times[mask]
-    
+
     labels = pd.Series(list(block_labels))
     rows = []
     with np.errstate(invalid='ignore'):
-        for block in sorted(labels.dropna().unique(), key=repr)
+        for block in sorted(labels.dropna().unique(), key=repr):
             trial_idx = np.flatnonzero((labels == block).to_numpy())
             if trial_idx.size == 0:
                 continue
-            block_data = windowed[trial_idx]    # (trials, ch, t)
-            
+            block_data = windowed[trial_idx]                 # (trials, ch, t)
+
             # Per-channel mean over trials and time: the block's tonic level in
             # the window. This is the quantity a block-locked offset moves.
             baseline_mean = np.nanmean(block_data, axis=(0, 2))
-            
+
             # Largest single-trial excursion, and when it happened. The mean can
             # look fine while one trial carries a value that dominates a small
             # condition cell.
@@ -119,11 +119,11 @@ def block_deviation_table(data, block_labels, times, ch_names=None,
                 collapsed = np.nanmax(np.nan_to_num(flat[:, ch, :], nan=-np.inf),
                                       axis=0)
                 peak_time[ch] = windowed_times[int(np.argmax(collapsed))]
-            
+
             # How many trials actually contribute at the epoch's first sample.
             # A "mean" backed by one trial is not an average.
             n_valid_first = np.sum(~np.isnan(data[trial_idx, :, 0]), axis=0)
-            
+
             for ch in range(n_channels):
                 rows.append({
                     'channel': ch_names[ch],
@@ -134,33 +134,9 @@ def block_deviation_table(data, block_labels, times, ch_names=None,
                     'peak_abs_trial': float(peak_abs[ch]),
                     'peak_abs_trial_time': float(peak_time[ch]),
                 })
-            
-            return pd.DataFrame(rows)
-        
-def rank_block_confined_channels(table):
-    """Rank channels by how much one block departs from the others.
 
-    ``block_offset`` is the largest absolute departure of a block's
-    ``baseline_mean`` from the median across that channel's blocks, in z units.
-    The median is the reference because with four blocks a single bad one cannot
-    drag it, so the score measures the outlier against the well-behaved rest.
+    return pd.DataFrame(rows)
 
-    ``peak_ratio`` does the same for the largest single-trial excursion, as a
-    ratio rather than a difference: a channel whose worst block carries a trial
-    twenty times bigger than any other block's is a block-locked artifact even
-    when its mean looks unremarkable.
-
-    Returns one row per channel, most block-confined first.
-    """
-    if table.empty:
-        return pd.DataFrame(columns=['channel', 'block_offset', 'worst_block',
-                                     'peak_ratio', 'peak_block', 'n_blocks'])
-    
-    rows = []
-    for channel, group in table.groupby('channel', sort=False):
-        means = group['baseline_mean'].to_numpy(dtype=float)
-        peaks = group['peak_abs_trial'].to_numpy(dtype=float)
-        blocks = list(group['block'])
 
 def rank_block_confined_channels(table):
     """Rank channels by how much one block departs from the others.
@@ -209,10 +185,10 @@ def rank_block_confined_channels(table):
         })
 
     out = pd.DataFrame(rows)
-
     return out.sort_values('peak_ratio', ascending=False,
                            na_position='last').reset_index(drop=True)
-    
+
+
 def block_labels_from_metadata(metadata,
                                columns=('incongruent_proportion', 'switch_proportion')):
     """Build one hashable block label per trial from epochs metadata.

@@ -12,8 +12,16 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from typing import Union, List, Sequence
 
-from src.analysis.utils.general_utils import _subdir
 from src.analysis.config.plotting_parameters import plotting_parameters
+
+
+def _subdir(directory, subfolder):
+    """Create and return a plot output subdirectory."""
+    if directory is None:
+        return None
+    out = os.path.join(directory, subfolder)
+    os.makedirs(out, exist_ok=True)
+    return out
 
 DEFAULT_PLOT_STYLE = {
     # Toggles
@@ -45,55 +53,123 @@ DEFAULT_PLOT_STYLE = {
     'figsize': (12, 8),
     'text_color': '#002060',
     'sig_cluster_height': 0.3,
-    
-    # per electrode power traces overlaid in thin gray lines
+
+    # Electrode-level context.  The colored line remains the across-electrode
+    # mean; individual electrode traces show the observations behind it.
     'show_electrode_traces': True,
     'electrode_trace_color': '#9e9e9e',
     'electrode_trace_alpha': 0.25,
     'electrode_trace_linewidth': 0.7,
     'label_outliers': True,
     'n_outlier_labels': 3,
+
+    # Which electrodes to actually draw. ``None`` draws all of them, which for
+    # a 170-electrode ROI is an unreadable gray mat. An integer draws only the
+    # N most deviant, in a distinguishable color, so the traces that move the
+    # mean can be read off the figure.
+    'n_electrode_traces': None,
+    # Time window (tmin, tmax) used to rank deviations, in seconds. Either end
+    # may be None for "epoch edge". ``None`` ranks over the whole epoch. Set
+    # this to (None, 0.0) to rank on the pre-stimulus period only, which is
+    # what you want when chasing a baseline-period cluster: an electrode that
+    # is wild after stimulus onset is signal, one that is wild before it is a
+    # candidate artifact.
+    'electrode_trace_window': None,
+    'top_electrode_colors': ('#D62728', '#1F77B4', '#2CA02C',
+                             '#9467BD', '#8C564B', '#E377C2'),
+    'top_electrode_linewidth': 1.4,
+    'top_electrode_alpha': 0.9,
+    # How many rows the deviation report keeps per condition. None = all.
+    'n_electrode_deviations_reported': None,
 }
 
-def rank_electrode_deviations(evoked):
-    '''
-    Rank channels by their RMS deviation from the channel mean trace.
-    
-    RMS deviation uses the full displayed time course, so electrodes
-    with a sustained offset and electrodes with a large transient excursion
-    are both surfaced. NaN-only channels are retained at the bottom of the ranking.
-    '''
+
+def _window_slice(times, time_window):
+    """Boolean mask over ``times`` for ``time_window=(tmin, tmax)``.
+
+    Either bound may be ``None``, meaning "run to the edge of the epoch".
+    Returns ``None`` when the window selects no samples, so callers can fall
+    back to the full epoch rather than ranking on an empty slice.
+    """
+    if time_window is None:
+        return None
+    tmin, tmax = time_window
+    times = np.asarray(times, dtype=float)
+    mask = np.ones(times.shape, dtype=bool)
+    if tmin is not None:
+        mask &= times >= tmin
+    if tmax is not None:
+        mask &= times <= tmax
+    return mask if mask.any() else None
+
+
+def rank_electrode_deviations(evoked, time_window=None):
+    """Rank channels by their RMS deviation from the channel mean trace.
+
+    Parameters
+    ----------
+    evoked : object with ``.data`` (channels, times), ``.times``, ``.ch_names``
+    time_window : tuple(float | None, float | None) or None
+        Restrict the RMS to this window. ``None`` (default) uses the whole
+        epoch. Ranking on a window is how you separate "deviant because it has
+        a big evoked response" from "deviant during the baseline", which is the
+        only kind of deviation that can manufacture a pre-stimulus cluster.
+
+    Notes
+    -----
+    RMS deviation surfaces both a sustained offset and a large transient, so a
+    single-sample excursion at the epoch edge ranks highly. NaN-only channels
+    are retained at the bottom of the ranking.
+    """
     data = np.asarray(evoked.data, dtype=float)
     if data.ndim != 2:
         raise ValueError("evoked.data must have shape (channels, times)")
-    
+
+    mask = _window_slice(getattr(evoked, 'times', np.arange(data.shape[1])),
+                         time_window)
+    scored = data if mask is None else data[:, mask]
+
     with np.errstate(invalid='ignore'):
-        mean_trace = np.nanmean(data, axis=0)
-        scores = np.sqrt(np.nanmean((data - mean_trace) ** 2, axis=1))
+        # The reference mean is the same across-electrode mean the colored line
+        # shows, restricted to the scoring window.
+        mean_trace = np.nanmean(scored, axis=0)
+        scores = np.sqrt(np.nanmean((scored - mean_trace) ** 2, axis=1))
     names = list(getattr(evoked, 'ch_names', []))
-    
     if len(names) != data.shape[0]:
         names = [f"channel_{i}" for i in range(data.shape[0])]
     order = np.argsort(np.nan_to_num(scores, nan=-np.inf))[::-1]
-    
     return [(names[i], float(scores[i])) for i in order]
 
-def _write_electrode_deviation_report(path, roi, rankings):
-    "Write a human-readable, condition-wise electrode outlier ranking"
+
+def _describe_window(time_window):
+    if time_window is None:
+        return "whole epoch"
+    tmin, tmax = time_window
+    lo = "epoch start" if tmin is None else f"{tmin:g}s"
+    hi = "epoch end" if tmax is None else f"{tmax:g}s"
+    return f"{lo} to {hi}"
+
+
+def _write_electrode_deviation_report(path, roi, rankings, time_window=None,
+                                      n_reported=None):
+    """Write a human-readable, condition-wise electrode outlier ranking."""
     with open(path, 'w', encoding='utf-8') as report:
-        report.write(f"Electrode deviation report for roi: {roi}\n")
-        report.write(f"Metric: RMS deviation of each electrode trace from the "
+        report.write(f"Electrode deviation report for ROI: {roi}\n")
+        report.write("Metric: RMS deviation of each electrode trace from the "
                      "condition's across-electrode mean trace.\n")
+        report.write(f"Scoring window: {_describe_window(time_window)}\n")
         report.write("Larger values indicate greater deviation; this is a "
-                     "diagnostic ranking, not a statistical outlier test. \n\n")
+                     "diagnostic ranking, not a statistical outlier test.\n\n")
         for condition, ranking in rankings.items():
-            report.write(f"[{condition}] ({len(ranking)} electrodes\n")
+            shown = ranking if not n_reported else ranking[:n_reported]
+            report.write(f"[{condition}] ({len(ranking)} electrodes, "
+                         f"showing {len(shown)})\n")
             report.write("rank\telectrode\trms_deviation\n")
-            for rank, (electrode, score) in enumerate(ranking, start=1):
+            for rank, (electrode, score) in enumerate(shown, start=1):
                 report.write(f"{rank}\t{electrode}\t{score:.6g}\n")
             report.write("\n")
-    
-    
+
+
 def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_name,
                              plotting_parameters, significant_clusters=None,
                              window_size=None, sampling_rate=None, save_dir=None,
@@ -140,7 +216,7 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     sig_cluster_height = s['sig_cluster_height']
     fig, ax = plt.subplots(figsize=figsize)
     deviation_rankings = {}
-    
+
     for condition_name in condition_names:
         evoked = evks_dict[condition_name][roi]
         if evoked is None or evoked.data.shape[0] == 0:
@@ -177,50 +253,84 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         # Get data
         times = evoked.times
         data = evoked.data
-        n_channels = data.shape[0]
 
         # Calculate mean across channels
         mean_data = np.nanmean(data, axis=0)
 
-        # draw these first so the condition mean and uncertainty stay visually 
-        # dominant. Labels use the largest pointwise departure of each selected
-        # trace, which puts the name next to the feature that drove the ranking.
-        
-        if s['show_electrode_traces']:
-            ax.plot(times, data.T, color=s['electrode_trace_color'],
-                    alpha=s['electrode_trace_alpha'],
-                    linewidth=s['electrode_trace_linewidth'], zorder=1)
-            
-        ranking = rank_electrode_deviations(evoked)
+        ranking = rank_electrode_deviations(evoked, s['electrode_trace_window'])
         deviation_rankings[condition_name] = ranking
-        if s['label_outliers'] and s['show_electrode_traces']:
+
+        # Draw electrode traces first so the condition mean and uncertainty
+        # stay visually dominant. Labels use the largest pointwise departure of
+        # each selected trace, which puts the name next to the feature that
+        # drove the ranking.
+        if s['show_electrode_traces']:
+            n_traces = s['n_electrode_traces']
             name_to_index = {name: idx for idx, name in enumerate(evoked.ch_names)}
-            for electrode, _ in ranking[:max(0, int(s['n_outlier_labels']))]:
-                channel_idx = name_to_index[electrode]
-                delta = np.abs(data[channel_idx] - mean_data)
-                if np.all(np.isnan(delta)):
-                    continue
-                time_idx = int(np.nanargmax(delta))
-                ax.annotate(electrode,
-                            (times[time_idx], data[channel_idx, time_idx]),
-                            xytext=(3,3), textcoords='offset points', 
-                            fontsize=max(6, s['legend_font_size'] - 2),
-                            color='#555555', alpha=0.9, clip_on=True)
-            
+
+            if n_traces is None:
+                # Every electrode, undifferentiated gray.
+                ax.plot(times, data.T, color=s['electrode_trace_color'],
+                        alpha=s['electrode_trace_alpha'],
+                        linewidth=s['electrode_trace_linewidth'], zorder=1)
+                drawn = [name for name, _ in
+                         ranking[:max(0, int(s['n_outlier_labels']))]]
+            else:
+                # Only the N most deviant, each in its own color so it can be
+                # matched to the deviation report. The rest are not drawn --
+                # the point of this mode is to be readable.
+                drawn = [name for name, _ in ranking[:max(0, int(n_traces))]]
+                palette = s['top_electrode_colors']
+                for rank, name in enumerate(drawn):
+                    ax.plot(times, data[name_to_index[name]],
+                            color=palette[rank % len(palette)],
+                            alpha=s['top_electrode_alpha'],
+                            linewidth=s['top_electrode_linewidth'],
+                            zorder=2)
+
+            if s['label_outliers']:
+                # Anchor labels inside the scoring window when there is one, so
+                # a huge post-stimulus response doesn't drag the label away
+                # from the pre-stimulus feature being diagnosed.
+                window_mask = _window_slice(times, s['electrode_trace_window'])
+                for electrode in drawn[:max(0, int(s['n_outlier_labels']))]:
+                    channel_idx = name_to_index[electrode]
+                    delta = np.abs(data[channel_idx] - mean_data)
+                    if np.all(np.isnan(delta)):
+                        continue
+                    search = delta if window_mask is None else np.where(window_mask, delta, np.nan)
+                    if np.all(np.isnan(search)):
+                        search = delta
+                    time_idx = int(np.nanargmax(search))
+                    ax.annotate(electrode,
+                                (times[time_idx], data[channel_idx, time_idx]),
+                                xytext=(3, 3), textcoords='offset points',
+                                fontsize=max(6, s['legend_font_size'] - 2),
+                                color='#555555', alpha=0.9, clip_on=True)
+
         # Plot mean
         ax.plot(times, mean_data, color=color, linestyle=linestyle,
                 linewidth=2.5, label=label)
 
-        # Add shading
+        # Add shading. NaN-aware to match `mean_data` above: with plain np.std
+        # a single NaN channel blanks the band at that sample while the mean
+        # line keeps going, which reads as "no variance here".
         if show_std:
-            std_data = np.std(data, axis=0)
+            std_data = np.nanstd(data, axis=0)
             ax.fill_between(times, mean_data - std_data, mean_data + std_data,
                            alpha=0.3, color=color, linewidth=0)
         elif show_sem:
-            sem_data = np.std(data, axis=0) / np.sqrt(n_channels)
+            # Divide by the electrodes actually contributing at each sample,
+            # not the channel count, so a partly-NaN channel doesn't shrink the
+            # band.
+            n_valid = np.maximum(np.sum(~np.isnan(data), axis=0), 1)
+            sem_data = np.nanstd(data, axis=0) / np.sqrt(n_valid)
             ax.fill_between(times, mean_data - sem_data, mean_data + sem_data,
                            alpha=0.3, color=color, linewidth=0)
         elif show_ci:
+            # Split the excluded mass between the two tails: ci=0.95 is the
+            # 2.5th to 97.5th percentile. [100*(1-ci), 100*ci] would give the
+            # 5th to 95th -- a 90% interval labelled 95%.
             lower = 100 * (1 - ci) / 2
             upper = 100 * (1 + ci) / 2
             ci_data = np.nanpercentile(data, [lower, upper], axis=0)
@@ -335,16 +445,18 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         os.makedirs(save_dir, exist_ok=True)
         error_type = 'std' if show_std else 'sem' if show_sem else 'ci' if show_ci else 'no_error'
         base = f'{roi}_{conditions_save_name}_{save_name_suffix}_{error_type}_shading'
-        
         for ext in ('.pdf', '.png'):
             filepath = os.path.join(save_dir, base + ext)
             plt.savefig(filepath, dpi=300, bbox_inches='tight')
             print(f"Saved plot to: {filepath}")
-
         report_path = os.path.join(save_dir, base + '_electrode_deviations.txt')
-        _write_electrode_deviation_report(report_path, roi, deviation_rankings)
+        _write_electrode_deviation_report(
+            report_path, roi, deviation_rankings,
+            time_window=s['electrode_trace_window'],
+            n_reported=s['n_electrode_deviations_reported'],
+        )
         print(f"Saved electrode deviation report to: {report_path}")
-            
+
     plt.close()
     return fig
 

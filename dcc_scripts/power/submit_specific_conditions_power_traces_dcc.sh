@@ -98,6 +98,10 @@ ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 #   all = every electrode in the ROI, sig = those significant vs baseline.
 ELECTRODES=${ELECTRODES:-sig}
 
+# which electrodes to exclude
+export EXCLUDE_ELECTRODES="${EXCLUDE_ELECTRODES:-D0121:LFMI9,D0121:LFMI8}"
+
+
 # Create output directory if needed
 mkdir -p out
 

@@ -176,7 +176,25 @@ def main(args):
                              "check subject/electrode names, ROI, effect, and correction")
         print(f"[anova-labels] {remaining} electrodes remain for "
               f"{args.anova_label_effect} ({args.anova_label_correction})")
-        
+
+    # ------------------------------------------------------------------
+    # 3c. Drop named electrodes.
+    #     One electrode with a large excursion moves the across-electrode mean
+    #     by excursion/n_electrodes, which for a ~170-electrode ROI is enough
+    #     to put a visible feature on the trace and a cluster on the ANOVA.
+    #     `diagnose_electrode_deviations.py` names the culprits; this is how
+    #     you take them out. Entries are "CHAN" (all subjects) or "SUB:CHAN".
+    # ------------------------------------------------------------------
+    exclude = getattr(args, 'exclude_electrodes', None) or []
+    if exclude:
+        from src.analysis.utils.electrode_exclusion import (
+            filter_out_excluded_electrodes)
+        electrodes, n_dropped = filter_out_excluded_electrodes(electrodes, exclude)
+        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
+        print(f"[exclude-electrodes] dropped {n_dropped} electrode(s) matching "
+              f"{sorted(exclude)}; {remaining} remain")
+
+
     # ------------------------------------------------------------------
     # 4. Build evokeds for all conditions
     # ------------------------------------------------------------------
