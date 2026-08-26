@@ -25,6 +25,8 @@ Two electrode sources are supported per condition:
 import os
 from collections import OrderedDict
 
+from src.analysis.config.rois import rois_dict
+
 # ===========================================================================
 # Colors
 # ===========================================================================
@@ -88,19 +90,17 @@ def anova_effect(anova_run_dir, effect, color=None, use_fdr=True, p_thresh=0.05,
 
 
 def power_trace_set(anova_run_dir, color, include_effects=(), exclude_effects=(),
-                    all_tested=False, anova_roi="lpfc", use_fdr=True,
-                    p_thresh=0.05):
+                    anova_roi="lpfc", use_fdr=True, p_thresh=0.05):
     """Electrode set read directly from a power-trace ``summary.csv``.
 
-    ``all_tested`` selects every electrode in the run. Otherwise, electrodes
-    must be significant for every included effect and no excluded effect.
+    Electrodes must be significant for every included effect and no excluded
+    effect.
     """
     return {
         "anova_run_dir": anova_run_dir,
         "color": color,
         "include_effects": tuple(include_effects),
         "exclude_effects": tuple(exclude_effects),
-        "all_tested": all_tested,
         "anova_roi": anova_roi,
         "use_fdr": use_fdr,
         "p_thresh": p_thresh,
@@ -169,31 +169,24 @@ STIM_HG_ROOT = ("Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_
 # suffix). Set to whatever the ANOVA was actually run with.
 N_SUBJECTS_IN_ANOVA = 24
 
-# Simple, notebook-style population registry. ALL_LPFC_RUN_DIR should point to a
-# power-trace run submitted with ELECTRODES=all; TASK_RELEVANT_RUN_DIR should
-# point to the corresponding run submitted with ELECTRODES=sig. The latter is
-# therefore the make_epoched_data stimulus-vs-baseline population. ANOVA_RUN_DIR
-# supplies the congruency and switch-type effects.
+# Simple, notebook-style population registry. The epochs root identifies both
+# the make_epoched_data baseline-significance files and the power-trace ANOVA.
 _FULL_RUN = anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA)
-ALL_LPFC_RUN_DIR = os.environ.get("ALL_LPFC_RUN_DIR") or _FULL_RUN
-TASK_RELEVANT_RUN_DIR = os.environ.get("TASK_RELEVANT_RUN_DIR") or _FULL_RUN
-ANOVA_RUN_DIR = os.environ.get("ANOVA_RUN_DIR") or _FULL_RUN
 
 ELECTRODE_PLOT_SETS = OrderedDict([
-    ("all_lpfc", power_trace_set(
-        ALL_LPFC_RUN_DIR, color=(0.0, 0.7, 0.0), all_tested=True)),
-    ("task_relevant_lpfc", power_trace_set(
-        TASK_RELEVANT_RUN_DIR, color=(1.0, 1.0, 0.0), all_tested=True)),
+    ("all_lpfc", {"all_roi": True, "color": (0.0, 0.7, 0.0)}),
+    ("task_relevant_lpfc", sig_chans(
+        ANOVA_EPOCHS_ROOT, color=(1.0, 1.0, 0.0))),
     ("congruency_only", power_trace_set(
-        ANOVA_RUN_DIR, color=(1.0, 0.0, 0.0),
+        _FULL_RUN, color=(1.0, 0.0, 0.0),
         include_effects=("C(congruency)",),
         exclude_effects=("C(switchType)",))),
     ("switch_type_only", power_trace_set(
-        ANOVA_RUN_DIR, color=(0.0, 0.0, 1.0),
+        _FULL_RUN, color=(0.0, 0.0, 1.0),
         include_effects=("C(switchType)",),
         exclude_effects=("C(congruency)",))),
     ("both", power_trace_set(
-        ANOVA_RUN_DIR, color=(0.0, 0.0, 0.0),
+        _FULL_RUN, color=(0.0, 0.0, 0.0),
         include_effects=("C(congruency)", "C(switchType)"))),
 ])
 
@@ -203,6 +196,7 @@ PLOT_CONDITION_SETS = {
     # Registry order is draw order, so narrower sets are drawn over coverage.
     "lpfc_power_trace_sets": {
         "conditions": ELECTRODE_PLOT_SETS,
+        "rois_dict": {"lpfc": rois_dict["lpfc"]},
         "mutually_exclusive": False,
     },
 

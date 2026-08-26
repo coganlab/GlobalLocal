@@ -9,7 +9,8 @@ def test_lpfc_plot_registry_filters_sets_and_preserves_draw_order(monkeypatch):
     assert list(resolved["conditions"]) == [
         "all_lpfc", "congruency_only", "both"]
     assert resolved["conditions"]["all_lpfc"]["color"] == (0.0, 0.7, 0.0)
+    assert resolved["conditions"]["all_lpfc"]["all_roi"] is True
     assert resolved["conditions"]["congruency_only"]["color"] == (1.0, 0.0, 0.0)
     assert resolved["conditions"]["both"]["color"] == (0.0, 0.0, 0.0)
     assert resolved["mutually_exclusive"] is False
-
+    assert list(resolved["rois_dict"]) == ["lpfc"]
