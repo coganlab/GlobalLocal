@@ -79,22 +79,22 @@ stimulus_task_by_incongruent_proportion_conditions = {
 stimulus_task_by_switch_proportion_conditions = {
     "Stimulus_taskG_in_25switchBlock": {
         "BIDS_events": ["Stimulus/s25.0/Taskg", "Stimulus/r25.0/Taskg"],
-        "switchProportion": "75%",
+        "switchProportion": "25%",
         "task": "g"
     },
     "Stimulus_taskG_in_75switchBlock": {
         "BIDS_events": ["Stimulus/s75.0/Taskg", "Stimulus/r75.0/Taskg"],
-        "switchProportion": "25%",
+        "switchProportion": "75%",
         "task": "g"
     },
     "Stimulus_taskL_in_25switchBlock": {
         "BIDS_events": ["Stimulus/s25.0/Taskl", "Stimulus/r25.0/Taskl"],
-        "switchProportion": "75%",
+        "switchProportion": "25%",
         "task": "l"
     },
     "Stimulus_taskL_in_75switchBlock": {
         "BIDS_events": ["Stimulus/s75.0/Taskl", "Stimulus/r75.0/Taskl"],
-        "switchProportion": "25%",
+        "switchProportion": "75%",
         "task": "l"
     }
 }
@@ -525,7 +525,7 @@ stimulus_congruency_blockC_conditions = {
     "Stimulus_i_blockC": {
         "BIDS_events": ["Stimulus/i25.0/s25.0", "Stimulus/i25.0/r25.0"],
         "congruency": "i",
-        "incongruentProportion": "75%",
+        "incongruentProportion": "25%",
         "switchProportion": "25%"
     },
 }
