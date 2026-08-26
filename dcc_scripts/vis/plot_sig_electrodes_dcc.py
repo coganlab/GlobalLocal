@@ -141,7 +141,37 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
     dict
         ``{subject_with_zeros: [electrode_names]}``.
     """
-    # ---- Source 2: within-electrode ANOVA run, filtered by effect ----------
+    # ---- Source 0: every electrode in the requested anatomical ROI ----------
+    if cfg.get("all_roi"):
+        if not rois_dict:
+            raise ValueError("all_roi requires a rois_dict")
+        if subjects_electrodes_to_ROIs_dict is None:
+            subjects_electrodes_to_ROIs_dict = make_or_load_subjects_electrodes_to_ROIs_dict(
+                subjects, task=task, LAB_root=LAB_root, save_dir=config_dir,
+                filename="subjects_electrodestoROIs_dict.json")
+        all_roi, _ = make_sig_electrodes_per_subject_and_roi_dict(
+            rois_dict, subjects_electrodes_to_ROIs_dict,
+            {subject: [] for subject in subjects})
+        return collapse_rois_to_subject_dict(all_roi)
+
+    # ---- Source 2a: set algebra over power-trace ANOVA effects --------------
+    if cfg.get("anova_run_dir") and (
+            cfg.get("include_effects") or cfg.get("exclude_effects")):
+        run_dir = cfg["anova_run_dir"]
+        def effect_set(effect):
+            return set(load_significant_electrodes(
+                run_dir, roi=cfg.get("anova_roi"), effect=effect,
+                use_fdr=cfg.get("use_fdr", True),
+                p_thresh=cfg.get("p_thresh", 0.05)))
+
+        included = [effect_set(effect)
+                    for effect in cfg.get("include_effects", ())]
+        selected = set.intersection(*included) if included else set()
+        for effect in cfg.get("exclude_effects", ()):
+            selected -= effect_set(effect)
+        return tuples_to_subject_dict(sorted(selected))
+
+    # ---- Source 2b: within-electrode ANOVA run, filtered by effect ----------
     if cfg.get("anova_run_dir"):
         sub_elec = load_significant_electrodes(
             cfg["anova_run_dir"],
@@ -337,7 +367,7 @@ def main(args):
             config_dir=args.config_dir)
         condition_electrodes[name] = electrodes
         n = sum(len(v) for v in electrodes.values())
-        print(f"  {n} significant electrodes across {len(electrodes)} subjects.")
+        print(f"  {n} electrodes across {len(electrodes)} subjects.")
 
         # Save the plotted electrodes for reproducibility.
         out_json = os.path.join(args.save_dir, f"sig_electrodes_{name}.json")
