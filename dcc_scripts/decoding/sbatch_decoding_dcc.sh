@@ -3,8 +3,8 @@
 #SBATCH -e out/slurm_%j_%x.err
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 5
-#SBATCH --mem=225G
-#SBATCH --time=16:00:00
+#SBATCH --mem=300G # set this to 225 for non-coupling jobs
+#SBATCH --time=48:00:00
 
 source $(conda info --base)/etc/profile.d/conda.sh
 conda activate ieeg

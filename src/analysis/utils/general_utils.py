@@ -2394,6 +2394,8 @@ def crop_empty_data_fixed(raw, bound='boundary', start_pad="10s", end_pad="10s")
 
 def _subdir(dir, subfolder):
     """Return {dir}/{subfolder}/, creating it if missing."""
+    if dir is None:
+        return None
     out = os.path.join(dir, subfolder)
     os.makedirs(out, exist_ok=True)
     return out

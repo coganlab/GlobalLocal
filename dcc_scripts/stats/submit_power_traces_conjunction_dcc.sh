@@ -29,15 +29,15 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 # Option A (preferred): ONE run whose ANOVA held all four factors. Every
 # interaction — LWPC, LWPS and both cross controls — is read from its summary.csv,
 # so all four are defined on exactly the same electrodes and trials.
-PT_RUN="${PT_RUN:-$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_experiment_conditions_24_subjects}"
+# PT_RUN="${PT_RUN:-$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_experiment_conditions_24_subjects}"
 
 # Option B: four separate two-factor runs. Uncomment and unset PT_RUN above.
 # Only CPC and SPS are required; the cross runs are the specificity controls.
 # PT_RUN=""
-# PT_RUN_CPC="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_lwpc_conditions_24_subjects"
-# PT_RUN_SPS="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_lwps_conditions_24_subjects"
-# PT_RUN_CPS="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_congruency_by_switch_proportion_conditions_24_subjects"
-# PT_RUN_SPC="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_switch_type_by_incongruent_proportion_conditions_24_subjects"
+PT_RUN_CPC="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_lwpc_conditions_24_subjects"
+PT_RUN_SPS="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_lwps_conditions_24_subjects"
+PT_RUN_CPS="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_congruency_by_switch_proportion_conditions_24_subjects"
+PT_RUN_SPC="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_switch_type_by_incongruent_proportion_conditions_24_subjects"
 
 # ---------------------------------------------------------------------------
 # Label / conjunction knobs.
