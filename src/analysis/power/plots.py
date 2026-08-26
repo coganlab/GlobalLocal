@@ -328,7 +328,12 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             ax.fill_between(times, mean_data - sem_data, mean_data + sem_data,
                            alpha=0.3, color=color, linewidth=0)
         elif show_ci:
-            ci_data = np.nanpercentile(data, [100 * (1 - ci), 100 * ci], axis=0)
+            # Split the excluded mass between the two tails: ci=0.95 is the
+            # 2.5th to 97.5th percentile. [100*(1-ci), 100*ci] would give the
+            # 5th to 95th -- a 90% interval labelled 95%.
+            lower = 100 * (1 - ci) / 2
+            upper = 100 * (1 + ci) / 2
+            ci_data = np.nanpercentile(data, [lower, upper], axis=0)
             ax.fill_between(times, ci_data[0], ci_data[1],
                            alpha=0.3, color=color, linewidth=0)
 

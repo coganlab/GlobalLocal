@@ -116,3 +116,25 @@ def test_power_plot_adds_gray_traces_labels_and_report(tmp_path):
     contents = report.read_text()
     assert "diagnostic ranking, not a statistical outlier test" in contents
     assert contents.index("E_OUTLIER") < contents.index("E1")
+
+
+def test_ci_shading_splits_the_excluded_mass_between_both_tails():
+    """ci=0.95 must be the 2.5th-97.5th percentile, not the 5th-95th."""
+    rng = np.random.default_rng(0)
+    times = np.linspace(-1.0, 1.5, 8)
+    data = rng.normal(0, 1, (400, times.size))
+    evoked = SimpleNamespace(times=times, data=data,
+                             ch_names=[f"E{i}" for i in range(data.shape[0])])
+
+    fig = plot_power_trace_for_roi(
+        {"condition": {"roi": evoked}}, "roi", ["condition"], "example",
+        {"condition": {"color": "red", "condition_parameter": "Mean"}},
+        show_std=False, show_ci=True, ci=0.95,
+        plot_style={"show_electrode_traces": False},
+        save_name_suffix="all",
+    )
+
+    band = fig.axes[0].collections[0].get_paths()[0].vertices[:, 1]
+    expected = np.nanpercentile(data, [2.5, 97.5], axis=0)
+    assert np.isclose(band.min(), expected[0].min(), atol=1e-9)
+    assert np.isclose(band.max(), expected[1].max(), atol=1e-9)
