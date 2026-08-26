@@ -12,8 +12,8 @@
 
 # Labels to plot (must exist in condition_plot_specs.PLOT_CONDITION_SETS).
 PLOT_SETS=(
-    lwpc_vs_lwps
-    # congruency_vs_switchType
+    # lwpc_vs_lwps
+    congruency_vs_switchType
     # stim_vs_response
 )
 
