@@ -55,7 +55,7 @@ from dcc_scripts.vis.condition_plot_specs import resolve_plot_set, PLOT_CONDITIO
 # ============================================================================
 # Set via the submit script: --export=ALL,PLOT_SET_LABEL=<label>.
 # Falls back to a default so the script is still runnable by hand.
-PLOT_SET_LABEL = os.environ.get("PLOT_SET_LABEL", "lwpc_vs_lwps")
+PLOT_SET_LABEL = os.environ.get("PLOT_SET_LABEL", "lpfc_power_trace_sets")
 plot_set = resolve_plot_set(PLOT_SET_LABEL)
 
 # ============================================================================
