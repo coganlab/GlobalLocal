@@ -50,6 +50,38 @@ def _parse_bound(text):
     return float(text)
 
 
+def subjects_from_submit_script(path=None):
+    """Read SUBJECTS from run_power_traces_dcc.py without importing it.
+
+    Importing runs that module's top level, which raises unless CONDITION_LABEL,
+    EPOCHS_ROOT_FILE and ANOVA_UNIT are set. Those are requirements of the
+    sbatch submit path, not of this diagnostic, and demanding them here would
+    mean inventing a condition label to read a list of subject IDs. Parse the
+    literal out of the source instead.
+
+    Later assignments win, matching what the module itself would end up with;
+    commented-out SUBJECTS lines are not AST nodes so they are ignored.
+    """
+    import ast
+
+    if path is None:
+        path = os.path.join(project_root, 'dcc_scripts', 'power',
+                            'run_power_traces_dcc.py')
+    with open(path) as handle:
+        tree = ast.parse(handle.read())
+
+    found = None
+    for node in tree.body:
+        if not isinstance(node, ast.Assign):
+            continue
+        for target in node.targets:
+            if isinstance(target, ast.Name) and target.id == 'SUBJECTS':
+                found = node.value
+    if found is None:
+        raise RuntimeError(f"no top-level SUBJECTS assignment in {path}")
+    return list(ast.literal_eval(found))
+
+
 def load_subject_epochs(sub, epochs_root_file, task, lab_root, acc_trials_only):
     """Return the rescaled-power epochs with metadata attached."""
     from src.analysis.utils.general_utils import load_mne_objects
@@ -131,8 +163,8 @@ def main(argv=None):
 
     subjects = list(args.subjects or [])
     if args.all_subjects:
-        from dcc_scripts.power.run_power_traces_dcc import SUBJECTS
-        subjects = list(SUBJECTS)
+        subjects = subjects_from_submit_script()
+        print(f"Subjects from run_power_traces_dcc.py: {len(subjects)}")
     if not subjects:
         parser.error("pass --subjects or --all-subjects")
 
