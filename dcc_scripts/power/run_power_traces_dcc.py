@@ -168,6 +168,16 @@ ELECTRODES = os.environ.get('ELECTRODES', 'all')
 if ELECTRODES not in ('all', 'sig'):
     raise ValueError(f"ELECTRODES must be 'all' or 'sig', got {ELECTRODES!r}")
 
+# Electrodes to drop outright, comma separated: "LFMI8" drops that name in
+# every subject, "D0121:LFMI8" drops it in one. Use this for electrodes that
+# `diagnose_electrode_deviations.py` shows are single-handedly moving the ROI
+# mean -- one electrode shifts it by excursion/n_electrodes, which for a
+# 170-electrode ROI is enough to put a visible feature on the trace.
+EXCLUDE_ELECTRODES = [
+    e.strip() for e in os.environ.get('EXCLUDE_ELECTRODES', '').split(',')
+    if e.strip()
+]
+
 # plotting
 PLOT_STYLE = {
     # Toggles
@@ -200,6 +210,18 @@ PLOT_STYLE = {
     'figsize': (12, 8),
     'text_color': 'black',
     'sig_cluster_height': 0.8,
+
+    # Electrode-level context. Drawing all ~170 electrodes is an unreadable
+    # gray mat, so draw only the most deviant few, each in its own color.
+    # Ranking on (None, 0.0) -- epoch start through stimulus onset -- picks the
+    # electrodes that misbehave in the baseline, which are the ones that can
+    # manufacture a pre-stimulus cluster. Ranking over the whole epoch instead
+    # just finds the biggest responders, which is not the question.
+    'show_electrode_traces': True,
+    'n_electrode_traces': 5,
+    'electrode_trace_window': (None, 0.0),
+    'n_outlier_labels': 5,
+    'n_electrode_deviations_reported': 25,
 }
 
 # # # # testing params (comment out)
@@ -238,6 +260,7 @@ def run_analysis():
         epochs_root_file=EPOCHS_ROOT_FILE,
         rois_dict=ROIS_DICT,
         electrodes=ELECTRODES,
+        exclude_electrodes=EXCLUDE_ELECTRODES,
         p_thresh_for_time_perm_cluster_stats=P_THRESH_FOR_TIME_PERM_CLUSTER_STATS,
         p_cluster=P_CLUSTER,
         stat_func=STAT_FUNC,
@@ -271,6 +294,7 @@ def run_analysis():
     print(f"ROIs:              {list(ROIS_DICT.keys())}")
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
+    print(f"Excluded electrodes:       {EXCLUDE_ELECTRODES or 'none'}")
     print(f"sampling rate: {SAMPLING_RATE}"),
 
     print("-" * 70)

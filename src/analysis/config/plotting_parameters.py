@@ -79,23 +79,30 @@ plotting_parameters = {
     "color": "red",
     "line_style": "--"
 },
+# The numeric suffix is the INCONGRUENT proportion, matching the BIDS event
+# names ("Stimulus/c25.0") and experiment_conditions. These four labels were
+# left on the old congruency-proportion convention when everything else was
+# converted, so every legend drawn from `condition_parameter` (i.e. every
+# plot_power_trace_for_roi figure) named c25 as "c75" and vice versa. The
+# colors were already on the new convention -- only the label strings were
+# stale, so past figures were mislabeled but not miscolored.
 "Stimulus_c25": {
-    "condition_parameter": "c75",
+    "condition_parameter": "c25",
     "color": "pink",
     "line_style": "-"
 },
 "Stimulus_c75": {
-    "condition_parameter": "c25",
+    "condition_parameter": "c75",
     "color": "orange",
     "line_style": "-"
 },
 "Stimulus_i25": {
-    "condition_parameter": "i75",
+    "condition_parameter": "i25",
     "color": "pink",
     "line_style": "--"
 },
 "Stimulus_i75": {
-    "condition_parameter": "i25",
+    "condition_parameter": "i75",
     "color": "orange",
     "line_style": "--"
 },
