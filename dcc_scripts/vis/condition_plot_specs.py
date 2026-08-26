@@ -25,6 +25,8 @@ Two electrode sources are supported per condition:
 import os
 from collections import OrderedDict
 
+from src.analysis.config.rois import rois_dict
+
 # ===========================================================================
 # Colors
 # ===========================================================================
@@ -85,6 +87,37 @@ def anova_effect(anova_run_dir, effect, color=None, use_fdr=True, p_thresh=0.05,
         cfg["color"] = color
     cfg.update(extra)
     return cfg
+
+
+def power_trace_set(anova_run_dir, color, include_effects=(), exclude_effects=(),
+                    anova_roi="lpfc", use_fdr=True, p_thresh=0.05):
+    """Electrode set read directly from a power-trace ``summary.csv``.
+
+    Electrodes must be significant for every included effect and no excluded
+    effect.
+    """
+    return {
+        "anova_run_dir": anova_run_dir,
+        "color": color,
+        "include_effects": tuple(include_effects),
+        "exclude_effects": tuple(exclude_effects),
+        "anova_roi": anova_roi,
+        "use_fdr": use_fdr,
+        "p_thresh": p_thresh,
+    }
+
+
+def anova_label_set(labels_csv, effect, color, correction="flags", alpha=0.05,
+                    roi=None):
+    """Electrode set selected from an A1 ``anova_labels.csv`` table."""
+    return {
+        "anova_labels_csv": labels_csv,
+        "anova_label_effect": effect,
+        "anova_label_correction": correction,
+        "anova_label_alpha": alpha,
+        "anova_label_roi": roi,
+        "color": color,
+    }
 
 
 # ===========================================================================
@@ -149,7 +182,49 @@ STIM_HG_ROOT = ("Stimulus_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_
 # suffix). Set to whatever the ANOVA was actually run with.
 N_SUBJECTS_IN_ANOVA = 24
 
+# Simple, notebook-style population registry. The epochs root identifies both
+# the make_epoched_data baseline-significance files and the power-trace ANOVA.
+_FULL_RUN = anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA)
+ANOVA_LABELS_CSV = os.environ.get("ANOVA_LABELS_CSV", "")
+
+ELECTRODE_PLOT_SETS = OrderedDict([
+    ("all_lpfc", {"all_roi": True, "color": (0.0, 0.7, 0.0)}),
+    ("task_relevant_lpfc", sig_chans(
+        ANOVA_EPOCHS_ROOT, color=(1.0, 1.0, 0.0))),
+    ("congruency_only", power_trace_set(
+        _FULL_RUN, color=(1.0, 0.0, 0.0),
+        include_effects=("C(congruency)",),
+        exclude_effects=("C(switchType)",))),
+    ("switch_type_only", power_trace_set(
+        _FULL_RUN, color=(0.0, 0.0, 1.0),
+        include_effects=("C(switchType)",),
+        exclude_effects=("C(congruency)",))),
+    ("both", power_trace_set(
+        _FULL_RUN, color=(0.0, 0.0, 0.0),
+        include_effects=("C(congruency)", "C(switchType)"))),
+    # Alternative A1/window-mean definitions. These read the source labels CSV,
+    # not the power-trace figures generated after applying that selection.
+    ("congruency_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "congruency", color=(1.0, 0.0, 0.0))),
+    ("switch_type_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "switch_type", color=(0.0, 0.0, 1.0))),
+    ("congruency_only_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "congruency_only", color=(1.0, 0.0, 0.0))),
+    ("switch_type_only_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "switch_type_only", color=(0.0, 0.0, 1.0))),
+    ("both_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "both", color=(0.0, 0.0, 0.0))),
+])
+
 PLOT_CONDITION_SETS = {
+
+    # Choose any subset with PLOT_SETS=all_lpfc,task_relevant_lpfc,... .
+    # Registry order is draw order, so narrower sets are drawn over coverage.
+    "lpfc_power_trace_sets": {
+        "conditions": ELECTRODE_PLOT_SETS,
+        "rois_dict": {"lpfc": rois_dict["lpfc"]},
+        "mutually_exclusive": False,
+    },
 
     # LWPC vs LWPS interaction electrodes.
     # unique LWPC -> palette[0] (red), unique LWPS -> palette[1] (blue),
@@ -203,8 +278,18 @@ def resolve_plot_set(label, palette=None):
             f"Unknown PLOT_SET_LABEL '{label}'. "
             f"Available: {sorted(PLOT_CONDITION_SETS)}")
     spec = PLOT_CONDITION_SETS[label]
+    conditions = spec["conditions"]
+    if label == "lpfc_power_trace_sets":
+        requested = [name.strip() for name in os.environ.get(
+            "PLOT_SETS", ",".join(conditions)).split(",") if name.strip()]
+        unknown = set(requested) - set(conditions)
+        if unknown:
+            raise KeyError(f"Unknown PLOT_SETS entries: {sorted(unknown)}; "
+                           f"available: {list(conditions)}")
+        conditions = OrderedDict(
+            (name, cfg) for name, cfg in conditions.items() if name in requested)
     return {
-        "conditions": assign_colors(spec["conditions"], palette),
+        "conditions": assign_colors(conditions, palette),
         "rois_dict": spec.get("rois_dict"),
         "mutually_exclusive": spec.get("mutually_exclusive", True),
         "overlap_color": spec.get("overlap_color", OVERLAP_COLOR),
