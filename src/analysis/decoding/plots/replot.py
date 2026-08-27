@@ -437,6 +437,10 @@ def replot_all(runs, save_dir, group_by=('condition_label', 'electrode_set_label
     save_dir : str
         Root for the new figures. Each run gets its own subdirectory named
         from ``group_by``, so two electrode sets never overwrite each other.
+        Nothing here re-selects electrodes: which electrodes a run used was
+        settled when the decoding job ran, and ``electrode_set_label`` just
+        reports it. Filtering ``runs`` picks which saved runs to re-draw, not
+        which channels go into them.
     **replot_kwargs
         Passed to :func:`replot_master_results`.
 
