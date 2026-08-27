@@ -50,6 +50,12 @@ STRATA=${STRATA:-congruency,switchType,blockType}
 SEED=${SEED:-0}
 ALPHA=${ALPHA:-0.05}
 
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so this
+# comma-separated value cannot be passed in that list -- it would be truncated
+# to a single stratum. Export it under its job-side name and let --export=ALL
+# carry it instead.
+export ELECTRODE_DEFINITION_SPLIT_STRATA="$STRATA"
+
 mkdir -p out
 
 for COND in "${CONDITION_LIST[@]}"; do
@@ -58,7 +64,6 @@ for COND in "${CONDITION_LIST[@]}"; do
         --export=ALL,CONDITION_NAME="$COND",\
 ELECTRODE_DEFINITION_SPLIT=true,\
 ELECTRODE_DEFINITION_SPLIT_FRAC="$FRAC_DEF",\
-ELECTRODE_DEFINITION_SPLIT_STRATA="$STRATA",\
 ELECTRODE_DEFINITION_SPLIT_SEED="$SEED",\
 ELECTRODE_DEFINITION_SPLIT_ALPHA="$ALPHA" \
         sbatch_decoding_dcc.sh
