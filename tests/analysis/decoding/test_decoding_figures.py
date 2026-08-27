@@ -333,7 +333,14 @@ def _master_results():
                 'unit_of_analysis': 'repeat',
                 'timestamp': '20260814_000636',
                 'subjects': ['D0057', 'D0059'],
+                'slurm_job_id': '52094028',
+                'bootstraps': 20,
+                'clf_model_str': 'LDA',
             },
+            'analysis_params_str': (
+                'job52094028_stimulus_lwpc_block_balanced_conditions_2_subs_'
+                'anova_csv_elecs_anova_congruency_only_LDA_20boots'
+            ),
             'electrode_set_label': 'anova_csv_elecs_anova_congruency_only',
             'n_electrodes': 32,
             'time_window_centers': list(TIME_POINTS),
@@ -520,3 +527,84 @@ def test_replot_all_on_no_runs_returns_usable_columns(tmp_path):
     # The notebook indexes these straight after the call.
     assert list(report[['n_figures', 'error', 'out_dir']].columns) == [
         'n_figures', 'error', 'out_dir']
+
+
+# --- tracing a figure back to the run that made it ----------------------
+
+def test_index_exposes_the_slurm_job_and_params(results_tree):
+    """'Which job made this?' has to be answerable from the index alone."""
+    from src.analysis.decoding.plots.replot import find_master_results
+
+    runs = find_master_results(str(results_tree))
+    assert (runs['slurm_job_id'] != '').all(), runs['slurm_job_id'].tolist()
+    assert runs['analysis_params_str'].str.startswith('job').all()
+
+
+def test_describe_run_reports_the_parameters(tmp_path):
+    from src.analysis.decoding.plots.replot import describe_run
+
+    described = describe_run(_master_results())
+    assert described['slurm_job_id'] == '52094028'
+    assert described['condition_label'] == CONDITION
+    assert described['bootstraps'] == 20
+    assert described['unit_of_analysis'] == 'repeat'
+    assert described['electrode_set_label'] == 'anova_csv_elecs_anova_congruency_only'
+    # The subject list is summarised rather than dumped.
+    assert described['subjects'].startswith('2 subjects: ')
+
+
+def test_describe_run_all_params_covers_the_whole_namespace():
+    from src.analysis.decoding.plots.replot import describe_run
+
+    master = _master_results()
+    master['metadata']['args']['some_obscure_flag'] = True
+    assert 'some_obscure_flag' not in describe_run(master).index
+    assert describe_run(master, all_params=True)['some_obscure_flag'] is True
+
+
+def test_find_run_for_figure_matches_on_timestamp(results_tree):
+    from src.analysis.decoding.plots.replot import find_run_for_figure
+
+    figure = '20260810_000636_LWPC_block_balanced_comparison_lpfc_clean.png'
+    hits = find_run_for_figure(figure, str(results_tree))
+    assert len(hits) == 1
+    assert hits.iloc[0]['timestamp'] == '20260810_000636'
+
+
+def test_find_run_for_figure_rejects_an_unparseable_name(results_tree):
+    from src.analysis.decoding.plots.replot import find_run_for_figure
+
+    with pytest.raises(ValueError, match='YYYYMMDD_HHMMSS'):
+        find_run_for_figure('some_figure.png', str(results_tree))
+
+
+def test_filenames_carry_the_job_id_by_default(tmp_path):
+    """Two runs of one analysis differ only by timestamp otherwise."""
+    from src.analysis.decoding.plots.replot import replot_master_results
+
+    written = replot_master_results(
+        _master_results(), str(tmp_path), rois=['lpfc'],
+        include_true_vs_shuffle=False)
+    assert len(written) == 1
+    assert 'job52094028' in os.path.basename(written[0]), written[0]
+
+
+def test_filename_suffix_can_still_be_overridden(tmp_path):
+    from src.analysis.decoding.plots.replot import replot_master_results
+
+    written = replot_master_results(
+        _master_results(), str(tmp_path), rois=['lpfc'],
+        include_true_vs_shuffle=False, filename_suffix='poster')
+    assert os.path.basename(written[0]).endswith('_poster')
+
+
+def test_older_results_without_params_str_still_get_the_job_id(tmp_path):
+    """A figure must never be attributable by timestamp alone."""
+    from src.analysis.decoding.plots.replot import replot_master_results
+
+    master = _master_results()
+    del master['metadata']['analysis_params_str']
+
+    written = replot_master_results(
+        master, str(tmp_path), rois=['lpfc'], include_true_vs_shuffle=False)
+    assert os.path.basename(written[0]).endswith('_job52094028'), written[0]
