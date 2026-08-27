@@ -28,6 +28,7 @@ def run_all_context_comparisons(
     save_dir,
     analysis_params_str,
     electrode_set_desc_fn=None,
+    electrode_set_label_fn=None,
 ):
     kwargs = get_context_comparison_kwargs(args.condition_label)
     if kwargs is not None:
@@ -41,4 +42,5 @@ def run_all_context_comparisons(
             save_dir=save_dir,
             analysis_params_str=analysis_params_str,
             electrode_set_desc_fn=electrode_set_desc_fn,
+            electrode_set_label_fn=electrode_set_label_fn,
         )

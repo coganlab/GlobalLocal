@@ -23,7 +23,10 @@ def run_context_comparison_analysis(
     rois,
     save_dir,
     analysis_params_str,
-    electrode_set_desc_fn=None
+    electrode_set_desc_fn=None,
+    display_name=None,
+    trace_labels=None,
+    electrode_set_label_fn=None,
 ):
     """
     Run comparison analysis between two conditions with pooled shuffle distribution.
@@ -63,10 +66,47 @@ def run_context_comparison_analysis(
     analysis_params_str : str
         String describing analysis parameters for filenames
     electrode_set_desc_fn : callable(roi) -> str, optional
-        One-line description of the electrode set being decoded from, added to
-        every figure title so the electrode set is never implicit.
+        Long electrode-set description with the electrode and subject counts.
+        No longer put on these panels -- ``electrode_set_label_fn`` supplies
+        the short form that fits in a one-line title, and the counts stay in
+        the filename. Still accepted so existing callers keep working.
+    display_name : str, optional
+        Short analysis name for the figure title, e.g. ``'LWPC'``. Falls back
+        to ``condition_name``.
+    trace_labels : dict, optional
+        ``{comparison key: legend label}``. Without it the legend shows the
+        raw comparison keys, which is how these panels ended up carrying
+        ``lwpc_block_balanced_shuffle_accs_across_pooled_conditions_across_bootstraps``
+        as a legend entry.
+    electrode_set_label_fn : callable(roi) -> str, optional
+        Raw electrode-set label for the one-line title. Falls back to nothing,
+        in which case the title is just the analysis name.
     """
-    from .anova_electrode_selection import decoding_figure_title
+    from .anova_electrode_selection import short_decoding_figure_title
+
+    display_name = display_name or condition_name
+    trace_labels = dict(trace_labels or {})
+    label_1 = trace_labels.get(condition_comparison_1, condition_comparison_1)
+    label_2 = trace_labels.get(condition_comparison_2, condition_comparison_2)
+    shuffle_key = f'{pooled_shuffle_key}_across_bootstraps'
+    shuffle_label = 'Shuffle'
+
+    def _short_title(roi):
+        raw = electrode_set_label_fn(roi) if electrode_set_label_fn else None
+        return short_decoding_figure_title(display_name, raw)
+
+    # Display labels drive the legend, so the colour and linestyle dicts have
+    # to be re-keyed to match them.
+    display_colors = {
+        label_1: colors.get(condition_comparison_1),
+        label_2: colors.get(condition_comparison_2),
+        shuffle_label: colors.get(shuffle_key, '#949494'),
+    }
+    display_linestyles = {
+        label_1: linestyles.get(condition_comparison_1, '-'),
+        label_2: linestyles.get(condition_comparison_2, '-'),
+        shuffle_label: linestyles.get(shuffle_key, '--'),
+    }
 
     print(f"\n--- Running {condition_name} Comparison Statistics ({condition_comparison_1} vs {condition_comparison_2}) using '{args.unit_of_analysis}' as unit of analysis ---")
     
@@ -115,21 +155,27 @@ def run_context_comparison_analysis(
             n_jobs=args.n_jobs
         )
         
+        # The two directions of the contrast share the top row of the
+        # significance strip. They cannot overlap in time, so a solid and a
+        # dashed bar in the two conditions' colours tell them apart without
+        # spending a second row.
         significance_clusters_comparison = {
             '1_over_2': {
                 'clusters': sig_clusters_1_over_2,
                 'label': significance_label_1,
                 'color': colors[condition_comparison_1],
-                'marker': '*'
+                'linestyle': '-',
+                'kind': 'contrast',
             },
             '2_over_1': {
                 'clusters': sig_clusters_2_over_1,
                 'label': significance_label_2,
                 'color': colors[condition_comparison_2],
-                'marker': '*'
+                'linestyle': '--',
+                'kind': 'contrast',
             }
         }
-        
+
         if roi not in master_results['comparison_clusters']:
             master_results['comparison_clusters'][roi] = {}
         master_results['comparison_clusters'][roi][condition_name.lower()] = significance_clusters_comparison
@@ -141,15 +187,32 @@ def run_context_comparison_analysis(
         unit = stats_1['unit_of_analysis']
         time_window_centers = time_window_decoding_results[0][condition_comparison_1][roi]['time_window_centers']
         
+        # Each trace's own test against chance goes on its own row under the
+        # contrast bars, so the figure says both "these two differ" and "each
+        # one beats chance" without the reader having to open a second panel.
+        significance_clusters_plot = dict(significance_clusters_comparison)
+        significance_clusters_plot.update({
+            f'{condition_comparison_1}_vs_chance': {
+                'clusters': stats_1['significant_clusters'],
+                'color': colors[condition_comparison_1],
+                'kind': 'chance',
+            },
+            f'{condition_comparison_2}_vs_chance': {
+                'clusters': stats_2['significant_clusters'],
+                'color': colors[condition_comparison_2],
+                'kind': 'chance',
+            },
+        })
+
         # Main comparison plot
         plot_accuracies_with_multiple_sig_clusters(
             time_points=time_window_centers,
             accuracies_dict={
-                condition_comparison_1: stats_1[f'{unit}_true_accs'],
-                condition_comparison_2: stats_2[f'{unit}_true_accs'],
-                f'{condition_name.lower()}_shuffle_accs_across_pooled_conditions_across_bootstraps': stacked_pooled_shuffle_accs
+                label_1: stats_1[f'{unit}_true_accs'],
+                label_2: stats_2[f'{unit}_true_accs'],
+                shuffle_label: stacked_pooled_shuffle_accs,
             },
-            significance_clusters_dict=significance_clusters_comparison,
+            significance_clusters_dict=significance_clusters_plot,
             window_size=args.window_size,
             step_size=args.step_size,
             sampling_rate=args.sampling_rate,
@@ -158,22 +221,16 @@ def run_context_comparison_analysis(
             save_dir=os.path.join(save_dir, f"{condition_name}_comparison", f"{roi}"),
             timestamp=args.timestamp,
             p_thresh=args.percentile,
-            colors=colors,
-            linestyles=linestyles,
+            colors=display_colors,
+            linestyles=display_linestyles,
             single_column=args.single_column,
             show_legend=args.show_legend,
             ylim=(0.3, 0.8),
             ylabel=ylabel,
             show_chance_level=False,
-            title=decoding_figure_title(
-                f"{condition_name}: {condition_comparison_1} vs {condition_comparison_2}",
-                roi,
-                electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
+            title=_short_title(roi),
             filename_suffix=analysis_params_str,
             show_sig_legend=True,
-            sig_bar_base_position=0.72,
-            sig_bar_spacing=0.015,
-            sig_bar_height=0.01
         )
 
         # Difference plot
@@ -188,8 +245,8 @@ def run_context_comparison_analysis(
         if diff_ylim[0] == 0: 
             diff_ylim = (-0.1, 0.1)
 
-        diff_key = f'{condition_comparison_1}_minus_{condition_comparison_2}'
-        
+        diff_key = f'{label_1} − {label_2}'
+
         plot_accuracies_with_multiple_sig_clusters(
             time_points=time_window_centers,
             accuracies_dict={diff_key: differences},
@@ -207,19 +264,12 @@ def run_context_comparison_analysis(
             single_column=args.single_column,
             show_legend=args.show_legend,
             ylim=diff_ylim,
-            ylabel=f"Accuracy Difference ({condition_comparison_1.replace('_', ' ')} - {condition_comparison_2.replace('_', ' ')})",
+            ylabel='Accuracy difference',
             show_chance_level=True,
             chance_level=0,
-            title=decoding_figure_title(
-                f"{condition_name} accuracy difference: "
-                f"{condition_comparison_1} − {condition_comparison_2}",
-                roi,
-                electrode_set_desc_fn(roi) if electrode_set_desc_fn else None),
+            title=f'{_short_title(roi)}: {label_1} − {label_2}',
             filename_suffix=analysis_params_str + "_ACC_DIFFERENCE",
-            show_sig_legend=False,
-            sig_bar_base_position=diff_ylim[1] * 0.8,
-            sig_bar_spacing=0.015,
-            sig_bar_height=0.01
+            show_sig_legend=True,
         )
 
 

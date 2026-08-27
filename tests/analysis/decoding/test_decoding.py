@@ -865,7 +865,7 @@ _COMMON_PATCHES = [
     f'{_DCC}.run_visualization_debug',
     f'{_DCC}.Parallel',
     f'{_DECODING}.compute_pooled_bootstrap_statistics',
-    f'{_DECODING}.plot_accuracies_nature_style',
+    f'{_DECODING}.plot_accuracies_with_multiple_sig_clusters',
     f'{_DCC}.run_debug_cm_traces',
     f'{_DCC}.run_all_context_comparisons',
     f'{_DCC}.run_aggregate_and_plot_time_averaged_cms',
@@ -886,7 +886,7 @@ class TestMainEndToEnd:
     @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
     @patch(f'{_DCC}.run_all_context_comparisons')
     @patch(f'{_DCC}.run_debug_cm_traces')
-    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.plot_accuracies_with_multiple_sig_clusters')
     @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
     @patch(f'{_DCC}.Parallel')
     @patch(f'{_DCC}.run_visualization_debug')
@@ -1037,7 +1037,7 @@ class TestMainEndToEnd:
     @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
     @patch(f'{_DCC}.run_all_context_comparisons')
     @patch(f'{_DCC}.run_debug_cm_traces')
-    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.plot_accuracies_with_multiple_sig_clusters')
     @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
     @patch(f'{_DCC}.Parallel')
     @patch(f'{_DCC}.run_visualization_debug')
@@ -1106,7 +1106,7 @@ class TestMainEndToEnd:
     @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
     @patch(f'{_DCC}.run_all_context_comparisons')
     @patch(f'{_DCC}.run_debug_cm_traces')
-    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.plot_accuracies_with_multiple_sig_clusters')
     @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
     @patch(f'{_DCC}.Parallel')
     @patch(f'{_DCC}.run_visualization_debug')
@@ -1224,7 +1224,7 @@ class TestMainEndToEnd:
     @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
     @patch(f'{_DCC}.run_all_context_comparisons')
     @patch(f'{_DCC}.run_debug_cm_traces')
-    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.plot_accuracies_with_multiple_sig_clusters')
     @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
     @patch(f'{_DCC}.Parallel')
     @patch(f'{_DCC}.run_visualization_debug')
@@ -1313,7 +1313,7 @@ class TestMainEndToEnd:
     @patch(f'{_DCC}.run_aggregate_and_plot_time_averaged_cms')
     @patch(f'{_DCC}.run_all_context_comparisons')
     @patch(f'{_DCC}.run_debug_cm_traces')
-    @patch(f'{_DCC}.plot_accuracies_nature_style')
+    @patch(f'{_DCC}.plot_accuracies_with_multiple_sig_clusters')
     @patch(f'{_DCC}.compute_pooled_bootstrap_statistics')
     @patch(f'{_DCC}.Parallel')
     @patch(f'{_DCC}.run_visualization_debug')
