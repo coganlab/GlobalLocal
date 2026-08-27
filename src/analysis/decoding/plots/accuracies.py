@@ -609,7 +609,7 @@ def plot_accuracies_with_multiple_sig_clusters(
     sig_legend_loc: str = 'lower right',
     sig_legend_title: Optional[str] = None,
     chance_bar_label: str = '> chance',
-    formats: Sequence[str] = ('png', 'pdf'),
+    formats: Sequence[str] = ('png', 'pdf', 'eps'),
     # Superseded by the automatic significance strip; accepted so existing
     # callers keep working, but no longer used to place the bars.
     sig_bar_height: Optional[float] = None,
@@ -642,7 +642,10 @@ def plot_accuracies_with_multiple_sig_clusters(
         ``color``      bar colour, defaults to the matching trace's colour
         ``linestyle``  ``'-'`` / ``'--'`` -- use one of each for the two
                        directions of a contrast, so they read apart in print
-        ``kind``       ``'contrast'`` (default) or ``'chance'``
+        ``kind``       ``'contrast'`` or ``'chance'``. If *no* entry in the
+                       dict sets this, every entry keeps a row of its own,
+                       stacked bottom-up in dict order -- the layout callers
+                       written before the strip existed expect.
         ``marker``     text drawn above the bar; usually unnecessary now that
                        the bars are in a legend
     colors, linestyles : dict, optional
@@ -709,17 +712,27 @@ def plot_accuracies_with_multiple_sig_clusters(
             'color': color or 'black',
             'linestyle': info.get('linestyle', '-'),
             'kind': info.get('kind', 'contrast'),
+            'kind_given': 'kind' in info,
             'marker': info.get('marker', sig_marker_style),
         })
 
-    # Contrast bars on top, against-chance bars underneath them.
     contrast_entries = [e for e in sig_entries if e['kind'] != 'chance']
     chance_entries = [e for e in sig_entries if e['kind'] == 'chance']
-    # The two directions of one contrast are mutually exclusive in time, so
-    # they share the top row and read as one test. Two conditions can both
-    # beat chance at the same moment, so those get a row each.
-    rows = ([{'entries': contrast_entries, 'kind': 'contrast'}] if contrast_entries else [])
-    rows += [{'entries': [e], 'kind': 'chance'} for e in chance_entries]
+
+    if any(entry['kind_given'] for entry in sig_entries):
+        # Contrast bars on top, against-chance bars underneath them. The two
+        # directions of one contrast are mutually exclusive in time (they are
+        # opposite tails of one test), so they share the top row and read as
+        # one test. Two conditions can both beat chance at the same moment, so
+        # those get a row each or one would be drawn over the other.
+        rows = ([{'entries': contrast_entries, 'kind': 'contrast'}]
+                if contrast_entries else [])
+        rows += [{'entries': [e], 'kind': 'chance'} for e in chance_entries]
+    else:
+        # No caller-declared kinds: a caller written against the old
+        # one-row-per-entry layout, which stacked entries bottom-up in dict
+        # order. Grouping those onto one row would draw them over each other.
+        rows = [{'entries': [e], 'kind': e['kind']} for e in reversed(sig_entries)]
 
     with plt.rc_context(nature_style(base_fontsize)):
         fig, ax = plt.subplots(figsize=figsize)

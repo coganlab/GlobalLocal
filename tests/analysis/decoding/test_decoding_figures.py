@@ -433,3 +433,61 @@ def test_replot_rejects_a_results_file_with_no_time_axis(tmp_path):
     del master['metadata']['time_window_centers']
     with pytest.raises(ValueError, match='time_window_centers'):
         replot_master_results(master, str(tmp_path))
+
+
+# --- backwards compatibility with pre-strip callers ---------------------
+
+def test_entries_without_kind_each_keep_their_own_row(accuracies):
+    """customize_decoding_plots.ipynb passes three entries and no 'kind'.
+
+    Grouping those onto one row -- the default for entries that declare
+    'kind' -- would draw all three over each other.
+    """
+    fig = _figure(accuracies, {
+        'sig_25_vs_chance': {'clusters': TIME_POINTS > 0.1,
+                             'label': '25% I > Chance', 'color': 'salmon', 'marker': ''},
+        'sig_75_vs_chance': {'clusters': TIME_POINTS > 0.4,
+                             'label': '75% I > Chance', 'color': 'orange', 'marker': ''},
+        'sig_comparison': {'clusters': TIME_POINTS > 0.6,
+                           'label': '25% I > 75% I', 'color': 'black',
+                           'marker': '', 'level': 2},
+    })
+    bar_ys = {line.get_color(): line.get_ydata()[0]
+              for line in _sig_bars(fig.axes[0])}
+    assert len(set(bar_ys.values())) == 3, 'entries were collapsed onto one row'
+    # Dict order stacks bottom-up, so the comparison bar listed last is on top.
+    assert bar_ys['black'] > bar_ys['orange'] > bar_ys['salmon']
+    plt.close(fig)
+
+
+def test_declaring_kind_switches_to_the_grouped_layout(accuracies):
+    fig = _figure(accuracies, {
+        'up': {'clusters': TIME_POINTS < 0.5, 'label': 'a > b',
+               'color': 'red', 'kind': 'contrast'},
+        'down': {'clusters': TIME_POINTS > 0.8, 'label': 'b > a',
+                 'color': 'blue', 'kind': 'contrast'},
+        'chance': {'clusters': TIME_POINTS > 0.1, 'color': 'green', 'kind': 'chance'},
+    })
+    bar_ys = {line.get_color(): line.get_ydata()[0]
+              for line in _sig_bars(fig.axes[0])}
+    assert bar_ys['red'] == bar_ys['blue'], 'contrast directions should share a row'
+    assert bar_ys['green'] < bar_ys['red']
+    plt.close(fig)
+
+
+def test_eps_is_still_written_by_default(accuracies, tmp_path):
+    """The pre-existing callers wrote pdf, png and eps; keep all three."""
+    plot_accuracies_with_multiple_sig_clusters(
+        time_points=TIME_POINTS,
+        accuracies_dict=accuracies,
+        significance_clusters_dict={'c': {'clusters': TIME_POINTS > 0.3}},
+        ylim=DATA_YLIM,
+        show_chance_level=False,
+        comparison_name='LWPC_comparison',
+        roi='lpfc',
+        timestamp='20260814_000636',
+        save_dir=str(tmp_path),
+    )
+    stem = '20260814_000636_LWPC_comparison_lpfc'
+    for extension in ('png', 'pdf', 'eps'):
+        assert (tmp_path / f'{stem}.{extension}').exists(), extension
