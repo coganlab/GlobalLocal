@@ -35,7 +35,9 @@ from src.analysis.decoding.anova_electrode_selection import (
 from .accuracies import plot_accuracies_with_multiple_sig_clusters
 
 __all__ = [
+    'describe_run',
     'find_master_results',
+    'find_run_for_figure',
     'load_master_results',
     'replot_master_results',
     'replot_all',
@@ -83,11 +85,13 @@ def find_master_results(root, pattern='**/*MASTER_RESULTS*.pkl', load_metadata=T
             'path': path,
             'timestamp': match.group('timestamp') if match else '',
             'params': match.group('params') if match else '',
+            'slurm_job_id': '',
             'condition_label': '',
             'electrode_set_label': '',
             'rois': [],
             'n_electrodes': np.nan,
             'n_subjects': np.nan,
+            'analysis_params_str': '',
             'error': '',
         }
         if load_metadata:
@@ -95,6 +99,7 @@ def find_master_results(root, pattern='**/*MASTER_RESULTS*.pkl', load_metadata=T
                 master = load_master_results(path)
                 meta = master.get('metadata', {})
                 args = meta.get('args', {})
+                row['slurm_job_id'] = str(args.get('slurm_job_id', '') or '')
                 row['condition_label'] = args.get('condition_label', '')
                 row['electrode_set_label'] = (
                     meta.get('electrode_set_label')
@@ -104,13 +109,15 @@ def find_master_results(root, pattern='**/*MASTER_RESULTS*.pkl', load_metadata=T
                 row['rois'] = sorted(_rois_in(master))
                 row['n_electrodes'] = meta.get('n_electrodes', np.nan)
                 row['n_subjects'] = len(args.get('subjects', []) or [])
+                row['analysis_params_str'] = meta.get('analysis_params_str', '')
             except Exception as exc:  # a truncated or half-written pickle
                 row['error'] = f'{type(exc).__name__}: {exc}'
         rows.append(row)
 
     return pd.DataFrame(rows, columns=[
-        'path', 'timestamp', 'condition_label', 'electrode_set_label',
-        'rois', 'n_electrodes', 'n_subjects', 'params', 'error',
+        'path', 'timestamp', 'slurm_job_id', 'condition_label',
+        'electrode_set_label', 'rois', 'n_electrodes', 'n_subjects',
+        'analysis_params_str', 'params', 'error',
     ])
 
 
@@ -118,6 +125,95 @@ def load_master_results(path):
     """Unpickle one MASTER_RESULTS file."""
     with open(path, 'rb') as handle:
         return pickle.load(handle)
+
+
+# Parameters worth seeing first when asking "what produced this figure?".
+_KEY_PARAMS = [
+    'slurm_job_id', 'timestamp', 'condition_label', 'electrodes',
+    'clf_model_str', 'bootstraps', 'n_splits', 'n_repeats',
+    'unit_of_analysis', 'explained_variance', 'window_size', 'step_size',
+    'sampling_rate', 'percentile', 'cluster_percentile', 'n_cluster_perms',
+    'p_thresh_for_time_perm_cluster_stats', 'p_cluster', 'random_state',
+    'subjects',
+]
+
+
+def describe_run(master, all_params=False):
+    """Every decoding parameter behind one results file.
+
+    Answers "what went into this figure, and which SLURM job was it?" -- the
+    figure's timestamp prefix is ``args.timestamp``, which is also the prefix
+    of the MASTER_RESULTS filename, so :func:`find_run_for_figure` gets you
+    here from a .png.
+
+    Parameters
+    ----------
+    master : dict or str
+        A loaded master_results dict, or a path to one.
+    all_params : bool
+        False (default) returns the parameters in ``_KEY_PARAMS`` that the run
+        actually recorded; True returns everything in ``metadata['args']``.
+
+    Returns
+    -------
+    pandas.Series
+        Parameter name -> value, plus the electrode set and electrode count.
+    """
+    if isinstance(master, str):
+        master = load_master_results(master)
+
+    meta = master.get('metadata', {})
+    args = dict(meta.get('args', {}))
+
+    if all_params:
+        fields = sorted(args)
+    else:
+        fields = [k for k in _KEY_PARAMS if k in args]
+
+    described = {}
+    for key in fields:
+        value = args[key]
+        # A 24-subject list is the one field that swamps the printout.
+        described[key] = (f'{len(value)} subjects: {", ".join(map(str, value))}'
+                          if key == 'subjects' and isinstance(value, (list, tuple))
+                          else value)
+
+    described['electrode_set_label'] = (meta.get('electrode_set_label')
+                                        or meta.get('electrode_set_name') or '')
+    described['n_electrodes'] = meta.get('n_electrodes', np.nan)
+    described['analysis_params_str'] = meta.get('analysis_params_str', '')
+    return pd.Series(described, dtype=object)
+
+
+def find_run_for_figure(figure_path, root, **kwargs):
+    """The results file whose run produced ``figure_path``.
+
+    Figures are named ``<timestamp>_<comparison>_<roi>_<suffix>``, and the
+    timestamp is the run's ``args.timestamp`` -- the same prefix the
+    MASTER_RESULTS pickle carries. Two figures that differ only in timestamp
+    came from two different runs, and this is how to tell them apart.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Matching runs, from :func:`find_master_results`. More than one row
+        means several runs shared a timestamp; compare their
+        ``slurm_job_id``.
+    """
+    name = os.path.basename(figure_path)
+    match = re.match(r'^(?P<timestamp>\d{8}_\d{6})_', name)
+    if not match:
+        raise ValueError(
+            f'cannot read a run timestamp off {name!r}; expected a name '
+            'beginning YYYYMMDD_HHMMSS_'
+        )
+    timestamp = match.group('timestamp')
+    runs = find_master_results(root, **kwargs)
+    hits = runs[runs['timestamp'] == timestamp]
+    if not len(hits):
+        print(f'No results file under {root} has timestamp {timestamp}. '
+              'The figure may predate the pickle, or come from another tree.')
+    return hits
 
 
 def _rois_in(master):
@@ -176,7 +272,7 @@ def replot_master_results(
     ylim=(0.3, 0.8),
     include_true_vs_shuffle=True,
     include_difference=False,
-    filename_suffix='clean',
+    filename_suffix=None,
     **plot_kwargs,
 ):
     """Re-draw every figure a results file can support.
@@ -196,6 +292,15 @@ def replot_master_results(
         Defaults to every ROI in the file.
     electrode_set_label : str, optional
         Overrides the electrode-set name used in the title.
+    filename_suffix : str, optional
+        Tail of every filename. Defaults to the run's own
+        ``analysis_params_str`` -- ``job52094028_<condition>_24_subs_<elecs>_
+        LDA_20boots_5splits_5reps_repeat_unit_ev_0.9`` -- which is what the
+        decoding job itself put in its filenames. The figure title is short
+        now, so the filename is the only thing left tying a panel to the
+        SLURM job and parameters that produced it: two runs of the same
+        analysis otherwise differ by nothing but a timestamp. Pass a short
+        string for tidier names, at the cost of that.
     include_difference : bool
         Also draw the (condition 1 - condition 2) difference panel. Off by
         default: it needs the per-sample accuracies of both conditions, which
@@ -231,6 +336,16 @@ def replot_master_results(
             'results file has no metadata["time_window_centers"]; it was '
             'written by a run too old to re-plot'
         )
+
+    if filename_suffix is None:
+        # Keep the job id and parameters in the filename, as the decoding job
+        # did: with a short title, that is all that separates two runs of the
+        # same analysis on the same ROI. Results files written before
+        # analysis_params_str was recorded still get the job id, so a figure
+        # is never left attributable by timestamp alone.
+        filename_suffix = meta.get('analysis_params_str') or ''
+        if not filename_suffix and args.get('slurm_job_id'):
+            filename_suffix = f"job{args['slurm_job_id']}"
 
     rois = list(rois) if rois is not None else sorted(_rois_in(master))
     trace_labels = get_trace_labels(condition_label)
@@ -437,6 +552,10 @@ def replot_all(runs, save_dir, group_by=('condition_label', 'electrode_set_label
     save_dir : str
         Root for the new figures. Each run gets its own subdirectory named
         from ``group_by``, so two electrode sets never overwrite each other.
+        Nothing here re-selects electrodes: which electrodes a run used was
+        settled when the decoding job ran, and ``electrode_set_label`` just
+        reports it. Filtering ``runs`` picks which saved runs to re-draw, not
+        which channels go into them.
     **replot_kwargs
         Passed to :func:`replot_master_results`.
 
