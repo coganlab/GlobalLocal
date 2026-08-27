@@ -80,6 +80,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - outlier_policy (str, optional): How to handle outliers. Either set to drop, nan, drop_and_nan, drop_and_impute, or ignore. Note that drop in this case refers to dropping channels with more % outliers than the threshold percentage, not to dropping the outlier trials themselves. NaN will replace the outlier trials with NaNs, and impute will replace them with the channel mean.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.  
+    - max_abs_z (float | None, optional): Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere in the epoch. Catches artifacts the raw-voltage `outliers` pass cannot see, since power ratio is amplitude ratio squared. None disables. Default None.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
     - filter_method (str, optional): The filtering method to use for extracting your chosen passband. Currently can either use filterbank_hilbert (https://naplib-python.readthedocs.io/en/latest/references/preprocessing.html#naplib.preprocessing.filterbank_hilbert) or bandpass (which will apply a FIR bandpass filter).
     - method (str, optional): The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.
@@ -279,23 +280,31 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
         '''
         Second outlier pass, in normalized units. The first pass runs on raw
-        voltage before gamma.extract, so it cannot see artifacts created by
-        the per-trial baseline division in rescale -- and being per channel it
-        NaNs such a trial on whichever contact it is largest while missing the
-        same trial on its neighbours (D0121 trial 367: NaN'd on LFMI8/9, left
-        at 331 z on LFMI5). Absolute threshold, not another N-SD rule: the SD
-        across trials is itself inflated by the outliers being removed.
-        One mask from the rescaled power, applied to every derived object, so
-        the amplitude and power views agree on which trials exist.
+        voltage before gamma.extract, so it cannot see how large an excursion
+        becomes after squaring: power ratio is amplitude ratio squared, and 
+        since baseline power is roughly exponential (sigma ~ mu), z is close to
+        the raw power ratio. A 155x amplitude excursion reads as ~24000 z.
+        Being per channel, the voltage pass also NaNs such a trial on whichever
+        contact it is largest while missing it on neighbours (D0121 trial 367:
+        NaN'd on LFMI8/9, left at 331 z on LFMI5).
+        
+        Absolute threshold, not another N-SD rule: rescale already normalizes
+        per channel, so z is comparable across trials, and an SD recomputed across trials would itself be inflated by the outliers being removed --
+        that is what let a 278 z trial through the first pass.
+        
+        One mask from the rescaled power, applied to every derived object, so the amplitude and power views agree on which trials exist.
         '''
         if max_abs_z is not None:
             bad = np.nanmax(np.abs(HG_ev1_power_rescaled.get_data()), axis=2) > max_abs_z
             if bad.any():
                 print(f" [z-reject] {bad.sum()} (trial, channel) pairs over "
                       f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(bad)[0]))} trials")
-            
+                
+            assert bad.shape[1] == HG_ev1._data.shape[1], "channel count mismatch across objects"
+
             for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
                 obj._data[bad] = np.nan
+                
         
         # get the evoke and evoke rescaled amplitude
         HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0)) #axis=0 should be set for actually running this, the axis=2 is just for drift testing.
@@ -359,7 +368,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 # %%
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
-         within_base_times=(-1, 0), base_times_length=0.5, pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
+         within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
          outliers=10, threshold_percent=5.0, max_abs_z=30, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
          stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
@@ -372,9 +381,9 @@ def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
     for sub in subjects:
         bandpass_and_epoch_and_find_task_significant_electrodes(sub=sub, task=task, times=times,
                           within_base_times=within_base_times, base_times_length=base_times_length,
-                          pad_length=pad_length, LAB_root=LAB_root, channels=channels,
+                          baseline_event=baseline_event, pad_length=pad_length, LAB_root=LAB_root, channels=channels,
                           dec_factor=dec_factor, outlier_policy=outlier_policy, outliers=outliers, 
-                          threshold_percent=threshold_percent, passband=passband, filter_method=filter_method, 
+                          threshold_percent=threshold_percent, max_abs_z=max_abs_z, passband=passband, filter_method=filter_method, 
                           method=method, fir_design=fir_design, stat_func=stat_func)
         
 if __name__ == "__main__":
@@ -392,7 +401,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
-    parser.add_argument('--max_abs_z', type=float, default=None, help='Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere. Real HG z-scores top out near 15-20; measured artifacts were 43-24000. Try 30 as default for now. But can set to None to not drop any trials.')
+    parser.add_argument('--max_abs_z', type=lambda v: None if str(v).lower() == 'none' else float(v), default=30, help='Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere. Real HG z-scores top out near 15-20; measured artifacts were 43-24000. Try 30 as default for now. But can set to None to not drop any trials.')
     parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--filter_method', type=str, default='filterbank_hilbert', help='Which filtering method to use for extracting your chosen frequency range. Currently can use either filterbank_hilbert or bandpass.')
@@ -417,6 +426,7 @@ if __name__ == "__main__":
     print(f"args.dec_factor: {args.dec_factor}")
     print(f"args.outlier_policy: {args.outlier_policy}")
     print(f"args.outliers: {args.outliers}")
+    print(f"args.max_abs_z: {args.max_abs_z}")
     print(f"args.threshold_percent: {args.threshold_percent}")
     print(f"args.passband: {args.passband}")
     print(f"args.filter_method: {args.filter_method}")
@@ -435,6 +445,7 @@ if __name__ == "__main__":
         outlier_policy=args.outlier_policy,
         outliers=args.outliers, 
         threshold_percent=args.threshold_percent,
+        max_abs_z=args.max_abs_z,
         passband=args.passband,
         filter_method=args.filter_method,
         method=args.method,
