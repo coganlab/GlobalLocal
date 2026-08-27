@@ -115,14 +115,30 @@ def resolve_lab_root(explicit=None):
 FS_SUBJECT_OVERRIDES = {'D0107A': 'D107A', 'D0139A': 'D139A'}
 
 def get_recon_subj_dir(subj_dir=None):
-    """Recon directory that ieeg resolves to when gen_labels isn't given one."""
+    """Recon directory holding the per-subject elec_recon folders.
+
+    Prefers the project's resolver (cluster scratch, see
+    ``src.analysis.vis.jim_mri.get_sub_dir``) and only falls back to ieeg's Box
+    default if that directory isn't there -- ieeg's default doesn't exist on the
+    DCC.
+    """
     if subj_dir is not None:
         return subj_dir
+    candidates = []
+    try:
+        from src.analysis.vis.jim_mri import get_sub_dir as jim_get_sub_dir
+        candidates.append(jim_get_sub_dir())
+    except ImportError:
+        pass
     try:
         from ieeg.viz.mri import get_sub_dir
-        return get_sub_dir()
+        candidates.append(get_sub_dir())
     except ImportError:
-        return os.path.join(os.path.expanduser("~"), "Box", "ECoG_Recon")
+        candidates.append(os.path.join(os.path.expanduser("~"), "Box", "ECoG_Recon"))
+    for candidate in candidates:
+        if os.path.isdir(candidate):
+            return candidate
+    return candidates[0]
 
 def get_fs_subject_code(sub):
     """Map a BIDS subject label to its FreeSurfer/recon code ('D0057' -> 'D57')."""

@@ -47,9 +47,12 @@ try:
 except Exception as e:  # pragma: no cover - only matters at runtime on cluster
     print(f"Warning: could not configure pyvista for off-screen rendering: {e}")
 
-from ieeg.viz.mri import subject_to_info
-
-from src.analysis.vis.jim_mri import plot_on_average
+# Use the project's copy of these helpers, not ieeg's: ieeg's version resolves
+# the recon directory to ``~/Box/ECoG_Recon``, which doesn't exist on the
+# cluster. ``jim_mri.get_sub_dir`` points at the DCC recon directory instead, so
+# ``subject_to_info`` and ``plot_on_average`` must come from the same module or
+# they'd read electrode locations from two different places.
+from src.analysis.vis.jim_mri import plot_on_average, subject_to_info
 from src.analysis.utils.general_utils import (
     get_sig_chans_per_subject,
     make_or_load_subjects_electrodes_to_ROIs_dict,
@@ -214,13 +217,21 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
     return collapse_rois_to_subject_dict(sig_electrodes_per_subject_roi)
 
 
-def build_global_index_map(subjects_no_zeros):
+def build_global_index_map(subjects_no_zeros, subjects_dir=None):
     """Map each subject to its offset in the concatenated fsaverage channel space.
 
     ``plot_on_average`` addresses electrodes by a single flat index that runs
     across all subjects (in the order they are passed). Using one shared map for
     every condition keeps the indices comparable, which is what lets us detect
     electrodes shared by multiple conditions.
+
+    Parameters
+    ----------
+    subjects_no_zeros : list of str
+        Subject recon codes, e.g. ``['D57', 'D59']``.
+    subjects_dir : PathLike, optional
+        Recon directory holding ``<subject>/elec_recon/``. Defaults to
+        :func:`jim_mri.get_sub_dir` (the DCC recon directory).
 
     Returns
     -------
@@ -230,7 +241,7 @@ def build_global_index_map(subjects_no_zeros):
     offsets = OrderedDict()
     running = 0
     for subject in subjects_no_zeros:
-        info = subject_to_info(subject)
+        info = subject_to_info(subject, subjects_dir=subjects_dir)
         offsets[subject] = (running, info["ch_names"])
         running += len(info["ch_names"])
     return offsets
@@ -344,6 +355,7 @@ def main(args):
         LAB_root                : str | None
         rois_dict               : dict | None      restrict to these ROIs, or None for whole brain
         config_dir              : str              where subjects_electrodestoROIs_dict.json lives
+        subjects_dir            : str | None       recon dir (<subject>/elec_recon/); None = jim_mri default
         save_dir                : str              output directory (created if missing)
         hemi                    : str              'both' | 'lh' | 'rh' | 'split'
         size                    : float            electrode marker size
@@ -362,6 +374,7 @@ def main(args):
 
     rois_dict = getattr(args, "rois_dict", None)
     make_histograms = getattr(args, "make_histograms", True)
+    subjects_dir = getattr(args, "subjects_dir", None)
 
     # Electrode -> ROI mapping is needed for ROI filtering and for histograms.
     subjects_electrodes_to_ROIs_dict = None
@@ -389,7 +402,7 @@ def main(args):
             json.dump(electrodes, fh, indent=2)
 
     # ---- 2. Convert to a shared global index space -------------------------
-    offsets = build_global_index_map(subjects_no_zeros)
+    offsets = build_global_index_map(subjects_no_zeros, subjects_dir=subjects_dir)
     condition_indices = OrderedDict(
         (name, set(electrodes_to_global_indices(elecs, offsets)))
         for name, elecs in condition_electrodes.items()
@@ -412,15 +425,15 @@ def main(args):
             continue
         color = args.conditions[name]["color"]
         fig = plot_on_average(
-            subjects_no_zeros, picks=sorted(indices), rm_wm=args.rm_wm,
-            hemi=args.hemi, color=color, size=args.size,
+            subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
+            rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
             transparency=args.transparency, fig=fig, show=False)
     if mutually_exclusive and overlap:
         print(f"  overlap: {len(overlap)} electrodes shared by >1 condition.")
         fig = plot_on_average(
-            subjects_no_zeros, picks=overlap, rm_wm=args.rm_wm, hemi=args.hemi,
-            color=overlap_color, size=args.size, transparency=args.transparency,
-            fig=fig, show=False)
+            subjects_no_zeros, subj_dir=subjects_dir, picks=overlap,
+            rm_wm=args.rm_wm, hemi=args.hemi, color=overlap_color,
+            size=args.size, transparency=args.transparency, fig=fig, show=False)
 
     if fig is not None:
         combined_name = getattr(args, "combined_name", "combined")
@@ -435,8 +448,8 @@ def main(args):
             continue
         color = args.conditions[name]["color"]
         cfig = plot_on_average(
-            subjects_no_zeros, picks=sorted(indices), rm_wm=args.rm_wm,
-            hemi=args.hemi, color=color, size=args.size,
+            subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
+            rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
             transparency=args.transparency, show=False)
         cpath = os.path.join(args.save_dir, f"brain_{name}.png")
         cfig.save_image(cpath)
