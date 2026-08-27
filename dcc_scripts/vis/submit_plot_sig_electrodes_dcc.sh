@@ -4,8 +4,16 @@
 # Run from dcc_scripts/vis:
 #     bash submit_plot_sig_electrodes_dcc.sh
 
-# PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
-PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
+# NOTE: sbatch --export uses commas to separate VAR=VALUE pairs, so a
+# comma-containing value cannot be passed there -- "PLOT_SETS=a,b,c" is parsed
+# as PLOT_SETS=a plus two bogus variable names, silently dropping b and c.
+# Every variable below is therefore plain `export`ed into this shell and picked
+# up by the job through --export=ALL.
+
+# export PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
+export PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
+
+export PLOT_SET_LABEL="lpfc_power_trace_sets"
 
 export POWER_FIGS_BASE="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs"
 
@@ -25,5 +33,5 @@ echo "Submitting LPFC plot sets: $PLOT_SETS"
 echo "A1 labels source: $ANOVA_LABELS_CSV"
 
 sbatch --job-name="plot_lpfc_sets" \
-    --export=ALL,PLOT_SET_LABEL="lpfc_power_trace_sets",PLOT_SETS="$PLOT_SETS",POWER_FIGS_BASE="$POWER_FIGS_BASE",ANOVA_EPOCHS_ROOT="$ANOVA_EPOCHS_ROOT",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV" \
+    --export=ALL \
     sbatch_plot_sig_electrodes_dcc.sh

@@ -17,7 +17,12 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_
 WINDOW_TMIN=1
 WINDOW_TMAX=1.5
 ELECTRODES=sig            # 'all' or 'sig'
-ROIS=${ROIS:-lpfc}        # comma-separated config ROI names, or 'all'
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so a
+# comma-containing value cannot be passed there -- "THRESHOLDS=0.01,0.05" is
+# parsed as THRESHOLDS=0.01 plus a bogus variable name, silently collapsing the
+# sweep to its first point. Comma-capable variables are therefore `export`ed
+# here and reach the job through --export=ALL instead.
+export ROIS=${ROIS:-lpfc} # comma-separated config ROI names, or 'all'
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
 DATA_SOURCE=${DATA_SOURCE:-real}
@@ -27,7 +32,7 @@ CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions
 FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
-THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}
+export THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}
 # Set CROSSCHECK_NONPARAMETRIC=1 to also compare A1's ANOVA flags to the
 # nonparametric permutation definition (slower).
 CROSSCHECK_NONPARAMETRIC=${CROSSCHECK_NONPARAMETRIC:-0}
@@ -36,5 +41,5 @@ mkdir -p out
 
 echo "Submitting stability/flexibility A1/A2 ANOVA+conjunction (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
 sbatch --job-name="sf_anova_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",ROIS="$ROIS",DATA_SOURCE="$DATA_SOURCE",ALPHA="$ALPHA",N_PERM_NULL="$N_PERM_NULL",THRESHOLDS="$THRESHOLDS",CROSSCHECK_NONPARAMETRIC="$CROSSCHECK_NONPARAMETRIC",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",ALPHA="$ALPHA",N_PERM_NULL="$N_PERM_NULL",CROSSCHECK_NONPARAMETRIC="$CROSSCHECK_NONPARAMETRIC",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION" \
     sbatch_stability_flexibility_anova_conjunction_dcc.sh
