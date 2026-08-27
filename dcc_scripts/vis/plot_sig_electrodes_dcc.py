@@ -34,18 +34,27 @@ matplotlib.use("Agg")  # headless: never open a window on the cluster
 import matplotlib.pyplot as plt
 
 # ---------------------------------------------------------------------------
-# Off-screen 3D rendering. On the cluster there is no display, so PyVista must
-# render into an off-screen buffer. This has to be set before the brain backend
-# is imported. The sbatch script additionally wraps python in ``xvfb-run`` as a
-# belt-and-suspenders fallback.
+# Headless 3D rendering. Compute nodes have no physical display, so there are
+# two ways to render the brain, and they have to be decided before the brain
+# backend is imported:
+#
+#   1. ``xvfb-run`` gave us a virtual DISPLAY (what the sbatch script does).
+#      Let MNE build its Qt window on it as usual: the window is realized, so
+#      its OpenGL context is current and screenshots work everywhere.
+#   2. No DISPLAY at all. Fall back to PyVista's off-screen mode; the window is
+#      never realized, so ``save_brain_image`` below has to make the render
+#      window current by hand before screenshotting it.
 # ---------------------------------------------------------------------------
-os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
+HAVE_DISPLAY = bool(os.environ.get("DISPLAY"))
+if not HAVE_DISPLAY:
+    os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
 try:
     import pyvista as pv
-    pv.OFF_SCREEN = True
+    pv.OFF_SCREEN = not HAVE_DISPLAY
     pv.global_theme.allow_empty_mesh = True
 except Exception as e:  # pragma: no cover - only matters at runtime on cluster
     print(f"Warning: could not configure pyvista for off-screen rendering: {e}")
+print(f"3D rendering: {'virtual display ' + os.environ['DISPLAY'] if HAVE_DISPLAY else 'pyvista off-screen (no DISPLAY)'}")
 
 # Use the project's copy of these helpers, not ieeg's: ieeg's version resolves
 # the recon directory to ``~/Box/ECoG_Recon``, which doesn't exist on the
@@ -75,6 +84,36 @@ def strip_leading_zeros(subject_id):
         return subject_id
     _, numbers, letters = match.groups()
     return f"D{int(numbers)}{letters}"
+
+
+def save_brain_image(fig, path):
+    """Screenshot a :class:`mne.viz.Brain` to ``path``, headless-safe.
+
+    ``Brain.save_image`` grabs the plotter's framebuffer. On a headless node the
+    window is never realized, and pyvista < 0.48 doesn't make the render window
+    current before reading it, so the grab dies with
+    ``RenderWindowUnavailable: Render window is not current``. The first
+    ``save_image`` call still performs the initial render, so on that failure we
+    make the window current ourselves -- what newer pyvista does internally --
+    and grab again.
+    """
+    try:
+        fig.save_image(path)
+        return True
+    except Exception as first_error:
+        render_window = getattr(getattr(fig, "plotter", None), "render_window", None)
+        if render_window is None:
+            print(f"  Could not save {path}: {first_error}")
+            return False
+        print(f"  Screenshot failed ({first_error}); making the render window "
+              f"current and retrying.")
+        try:
+            render_window.MakeCurrent()
+            fig.save_image(path)
+            return True
+        except Exception as retry_error:
+            print(f"  Could not save {path}: {retry_error}")
+            return False
 
 
 def collapse_rois_to_subject_dict(sig_electrodes_per_subject_roi):
@@ -416,6 +455,12 @@ def main(args):
     else:
         plot_groups, overlap = condition_indices, []
 
+    # Showing the window is what realizes its OpenGL context, so do it whenever
+    # there's a display (xvfb's counts); without one we're in off-screen mode
+    # and there is nothing to show.
+    show_brain = HAVE_DISPLAY
+    failed_figures = []
+
     # ---- 3. Combined brain: every condition overlaid on one figure ---------
     print("\n=== Plotting combined brain figure ===")
     fig = None
@@ -427,20 +472,23 @@ def main(args):
         fig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
-            transparency=args.transparency, fig=fig, show=False)
+            transparency=args.transparency, fig=fig, show=show_brain)
     if mutually_exclusive and overlap:
         print(f"  overlap: {len(overlap)} electrodes shared by >1 condition.")
         fig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=overlap,
             rm_wm=args.rm_wm, hemi=args.hemi, color=overlap_color,
-            size=args.size, transparency=args.transparency, fig=fig, show=False)
+            size=args.size, transparency=args.transparency, fig=fig,
+            show=show_brain)
 
     if fig is not None:
         combined_name = getattr(args, "combined_name", "combined")
         combined_path = os.path.join(args.save_dir, f"brain_{combined_name}.png")
-        fig.save_image(combined_path)
+        if save_brain_image(fig, combined_path):
+            print(f"  Saved combined brain -> {combined_path}")
+        else:
+            failed_figures.append(combined_path)
         fig.close()
-        print(f"  Saved combined brain -> {combined_path}")
 
     # ---- 4. One brain per condition (in that condition's color) ------------
     for name, indices in condition_indices.items():
@@ -450,11 +498,13 @@ def main(args):
         cfig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
-            transparency=args.transparency, show=False)
+            transparency=args.transparency, show=show_brain)
         cpath = os.path.join(args.save_dir, f"brain_{name}.png")
-        cfig.save_image(cpath)
+        if save_brain_image(cfig, cpath):
+            print(f"  Saved brain for {name} -> {cpath}")
+        else:
+            failed_figures.append(cpath)
         cfig.close()
-        print(f"  Saved brain for {name} -> {cpath}")
 
     # ---- 5. ROI histograms -------------------------------------------------
     if make_histograms:
@@ -469,5 +519,15 @@ def main(args):
                 counts, title=f"ROIs of significant electrodes: {name}",
                 save_path=hist_path, color=color,
                 top_n=getattr(args, "hist_top_n", None))
+
+    # The histograms above don't depend on the 3D renderer, so they're worth
+    # producing even if the brain screenshots failed -- but don't call the run a
+    # success in that case.
+    if failed_figures:
+        raise RuntimeError(
+            "Could not screenshot the brain figure(s): "
+            + ", ".join(failed_figures)
+            + ". The electrodes were resolved fine, so this is a rendering "
+              "problem: run under 'xvfb-run -a' (see sbatch_plot_sig_electrodes_dcc.sh).")
 
     print("\nDone.")
