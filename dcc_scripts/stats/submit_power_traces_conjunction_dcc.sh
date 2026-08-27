@@ -42,12 +42,17 @@ PT_RUN_SPC="$FIGS_ROOT/$EPOCHS_ROOT_FILE/anova_within_electrode/stimulus_switch_
 # ---------------------------------------------------------------------------
 # Label / conjunction knobs.
 # ---------------------------------------------------------------------------
-ROIS=${ROIS:-lpfc}                 # comma-separated, or 'all' to pool over ROIs
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so a
+# comma-containing value cannot be passed there -- "THRESHOLDS=0.01,0.05" is
+# parsed as THRESHOLDS=0.01 plus a bogus variable name, silently collapsing the
+# sweep to its first point. Comma-capable variables are therefore `export`ed
+# here and reach the job through --export=ALL instead.
+export ROIS=${ROIS:-lpfc}          # comma-separated, or 'all' to pool over ROIs
 CORRECTION=${CORRECTION:-cluster}   # fdr_bh | cluster | none
 EFFECT_MODE=${EFFECT_MODE:-main} # interaction (LWPC/LWPS) | main (congruency/switchType)
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
-THRESHOLDS=${THRESHOLDS:-0.01,0.025,0.05,0.10}
+export THRESHOLDS=${THRESHOLDS:-0.01,0.025,0.05,0.10}
 REQUIRE_ALL=${REQUIRE_ALL:-1}
 
 # ---------------------------------------------------------------------------
@@ -58,7 +63,7 @@ REQUIRE_ALL=${REQUIRE_ALL:-1}
 # ---------------------------------------------------------------------------
 RUN_CONTINUOUS=${RUN_CONTINUOUS:-1}
 ELECTRODES=${ELECTRODES:-sig}      # 'all' or 'sig'
-EFFECT_MEASURES=${EFFECT_MEASURES:-peak_t,cluster,cohens_d}
+export EFFECT_MEASURES=${EFFECT_MEASURES:-peak_t,cluster,cohens_d}
 N_SPLITS=${N_SPLITS:-50}
 N_PERM_CORR=${N_PERM_CORR:-1000}
 MIN_ELEC=${MIN_ELEC:-3}
@@ -71,5 +76,5 @@ mkdir -p out
 
 echo "Submitting power_traces conjunction (source=$DATA_SOURCE, effects=$EFFECT_MODE, rois=$ROIS, correction=$CORRECTION)"
 sbatch --job-name="pt_conj_${DATA_SOURCE}" \
-    --export=ALL,DATA_SOURCE="$DATA_SOURCE",PT_RUN="$PT_RUN",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ROIS="$ROIS",CORRECTION="$CORRECTION",EFFECT_MODE="$EFFECT_MODE",ALPHA="$ALPHA",N_PERM_NULL="$N_PERM_NULL",THRESHOLDS="$THRESHOLDS",REQUIRE_ALL="$REQUIRE_ALL",RUN_CONTINUOUS="$RUN_CONTINUOUS",ELECTRODES="$ELECTRODES",EFFECT_MEASURES="$EFFECT_MEASURES",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",MIN_ELEC="$MIN_ELEC",SYNTHETIC_OVERLAP="$SYNTHETIC_OVERLAP",SYNTHETIC_BASE_RATE="$SYNTHETIC_BASE_RATE" \
+    --export=ALL,DATA_SOURCE="$DATA_SOURCE",PT_RUN="$PT_RUN",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CORRECTION="$CORRECTION",EFFECT_MODE="$EFFECT_MODE",ALPHA="$ALPHA",N_PERM_NULL="$N_PERM_NULL",REQUIRE_ALL="$REQUIRE_ALL",RUN_CONTINUOUS="$RUN_CONTINUOUS",ELECTRODES="$ELECTRODES",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",MIN_ELEC="$MIN_ELEC",SYNTHETIC_OVERLAP="$SYNTHETIC_OVERLAP",SYNTHETIC_BASE_RATE="$SYNTHETIC_BASE_RATE" \
     sbatch_power_traces_conjunction_dcc.sh

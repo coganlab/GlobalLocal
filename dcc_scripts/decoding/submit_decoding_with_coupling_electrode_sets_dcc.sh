@@ -97,7 +97,12 @@ MATCH_LEVEL=${MATCH_LEVEL:-global}
 MATCH_DEGREE=${MATCH_DEGREE:-false}
 
 # lpfc and occ must both be decodable for the cross-region pair type.
-ROIS=${ROIS:-lpfc,occ}
+#
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so "ROIS=lpfc,occ"
+# cannot be passed in that list -- it is parsed as ROIS=lpfc plus a bogus
+# variable name, silently dropping occ and leaving a cross-region pair type
+# decoding only lpfc. Export it here and let --export=ALL carry it instead.
+export ROIS=${ROIS:-lpfc,occ}
 
 mkdir -p out
 
@@ -108,7 +113,6 @@ for PAIR in "${PAIR_TYPE_LIST[@]}"; do
              "match=$MATCH_LEVEL, degree=$MATCH_DEGREE)"
         sbatch --job-name="dec_coup_${PAIR}_${COND}" \
             --export=ALL,CONDITION_NAME="$COND",\
-ROIS="$ROIS",\
 COUPLING_ELECTRODE_SELECTION=true,\
 COUPLING_CSV_DIR="$COUPLING_CSV_DIR",\
 COUPLING_PAIR_TYPE="$PAIR",\
