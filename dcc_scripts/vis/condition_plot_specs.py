@@ -107,6 +107,19 @@ def power_trace_set(anova_run_dir, color, include_effects=(), exclude_effects=()
     }
 
 
+def anova_label_set(labels_csv, effect, color, correction="flags", alpha=0.05,
+                    roi=None):
+    """Electrode set selected from an A1 ``anova_labels.csv`` table."""
+    return {
+        "anova_labels_csv": labels_csv,
+        "anova_label_effect": effect,
+        "anova_label_correction": correction,
+        "anova_label_alpha": alpha,
+        "anova_label_roi": roi,
+        "color": color,
+    }
+
+
 # ===========================================================================
 # Data locations (edit these once for your machine / cluster)
 # ===========================================================================
@@ -172,6 +185,7 @@ N_SUBJECTS_IN_ANOVA = 24
 # Simple, notebook-style population registry. The epochs root identifies both
 # the make_epoched_data baseline-significance files and the power-trace ANOVA.
 _FULL_RUN = anova_run("stimulus_experiment_conditions", N_SUBJECTS_IN_ANOVA)
+ANOVA_LABELS_CSV = os.environ.get("ANOVA_LABELS_CSV", "")
 
 ELECTRODE_PLOT_SETS = OrderedDict([
     ("all_lpfc", {"all_roi": True, "color": (0.0, 0.7, 0.0)}),
@@ -188,6 +202,18 @@ ELECTRODE_PLOT_SETS = OrderedDict([
     ("both", power_trace_set(
         _FULL_RUN, color=(0.0, 0.0, 0.0),
         include_effects=("C(congruency)", "C(switchType)"))),
+    # Alternative A1/window-mean definitions. These read the source labels CSV,
+    # not the power-trace figures generated after applying that selection.
+    ("congruency_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "congruency", color=(1.0, 0.0, 0.0))),
+    ("switch_type_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "switch_type", color=(0.0, 0.0, 1.0))),
+    ("congruency_only_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "congruency_only", color=(1.0, 0.0, 0.0))),
+    ("switch_type_only_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "switch_type_only", color=(0.0, 0.0, 1.0))),
+    ("both_labels", anova_label_set(
+        ANOVA_LABELS_CSV, "both", color=(0.0, 0.0, 0.0))),
 ])
 
 PLOT_CONDITION_SETS = {

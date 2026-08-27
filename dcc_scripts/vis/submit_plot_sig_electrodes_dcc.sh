@@ -20,9 +20,15 @@ export POWER_FIGS_BASE="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/p
 export ANOVA_EPOCHS_ROOT="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
 export ANOVA_UNIT="electrode"
 
+# Optional alternative electrode definition: the SOURCE A1 labels table. Set
+# this when PLOT_SETS contains congruency_labels, switch_type_labels, an
+# *_only_labels set, or both_labels. Do not point it at an
+# anova_label_selections figures folder.
+export ANOVA_LABELS_CSV=""
+
 mkdir -p out
 
 echo "Submitting LPFC plot sets: $PLOT_SETS"
 sbatch --job-name="plot_lpfc_sets" \
-    --export=ALL,PLOT_SET_LABEL="lpfc_power_trace_sets",PLOT_SETS="$PLOT_SETS",POWER_FIGS_BASE="$POWER_FIGS_BASE",ANOVA_EPOCHS_ROOT="$ANOVA_EPOCHS_ROOT",ANOVA_UNIT="$ANOVA_UNIT" \
+    --export=ALL,PLOT_SET_LABEL="lpfc_power_trace_sets",PLOT_SETS="$PLOT_SETS",POWER_FIGS_BASE="$POWER_FIGS_BASE",ANOVA_EPOCHS_ROOT="$ANOVA_EPOCHS_ROOT",ANOVA_UNIT="$ANOVA_UNIT",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV" \
     sbatch_plot_sig_electrodes_dcc.sh
