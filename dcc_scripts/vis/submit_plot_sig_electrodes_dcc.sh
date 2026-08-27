@@ -16,6 +16,10 @@ export ANOVA_EPOCHS_ROOT="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_de
 
 export ANOVA_UNIT="electrode"
 
+# Optional alternative electrode definition: the SOURCE A1 labels table. Set
+# this when PLOT_SETS contains congruency_labels, switch_type_labels, an
+# *_only_labels set, or both_labels. Do not point it at an
+# anova_label_selections figures folder.
 export ANOVA_LABELS_CSV="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
 
 mkdir -p out

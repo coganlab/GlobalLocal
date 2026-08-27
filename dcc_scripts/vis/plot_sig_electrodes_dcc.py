@@ -56,6 +56,7 @@ from src.analysis.utils.general_utils import (
     make_sig_electrodes_per_subject_and_roi_dict,
 )
 from src.analysis.power.power_traces import load_significant_electrodes
+from src.analysis.utils.anova_label_selection import load_anova_label_electrodes
 
 # Regex that strips leading zeros from a subject id: 'D0057' -> 'D57', 'D0107A' -> 'D107A'.
 _SUBJECT_PATTERN = re.compile(r"^D(0*)(\d+)([A-Za-z]*)$")
@@ -141,6 +142,19 @@ def get_condition_electrodes(subjects, cfg, task, LAB_root,
     dict
         ``{subject_with_zeros: [electrode_names]}``.
     """
+    # ---- Source 0a: saved A1/window-mean ANOVA labels -----------------------
+    if "anova_labels_csv" in cfg:
+        if not cfg["anova_labels_csv"]:
+            raise ValueError(
+                "This *_labels plot set needs ANOVA_LABELS_CSV to point to the "
+                "source anova_labels.csv (not an anova_label_selections figures directory).")
+        selected = load_anova_label_electrodes(
+            cfg["anova_labels_csv"], effect=cfg["anova_label_effect"],
+            correction=cfg.get("anova_label_correction", "flags"),
+            alpha=cfg.get("anova_label_alpha", 0.05),
+            roi=cfg.get("anova_label_roi"))
+        return collapse_rois_to_subject_dict(selected)
+
     # ---- Source 0: every electrode in the requested anatomical ROI ----------
     if cfg.get("all_roi"):
         if not rois_dict:
