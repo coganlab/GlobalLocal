@@ -20,6 +20,7 @@ CHANNELS="None"
 DEC_FACTOR=8
 OUTLIER_POLICY="drop_and_nan"
 OUTLIERS=10
+MAX_ABS_Z=30
 THRESHOLD_PERCENT=5.0
 PASSBAND="70 150"
 FILTER_METHOD="filterbank_hilbert" # choose either filterbank_hilbert or bandpass for now.
@@ -45,6 +46,7 @@ do
         "$DEC_FACTOR" \
         "$OUTLIER_POLICY" \
         "$OUTLIERS" \
+        "$MAX_ABS_Z" \
         "$THRESHOLD_PERCENT" \
         "$PASSBAND" \
         "$FILTER_METHOD" \
