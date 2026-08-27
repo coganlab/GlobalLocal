@@ -4,8 +4,8 @@
 # Run from dcc_scripts/vis:
 #     bash submit_plot_sig_electrodes_dcc.sh
 
-# PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
-PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
+PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
+# PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
 
 export POWER_FIGS_BASE="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs"
 
