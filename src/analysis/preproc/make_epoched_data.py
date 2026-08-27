@@ -60,7 +60,7 @@ from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_a
 
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
                       within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 3, LAB_root=None, channels=None, dec_factor=8, 
-                      outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
+                      outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, max_abs_z=None, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
                       stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
@@ -225,6 +225,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         stat_func_for_filename = "custom_stat_func" # Fallback
         
     output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_{filter_method}_stat_func_{stat_func_for_filename}"
+    
+    if max_abs_z is not None:
+        output_name_base += f"_zmax_{max_abs_z:g}"
+        
     for event in ["Stimulus", "Response"]:
         print(f"--- Processing Event: {event} ---")
         output_name_event = f'{event}_{times[0]}to{times[1]}sec_{output_name_base}'
@@ -273,6 +277,26 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         # get the rescaled power
         HG_ev1_power_rescaled = rescale(HG_ev1_power, HG_base_power, copy=True, mode='zscore')
 
+        '''
+        Second outlier pass, in normalized units. The first pass runs on raw
+        voltage before gamma.extract, so it cannot see artifacts created by
+        the per-trial baseline division in rescale -- and being per channel it
+        NaNs such a trial on whichever contact it is largest while missing the
+        same trial on its neighbours (D0121 trial 367: NaN'd on LFMI8/9, left
+        at 331 z on LFMI5). Absolute threshold, not another N-SD rule: the SD
+        across trials is itself inflated by the outliers being removed.
+        One mask from the rescaled power, applied to every derived object, so
+        the amplitude and power views agree on which trials exist.
+        '''
+        if max_abs_z is not None:
+            bad = np.nanmax(np.abs(HG_ev1_power_rescaled.get_data()), axis=2) > max_abs_z
+            if bad.any():
+                print(f" [z-reject] {bad.sum()} (trial, channel) pairs over "
+                      f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(bad)[0]))} trials")
+            
+            for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
+                obj._data[bad] = np.nan
+        
         # get the evoke and evoke rescaled amplitude
         HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0)) #axis=0 should be set for actually running this, the axis=2 is just for drift testing.
         HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
@@ -336,7 +360,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
          within_base_times=(-1, 0), base_times_length=0.5, pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
-         outliers=10, threshold_percent=5.0, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
+         outliers=10, threshold_percent=5.0, max_abs_z=30, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
          stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
@@ -368,6 +392,7 @@ if __name__ == "__main__":
     parser.add_argument('--dec_factor', type=int, default=8, help='Decimation factor. Default is 8.')
     parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
+    parser.add_argument('--max_abs_z', type=float, default=None, help='Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere. Real HG z-scores top out near 15-20; measured artifacts were 43-24000. Try 30 as default for now. But can set to None to not drop any trials.')
     parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--filter_method', type=str, default='filterbank_hilbert', help='Which filtering method to use for extracting your chosen frequency range. Currently can use either filterbank_hilbert or bandpass.')

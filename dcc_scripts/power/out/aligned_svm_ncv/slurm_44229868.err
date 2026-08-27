@@ -1,3 +1,0 @@
-  File "/hpc/home/etb28/coganlab/etb28/GlobalLocal/dcc_scripts/power/run_power_traces_dcc.py", line 132
-    ROIS_DICT = {
-IndentationError: unexpected indent
