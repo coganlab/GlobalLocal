@@ -4,11 +4,8 @@
 # Run from dcc_scripts/vis:
 #     bash submit_plot_sig_electrodes_dcc.sh
 
-# Example 1: complete congruency population, including "both"
-# PLOT_SETS=${PLOT_SETS:-congruency_labels}
-
-# Example 2: mutually exclusive A1 groups
-PLOT_SETS=${PLOT_SETS:-congruency_only_labels,switch_type_only_labels,both_labels}
+# PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
+PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
 
 export POWER_FIGS_BASE="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs"
 
@@ -20,7 +17,7 @@ export ANOVA_UNIT="electrode"
 # this when PLOT_SETS contains congruency_labels, switch_type_labels, an
 # *_only_labels set, or both_labels. Do not point it at an
 # anova_label_selections figures folder.
-export ANOVA_LABELS_CSV="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
+export ANOVA_LABELS_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/$ANOVA_EPOCHS_ROOT/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
 
 mkdir -p out
 
