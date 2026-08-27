@@ -77,6 +77,11 @@ SUBJECTS = [
 # Where subjects_electrodestoROIs_dict.json lives (built if absent).
 CONFIG_DIR = os.path.join(project_root, "src", "analysis", "config")
 
+# Recon directory holding <subject>/elec_recon/ (the electrode coordinates).
+# None = jim_mri.get_sub_dir's default (/cwork/$USER/ECoG_Recon on the cluster);
+# override with ECOG_RECON_DIR if the recons live somewhere else.
+SUBJECTS_DIR = os.environ.get("ECOG_RECON_DIR") or None
+
 # Save figures to the figs folder inside src/analysis/vis.
 SAVE_DIR = os.path.join(project_root, "src", "analysis", "vis", "figs")
 
@@ -105,6 +110,7 @@ def run_analysis():
         LAB_root=LAB_ROOT,
         rois_dict=plot_set["rois_dict"],
         config_dir=CONFIG_DIR,
+        subjects_dir=SUBJECTS_DIR,
         save_dir=SAVE_DIR,
         hemi=HEMI,
         size=MARKER_SIZE,
@@ -127,6 +133,7 @@ def run_analysis():
     print(f"Conditions:   {[(n, c['color']) for n, c in conditions.items()]}")
     print(f"ROIs:         {list(args.rois_dict.keys()) if args.rois_dict else 'whole brain'}")
     print(f"Mutually exclusive colors: {args.mutually_exclusive}")
+    print(f"Recon dir:    {SUBJECTS_DIR or 'jim_mri default (/cwork/$USER/ECoG_Recon)'}")
     print(f"Save dir:     {SAVE_DIR}")
     print("=" * 70)
 

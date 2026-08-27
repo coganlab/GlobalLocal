@@ -1,4 +1,5 @@
 import csv
+import os
 import os.path as op
 from collections import OrderedDict
 from collections.abc import Iterable, Sequence
@@ -185,21 +186,34 @@ def imshow_mri(data, img: nib.spatialimages.SpatialImage,
 
 
 def get_sub_dir(subj_dir: PathLike = None):
-    """Gets the subjects directory
+    """Gets the subjects (recon) directory
+
+    Unlike ``ieeg.viz.mri.get_sub_dir``, this never falls back to Box: the
+    recons live on the cluster's scratch space, which is where every DCC script
+    has to read them from.
 
     Parameters
     ----------
     subj_dir : PathLike, optional
-        The subjects directory, by default LAB_root / 'ECoG_Recon'
+        The subjects directory. If None, ``$ECOG_RECON_DIR`` if set, else
+        ``/cwork/$USER/ECoG_Recon`` if it exists, else ``/cwork/jz421/ECoG_Recon``.
 
     Returns
     -------
     PathLike
         The subjects directory
     """
-    if subj_dir is None:
-        subj_dir = "/cwork/jz421/ECoG_Recon"
-    return subj_dir
+    if subj_dir is not None:
+        return subj_dir
+    env_dir = os.environ.get("ECOG_RECON_DIR")
+    if env_dir:
+        return env_dir
+    user = os.environ.get("USER") or os.environ.get("USERNAME")
+    if user:
+        user_dir = f"/cwork/{user}/ECoG_Recon"
+        if op.isdir(user_dir):
+            return user_dir
+    return "/cwork/jz421/ECoG_Recon"
 
 
 def plot_gamma(evoked: mne.Evoked, subjects_dir: PathLike = None, **kwargs):
