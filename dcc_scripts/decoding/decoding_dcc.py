@@ -32,7 +32,11 @@ from joblib import Parallel, delayed
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 from src.analysis.config import experiment_conditions
-from src.analysis.config.condition_registry import get_comparisons
+from src.analysis.config.condition_registry import (
+    get_comparisons,
+    get_display_name,
+    get_trace_labels,
+)
 
 from src.analysis.utils.general_utils import (
     make_or_load_subjects_electrodes_to_ROIs_dict,
@@ -94,6 +98,7 @@ from src.analysis.decoding.anova_electrode_selection import (
     electrode_set_counts,
     electrode_set_counts_for_roi,
     electrode_set_slug,
+    short_decoding_figure_title,
 )
 from src.analysis.decoding.run_anova_electrode_selection import (
     build_anova_selected_electrode_sets,
@@ -248,16 +253,11 @@ def run_decoding_for_one_electrode_set(
         'comparison_clusters': {} # We will populate this in the loops below
     }
 
-    # define color and linestyle for plotting true vs shuffle
-    colors = {
-        'true': '#0173B2',  # Blue
-        'shuffle': '#949494'  # Gray
-    }
-
-    linestyles = {
-        'true': '-',
-        'shuffle': '--'
-    }
+    # Legend labels for the true-vs-shuffle panels. The trace label comes from
+    # the registry so the legend reads '25% incongruent' rather than
+    # 'i_vs_c_at_inc25'.
+    trace_labels = get_trace_labels(args.condition_label)
+    shuffle_label = 'Shuffle'
 
     # then plot using the pooled statistics
     for condition_comparison in condition_comparisons.keys():
@@ -268,14 +268,22 @@ def run_decoding_for_one_electrode_set(
 
                 # extract the correct keys based on unit_of_analysis
                 unit = stats['unit_of_analysis']
+                true_label = trace_labels.get(
+                    condition_comparison, str(condition_comparison).replace('_', ' '))
 
-                plot_accuracies_nature_style(
+                plot_accuracies_with_multiple_sig_clusters(
                     time_points=time_window_centers,
                     accuracies_dict={
-                        'true': stats[f'{unit}_true_accs'], # use the full distribution
-                        'shuffle': stats[f'{unit}_shuffle_accs']
+                        true_label: stats[f'{unit}_true_accs'], # use the full distribution
+                        shuffle_label: stats[f'{unit}_shuffle_accs']
                     },
-                    significant_clusters=stats['significant_clusters'],
+                    significance_clusters_dict={
+                        'vs_shuffle': {
+                            'clusters': stats['significant_clusters'],
+                            'color': '#0173B2',
+                            'kind': 'chance',
+                        },
+                    },
                     window_size=args.window_size,
                     step_size=args.step_size,
                     sampling_rate=args.sampling_rate,
@@ -284,13 +292,17 @@ def run_decoding_for_one_electrode_set(
                     save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
                     timestamp=args.timestamp,
                     p_thresh=args.percentile,
-                    colors=colors,
-                    linestyles=linestyles,
+                    colors={true_label: '#0173B2', shuffle_label: '#949494'},
+                    linestyles={true_label: '-', shuffle_label: '--'},
                     single_column=args.single_column,
                     show_legend=args.show_legend,
                     ylim=(0.3, 1.0),
                     show_chance_level=False, # The pooled shuffle line is the new chance level
-                    title=decoding_figure_title(condition_comparison, roi, elec_desc(roi)),
+                    title=short_decoding_figure_title(
+                        f'{get_display_name(args.condition_label)}: {true_label}',
+                        set_label),
+                    show_sig_legend=True,
+                    chance_bar_label='> shuffle',
                     filename_suffix=analysis_params_str
                 )
 
@@ -316,6 +328,7 @@ def run_decoding_for_one_electrode_set(
         save_dir=save_dir,
         analysis_params_str=analysis_params_str,
         electrode_set_desc_fn=elec_desc,
+        electrode_set_label_fn=lambda roi: set_label,
     )
 
     # --- Save all results to a single file ---

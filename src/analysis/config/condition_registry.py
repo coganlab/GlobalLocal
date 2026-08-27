@@ -123,17 +123,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'lwpc_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'c25_vs_i25': '#FF7E79',
-                'c75_vs_i75': '#FF7E79',
+                'c75_vs_i75': '#A32319',
                 'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'c25_vs_i25': '-',
-                'c75_vs_i75': '--',
+                'c75_vs_i75': '-',
                 'lwpc_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Congruency Decoding Accuracy',
             'significance_label_1': '25% > 75% I',
             'significance_label_2': '75% > 25% I',
+            'display_name': 'LWPC (pooled blocks)',
+            'trace_labels': {
+                'c25_vs_i25': '25% incongruent',
+                'c75_vs_i75': '75% incongruent',
+            },
         },
         'anova_factors': ['congruency', 'incongruentProportion'],
         'anova_interactions': [
@@ -172,17 +177,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'lwps_shuffle_accs_across_pooled_conditions',
             'colors': {
                 's25_vs_r25': '#05B0F0',
-                's75_vs_r75': '#05B0F0',
+                's75_vs_r75': '#0B4F8A',
                 'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 's25_vs_r25': '-',
-                's75_vs_r75': '--',
+                's75_vs_r75': '-',
                 'lwps_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Switch Type Decoding Accuracy',
             'significance_label_1': '25% > 75% S',
             'significance_label_2': '75% > 25% S',
+            'display_name': 'LWPS (pooled blocks)',
+            'trace_labels': {
+                's25_vs_r25': '25% switch',
+                's75_vs_r75': '75% switch',
+            },
         },
         'anova_factors': ['switchType', 'switchProportion'],
         'anova_interactions': [
@@ -219,17 +229,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'task_by_congruency_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'c_taskG_vs_c_taskL': '#05B0F0',
-                'i_taskG_vs_i_taskL': '#05B0F0',
+                'i_taskG_vs_i_taskL': '#0B4F8A',
                 'task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'c_taskG_vs_c_taskL': '-',
-                'i_taskG_vs_i_taskL': '--',
+                'i_taskG_vs_i_taskL': '-',
                 'task_by_congruency_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Task Decoding Accuracy',
             'significance_label_1': 'Task (C) > Task (I)',
             'significance_label_2': 'Task (I) > Task (C)',
+            'display_name': 'Task decoding by congruency',
+            'trace_labels': {
+                'c_taskG_vs_c_taskL': 'Congruent',
+                'i_taskG_vs_i_taskL': 'Incongruent',
+            },
         },
     },
 
@@ -254,17 +269,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'task_by_switch_type_shuffle_accs_across_pooled_conditions',
             'colors': {
                 's_taskG_vs_s_taskL': '#05B0F0',
-                'r_taskG_vs_r_taskL': '#05B0F0',
+                'r_taskG_vs_r_taskL': '#0B4F8A',
                 'task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 's_taskG_vs_s_taskL': '-',
-                'r_taskG_vs_r_taskL': '--',
+                'r_taskG_vs_r_taskL': '-',
                 'task_by_switch_type_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Task Decoding Accuracy',
             'significance_label_1': 'Task (S) > Task (R)',
             'significance_label_2': 'Task (R) > Task (S)',
+            'display_name': 'Task decoding by switch type',
+            'trace_labels': {
+                's_taskG_vs_s_taskL': 'Switch',
+                'r_taskG_vs_r_taskL': 'Repeat',
+            },
         },
     },
 
@@ -295,17 +315,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'c_in_25switchBlock_vs_i_in_25switchBlock': '#05B0F0',
-                'c_in_75switchBlock_vs_i_in_75switchBlock': '#05B0F0',
+                'c_in_75switchBlock_vs_i_in_75switchBlock': '#0B4F8A',
                 'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'c_in_25switchBlock_vs_i_in_25switchBlock': '-',
-                'c_in_75switchBlock_vs_i_in_75switchBlock': '--',
+                'c_in_75switchBlock_vs_i_in_75switchBlock': '-',
                 'congruency_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Congruency Decoding Accuracy',
             'significance_label_1': 'C/I (25% S) > C/I (75% S)',
             'significance_label_2': 'C/I (75% S) > C/I (25% S)',
+            'display_name': 'Congruency by switch proportion (pooled blocks)',
+            'trace_labels': {
+                'c_in_25switchBlock_vs_i_in_25switchBlock': '25% switch',
+                'c_in_75switchBlock_vs_i_in_75switchBlock': '75% switch',
+            },
         },
         'anova_factors': ['congruency', 'switchProportion'],
         'anova_interactions': [
@@ -340,17 +365,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '#FF7E79',
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#FF7E79',
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '#A32319',
                 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '-',
-                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '--',
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '-',
                 'switch_type_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Switch Type Decoding Accuracy',
             'significance_label_1': 'S/R (25% I) > S/R (75% I)',
             'significance_label_2': 'S/R (75% I) > S/R (25% I)',
+            'display_name': 'Switch type by incongruent proportion (pooled blocks)',
+            'trace_labels': {
+                's_in_25incongruentBlock_vs_r_in_25incongruentBlock': '25% incongruent',
+                's_in_75incongruentBlock_vs_r_in_75incongruentBlock': '75% incongruent',
+            },
         },
         'anova_factors': ['switchType', 'incongruentProportion'],
         'anova_interactions': [
@@ -387,17 +417,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '#05B0F0',
-                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '#05B0F0',
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '#0B4F8A',
                 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '-',
-                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '--',
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '-',
                 'task_by_incongruent_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Task Decoding Accuracy',
             'significance_label_1': 'Task (25% I) > Task (75% I)',
             'significance_label_2': 'Task (75% I) > Task (25% I)',
+            'display_name': 'Task decoding by incongruent proportion',
+            'trace_labels': {
+                'taskG_in_25incongruentBlock_vs_taskL_in_25incongruentBlock': '25% incongruent',
+                'taskG_in_75incongruentBlock_vs_taskL_in_75incongruentBlock': '75% incongruent',
+            },
         },
     },
 
@@ -422,17 +457,22 @@ CONDITION_REGISTRY = {
             'pooled_shuffle_key': 'task_by_switch_proportion_shuffle_accs_across_pooled_conditions',
             'colors': {
                 'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '#05B0F0',
-                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '#05B0F0',
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '#0B4F8A',
                 'task_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '#949494',
             },
             'linestyles': {
                 'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '-',
-                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '--',
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '-',
                 'task_by_switch_proportion_shuffle_accs_across_pooled_conditions_across_bootstraps': '--',
             },
             'ylabel': 'Task Decoding Accuracy',
             'significance_label_1': 'Task (25% S) > Task (75% S)',
             'significance_label_2': 'Task (75% S) > Task (25% S)',
+            'display_name': 'Task decoding by switch proportion',
+            'trace_labels': {
+                'taskG_in_25switchBlock_vs_taskL_in_25switchBlock': '25% switch',
+                'taskG_in_75switchBlock_vs_taskL_in_75switchBlock': '75% switch',
+            },
         },
     },
 
@@ -710,17 +750,22 @@ CONDITION_REGISTRY = {
         'pooled_shuffle_key': 'lwpc_block_balanced_shuffle',
         'colors': {
             'i_vs_c_at_inc25': '#FF7E79',
-            'i_vs_c_at_inc75': '#FF7E79',
+            'i_vs_c_at_inc75': '#A32319',
             'lwpc_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
             'i_vs_c_at_inc25': '-',
-            'i_vs_c_at_inc75': '--',
+            'i_vs_c_at_inc75': '-',
             'lwpc_block_balanced_shuffle_across_bootstraps': '--',
         },
         'ylabel': 'Congruency Decoding Accuracy',
         'significance_label_1': '25% I > 75% I',
         'significance_label_2': '75% I > 25% I',
+        'display_name': 'LWPC',
+        'trace_labels': {
+            'i_vs_c_at_inc25': '25% incongruent',
+            'i_vs_c_at_inc75': '75% incongruent',
+        },
     },
 },
 
@@ -782,17 +827,22 @@ CONDITION_REGISTRY = {
         'pooled_shuffle_key': 'lwps_block_balanced_shuffle',
         'colors': {
             's_vs_r_at_sw25': '#05B0F0',
-            's_vs_r_at_sw75': '#05B0F0',
+            's_vs_r_at_sw75': '#0B4F8A',
             'lwps_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
             's_vs_r_at_sw25': '-',
-            's_vs_r_at_sw75': '--',
+            's_vs_r_at_sw75': '-',
             'lwps_block_balanced_shuffle_across_bootstraps': '--',
         },
         'ylabel': 'Switch Type Decoding Accuracy',
         'significance_label_1': '25% S > 75% S',
         'significance_label_2': '75% S > 25% S',
+        'display_name': 'LWPS',
+        'trace_labels': {
+            's_vs_r_at_sw25': '25% switch',
+            's_vs_r_at_sw75': '75% switch',
+        },
     },
 },
 
@@ -855,17 +905,22 @@ CONDITION_REGISTRY = {
         'pooled_shuffle_key': 'congruency_by_switch_prop_block_balanced_shuffle',
         'colors': {
             'i_vs_c_at_sw25': '#05B0F0',
-            'i_vs_c_at_sw75': '#05B0F0',
+            'i_vs_c_at_sw75': '#0B4F8A',
             'congruency_by_switch_prop_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
             'i_vs_c_at_sw25': '-',
-            'i_vs_c_at_sw75': '--',
+            'i_vs_c_at_sw75': '-',
             'congruency_by_switch_prop_block_balanced_shuffle_across_bootstraps': '--',
         },
         'ylabel': 'Congruency Decoding Accuracy',
         'significance_label_1': 'C/I (25% S) > C/I (75% S)',
         'significance_label_2': 'C/I (75% S) > C/I (25% S)',
+        'display_name': 'Congruency by switch proportion',
+        'trace_labels': {
+            'i_vs_c_at_sw25': '25% switch',
+            'i_vs_c_at_sw75': '75% switch',
+        },
     },
 },
 
@@ -928,17 +983,22 @@ CONDITION_REGISTRY = {
         'pooled_shuffle_key': 'switch_type_by_inc_prop_block_balanced_shuffle',
         'colors': {
             's_vs_r_at_inc25': '#FF7E79',
-            's_vs_r_at_inc75': '#FF7E79',
+            's_vs_r_at_inc75': '#A32319',
             'switch_type_by_inc_prop_block_balanced_shuffle_across_bootstraps': '#949494',
         },
         'linestyles': {
             's_vs_r_at_inc25': '-',
-            's_vs_r_at_inc75': '--',
+            's_vs_r_at_inc75': '-',
             'switch_type_by_inc_prop_block_balanced_shuffle_across_bootstraps': '--',
         },
         'ylabel': 'Switch Type Decoding Accuracy',
         'significance_label_1': 'S/R (25% I) > S/R (75% I)',
         'significance_label_2': 'S/R (75% I) > S/R (25% I)',
+        'display_name': 'Switch type by incongruent proportion',
+        'trace_labels': {
+            's_vs_r_at_inc25': '25% incongruent',
+            's_vs_r_at_inc75': '75% incongruent',
+        },
     },
 },
 # =========================================================================
@@ -998,6 +1058,27 @@ def get_context_comparison_kwargs(condition_name):
     if entry is None:
         return None
     return entry.get('context_comparison')
+
+def get_trace_labels(condition_name):
+    """``{comparison key: short legend label}`` for figures, possibly empty.
+
+    Without these a legend shows raw comparison keys, which is how a decoding
+    panel ended up with ``i_vs_c_at_inc25`` and
+    ``lwpc_block_balanced_shuffle_accs_across_pooled_conditions_across_bootstraps``
+    written across it.
+    """
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    return dict(entry.get('context_comparison', {}).get('trace_labels', {}))
+
+
+def get_display_name(condition_name):
+    """Short analysis name for a figure title, e.g. ``'LWPC'``."""
+    entry = CONDITION_REGISTRY.get(condition_name, {})
+    context = entry.get('context_comparison', {})
+    return (context.get('display_name')
+            or context.get('condition_name')
+            or str(condition_name).replace('stimulus_', '').replace('_conditions', '').replace('_', ' '))
+
 
 def get_balance_strata(condition_name):
     entry = CONDITION_REGISTRY.get(condition_name)
