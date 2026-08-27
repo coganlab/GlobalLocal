@@ -670,6 +670,49 @@ def pretty_electrode_set(name):
     return name.replace('_', ' ').upper() if len(name) <= 8 else name.replace('_', ' ')
 
 
+# Prefixes the pipeline glues onto an electrode-set label on its way into a
+# filename. They carry no information a reader of the figure needs.
+_ELECSET_PREFIXES = ('anova_csv_elecs_', 'anova_csv_', 'csv_elecs_', 'elecset_')
+
+
+def short_electrode_set_label(raw_label):
+    """Electrode-set name with the pipeline's filename prefixes stripped.
+
+    ``'anova_csv_elecs_anova_congruency_only'`` -> ``'congruency-only'``.
+    The full label is what ``describe_electrode_set`` puts on diagnostic
+    figures; this is the version that fits in a one-line title.
+    """
+    if not raw_label:
+        return ''
+    text = str(raw_label)
+    for prefix in _ELECSET_PREFIXES:
+        if text.startswith(prefix):
+            text = text[len(prefix):]
+            break
+    text = re.sub(r'^anova_', '', text)
+    text = re.sub(r'_elecs$', '', text)
+    if text in ('', 'all'):
+        return 'all'
+    return text.replace('_only', '-only').replace('_', ' ')
+
+
+def short_decoding_figure_title(analysis_name, electrode_set_label=None):
+    """One-line title: ``'LWPC in congruency-only electrodes'``.
+
+    ``decoding_figure_title`` stacks the electrode count, the subject count
+    and the raw comparison key onto a figure that also has to carry two
+    legends, which is how these panels ended up with more text than data. The
+    ROI, the counts and the analysis parameters are all still in the filename
+    and the directory tree, where they are searchable and where they are not
+    competing with the traces for space.
+    """
+    title = str(analysis_name).replace('_', ' ')
+    electrodes = short_electrode_set_label(electrode_set_label)
+    if electrodes:
+        title = f"{title} in {electrodes} electrodes"
+    return title
+
+
 def describe_electrode_set(name, elecset, roi=None):
     """``'LWPC-only electrodes (n = 42, 11 subjects)'`` for titles/prints."""
     if roi is None:
