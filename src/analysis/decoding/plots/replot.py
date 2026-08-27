@@ -69,6 +69,13 @@ def find_master_results(root, pattern='**/*MASTER_RESULTS*.pkl', load_metadata=T
         ``electrode_set_label``, ``rois``, ``n_electrodes``, ``n_subjects``,
         ``params``. Sort or filter it, then hand rows to :func:`replot_all`.
     """
+    if not os.path.isdir(root):
+        raise FileNotFoundError(
+            f'no such directory: {root}\n'
+            'FIGS_ROOT should be the tree the decoding jobs wrote into -- '
+            "run_decoding_dcc.py uses <dcc_scripts/decoding>/figs/<EPOCHS_ROOT_FILE>."
+        )
+
     rows = []
     for path in sorted(glob(os.path.join(root, pattern), recursive=True)):
         match = _FILENAME_RE.match(os.path.basename(path))
@@ -468,8 +475,13 @@ def replot_all(runs, save_dir, group_by=('condition_label', 'electrode_set_label
             results.append({'path': path, 'out_dir': '', 'n_figures': 0,
                             'error': f'{type(exc).__name__}: {exc}'})
 
-    frame = pd.DataFrame(results)
-    failed = int((frame['error'] != '').sum()) if len(frame) else 0
+    # Always give the caller the same columns, so indexing the result of an
+    # empty sweep says "no rows" rather than raising KeyError on a bare frame.
+    frame = pd.DataFrame(results, columns=['path', 'out_dir', 'n_figures', 'error'])
+    if not len(frame):
+        print('\nNothing to re-plot: no runs were passed in.')
+        return frame
+    failed = int((frame['error'] != '').sum())
     print(f'\n{len(frame) - failed}/{len(frame)} runs re-plotted'
           + (f', {failed} failed (see the error column)' if failed else ''))
     return frame

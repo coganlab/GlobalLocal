@@ -491,3 +491,32 @@ def test_eps_is_still_written_by_default(accuracies, tmp_path):
     stem = '20260814_000636_LWPC_comparison_lpfc'
     for extension in ('png', 'pdf', 'eps'):
         assert (tmp_path / f'{stem}.{extension}').exists(), extension
+
+
+# --- pointing the sweep at the wrong place ------------------------------
+
+def test_find_master_results_names_the_missing_directory(tmp_path):
+    """The first thing anyone gets wrong is FIGS_ROOT; say so plainly."""
+    from src.analysis.decoding.plots.replot import find_master_results
+
+    with pytest.raises(FileNotFoundError, match='EPOCHS_ROOT_FILE'):
+        find_master_results(str(tmp_path / 'does_not_exist'))
+
+
+def test_find_master_results_on_an_empty_tree_returns_usable_columns(tmp_path):
+    from src.analysis.decoding.plots.replot import find_master_results
+
+    runs = find_master_results(str(tmp_path))
+    assert len(runs) == 0
+    assert 'condition_label' in runs.columns and 'error' in runs.columns
+
+
+def test_replot_all_on_no_runs_returns_usable_columns(tmp_path):
+    """An empty sweep must not blow up the next cell with a KeyError."""
+    from src.analysis.decoding.plots.replot import replot_all
+
+    report = replot_all([], str(tmp_path / 'out'))
+    assert len(report) == 0
+    # The notebook indexes these straight after the call.
+    assert list(report[['n_figures', 'error', 'out_dir']].columns) == [
+        'n_figures', 'error', 'out_dir']
