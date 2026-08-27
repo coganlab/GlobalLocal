@@ -73,6 +73,14 @@ USE_FDR=${USE_FDR:-true}
 MIN_TRIALS_PER_CELL=${MIN_TRIALS_PER_CELL:-2}
 STRATA=${STRATA:-congruency,task_sequence,block_type}
 
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so these
+# comma-separated values cannot be passed in that list -- each would be
+# truncated at its first comma (one selection label, one stratum). Export them
+# under their job-side names and let --export=ALL carry them instead.
+export ELECTRODE_SELECTION_LABELS="$SEL_LABELS"
+export ELECTRODE_SELECTION_SETS="$SETS"
+export ELECTRODE_SELECTION_STRATA="$STRATA"
+
 mkdir -p out
 
 for COND in "${CONDITION_LIST[@]}"; do
@@ -82,14 +90,11 @@ for COND in "${CONDITION_LIST[@]}"; do
         --export=ALL,CONDITION_NAME="$COND",\
 ANOVA_ELECTRODE_SELECTION=true,\
 ELECTRODE_SELECTION_FRAC="$FRAC_SELECT",\
-ELECTRODE_SELECTION_LABELS="$SEL_LABELS",\
-ELECTRODE_SELECTION_SETS="$SETS",\
 ELECTRODE_SELECTION_EFFECT="$EFFECT",\
 ELECTRODE_SELECTION_N_PERM="$N_PERM",\
 ELECTRODE_SELECTION_SEED="$SEED",\
 ELECTRODE_SELECTION_ALPHA="$ALPHA",\
 ELECTRODE_SELECTION_USE_FDR="$USE_FDR",\
-ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL="$MIN_TRIALS_PER_CELL",\
-ELECTRODE_SELECTION_STRATA="$STRATA" \
+ELECTRODE_SELECTION_MIN_TRIALS_PER_CELL="$MIN_TRIALS_PER_CELL" \
         sbatch_decoding_dcc.sh
 done

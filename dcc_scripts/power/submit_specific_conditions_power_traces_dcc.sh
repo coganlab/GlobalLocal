@@ -99,7 +99,12 @@ ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 ELECTRODES=${ELECTRODES:-sig}
 
 # which electrodes to exclude
-EXCLUDE_ELECTRODES="${EXCLUDE_ELECTRODES:-D0121:LFMI9,D0121:LFMI8}"
+#
+# NOTE: sbatch --export separates VAR=VALUE pairs with commas, so this
+# comma-separated list cannot be passed in that list -- it would be truncated
+# after the first electrode, silently leaving the rest in the analysis. Export
+# it here and let --export=ALL carry it instead.
+export EXCLUDE_ELECTRODES="${EXCLUDE_ELECTRODES:-D0121:LFMI9,D0121:LFMI8}"
 
 # Create output directory if needed
 mkdir -p out
@@ -121,7 +126,7 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
         for COND in "${CONDITIONS[@]}"; do
             echo "Submitting: condition=$COND electrodes=$ELECTRODES anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
             sbatch --job-name="pwr_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}" \
-                --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ELECTRODES="$ELECTRODES",EXCLUDE_ELECTRODES="$EXCLUDE_ELECTRODES",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+                --export=ALL,CONDITION_LABEL="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_UNIT="$ANOVA_UNIT",ELECTRODES="$ELECTRODES",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
                 sbatch_power_traces_dcc.sh
             # sleep 2
         done
