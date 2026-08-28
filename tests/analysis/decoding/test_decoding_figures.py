@@ -608,3 +608,36 @@ def test_older_results_without_params_str_still_get_the_job_id(tmp_path):
     written = replot_master_results(
         master, str(tmp_path), rois=['lpfc'], include_true_vs_shuffle=False)
     assert os.path.basename(written[0]).endswith('_job52094028'), written[0]
+
+
+def test_select_block_balanced_anova_csv_runs_includes_all_four_analyses():
+    """The focused notebook sweep must not regress to only LWPC or LWPS."""
+    from src.analysis.decoding.plots.replot import (
+        BLOCK_BALANCED_DECODING_CONDITIONS,
+        select_master_results,
+    )
+
+    rows = []
+    for condition in BLOCK_BALANCED_DECODING_CONDITIONS:
+        rows.append({
+            'condition_label': condition,
+            'electrode_set_label': 'anova_csv_elecs_anova_congruency_only',
+            'error': '',
+        })
+    rows.extend([
+        {'condition_label': BLOCK_BALANCED_DECODING_CONDITIONS[0],
+         'electrode_set_label': 'all_elecs', 'error': ''},
+        {'condition_label': 'stimulus_task_conditions',
+         'electrode_set_label': 'anova_csv_elecs_union', 'error': ''},
+        {'condition_label': BLOCK_BALANCED_DECODING_CONDITIONS[1],
+         'electrode_set_label': 'anova_csv_elecs_union', 'error': 'bad pickle'},
+    ])
+
+    selected = select_master_results(
+        pd.DataFrame(rows),
+        condition_labels=BLOCK_BALANCED_DECODING_CONDITIONS,
+        electrode_set_prefix='anova_csv_elecs_',
+    )
+
+    assert tuple(selected['condition_label']) == BLOCK_BALANCED_DECODING_CONDITIONS
+    assert selected['electrode_set_label'].str.startswith('anova_csv_elecs_').all()
