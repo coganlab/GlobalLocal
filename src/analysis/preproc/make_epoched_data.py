@@ -144,6 +144,28 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         # Use only the specified channels
         good.pick_channels(channels)
 
+    '''
+    Keep only data channels (seeg/ecog/eeg/...), dropping any misc, ecg, stim,
+    trigger, etc. contacts that came through the clean derivative.
+
+    This has to happen before epoching because rescale (ieeg.calc.scaling) picks
+    'data' internally on both of its arguments: it returns
+    line.pick('data') and it picks the baseline *in place*. So with a single
+    non-data channel present, HG_ev1 / HG_ev1_power keep every channel while
+    HG_ev1_rescaled / HG_ev1_power_rescaled (and HG_base, silently, from the
+    first rescale call onwards) keep only the data channels. That is the
+    channel count mismatch the z-reject mask trips on, and it also puts
+    HG_ev1._data and HG_base._data on different channel sets for
+    time_perm_cluster. Picking once here gives the whole function one channel
+    set.
+    '''
+    channels_before_data_pick = good.ch_names.copy()
+    good.pick('data')
+    non_data_channels = [ch for ch in channels_before_data_pick if ch not in good.ch_names]
+    if non_data_channels:
+        print(f"Dropped {len(non_data_channels)} non-data channels: {non_data_channels}")
+    channels = good.ch_names.copy()
+
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
@@ -165,6 +187,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
             "channels_before_marker": all_channels_before_marker,
             "n_bad_by_channel_outlier_marker": len(marker_bad_channels),
             "bad_by_channel_outlier_marker": marker_bad_channels,
+            "n_non_data_channels": len(non_data_channels),
+            "non_data_channels": non_data_channels,
             "n_bad_by_trial_outliers": len(channels_to_drop) if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else 0,
             "bad_by_trial_outliers": channels_to_drop if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else [],
             # channels after both drops = channels after marker - trial-outlier drops
@@ -300,7 +324,15 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
                 print(f" [z-reject] {bad.sum()} (trial, channel) pairs over "
                       f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(bad)[0]))} trials")
                 
-            assert bad.shape[1] == HG_ev1._data.shape[1], "channel count mismatch across objects"
+            for name, obj in (("HG_ev1", HG_ev1), ("HG_ev1_power", HG_ev1_power),
+                              ("HG_ev1_rescaled", HG_ev1_rescaled)):
+                if obj.ch_names != HG_ev1_power_rescaled.ch_names:
+                    missing = [ch for ch in obj.ch_names if ch not in HG_ev1_power_rescaled.ch_names]
+                    extra = [ch for ch in HG_ev1_power_rescaled.ch_names if ch not in obj.ch_names]
+                    raise RuntimeError(
+                        f"channel set mismatch between {name} ({len(obj.ch_names)} channels) and "
+                        f"HG_ev1_power_rescaled ({len(HG_ev1_power_rescaled.ch_names)} channels). "
+                        f"Only in {name}: {missing}. Only in HG_ev1_power_rescaled: {extra}.")
 
             for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
                 obj._data[bad] = np.nan
@@ -343,7 +375,16 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         ###
         print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
         print(f"Shape of HG_base._data: {HG_base._data.shape}")
-        
+
+        # time_perm_cluster compares these channel by channel, so they have to
+        # line up (rescale picks the baseline in place, so this catches it if
+        # a non-data channel ever slips through again).
+        if HG_ev1.ch_names != HG_base.ch_names:
+            raise RuntimeError(
+                f"HG_ev1 ({len(HG_ev1.ch_names)} channels) and HG_base "
+                f"({len(HG_base.ch_names)} channels) are on different channel sets; "
+                "time_perm_cluster would compare mismatched channels.")
+
         # oh this changed and returns both the significant clusters matrix and the p values now
         mat, _ = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func) # TODO: rerun with HG_ev1_power and HG_base_power instead.
 
