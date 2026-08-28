@@ -35,13 +35,23 @@ from src.analysis.decoding.anova_electrode_selection import (
 from .accuracies import plot_accuracies_with_multiple_sig_clusters
 
 __all__ = [
+    'BLOCK_BALANCED_DECODING_CONDITIONS',
     'describe_run',
     'find_master_results',
     'find_run_for_figure',
     'load_master_results',
     'replot_master_results',
     'replot_all',
+    'select_master_results',
 ]
+
+
+BLOCK_BALANCED_DECODING_CONDITIONS = (
+    'stimulus_lwpc_block_balanced_conditions',
+    'stimulus_lwps_block_balanced_conditions',
+    'stimulus_congruency_by_switch_prop_block_balanced_conditions',
+    'stimulus_switch_type_by_inc_prop_block_balanced_conditions',
+)
 
 # 20260814_000636_MASTER_RESULTS_job52094028_<condition>_24_subs_<elecs>_LDA_...
 _FILENAME_RE = re.compile(
@@ -125,6 +135,29 @@ def load_master_results(path):
     """Unpickle one MASTER_RESULTS file."""
     with open(path, 'rb') as handle:
         return pickle.load(handle)
+
+
+def select_master_results(runs, condition_labels=None,
+                          electrode_set_prefix=None, valid_only=True):
+    """Select analyses from a :func:`find_master_results` index.
+
+    Exact condition-label matching avoids the easy-to-miss failure mode of a
+    substring filter such as ``str.contains('lwpc')``, which silently omits
+    the other block-balanced decoding analyses.  ``electrode_set_prefix`` is
+    useful for selecting every ANOVA-CSV group (including ``*_only``, overlap,
+    and union sets) without hard-coding each generated electrode-set name.
+    """
+    selected = runs.copy()
+    if valid_only and 'error' in selected:
+        selected = selected[selected['error'].eq('')]
+    if condition_labels is not None:
+        selected = selected[selected['condition_label'].isin(condition_labels)]
+    if electrode_set_prefix is not None:
+        selected = selected[
+            selected['electrode_set_label'].fillna('').str.startswith(
+                electrode_set_prefix)
+        ]
+    return selected.copy()
 
 
 # Parameters worth seeing first when asking "what produced this figure?".
