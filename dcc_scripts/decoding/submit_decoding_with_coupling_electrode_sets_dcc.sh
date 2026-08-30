@@ -84,17 +84,44 @@ fi
 #   N_DRAWS            matched control draws. Cost driver -- one full decoding
 #                      battery each -- and it floors the exceedance p-value at
 #                      1/(N+1), so 20 draws cannot go below p = 0.048.
+#   DRAWS_PER_JOB      how many draws each SLURM job decodes (see below).
 #   MATCH_LEVEL        global | within_subject
 #   MATCH_DEGREE       match controls on how many partners each electrode was
 #                      tested against ("coupled" = significant in >=1 pair, so
 #                      a high-degree electrode qualifies more easily)
+#
+# Why the draws are fanned out across jobs
+# ----------------------------------------
+# One decoding battery took ~6h wall clock in the runs this was written for, and
+# sbatch_decoding_dcc.sh allows 48h. A single job doing the coupled set plus 20
+# draws needs ~128h and is killed a third of the way through, after which the
+# comparison never runs. So the draws are split into chunks of DRAWS_PER_JOB,
+# submitted as independent jobs sharing one save_dir, and a final job -- held by
+# --dependency=afterok until they all succeed -- runs the comparison over the
+# results on disk.
+#
+# This is a scheduling change only. Draw k is seeded `SEED + k` and named from k
+# alone, so the fanned-out sets are byte-identical to the ones a single job would
+# have built, and the comparison is the same comparison over the same 20 draws.
+#
+# Only the FIRST chunk decodes the coupled set (COUPLING_DECODE_COUPLED). The
+# coupled set is the same electrodes in every job, so decoding it in each would
+# buy nothing and cost a full battery per job.
+#
+# Set DRAWS_PER_JOB to a number >= N_DRAWS to go back to one job for everything.
 # ---------------------------------------------------------------------------
 COUPLING_CSV_DIR=${COUPLING_CSV_DIR:-}
 COUPLING_CONDITION=${COUPLING_CONDITION:-Stimulus}
 N_DRAWS=${N_DRAWS:-20}
+DRAWS_PER_JOB=${DRAWS_PER_JOB:-4}
 SEED=${SEED:-0}
 MATCH_LEVEL=${MATCH_LEVEL:-global}
 MATCH_DEGREE=${MATCH_DEGREE:-false}
+
+if [ "$DRAWS_PER_JOB" -lt 1 ]; then
+    echo "DRAWS_PER_JOB must be >= 1, got $DRAWS_PER_JOB" >&2
+    exit 1
+fi
 
 # lpfc and occ must both be decodable for the cross-region pair type.
 #
@@ -110,9 +137,25 @@ for PAIR in "${PAIR_TYPE_LIST[@]}"; do
     for COND in "${CONDITION_LIST[@]}"; do
         echo "Submitting coupling decoding: decode=$COND pair_type=$PAIR " \
              "(coupling_condition=$COUPLING_CONDITION, draws=$N_DRAWS, " \
-             "match=$MATCH_LEVEL, degree=$MATCH_DEGREE)"
-        sbatch --job-name="dec_coup_${PAIR}_${COND}" \
-            --export=ALL,CONDITION_NAME="$COND",\
+             "per_job=$DRAWS_PER_JOB, match=$MATCH_LEVEL, degree=$MATCH_DEGREE)"
+
+        CHUNK_JOB_IDS=()
+        FIRST_CHUNK=true
+        START=0
+        while [ "$START" -lt "$N_DRAWS" ]; do
+            END=$((START + DRAWS_PER_JOB - 1))
+            if [ "$END" -ge "$N_DRAWS" ]; then END=$((N_DRAWS - 1)); fi
+
+            # The coupled set rides along with the first chunk only.
+            if [ "$FIRST_CHUNK" = true ]; then
+                DECODE_COUPLED=true
+            else
+                DECODE_COUPLED=false
+            fi
+
+            JOB_ID=$(sbatch --parsable \
+                --job-name="dec_coup_${PAIR}_${COND}_d${START}-${END}" \
+                --export=ALL,CONDITION_NAME="$COND",\
 COUPLING_ELECTRODE_SELECTION=true,\
 COUPLING_CSV_DIR="$COUPLING_CSV_DIR",\
 COUPLING_PAIR_TYPE="$PAIR",\
@@ -120,7 +163,35 @@ COUPLING_CONDITION="$COUPLING_CONDITION",\
 COUPLING_N_DRAWS="$N_DRAWS",\
 COUPLING_SEED="$SEED",\
 COUPLING_MATCH_LEVEL="$MATCH_LEVEL",\
-COUPLING_MATCH_DEGREE="$MATCH_DEGREE" \
-            sbatch_decoding_dcc.sh
+COUPLING_MATCH_DEGREE="$MATCH_DEGREE",\
+COUPLING_DRAW_RANGE="${START}-${END}",\
+COUPLING_DECODE_COUPLED="$DECODE_COUPLED" \
+                sbatch_decoding_dcc.sh)
+            echo "  chunk draws ${START}-${END} (coupled=$DECODE_COUPLED) -> job $JOB_ID"
+            CHUNK_JOB_IDS+=("$JOB_ID")
+
+            FIRST_CHUNK=false
+            START=$((END + 1))
+        done
+
+        # One chunk covered everything AND carried the coupled set, so that job
+        # already ran the comparison itself. Nothing left to aggregate.
+        if [ "${#CHUNK_JOB_IDS[@]}" -eq 1 ]; then
+            echo "  single chunk — the comparison runs inside job ${CHUNK_JOB_IDS[0]}"
+            continue
+        fi
+
+        # afterok, not afterany: aggregating over a partial set of draws would
+        # quietly shrink the null distribution rather than fail.
+        DEPS=$(IFS=:; echo "${CHUNK_JOB_IDS[*]}")
+        AGG_ID=$(sbatch --parsable \
+            --job-name="cmp_coup_${PAIR}_${COND}" \
+            --dependency=afterok:"$DEPS" \
+            --export=ALL,CONDITION_NAME="$COND",\
+COUPLING_PAIR_TYPE="$PAIR",\
+COUPLING_N_DRAWS="$N_DRAWS",\
+COUPLING_EXPECT_N_DRAWS="$N_DRAWS" \
+            sbatch_coupling_comparison_dcc.sh)
+        echo "  comparison -> job $AGG_ID (waits on ${#CHUNK_JOB_IDS[@]} chunks)"
     done
 done

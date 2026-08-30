@@ -452,6 +452,7 @@ def main(args):
     # electrodes, each label's unique electrodes, their overlap, their union —
     # and the decoding battery below is run once per requested set.
     electrode_sets = None
+    coupling_report = {}
     if getattr(args, 'anova_electrode_selection', False):
         if getattr(args, 'electrode_definition_split', False):
             # Both would split the trials, so the second split would run on a
@@ -562,7 +563,25 @@ def main(args):
     # With coupling sets, the per-set results are only half the analysis: the
     # question is coupled vs the DISTRIBUTION over matched control draws, which
     # needs all the sets in hand. Run it here so one job produces the answer.
+    #
+    # A fanned-out job holds only its own slice. Running the comparison there
+    # would silently test the coupled trace against however many draws happened
+    # to be on disk at that moment — a smaller null and a higher p-value floor
+    # than the run was designed for, reported as if it were the real thing. So
+    # a partial job decodes and stops; the aggregation is a separate step.
     if getattr(args, 'coupling_electrode_selection', False):
+        if not coupling_report.get('is_complete_run', True):
+            print(f"\n{'='*20} SLICE COMPLETE — COMPARISON DEFERRED {'='*20}\n")
+            print(f"  this job decoded: {coupling_report['decoded_sets']}")
+            print("  It holds only part of the run, so the coupled-vs-uncoupled "
+                  "comparison is NOT run here.")
+            print("  Once every slice has finished, aggregate them with:\n")
+            print(f"    python dcc_scripts/decoding/run_coupling_comparison_dcc.py \\")
+            print(f"        --save_dir {save_dir} \\")
+            print(f"        --condition_label {args.condition_label} \\")
+            print(f"        --rois {' '.join(rois)}\n")
+            return
+
         from src.analysis.decoding.coupling_comparison import run_coupling_comparison
         try:
             run_coupling_comparison(

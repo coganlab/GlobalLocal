@@ -78,6 +78,7 @@ from src.analysis.decoding.coupling_electrode_selection import (
     format_pool_summary,
     load_coupling_table,
     pair_type_rois,
+    parse_draw_range,
     save_report,
 )
 
@@ -150,6 +151,15 @@ def build_coupling_selected_electrode_sets(
     csv_dir = resolve_coupling_csv_dir(args, LAB_root)
     subjects = list(args.subjects)
 
+    # Which slice of the run this job builds. Defaults reproduce the old
+    # behaviour exactly: every draw, plus the coupled set, in one job.
+    draw_indices = parse_draw_range(
+        getattr(args, 'coupling_draw_range', None), args.coupling_n_draws)
+    include_coupled = bool(getattr(args, 'coupling_decode_coupled', True))
+    if draw_indices is not None and not include_coupled and not draw_indices:
+        raise ValueError("this job was asked to decode nothing: no coupled set "
+                         "and no draws")
+
     slug = coupling_run_slug(
         args.coupling_pair_type, args.coupling_condition,
         match_level=args.coupling_match_level,
@@ -167,6 +177,16 @@ def build_coupling_selected_electrode_sets(
     print(f"  draws:        {args.coupling_n_draws} (seed {args.coupling_seed})")
     print(f"  match level:  {args.coupling_match_level}"
           f"{' + degree' if args.coupling_match_degree else ''}")
+    covers_all = (draw_indices is None
+                  or draw_indices == list(range(args.coupling_n_draws)))
+    if covers_all and include_coupled:
+        print(f"  this job:     the whole run (coupled + all "
+              f"{args.coupling_n_draws} draws)")
+    else:
+        print(f"  this job:     {'coupled + ' if include_coupled else ''}"
+              f"draws {_summarize_indices(draw_indices)} of "
+              f"{args.coupling_n_draws} — a slice of a fanned-out run, so the "
+              f"comparison must be run separately once every job has finished")
 
     table, used_files = load_coupling_table(
         csv_dir, args.coupling_pair_type,
@@ -186,6 +206,8 @@ def build_coupling_selected_electrode_sets(
         seed=args.coupling_seed,
         match_level=args.coupling_match_level,
         match_degree=args.coupling_match_degree,
+        draw_indices=draw_indices,
+        include_coupled=include_coupled,
     )
 
     report['condition'] = args.coupling_condition
@@ -212,7 +234,36 @@ def build_coupling_selected_electrode_sets(
         for roi in rois:
             elecset.setdefault(roi, {})
 
-    path = save_report(report, sel_dir)
+    # Fanned-out jobs run concurrently against one save_dir, so a partial job
+    # must not clobber the whole-run report (or another slice's).
+    filename = ('coupling_selection_report.json' if report['is_complete_run']
+                else f"coupling_selection_report_draws-"
+                     f"{_slug_indices(draw_indices)}"
+                     f"{'_with_coupled' if include_coupled else ''}.json")
+    path = save_report(report, sel_dir, filename=filename)
     print(f"\n  selection report saved to {path}")
 
     return electrode_sets, report
+
+
+def _summarize_indices(indices):
+    """``[0,1,2,5]`` → ``'0-2,5'`` — compact enough for a log line."""
+    if indices is None:
+        return 'all'
+    runs, start, prev = [], None, None
+    for i in indices:
+        if start is None:
+            start = prev = i
+        elif i == prev + 1:
+            prev = i
+        else:
+            runs.append((start, prev))
+            start = prev = i
+    if start is not None:
+        runs.append((start, prev))
+    return ','.join(str(lo) if lo == hi else f"{lo}-{hi}" for lo, hi in runs)
+
+
+def _slug_indices(indices):
+    """Filename-safe form of :func:`_summarize_indices`."""
+    return _summarize_indices(indices).replace(',', '_')

@@ -11,6 +11,7 @@ division as ``test_anova_electrode_selection.py``.
 import ast
 import json
 import os
+from types import SimpleNamespace
 
 import numpy as np
 import pandas as pd
@@ -32,6 +33,7 @@ from src.analysis.decoding.coupling_electrode_selection import (
     normalize_pair_type,
     pair_type_rois,
     parse_coupling_filename,
+    parse_draw_range,
     split_bipolar,
     summarize_pools,
 )
@@ -531,6 +533,158 @@ def test_is_control_set_name():
 
 
 # ---------------------------------------------------------------------------
+# fanning the draws out across jobs
+# ---------------------------------------------------------------------------
+# One decoding battery takes hours and a whole run is 1 + n_draws of them, which
+# overruns the SLURM time limit in a single job. The draws are therefore split
+# across jobs. That is a SCHEDULING change only, and these tests are what pins
+# it: a slice must reproduce exactly the draws the whole run would have made,
+# or the fan-out has quietly changed the null distribution.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize('text,expected', [
+    ('0-4', [0, 1, 2, 3, 4]),
+    ('3', [3]),
+    ('0-2,7', [0, 1, 2, 7]),
+    (' 5 - 6 ', [5, 6]),
+    ('4-4', [4]),
+    ('2,1,0', [0, 1, 2]),        # sorted and de-duplicated
+    ('1-3,2-4', [1, 2, 3, 4]),
+    (None, None),
+    ('', None),
+    ('all', None),
+])
+def test_parse_draw_range(text, expected):
+    assert parse_draw_range(text, 20) == expected
+
+
+@pytest.mark.parametrize('text,match', [
+    ('0-25', 'outside'),
+    ('20', 'outside'),           # n_draws=20 means valid indices stop at 19
+    # a leading minus reads as an empty 'lo', so it is rejected by the parser
+    # rather than the bounds check — either way it never reaches a draw index
+    ('-1', "not an index"),
+    ('5-3', 'backwards'),
+    ('a-b', 'not an index'),
+])
+def test_parse_draw_range_rejects_bad_input(text, match):
+    with pytest.raises(ValueError, match=match):
+        parse_draw_range(text, 20)
+
+
+def test_a_slice_reproduces_the_whole_runs_draws_exactly(wide_pools):
+    """THE property the fan-out rests on.
+
+    Draw k is seeded `seed + k` and named from k and n_draws alone, so decoding
+    draws 4-7 in their own job must give byte-identical electrode sets to draws
+    4-7 of a single 20-draw job. If this ever fails, a fanned-out run and a
+    single-job run are different experiments.
+    """
+    whole, whole_short = draw_matched_control_sets(
+        wide_pools, ['lpfc'], n_draws=20, seed=0)
+
+    for lo, hi in [(0, 3), (4, 7), (8, 11), (12, 15), (16, 19)]:
+        chunk, chunk_short = draw_matched_control_sets(
+            wide_pools, ['lpfc'], n_draws=20, seed=0,
+            draw_indices=range(lo, hi + 1))
+        expected = {name: whole[name] for name in whole
+                    if lo <= int(name[len('uncoupled_draw'):]) <= hi}
+        assert chunk == expected, f"chunk {lo}-{hi} differs from the whole run"
+        assert {k: chunk_short[k] for k in chunk_short} == {
+            k: whole_short[k] for k in expected}
+
+
+def test_slices_reassemble_into_the_whole_run(wide_pools):
+    whole, _ = draw_matched_control_sets(wide_pools, ['lpfc'], n_draws=20, seed=0)
+    rebuilt = {}
+    for lo in range(0, 20, 6):
+        chunk, _ = draw_matched_control_sets(
+            wide_pools, ['lpfc'], n_draws=20, seed=0,
+            draw_indices=range(lo, min(lo + 6, 20)))
+        rebuilt.update(chunk)
+    assert rebuilt == whole
+
+
+def test_slice_names_do_not_depend_on_the_slice(wide_pools):
+    """Zero padding comes from n_draws, not from how many draws this job builds.
+
+    Otherwise a 4-draw chunk would write `uncoupled_draw00..03` for draws 16-19
+    and collide with the first chunk's directories.
+    """
+    chunk, _ = draw_matched_control_sets(
+        wide_pools, ['lpfc'], n_draws=20, seed=0, draw_indices=[16, 17, 18, 19])
+    assert sorted(chunk) == ['uncoupled_draw16', 'uncoupled_draw17',
+                             'uncoupled_draw18', 'uncoupled_draw19']
+
+
+def test_draw_indices_are_bounds_checked(wide_pools):
+    with pytest.raises(ValueError, match='outside'):
+        draw_matched_control_sets(wide_pools, ['lpfc'], n_draws=5,
+                                  draw_indices=[0, 5])
+
+
+def test_build_can_emit_a_slice_without_the_coupled_set(
+        lpfc_occ_table, roi_contacts, decoding_pool):
+    """Only one job of a fan-out decodes the coupled set; the rest skip it."""
+    sets, report = build_coupling_electrode_sets(
+        table=lpfc_occ_table, pair_type='lpfc-occ', roi_contacts=roi_contacts,
+        decoding_pool=decoding_pool, n_draws=10, seed=0,
+        draw_indices=[4, 5], include_coupled=False)
+    assert sorted(sets) == ['uncoupled_draw04', 'uncoupled_draw05']
+    assert COUPLED_SET_NAME not in sets
+    assert report['is_complete_run'] is False
+    assert report['draw_indices'] == [4, 5]
+    # the pool summary still describes the WHOLE selection, so an underpowered
+    # run is visible in every slice's log
+    assert report['per_roi']['lpfc']['n_coupled_total'] == 4
+
+
+def test_a_slice_does_not_change_the_sets_it_builds(
+        lpfc_occ_table, roi_contacts, decoding_pool):
+    kwargs = dict(table=lpfc_occ_table, pair_type='lpfc-occ',
+                  roi_contacts=roi_contacts, decoding_pool=decoding_pool,
+                  n_draws=10, seed=0)
+    whole, _ = build_coupling_electrode_sets(**kwargs)
+    slice_, _ = build_coupling_electrode_sets(
+        **kwargs, draw_indices=[4, 5], include_coupled=False)
+    for name in slice_:
+        assert slice_[name] == whole[name]
+
+
+@pytest.mark.parametrize('draw_indices,include_coupled,complete', [
+    (None, True, True),
+    (list(range(10)), True, True),    # a one-chunk fan-out states the range
+    (None, False, False),             # draws only, coupled decoded elsewhere
+    ([0, 1], True, False),
+    ([0, 1], False, False),
+])
+def test_is_complete_run_tracks_coverage_not_spelling(
+        lpfc_occ_table, roi_contacts, decoding_pool,
+        draw_indices, include_coupled, complete):
+    """decoding_dcc runs the comparison in-job iff this is True.
+
+    A one-chunk fan-out passes an explicit '0-9' rather than None and DOES hold
+    the whole run, so completeness has to be about coverage.
+    """
+    _, report = build_coupling_electrode_sets(
+        table=lpfc_occ_table, pair_type='lpfc-occ', roi_contacts=roi_contacts,
+        decoding_pool=decoding_pool, n_draws=10, seed=0,
+        draw_indices=draw_indices, include_coupled=include_coupled)
+    assert report['is_complete_run'] is complete
+
+
+def test_default_call_is_unchanged_by_the_fan_out_parameters(
+        lpfc_occ_table, roi_contacts, decoding_pool):
+    """The single-job path must behave exactly as it did before."""
+    sets, report = build_coupling_electrode_sets(
+        table=lpfc_occ_table, pair_type='lpfc-occ', roi_contacts=roi_contacts,
+        decoding_pool=decoding_pool, n_draws=3, seed=0)
+    assert COUPLED_SET_NAME in sets
+    assert sum(1 for n in sets if is_control_set_name(n)) == 3
+    assert report['is_complete_run'] is True
+    assert report['draw_indices'] is None
+
+
+# ---------------------------------------------------------------------------
 # wiring: the coupling path has to be REACHABLE from decoding_dcc.main
 # ---------------------------------------------------------------------------
 # The coupling block was originally indented one level too deep, inside
@@ -621,3 +775,64 @@ def test_a_requested_electrode_set_option_cannot_fall_through_silently():
     flags = {sub.value for sub in ast.walk(fallthrough)
              if isinstance(sub, ast.Constant) and isinstance(sub.value, str)}
     assert {'anova_electrode_selection', 'coupling_electrode_selection'} <= flags
+
+
+# ---------------------------------------------------------------------------
+# aggregating a fanned-out run
+# ---------------------------------------------------------------------------
+def _write_fake_set(base, set_name, comparison, roi, n_windows=4, seed=0):
+    """A minimal MASTER_RESULTS pickle, enough for the comparison to load."""
+    import pickle
+    rng = np.random.RandomState(seed)
+    out = os.path.join(base, f'elecset_{set_name}')
+    os.makedirs(out, exist_ok=True)
+    master = {
+        'stats': {comparison: {roi: {
+            'unit_of_analysis': 'repeat',
+            'repeat_true_accs': rng.uniform(0.4, 0.6, size=(5, n_windows)),
+        }}},
+        'metadata': {'time_window_centers': list(range(n_windows))},
+    }
+    with open(os.path.join(out, f'{set_name}_MASTER_RESULTS_x.pkl'), 'wb') as fh:
+        pickle.dump(master, fh)
+
+
+def test_expect_n_draws_catches_a_chunk_that_never_landed(tmp_path):
+    """A dead chunk must be an error, not a quietly smaller null distribution.
+
+    Without the check the comparison happily runs against whatever draws are on
+    disk, so a 20-draw run that lost a chunk reports a p-value floor of 1/17
+    while the figure and the filenames still say it was a 20-draw run.
+    """
+    from src.analysis.decoding.coupling_comparison import run_coupling_comparison
+    base = str(tmp_path)
+    _write_fake_set(base, COUPLED_SET_NAME, 'task', 'lpfc', seed=99)
+    for k in range(16):                      # 16 of the 20 draws arrived
+        _write_fake_set(base, f'uncoupled_draw{k:02d}', 'task', 'lpfc', seed=k)
+
+    with pytest.raises(ValueError, match='expected 20 control draws'):
+        run_coupling_comparison(
+            base_save_dir=base,
+            args=SimpleNamespace(window_size=64, step_size=16, sampling_rate=256),
+            condition_comparisons=['task'], rois=['lpfc'],
+            make_plots=False, expect_n_draws=20)
+
+
+def test_expect_n_draws_passes_when_every_chunk_landed(tmp_path):
+    # The count check itself needs nothing, but getting past it runs the real
+    # comparison, which needs ieeg — present on the cluster, not in a bare env.
+    pytest.importorskip('ieeg', reason="the comparison itself needs ieeg")
+    from src.analysis.decoding.coupling_comparison import run_coupling_comparison
+    base = str(tmp_path)
+    _write_fake_set(base, COUPLED_SET_NAME, 'task', 'lpfc', seed=99)
+    for k in range(20):
+        _write_fake_set(base, f'uncoupled_draw{k:02d}', 'task', 'lpfc', seed=k)
+
+    results, summary = run_coupling_comparison(
+        base_save_dir=base,
+        args=SimpleNamespace(window_size=64, step_size=16, sampling_rate=256),
+        condition_comparisons=['task'], rois=['lpfc'],
+        make_plots=False, expect_n_draws=20)
+    assert summary['task']['lpfc']['n_draws'] == 20
+    # the floor the run was designed for, not one inflated by a missing chunk
+    assert summary['task']['lpfc']['exceedance_p_floor'] == pytest.approx(1 / 21, abs=1e-4)
