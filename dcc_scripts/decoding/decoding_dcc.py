@@ -452,6 +452,7 @@ def main(args):
     # electrodes, each label's unique electrodes, their overlap, their union —
     # and the decoding battery below is run once per requested set.
     electrode_sets = None
+    coupling_report = {}
     if getattr(args, 'anova_electrode_selection', False):
         if getattr(args, 'electrode_definition_split', False):
             # Both would split the trials, so the second split would run on a
@@ -483,33 +484,51 @@ def main(args):
         elec_string_to_add_to_filename += (
             f"_anovasel-{selection_report['frac_select']:g}"
         )
-        
-        # --- Optional: coupling-defined electrode sets (the PAC path's pairs) -----
-        # Electrodes are split by whether they take part in at least one
-        # significantly high gamma-envelope correlation pair, per
-        # `src/analysis/pac/`'s high_corr CSVs. Because the bootstrap resamples
-        # TRIALS and not electrodes, an unmatched coupled-vs-noncoupled decode would
-        # measure set size rather than coupling — so the non-coupled side is not one
-        # set but `coupling_n_draws` independent n-matched draws, and the comparison
-        # is against the distribution over draws. See docs/analysis_guide.md §22.
-        if getattr(args, 'coupling_electrode_selection', False):
-            if electrode_sets:
-                raise ValueError(
-                    "coupling_electrode_selection and anova_electrode_selection both "
-                    "define the electrode sets; enable only one.")
-            electrode_sets, coupling_report = build_coupling_selected_electrode_sets(
-                args=args,
-                rois=rois,
-                electrodes=electrodes,
-                subjects_electrodes_to_rois_dict=subjects_electrodestoROIs_dict,
-                save_dir=save_dir,
-                LAB_root=LAB_root,
-            )
-            elec_string_to_add_to_filename += f"_coupling-{coupling_report['pair_type']}"
+
+    # --- Optional: coupling-defined electrode sets (the PAC path's pairs) -----
+    # Electrodes are split by whether they take part in at least one
+    # significantly high gamma-envelope correlation pair, per
+    # `src/analysis/pac/`'s high_corr CSVs. Because the bootstrap resamples
+    # TRIALS and not electrodes, an unmatched coupled-vs-noncoupled decode would
+    # measure set size rather than coupling — so the non-coupled side is not one
+    # set but `coupling_n_draws` independent n-matched draws, and the comparison
+    # is against the distribution over draws. See docs/analysis_guide.md §22.
+    #
+    # This block sits at MAIN's indentation on purpose. It was previously nested
+    # inside the `anova_electrode_selection` branch above, which made the whole
+    # coupling path unreachable: the coupling launcher does not set
+    # ANOVA_ELECTRODE_SELECTION, so the branch was never entered, no coupled or
+    # uncoupled_drawNN sets were built, and the job silently fell through to the
+    # ordinary single-set decode below.
+    if getattr(args, 'coupling_electrode_selection', False):
+        if electrode_sets:
+            raise ValueError(
+                "coupling_electrode_selection and anova_electrode_selection both "
+                "define the electrode sets; enable only one.")
+        electrode_sets, coupling_report = build_coupling_selected_electrode_sets(
+            args=args,
+            rois=rois,
+            electrodes=electrodes,
+            subjects_electrodes_to_rois_dict=subjects_electrodestoROIs_dict,
+            save_dir=save_dir,
+            LAB_root=LAB_root,
+        )
+        elec_string_to_add_to_filename += f"_coupling-{coupling_report['pair_type']}"
 
     # Run the battery once per electrode set. With the option off this is a
     # single unnamed set — byte-for-byte the previous behaviour.
     if not electrode_sets:
+        # Falling through to the single-set decode when a set-defining option was
+        # requested is how the coupling path failed silently: the job ran to
+        # completion and wrote a full battery of figures titled "in sig
+        # electrodes", with no elecset_coupled/ or elecset_uncoupled_drawNN/
+        # anywhere and nothing in the log to say why. Fail loudly instead.
+        for flag in ('anova_electrode_selection', 'coupling_electrode_selection'):
+            if getattr(args, flag, False):
+                raise RuntimeError(
+                    f"{flag} is on but no electrode sets were built. The run would "
+                    "otherwise fall through to an ordinary single-set decode over "
+                    "every electrode and look like it succeeded.")
         run_decoding_for_one_electrode_set(
             args=args,
             rois=rois,
@@ -544,7 +563,25 @@ def main(args):
     # With coupling sets, the per-set results are only half the analysis: the
     # question is coupled vs the DISTRIBUTION over matched control draws, which
     # needs all the sets in hand. Run it here so one job produces the answer.
+    #
+    # A fanned-out job holds only its own slice. Running the comparison there
+    # would silently test the coupled trace against however many draws happened
+    # to be on disk at that moment — a smaller null and a higher p-value floor
+    # than the run was designed for, reported as if it were the real thing. So
+    # a partial job decodes and stops; the aggregation is a separate step.
     if getattr(args, 'coupling_electrode_selection', False):
+        if not coupling_report.get('is_complete_run', True):
+            print(f"\n{'='*20} SLICE COMPLETE — COMPARISON DEFERRED {'='*20}\n")
+            print(f"  this job decoded: {coupling_report['decoded_sets']}")
+            print("  It holds only part of the run, so the coupled-vs-uncoupled "
+                  "comparison is NOT run here.")
+            print("  Once every slice has finished, aggregate them with:\n")
+            print(f"    python dcc_scripts/decoding/run_coupling_comparison_dcc.py \\")
+            print(f"        --save_dir {save_dir} \\")
+            print(f"        --condition_label {args.condition_label} \\")
+            print(f"        --rois {' '.join(rois)}\n")
+            return
+
         from src.analysis.decoding.coupling_comparison import run_coupling_comparison
         try:
             run_coupling_comparison(
