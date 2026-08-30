@@ -4,7 +4,7 @@
 #SBATCH -p common,scavenger,coganlab-gpu
 #SBATCH -c 6
 #SBATCH --mem=100G
-#SBATCH --time=10:00:00  # 48 hours (adjust based on your needs)
+#SBATCH --time=48:00:00  # 48 hours (adjust based on your needs)
 
 subject=$1
 task=$2

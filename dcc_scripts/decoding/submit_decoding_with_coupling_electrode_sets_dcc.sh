@@ -49,7 +49,7 @@ else
     CONDITION_LIST=(
         stimulus_task_conditions
         stimulus_big_letter_conditions
-        stimulus_small_letter_conditions
+        # stimulus_small_letter_conditions
     )
 fi
 
