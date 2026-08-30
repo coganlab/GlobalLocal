@@ -44,6 +44,51 @@ def window_mask(times, window):
     return mask if mask.any() else np.ones(times.shape, dtype=bool)
 
 
+def max_abs_z_per_trial(data, times=None, window=None):
+    """Largest ``|z|`` each (trial, channel) reaches anywhere in the window.
+
+    The statistic the ``max_abs_z`` pass in ``make_epoched_data.py`` rejects on,
+    factored out so the diagnostics that choose the threshold score the same
+    thing the pipeline acts on. A value read off
+    ``src/analysis/vis/trial_z_distribution_vis.py`` therefore means exactly
+    what it will mean when passed as ``--max_abs_z``.
+
+    Parameters
+    ----------
+    data : (n_trials, n_channels, n_times) array
+        Baseline-rescaled epoch data, NaNs allowed. Plain array rather than an
+        Epochs object, per this module's no-MNE rule.
+    times : (n_times,) array, optional
+        Required only when ``window`` is given.
+    window : (tmin, tmax), optional
+        Restrict to a window, in seconds. Defaults to the whole epoch, which is
+        what the rejection in ``make_epoched_data.py`` uses. A window selecting
+        nothing falls back to the whole epoch, per :func:`window_mask`.
+
+    Returns
+    -------
+    (n_trials, n_channels) array
+        NaN for a (trial, channel) pair that is already entirely NaN, i.e. one
+        the raw-voltage ``outliers_to_nan`` pass has already removed. NaN
+        compares False against any threshold, so such a pair is never counted
+        as newly rejected.
+    """
+    values = np.abs(np.asarray(data, dtype=float))
+    if values.ndim != 3:
+        raise ValueError("data must have shape (n_trials, n_channels, n_times)")
+    if window is not None:
+        if times is None:
+            raise ValueError("times is required to apply a window")
+        values = values[:, :, window_mask(times, window)]
+
+    # np.nanmax over an all-NaN pair warns and the caller has to special-case
+    # the result anyway, so fill with -inf, take a plain max, and restore NaN
+    # where there was nothing to score.
+    all_nan = np.all(np.isnan(values), axis=2)
+    scored = np.where(np.isnan(values), -np.inf, values).max(axis=2)
+    return np.where(all_nan, np.nan, scored)
+
+
 def block_deviation_table(data, block_labels, times, ch_names=None,
                           baseline_window=(None, 0.0)):
     """One row per (channel, block) describing that block's contribution.

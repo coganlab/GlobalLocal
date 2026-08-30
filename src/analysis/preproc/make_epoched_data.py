@@ -55,6 +55,7 @@ import pickle
 from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
+from src.analysis.power.block_diagnostics import max_abs_z_per_trial
 from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_array
 
@@ -319,7 +320,10 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         One mask from the rescaled power, applied to every derived object, so the amplitude and power views agree on which trials exist.
         '''
         if max_abs_z is not None:
-            bad = np.nanmax(np.abs(HG_ev1_power_rescaled.get_data()), axis=2) > max_abs_z
+            # Shared with the threshold-choosing diagnostics in
+            # src/analysis/vis/trial_z_distribution_vis.py, so the distribution
+            # you read a value off is the one this line acts on.
+            bad = max_abs_z_per_trial(HG_ev1_power_rescaled.get_data()) > max_abs_z
             if bad.any():
                 print(f" [z-reject] {bad.sum()} (trial, channel) pairs over "
                       f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(bad)[0]))} trials")
