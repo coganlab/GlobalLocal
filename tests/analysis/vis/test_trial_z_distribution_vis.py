@@ -1,4 +1,6 @@
 """Tests for the per-trial z diagnostics in src/analysis/vis/trial_z_distribution_vis.py."""
+import warnings
+
 import numpy as np
 import pytest
 
@@ -80,9 +82,27 @@ def test_window_restricts_the_score(epochs):
     assert stat_late[3, 0] < 500.0
 
 
-def test_empty_window_raises(epochs):
-    with pytest.raises(ValueError):
-        per_trial_max_abs_z(epochs, ['A'], tmin=10.0, tmax=20.0)
+def test_empty_window_falls_back_to_whole_epoch(epochs):
+    """Matches block_diagnostics.window_mask, which this now delegates to."""
+    stat_all, _, _ = per_trial_max_abs_z(epochs, ['A'])
+    stat_empty, _, _ = per_trial_max_abs_z(epochs, ['A'], tmin=10.0, tmax=20.0)
+    assert np.allclose(stat_all, stat_empty, equal_nan=True)
+
+
+def test_matches_the_pipeline_rejection_rule(epochs):
+    """The diagnostics and make_epoched_data.py must score the same thing."""
+    from src.analysis.power.block_diagnostics import max_abs_z_per_trial
+
+    stat, names, _ = per_trial_max_abs_z(epochs, epochs.ch_names)
+    pipeline = max_abs_z_per_trial(epochs.get_data())
+    assert np.allclose(stat, pipeline, equal_nan=True)
+    # And against the expression it replaced in make_epoched_data.py. That one
+    # warns on the all-NaN pair and returns NaN there; both compare False, so
+    # the rejection masks agree -- which is what had to be preserved.
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore', RuntimeWarning)
+        legacy = np.nanmax(np.abs(epochs.get_data()), axis=2)
+    assert np.array_equal(pipeline > 100, legacy > 100)
 
 
 def test_threshold_tradeoff_excludes_already_nan_from_denominator(epochs):

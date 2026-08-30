@@ -26,33 +26,32 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 
+from src.analysis.power.block_diagnostics import max_abs_z_per_trial, window_mask
+from src.analysis.power.plots import DEFAULT_PLOT_STYLE, grid_shape_for
+
 DEFAULT_Z_STYLE = {
-    'trial_trace_color': '#9e9e9e',
-    # A few hundred trials at 0.25 saturates into a solid block, so the density
-    # of the gray mat stops carrying information. 0.12 keeps it readable.
+    # The gray-traces-under-a-mean look is the one power/plots.py already uses
+    # for electrodes under the ROI mean, so take its values and stay one visual
+    # family. Named for trials rather than electrodes because that is what the
+    # gray lines are here.
+    'trial_trace_color': DEFAULT_PLOT_STYLE['electrode_trace_color'],
+    'trial_trace_linewidth': DEFAULT_PLOT_STYLE['electrode_trace_linewidth'],
+    # Not inherited: a few hundred trials at the ROI plot's 0.25 saturate into
+    # a solid block, and the density of the gray mat stops carrying anything.
     'trial_trace_alpha': 0.12,
-    'trial_trace_linewidth': 0.5,
-    'mean_color': '#D62728',
+    'mean_color': DEFAULT_PLOT_STYLE['top_electrode_colors'][0],
     'mean_linewidth': 2.0,
-    'threshold_color': '#1F77B4',
-    'panel_size': (3.4, 2.8),
-    'title_font_size': 9,
-    'tick_font_size': 7,
+    'threshold_color': DEFAULT_PLOT_STYLE['top_electrode_colors'][1],
     # Trials to name in each panel, ranked by their largest |z|. Naming them is
     # the point: a threshold is only defensible if you can go back and look at
     # the trials it would remove.
-    'n_outlier_labels': 3,
+    'n_outlier_labels': DEFAULT_PLOT_STYLE['n_outlier_labels'],
+    # Panel-grid sizes, which have no equivalent in the single-axes ROI plots.
+    'panel_size': (3.4, 2.8),
+    'title_font_size': 9,
+    'tick_font_size': 7,
     'outlier_label_font_size': 6,
 }
-
-
-def _grid_shape(n, grid_shape=None):
-    """Rows/cols for ``n`` panels, roughly square unless told otherwise."""
-    if grid_shape is not None:
-        return grid_shape
-    n_rows = max(1, int(np.floor(np.sqrt(n))))
-    n_cols = int(np.ceil(n / n_rows))
-    return n_rows, n_cols
 
 
 def _resolve_picks(epochs, electrodes):
@@ -69,25 +68,14 @@ def _resolve_picks(epochs, electrodes):
     return present, missing
 
 
-def _window_mask(times, tmin=None, tmax=None):
-    """Boolean mask over ``times``; either bound may be None for "epoch edge"."""
-    times = np.asarray(times, dtype=float)
-    mask = np.ones(times.shape, dtype=bool)
-    if tmin is not None:
-        mask &= times >= tmin
-    if tmax is not None:
-        mask &= times <= tmax
-    if not mask.any():
-        raise ValueError(f'window ({tmin}, {tmax}) selects no samples')
-    return mask
-
-
 def per_trial_max_abs_z(epochs, electrodes=None, tmin=None, tmax=None):
-    """Largest ``|z|`` each (trial, channel) reaches anywhere in the window.
+    """Per-electrode wrapper around
+    :func:`~src.analysis.power.block_diagnostics.max_abs_z_per_trial`.
 
-    This is exactly the statistic ``make_epoched_data.py`` compares against
-    ``max_abs_z``, so a cutoff read off its distribution means the same thing
-    there as it does here.
+    The statistic itself lives in ``block_diagnostics`` and is what
+    ``make_epoched_data.py`` rejects on. This adds only what the diagnostics
+    need on top: selecting a subset of electrodes by name and reporting the
+    ones that are not there.
 
     Parameters
     ----------
@@ -116,20 +104,9 @@ def per_trial_max_abs_z(epochs, electrodes=None, tmin=None, tmax=None):
     if not picks:
         return np.empty((len(epochs), 0)), [], missing
 
-    data = epochs.get_data(picks=picks)          # (n_trials, n_picks, n_times)
-    mask = _window_mask(epochs.times, tmin, tmax)
-    data = np.abs(data[:, :, mask])
-
-    # An all-NaN (trial, channel) pair is already-rejected data, not a small
-    # value: np.nanmax would warn and return -inf, so score it as NaN and let
-    # the callers count it separately.
-    all_nan = np.all(np.isnan(data), axis=2)
-    stat = np.full(data.shape[:2], np.nan)
-    if not all_nan.all():
-        with np.errstate(invalid='ignore'):
-            filled = np.where(np.isnan(data), -np.inf, data)
-            stat_full = filled.max(axis=2)
-        stat = np.where(all_nan, np.nan, stat_full)
+    window = None if (tmin is None and tmax is None) else (tmin, tmax)
+    stat = max_abs_z_per_trial(epochs.get_data(picks=picks),
+                               times=epochs.times, window=window)
     return stat, picks, missing
 
 
@@ -247,11 +224,11 @@ def plot_trial_traces_over_mean_grid(epochs, electrodes=None, tmin=None, tmax=No
         raise ValueError('none of the requested electrodes are in these epochs')
 
     times = epochs.times
-    mask = _window_mask(times, tmin, tmax)
+    mask = window_mask(times, (tmin, tmax))
     times = times[mask]
     data = epochs.get_data(picks=picks)[:, :, mask]   # (n_trials, n_picks, n_times)
 
-    n_rows, n_cols = _grid_shape(len(picks), grid_shape)
+    n_rows, n_cols = grid_shape_for(len(picks), grid_shape)
     fig, axes = plt.subplots(n_rows, n_cols,
                              figsize=(s['panel_size'][0] * n_cols,
                                       s['panel_size'][1] * n_rows),
@@ -359,7 +336,7 @@ def plot_z_distribution_grid(stat, ch_names, thresholds=(), bins=40,
     matplotlib.figure.Figure
     """
     s = {**DEFAULT_Z_STYLE, **(style or {})}
-    n_rows, n_cols = _grid_shape(len(ch_names), grid_shape)
+    n_rows, n_cols = grid_shape_for(len(ch_names), grid_shape)
     fig, axes = plt.subplots(n_rows, n_cols,
                              figsize=(s['panel_size'][0] * n_cols,
                                       s['panel_size'][1] * n_rows),
