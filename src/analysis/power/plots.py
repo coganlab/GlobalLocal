@@ -84,6 +84,19 @@ DEFAULT_PLOT_STYLE = {
 }
 
 
+def grid_shape_for(n_panels, grid_shape=None):
+    """Rows/cols for an ``n_panels`` grid, roughly square unless told otherwise.
+
+    The per-electrode grid plotters had a copy of this each; they now share it
+    so a change to the layout rule lands everywhere at once.
+    """
+    if grid_shape is not None:
+        return grid_shape
+    n_rows = max(1, int(np.floor(np.sqrt(n_panels))))
+    n_cols = int(np.ceil(n_panels / n_rows)) if n_rows else 1
+    return n_rows, n_cols
+
+
 def _window_slice(times, time_window):
     """Boolean mask over ``times`` for ``time_window=(tmin, tmax)``.
 

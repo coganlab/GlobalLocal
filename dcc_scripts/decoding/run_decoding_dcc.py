@@ -318,6 +318,20 @@ ELECTRODE_SELECTION_STRATA = (
 #                                 many partners they were tested against.
 #                                 "Coupled" means significant in >=1 pair, so a
 #                                 high-degree electrode qualifies more easily.
+#   COUPLING_DRAW_RANGE           which draws THIS job decodes: '0-4', '7',
+#                                 '0-2,9', or unset/'all' for every draw. One
+#                                 battery takes hours, so 1 + COUPLING_N_DRAWS
+#                                 of them in a single job overruns the SLURM
+#                                 time limit; this splits them across jobs that
+#                                 share one save_dir. Draw k is seeded and named
+#                                 from k alone, so the slices reassemble into
+#                                 exactly the run a single job would have made.
+#   COUPLING_DECODE_COUPLED       whether THIS job also decodes the coupled set.
+#                                 Set it on exactly one job of a fanned-out run,
+#                                 or the same 6h battery is paid for repeatedly.
+#                                 A partial job never runs the comparison; run
+#                                 run_coupling_comparison_dcc.py once every
+#                                 slice has landed.
 COUPLING_ELECTRODE_SELECTION = _env_bool('COUPLING_ELECTRODE_SELECTION', False)
 COUPLING_CSV_DIR = os.environ.get('COUPLING_CSV_DIR') or None
 COUPLING_PAIR_TYPE = os.environ.get('COUPLING_PAIR_TYPE', 'lpfc-occ')
@@ -326,6 +340,8 @@ COUPLING_N_DRAWS = int(os.environ.get('COUPLING_N_DRAWS', 20))
 COUPLING_SEED = int(os.environ.get('COUPLING_SEED', 0))
 COUPLING_MATCH_LEVEL = os.environ.get('COUPLING_MATCH_LEVEL', 'global')
 COUPLING_MATCH_DEGREE = _env_bool('COUPLING_MATCH_DEGREE', False)
+COUPLING_DRAW_RANGE = os.environ.get('COUPLING_DRAW_RANGE') or None
+COUPLING_DECODE_COUPLED = _env_bool('COUPLING_DECODE_COUPLED', True)
 
 # Reuse a completed stats/results/anova_conjunction_windows A1 definition.
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
@@ -434,6 +450,8 @@ def run_analysis():
         coupling_seed=COUPLING_SEED,
         coupling_match_level=COUPLING_MATCH_LEVEL,
         coupling_match_degree=COUPLING_MATCH_DEGREE,
+        coupling_draw_range=COUPLING_DRAW_RANGE,
+        coupling_decode_coupled=COUPLING_DECODE_COUPLED,
         anova_labels_csv=ANOVA_LABELS_CSV,
         anova_label_effect=ANOVA_LABEL_EFFECT,
         anova_label_correction=ANOVA_LABEL_CORRECTION,
@@ -465,6 +483,13 @@ def run_analysis():
              f"match={COUPLING_MATCH_LEVEL}"
              f"{'+degree' if COUPLING_MATCH_DEGREE else ''})"
              if COUPLING_ELECTRODE_SELECTION else ""))
+    if COUPLING_ELECTRODE_SELECTION:
+        print(f"  This job decodes:            "
+              f"{'coupled + ' if COUPLING_DECODE_COUPLED else ''}"
+              f"draws {COUPLING_DRAW_RANGE or 'all'}"
+              + ("" if COUPLING_DRAW_RANGE is None and COUPLING_DECODE_COUPLED
+                 else "  (a slice — run run_coupling_comparison_dcc.py after "
+                      "every slice has finished)"))
     print(f"Saved ANOVA-label selection:   {ANOVA_LABELS_CSV or 'off'}")
     if ANOVA_LABELS_CSV:
         print(f"  effect/correction/alpha/ROI: {ANOVA_LABEL_EFFECT} / "

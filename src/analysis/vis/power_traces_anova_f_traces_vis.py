@@ -4,6 +4,8 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 
+from src.analysis.power.plots import grid_shape_for
+
 def _load_F_trace_files(save_dir, roi, conditions_save_name):
     """Yield (effect_name, npz_data) pairs for one ROI."""
     p = Path(save_dir)
@@ -72,11 +74,7 @@ def plot_per_electrode_F_traces(within_run_dir, roi, effect,
     for start in range(0, len(elec_files), channels_per_page):
         chunk = elec_files[start:start + channels_per_page]
         n_ch = len(chunk)
-        if grid_shape is None:
-            n_rows = max(1, int(np.floor(np.sqrt(n_ch))))
-            n_cols = int(np.ceil(n_ch / n_rows))
-        else:
-            n_rows, n_cols = grid_shape
+        n_rows, n_cols = grid_shape_for(n_ch, grid_shape)
         fig, axes = plt.subplots(n_rows, n_cols, figsize=(3 * n_cols, 2.5 * n_rows))
         axes = np.atleast_1d(axes).flatten()
         for i, fpath in enumerate(chunk):
@@ -150,11 +148,7 @@ def plot_per_electrode_power_traces(subjects_mne_objects, rois, condition_names,
         for start in range(0, len(flat), channels_per_page):
             chunk = flat[start:start + channels_per_page]
             n = len(chunk)
-            if grid_shape is None:
-                n_rows = max(1, int(np.floor(np.sqrt(n))))
-                n_cols = int(np.ceil(n / n_rows))
-            else:
-                n_rows, n_cols = grid_shape
+            n_rows, n_cols = grid_shape_for(n, grid_shape)
             fig, axes = plt.subplots(n_rows, n_cols, figsize=(3 * n_cols, 2.5 * n_rows))
             axes = np.atleast_1d(axes).flatten()
             for i, (sub, elec, per_cond) in enumerate(chunk):

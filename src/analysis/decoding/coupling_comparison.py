@@ -343,17 +343,32 @@ def plot_comparison(result, args, save_dir, filename_suffix='',
 
 
 def run_coupling_comparison(base_save_dir, args, condition_comparisons, rois,
-                            out_dirname='coupled_vs_uncoupled', make_plots=True):
+                            out_dirname='coupled_vs_uncoupled', make_plots=True,
+                            expect_n_draws=None):
     """Compare every condition comparison × ROI and write a report.
 
     ``base_save_dir`` is the directory holding the ``elecset_*`` subdirectories,
     i.e. the same ``save_dir`` the decoding run used.
+
+    ``expect_n_draws`` is the draw count the run was designed around. Pass it
+    when the draws were decoded by several jobs: this function is happy to
+    compare against whatever draws it finds, and a chunk that died leaves a
+    smaller null distribution and a higher p-value floor with nothing in the
+    output to say a draw is missing.
     """
     results_by_set, paths = load_coupling_run(base_save_dir)
     out_dir = os.path.join(base_save_dir, out_dirname)
     os.makedirs(out_dir, exist_ok=True)
 
     n_draws = sum(1 for name in results_by_set if is_control_set_name(name))
+    if expect_n_draws is not None and n_draws != expect_n_draws:
+        found = sorted(name for name in results_by_set if is_control_set_name(name))
+        raise ValueError(
+            f"expected {expect_n_draws} control draws under {base_save_dir} but "
+            f"found {n_draws}: {found}. A missing draw shrinks the null the "
+            f"coupled trace is tested against and raises the p-value floor from "
+            f"{1 / (expect_n_draws + 1):.3f} to {1 / (n_draws + 1):.3f}. Re-run "
+            "the missing chunk, or pass the true draw count deliberately.")
     print(f"\n{'='*20} COUPLED vs UNCOUPLED ({n_draws} matched draws) {'='*20}\n")
     print(f"  reading electrode-set results from {base_save_dir}")
 

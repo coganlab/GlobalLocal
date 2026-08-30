@@ -409,8 +409,50 @@ def coupled_electrode_set(pools, rois):
             for roi in rois}
 
 
+def parse_draw_range(text, n_draws):
+    """``'0-4'``, ``'3'``, ``'0-2,7'`` → ``[0, 1, 2, 3, 4]`` etc.; blank → ``None``.
+
+    ``None`` means "every draw", which is what the single-job path wants. A
+    subset is how the draws are fanned out across SLURM jobs: each job decodes
+    only its slice, and every slice reproduces exactly the draw the whole-run
+    job would have made at that index (see :func:`draw_matched_control_sets`).
+    """
+    if text is None:
+        return None
+    text = str(text).strip()
+    if not text or text.lower() == 'all':
+        return None
+
+    indices = set()
+    for token in text.split(','):
+        token = token.strip()
+        if not token:
+            continue
+        start, sep, end = token.partition('-')
+        try:
+            lo = int(start)
+            hi = int(end) if sep else lo
+        except ValueError:
+            raise ValueError(
+                f"draw range {text!r}: {token!r} is not an index or 'lo-hi' range")
+        if sep and hi < lo:
+            raise ValueError(f"draw range {text!r}: {token!r} runs backwards")
+        indices.update(range(lo, hi + 1))
+
+    if not indices:
+        raise ValueError(f"draw range {text!r} selects no draws")
+    out_of_range = sorted(i for i in indices if not 0 <= i < n_draws)
+    if out_of_range:
+        raise ValueError(
+            f"draw range {text!r} selects draw(s) {out_of_range}, outside "
+            f"0..{n_draws - 1}. The range indexes into the n_draws the "
+            "comparison expects, so widening it means raising n_draws.")
+    return sorted(indices)
+
+
 def draw_matched_control_sets(pools, rois, n_draws=20, seed=0,
-                              match_level='global', match_degree=False):
+                              match_level='global', match_degree=False,
+                              draw_indices=None):
     """``n_draws`` independent n-matched control sets, plus a shortfall report.
 
     Each draw is an ordinary ``{roi: {subject: [contact]}}`` electrode set, so
@@ -418,12 +460,29 @@ def draw_matched_control_sets(pools, rois, n_draws=20, seed=0,
     what the coupled set is ultimately tested against — that is the null
     "an arbitrary set of n matched non-coupled electrodes", which no single
     draw can supply.
+
+    ``draw_indices`` builds only those draws, for splitting one logical run
+    across several jobs. Draw ``k`` is seeded ``seed + k`` and named from ``k``
+    and ``n_draws`` alone, so a subset is byte-identical to the same draws in a
+    whole run — a fanned-out run and a single-job run produce the same sets, and
+    the comparison cannot tell them apart. ``n_draws`` therefore stays the size
+    of the WHOLE run even when only a slice is built.
     """
     if n_draws < 1:
         raise ValueError(f"n_draws must be >= 1, got {n_draws}")
+    if draw_indices is None:
+        draw_indices = range(n_draws)
+    else:
+        draw_indices = sorted(set(int(i) for i in draw_indices))
+        bad = [i for i in draw_indices if not 0 <= i < n_draws]
+        if bad:
+            raise ValueError(f"draw_indices {bad} are outside 0..{n_draws - 1}")
+        if not draw_indices:
+            raise ValueError("draw_indices is empty; pass None for every draw")
+
     sets, shortfalls = {}, {}
     width = max(2, len(str(n_draws - 1)))
-    for draw in range(n_draws):
+    for draw in draw_indices:
         rng = np.random.RandomState(seed + draw)
         name = f"{CONTROL_SET_PREFIX}{draw:0{width}d}"
         by_roi, per_roi_short = {}, {}
@@ -448,6 +507,8 @@ def build_coupling_electrode_sets(
     seed=0,
     match_level='global',
     match_degree=False,
+    draw_indices=None,
+    include_coupled=True,
 ):
     """Coupling CSV rows → ``({set_name: electrode_set}, report)``.
 
@@ -455,6 +516,13 @@ def build_coupling_electrode_sets(
     ``run_decoding_for_one_electrode_set``: one ``'coupled'`` set and
     ``n_draws`` ``'uncoupled_drawNN'`` sets, each restricted to the ROIs the
     pair type spans.
+
+    ``draw_indices`` and ``include_coupled`` select which of those sets this
+    call emits, for fanning one run out across jobs. They change only *which*
+    sets are returned, never their contents: the pools, the coupled set and
+    draw ``k`` are all computed the same way regardless. The report always
+    describes the full pools, so an underpowered run is visible in every job's
+    log rather than only the one that happened to build the coupled set.
     """
     roi_a, roi_b = pair_type_rois(pair_type)
     rois = (roi_a,) if roi_a == roi_b else (roi_a, roi_b)
@@ -465,9 +533,10 @@ def build_coupling_electrode_sets(
     coupled = coupled_electrode_set(pools, rois)
     controls, shortfalls = draw_matched_control_sets(
         pools, rois, n_draws=n_draws, seed=seed,
-        match_level=match_level, match_degree=match_degree)
+        match_level=match_level, match_degree=match_degree,
+        draw_indices=draw_indices)
 
-    sets = {COUPLED_SET_NAME: coupled}
+    sets = {COUPLED_SET_NAME: coupled} if include_coupled else {}
     sets.update(controls)
 
     report = summarize_pools(pools, rois)
@@ -481,6 +550,21 @@ def build_coupling_electrode_sets(
         'control_shortfall_per_draw': shortfalls,
         'n_pairs_in_table': int(len(table)),
         'n_significant_pairs': int(table[SIG_COLUMN].sum()) if len(table) else 0,
+        # Which slice of the whole run this call built. `is_complete_run` is what
+        # decoding_dcc checks before running the comparison in-job: a partial job
+        # would compare the coupled trace against only the draws it happened to
+        # build, silently shrinking the null distribution and the p-value floor.
+        #
+        # Completeness is about COVERAGE, not about how the caller spelled it: a
+        # one-chunk fan-out passes an explicit '0-<n_draws-1>' rather than None,
+        # and that job does hold the whole run.
+        'draw_indices': list(draw_indices) if draw_indices is not None else None,
+        'include_coupled': bool(include_coupled),
+        'decoded_sets': list(sets),
+        'is_complete_run': bool(
+            include_coupled
+            and (draw_indices is None
+                 or sorted(set(draw_indices)) == list(range(n_draws)))),
     })
     return sets, report
 
