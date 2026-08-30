@@ -483,33 +483,51 @@ def main(args):
         elec_string_to_add_to_filename += (
             f"_anovasel-{selection_report['frac_select']:g}"
         )
-        
-        # --- Optional: coupling-defined electrode sets (the PAC path's pairs) -----
-        # Electrodes are split by whether they take part in at least one
-        # significantly high gamma-envelope correlation pair, per
-        # `src/analysis/pac/`'s high_corr CSVs. Because the bootstrap resamples
-        # TRIALS and not electrodes, an unmatched coupled-vs-noncoupled decode would
-        # measure set size rather than coupling — so the non-coupled side is not one
-        # set but `coupling_n_draws` independent n-matched draws, and the comparison
-        # is against the distribution over draws. See docs/analysis_guide.md §22.
-        if getattr(args, 'coupling_electrode_selection', False):
-            if electrode_sets:
-                raise ValueError(
-                    "coupling_electrode_selection and anova_electrode_selection both "
-                    "define the electrode sets; enable only one.")
-            electrode_sets, coupling_report = build_coupling_selected_electrode_sets(
-                args=args,
-                rois=rois,
-                electrodes=electrodes,
-                subjects_electrodes_to_rois_dict=subjects_electrodestoROIs_dict,
-                save_dir=save_dir,
-                LAB_root=LAB_root,
-            )
-            elec_string_to_add_to_filename += f"_coupling-{coupling_report['pair_type']}"
+
+    # --- Optional: coupling-defined electrode sets (the PAC path's pairs) -----
+    # Electrodes are split by whether they take part in at least one
+    # significantly high gamma-envelope correlation pair, per
+    # `src/analysis/pac/`'s high_corr CSVs. Because the bootstrap resamples
+    # TRIALS and not electrodes, an unmatched coupled-vs-noncoupled decode would
+    # measure set size rather than coupling — so the non-coupled side is not one
+    # set but `coupling_n_draws` independent n-matched draws, and the comparison
+    # is against the distribution over draws. See docs/analysis_guide.md §22.
+    #
+    # This block sits at MAIN's indentation on purpose. It was previously nested
+    # inside the `anova_electrode_selection` branch above, which made the whole
+    # coupling path unreachable: the coupling launcher does not set
+    # ANOVA_ELECTRODE_SELECTION, so the branch was never entered, no coupled or
+    # uncoupled_drawNN sets were built, and the job silently fell through to the
+    # ordinary single-set decode below.
+    if getattr(args, 'coupling_electrode_selection', False):
+        if electrode_sets:
+            raise ValueError(
+                "coupling_electrode_selection and anova_electrode_selection both "
+                "define the electrode sets; enable only one.")
+        electrode_sets, coupling_report = build_coupling_selected_electrode_sets(
+            args=args,
+            rois=rois,
+            electrodes=electrodes,
+            subjects_electrodes_to_rois_dict=subjects_electrodestoROIs_dict,
+            save_dir=save_dir,
+            LAB_root=LAB_root,
+        )
+        elec_string_to_add_to_filename += f"_coupling-{coupling_report['pair_type']}"
 
     # Run the battery once per electrode set. With the option off this is a
     # single unnamed set — byte-for-byte the previous behaviour.
     if not electrode_sets:
+        # Falling through to the single-set decode when a set-defining option was
+        # requested is how the coupling path failed silently: the job ran to
+        # completion and wrote a full battery of figures titled "in sig
+        # electrodes", with no elecset_coupled/ or elecset_uncoupled_drawNN/
+        # anywhere and nothing in the log to say why. Fail loudly instead.
+        for flag in ('anova_electrode_selection', 'coupling_electrode_selection'):
+            if getattr(args, flag, False):
+                raise RuntimeError(
+                    f"{flag} is on but no electrode sets were built. The run would "
+                    "otherwise fall through to an ordinary single-set decode over "
+                    "every electrode and look like it succeeded.")
         run_decoding_for_one_electrode_set(
             args=args,
             rois=rois,

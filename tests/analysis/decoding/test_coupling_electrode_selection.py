@@ -8,6 +8,7 @@ needs real epochs and ``ieeg``, so it is smoke-tested on the cluster — the sam
 division as ``test_anova_electrode_selection.py``.
 """
 
+import ast
 import json
 import os
 
@@ -527,3 +528,96 @@ def test_exceedance_pvalue_floor_matches_the_draw_count():
 def test_is_control_set_name():
     assert is_control_set_name('uncoupled_draw07')
     assert not is_control_set_name('coupled')
+
+
+# ---------------------------------------------------------------------------
+# wiring: the coupling path has to be REACHABLE from decoding_dcc.main
+# ---------------------------------------------------------------------------
+# The coupling block was originally indented one level too deep, inside
+# `if args.anova_electrode_selection:`. The coupling launcher never sets
+# ANOVA_ELECTRODE_SELECTION, so the branch was never entered: no `coupled` or
+# `uncoupled_drawNN` sets were built, `run_coupling_comparison` never ran, and
+# the job fell through to the ordinary single-set decode and exited 0 after
+# writing a full battery of "in sig electrodes" figures. Nothing in the log said
+# so. These tests parse the source rather than import it, because importing
+# decoding_dcc pulls in `ieeg` and `mne`.
+DECODING_DCC = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), '..', '..', '..',
+    'dcc_scripts', 'decoding', 'decoding_dcc.py'))
+
+
+def _decoding_dcc_main():
+    with open(DECODING_DCC) as handle:
+        tree = ast.parse(handle.read())
+    return next(node for node in tree.body
+                if isinstance(node, ast.FunctionDef) and node.name == 'main')
+
+
+def _calls(node, func_name):
+    return any(isinstance(sub, ast.Call)
+               and getattr(sub.func, 'id', getattr(sub.func, 'attr', None)) == func_name
+               for sub in ast.walk(node))
+
+
+def _selection_block(main, builder):
+    """The unique ``if`` that calls ``builder``, wherever it sits in ``main``."""
+    blocks = [node for node in ast.walk(main)
+              if isinstance(node, ast.If) and _calls(node, builder)]
+    # An enclosing `if` also "contains" the call, so the innermost one — the
+    # smallest — is the guard that actually gates the builder.
+    assert blocks, f"nothing in main() calls {builder}"
+    return min(blocks, key=lambda node: len(list(ast.walk(node))))
+
+
+def _index_in(body, node):
+    """Position of ``node`` in ``body``, or ``None`` if it is nested deeper."""
+    for i, stmt in enumerate(body):
+        if stmt is node:
+            return i
+    return None
+
+
+def test_coupling_selection_is_not_nested_inside_anova_selection():
+    main = _decoding_dcc_main()
+    block = _selection_block(main, 'build_coupling_selected_electrode_sets')
+    assert _index_in(main.body, block) is not None, (
+        "the block calling build_coupling_selected_electrode_sets is not a "
+        "direct statement of main(). Nested inside the anova_electrode_selection "
+        "branch (as it originally was) it is unreachable from the coupling "
+        "launcher, which silently decodes all sig electrodes instead of the "
+        "coupled and uncoupled_drawNN sets")
+
+
+def test_anova_and_coupling_selection_are_siblings():
+    main = _decoding_dcc_main()
+    anova = _index_in(main.body,
+                      _selection_block(main, 'build_anova_selected_electrode_sets'))
+    coupling = _index_in(main.body,
+                         _selection_block(main, 'build_coupling_selected_electrode_sets'))
+    assert anova is not None and coupling is not None, (
+        "both selection blocks must live in main()'s body")
+    # coupling reads `electrode_sets` to refuse a double definition, so it has to
+    # come after the anova block that may have populated it.
+    assert coupling > anova
+
+
+def test_a_requested_electrode_set_option_cannot_fall_through_silently():
+    """The single-set path must refuse to run when a set option was requested.
+
+    Without this, any future failure to build the sets repeats the original
+    symptom: a job that runs for hours, exits 0, and writes an ordinary
+    all-electrode decode that looks like a successful coupling run.
+    """
+    main = _decoding_dcc_main()
+    fallthrough = next(node for node in main.body
+                       if isinstance(node, ast.If)
+                       and isinstance(node.test, ast.UnaryOp)
+                       and isinstance(node.test.op, ast.Not)
+                       and getattr(node.test.operand, 'id', None) == 'electrode_sets')
+    raised = [sub for sub in ast.walk(fallthrough) if isinstance(sub, ast.Raise)]
+    assert raised, ("the `if not electrode_sets:` fall-through must raise when "
+                    "anova_electrode_selection or coupling_electrode_selection "
+                    "is on, not quietly decode every electrode")
+    flags = {sub.value for sub in ast.walk(fallthrough)
+             if isinstance(sub, ast.Constant) and isinstance(sub.value, str)}
+    assert {'anova_electrode_selection', 'coupling_electrode_selection'} <= flags
