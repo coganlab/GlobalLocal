@@ -42,7 +42,7 @@ from ieeg.calc.scaling import rescale
 import mne
 import numpy as np
 from ieeg.calc.stats import time_perm_cluster
-from ieeg.calc.fast import mean_diff
+from ieeg.calc.fast import mean_diff, ttest
 from ieeg.viz.mri import gen_labels
 import matplotlib.pyplot as plt
 from mne.utils import fill_doc, verbose
@@ -52,7 +52,6 @@ from contextlib import redirect_stdout
 print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
-from scipy.stats import ttest_ind
 from functools import partial
 from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
 from src.analysis.power.block_diagnostics import max_abs_z_per_trial
@@ -86,7 +85,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - filter_method (str, optional): The filtering method to use for extracting your chosen passband. Currently can either use filterbank_hilbert (https://naplib-python.readthedocs.io/en/latest/references/preprocessing.html#naplib.preprocessing.filterbank_hilbert) or bandpass (which will apply a FIR bandpass filter).
     - method (str, optional): The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.
     - fir_design (str, optional): The fir design for the bandpass filter if you use bandpass as the filter_method. Default is firwin but can use firwin2 or other things.
-    - stat_func (function, optional): The statistical function to use for significance testing. Default is ttest_ind(equal_var=False).
+    - stat_func (function, optional): The statistical function to use for significance testing. Default is ieeg.calc.fast.ttest, time_perm_cluster's own default.    
     
     This function will process the provided event for a given subject and task.
     Bandpassed and epoched data will be computed, and statistics will be calculated and plotted.
@@ -415,7 +414,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
          within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
          outliers=10, threshold_percent=5.0, max_abs_z=30, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
-         stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+         stat_func=ttest:
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
@@ -452,7 +451,7 @@ if __name__ == "__main__":
     parser.add_argument('--filter_method', type=str, default='filterbank_hilbert', help='Which filtering method to use for extracting your chosen frequency range. Currently can use either filterbank_hilbert or bandpass.')
     parser.add_argument('--method', type=str, default='fir', help='The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.')
     parser.add_argument('--fir_design', type=str, default='firwin', help='The fir design for the bandpass filter if you use bandpass as the filter_method. Default is firwin but can use firwin2 or other things.')
-    parser.add_argument('--stat_func', default=partial(ttest_ind, equal_var=False, nan_policy='omit'), help='Statistical function to use for significance testing. Default is ttest_ind(equal_var=False).')
+    parser.add_argument('--stat_func', default=ttest, help="Statistical function to use for significance testing. Default is ieeg.calc.fast.ttest, which is time_perm_cluster's own default: the same Welch t statistic as scipy's ttest_ind(equal_var=False), but vectorized over NaNs instead of falling into scipy's per-slice nan_policy='omit' loop.")
     args=parser.parse_args()
 
     # Convert the string 'None' to a proper None object
