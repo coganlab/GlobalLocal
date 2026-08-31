@@ -61,7 +61,7 @@ from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_a
 def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLocal', times=(-1, 1.5),
                       within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length = 3, LAB_root=None, channels=None, dec_factor=8, 
                       outlier_policy='drop_and_impute', outliers=10, threshold_percent=2.0, max_abs_z=None, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
-                      stat_func=partial(ttest_ind, equal_var=False, nan_policy='omit')):
+                      stat_func=ttest):
     """
     Bandpass the filtered data, epoch around Stimulus and Response onsets, and find electrodes with significantly different activity from baseline for a given subject.
 
@@ -414,7 +414,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 def main(subjects=None, task='GlobalLocal', times=(-1, 1.5),
          within_base_times=(-1, 0), base_times_length=0.5, baseline_event="Stimulus", pad_length=3, LAB_root=None, channels=None, dec_factor=8, outlier_policy='drop', 
          outliers=10, threshold_percent=5.0, max_abs_z=30, passband=(70,150), filter_method='filterbank_hilbert', method='fir', fir_design='firwin',
-         stat_func=ttest:
+         stat_func=ttest):
     """
     Main function to bandpass filter and compute time permutation cluster stats and task-significant electrodes for chosen subjects.
     """
