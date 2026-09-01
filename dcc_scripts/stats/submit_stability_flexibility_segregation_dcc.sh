@@ -8,7 +8,8 @@
 # ---------------------------------------------------------------------------
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
 
 # ---------------------------------------------------------------------------
 # Analysis window (seconds relative to stimulus onset) and electrode set.
@@ -28,7 +29,7 @@ DATA_SOURCE=${DATA_SOURCE:-real}
 # Contrast/electrode-label options.
 CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
-EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | cluster | peak_t
+EFFECT_MEASURE=${EFFECT_MEASURE:-cluster}    # cohens_d | cluster | peak_t
 ALPHA=${ALPHA:-0.05}
 MIN_ELEC=${MIN_ELEC:-3}
 
