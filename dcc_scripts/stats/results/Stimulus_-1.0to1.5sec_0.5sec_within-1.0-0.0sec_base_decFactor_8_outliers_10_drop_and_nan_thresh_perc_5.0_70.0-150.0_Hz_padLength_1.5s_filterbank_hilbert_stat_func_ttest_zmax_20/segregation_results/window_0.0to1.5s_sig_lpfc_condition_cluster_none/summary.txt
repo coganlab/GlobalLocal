@@ -1,0 +1,27 @@
+====================================================================
+STABILITY vs FLEXIBILITY SEGREGATION - SUMMARY
+====================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+  n_subjects_requested: 24
+                window: [0.0, 1.5]s
+            electrodes: sig
+                  rois: ['lpfc']
+         contrast_mode: condition
+        effect_measure: cluster
+              n_splits: 50
+           n_perm_corr: 100
+          n_perm_label: 100
+        fdr_correction: none
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_sig_lpfc_condition_cluster_none
+--------------------------------------------------------------------
+CONTINUOUS  (spearman): corr = +0.2186  p = 0.0198
+            n_electrodes = 169  n_subjects = 17
+            -> shared core (significant)
+--------------------------------------------------------------------
+CATEGORICAL (CMH): MH odds ratio = 3.3653
+            CMH p = 0.003306  homogeneity p = 0.7763
+            -> shared core (significant)
+====================================================================
+Reading: corr<=0 / OR<1 -> segregation ; corr>0 / OR>1 -> shared core

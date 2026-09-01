@@ -27,7 +27,7 @@ EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.
 #   ANOVA_LABELS_CSV=/path/to/anova_labels.csv ANOVA_LABEL_EFFECT=lwpc \
 #   ANOVA_LABEL_CORRECTION=none bash submit_specific_conditions_decoding_dcc.sh
 
-# ANOVA_LABELS_CSVS=(
+ANOVA_LABELS_CSVS=(
 #     # "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to0.5s_sig_lpfc_condition_fdr_bh/anova_labels.csv"
 #     # "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.5to1.0s_sig_lpfc_condition_fdr_bh/anova_labels.csv"
 #     # "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_condition_fdr_bh/anova_labels.csv"
@@ -45,16 +45,24 @@ EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.
 
 #     # just for testing
 #     # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_proportion_none
-# )
-ANOVA_LABELS_CSVS=("")
+      
+      "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
+
+)
+# ANOVA_LABELS_CSVS=("")
 
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
 # Submit every saved-label population by default.
+# ANOVA_LABEL_EFFECTS=(
+#     both lwpc lwps congruency switch_type
+#     lwpc_only lwps_only congruency_only switch_type_only
+# )
+
 ANOVA_LABEL_EFFECTS=(
-    both lwpc lwps congruency switch_type
-    lwpc_only lwps_only congruency_only switch_type_only
+    both congruency switch_type
+    congruency_only switch_type_only
 )
 
 if [[ -z "${ANOVA_LABELS_CSVS[0]:-}" ]]; then
