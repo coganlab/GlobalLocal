@@ -31,6 +31,7 @@ if project_root not in sys.path:
 # Import after path is set up
 from dcc_scripts.spec.get_sig_tfr_differences_dcc import main
 from src.analysis.config import experiment_conditions
+from ieeg.calc.fast import ttest
 
 # ============================================================================
 # ANALYSIS PARAMETERS
@@ -66,7 +67,8 @@ RETURN_ITC = False
 AVERAGE = False
 
 # Statistical parameters
-STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+# STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+STAT_FUNC = ttest
 P_THRESH = 0.05
 N_PERM = 200  # Increase to 1000 for publication-quality results
 IGNORE_ADJACENCY = 1  # Ignore channels dimension for clusters

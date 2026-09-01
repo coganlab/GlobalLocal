@@ -12,7 +12,7 @@ from functools import partial
 from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
-from ieeg.calc.fast import mean_diff
+from ieeg.calc.fast import mean_diff, ttest
 
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.svm import SVC
@@ -112,7 +112,7 @@ CLUSTER_PERCENTILE=95
 N_CLUSTER_PERMS=100 # how many times to shuffle accuracies between chance and true to do cluster correction
 
 # additional parameters for permutation cluster stats
-STAT_FUNC_CHOICE = 'ttest_ind' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+STAT_FUNC_CHOICE = 'ttest' # 'ttest_ind', 'ttest_rel', 'mean_diff', or 'ttest' (the ieeg pipelines version)
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
@@ -123,6 +123,9 @@ elif STAT_FUNC_CHOICE == 'ttest_ind':
 elif STAT_FUNC_CHOICE == 'ttest_rel':
     STAT_FUNC = partial(ttest_rel, nan_policy='omit')
     STAT_FUNC_STR = 'ttest_rel'
+elif STAT_FUNC_CHOICE == 'ttest':
+    STAT_FUNC = ttest
+    STAT_FUNC_STR = 'ttest'
     
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.025
 P_CLUSTER = 0.025

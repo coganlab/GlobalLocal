@@ -12,7 +12,7 @@ from functools import partial
 from scipy.stats import ttest_ind, ttest_rel
 from types import SimpleNamespace
 from datetime import datetime
-from ieeg.calc.fast import mean_diff
+from ieeg.calc.fast import mean_diff, ttest
 
 # ============================================================================
 # PATH SETUP
@@ -91,24 +91,48 @@ if STATISTICAL_METHOD == 'time_perm_cluster':
     WINDOW_SIZE = None
     STEP_SIZE = None
     
-# additional parameters for permutation cluster stats
-STAT_FUNC_CHOICE = 'ttest_rel' # 'ttest_ind', 'ttest_rel' or 'mean_diff'
+# Additional parameters for time-permutation cluster statistics - these are only relevant is STATISTICAL_METHOD = 'time_perm_cluster'
+STAT_FUNC_CHOICE = 'ttest'
+# Options: 'ttest', 'ttest_ind', 'ttest_rel', or 'mean_diff'.
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff
     STAT_FUNC_STR = 'mean_diff'
+    # Choose based on whether the observations are matched.
+    PERMUTATION_TYPE = 'independent'
+
 elif STAT_FUNC_CHOICE == 'ttest_ind':
-    STAT_FUNC = partial(ttest_ind, equal_var=False, nan_policy='omit')
+    STAT_FUNC = partial(
+        ttest_ind,
+        equal_var=False,
+        nan_policy='omit',
+    )
     STAT_FUNC_STR = 'ttest_ind'
+    PERMUTATION_TYPE = 'independent'
+
 elif STAT_FUNC_CHOICE == 'ttest_rel':
-    STAT_FUNC = partial(ttest_rel, nan_policy='omit')
+    STAT_FUNC = partial(
+        ttest_rel,
+        nan_policy='omit',
+    )
     STAT_FUNC_STR = 'ttest_rel'
-    
+    PERMUTATION_TYPE = 'samples'
+
+elif STAT_FUNC_CHOICE == 'ttest':
+    # IEEG Pipelines' vectorized independent Welch t statistic.
+    STAT_FUNC = ttest
+    STAT_FUNC_STR = 'ttest'
+    PERMUTATION_TYPE = 'independent'
+
+else:
+    raise ValueError(
+        f"Unknown STAT_FUNC_CHOICE: {STAT_FUNC_CHOICE!r}"
+    )
+
 P_THRESH_FOR_TIME_PERM_CLUSTER_STATS = 0.05
 P_CLUSTER = 0.05
-PERMUTATION_TYPE = 'independent'
 N_PERM = 500
-TAILS=2
+TAILS = 2
 
 # ============================================================================
 # Condition selection - NOW FROM SUBMIT SCRIPT
