@@ -788,12 +788,6 @@ def make_bootstrapped_labeled_arrays_for_roi(
             resampled_channels_for_condition = []
             for channel in all_channels_in_roi:
                 channel_data = nan_removed_data_dict[condition_name][channel]
-                
-                if len(channel_data) < n_samples:
-                     print(f"PROBLEM FOUND: Channel {channel} has only {len(channel_data)} trials for {condition_name}, needs {n_samples}")
-                     # You might want to 'continue' or handle this case explicitly
-                     # For now, just finding it is key.
-                     import pdb; pdb.set_trace() # Force a stop if this happens
                      
                 # randomly subsample trials *without* replacement down to the channel with the fewest good trials for this roi and condition
                 sample_indices = rng.choice(len(channel_data), size=n_samples, replace=False) 

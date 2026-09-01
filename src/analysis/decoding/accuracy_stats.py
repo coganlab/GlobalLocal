@@ -462,6 +462,7 @@ def compute_pooled_bootstrap_statistics(
                         # true_acc shape should be (n_windows, n_repeats) if folds_as_samples=False
                         for rep_idx in range(true_acc.shape[1]):
                             all_true_accuracies.append(true_acc[:, rep_idx])
+                        for perm_idx in range(shuffle_acc.shape[1]):
                             all_shuffle_accuracies.append(shuffle_acc[:, rep_idx])
                             
                     elif unit_of_analysis == 'fold':
@@ -469,7 +470,8 @@ def compute_pooled_bootstrap_statistics(
                         # true_acc shape should be (n_windows, n_repeats*n_folds) if folds_as_samples=True
                         for sample_idx in range(true_acc.shape[1]):
                             all_true_accuracies.append(true_acc[:, sample_idx])
-                            all_shuffle_accuracies.append(shuffle_acc[:, sample_idx])
+                        for perm_idx in range(shuffle_acc.shape[1]):
+                            all_shuffle_accuracies.append(shuffle_acc[:, perm_idx])
                     
                     else:
                         raise ValueError(f"Invalid unit_of_analysis: {unit_of_analysis}")
