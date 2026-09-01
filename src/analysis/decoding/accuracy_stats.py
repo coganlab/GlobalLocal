@@ -463,7 +463,7 @@ def compute_pooled_bootstrap_statistics(
                         for rep_idx in range(true_acc.shape[1]):
                             all_true_accuracies.append(true_acc[:, rep_idx])
                         for perm_idx in range(shuffle_acc.shape[1]):
-                            all_shuffle_accuracies.append(shuffle_acc[:, rep_idx])
+                            all_shuffle_accuracies.append(shuffle_acc[:, perm_idx])
                             
                     elif unit_of_analysis == 'fold':
                         # Keep all folds as separate samples
