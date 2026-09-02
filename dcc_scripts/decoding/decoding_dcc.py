@@ -233,10 +233,18 @@ def run_decoding_for_one_electrode_set(
     # The condition label and the electrode set both live in the filename stem:
     # two runs of this job differ only in what was decoded and from where, so
     # both have to be recoverable from a file name alone.
+    
+    # Both of these are already in the anova_label_selections directory name
+    # (..._effect-switch_type_only__correction-flags__...), so they cost ~39
+    # bytes of the 255-byte filename limit and say nothing new.
+    elec_str = elec_string_to_add_to_filename.replace('anova_csv_elecs', '')
+    elec_str = elec_str.replace(f"_anova_{getattr(args, 'anova_label_effect', '')}", '').strip('_')
+    elec_str = f"{elec_str}_" if elec_str else ""
+
     analysis_params_str = (
-            f"job{args.slurm_job_id}_{args.condition_label}_"
-            f"{sub_str}_subs_{elec_string_to_add_to_filename}_{args.clf_model_str}_"
-            f"{args.bootstraps}boots_{args.n_splits}splits_{args.n_repeats}reps_"
+            f"job{args.slurm_job_id}_"
+            f"{sub_str}_subs_{elec_str}{args.clf_model_str}_"
+            f"{args.bootstraps}bts_{args.n_splits}splts_{args.n_repeats}rps_"
             f"{args.unit_of_analysis}_unit_ev_{args.explained_variance}"
         )
 
@@ -287,7 +295,7 @@ def run_decoding_for_one_electrode_set(
                     window_size=args.window_size,
                     step_size=args.step_size,
                     sampling_rate=args.sampling_rate,
-                    comparison_name=f'bootstrap_true_vs_shuffle_{condition_comparison}',
+                    comparison_name=f'true_v_shfle_{condition_comparison}',
                     roi=roi,
                     save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
                     timestamp=args.timestamp,
