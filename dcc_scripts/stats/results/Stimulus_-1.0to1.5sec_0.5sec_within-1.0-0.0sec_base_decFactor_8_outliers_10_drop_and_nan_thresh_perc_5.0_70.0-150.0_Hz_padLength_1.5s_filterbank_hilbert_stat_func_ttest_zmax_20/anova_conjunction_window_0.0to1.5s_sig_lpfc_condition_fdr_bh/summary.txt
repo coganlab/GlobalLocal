@@ -1,0 +1,36 @@
+====================================================================
+STABILITY vs FLEXIBILITY — A1 ANOVA DEFINITION + A2 CONJUNCTION
+====================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+  n_subjects_requested: 24
+                window: [0.0, 1.5]s
+            electrodes: sig
+                  rois: ['lpfc']
+         contrast_mode: condition
+        effect_measure: cohens_d
+        fdr_correction: fdr_bh
+                 alpha: 0.05
+           n_perm_null: 10000
+            thresholds: [0.01, 0.05, 0.1, 0.2, 0.35, 0.5]
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_fdr_bh
+--------------------------------------------------------------------
+A1  electrode definition (Type III interaction ANOVA, FDR across elec):
+      LWPC-selective (S): 52    LWPS-selective (F): 46    both: 21    of 174 electrodes
+--------------------------------------------------------------------
+A2  conjunction (CMH): MH odds ratio = 3.3254
+      CMH p = 0.002678   homogeneity p = 0.1703
+      -> shared / overlap core (significant)
+A2  overlap permutation null (within-subject): observed 'both' = 21, null mean = 13.78
+      p(two-sided) = 0.0009999   z = +3.42   -> more overlap than chance (significant)
+--------------------------------------------------------------------
+A2  threshold sweep (MH OR across q-cutoffs — a robust verdict is stable):
+      q<0.01   n_S=41   n_F=30   n_both=9    OR=3.393  CMH p=0.0311  subjects=8  
+      q<0.05   n_S=52   n_F=46   n_both=21   OR=3.325  CMH p=0.00268  subjects=12 
+      q<0.1    n_S=54   n_F=53   n_both=25   OR=4.311  CMH p=0.000496  subjects=13 
+      q<0.2    n_S=68   n_F=71   n_both=41   OR=3.503  CMH p=0.000161  subjects=16 
+      q<0.35   n_S=79   n_F=94   n_both=52   OR=2.616  CMH p=0.00791  subjects=16 
+      q<0.5    n_S=99   n_F=113  n_both=71   OR=1.583  CMH p=0.215  subjects=16 
+====================================================================
+Reading: MH OR < 1 / overlap below null -> segregation (distinct populations); OR > 1 / overlap above null -> shared core; ~1 -> independent.

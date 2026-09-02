@@ -1,0 +1,5 @@
+Electrode deviation report for ROI: occ
+Metric: RMS deviation of each electrode trace from the condition's across-electrode mean trace.
+Scoring window: epoch start to 0s
+Larger values indicate greater deviation; this is a diagnostic ranking, not a statistical outlier test.
+

@@ -689,7 +689,7 @@ def make_np_array_with_nan_trials_removed_for_each_channel(
                 else:
                     raise ValueError('currently this only supports Epochs and EpochsTFR data')
 
-                np_array_for_this_sub_and_cond_and_elec = epochs_for_this_sub_and_cond_and_elec.get_data(copy=True).squeeze(axis=chans_axs) # remove the unnecessary channels axis cuz it's just for one channel, so now it's (trials, time) or (trials, freqs, time)
+                np_array_for_this_sub_and_cond_and_elec = epochs_for_this_sub_and_cond_and_elec.get_data(copy=True).squeeze(axis=chans_axs).astype(np.float32, copy=False) # remove the unnecessary channels axis cuz it's just for one channel, so now it's (trials, time) or (trials, freqs, time)
                 
                 # remove trials with any NaN values for this sub, cond, and chan
                 valid_trials_mask = ~np.isnan(np_array_for_this_sub_and_cond_and_elec).any(axis=tuple(range(1, np_array_for_this_sub_and_cond_and_elec.ndim)))
@@ -931,21 +931,22 @@ def make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channe
               bootstrapped `LabeledArray` objects.
     """
     # Use joblib to parallelize the processing of each ROI
-    results = Parallel(n_jobs=n_jobs)(
-        delayed(make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel)(
-            roi,
-            subjects_data_objects,
-            condition_names,
-            subjects,
-            electrodes_per_subject_roi,
-            n_bootstraps,
-            obs_axs,
-            chans_axs,
-            time_axs,
-            freq_axs,
-            random_state + i if random_state is not None else None  # Ensure different seeds for parallel jobs
-        ) for i, roi in enumerate(rois)
-    )
+    
+    def _make_for_roi(i, roi):
+        return make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel(
+            roi, subjects_data_objects, condition_names, subjects,
+            electrodes_per_subject_roi, n_bootstraps, obs_axs, chans_axs,
+            time_axs, freq_axs,
+            random_state + i if random_state is not None else None
+        )
+
+    if n_jobs == 1 or len(rois) <= 1:
+        results = [_make_for_roi(i, roi) for i, roi in enumerate(rois)]
+    else:
+        effective_n_jobs = len(rois) if n_jobs < 0 else min(n_jobs, len(rois))
+        results = Parallel(n_jobs=effective_n_jobs)(
+            delayed(_make_for_roi)(i, roi) for i, roi in enumerate(rois)
+        )
 
     # Combine the results from the parallel jobs into a dictionary
     roi_bootstrapped_arrays = {roi: result for roi, result in zip(rois, results) if result}
