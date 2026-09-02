@@ -29,7 +29,7 @@ import pandas as pd
 import scipy.stats as stats
 from joblib import Parallel, delayed
 import matplotlib.pyplot as plt
-from ieeg.arrays.label import LabeledArray
+from ieeg.arrays.label import LabeledArray, Labels
 
 def detect_data_type(subjects_data_objects):
     """
@@ -317,11 +317,14 @@ def create_subject_labeled_array_from_dict(
                       and corresponding labels.
     """
     subject_labeled_array = LabeledArray.from_dict(subject_nested_dict)
-    # Adjust axes indices due to the added conditions axis
-    subject_labeled_array.labels[chans_axs + 1].values = np_array_sub_channel_names  # Channels axis
-    subject_labeled_array.labels[time_axs + 1].values = np_array_str_times  # Time axis
+    
+    # set_axis_labels handles the conditions axis that from_dict prepends
+    set_axis_labels(subject_labeled_array, chans_axs, np_array_sub_channel_names, 'channel')
+    set_axis_labels(subject_labeled_array, time_axs, np_array_str_times, 'time')
+    
     if freq_axs is not None:
-        subject_labeled_array.labels[freq_axs + 1].values = np_array_str_freqs  # Frequency axis
+        set_axis_labels(subject_labeled_array, freq_axs, np_array_str_freqs, 'frequency')
+        
     return subject_labeled_array
 
 def concatenate_subject_labeled_arrays(
@@ -703,6 +706,35 @@ def make_np_array_with_nan_trials_removed_for_each_channel(
     else:
         
         return nan_removed_data_dict, all_channels_in_roi
+    
+def set_axis_labels(labeled_array, axis, values, name):
+    """
+    Write labels onto one axis of a LabeledArray built by `from_dict`.
+
+    Two things make this less obvious than it looks, and getting either wrong
+    fails silently rather than raising:
+
+    1. `LabeledArray.labels` is a plain list of `Labels`, and `Labels` subclasses
+       `np.char.chararray` -- it has no `.values` property. Assigning to
+       `labels[i].values` therefore just sets a dead attribute on the chararray
+       and leaves the labels untouched. The label has to be replaced in the list.
+    2. `from_dict` prepends a condition axis, so the data axes shift by one --
+       but only for non-negative indices. A configured `time_axs=-1` already
+       refers to the last axis and must be passed through unchanged; adding one
+       would target the condition axis instead.
+
+    `LabeledArray.__new__` asserts that label lengths match the array shape, but
+    assigning into the list afterwards bypasses that, so check it here.
+    """
+    axis = axis + 1 if axis >= 0 else axis
+    values = np.asarray(values)
+    expected = labeled_array.shape[axis]
+    if len(values) != expected:
+        raise ValueError(
+            f"cannot set {name} labels on axis {axis}: got {len(values)} labels "
+            f"for an axis of length {expected} (array shape {labeled_array.shape})"
+        )
+    labeled_array.labels[axis] = Labels(values)
 
 def subsample_to_min_trials_per_condition(roi, nan_removed_data_dict, condition_names):
     """
@@ -809,10 +841,14 @@ def make_bootstrapped_labeled_arrays_for_roi(
         print(f"Bootstrap {i}: LabeledArray has conditions: {list(bootstrapped_labeled_array.keys())}")
 
         # Add labels
-        bootstrapped_labeled_array.labels[chans_axs+1].values = np.array(all_channels_in_roi) # channel axis
-        bootstrapped_labeled_array.labels[time_axs+1].values = np.array([str(t) for t in sample_times]) # time axis
+        set_axis_labels(bootstrapped_labeled_array, chans_axs,
+                        np.array(all_channels_in_roi), 'channel')
+        set_axis_labels(bootstrapped_labeled_array, time_axs,
+                        np.array([str(t) for t in sample_times]), 'time')
+        
         if freq_axs is not None and data_type == 'EpochsTFR' and sample_freqs is not None:
-            bootstrapped_labeled_array.labels[freq_axs+1].values = np.array([str(f) for f in sample_freqs]) # freq axis
+            set_axis_labels(bootstrapped_labeled_array, freq_axs,
+                            np.array([str(f) for f in sample_freqs]), 'frequency')
         
         bootstrapped_roi_arrays.append(bootstrapped_labeled_array)
     

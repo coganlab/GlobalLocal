@@ -379,6 +379,10 @@ def main(args):
       
     subjects_mne_objects = create_subjects_mne_objects_dict(subjects=args.subjects, epochs_root_file=args.epochs_root_file, conditions=args.conditions, task=args.task, just_HG_ev1_rescaled=True, acc_trials_only=args.acc_trials_only)
     
+    import resource
+    print(f"RSS after loading MNE objects: "
+        f"{resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024**2:.1f} GB", flush=True)
+
     # determine which electrodes to use (all electrodes or just the task-significant ones)
     if args.electrodes == 'all' or getattr(args, 'anova_labels_csv', None):
         raw_electrodes = all_electrodes_per_subject_roi 
