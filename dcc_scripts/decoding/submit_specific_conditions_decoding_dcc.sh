@@ -43,10 +43,10 @@ ANOVA_LABELS_CSVS=(
 #     # "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_proportion_none/anova_labels.csv"
 #     "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none/anova_labels.csv"
 
-      "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
+    #   "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
 
 )
-# ANOVA_LABELS_CSVS=("")
+ANOVA_LABELS_CSVS=("")
 
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
@@ -64,7 +64,7 @@ ANOVA_LABEL_EFFECTS=(
 if [[ -z "${ANOVA_LABELS_CSVS[0]:-}" ]]; then
     # Dummy value: ignored when no saved ANOVA-label CSV is supplied.
     # Keeping one value ensures each condition is submitted only once.
-    ANOVA_LABEL_EFFECTS=("lwpc")
+    ANOVA_LABEL_EFFECTS=("dummy")
 elif [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
     # Optional override when using a real saved-label CSV.
     ANOVA_LABEL_EFFECTS=("$ANOVA_LABEL_EFFECT")
