@@ -2085,32 +2085,65 @@ def handle_outliers(trials: mne.epochs.BaseEpochs,
 
     return trials, dropped_channels
 
+def bad_channels_from_trial_mask(bad_trials, ch_names, threshold_percent: float = 5.0) -> list:
+    """
+    Identifies channels where the percentage of flagged trials exceeds a threshold.
+
+    The threshold rule behind :func:`identify_bad_channels_by_trial_nan_rate`,
+    split out so that a caller which has already assembled its own rejection
+    mask can apply the same rule to it. ``make_epoched_data.py`` needs this
+    because the trials it rejects come from two passes that leave their marks
+    in different places: the raw-voltage ``outliers_to_nan`` pass, whose NaNs
+    are imputed away before anything downstream could count them, and the
+    ``max_abs_z`` pass, which only exists after the epochs have been rescaled.
+    Reading the NaNs back off the data would miss one or the other.
+
+    Parameters
+    ----------
+    bad_trials : (n_trials, n_channels) array of bool
+        True where a (trial, channel) trace has been flagged for rejection.
+    ch_names : sequence of str
+        Channel names, in the order of ``bad_trials``' second axis.
+    threshold_percent : int | float
+        Channels with a *greater* percentage of flagged trials than this are
+        returned.
+
+    Returns
+    -------
+    list of str
+        The channel names to drop.
+    """
+    bad_trials = np.asarray(bad_trials, dtype=bool)
+    if bad_trials.ndim != 2:
+        raise ValueError(
+            f"bad_trials must have shape (n_trials, n_channels), got {bad_trials.shape}")
+    if bad_trials.shape[1] != len(ch_names):
+        raise ValueError(
+            f"bad_trials has {bad_trials.shape[1]} channels but {len(ch_names)} channel "
+            "names were given; the mask and the channel list are out of sync.")
+
+    bad_percentages = np.sum(bad_trials, axis=0) * 100 / bad_trials.shape[0]
+    bad_channels = [name for name, percent in zip(ch_names, bad_percentages)
+                    if percent > threshold_percent]
+
+    if bad_channels:
+        print(f"Found {len(bad_channels)} channels with > {threshold_percent}% outlier trials: {bad_channels}")
+    else:
+        print(f"No channels found with > {threshold_percent}% outlier trials.")
+
+    return bad_channels
+
 def identify_bad_channels_by_trial_nan_rate(epochs: mne.Epochs, threshold_percent: float = 5.0) -> list:
     """
     Identifies channels where the percentage of trials with NaNs exceeds a threshold.
     A trial is counted if it has one or more NaN values.
     """
     data = epochs.get_data()
-    n_epochs = data.shape[0]
 
     # Check for any NaNs along the time axis for each trial and channel
     trial_has_nan = np.isnan(data).any(axis=2)
 
-    # Count NaN trials per channel and calculate the percentage
-    nan_percentages = np.sum(trial_has_nan, axis=0) * 100 / n_epochs
-
-    # Find channels exceeding the threshold
-    bad_channel_indices = np.where(nan_percentages > threshold_percent)[0]
-    
-    all_channel_names = np.array(epochs.ch_names)
-    bad_channels = all_channel_names[bad_channel_indices].tolist()
-
-    if bad_channels:
-        print(f"Found {len(bad_channels)} channels with > {threshold_percent}% outlier trials: {bad_channels}")
-    else:
-        print(f"No channels found with > {threshold_percent}% outlier trials.")
-        
-    return bad_channels
+    return bad_channels_from_trial_mask(trial_has_nan, epochs.ch_names, threshold_percent)
 
 def impute_trial_nans_by_channel_mean(epochs: mne.Epochs):
     """
