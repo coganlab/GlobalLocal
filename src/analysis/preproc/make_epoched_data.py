@@ -77,7 +77,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - LAB_root (str, optional): The root directory for the lab. Will be determined based on OS if not provided. Defaults to None.
     - channels (list of strings, optional): The channels to plot and get stats for. Default is all channels.
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
-    - outlier_policy (str, optional): How to handle outliers. Either set to drop, nan, drop_and_nan, drop_and_impute, or ignore. Note that drop in this case refers to dropping channels with more % outliers than the threshold percentage, not to dropping the outlier trials themselves. NaN will replace the outlier trials with NaNs, and impute will replace them with the channel mean.
+    - outlier_policy (str, optional): How to handle outliers. Either set to drop, nan, drop_and_nan, drop_and_impute, or ignore. Note that drop in this case refers to dropping channels with more % outliers (combined from voltage and zscore) than the threshold percentage, not to dropping the voltage outlier trials themselves. NaN will replace the voltage outlier trials with NaNs, and impute will replace them with the channel mean. The zscore outlier trials are all marked as NaN, regardless of policy.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
     - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using an outlier policy that drops. A trial counts as an outlier for a channel if either rejection pass flagged it: the raw-voltage `outliers` pass or the `max_abs_z` pass. The list is decided on the Stimulus pass and reused for Response, so both events keep one channel set.
     - max_abs_z (float | None, optional): Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere in the epoch. Catches artifacts the raw-voltage `outliers` pass cannot see, since power ratio is amplitude ratio squared. Rejections here also count toward `threshold_percent`. None disables. Default None.
@@ -132,9 +132,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     good.load_data()
 
     # If channels is None, use all channels
-    if channels is None:
-        channels = good.ch_names
-    else:
+    if channels is not None:
         # Validate the provided channels
         invalid_channels = [ch for ch in channels if ch not in good.ch_names]
         if invalid_channels:
@@ -164,7 +162,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     non_data_channels = [ch for ch in channels_before_data_pick if ch not in good.ch_names]
     if non_data_channels:
         print(f"Dropped {len(non_data_channels)} non-data channels: {non_data_channels}")
-    channels = good.ch_names.copy()
+    channels_after_data_pick = good.ch_names.copy()
 
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
@@ -212,25 +210,21 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     HG_base_power = HG_base.copy()
     HG_base_power._data = HG_base._data ** 2
 
-    if outlier_policy == 'drop_and_impute':
-        '''
-        Imputed here rather than on the raw voltage, for the same reason the
-        event trials are: the fill lands in gamma units instead of becoming a
-        near-zero-power trial after filtering. Squaring first and imputing each
-        object separately also keeps the power baseline's fill a mean of
-        squares, matching how HG_ev1_power is filled below.
+    '''
+    The baseline is deliberately NOT imputed, even under 'drop_and_impute'.
 
-        Worth keeping rather than dropping outright, because this baseline is
-        not just something that gets saved: its per-channel mean and SD set
-        every z-score the max_abs_z pass then thresholds, and it is one of the
-        two samples time_perm_cluster compares. Leaving the NaNs in also rests
-        on ieeg.calc.scaling.rescale reducing with nanmean/nanstd -- if it uses
-        plain mean/std, one NaN baseline trial makes a channel's whole rescaled
-        output NaN, which the drop rule below would read as 100% bad trials and
-        silently prune the channel.
-        '''
-        impute_trial_nans_by_channel_mean(HG_base)
-        impute_trial_nans_by_channel_mean(HG_base_power)
+    ieeg.calc.scaling.rescale reduces it through dist(), which builds
+    where=~isnan(mat) and hands that to np.mean/np.std, so NaN baseline trials
+    are excluded from the per-channel mean and SD rather than poisoning them.
+    Filling them instead would add samples sitting exactly at the mean, which
+    shrinks the SD and inflates every z-score on that channel -- and z is what
+    the max_abs_z pass thresholds and what HG_ev1_rescaled is reported in.
+    Leaving them NaN gives an unbiased SD over a correctly reduced N.
+
+    The event epochs are still imputed under that policy (below), because there
+    the point is a NaN-free array for downstream consumers that are not NaN
+    aware, not a normalizing statistic.
+    '''
 
     if isinstance(stat_func, partial):
         base_func_name = stat_func.func.__name__
@@ -379,15 +373,6 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         against any threshold -- so `bad_trials.sum()` is a true count of
         distinct rejected pairs.
 
-        The list is decided once, on the Stimulus pass, and reused for
-        Response. Per-event lists would be defensible, but they would give the
-        two events different channel sets, and the downstream files are not
-        built for that: save_channels_to_file writes one
-        channels_{sub}_{task}.txt with no event in the name, so the second
-        event would silently overwrite the first event's channel indices and
-        every mat.npy row index saved against it. To switch to per-event lists,
-        drop the `if event == "Stimulus"` guard below -- and give
-        save_channels_to_file an event-specific name at the same time.
         '''
         bad_trials = voltage_bad | z_bad
 
@@ -408,6 +393,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
                     "bad_by_channel_outlier_marker": marker_bad_channels,
                     "n_non_data_channels": len(non_data_channels),
                     "non_data_channels": non_data_channels,
+                    "n_channels_after_data_pick": len(channels_after_data_pick),
+                    "channels_after_data_pick": channels_after_data_pick,
                     "n_bad_by_trial_outliers": len(channels_to_drop),
                     "bad_by_trial_outliers": channels_to_drop,
                     # channels after both drops = channels after marker - trial-outlier drops
@@ -454,7 +441,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         HG_base_power_event.drop_channels(channels_to_drop, on_missing='ignore')
 
         # After dropping channels, update the channels list to match the data
-        channels = HG_ev1.ch_names
+        channels_after_dropping_bad_channels = HG_ev1.ch_names
 
         # get the evoke and evoke rescaled amplitude
         HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0)) #axis=0 should be set for actually running this, the axis=2 is just for drift testing.
@@ -507,10 +494,11 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         mat, _ = time_perm_cluster(HG_ev1._data, HG_base_event._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func) # TODO: rerun with HG_ev1_power and HG_base_power instead.
 
         #save channels with their indices 
-        save_channels_to_file(channels, sub, task, save_dir)
+        task_and_event = f"{task}_{event}"
+        save_channels_to_file(channels_after_dropping_bad_channels, sub, task_and_event, save_dir)
 
         # save significant channels to a json
-        save_sig_chans(f'{output_name_event}', mat, channels, sub, save_dir)
+        save_sig_chans(f'{output_name_event}', mat, channels_after_dropping_bad_channels, sub, save_dir)
         
         # Assuming `mat` is your array and `save_dir` is the directory where you want to save it
         mat_save_path = os.path.join(save_dir, f'{output_name_event}_mat.npy')
@@ -561,7 +549,7 @@ if __name__ == "__main__":
     parser.add_argument('--outlier_policy', type=str, default='drop', help='How to handle outlier values. Options: drop, nan, drop_and_nan, drop_and_impute, ignore.')
     parser.add_argument('--outliers', type=int, default=10, help='How many standard deviations above the trial mean for a timepoint to be considered an outlier. Default is 10.')
     parser.add_argument('--max_abs_z', type=lambda v: None if str(v).lower() == 'none' else float(v), default=30, help='Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere. Real HG z-scores top out near 15-20; measured artifacts were 43-24000. Try 30 as default for now. But can set to None to not drop any trials.')
-    parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.')
+    parser.add_argument('--threshold_percent', type=float, default=5.0, help='Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using drop, drop_and_nan, and drop_and_impute outlier policies.')
     parser.add_argument('--passband', type=float, nargs=2, default=(70,150), help='Frequency range for the frequency band of interest. Default is (70, 150).')
     parser.add_argument('--filter_method', type=str, default='filterbank_hilbert', help='Which filtering method to use for extracting your chosen frequency range. Currently can use either filterbank_hilbert or bandpass.')
     parser.add_argument('--method', type=str, default='fir', help='The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.')
