@@ -53,7 +53,7 @@ print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
 from functools import partial
-from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, identify_bad_channels_by_trial_nan_rate, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
+from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, bad_channels_from_trial_mask, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
 from src.analysis.power.block_diagnostics import max_abs_z_per_trial
 from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_array
@@ -79,8 +79,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     - decimation_factor (int, optional): The factor by which to subsample the data. Default is 10, so should be 2048 Hz down to 204.8 Hz.
     - outlier_policy (str, optional): How to handle outliers. Either set to drop, nan, drop_and_nan, drop_and_impute, or ignore. Note that drop in this case refers to dropping channels with more % outliers than the threshold percentage, not to dropping the outlier trials themselves. NaN will replace the outlier trials with NaNs, and impute will replace them with the channel mean.
     - outliers (int, optional): How many standard deviations above the mean for a trial to be considered an outlier. Default is 10.
-    - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using the drop_and_impute outlier policy.  
-    - max_abs_z (float | None, optional): Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere in the epoch. Catches artifacts the raw-voltage `outliers` pass cannot see, since power ratio is amplitude ratio squared. None disables. Default None.
+    - threshold_percent (int | float, optional): Channels with a greater percent of outlier trials than this threshold will be removed from further analyses, if using an outlier policy that drops. A trial counts as an outlier for a channel if either rejection pass flagged it: the raw-voltage `outliers` pass or the `max_abs_z` pass. The list is decided on the Stimulus pass and reused for Response, so both events keep one channel set.
+    - max_abs_z (float | None, optional): Reject a (trial, channel) trace whose baseline-normalized power exceeds this anywhere in the epoch. Catches artifacts the raw-voltage `outliers` pass cannot see, since power ratio is amplitude ratio squared. Rejections here also count toward `threshold_percent`. None disables. Default None.
     - passband (tuple, optional): The frequency range for the frequency band of interest. Default is (70, 150).
     - filter_method (str, optional): The filtering method to use for extracting your chosen passband. Currently can either use filterbank_hilbert (https://naplib-python.readthedocs.io/en/latest/references/preprocessing.html#naplib.preprocessing.filterbank_hilbert) or bandpass (which will apply a FIR bandpass filter).
     - method (str, optional): The bandpass method to use if you use bandpass as the filter_method. Default is to use fir but can use iir.
@@ -170,54 +170,34 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
     # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
-    # <<< Step 1: IDENTIFY bad channels before processing >>>
+    '''
+    <<< Step 1: PROCESS the baseline ONCE, on the full channel set >>>
 
-    if outlier_policy == 'drop' or outlier_policy == 'drop_and_nan' or outlier_policy == 'drop_and_impute':
-        print(f"--- Identifying Channels with more than {threshold_percent}% outlier trials in the stimulus period (discuss this approach with Greg) ---")
-        # Identify channels with too many outlier trials based on the stimulus period
-        times_adj = [times[0] - pad_length, times[1] + pad_length]
-        event_trials_qc = trial_ieeg(good, "Stimulus", times_adj, preload=True, reject_by_annotation=False)
-        outliers_to_nan(event_trials_qc, outliers=outliers)
-        channels_to_drop = identify_bad_channels_by_trial_nan_rate(event_trials_qc, threshold_percent)
-        print(f"Found {len(channels_to_drop)} bad Stimulus channels: {channels_to_drop}")
+    The bad-channel decision used to be made here, before the baseline, from a
+    throwaway Stimulus epoching scored by the raw-voltage outlier pass alone.
+    It cannot be made here any more: a channel is now dropped on the union of
+    that pass and the max_abs_z pass, and the z-scores do not exist until the
+    epochs have been rescaled against this baseline. Deciding first and
+    rescaling second is circular, which is what makes the ordering awkward.
 
-        qc_summary = {
-            "subject": sub,
-            "n_total_channels_before_marker": len(all_channels_before_marker),
-            "channels_before_marker": all_channels_before_marker,
-            "n_bad_by_channel_outlier_marker": len(marker_bad_channels),
-            "bad_by_channel_outlier_marker": marker_bad_channels,
-            "n_non_data_channels": len(non_data_channels),
-            "non_data_channels": non_data_channels,
-            "n_bad_by_trial_outliers": len(channels_to_drop) if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else 0,
-            "bad_by_trial_outliers": channels_to_drop if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else [],
-            # channels after both drops = channels after marker - trial-outlier drops
-            "n_channels_after_all_drops": len(good.ch_names) - (len(channels_to_drop) if outlier_policy in ["drop", "drop_and_nan", "drop_and_impute"] else 0),
-        }
-
-        qc_filepath = os.path.join(save_dir, f"{sub}_channel_qc_summary.json")
-        print(f"DEBUG: qc_filepath = '{qc_filepath}'")
-        with open(qc_filepath, "w") as f:
-            json.dump(qc_summary, f, indent=4)
-
-        print(f"Saved QC summary for {sub} to {qc_filepath}")
-
-    # <<< Step 2: PROCESS the baseline ONCE >>>
+    Nothing is lost by deferring the drop instead. rescale normalizes each
+    channel against its own baseline and the z threshold is per
+    (trial, channel), so which other channels are present changes neither
+    number: dropping a channel before rescaling and dropping it after give
+    identical data for every channel that survives. The drop therefore happens
+    at the bottom of the event loop, applied to the epochs and to a per-event
+    copy of this baseline -- which is also where the only two things that
+    genuinely require a shared channel set happen, saving and
+    time_perm_cluster. The copy is what keeps the Response pass working: the
+    baseline is built once and shared, so it has to stay on the full channel
+    set for whichever event runs second.
+    '''
     base_trials = trial_ieeg_rand_offset(good, baseline_event, within_base_times, base_times_length, pad_length, preload=True)
-    if outlier_policy == 'drop':
-        base_trials.drop_channels(channels_to_drop, on_missing='ignore')
-    elif outlier_policy == 'nan':
+    if outlier_policy in ('nan', 'drop_and_nan', 'drop_and_impute'):
         outliers_to_nan(base_trials, outliers=outliers)
-    elif outlier_policy == 'drop_and_nan':
-        base_trials.drop_channels(channels_to_drop, on_missing='ignore')
-        outliers_to_nan(base_trials, outliers=outliers)
-    elif outlier_policy == 'drop_and_impute':
-        base_trials.drop_channels(channels_to_drop, on_missing='ignore')
-        outliers_to_nan(base_trials, outliers=outliers)
-        impute_trial_nans_by_channel_mean(base_trials)
     else:
-        print('ignoring outliers')
-    if filter_method == 'filterbank_hilbert':    
+        print('ignoring outliers in the baseline')
+    if filter_method == 'filterbank_hilbert':
         HG_base = gamma.extract(base_trials, passband=passband, copy=False, n_jobs=1)
     elif filter_method == 'bandpass':
         HG_base = base_trials.copy().filter(passband[0], passband[1], method=method, fir_design=fir_design)
@@ -231,7 +211,27 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     # Square the data to get power from amplitude (FIXED: Now correctly placed)
     HG_base_power = HG_base.copy()
     HG_base_power._data = HG_base._data ** 2
-     
+
+    if outlier_policy == 'drop_and_impute':
+        '''
+        Imputed here rather than on the raw voltage, for the same reason the
+        event trials are: the fill lands in gamma units instead of becoming a
+        near-zero-power trial after filtering. Squaring first and imputing each
+        object separately also keeps the power baseline's fill a mean of
+        squares, matching how HG_ev1_power is filled below.
+
+        Worth keeping rather than dropping outright, because this baseline is
+        not just something that gets saved: its per-channel mean and SD set
+        every z-score the max_abs_z pass then thresholds, and it is one of the
+        two samples time_perm_cluster compares. Leaving the NaNs in also rests
+        on ieeg.calc.scaling.rescale reducing with nanmean/nanstd -- if it uses
+        plain mean/std, one NaN baseline trial makes a channel's whole rescaled
+        output NaN, which the drop rule below would read as 100% bad trials and
+        silently prune the channel.
+        '''
+        impute_trial_nans_by_channel_mean(HG_base)
+        impute_trial_nans_by_channel_mean(HG_base_power)
+
     if isinstance(stat_func, partial):
         base_func_name = stat_func.func.__name__
         # Create a descriptive name like "ttest_ind_equal_var_False"
@@ -264,23 +264,45 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         trials.metadata = make_metadata_from_event_names(trials) # add metadata so we can grab specific trial types later. Untested 2/5/26.
         trials.metadata = add_previous_trial_info(trials.metadata)
 
+        '''
+        First outlier pass, on raw voltage. Two things come out of it: the NaNs
+        it writes into the data, for the policies that keep them, and
+        `voltage_bad`, a (n_trial, n_channel) record of which traces it caught.
+
+        The record is the part that is new. 'drop' is why it is needed: that
+        policy prunes channels but deliberately keeps every trial, so it never
+        writes these NaNs into the analysis data at all and has to score them
+        on a throwaway copy. Reading the NaNs back off the epochs at decision
+        time -- the obvious alternative -- would therefore count nothing under
+        the policy that main() actually defaults to. Keeping the record for
+        every policy means the drop rule below reads the same way regardless,
+        and the QC json can report what each pass contributed separately.
+
+        Imputation deliberately does NOT happen here. It waits until after the
+        z pass, so both kinds of rejected trial are filled the same way, and so
+        the fill lands in gamma-band units rather than in raw voltage: the
+        per-timepoint mean across trials of a set of ~100 Hz oscillations is
+        close to zero, so a trial imputed before gamma.extract comes out with
+        almost no high gamma power and then reads as a large negative z.
+        '''
         if outlier_policy == 'drop':
-            trials.drop_channels(channels_to_drop, on_missing='ignore')
-        elif outlier_policy == 'nan':
+            # Cheaper than the second `trial_ieeg` call this replaces: same
+            # size, no re-read from disk, and it is freed here rather than
+            # staying alive across both events and the gamma extraction.
+            voltage_qc = trials.copy()
+            outliers_to_nan(voltage_qc, outliers=outliers)
+            voltage_bad = np.isnan(voltage_qc._data).any(axis=-1)
+            del voltage_qc
+        elif outlier_policy in ('nan', 'drop_and_nan', 'drop_and_impute'):
             outliers_to_nan(trials, outliers=outliers)
-        elif outlier_policy == 'drop_and_nan':
-            trials.drop_channels(channels_to_drop, on_missing='ignore')
-            outliers_to_nan(trials, outliers=outliers)
-        elif outlier_policy == 'drop_and_impute':
-            trials.drop_channels(channels_to_drop, on_missing='ignore')
-            outliers_to_nan(trials, outliers=outliers)
-            impute_trial_nans_by_channel_mean(trials)
+            voltage_bad = np.isnan(trials._data).any(axis=-1)
         else:
             print('ignoring outliers')
+            voltage_bad = np.zeros((len(trials), len(trials.ch_names)), dtype=bool)
 
-        # After dropping channels, update the channels list to match the data
-        channels = trials.ch_names
-        
+        print(f" [voltage-reject] {voltage_bad.sum()} (trial, channel) pairs over "
+              f"{outliers} SD across {len(np.unique(np.nonzero(voltage_bad)[0]))} trials")
+
         # Now extract gamma and proceed with analysis
         if filter_method == 'filterbank_hilbert':
             HG_ev1 = gamma.extract(trials, passband=passband, copy=True, n_jobs=1)
@@ -318,29 +340,122 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         
         One mask from the rescaled power, applied to every derived object, so the amplitude and power views agree on which trials exist.
         '''
+        # Everything below indexes these five objects with one (trial, channel)
+        # mask, so they have to be on the same channel set first. This is the
+        # check that caught rescale picking 'data' in place on the baseline.
+        for name, obj in (("trials", trials), ("HG_ev1", HG_ev1),
+                          ("HG_ev1_power", HG_ev1_power), ("HG_ev1_rescaled", HG_ev1_rescaled)):
+            if obj.ch_names != HG_ev1_power_rescaled.ch_names:
+                missing = [ch for ch in obj.ch_names if ch not in HG_ev1_power_rescaled.ch_names]
+                extra = [ch for ch in HG_ev1_power_rescaled.ch_names if ch not in obj.ch_names]
+                raise RuntimeError(
+                    f"channel set mismatch between {name} ({len(obj.ch_names)} channels) and "
+                    f"HG_ev1_power_rescaled ({len(HG_ev1_power_rescaled.ch_names)} channels). "
+                    f"Only in {name}: {missing}. Only in HG_ev1_power_rescaled: {extra}.")
+
         if max_abs_z is not None:
             # Shared with the threshold-choosing diagnostics in
             # src/analysis/vis/trial_z_distribution_vis.py, so the distribution
             # you read a value off is the one this line acts on.
-            bad = max_abs_z_per_trial(HG_ev1_power_rescaled.get_data()) > max_abs_z
-            if bad.any():
-                print(f" [z-reject] {bad.sum()} (trial, channel) pairs over "
-                      f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(bad)[0]))} trials")
-                
-            for name, obj in (("HG_ev1", HG_ev1), ("HG_ev1_power", HG_ev1_power),
-                              ("HG_ev1_rescaled", HG_ev1_rescaled)):
-                if obj.ch_names != HG_ev1_power_rescaled.ch_names:
-                    missing = [ch for ch in obj.ch_names if ch not in HG_ev1_power_rescaled.ch_names]
-                    extra = [ch for ch in HG_ev1_power_rescaled.ch_names if ch not in obj.ch_names]
-                    raise RuntimeError(
-                        f"channel set mismatch between {name} ({len(obj.ch_names)} channels) and "
-                        f"HG_ev1_power_rescaled ({len(HG_ev1_power_rescaled.ch_names)} channels). "
-                        f"Only in {name}: {missing}. Only in HG_ev1_power_rescaled: {extra}.")
+            z_bad = max_abs_z_per_trial(HG_ev1_power_rescaled.get_data()) > max_abs_z
+            if z_bad.any():
+                print(f" [z-reject] {z_bad.sum()} (trial, channel) pairs over "
+                      f"|z|>{max_abs_z} across {len(np.unique(np.nonzero(z_bad)[0]))} trials")
 
             for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
-                obj._data[bad] = np.nan
-                
-        
+                obj._data[z_bad] = np.nan
+        else:
+            z_bad = np.zeros_like(voltage_bad)
+
+        '''
+        <<< Channel drop, on both rejection passes at once >>>
+
+        The whole point of doing it here rather than before the baseline: a
+        trial the z pass threw out is as bad for the channel as one the voltage
+        pass threw out, so it should count the same toward the
+        threshold_percent budget. The union is safe to take because the two
+        passes never flag the same pair twice -- max_abs_z_per_trial returns
+        NaN for a pair the voltage pass already emptied, and NaN compares False
+        against any threshold -- so `bad_trials.sum()` is a true count of
+        distinct rejected pairs.
+
+        The list is decided once, on the Stimulus pass, and reused for
+        Response. Per-event lists would be defensible, but they would give the
+        two events different channel sets, and the downstream files are not
+        built for that: save_channels_to_file writes one
+        channels_{sub}_{task}.txt with no event in the name, so the second
+        event would silently overwrite the first event's channel indices and
+        every mat.npy row index saved against it. To switch to per-event lists,
+        drop the `if event == "Stimulus"` guard below -- and give
+        save_channels_to_file an event-specific name at the same time.
+        '''
+        bad_trials = voltage_bad | z_bad
+
+        if outlier_policy in ('drop', 'drop_and_nan', 'drop_and_impute'):
+            if event == "Stimulus":
+                print(f"--- Identifying channels with more than {threshold_percent}% bad trials, "
+                      f"counting the raw-voltage pass ({outliers} SD) and the z pass "
+                      f"(|z| > {max_abs_z}) together (discuss this approach with Greg) ---")
+                channels_to_drop = bad_channels_from_trial_mask(
+                    bad_trials, HG_ev1_power_rescaled.ch_names, threshold_percent)
+
+                bad_percent_by_channel = bad_trials.mean(axis=0) * 100
+                qc_summary = {
+                    "subject": sub,
+                    "n_total_channels_before_marker": len(all_channels_before_marker),
+                    "channels_before_marker": all_channels_before_marker,
+                    "n_bad_by_channel_outlier_marker": len(marker_bad_channels),
+                    "bad_by_channel_outlier_marker": marker_bad_channels,
+                    "n_non_data_channels": len(non_data_channels),
+                    "non_data_channels": non_data_channels,
+                    "n_bad_by_trial_outliers": len(channels_to_drop),
+                    "bad_by_trial_outliers": channels_to_drop,
+                    # channels after both drops = channels after marker - trial-outlier drops
+                    "n_channels_after_all_drops": len(good.ch_names) - len(channels_to_drop),
+                    # what each rejection pass contributed, in (trial, channel) pairs
+                    "threshold_percent": threshold_percent,
+                    "outliers_sd": outliers,
+                    "max_abs_z": max_abs_z,
+                    "n_pairs_rejected_by_voltage": int(voltage_bad.sum()),
+                    "n_pairs_rejected_by_max_abs_z": int(z_bad.sum()),
+                    "n_pairs_rejected_total": int(bad_trials.sum()),
+                    "percent_bad_trials_by_dropped_channel": {
+                        ch: float(bad_percent_by_channel[HG_ev1_power_rescaled.ch_names.index(ch)])
+                        for ch in channels_to_drop
+                    },
+                }
+
+                qc_filepath = os.path.join(save_dir, f"{sub}_{output_name_event}_channel_qc_summary.json")
+                with open(qc_filepath, "w") as f:
+                    json.dump(qc_summary, f, indent=4)
+
+                print(f"Saved QC summary for {sub} to {qc_filepath}")
+            else:
+                print(f"Reusing the {len(channels_to_drop)} channels dropped on the Stimulus pass "
+                      f"so both events keep one channel set: {channels_to_drop}")
+
+            for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
+                obj.drop_channels(channels_to_drop, on_missing='ignore')
+
+        if outlier_policy == 'drop_and_impute':
+            # The single imputation point, for both rejection passes at once:
+            # the voltage NaNs rode through gamma.extract untouched and the
+            # z NaNs were written just above, so one call per object fills them
+            # with the same per-channel, per-timepoint mean.
+            for obj in (HG_ev1, HG_ev1_power, HG_ev1_rescaled, HG_ev1_power_rescaled):
+                impute_trial_nans_by_channel_mean(obj)
+
+        # One channel set for everything this event saves and tests. The
+        # baseline is built once and shared, so the drop goes on a copy --
+        # HG_base itself has to stay whole for the event that runs second.
+        HG_base_event = HG_base.copy()
+        HG_base_event.drop_channels(channels_to_drop, on_missing='ignore')
+        HG_base_power_event = HG_base_power.copy()
+        HG_base_power_event.drop_channels(channels_to_drop, on_missing='ignore')
+
+        # After dropping channels, update the channels list to match the data
+        channels = HG_ev1.ch_names
+
         # get the evoke and evoke rescaled amplitude
         HG_ev1_evoke = HG_ev1.average(method=lambda x: np.nanmean(x, axis=0)) #axis=0 should be set for actually running this, the axis=2 is just for drift testing.
         HG_ev1_evoke_rescaled = HG_ev1_rescaled.average(method=lambda x: np.nanmean(x, axis=0))
@@ -356,9 +471,9 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         HG_ev1_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power-epo.fif', overwrite=True)
         HG_ev1_power.metadata.to_csv(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_power_metadata.csv', index=False)
 
-        # Save HG_base (the shuffled version)
-        HG_base.save(f'{save_dir}/{sub}_{output_name_event}_HG_base-epo.fif', overwrite=True)
-        HG_base_power.save(f'{save_dir}/{sub}_{output_name_event}_HG_base_power-epo.fif', overwrite=True)
+        # Save HG_base (the shuffled version, on this event's channel set)
+        HG_base_event.save(f'{save_dir}/{sub}_{output_name_event}_HG_base-epo.fif', overwrite=True)
+        HG_base_power_event.save(f'{save_dir}/{sub}_{output_name_event}_HG_base_power-epo.fif', overwrite=True)
 
         # Save HG_ev1_rescaled
         HG_ev1_rescaled.save(f'{save_dir}/{sub}_{output_name_event}_HG_ev1_rescaled-epo.fif', overwrite=True)
@@ -377,19 +492,19 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         
         ###
         print(f"Shape of HG_ev1._data: {HG_ev1._data.shape}")
-        print(f"Shape of HG_base._data: {HG_base._data.shape}")
+        print(f"Shape of HG_base_event._data: {HG_base_event._data.shape}")
 
         # time_perm_cluster compares these channel by channel, so they have to
         # line up (rescale picks the baseline in place, so this catches it if
         # a non-data channel ever slips through again).
-        if HG_ev1.ch_names != HG_base.ch_names:
+        if HG_ev1.ch_names != HG_base_event.ch_names:
             raise RuntimeError(
-                f"HG_ev1 ({len(HG_ev1.ch_names)} channels) and HG_base "
-                f"({len(HG_base.ch_names)} channels) are on different channel sets; "
+                f"HG_ev1 ({len(HG_ev1.ch_names)} channels) and HG_base_event "
+                f"({len(HG_base_event.ch_names)} channels) are on different channel sets; "
                 "time_perm_cluster would compare mismatched channels.")
 
         # oh this changed and returns both the significant clusters matrix and the p values now
-        mat, _ = time_perm_cluster(HG_ev1._data, HG_base._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func) # TODO: rerun with HG_ev1_power and HG_base_power instead.
+        mat, _ = time_perm_cluster(HG_ev1._data, HG_base_event._data, 0.05, n_jobs=6, ignore_adjacency=1, stat_func=stat_func) # TODO: rerun with HG_ev1_power and HG_base_power instead.
 
         #save channels with their indices 
         save_channels_to_file(channels, sub, task, save_dir)
