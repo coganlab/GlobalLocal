@@ -22,11 +22,12 @@ in a collapsed **▸ Line-by-line** block — click to expand. Everything you ne
 
 ### The other docs
 
-This guide is the only place that documents how to run an analysis. Four
+This guide is the only place that documents how to run an analysis. Five
 companion docs remain, each with a job this one doesn't do:
 
 | Doc | Read it when you want |
 |---|---|
+| `analysis_simplification_plan.md` | **Which analysis should be primary**, and why the decoding battery should not be. Diagnostic findings on the decoding pipeline, the baseline, and two defects in the segregation estimator |
 | `stability_flexibility_data_flow.md` | The **shape of the data at every step** of A1–A7 — one fake dataset followed end to end with the actual intermediate tables printed. Backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py` |
 | `stability_flexibility_segregation_methods.md` | Manuscript-ready **Methods** text for the segregation analysis, in a `cluster` and a `cohens_d` version |
 | `refactoring_guide.md` | How the big modules were split (and how to split the next one). Records what has already been done to `decoding/` and `power/` |
@@ -453,6 +454,15 @@ context/cross-block comparisons and low-dimensional (PCA/UMAP) trajectories.
 **bootstrapped** (each electrode randomly downsampled to the min trial count in
 its ROI×condition; then downsampled again to the min across the two conditions
 being compared).
+
+> **Each electrode is downsampled *independently***, so a pseudotrial pairs one
+> electrode's trial 17 with another's trial 4 — even for electrodes recorded
+> simultaneously in one patient. Trial-level cross-electrode covariance is
+> therefore not present in the decoder's input, which bounds what these accuracies
+> can mean, and the per-condition minimum makes the effective n differ between
+> conditions you might want to compare. Both are worked through in
+> `analysis_simplification_plan.md` §1.1–1.2, which argues against using this
+> battery as the primary test of shared vs. independent mechanisms.
 
 **Key files:** `decoding/decoding.py` used to hold the whole pipeline in one
 ~4.8k-line file. It is now a **125-line facade** that re-exports everything, so

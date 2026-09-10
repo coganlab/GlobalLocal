@@ -20,6 +20,24 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 `results/<tag>/…/summary.txt`, `labels.csv`, `correlation.json`, and
 `conjunction.json`.
 
+> **⚠ Do not submit the disjoint-half paragraph as written.** Both versions below
+> state that estimating *x* and *y* on disjoint halves removes shared-trial-noise
+> inflation. That is true of the split, but **not of the estimator as
+> implemented**: `compute_sensitivities` averages *x* and *y* over the 200 splits
+> *before* they are correlated, and the average is dominated by cross terms
+> `cov(x_j, y_k)`, *j ≠ k*, whose trial sets overlap ~50%. Simulated under a pure
+> null with unbalanced cells, the split-averaged estimator recovers essentially
+> all of the naive bias (+0.13…+0.18 vs. +0.14…+0.18) while correlating within
+> split and then averaging gives ≈ 0. The bias vanishes with balanced cells, so
+> it is specific to designs like this one, where cell sizes are set by the
+> proportion manipulation.
+>
+> Fix the aggregation (correlate per split, then average) before this prose is
+> accurate. See `analysis_simplification_plan.md` §2.2. That doc's §2.3 also
+> proposes a split-half **noise ceiling**, which these Methods need in order to
+> support any claim of *independent* mechanisms rather than merely absent
+> evidence for shared ones.
+
 ---
 
 ## Version A — time-resolved ("cluster") effect measure (`effect_measure='cluster'`)

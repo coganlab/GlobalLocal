@@ -656,7 +656,11 @@ Three further differences that matter more than the analogy:
    co-localization question, closer to overlaying two contrast maps than to
    second-order RSA. The disjoint-half estimator and responsiveness
    residualization exist specifically to keep that across-unit correlation
-   unbiased, a problem model-RDM RSA doesn't have.
+   unbiased, a problem model-RDM RSA doesn't have. **Caveat:** the disjoint split
+   does that only per split — averaging the sensitivities over splits before
+   correlating them, as `compute_sensitivities` currently does, reinstates most
+   of the bias whenever the cells are unbalanced. See
+   `analysis_simplification_plan.md` §2.2.
 
 **A real RSA version would be a different (and complementary) analysis:** per ROI
 or pseudopopulation, build the condition × condition RDM from HG *patterns*, then

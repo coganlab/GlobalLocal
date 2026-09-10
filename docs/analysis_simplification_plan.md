@@ -170,30 +170,40 @@ Recorded so they aren't repeated:
 `src/analysis/stats/stability_flexibility_segregation.py`, entry point
 `run_joint_distribution_analysis`, with **`contrast_mode='proportion'`**.
 
-This computes, per electrode, a stability sensitivity (LWPC = congruency ×
-incongruent-proportion interaction) and a flexibility sensitivity (LWPS =
-switchType × switch-proportion interaction), then asks whether those two
-*patterns across electrodes* are related.
+This is **A2-continuous** in the existing battery. What it computes and why the
+estimator is shaped the way it is are already documented — do not re-derive them
+here:
 
-Why this is the right primary test:
+| For | Read |
+|---|---|
+| what A2 does, step by step | `stability_flexibility_data_flow.md` §3b, §8 |
+| how it relates to (and differs from) RSA | `stability_flexibility_data_flow.md` §10 |
+| manuscript-ready Methods prose | `stability_flexibility_segregation_methods.md` |
+| where it sits among A1–A7 | `stability_flexibility_data_flow.md` §11 |
+
+This document adds only the argument for making it **primary**, plus two defects
+found in the implementation (§2.2, §2.3).
+
+Why it is the right primary test:
 
 - **It targets the adaptation question directly.** LWPC and LWPS are
   interactions — how the base effect changes with block proportion. That is what
   "stability/flexibility adaptation" means. Accuracy-in-context-A vs.
   accuracy-in-context-B is an indirect proxy for the same thing, mediated by
   signal, noise, trial count, and estimator behaviour.
-- **It is genuinely multivariate in the way that matters here.** The ROI mean
-  can cancel when some electrodes push positive and others negative; retaining
-  electrode identity and asking whether the two effect *patterns* align is the
-  information the mean throws away. Critically, this does not require
-  trial-level covariance — so unlike the decoder, it is not invalidated by §1.1.
-- **It already handles the two confounds that would otherwise dominate.**
-  Shared trial noise is removed by estimating the two sensitivities on
-  **disjoint trial halves** (`n_splits=200`); shared gain/SNR is removed by
-  residualising both on overall responsiveness (`add_responsiveness`). Both were
-  needed — every trial in a 2×2×2×2 design contributes to both the LWPC and the
-  LWPS estimate, so same-trial noise would otherwise induce correlation with no
-  neural cause.
+- **It recovers what the ROI mean throws away — without needing trial-level
+  covariance.** The ROI mean cancels when some electrodes push positive and
+  others negative; asking whether the two effects land on the *same electrodes,
+  in the same direction* does not. Note the vocabulary: this is **not**
+  multivariate — each electrode's sensitivity is a scalar and there is no
+  pattern dimension (`stability_flexibility_data_flow.md` §10 is right about this, and the
+  representational-geometry question lives in A4). Its virtue here is precisely
+  that it needs no within-trial cross-electrode structure, so §1.1 does not
+  touch it.
+- **It already handles two confounds that would otherwise dominate** — shared
+  trial noise via disjoint halves, shared gain/SNR via responsiveness
+  residualisation. **But the shared-noise correction does not survive the
+  aggregation as implemented — see §2.2 before relying on it.**
 - **Inference already respects subjects** — within-subject centering plus
   within-subject permutation (`subject_clustered_corr`), and CMH stratification
   for the categorical conjunction. This is the piece the decoding pipeline never
@@ -349,11 +359,16 @@ asking them to trust a pipeline.
 Use one anatomically defined lPFC set with recording-quality exclusions only.
 
 Do **not** pre-select LWPC-significant, LWPS-significant, their union, or their
-intersection before measuring pattern similarity — selecting on the effects
-whose overlap you are about to test makes the overlap partly a property of the
+intersection before measuring co-localization — selecting on the effects whose
+overlap you are about to test makes the overlap partly a property of the
 selection rule. The current decoding runner defaults to `ELECTRODES='sig'` with
 `ELECTRODE_DEFINITION_SPLIT` off, and offers several further selection modes;
 none of them belong upstream of this analysis.
+
+The bias this avoids, and the nested-selection machinery for cases where you
+*must* select, are worked out in `nested_electrode_selection.md` — see "Where
+the bias sits" and "The null must run selection too". The recommendation here is
+simply to sidestep it: an anatomical set needs no nested selection at all.
 
 Trade-off: including unresponsive electrodes attenuates `S`. That is
 conservative and acceptable — and it is exactly why §2.3 is not optional.
@@ -372,6 +387,12 @@ actual timing claim ("stability adapts earlier than flexibility"), onset latency
 with a bootstrap CI on the difference is a sharper instrument than a cluster bar.
 
 ### 2.8 Optional confirmatory: minimal cross-decoding
+
+This is **A4** in the existing battery, and it is already specified in depth —
+designs, the double-dipping guard, the within-block 2×2, temporal generalization
+— in `stability_flexibility_data_flow.md` §5, implemented in
+`dcc_scripts/decoding/stability_flexibility_cross_decoding_dcc.py`. Read those
+first; this section only says what to strip out and one framing problem.
 
 Only if reviewers expect MVPA. Keep it small: per-subject, one mean value per
 electrode in the fixed window (no time samples as separate features), shrinkage
@@ -435,15 +456,24 @@ criterion · similarity metric · permutation scheme.
 
 ## Part 5 — Order of operations
 
-1. Make the §2.5 scatterplot. Cheapest, most informative, no new machinery.
-2. Run `run_joint_distribution_analysis(..., contrast_mode='proportion')` on
-   anatomical lPFC electrodes.
-3. Fix the §2.2 split aggregation, add the §2.3 noise ceiling, re-run.
-4. Re-run power traces with per-trial baseline as a robustness check.
-5. Add the time-resolved `S` curve if the timing claim is wanted.
-6. Only then, if desired, the §2.8 minimal cross-decoder.
+Within the A1–A7 sequence of `stability_flexibility_data_flow.md` §11 this is a
+re-prioritisation, not a new pipeline: A2-continuous is promoted to primary, A4
+demoted to optional confirmation.
 
-Steps 1–3 are the paper. Everything after is support.
+1. **Make the §2.5 scatterplot.** Cheapest, most informative, no new machinery,
+   and it tells you most of the answer before any inference.
+2. **Fix the §2.2 split aggregation** (correlate per split, then average).
+   Before this, `run_joint_distribution_analysis` returns a correlation carrying
+   most of the naive shared-noise bias, so running it first produces a number
+   you would only have to discard.
+3. **Add the §2.3 noise ceiling.**
+4. **Run** `run_joint_distribution_analysis(..., contrast_mode='proportion')` on
+   anatomical lPFC electrodes.
+5. Re-run power traces with per-trial baseline as a robustness check (§2.4).
+6. Add the time-resolved `S` curve if the timing claim is wanted (§2.7).
+7. Only then, if desired, the §2.8 minimal cross-decoder.
+
+Steps 1–4 are the paper. Everything after is support.
 
 ---
 
