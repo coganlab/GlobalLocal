@@ -4,6 +4,7 @@
 # Usage:
 #   bash submit_stability_flexibility_segregation_dcc.sh            # real data
 #   DATA_SOURCE=synthetic bash submit_stability_flexibility_segregation_dcc.sh   # dry-run
+#   SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh          # plan 2.5 scatter, no inference
 
 # ---------------------------------------------------------------------------
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
@@ -41,9 +42,17 @@ MIN_ELEC=${MIN_ELEC:-3}
 N_SPLITS=${N_SPLITS:-50}
 N_PERM_CORR=${N_PERM_CORR:-100}
 N_PERM_LABEL=${N_PERM_LABEL:-100}
+
+# Scatter-only (docs/analysis_simplification_plan.md 2.5): assemble the trial
+# table, score both contrasts per electrode, draw the subject-coloured joint
+# scatter, stop. No splits, no permutations -- minutes instead of hours, and it
+# is step 1 of the plan's order of operations. SCATTER_N_SPLITS>0 scores the
+# sensitivities on disjoint trial halves instead of all trials.
+SCATTER_ONLY=${SCATTER_ONLY:-0}
+SCATTER_N_SPLITS=${SCATTER_N_SPLITS:-0}
 mkdir -p out
 
-echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
+echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION, scatter_only=$SCATTER_ONLY)"
 sbatch --job-name="segreg_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC",SCATTER_ONLY="$SCATTER_ONLY",SCATTER_N_SPLITS="$SCATTER_N_SPLITS" \
     sbatch_stability_flexibility_segregation_dcc.sh

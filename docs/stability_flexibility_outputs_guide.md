@@ -99,7 +99,17 @@ Interpretation: A significant enrichment result means selectivity-group membersh
 
 ## Segregation output directory
 
-Typical directory name: `window_<tmin>to<tmax>s_<electrodes>_<contrast_mode>_<effect_measure>`.
+Typical directory name: `window_<tmin>to<tmax>s_<electrodes>_<rois>_<contrast_mode>_<effect_measure>_<fdr_correction>`, with `_scatter_only_splits<N>` appended for a `SCATTER_ONLY` run so its scatter does not overwrite a full run's.
+
+### `segregation_joint_scatter.png`
+
+Purpose: the descriptive joint distribution — each electrode's stability sensitivity against its own flexibility sensitivity, coloured by subject, with a marginal histogram on each axis and a per-subject correlation panel. Look at this before the headline number: positive diagonal = shared, spread on both axes with no correspondence = independent, spread on one axis only = one mechanism, negative diagonal = opponent, and all the structure in one colour or a few points = artifact.
+
+It is descriptive only. There is no permutation, no responsiveness residualisation and no within-subject centring, and by default the two sensitivities are scored on the same trials — so its correlation is an upper bound on the pipeline's, which is annotated on the figure for comparison whenever a full run produced one. Written by every run, and produced on its own (minutes, no inference) with `SCATTER_ONLY=1`.
+
+- `segregation_joint_scatter_diagnostics.json`: the leverage numbers behind the "artifact" reading — `corr`, `corr_within_subject`, `loso_min`/`loso_max` with `most_influential_subject`, `corr_drop_top` (correlation without the most influential electrodes) with `most_influential_electrode`, `max_subject_share`, and `flags`. A non-empty `flags` list means the apparent structure is carried by one subject, a handful of electrodes, or a between-subject offset; investigate before reporting the correlation. Flags are only raised once |corr| >= 0.1 — below that there is no apparent structure to attribute.
+- `segregation_joint_scatter_per_subject.csv`: per subject, the electrode count, that subject's own correlation, and the pooled correlation with that subject held out.
+- `scatter_sensitivities.csv`: written by `SCATTER_ONLY` runs only — the per-electrode `x`/`y` the scatter was drawn from.
 
 ### `segregation_summary.png`
 
