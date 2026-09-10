@@ -9,7 +9,9 @@ CONDITIONS=(
 )
 
 # Override this in the environment when decoding a different epochs dataset.
-EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
+# EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
+EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
+
 
 # Optional selections from stats/results/anova_conjunction_windows/anova_labels.csv.
 # Add as many CSVs (or result directories containing anova_labels.csv) as needed;
@@ -57,9 +59,9 @@ fi
 #     lwpc_only lwps_only congruency_only switch_type_only
 # )
 
-ANOVA_LABEL_EFFECTS=(
-    both congruency_only switch_type_only
-)
+# ANOVA_LABEL_EFFECTS=(
+#     both congruency_only switch_type_only
+# )
 
 if [[ -z "${ANOVA_LABELS_CSVS[0]:-}" ]]; then
     # Dummy value: ignored when no saved ANOVA-label CSV is supplied.

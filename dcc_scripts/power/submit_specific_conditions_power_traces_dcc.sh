@@ -12,6 +12,12 @@ CONDITIONS=(
     stimulus_switch_type_by_incongruent_proportion_conditions
 )
 
+# CONDITIONS=(
+#     stimulus_congruency_conditions
+#     stimulus_switch_type_conditions
+# )
+
+
 # One cell per block type + full-factorial ANOVA, so the 2-way terms are
 # equal-weight contrasts. Two jobs cover all four interactions: the lwpc set
 # emits congruency x incProportion AND congruency x switchProportion, the lwps
@@ -32,7 +38,7 @@ CONDITIONS=(
 EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
 
 # anova stats
-ANOVA_UNIT='roi'  # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
+ANOVA_UNIT='electrode'  # whether to do the stats in terms of 'roi' (across electrodes) or 'electrode' (within_electrodes)
 
 # Optional selections from stats/results/anova_conjunction_windows/anova_labels.csv.
 # Add as many CSVs (or result directories containing anova_labels.csv) as needed;

@@ -10,14 +10,15 @@
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # ---------------------------------------------------------------------------
 # EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
+# EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
+EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
 
 # ---------------------------------------------------------------------------
 # Analysis window (seconds relative to stimulus onset) and electrode set.
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
 WINDOW_TMAX=1.5
-ELECTRODES=sig            # 'all' or 'sig'
+ELECTRODES=all            # 'all' or 'sig'
 # NOTE: sbatch --export separates VAR=VALUE pairs with commas, so a
 # comma-containing value cannot be passed in that list -- it would be truncated
 # at the first comma. ROIS is therefore `export`ed here and reaches the job
@@ -28,9 +29,9 @@ export ROIS=${ROIS:-lpfc} # comma-separated config ROI names, or 'all'
 DATA_SOURCE=${DATA_SOURCE:-real}
 
 # Contrast/electrode-label options.
-CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
-EFFECT_MEASURE=${EFFECT_MEASURE:-cluster}    # cohens_d | cluster | peak_t
+CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | cluster | peak_t
 ALPHA=${ALPHA:-0.05}
 MIN_ELEC=${MIN_ELEC:-3}
 
@@ -39,17 +40,17 @@ MIN_ELEC=${MIN_ELEC:-3}
 # N_PERM_CORR=${N_PERM_CORR:-1000}
 # N_PERM_LABEL=${N_PERM_LABEL:-1000}
 
-N_SPLITS=${N_SPLITS:-50}
-N_PERM_CORR=${N_PERM_CORR:-100}
-N_PERM_LABEL=${N_PERM_LABEL:-100}
+N_SPLITS=${N_SPLITS:-200}
+N_PERM_CORR=${N_PERM_CORR:-1000}
+N_PERM_LABEL=${N_PERM_LABEL:-1000}
 
 # Scatter-only (docs/analysis_simplification_plan.md 2.5): assemble the trial
 # table, score both contrasts per electrode, draw the subject-coloured joint
 # scatter, stop. No splits, no permutations -- minutes instead of hours, and it
 # is step 1 of the plan's order of operations. SCATTER_N_SPLITS>0 scores the
 # sensitivities on disjoint trial halves instead of all trials.
-SCATTER_ONLY=${SCATTER_ONLY:-0}
-SCATTER_N_SPLITS=${SCATTER_N_SPLITS:-0}
+SCATTER_ONLY=${SCATTER_ONLY:-1}
+SCATTER_N_SPLITS=${SCATTER_N_SPLITS:-200}
 mkdir -p out
 
 echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION, scatter_only=$SCATTER_ONLY)"
