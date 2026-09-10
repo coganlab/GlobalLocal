@@ -49,6 +49,7 @@ matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
+from src.analysis.stats import segregation_scatter as scat
 from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
@@ -306,6 +307,51 @@ def write_summary(out, save_dir, meta):
 
 
 # ---------------------------------------------------------------------------
+# the joint scatter (docs/analysis_simplification_plan.md 2.5)
+# ---------------------------------------------------------------------------
+def make_joint_scatter(elec, save_dir, contrast_mode='proportion',
+                       effect_measure=None, correlation=None,
+                       stem='segregation_joint_scatter'):
+    """Write the per-electrode joint scatter + its leverage diagnostics.
+
+    The scatter is descriptive: it correlates the sensitivities as given, with
+    no responsiveness residualisation, no within-subject centring and no
+    permutation. `correlation` (the pipeline's `out['correlation']`) is only
+    annotated onto the figure, so a reader can see the corrected estimate beside
+    the raw one -- they will differ, and the corrected one is the inferential
+    claim.
+
+    Writes <stem>.png, <stem>_diagnostics.json and <stem>_per_subject.csv.
+    """
+    os.makedirs(save_dir, exist_ok=True)
+    note = None
+    if correlation:
+        note = (f"pipeline estimate (disjoint halves, responsiveness-residualised, "
+                f"within-subject): corr = {correlation['corr']:+.4f}  "
+                f"p = {correlation['p']:.4g}")
+        if 'reliability_x' in correlation:
+            note += (f"   [rel_x = {correlation['reliability_x']:+.3f}, "
+                     f"rel_y = {correlation['reliability_y']:+.3f}]")
+
+    fig_path = os.path.join(save_dir, f'{stem}.png')
+    fig, diag = scat.plot_joint_scatter(
+        elec, save_path=fig_path, contrast_mode=contrast_mode,
+        effect_measure=effect_measure, annotate=note)
+    plt.close(fig)
+
+    with open(os.path.join(save_dir, f'{stem}_diagnostics.json'), 'w') as f:
+        json.dump(_json_safe(scat.diagnostics_to_json(diag)), f, indent=2)
+    diag['per_subject'].to_csv(
+        os.path.join(save_dir, f'{stem}_per_subject.csv'), index=False)
+
+    print(f"joint scatter: r = {diag['corr']:+.4f} ({diag['method']}) over "
+          f"{diag['n_electrodes']} electrodes / {diag['n_subjects']} subjects")
+    for flag in diag['flags']:
+        print(f"  ! {flag}")
+    return diag
+
+
+# ---------------------------------------------------------------------------
 # summary figure
 # ---------------------------------------------------------------------------
 def make_summary_plots(out, save_dir, n_perm_plot=2000, seed=1):
@@ -501,6 +547,55 @@ def make_diagnostic_plots(out, df, save_dir, contrast_mode='condition',
 # ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
+def build_long_df(args, LAB_root, effect_measure='cohens_d'):
+    """Assemble the (electrode, trial) long table from whichever data source the
+    args ask for. Shared by the full run and the scatter-only fast path."""
+    if args.data_source == 'synthetic':
+        print("DATA SOURCE: synthetic (pipeline / path validation)")
+        return make_synthetic_df(rho_true=args.synthetic_rho,
+                                 effect_measure=effect_measure)
+
+    print("DATA SOURCE: real epoched data")
+    from src.analysis.utils.general_utils import load_HG_ev1_rescaled_per_subject
+    subjects_epochs = load_HG_ev1_rescaled_per_subject(
+        subjects=args.subjects, epochs_root_file=args.epochs_root_file,
+        task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
+    keep = resolve_electrodes_to_keep(args, LAB_root)
+    return assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
+                            electrodes_to_keep=keep, effect_measure=effect_measure)
+
+
+def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
+    """The plan's step 1 on its own: assemble the table, score both contrasts per
+    electrode, draw the joint scatter, stop.
+
+    No splits, no permutations, no categorical arm -- minutes rather than hours,
+    which is the point of looking at the scatter before committing to the
+    inference. `args.scatter_n_splits > 0` swaps the naive sensitivities for
+    split-averaged disjoint-half ones (slower, but shared trial noise removed).
+    """
+    df = build_long_df(args, LAB_root, effect_measure=effect_measure)
+    print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
+          f"{df.electrode.nunique()} electrodes")
+
+    n_splits = int(getattr(args, 'scatter_n_splits', 0) or 0)
+    how = f"{n_splits} disjoint-half splits" if n_splits else "naive, all trials"
+    print(f"scoring sensitivities ({how})")
+    elec = scat.sensitivities_for_scatter(
+        df, contrast_mode=contrast_mode, effect_measure=effect_measure,
+        alpha=args.alpha, n_splits=n_splits)
+
+    os.makedirs(args.save_dir, exist_ok=True)
+    elec.to_csv(os.path.join(args.save_dir, 'scatter_sensitivities.csv'), index=False)
+    diag = make_joint_scatter(elec, args.save_dir, contrast_mode=contrast_mode,
+                              effect_measure=effect_measure)
+    caveat = ("" if n_splits else
+              " x and y share trials here, so the tilt is an UPPER bound; the "
+              "disjoint-half estimator is what removes shared trial noise.")
+    print(f"\nSCATTER ONLY: no inference was run.{caveat}")
+    return dict(electrodes=elec, scatter_diagnostics=diag)
+
+
 def main(args):
     LAB_root = resolve_lab_root(args.LAB_root)
 
@@ -512,19 +607,11 @@ def main(args):
     print(f"contrast_mode: {contrast_mode} | effect_measure: {effect_measure}")
     os.makedirs(args.save_dir, exist_ok=True)
 
+    if getattr(args, 'scatter_only', False):
+        return run_scatter_only(args, LAB_root, contrast_mode, effect_measure)
+
     # 1. build the long-format df -------------------------------------------------
-    if args.data_source == 'synthetic':
-        print("DATA SOURCE: synthetic (pipeline / path validation)")
-        df = make_synthetic_df(rho_true=args.synthetic_rho, effect_measure=effect_measure)
-    else:
-        print("DATA SOURCE: real epoched data")
-        from src.analysis.utils.general_utils import load_HG_ev1_rescaled_per_subject
-        subjects_epochs = load_HG_ev1_rescaled_per_subject(
-            subjects=args.subjects, epochs_root_file=args.epochs_root_file,
-            task=args.task, LAB_root=LAB_root, acc_trials_only=args.acc_trials_only)
-        keep = resolve_electrodes_to_keep(args, LAB_root)
-        df = assemble_long_df(subjects_epochs, args.window_tmin, args.window_tmax,
-                              electrodes_to_keep=keep, effect_measure=effect_measure)
+    df = build_long_df(args, LAB_root, effect_measure=effect_measure)
 
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
@@ -543,6 +630,9 @@ def main(args):
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
+    make_joint_scatter(out['electrodes'], args.save_dir,
+                       contrast_mode=contrast_mode, effect_measure=effect_measure,
+                       correlation=out['correlation'])
     make_summary_plots(out, args.save_dir)
     make_diagnostic_plots(out, df, args.save_dir, contrast_mode=contrast_mode,
                           effect_measure=effect_measure)

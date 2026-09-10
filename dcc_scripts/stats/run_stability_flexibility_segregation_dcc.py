@@ -102,6 +102,18 @@ ROIS_DICT = select_rois(ROIS)
 # Prefer passing a {electrode: baseline-vs-signal cluster stat} dict here.
 RESPONSIVENESS = None
 
+# --- scatter-only fast path (docs/analysis_simplification_plan.md 2.5) -------
+# SCATTER_ONLY=1 assembles the trial table, scores both contrasts per electrode,
+# writes the joint scatter (coloured by subject, marginal histograms, leverage
+# diagnostics) and stops -- no splits, no permutations, no categorical arm. This
+# is step 1 of the plan's order of operations: it tells you most of the answer in
+# minutes, before committing a multi-hour inferential run.
+#   SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh
+# SCATTER_N_SPLITS>0 scores the sensitivities on disjoint trial halves instead of
+# all trials (slower; removes shared trial noise from the picture).
+SCATTER_ONLY = os.environ.get('SCATTER_ONLY', '0') not in ('0', '', 'false', 'False')
+SCATTER_N_SPLITS = int(os.environ.get('SCATTER_N_SPLITS', '0'))
+
 # --- analysis hyperparameters ---
 N_SPLITS = int(os.environ.get('N_SPLITS', '200'))          # disjoint-half resamples
 N_PERM_CORR = int(os.environ.get('N_PERM_CORR', '10000'))  # continuous-test perms
@@ -116,6 +128,11 @@ _roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
                         f'_{_roi_tag}_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
+# Keep the scatter-only run in its own directory: its sensitivities are scored
+# differently (all trials, by default) from the ones a full run plots, so writing
+# both scatters to the same path would silently overwrite one with the other.
+if SCATTER_ONLY:
+    SAVE_DIR += f'_scatter_only_splits{SCATTER_N_SPLITS}'
 
 def run_analysis():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -142,6 +159,8 @@ def run_analysis():
         fdr_correction=FDR_CORRECTION,
         min_elec=MIN_ELEC,
         save_dir=SAVE_DIR,
+        scatter_only=SCATTER_ONLY,
+        scatter_n_splits=SCATTER_N_SPLITS,
     )
 
     print("=" * 70)
@@ -163,11 +182,16 @@ def run_analysis():
     print(f"Contrast mode:    {CONTRAST_MODE}")
     print(f"Effect measure:   {EFFECT_MEASURE}")
     print("-" * 70)
-    print(f"n_splits:         {N_SPLITS}")
-    print(f"n_perm_corr:      {N_PERM_CORR}")
-    print(f"n_perm_label:     {N_PERM_LABEL}")
+    if SCATTER_ONLY:
+        print("MODE:             SCATTER ONLY (plan 2.5) - no inference is run")
+        print(f"scatter_n_splits: {SCATTER_N_SPLITS}"
+              f" ({'disjoint halves' if SCATTER_N_SPLITS else 'naive, all trials'})")
+    else:
+        print(f"n_splits:         {N_SPLITS}")
+        print(f"n_perm_corr:      {N_PERM_CORR}")
+        print(f"n_perm_label:     {N_PERM_LABEL}")
+        print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"alpha:            {ALPHA} | min_elec: {MIN_ELEC}")
-    print(f"fdr_correction:   {FDR_CORRECTION}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 70)
 
