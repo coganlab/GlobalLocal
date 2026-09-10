@@ -368,6 +368,17 @@ the sensitivities scale with per-electrode gain and the linear responsiveness
 residualisation does not fully remove a multiplicative gain term. Keep the
 pooled within-cell SD.
 
+**One cost: it needs more trials per cell.** The balanced form requires ≥ 2
+trials in each of the four 2×2 cells *of each half*, i.e. **≥ 4 per cell before
+splitting**, where the old two-group form needed only 2 per group. Your cells
+run 11–63, so halves give roughly 5–31 and this is not close to binding — but it
+binds hard in sparser configurations, and when it does the electrode is dropped
+from the correlation entirely (an effect must be defined on *every* split for the
+per-split vectors to be comparable). `split_resolved_corr` reports
+`n_electrodes_dropped` and warns when more than 10% go. If that warning fires,
+the correlation is being computed on a non-random subset of electrodes and the
+cell counts need looking at before the number means anything.
+
 ### 2.2c The responsiveness proxy was a function of the effects — **fixed**
 
 **Status: implemented** (`add_responsiveness`). A plain bug, found by chasing the

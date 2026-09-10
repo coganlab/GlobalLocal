@@ -673,7 +673,7 @@ Three further differences that matter more than the analogy:
    to take three separate corrections — correlating within each split rather than
    averaging the sensitivities first, scoring contrasts with equal cell weights,
    and using a responsiveness proxy that is not itself a function of the effects.
-   All three are in place; see `analysis_simplification_plan.md` §2.2–§2.2b for
+   All three are in place; see `analysis_simplification_plan.md` §2.2–§2.2c for
    what each one removes and what remains open.
 
 **A real RSA version would be a different (and complementary) analysis:** per ROI

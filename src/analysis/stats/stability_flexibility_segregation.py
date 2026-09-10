@@ -73,6 +73,7 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
 """
 
 import copy
+import warnings
 from collections import namedtuple
 
 import numpy as np
@@ -781,7 +782,21 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     d = d[complete]
     d = d[d.groupby('subject')['electrode'].transform('nunique') >= min_elec]
     if d.empty:
-        raise ValueError("no electrode survived the completeness / min_elec filter")
+        raise ValueError(
+            "no electrode survived the completeness / min_elec filter. With "
+            "BALANCE_MAIN_EFFECTS, an effect needs >= 2 trials in EACH of the "
+            "four 2x2 cells of each half -- i.e. >= 4 trials per cell before "
+            "splitting -- where the old two-group scoring needed only 2 per "
+            "group. Check your smallest cell count per electrode.")
+    n_dropped = int(n_elec_in - d['electrode'].nunique())
+    if n_dropped > 0.1 * n_elec_in:
+        warnings.warn(
+            f"{n_dropped}/{n_elec_in} electrodes dropped from the continuous "
+            "test because their effect was undefined on at least one split. "
+            "That usually means some 2x2 cell is too small to survive halving "
+            "(>= 4 trials per cell needed). Treat `corr` as computed on a "
+            "biased subset until you have checked the cell counts.",
+            RuntimeWarning, stacklevel=2)
 
     elecs = np.sort(d['electrode'].unique())
     e_index = {e: i for i, e in enumerate(elecs)}

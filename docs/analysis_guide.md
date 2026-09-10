@@ -1500,7 +1500,10 @@ fallback).
 - `correlation.json` — continuous test: `corr`, `p`, `n_electrodes`,
   `n_subjects`, plus the noise ceiling (`reliability_x`, `reliability_y`,
   `corr_noise_corrected`) and `n_electrodes_dropped` (electrodes whose effect was
-  undefined on at least one split, and so excluded).
+  undefined on at least one split, and so excluded). Cell-weighted scoring needs
+  ≥ 2 trials in each 2×2 cell of each half — ≥ 4 per cell before splitting — so a
+  large `n_electrodes_dropped` means sparse cells, not a bug; the module warns
+  above 10%.
 - `correlation_split_averaged.json` — the superseded estimator (average the
   sensitivities over splits, then correlate once), kept **as a diagnostic only**.
   It forfeits the disjoint-half correction; do not report it.
