@@ -20,14 +20,21 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 `results/<tag>/…/summary.txt`, `labels.csv`, `correlation.json`, and
 `conjunction.json`.
 
-> **Note on a fixed estimator (2026-09).** Earlier versions of this document
+> **Implementation status (2026-09-10).** Earlier versions of this document
 > carried a warning not to submit the disjoint-half paragraph: the code averaged
 > *x* and *y* over the 200 splits *before* correlating them, which forfeited the
 > disjoint-half correction (the average is dominated by cross terms
 > `cov(x_j, y_k)`, *j ≠ k*, whose trial sets overlap ~50%). **That is fixed** —
 > the correlation is now computed within each split and averaged, and the
-> split-half **noise ceiling** is reported alongside it. The prose below has been
-> updated to match and is accurate as written.
+> split-half reliability is reported alongside it. This fixes the shared-trial
+> aggregation problem, but it does **not** make the current pipeline a complete
+> confirmatory population analysis. In particular, splitting is still by trials
+> rather than intact blocks, the interaction-label permutation still shuffles a
+> block-level modulator trial by trial, inference is still electrode-weighted,
+> and the `cluster` measure still returns one scalar for the requested interval
+> rather than a similarity curve over time. The status table below distinguishes
+> implemented improvements from remaining work; manuscript prose must retain
+> these qualifications.
 >
 > Two things to carry into a manuscript. (i) Main-effect contrasts are now scored
 > with equal cell weights, like the interactions, which matters if congruency and
@@ -36,6 +43,38 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 > trial-count-weighted scoring, so in `CONTRAST_MODE=condition` the continuous
 > and categorical arms are not scored identically. Both are detailed in
 > `analysis_simplification_plan.md` §2.2–§2.2b.
+
+## Review status of the revised implementation
+
+This table maps the September 2026 methodological review to the code currently
+on this branch. “Resolved” means the requested computation is implemented, not
+that every inferential assumption has thereby been established.
+
+| Review item | Current status | Consequence |
+|---|---|---|
+| Balanced adaptation contrasts | **Resolved.** Proportion mode estimates equal-cell LWPC and LWPS differences-of-differences. | Retain as the primary construct definition. |
+| Four half-specific estimates and cross-fitted similarity | **Resolved.** `compute_sensitivities_per_split` returns `xA`, `xB`, `yA`, and `yB`; `split_resolved_corr` averages the two cross-half correlations within each split. | Shared trial noise is not reintroduced by averaging effects before correlation. Splits are resampling replicates, not independent observations. |
+| Split-half reliability | **Partly resolved.** Half-data reliabilities and an attenuation-corrected correlation are returned. | Treat raw similarity as primary. Reliabilities are companions, not proof of a “noise ceiling”; no bootstrap confidence intervals or full-data Spearman–Brown estimates are implemented. The corrected value is omitted when either reliability is non-positive, but remains potentially unstable when reliabilities are small and positive. |
+| Block-aware splitting | **Open.** The long table has no required session/run/block/trial-position contract, and halves are stratified trial splits rather than intact-block splits. | Slow block-level dependence is not handled. Confirmatory use requires identifiers and block-respecting resampling or cluster-aware modelling. |
+| Interaction-label permutation | **Open / invalid for confirmatory use.** It still permutes the block-proportion modulator trial by trial within condition. | Do not use categorical electrode *p*/FDR labels or CMH overlap as confirmatory evidence until the null preserves actual block exchangeability. |
+| Participant-level population inference | **Open.** The primary statistic is one pooled, within-subject-centred electrode correlation; subjects with more electrodes receive more weight. | Label it “within-subject electrode-level association.” Add per-subject estimates when coverage permits or a hierarchical subject bootstrap. `min_elec=3` is only an eligibility default, not a defensible subject-level correlation threshold. |
+| Responsiveness adjustment | **Partly resolved.** The fallback bug (`|mean HG|` rather than `mean |HG|`) is fixed, but adjustment remains mandatory in the primary function and uses one pooled slope. | Report an unadjusted primary analysis and adjustment using an independent responsiveness/SNR measure as sensitivity analysis before making a mechanism claim. |
+| Time-resolved similarity | **Open.** `effect_measure='cluster'` and `'peak_t'` each collapse the full interval to one electrode scalar. | Neither produces `S(t)`. Implement fixed time bins, reliability curves, and a subject-respecting across-time null before making timing claims. |
+| Categorical conjunction | **Unchanged as secondary/descriptive.** CMH is subject-stratified and uninformative strata are now removed, but the labels inherit the invalid block-modulator permutation. | Anatomical S-only/F-only/both/neither maps are useful descriptively; they must not decide the shared-versus-independent conclusion. |
+| Interpretation language | **Open in generated output.** `write_summary` still chooses “shared core” or “segregated” from the sign alone and uses an ad hoc reliability threshold of 0.2. | Interpret positive/negative nonsignificant estimates neutrally. “Distinct” needs reliable patterns plus equivalence to a prespecified margin; otherwise report “inconclusive.” |
+| Baseline description | **Open pending verification.** The preprocessing call uses a separate baseline epochs object; paired trial-by-trial behaviour has not been demonstrated here. | Do not describe the transform as trial-by-trial unless the `ieeg.rescale` implementation and trial alignment are verified. Run local per-trial baseline subtraction as a sensitivity analysis. |
+
+### Confirmatory priority
+
+The current implementation is a substantially improved **continuous,
+cross-fitted electrode-pattern analysis**, and the raw cross-half similarity is
+the appropriate primary statistic among the outputs it currently produces. It
+is nevertheless an interim analysis. The next load-bearing changes are, in
+order: (1) block/run identifiers and block-respecting splits/nulls, (2)
+subject-level or hierarchical subject-bootstrap uncertainty, and (3) fixed-bin
+`S(t)` with reliability and across-time correction. Responsiveness adjustment
+and categorical conjunction should be sensitivity/descriptive analyses rather
+than prerequisites for the primary claim.
 
 ---
 
@@ -46,9 +85,12 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 Analyses were performed on stimulus-locked single-trial high-gamma (HG,
 70–150 Hz) from [N] patients performing the Global/Local task. Broadband HG was
 extracted from the cleaned, average-referenced recordings with a filterbank–Hilbert
-decomposition, epoched from −1.0 to 1.5 s relative to stimulus onset, and
-z-scored trial-by-trial against a 0.5-s pre-stimulus baseline drawn from the
-−1.0 to 0.0 s interval. Epochs were decimated by a factor of 8; trials
+decomposition and epoched from −1.0 to 1.5 s relative to stimulus onset. The
+current preprocessing passes the signal epochs and a separately constructed
+0.5-s pre-stimulus baseline epochs object to `ieeg.rescale(..., mode='zscore')`.
+Whether that operation pairs each signal trial with its own aligned baseline has
+not yet been verified, so it must not be described as “trial-by-trial” in a
+manuscript without that verification. Epochs were decimated by a factor of 8; trials
 exceeding 10 SD were treated as outliers and channels with more than 5% outlier
 trials were dropped. Only correct trials were analysed, and trials whose task
 sequence was undefined (first trial of a block) were excluded, leaving trials
@@ -169,7 +211,8 @@ estimator removes; it is not used for inference.
 
 ### Gain control and subject nesting
 
-Two nuisance sources were removed before testing. (i) **Shared gain/SNR**: an
+The current implementation removes two nuisance sources before testing. (i)
+**Shared gain/SNR**: an
 electrode with a high signal-to-noise ratio shows larger effects for *both*
 contrasts, which by itself produces a positive *x*–*y* correlation. Each
 electrode's overall task responsiveness was therefore computed (the mean |HG| over
@@ -179,6 +222,15 @@ cluster statistic) and *x* and *y* were each linearly residualised on it.
 so the estimate reflects within-subject co-selectivity and matches the
 within-subject permutation null used for inference. Subjects contributing fewer
 than three usable electrodes were excluded from the continuous test.
+
+This is an implementation description, not an endorsement of responsiveness
+residualisation as the primary specification. Responsiveness can be genuine
+shared biological variance, the fallback proxy is estimated from the same data,
+and the current regression uses one slope pooled across subjects. The preferred
+report is therefore the unadjusted cross-fitted similarity as primary and an
+adjusted analysis using an independently estimated responsiveness or precision
+measure as sensitivity analysis. That preferred unadjusted path is **not yet an
+option in `run_joint_distribution_analysis`**.
 
 ### Continuous test: is stability sensitivity related to flexibility sensitivity?
 
@@ -191,23 +243,33 @@ splits, so it breaks the *x*–*y* electrode correspondence while leaving each
 split's internal structure intact. The two-tailed *p* value is the proportion of
 permutations with |ρ| at least as large as observed. As a parametric cross-check,
 a linear mixed model with a subject random intercept was fitted to the
-responsiveness-residualised sensitivities. A positive correlation indicates
-shared tuning (a domain-general core); a correlation at or below zero indicates
-segregation.
+responsiveness-residualised sensitivities. A significantly positive estimate,
+when both patterns are reliable, supports shared alignment; a significantly
+negative estimate supports opposing organization. A nonsignificant estimate of
+either sign does not establish either conclusion. A near-zero estimate supports
+distinct patterns only when reliability is adequate and an equivalence interval
+excludes a prespecified meaningful positive association; that equivalence test
+is not currently implemented.
 
-**Noise ceiling.** A correlation at or below zero is only interpretable if both
+**Split-half reliability and attenuation correction.** A correlation near zero
+is only interpretable if both
 effects are measured reliably in the first place, so from the same disjoint
 halves we computed the split-half reliability of each sensitivity,
 *r*<sub>stab</sub> = ρ(*x*<sub>A</sub>, *x*<sub>B</sub>) and *r*<sub>flex</sub> =
 ρ(*y*<sub>A</sub>, *y*<sub>B</sub>), averaged over splits on the same
-residualised and within-subject-centred values. These bound the attainable
-cross-correlation, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
+residualised and within-subject-centred values. These diagnose pattern
+reproducibility, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
 *r*<sub>flex</sub>) is reported alongside the raw estimate; the permutation *p*
 applies unchanged to both, since they differ only by a fixed positive
-denominator. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
-*r*<sub>flex</sub> = […]) alongside ρ ≈ 0 constitute positive evidence for
-spatially distinct populations; low reliability instead means the correlation is
-uninformative and no independence claim is licensed. Electrodes whose effect was
+denominator. The corrected estimate is secondary and is reported only when both
+reliabilities are positive; it can nevertheless be unstable or exceed ±1 when
+either reliability is small. It must not be clipped or treated as a guaranteed
+noise ceiling. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
+*r*<sub>flex</sub> = […]) make a near-zero estimate interpretable, but positive
+evidence for spatially distinct populations additionally requires an equivalence
+interval excluding a prespecified meaningful shared association. Low reliability
+means the correlation is uninformative and no independence claim is licensed.
+Electrodes whose effect was
 undefined on any split were excluded from the continuous test ([…] electrodes).
 
 ### Categorical test: 2×2 conjunction
@@ -223,6 +285,15 @@ lets a main effect masquerade as an interaction. The resulting two-tailed
 separately for each construct, and electrodes with *q* < 0.05 were flagged.
 Electrodes with an undefined statistic were carried as non-significant rather than
 dropped, so the FDR denominator remains honest.
+
+This permutation is retained for exploratory reproduction only. Because the
+modulator is constant within an experimental block, trial-wise reassignment
+creates block configurations that could not occur and ignores within-block
+dependence. Consequently the categorical *p* values, FDR flags, and downstream
+CMH test are not confirmatory. They should be replaced by a null that permutes
+the randomized trial-level factor within actual blocks, permutes intact block
+identities only where the design makes them exchangeable, or uses a block-aware
+regression/bootstrap.
 
 As a parametric cross-check on the labels, the same 2×2 interaction was tested
 per electrode with a Type III, sum-coded two-way ANOVA (FDR-corrected across
@@ -273,9 +344,12 @@ are unchanged.
 Analyses were performed on stimulus-locked single-trial high-gamma (HG,
 70–150 Hz) from [N] patients performing the Global/Local task. Broadband HG was
 extracted from the cleaned, average-referenced recordings with a filterbank–Hilbert
-decomposition, epoched from −1.0 to 1.5 s relative to stimulus onset, and
-z-scored trial-by-trial against a 0.5-s pre-stimulus baseline drawn from the
-−1.0 to 0.0 s interval. Epochs were decimated by a factor of 8; trials
+decomposition and epoched from −1.0 to 1.5 s relative to stimulus onset. The
+current preprocessing passes the signal epochs and a separately constructed
+0.5-s pre-stimulus baseline epochs object to `ieeg.rescale(..., mode='zscore')`.
+Whether that operation pairs each signal trial with its own aligned baseline has
+not yet been verified, so it must not be described as “trial-by-trial” in a
+manuscript without that verification. Epochs were decimated by a factor of 8; trials
 exceeding 10 SD were treated as outliers and channels with more than 5% outlier
 trials were dropped. Only correct trials were analysed, and trials whose task
 sequence was undefined (first trial of a block) were excluded, leaving trials
@@ -368,16 +442,26 @@ estimator removes; it is not used for inference.
 
 ### Gain control and subject nesting
 
-Two nuisance sources were removed before testing. (i) **Shared gain/SNR**: an
+The current implementation removes two nuisance sources before testing. (i)
+**Shared gain/SNR**: an
 electrode with a high signal-to-noise ratio shows larger effects for *both*
 contrasts, which by itself produces a positive *x*–*y* correlation. Each
-electrode's overall task responsiveness was therefore computed (the absolute
-mean HG over trials, or, where available, the electrode's baseline-versus-signal
+electrode's overall task responsiveness was therefore computed (the mean
+absolute HG over trials, or, where available, the electrode's baseline-versus-signal
 cluster statistic) and *x* and *y* were each linearly residualised on it.
 (ii) **Subject nesting**: residualised sensitivities were centred within subject,
 so the estimate reflects within-subject co-selectivity and matches the
 within-subject permutation null used for inference. Subjects contributing fewer
 than three usable electrodes were excluded from the continuous test.
+
+This is an implementation description, not an endorsement of responsiveness
+residualisation as the primary specification. Responsiveness can be genuine
+shared biological variance, the fallback proxy is estimated from the same data,
+and the current regression uses one slope pooled across subjects. The preferred
+report is therefore the unadjusted cross-fitted similarity as primary and an
+adjusted analysis using an independently estimated responsiveness or precision
+measure as sensitivity analysis. That preferred unadjusted path is **not yet an
+option in `run_joint_distribution_analysis`**.
 
 ### Continuous test: is stability sensitivity related to flexibility sensitivity?
 
@@ -390,23 +474,33 @@ splits, so it breaks the *x*–*y* electrode correspondence while leaving each
 split's internal structure intact. The two-tailed *p* value is the proportion of
 permutations with |ρ| at least as large as observed. As a parametric cross-check,
 a linear mixed model with a subject random intercept was fitted to the
-responsiveness-residualised sensitivities. A positive correlation indicates
-shared tuning (a domain-general core); a correlation at or below zero indicates
-segregation.
+responsiveness-residualised sensitivities. A significantly positive estimate,
+when both patterns are reliable, supports shared alignment; a significantly
+negative estimate supports opposing organization. A nonsignificant estimate of
+either sign does not establish either conclusion. A near-zero estimate supports
+distinct patterns only when reliability is adequate and an equivalence interval
+excludes a prespecified meaningful positive association; that equivalence test
+is not currently implemented.
 
-**Noise ceiling.** A correlation at or below zero is only interpretable if both
+**Split-half reliability and attenuation correction.** A correlation near zero
+is only interpretable if both
 effects are measured reliably in the first place, so from the same disjoint
 halves we computed the split-half reliability of each sensitivity,
 *r*<sub>stab</sub> = ρ(*x*<sub>A</sub>, *x*<sub>B</sub>) and *r*<sub>flex</sub> =
 ρ(*y*<sub>A</sub>, *y*<sub>B</sub>), averaged over splits on the same
-residualised and within-subject-centred values. These bound the attainable
-cross-correlation, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
+residualised and within-subject-centred values. These diagnose pattern
+reproducibility, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
 *r*<sub>flex</sub>) is reported alongside the raw estimate; the permutation *p*
 applies unchanged to both, since they differ only by a fixed positive
-denominator. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
-*r*<sub>flex</sub> = […]) alongside ρ ≈ 0 constitute positive evidence for
-spatially distinct populations; low reliability instead means the correlation is
-uninformative and no independence claim is licensed. Electrodes whose effect was
+denominator. The corrected estimate is secondary and is reported only when both
+reliabilities are positive; it can nevertheless be unstable or exceed ±1 when
+either reliability is small. It must not be clipped or treated as a guaranteed
+noise ceiling. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
+*r*<sub>flex</sub> = […]) make a near-zero estimate interpretable, but positive
+evidence for spatially distinct populations additionally requires an equivalence
+interval excluding a prespecified meaningful shared association. Low reliability
+means the correlation is uninformative and no independence claim is licensed.
+Electrodes whose effect was
 undefined on any split were excluded from the continuous test ([…] electrodes).
 
 ### Categorical test: 2×2 conjunction
@@ -422,6 +516,15 @@ two-tailed *p* values were corrected across electrodes with the
 Benjamini–Hochberg FDR separately for each construct, and electrodes with
 *q* < 0.05 were flagged. Electrodes with an undefined statistic were carried as
 non-significant rather than dropped, so the FDR denominator remains honest.
+
+This permutation is retained for exploratory reproduction only. Because the
+modulator is constant within an experimental block, trial-wise reassignment
+creates block configurations that could not occur and ignores within-block
+dependence. Consequently the categorical *p* values, FDR flags, and downstream
+CMH test are not confirmatory. They should be replaced by a null that permutes
+the randomized trial-level factor within actual blocks, permutes intact block
+identities only where the design makes them exchangeable, or uses a block-aware
+regression/bootstrap.
 
 As a parametric cross-check on the labels, the same 2×2 interaction was tested
 per electrode on the window-mean HG with a Type III, sum-coded two-way ANOVA

@@ -21,18 +21,25 @@ adaptation (LWPS) rely on shared or independent neural mechanisms in lPFC?
    `src/analysis/stats/stability_flexibility_segregation.py`, run via
    `run_joint_distribution_analysis(..., contrast_mode='proportion')`. Make it
    primary.
-3. **Four changes were needed before it was trustworthy; all four are now
-   implemented.** Two were planned: the split aggregation is fixed (§2.2 — the
+3. **Four estimator improvements are now implemented, but they do not close the
+   confirmatory-analysis checklist.** Two were planned: the split aggregation is
+   fixed (§2.2 — the
    disjoint-half correction was being forfeited by averaging the estimates
-   before correlating them) and a split-half noise ceiling is reported (§2.3 —
-   without it a null result is uninterpretable; with it, a null becomes positive
-   evidence for independence). Two more turned up while testing those, both
+   before correlating them) and split-half reliabilities are reported (§2.3 —
+   without them a null result is uninterpretable; with them, an equivalence test
+   can potentially supply positive evidence for distinct patterns). Two more
+   turned up while testing those, both
    invisible to the split because they bias the *signal* rather than the noise:
    main-effect contrasts are now cell-balanced (§2.2b), and the default
    responsiveness proxy no longer double-counts the effects it is meant to
    control for (§2.2c). Under a simulated true null the estimator moved from
-   −0.25 … +0.62 to roughly ±0.07. One item remains open: the categorical arm
-   still scores main effects the old way (§2.2b, "What is still open").
+   −0.25 … +0.62 to roughly ±0.07. The remaining load-bearing issues are
+   block-aware splitting/permutation, subject-level population inference,
+   time-binned similarity with across-time correction, optional rather than
+   mandatory responsiveness adjustment, and calibrated interpretation of null
+   estimates. The categorical arm also still scores main effects the old way
+   (§2.2b, "What is still open"). See the implementation-status table in
+   `stability_flexibility_segregation_methods.md`.
 4. **Leave the power traces alone.** Their structure is fine; the pain we found
    is specific to the pseudopopulation, which they don't use.
 5. **Retire the block-context accuracy comparisons.** They are confounded by
