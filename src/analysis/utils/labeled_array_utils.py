@@ -234,9 +234,9 @@ def make_subject_labeled_array(
         # Randomize the trial order - wait i don't think this is necessary, especially because i'm only making the roi labeled arrays once anyway.
         n_trials = epochs_data.shape[obs_axs]
         print(f'in roi {roi}, subject {sub} has {n_trials} trials for condition {condition_name}')
-        # trial_indices = np.arange(n_trials)
-        # rng.shuffle(trial_indices)
-        # epochs_data = epochs_data.take(trial_indices, axis=obs_axs)
+        trial_indices = np.arange(n_trials)
+        rng.shuffle(trial_indices)
+        epochs_data = epochs_data.take(trial_indices, axis=obs_axs)
 
         # Get the target number of trials for padding
         max_trials = max_trials_per_condition[condition_name]

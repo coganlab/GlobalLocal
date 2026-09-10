@@ -53,7 +53,7 @@ print(sys.path)
 sys.path.append("C:/Users/jz421/Desktop/GlobalLocal/IEEG_Pipelines/") #need to do this cuz otherwise ieeg isn't added to path...
 import pickle
 from functools import partial
-from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, bad_channels_from_trial_mask, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed
+from src.analysis.utils.general_utils import calculate_RTs, save_channels_to_file, save_sig_chans, load_sig_chans, bad_channels_from_trial_mask, impute_trial_nans_by_channel_mean, get_default_LAB_root, crop_empty_data_fixed, resolve_lab_root
 from src.analysis.power.block_diagnostics import max_abs_z_per_trial
 from src.analysis.utils.epoch_metadata_utils import make_metadata_from_event_names, add_previous_trial_info
 from src.analysis.preproc.epoch_helpers import trial_ieeg_rand_offset, shuffle_array
@@ -95,11 +95,8 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     print(f'epoching data for subject: {sub}')
 
     # Determine LAB_root based on the operating system and environment
-    if LAB_root is None:
-        LAB_root = get_default_LAB_root()
-    else:
-        LAB_root = LAB_root
-
+    LAB_root = resolve_lab_root(LAB_root)
+    
     layout = get_data(task, root=LAB_root)
     filt = raw_from_layout(layout.derivatives['derivatives/clean'], subject=sub,
                         extension='.edf', desc='clean', preload=False)
@@ -166,7 +163,6 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
 
     ch_type = filt.get_channel_types(only_data_chs=True)[0]
     good.set_eeg_reference(ref_channels="average", ch_type=ch_type)
-    # within_times_duration = abs(within_base_times[1] - within_base_times[0]) #grab the duration as a string for naming
 
     '''
     <<< Step 1: PROCESS the baseline ONCE, on the full channel set >>>
@@ -195,6 +191,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         outliers_to_nan(base_trials, outliers=outliers)
     else:
         print('ignoring outliers in the baseline')
+        
     if filter_method == 'filterbank_hilbert':
         HG_base = gamma.extract(base_trials, passband=passband, copy=False, n_jobs=1)
     elif filter_method == 'bandpass':
@@ -202,6 +199,7 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
         HG_base.apply_hilbert(envelope=True)
     else:
         raise ValueError("Please choose filterbank_hilbert or bandpass as your filter method. Other filter methods are not yet supported.")
+    
     pad_length_string = f"{pad_length}s"
     crop_pad(HG_base, pad_length_string)
     HG_base.decimate(dec_factor)
@@ -243,8 +241,11 @@ def bandpass_and_epoch_and_find_task_significant_electrodes(sub, task='GlobalLoc
     else:
         stat_func_for_filename = "custom_stat_func" # Fallback
         
-    output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_{filter_method}_stat_func_{stat_func_for_filename}"
+    # output_name_base = f"{base_times_length}sec_within{within_base_times[0]}-{within_base_times[1]}sec_base_decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_{filter_method}_stat_func_{stat_func_for_filename}"
     
+    # drop the baseline stuff from the name for now since it's pretty constant across iterations
+    output_name_base = f"decFactor_{dec_factor}_outliers_{outliers}_{outlier_policy}_thresh_perc_{threshold_percent}_{passband[0]}-{passband[1]}_Hz_padLength_{pad_length}s_{filter_method}_stat_func_{stat_func_for_filename}"
+
     if max_abs_z is not None:
         output_name_base += f"_zmax_{max_abs_z:g}"
         

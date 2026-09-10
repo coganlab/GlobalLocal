@@ -10,7 +10,8 @@
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # ---------------------------------------------------------------------------
 # EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
-EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
+# EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
+EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
 
 # ---------------------------------------------------------------------------
 # Analysis window (seconds relative to stimulus onset) and electrode set.
@@ -30,7 +31,7 @@ DATA_SOURCE=${DATA_SOURCE:-real}
 
 # A1/A2 hyperparameters (lower N_PERM_NULL for a quick test run).
 CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
-FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
+FDR_CORRECTION=${FDR_CORRECTION:-none}     # fdr_bh or none
 ALPHA=${ALPHA:-0.05}
 N_PERM_NULL=${N_PERM_NULL:-10000}
 export THRESHOLDS=${THRESHOLDS:-0.01,0.05,0.10,0.20,0.35,0.50}
