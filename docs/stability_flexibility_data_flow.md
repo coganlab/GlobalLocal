@@ -273,14 +273,27 @@ low-y, `0_2` and `0_3` are low-x / high-y, `0_4` is high on both, `0_5` is flat.
 
 The three bias controls, each visible as a column:
 
-- **`x` and `y` come from disjoint trial halves** (averaged over 20 random
-  splits), so their sampling noise is independent. Estimating both on all trials
-  makes shared trial noise inflate the correlation toward whatever sign the noise
-  happens to share.
+- **`x` and `y` come from disjoint trial halves**, and the correlation is taken
+  *within* each split before being averaged over the 20 random splits, so their
+  sampling noise is independent. Estimating both on all trials makes shared trial
+  noise inflate the correlation toward whatever sign the noise happens to share —
+  and so does averaging `x` and `y` over splits *first*, which is what the
+  original code did (`analysis_simplification_plan.md` §2.2).
 - **`x1`/`y1` are residualised on `resp`**, overall task drive. A high-gain
   electrode is bigger on *everything*, which would fake a positive correlation.
+  `resp` must measure gain and not the effects: mean |HG|, never |mean HG|.
 - **`x_resid`/`y_resid` are within-subject centred**, so the estimate is a
   *within*-subject quantity — matching the within-subject permutation null.
+- **Contrasts are scored with equal cell weights**, so stability and flexibility
+  stay orthogonal even when the 2×2 cross-tab is not proportional. Without this,
+  a congruency-driven electrode also scores a switch effect, and no amount of
+  splitting removes it (§2.2b) — the leakage is in the signal, not the noise.
+
+The `x`/`y` columns shown here are the split-averaged sensitivities, kept for the
+scatter plot; the inference uses the per-split values. `correlation` in the
+returned dict is the split-resolved estimate and carries the split-half
+reliabilities; `correlation_split_averaged` is the old estimator, retained as a
+diagnostic only.
 
 **Verdict: `corr = −0.71`, `p = 0.0005` → segregation.** Compare with the
 categorical `OR = 0.75, p = 0.67` on the *same electrodes*: same direction,
@@ -656,7 +669,12 @@ Three further differences that matter more than the analogy:
    co-localization question, closer to overlaying two contrast maps than to
    second-order RSA. The disjoint-half estimator and responsiveness
    residualization exist specifically to keep that across-unit correlation
-   unbiased, a problem model-RDM RSA doesn't have.
+   unbiased, a problem model-RDM RSA doesn't have. Keeping it unbiased turned out
+   to take three separate corrections — correlating within each split rather than
+   averaging the sensitivities first, scoring contrasts with equal cell weights,
+   and using a responsiveness proxy that is not itself a function of the effects.
+   All three are in place; see `analysis_simplification_plan.md` §2.2–§2.2c for
+   what each one removes and what remains open.
 
 **A real RSA version would be a different (and complementary) analysis:** per ROI
 or pseudopopulation, build the condition × condition RDM from HG *patterns*, then

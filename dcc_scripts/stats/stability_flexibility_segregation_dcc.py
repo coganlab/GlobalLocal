@@ -228,6 +228,14 @@ def save_results(out, save_dir):
     with open(os.path.join(save_dir, 'correlation.json'), 'w') as f:
         json.dump(_json_safe(out['correlation']), f, indent=2)
 
+    # The old split-averaged estimator, kept as a diagnostic only: it averages
+    # the sensitivities over splits before correlating, which forfeits the
+    # disjoint-half correction. Written out so the two can be compared, NOT for
+    # inference. See docs/analysis_simplification_plan.md 2.2.
+    if 'correlation_split_averaged' in out:
+        with open(os.path.join(save_dir, 'correlation_split_averaged.json'), 'w') as f:
+            json.dump(_json_safe(out['correlation_split_averaged']), f, indent=2)
+
     k = out['conjunction']
     conj_json = dict(
         mh_odds_ratio=k['mh_odds_ratio'],
@@ -262,6 +270,28 @@ def write_summary(out, save_dir, meta):
         f"CONTINUOUS  ({c['method']}): corr = {c['corr']:+.4f}  p = {c['p']:.4g}",
         f"            n_electrodes = {c['n_electrodes']}  n_subjects = {c['n_subjects']}",
         f"            -> {cont_dir} ({cont_sig})",
+    ]
+    if 'reliability_x' in c:
+        rx, ry = c['reliability_x'], c['reliability_y']
+        cc = c.get('corr_noise_corrected', float('nan'))
+        # A null correlation is only interpretable against the ceiling: if the
+        # two effects are not reliably measured in the first place, corr ~ 0
+        # says nothing about whether they are independent.
+        ceiling_ok = (rx > 0.2 and ry > 0.2)
+        lines += [
+            f"     ceiling: reliability_x = {rx:+.4f}  reliability_y = {ry:+.4f}",
+            f"              noise-corrected corr = {cc:+.4f}"
+            f"   ({c.get('n_electrodes_dropped', 0)} elec dropped)",
+            "              -> " + ("effects reliably measured; a null corr is "
+                                   "informative" if ceiling_ok else
+                                   "LOW RELIABILITY - a null corr is NOT evidence "
+                                   "of independence"),
+        ]
+    if 'correlation_split_averaged' in out:
+        a = out['correlation_split_averaged']
+        lines += [f"  diagnostic: split-averaged (biased) corr = {a['corr']:+.4f}"
+                  f"  p = {a['p']:.4g}   [not for inference]"]
+    lines += [
         "-" * 68,
         f"CATEGORICAL (CMH): MH odds ratio = {k['mh_odds_ratio']:.4f}",
         f"            CMH p = {k['cmh'].pvalue:.4g}  homogeneity p = {k['homogeneity'].pvalue:.4g}",
