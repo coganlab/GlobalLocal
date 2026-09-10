@@ -507,7 +507,13 @@ Two changes worth making anyway:
    double-dissociation claim rests on two *non-significant* interaction
    clusters, and non-significance is not evidence of specificity.
 
-### 2.5 Supporting: the scatterplot — make this first
+### 2.5 Supporting: the scatterplot — **implemented**
+
+**Status: implemented.** `src/analysis/stats/segregation_scatter.py`
+(`plot_joint_scatter`, `joint_scatter_diagnostics`), wired into the launcher as
+`segregation_joint_scatter.png`. It is written by every run, and can be produced
+*on its own* — no splits, no permutations, minutes instead of hours — with
+`SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh`.
 
 Before any inference machinery:
 
@@ -523,6 +529,36 @@ artifact**.
 This is an afternoon's work and will tell you most of the answer before you
 commit to anything. It also gives reviewers a direct view of the data instead of
 asking them to trust a pipeline.
+
+**The last reading is a number, not an impression.** "One colour or a few
+points" is exactly the kind of judgement that gets made generously when you
+already like the answer, so `joint_scatter_diagnostics` computes it and the
+figure prints it:
+
+| quantity | catches |
+|---|---|
+| `per_subject` correlations + the bar panel | structure carried by one subject |
+| `loso_min` / `loso_max`, `most_influential_subject` | how much the pooled r moves when any one subject is dropped |
+| `corr_drop_top` | how much survives without the most influential ~2% of electrodes |
+| `corr_within_subject` | whether the structure is within subjects or *between* them — a pooled r much larger than this one is a subject-level offset, which the pipeline centres out and the raw scatter does not |
+| `max_subject_share` | one subject supplying most of the electrodes |
+
+Any of these crossing a threshold is raised as a `flags` entry and drawn on the
+figure. They are gated on |r| ≥ 0.1: below that there is no apparent structure
+to attribute to anything, and a flat cloud is a *result* (the "independent"
+reading), not a suspect figure — what makes it interpretable is the §2.3 noise
+ceiling, not this panel.
+
+**Two cautions on reading the scatter's number.** It is descriptive: no
+responsiveness residualisation, no within-subject centring, no permutation, and
+— on the default `SCATTER_N_SPLITS=0` path — x and y are scored on *all* of the
+electrode's trials, so they share trial noise (§2.2). Expect it to sit above the
+pipeline's estimate, and read it as an upper bound; the figure annotates the
+pipeline's corrected `corr` beside it when both are available.
+`SCATTER_N_SPLITS=200` scores the sensitivities on disjoint halves instead, at
+the full estimator's cost. Second, the default correlation is Spearman, which is
+rank-based and therefore resists exactly the few-extreme-points failure the last
+reading warns about; a large Pearson/Spearman gap is itself the outlier signal.
 
 ### 2.6 Electrode set: anatomical, not condition-selected
 
@@ -630,8 +666,11 @@ Within the A1–A7 sequence of `stability_flexibility_data_flow.md` §11 this is
 re-prioritisation, not a new pipeline: A2-continuous is promoted to primary, A4
 demoted to optional confirmation.
 
-1. **Make the §2.5 scatterplot.** Cheapest, most informative, no new machinery,
-   and it tells you most of the answer before any inference.
+1. ~~Make the §2.5 scatterplot~~ — **done, and it is the cheapest thing to
+   run.** `SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh`
+   writes `segregation_joint_scatter.png` plus its leverage diagnostics without
+   running any inference. Look at it, and at the `flags` it prints, before
+   spending a full run.
 2. ~~Fix the §2.2 split aggregation~~ — **done.** Correlation is now computed
    per split and averaged.
 3. ~~Add the §2.3 noise ceiling~~ — **done.** Reliabilities and the

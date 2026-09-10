@@ -1475,22 +1475,27 @@ bash submit_stability_flexibility_anova_conjunction_dcc.sh
 | `CONTRAST_MODE` | `condition` | **Use `proportion`** (§14.1). `condition` = stability from congruency (i vs c), flexibility from switchType (s vs r); `proportion` = the LWPC / LWPS interactions. |
 | `EFFECT_MEASURE` | `cohens_d` | **Use `cluster`** (§14.2). `cohens_d` = standardized mean difference on window-mean HG; `cluster` = signed supra-threshold *t* mass on the windowed HG time course. |
 | `FDR_CORRECTION` | `fdr_bh` | `fdr_bh` = BH-FDR across electrodes for binary labels; `none` = raw `p < ALPHA` labels with `q_* = p_*` for exploratory threshold checks. |
+| `ROIS` | `lpfc` | Comma-separated ROI names from `src/analysis/config/rois.py`, or `all` to keep every channel. **`export`ed rather than passed through `--export=`** — an `sbatch --export` list is comma-separated, so a comma-containing value would be truncated at its first comma. |
 | `N_SPLITS` | `200` | Disjoint trial-half resamples for sensitivity estimation. |
 | `N_PERM_CORR` | `10000` | Permutations for the continuous test. |
 | `N_PERM_LABEL` | `2000` | Permutations per electrode for S/F labeling. |
+| `ALPHA` | `0.05` | Threshold for the binary S/F labels and for the supra-threshold *t* mask under `EFFECT_MEASURE=cluster`. |
+| `MIN_ELEC` | `3` | Minimum electrodes a subject must contribute to enter the continuous test. |
+| `SCATTER_ONLY` | `0` | `1` → write only the joint scatter (§14.7) and stop: no splits, no permutations, no categorical arm. This is step 1 of the simplification plan's order of operations. |
+| `SCATTER_N_SPLITS` | `0` | Under `SCATTER_ONLY`, `0` scores the sensitivities on *all* trials (fast, shares trial noise); `>0` uses that many disjoint half-splits instead. |
 | `ALIGN_TO_POWER_TRACES_RUN` | — | Take the window from a finished windowed-ANOVA run instead of `WINDOW_TMIN/TMAX` (§14.4). |
 
 Set `USE_TIME_PERM_CLUSTER = True` in
 `src/analysis/stats/stability_flexibility_segregation.py` to use the real
 `ieeg.calc.stats.time_perm_cluster` mask (much slower — it permutes on every
-call). To restrict to ROIs, set `ROIS_DICT` in
-`run_stability_flexibility_segregation_dcc.py` (a commented LPFC/occipital example
-is included). For better gain control, set `RESPONSIVENESS` in the entrypoint to a
+call). For better gain control, set `RESPONSIVENESS` in the entrypoint to a
 `{electrode: baseline-vs-signal cluster stat}` dict (defaults to the `mean|HG|`
 fallback).
 
 **Outputs.** Written to
-`results/<epochs_or_synthetic_tag>/window_<tmin>to<tmax>s_<electrodes>/<CONTRAST_MODE>_<EFFECT_MEASURE>/`:
+`dcc_scripts/stats/results/<epochs_or_synthetic_tag>/segregation_results/window_<tmin>to<tmax>s_<electrodes>_<rois>_<contrast_mode>_<effect_measure>_<fdr_correction>/`
+(a `SCATTER_ONLY` run appends `_scatter_only_splits<N>`, so its scatter never
+overwrites a full run's):
 
 - `long_df.csv` — the assembled single-trial table.
 - `anova_labels.csv` / `labels.csv` — per-electrode interaction F, p, FDR q, signed
@@ -1509,6 +1514,8 @@ fallback).
   It forfeits the disjoint-half correction; do not report it.
 - `conjunction.json`, `conjunction_per_subject.csv` — CMH odds ratio, p-values,
   pooled 2×2, per-subject tables.
+- `segregation_joint_scatter.png` + `_diagnostics.json` + `_per_subject.csv` —
+  the joint scatter and its leverage diagnostics (§14.7).
 - `segregation_summary.png` — 6-panel figure (joint scatter, residualized scatter,
   within-subject null, selectivity classes, pooled 2×2, per-subject).
 - `summary.txt` — printed verdicts.
@@ -1533,6 +1540,52 @@ fallback).
 See `stability_flexibility_data_flow.md` §2–§3 for a worked example on planted
 ground truth, including the near-miss electrode that raw *p* selects and FDR
 correctly rejects.
+
+### 14.7 The joint scatter — look at this before running anything
+
+> **Goal.** See the joint distribution the segregation question is *about*,
+> before committing to a pipeline that will summarise it into one number.
+
+`src/analysis/stats/segregation_scatter.py`, written by every run as
+`segregation_joint_scatter.png`, and runnable on its own:
+
+```bash
+cd dcc_scripts/stats
+SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh
+```
+
+Each electrode's stability sensitivity against its own flexibility sensitivity,
+**coloured by subject**, with a marginal histogram on each axis (stacked by
+subject, so a spread carried by one patient shows up as one colour filling a
+tail) and a per-subject correlation panel. Read it as:
+
+| shape | reading |
+|---|---|
+| positive diagonal | shared / domain-general core |
+| spread on both axes, no correspondence | independent mechanisms |
+| spread on one axis only | one mechanism — the other isn't measured |
+| negative diagonal | opponent / segregated subpopulations |
+| all the structure in one colour, or a few points | **artifact** |
+
+The last row is checked rather than eyeballed. The figure prints, and
+`_diagnostics.json` stores: each subject's own correlation, the
+leave-one-subject-out range and which subject moves it most, the correlation
+without the most influential ~2% of electrodes, the correlation after
+within-subject centring (structure that survives it is electrode-level;
+structure that doesn't is a subject-level offset), and the largest subject's
+share of the electrodes. Any of those crossing a threshold prints as a `!`
+flag — gated on |r| ≥ 0.1, since a flat cloud has no apparent structure to
+attribute to anything and is a *result*, not a suspect figure.
+
+**It is descriptive, not inferential.** No responsiveness residualisation, no
+within-subject centring, no permutation, and on the default path x and y are
+scored on all of the electrode's trials, so they share trial noise. It will
+therefore usually sit *above* `correlation.json`'s `corr`; treat it as an upper
+bound, and note that the figure annotates the pipeline's corrected estimate
+beside it when a full run produced one. `SCATTER_N_SPLITS=200` scores the
+sensitivities on disjoint halves instead, at the full estimator's cost.
+
+Rationale and the full reading key: `analysis_simplification_plan.md` §2.5.
 
 ---
 
