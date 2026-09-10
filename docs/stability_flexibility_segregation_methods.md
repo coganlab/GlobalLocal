@@ -20,23 +20,22 @@ Bracketed `[…]` items are run-dependent numbers to fill in from
 `results/<tag>/…/summary.txt`, `labels.csv`, `correlation.json`, and
 `conjunction.json`.
 
-> **⚠ Do not submit the disjoint-half paragraph as written.** Both versions below
-> state that estimating *x* and *y* on disjoint halves removes shared-trial-noise
-> inflation. That is true of the split, but **not of the estimator as
-> implemented**: `compute_sensitivities` averages *x* and *y* over the 200 splits
-> *before* they are correlated, and the average is dominated by cross terms
-> `cov(x_j, y_k)`, *j ≠ k*, whose trial sets overlap ~50%. Simulated under a pure
-> null with unbalanced cells, the split-averaged estimator recovers essentially
-> all of the naive bias (+0.13…+0.18 vs. +0.14…+0.18) while correlating within
-> split and then averaging gives ≈ 0. The bias vanishes with balanced cells, so
-> it is specific to designs like this one, where cell sizes are set by the
-> proportion manipulation.
+> **Note on a fixed estimator (2026-09).** Earlier versions of this document
+> carried a warning not to submit the disjoint-half paragraph: the code averaged
+> *x* and *y* over the 200 splits *before* correlating them, which forfeited the
+> disjoint-half correction (the average is dominated by cross terms
+> `cov(x_j, y_k)`, *j ≠ k*, whose trial sets overlap ~50%). **That is fixed** —
+> the correlation is now computed within each split and averaged, and the
+> split-half **noise ceiling** is reported alongside it. The prose below has been
+> updated to match and is accurate as written.
 >
-> Fix the aggregation (correlate per split, then average) before this prose is
-> accurate. See `analysis_simplification_plan.md` §2.2. That doc's §2.3 also
-> proposes a split-half **noise ceiling**, which these Methods need in order to
-> support any claim of *independent* mechanisms rather than merely absent
-> evidence for shared ones.
+> Two things to carry into a manuscript. (i) Main-effect contrasts are now scored
+> with equal cell weights, like the interactions, which matters if congruency and
+> task sequence are correlated in the trial table; report the cross-tab. (ii) The
+> per-electrode S/F labels behind the categorical test still use the older
+> trial-count-weighted scoring, so in `CONTRAST_MODE=condition` the continuous
+> and categorical arms are not scored identically. Both are detailed in
+> `analysis_simplification_plan.md` §2.2–§2.2b.
 
 ---
 
@@ -148,9 +147,23 @@ noise would inflate their correlation, so *x* and *y* were computed on **disjoin
 halves of that electrode's trials**. Trials were split into two halves stratified
 on the full crossing of the contrast factors (congruency, incongruent proportion,
 task sequence, switch proportion), so neither half was confounded with a
-condition; which half supplied *x* and which supplied *y* was randomised on each
-draw so the data are used symmetrically. Sensitivities were averaged over 200
-independent random disjoint splits. A naive same-trial estimate was computed as a
+condition, and both contrasts were computed on both halves.
+
+Crucially, the *x*–*y* correlation was computed **within each split and then
+averaged over the 200 splits**, rather than averaging the sensitivities across
+splits and correlating once. Averaging first would reintroduce the shared-trial
+noise the split removes, because the average is dominated by cross terms pairing
+*x* from one split with *y* from another, whose trial sets overlap by
+approximately half. For each split the two cross directions were averaged,
+½[ρ(*x*<sub>A</sub>, *y*<sub>B</sub>) + ρ(*x*<sub>B</sub>, *y*<sub>A</sub>)], so
+the two halves enter symmetrically.
+
+Effects were scored with **equal cell weights**: an interaction as the
+difference-of-differences of the four cell means, and a main effect as the
+equal-weight mean of the within-cell differences. This makes the stability and
+flexibility contrasts orthogonal in cell-mean space irrespective of cell counts,
+so that neither contrast leaks into the other when the design factors are
+correlated in the trial table. A naive same-trial estimate was computed as a
 diagnostic only, to show the magnitude of the shared-noise inflation the disjoint
 estimator removes; it is not used for inference.
 
@@ -173,12 +186,29 @@ The association between the residualised, within-subject-centred *x* and *y* was
 quantified with Spearman's ρ across all electrodes. Significance was assessed
 with a permutation null in which *y* was shuffled **within each subject** (10,000
 permutations), which preserves between-subject structure and therefore isolates
-the within-subject association; the two-tailed *p* value is the proportion of
+the within-subject association; the same permutation was applied across all
+splits, so it breaks the *x*–*y* electrode correspondence while leaving each
+split's internal structure intact. The two-tailed *p* value is the proportion of
 permutations with |ρ| at least as large as observed. As a parametric cross-check,
 a linear mixed model with a subject random intercept was fitted to the
 responsiveness-residualised sensitivities. A positive correlation indicates
 shared tuning (a domain-general core); a correlation at or below zero indicates
 segregation.
+
+**Noise ceiling.** A correlation at or below zero is only interpretable if both
+effects are measured reliably in the first place, so from the same disjoint
+halves we computed the split-half reliability of each sensitivity,
+*r*<sub>stab</sub> = ρ(*x*<sub>A</sub>, *x*<sub>B</sub>) and *r*<sub>flex</sub> =
+ρ(*y*<sub>A</sub>, *y*<sub>B</sub>), averaged over splits on the same
+residualised and within-subject-centred values. These bound the attainable
+cross-correlation, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
+*r*<sub>flex</sub>) is reported alongside the raw estimate; the permutation *p*
+applies unchanged to both, since they differ only by a fixed positive
+denominator. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
+*r*<sub>flex</sub> = […]) alongside ρ ≈ 0 constitute positive evidence for
+spatially distinct populations; low reliability instead means the correlation is
+uninformative and no independence claim is licensed. Electrodes whose effect was
+undefined on any split were excluded from the continuous test ([…] electrodes).
 
 ### Categorical test: 2×2 conjunction
 
@@ -316,9 +346,23 @@ noise would inflate their correlation, so *x* and *y* were computed on **disjoin
 halves of that electrode's trials**. Trials were split into two halves stratified
 on the full crossing of the contrast factors (congruency, incongruent proportion,
 task sequence, switch proportion), so neither half was confounded with a
-condition; which half supplied *x* and which supplied *y* was randomised on each
-draw so the data are used symmetrically. Sensitivities were averaged over 200
-independent random disjoint splits. A naive same-trial estimate was computed as a
+condition, and both contrasts were computed on both halves.
+
+Crucially, the *x*–*y* correlation was computed **within each split and then
+averaged over the 200 splits**, rather than averaging the sensitivities across
+splits and correlating once. Averaging first would reintroduce the shared-trial
+noise the split removes, because the average is dominated by cross terms pairing
+*x* from one split with *y* from another, whose trial sets overlap by
+approximately half. For each split the two cross directions were averaged,
+½[ρ(*x*<sub>A</sub>, *y*<sub>B</sub>) + ρ(*x*<sub>B</sub>, *y*<sub>A</sub>)], so
+the two halves enter symmetrically.
+
+Effects were scored with **equal cell weights**: an interaction as the
+difference-of-differences of the four cell means, and a main effect as the
+equal-weight mean of the within-cell differences. This makes the stability and
+flexibility contrasts orthogonal in cell-mean space irrespective of cell counts,
+so that neither contrast leaks into the other when the design factors are
+correlated in the trial table. A naive same-trial estimate was computed as a
 diagnostic only, to show the magnitude of the shared-noise inflation the disjoint
 estimator removes; it is not used for inference.
 
@@ -341,12 +385,29 @@ The association between the residualised, within-subject-centred *x* and *y* was
 quantified with Spearman's ρ across all electrodes. Significance was assessed
 with a permutation null in which *y* was shuffled **within each subject** (10,000
 permutations), which preserves between-subject structure and therefore isolates
-the within-subject association; the two-tailed *p* value is the proportion of
+the within-subject association; the same permutation was applied across all
+splits, so it breaks the *x*–*y* electrode correspondence while leaving each
+split's internal structure intact. The two-tailed *p* value is the proportion of
 permutations with |ρ| at least as large as observed. As a parametric cross-check,
 a linear mixed model with a subject random intercept was fitted to the
 responsiveness-residualised sensitivities. A positive correlation indicates
 shared tuning (a domain-general core); a correlation at or below zero indicates
 segregation.
+
+**Noise ceiling.** A correlation at or below zero is only interpretable if both
+effects are measured reliably in the first place, so from the same disjoint
+halves we computed the split-half reliability of each sensitivity,
+*r*<sub>stab</sub> = ρ(*x*<sub>A</sub>, *x*<sub>B</sub>) and *r*<sub>flex</sub> =
+ρ(*y*<sub>A</sub>, *y*<sub>B</sub>), averaged over splits on the same
+residualised and within-subject-centred values. These bound the attainable
+cross-correlation, and ρ<sub>corrected</sub> = ρ ⁄ √(*r*<sub>stab</sub> ·
+*r*<sub>flex</sub>) is reported alongside the raw estimate; the permutation *p*
+applies unchanged to both, since they differ only by a fixed positive
+denominator. Reliable within-domain estimates (*r*<sub>stab</sub> = […],
+*r*<sub>flex</sub> = […]) alongside ρ ≈ 0 constitute positive evidence for
+spatially distinct populations; low reliability instead means the correlation is
+uninformative and no independence claim is licensed. Electrodes whose effect was
+undefined on any split were excluded from the continuous test ([…] electrodes).
 
 ### Categorical test: 2×2 conjunction
 

@@ -21,11 +21,18 @@ adaptation (LWPS) rely on shared or independent neural mechanisms in lPFC?
    `src/analysis/stats/stability_flexibility_segregation.py`, run via
    `run_joint_distribution_analysis(..., contrast_mode='proportion')`. Make it
    primary.
-3. **Two changes to it before it is trustworthy**: fix the split aggregation
-   (§2.2 — the disjoint-half correction is currently forfeited by averaging the
-   estimates before correlating them), and add a split-half noise ceiling
-   (§2.3 — without it a null result is uninterpretable; with it, a null becomes
-   positive evidence for independence).
+3. **Four changes were needed before it was trustworthy; all four are now
+   implemented.** Two were planned: the split aggregation is fixed (§2.2 — the
+   disjoint-half correction was being forfeited by averaging the estimates
+   before correlating them) and a split-half noise ceiling is reported (§2.3 —
+   without it a null result is uninterpretable; with it, a null becomes positive
+   evidence for independence). Two more turned up while testing those, both
+   invisible to the split because they bias the *signal* rather than the noise:
+   main-effect contrasts are now cell-balanced (§2.2b), and the default
+   responsiveness proxy no longer double-counts the effects it is meant to
+   control for (§2.2c). Under a simulated true null the estimator moved from
+   −0.25 … +0.62 to roughly ±0.07. One item remains open: the categorical arm
+   still scores main effects the old way (§2.2b, "What is still open").
 4. **Leave the power traces alone.** Their structure is fine; the pain we found
    is specific to the pseudopopulation, which they don't use.
 5. **Retire the block-context accuracy comparisons.** They are confounded by
@@ -202,8 +209,8 @@ Why it is the right primary test:
   touch it.
 - **It already handles two confounds that would otherwise dominate** — shared
   trial noise via disjoint halves, shared gain/SNR via responsiveness
-  residualisation. **But the shared-noise correction does not survive the
-  aggregation as implemented — see §2.2 before relying on it.**
+  residualisation. *(As originally implemented the shared-noise correction did
+  not survive the aggregation; fixed — see §2.2.)*
 - **Inference already respects subjects** — within-subject centering plus
   within-subject permutation (`subject_clustered_corr`), and CMH stratification
   for the categorical conjunction. This is the piece the decoding pipeline never
@@ -223,62 +230,201 @@ Interpretation:
 That last row is precisely what an ROI-mean power trace cannot reveal, and it is
 the scientifically interesting outcome.
 
-**Verified in code** (`compute_sensitivities`, `_stratified_half_split`,
-`subject_clustered_corr`): the half-split is stratified on the contrast cells and
-genuinely disjoint; the two halves are assigned to x and y symmetrically via a
-coin flip; the permutation null shuffles y within subject, preserving
-between-subject structure. All as documented. One problem in the aggregation —
-see §2.2.
+**Verified in code** (`compute_sensitivities_per_split`, `_stratified_half_split`,
+`split_resolved_corr`): the half-split is stratified on the contrast cells and
+genuinely disjoint; both cross directions are used, so the halves enter
+symmetrically; the permutation null shuffles y within subject, preserving
+between-subject structure. All as documented. The aggregation problem found in
+the original implementation is fixed — see §2.2, and §2.2b for a further bias
+found while testing that fix.
 
-### 2.2 Fix the split aggregation before using this
+### 2.2 The split aggregation — **fixed**
 
-`compute_sensitivities` averages x over the 200 splits and y over the 200
-splits, then returns one `(x, y)` per electrode which `subject_clustered_corr`
-correlates. **That aggregation forfeits the disjoint-half correction.**
+**Status: implemented.** `compute_sensitivities_per_split` + `split_resolved_corr`,
+wired into `run_joint_distribution_analysis` as the primary `correlation`.
+
+**The bug.** `compute_sensitivities` averaged x over the 200 splits and y over
+the 200 splits, then returned one `(x, y)` per electrode which
+`subject_clustered_corr` correlated. That aggregation forfeited the
+disjoint-half correction entirely.
 
 Within one split *k*, `x_k` and `y_k` come from disjoint trial sets, so their
 sampling noise is independent — which is the whole design. But the average
-contains K·(K−1) cross terms `cov(x_j, y_k)` with *j ≠ k*, and those pairs are
-computed on trial sets that overlap by ~50%. Those terms do not vanish, and they
-swamp the K disjoint ones.
+contains K·(K−1) cross terms `cov(x_j, y_k)` with *j ≠ k*, computed on trial
+sets that overlap by ~50%. Those terms do not vanish and they swamp the K
+disjoint ones.
 
-Simulation under a pure null (no true relationship between the two effects), 400
-electrodes, across-electrode correlation:
+How completely they swamp them is the striking part. Across three simulated
+regimes, the split-averaged estimator and the naive same-trial estimator agree
+to three decimal places:
 
-| cell counts | naive (all trials) | split-averaged (current) | within-split, then averaged |
+| regime | naive (all trials) | split-averaged (old) | within-split (new) |
 |---|---|---|---|
-| unbalanced (60,20,20,15) | +0.14 … +0.18 | +0.13 … +0.18 | ≈ 0 |
-| balanced (30,30,30,30) | ≈ 0 | ≈ 0 | ≈ 0 |
+| A | −0.2777 | −0.2780 | −0.2074 |
+| B | +0.6153 | +0.6157 | +0.4866 |
+| C | +0.0591 | +0.0609 | +0.0535 |
 
-(three seeds each; ranges are across seeds)
+200 splits bought nothing at all. (Regimes defined in §2.2b; truth is 0 in all
+three.)
 
-The split-averaged estimator recovers essentially all of the naive shared-noise
-bias. The correct aggregation — correlate within each split, then average the
-correlations — removes it.
+**The fix.** Correlate *within* each split, then average the correlations:
 
-**Why this is live for your data specifically.** The bias only appears when the
-cells are unbalanced, because balanced cells make the two contrast weight
-vectors orthogonal and shared trial noise cancels. Your cells run from 11 to 63
-trials, and the imbalance is *structural*: 25%/75% proportions are the
-manipulation, so the cells cannot be balanced by design. This is exactly the
-regime where the bias is largest.
+```
+S = mean_k  ½ [ corr(x_A,k , y_B,k) + corr(x_B,k , y_A,k) ]
+```
 
-Fix: restructure so the correlation is computed per split and averaged, rather
-than averaging the estimates first. The module already carries
-`naive_sensitivities` for a naive-vs-disjoint diagnostic, so the comparison
-machinery to verify the fix is present.
+Both cross directions are used, so the halves enter symmetrically and the coin
+flip in the old code is unnecessary. Residualisation on responsiveness and
+within-subject centring are applied *per split*, matching `prepare_continuous`.
+The permutation null uses one within-subject electrode permutation applied
+identically across all splits. Because each split's vectors are centred and
+unit-normed, a correlation is a dot product, so the whole thing collapses to a
+lookup in one precomputed n_elec × n_elec matrix — 10,000 permutations cost
+O(n_elec) each rather than O(n_splits × n_elec).
 
-Note this does not invalidate the module's design — the disjoint split is the
-right idea and the responsiveness residualisation is an independent second line
-of defence that may absorb part of this. It is the aggregation order that needs
-changing.
+**What the fix does and does not buy.** Isolated in simulation (`bx = by = 0`,
+so the *only* coupling is shared sampling noise, with a non-proportional 2×2
+cross-tab so that noise actually covaries):
 
-### 2.3 Add a split-half noise ceiling
+| | naive | within-split |
+|---|---|---|
+| pure shared-trial noise | −0.46 … +0.40 | +0.002 … +0.068 |
 
-**Not currently implemented** (checked — no reliability/ceiling computation in
-the module). This is the only substantive gap.
+That is the mechanism the disjoint split was designed for, and it is removed
+essentially completely. It is *not* the only mechanism — see §2.2b.
 
-You already split trials into disjoint halves A and B to estimate the two
+**A correction to an earlier version of this section.** It said the bias
+"appears when the cells are unbalanced." That is imprecise. Unequal *marginals*
+(25%/75%) are harmless on their own: what matters is whether the 2×2 cross-tab
+is **proportional**. Writing the per-trial contrast weights
+
+```
+w_x(t) = +1/n_i if incongruent else −1/n_c
+w_y(t) = +1/n_s if switch      else −1/n_r
+```
+
+the shared-noise covariance of the two effects is `σ² · Σ_t w_x(t) w_y(t)`,
+which is exactly zero when `n_is = n_i·n_s/N` and so on, however lopsided the
+marginals are. Simulated with independent 25%/75% factors, all estimators sit at
+0 and there is nothing to fix. The bias needs congruency and switchType to be
+*correlated in the trial table*. **Check this in your own data before assuming
+either way** — compute the four cell counts per subject and test the cross-tab
+for proportionality. That number, not the marginals, says how much of this
+mattered.
+
+### 2.2b Cell-balanced main effects — a third bias the split cannot remove
+
+**Status: implemented** (`BALANCE_MAIN_EFFECTS`, `W_MAIN`). Found while testing
+§2.2; not in the original plan.
+
+Testing the §2.2 fix against a true null in three regimes turned up two further
+couplings, both of which survive the disjoint split untouched, because both are
+**signal** confounds rather than noise confounds — they are present identically
+in every trial and therefore in every half.
+
+- **Regime B — design non-orthogonality.** If congruency and switchType are
+  correlated in the trial table, an electrode with a purely congruency-driven
+  response still scores a switch effect, because its incongruent trials are
+  disproportionately switch trials. Every electrode inherits the same leakage,
+  which is precisely what a spurious across-electrode correlation is made of.
+- **Regime A — the shared pooled SD.** Cohen's *d* divides by an SD estimated
+  from the same trials. A large stability effect inflates the within-group
+  variance that the flexibility contrast divides by, deflating it — a *negative*
+  coupling, which is the direction that would masquerade as segregation. (Regime
+  A turned out to have a second, larger contributor as well; see §2.2c.)
+
+Both are fixed at the contrast level, not the split level. Scoring a main effect
+as the equal-weight mean of the within-cell differences makes the two contrasts
+orthogonal in cell-mean space *by construction*, whatever the cell counts:
+
+```
+x = ½[(m_is − m_cs) + (m_ir − m_cr)]        # congruency, equal weight over switch
+y = ½[(m_cs − m_cr) + (m_is − m_ir)]        # switch, equal weight over congruency
+```
+
+Simulated under a true null, ~330 electrodes, 12 subjects:
+
+| regime | scoring | naive | within-split |
+|---|---|---|---|
+| B (non-orthogonal design) | pooled two-group (old) | +0.58 | +0.44 |
+| B | cell-weighted (new) | −0.21 | **−0.07** |
+| A (shared pooled SD) | pooled two-group (old) | −0.23 | −0.18 |
+| A | cell-weighted (new) | −0.09 | **−0.09** |
+| C (clean control) | either | ≈ 0 | ≈ 0 |
+
+Neither change alone suffices: cell-weighting removes the signal-mediated
+coupling, the split removes the noise-mediated coupling, and only together do
+all four regimes land near zero.
+
+**Note this only applies to `contrast_mode='condition'`.** The interaction path
+(`contrast_mode='proportion'`, the manuscript's primary mode) has always used an
+equal-cell-weight difference-of-differences, and is protected already. This
+extends the same treatment one level down, to main effects.
+
+Also tested and **rejected**: dropping the denominator entirely (a raw
+cell-balanced mean difference). It fixes regime B equally well but is markedly
+*worse* in regime A (−0.25 … −0.29 vs −0.09), because without standardisation
+the sensitivities scale with per-electrode gain and the linear responsiveness
+residualisation does not fully remove a multiplicative gain term. Keep the
+pooled within-cell SD.
+
+### 2.2c The responsiveness proxy was a function of the effects — **fixed**
+
+**Status: implemented** (`add_responsiveness`). A plain bug, found by chasing the
+residual regime-A bias after §2.2b.
+
+`prepare_continuous` residualises *x* and *y* on `resp` to remove the shared
+gain/SNR confound. That only works if `resp` measures **gain** and nothing else.
+The scalar-HG branch computed `|mean HG|` — the absolute value of the
+electrode's mean — while the docstring, and the time-resolved branch, said
+`mean |HG|`. Those are very different quantities. When both contrasts push the
+electrode's mean the same way (which is what a population-level effect *means*),
+`|mean HG|` behaves like `x + y`. Regressing *x* and *y* on their own sum drives
+the two residuals apart, so the correction manufactures a **negative**
+correlation — spurious *segregation*, the more publishable direction.
+
+Regime A, naive estimator, three seeds:
+
+| responsiveness proxy | seed 0 | seed 1 | seed 2 |
+|---|---|---|---|
+| `\|mean HG\|` (scalar branch, as written) | −0.120 | −0.209 | −0.161 |
+| `mean \|HG\|` (as documented; now both branches) | +0.025 | −0.066 | −0.020 |
+| true per-electrode gain (oracle) | +0.058 | −0.052 | +0.012 |
+
+The documented proxy lands level with the oracle. Both branches now compute
+`mean |HG|`.
+
+This only affects runs that used the **default** proxy. `add_responsiveness`
+takes an explicit `responsiveness=` argument and the guide already recommends
+passing a baseline-vs-signal cluster statistic; runs that did so are unaffected.
+
+Taken together over regime A, the three fixes compose:
+
+```
+−0.25   original
+−0.12   + cell-weighted main effects  (§2.2b)
++0.03   + corrected responsiveness proxy  (§2.2c)
+```
+
+**What is still open.** `per_electrode_labels` — the categorical (A3) arm —
+scores simple contrasts through `_effect_from_arrays`, not `_effect_for`, so it
+still uses the old pooled two-group form and is still exposed to the regime-B
+leakage. It was left alone deliberately: changing it would change the S/F label
+counts and the conjunction table, i.e. published numbers, and its
+within-electrode permutation null is a separate design with its own documented
+caveats. The consequence is an asymmetry worth knowing about when reading
+`electrodes.csv`: `x`/`y` are now cell-balanced, `S`/`F` are not. Resolve before
+the categorical arm is used for anything load-bearing in `condition` mode.
+
+### 2.3 Split-half noise ceiling — **added**
+
+**Status: implemented.** `split_resolved_corr` returns `reliability_x`,
+`reliability_y` and `corr_noise_corrected`; the launcher writes them to
+`correlation.json` and prints them in `summary.txt` with an explicit
+"a null corr is NOT evidence of independence" warning when either reliability is
+low.
+
+The trials are already split into disjoint halves A and B to estimate the two
 sensitivities. From those same halves, also compute:
 
 ```
@@ -297,7 +443,20 @@ This matters more, not less, under the recommended anatomical electrode set
 (§2.6), because including mostly-unresponsive electrodes attenuates `S` toward
 zero and the ceiling is what makes the attenuated number readable.
 
-Cost: two extra correlations per split, from splits already being computed.
+Cost: it came free. Computing each contrast on *both* halves rather than one
+(four effect evaluations per split instead of two) yields the reliabilities
+directly and removes the need for the coin flip. The only price is 2× the effect
+evaluations, which matters solely for `effect_measure='cluster'`, where each
+evaluation runs its own permutation test — halve `n_splits` there.
+
+`p` is reported for `S`; it applies to `S_corrected` unchanged, since the two
+differ only by a fixed positive denominator and so order the null identically.
+
+One operational note: an electrode whose effect is undefined on even a single
+split (a contrast cell emptied by that split) is dropped from the correlation
+entirely, so that the per-split vectors are comparable and the permutation
+applies to a fixed electrode set. `n_electrodes_dropped` reports how many. With
+few trials per cell this can bite; check it before interpreting `n_electrodes`.
 
 ### 2.4 Supporting: power traces — keep as they are
 
@@ -462,18 +621,28 @@ demoted to optional confirmation.
 
 1. **Make the §2.5 scatterplot.** Cheapest, most informative, no new machinery,
    and it tells you most of the answer before any inference.
-2. **Fix the §2.2 split aggregation** (correlate per split, then average).
-   Before this, `run_joint_distribution_analysis` returns a correlation carrying
-   most of the naive shared-noise bias, so running it first produces a number
-   you would only have to discard.
-3. **Add the §2.3 noise ceiling.**
-4. **Run** `run_joint_distribution_analysis(..., contrast_mode='proportion')` on
-   anatomical lPFC electrodes.
-5. Re-run power traces with per-trial baseline as a robustness check (§2.4).
-6. Add the time-resolved `S` curve if the timing claim is wanted (§2.7).
-7. Only then, if desired, the §2.8 minimal cross-decoder.
+2. ~~Fix the §2.2 split aggregation~~ — **done.** Correlation is now computed
+   per split and averaged.
+3. ~~Add the §2.3 noise ceiling~~ — **done.** Reliabilities and the
+   noise-corrected estimate come back in `correlation.json` and `summary.txt`.
+4. **Check the 2×2 cross-tab in your own data** (§2.2, end). Per subject, the
+   four congruency × switchType cell counts, tested for proportionality. This is
+   a few lines and it tells you how much §2.2b was actually buying — cheap, and
+   it should be in the Methods either way.
+5. **Run** `run_joint_distribution_analysis(..., contrast_mode='proportion')` on
+   anatomical lPFC electrodes. Read `reliability_x`/`reliability_y` *before*
+   reading `corr`: if either is near zero, the correlation is uninterpretable
+   whatever it says, and the electrode set or the effect measure is the problem
+   to fix first. Also check `n_electrodes_dropped` (§2.3).
+6. Re-run power traces with per-trial baseline as a robustness check (§2.4).
+7. Add the time-resolved `S` curve if the timing claim is wanted (§2.7).
+8. Only then, if desired, the §2.8 minimal cross-decoder.
 
-Steps 1–4 are the paper. Everything after is support.
+Steps 1 and 4–5 are the paper. Everything after is support.
+
+Before the categorical arm is used for anything load-bearing in `condition`
+mode, resolve the §2.2b open item (`per_electrode_labels` still scores main
+effects the old way).
 
 ---
 
@@ -486,10 +655,16 @@ If pattern similarity or cross-decoding comes out null, the honest statement is:
 
 **Not:** "the mechanisms are independent." Independence requires positive
 evidence — reliable within-domain patterns for *both* effects (this is what the
-§2.3 noise ceiling supplies), adequate measurement quality, and a confidence
-interval excluding a theoretically meaningful shared-pattern effect. Two
-significant main effects plus a non-significant correlation is not a
-dissociation.
+§2.3 noise ceiling supplies, now reported as `reliability_x`/`reliability_y`),
+adequate measurement quality, and a confidence interval excluding a
+theoretically meaningful shared-pattern effect. Two significant main effects
+plus a non-significant correlation is not a dissociation.
+
+One further caution now that §2.2b is known: a *negative* correlation is the
+easiest result to over-read, because two of the three biases documented there
+push in that direction. Before reading `corr < 0` as segregation, confirm it
+survives on the cell-weighted contrast (it now does by default) and check the
+cross-tab proportionality per §2.2 step 4.
 
 The same caution applies to the existing power-trace double dissociation, which
 currently rests on two non-significant interaction clusters (§2.4).

@@ -1310,16 +1310,26 @@ Worth being precise about, because "correlate across electrodes" and "subjects
 are nested" sound like they need a two-stage estimator, and this is **not** one.
 There is no per-subject correlation anywhere in the code.
 
-Each electrode is reduced to **one point** `(x, y)` — its LWPC sensitivity and
-its LWPS sensitivity, each a signed scalar estimated on a disjoint trial half
-(`compute_sensitivities`). Then, once for the whole dataset:
+Each electrode is reduced to **one point** `(x, y)` per split — its LWPC
+sensitivity and its LWPS sensitivity, each a signed scalar estimated on a
+disjoint trial half (`compute_sensitivities_per_split`). Then, **within each
+split**, once over the whole dataset:
 
-1. `prepare_continuous` regresses `x` and `y` on responsiveness (one pooled OLS)
-   and **subtracts each subject's own mean** from both → `x_resid`, `y_resid`.
-2. `subject_clustered_corr` takes **a single Spearman correlation over every
-   electrode at once**, pooled across subjects.
-3. Its null shuffles `y` **within each subject**, so each subject's own
-   distribution is preserved and only the within-subject pairing is randomized.
+1. `x` and `y` are regressed on responsiveness (one pooled OLS) and **each
+   subject's own mean** is subtracted from both.
+2. A **single Spearman correlation over every electrode at once** is taken,
+   pooled across subjects.
+3. The correlations are averaged over splits; the null shuffles `y` **within
+   each subject**, so each subject's own distribution is preserved and only the
+   within-subject pairing is randomized, with the same permutation reused across
+   splits.
+
+Steps 1–2 are what `prepare_continuous` + `subject_clustered_corr` do for a
+single set of `(x, y)`; `split_resolved_corr` does them per split and averages,
+which is the part that actually preserves the disjoint-half correction. Doing it
+the other way round — averaging `x` and `y` over splits and correlating once —
+reinstates essentially all of the same-trial bias, which is what the code did
+originally (`analysis_simplification_plan.md` §2.2).
 
 So the aggregation is *pooling after within-subject centering* — a fixed-effects
 / "within" estimator. Between-subject differences in mean sensitivity cannot
@@ -1351,7 +1361,14 @@ hypothesis under test:
 
 The continuous route carries the correction for exactly those two —
 responsiveness residualisation (`prepare_continuous`) and disjoint trial halves
-(`compute_sensitivities`).
+(`compute_sensitivities_per_split` + `split_resolved_corr`, which correlate
+within a split so the halves stay disjoint through the aggregation).
+
+It also reports a **noise ceiling** the count test has no analogue for: the
+split-half reliability of each sensitivity, `reliability_x` / `reliability_y` in
+`correlation.json`. Read those before the correlation itself — a correlation near
+zero means "spatially distinct populations" only if both effects were reliably
+measured to begin with.
 
 **Two consequences for how it is run and reported.**
 
@@ -1384,11 +1401,19 @@ by picking the convenient one.
 > both of which inflate co-occurrence, we repeated the analysis continuously over
 > the same analysis window, residualising each electrode's sensitivity on its
 > overall responsiveness and estimating the two sensitivities on disjoint trial
-> halves. ρ = […] to […] across the three effect measures."
+> halves, with the correlation taken within each half-split and averaged.
+> ρ = […] to […] across the three effect measures, against split-half
+> reliabilities of […] (stability) and […] (flexibility)."
 
-One asymmetry to keep straight: a **null correlation is not evidence for
-distinctness**. Only the count test's OR < 1 can supply that. So the control can
-*undermine* a shared-core claim but cannot *establish* a segregated one.
+One asymmetry used to be flatly true and is now conditional: on its own a **null
+correlation is not evidence for distinctness**, because it cannot be told apart
+from an effect too noisily measured to correlate with anything. The split-half
+**noise ceiling** (`reliability_x` / `reliability_y`) is what resolves the
+ambiguity: reliabilities clearly above zero for *both* effects, alongside
+ρ ≈ 0, is positive evidence that the two are reliably measured and unrelated.
+Without the ceiling — or with a low one — the control can still only *undermine*
+a shared-core claim, not *establish* a segregated one, and the count test's
+OR < 1 remains the only route.
 
 ### 14.5 Uninformative subject strata in the CMH (fixed)
 
@@ -1472,7 +1497,13 @@ fallback).
   direction, and the four flags (+ `S`/`F` aliases).
 - `electrodes.csv`, `continuous.csv` — per-electrode `x`/`y`, responsiveness, and
   residualized values.
-- `correlation.json` — continuous test (corr, p, n).
+- `correlation.json` — continuous test: `corr`, `p`, `n_electrodes`,
+  `n_subjects`, plus the noise ceiling (`reliability_x`, `reliability_y`,
+  `corr_noise_corrected`) and `n_electrodes_dropped` (electrodes whose effect was
+  undefined on at least one split, and so excluded).
+- `correlation_split_averaged.json` — the superseded estimator (average the
+  sensitivities over splits, then correlate once), kept **as a diagnostic only**.
+  It forfeits the disjoint-half correction; do not report it.
 - `conjunction.json`, `conjunction_per_subject.csv` — CMH odds ratio, p-values,
   pooled 2×2, per-subject tables.
 - `segregation_summary.png` — 6-panel figure (joint scatter, residualized scatter,
@@ -1486,7 +1517,9 @@ fallback).
   aren't, the orthogonalization didn't take and the CPC/SPS flags are suspect.
 - **CMH `OR < 1`** (fewer "both" than chance) **or continuous `corr ≤ 0`** →
   **segregation**: distinct populations carry the two processes. **`OR > 1` /
-  `corr > 0`** → a **shared core**.
+  `corr > 0`** → a **shared core**. Check `reliability_x` / `reliability_y`
+  first: if either is near zero, `corr ≈ 0` says only that the effects were not
+  measured well enough to correlate with anything, and licenses no verdict.
 - The **threshold sweep** should not flip the sign of the conclusion across
   reasonable cutoffs; if it does, that's a finding to report, not hide. Ignore
   rows with an undefined OR or fewer than three informative strata (§14.5).
@@ -2597,9 +2630,12 @@ in order for depth. Runnable stubs for each assignment are in `docs/skeletons/`.
 | Balanced d-o-d effect (window mean) | `_interaction_cohens_d` | same |
 | Balanced d-o-d effect (time-resolved) | `_interaction_cluster` | same |
 | Signed interaction estimator (sign source) | `_interaction_effect` | same |
+| Cell weights (d-o-d vs. balanced main effect) | `W_INTERACTION`, `W_MAIN`, `BALANCE_MAIN_EFFECTS` | same |
 | Conjunction (CMH) | `cmh_conjunction` | same |
 | Permutation null / threshold sweep | `conjunction_permutation_null`, `conjunction_threshold_sweep` | same |
-| Continuous correlation | `subject_clustered_corr`, `compute_sensitivities`, `prepare_continuous` | same |
+| Continuous correlation (primary) | `compute_sensitivities_per_split`, `split_resolved_corr` | same |
+| Continuous correlation (split-averaged diagnostic) | `compute_sensitivities`, `prepare_continuous`, `subject_clustered_corr` | same |
+| Noise ceiling (split-half reliability) | `split_resolved_corr` → `reliability_x`/`reliability_y` | same |
 | power_traces electrode labels + count battery | `electrode_labels`, `run_power_traces_conjunction` | `src/analysis/stats/power_traces_conjunction.py` |
 | Double-dip diagonal map + predicates | `DEFINITION_DECODE_DIAGONAL`, `is_circular_decode`, `circular_decode_for_group` | `src/analysis/decoding/cross_decoding.py` |
 | Within-block condition restriction | `filter_conditions` | same |

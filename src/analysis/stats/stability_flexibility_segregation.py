@@ -12,11 +12,25 @@ Two complementary, subject-aware tests:
       subject-stratified analogue of Fisher's exact test).
         MH odds ratio < 1 -> segregation ; > 1 -> overlap
 
-Shared-noise inflation is corrected at BOTH sources:
-  - shared TRIAL noise -> x and y estimated on DISJOINT trial halves
-  - shared GAIN / SNR  -> x and y residualized on overall responsiveness
-Subject nesting is handled by within-subject centering + within-subject
-permutation (continuous) and by CMH stratification (categorical).
+Four things can fake an x-y correlation, and each needs its own correction:
+  - shared TRIAL noise -> x and y estimated on DISJOINT trial halves, and the
+      correlation taken WITHIN a split before averaging over splits. Averaging
+      the sensitivities first (as this module originally did) forfeits the
+      split entirely: see `compute_sensitivities_per_split`.
+  - shared GAIN / SNR  -> x and y residualized on overall responsiveness. The
+      proxy must measure gain and NOT the effects: mean|HG|, never |mean HG|
+      (see `add_responsiveness`).
+  - DESIGN non-orthogonality -> contrasts scored with equal CELL weights, so
+      stability and flexibility stay orthogonal however lopsided the 2x2
+      cross-tab is. This is a signal confound; the disjoint split does nothing
+      about it (see `BALANCE_MAIN_EFFECTS`).
+  - SUBJECT nesting -> within-subject centering + within-subject permutation
+      (continuous), CMH stratification (categorical).
+
+A null correlation is only interpretable against the split-half NOISE CEILING
+(`reliability_x`, `reliability_y` from `split_resolved_corr`): without it,
+"the two effects live on different electrodes" cannot be told apart from
+"neither effect is measured well enough to correlate with anything".
 
 INPUT (`df`): long format, one row per (electrode, trial):
     subject     : subject id (hashable)
@@ -460,85 +474,130 @@ def _dod_cells(hg, cond, mod):
     return cells
 
 
-def _interaction_cohens_d(cells):
-    """Standardised difference-of-differences of the four cell means (equal cell
-    weight), pooled within-cell SD. NaN if any cell has < 2 trials."""
-    num, dfree, means = 0.0, 0, {}
-    for k, v in cells.items():
-        n = len(v)
-        if n < 2:
-            return np.nan
-        num += (n - 1) * v.var(ddof=1)
-        dfree += n - 1
-        means[k] = v.mean(0)
-    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
-           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
-    sp = np.sqrt(num / dfree)
-    return np.nan if sp == 0 else dod / sp
+# Cell weights over the four (cond, mod) cells. Both are contrasts in cell-mean
+# space; they are mutually ORTHOGONAL, which is the point (see BALANCE_MAIN_EFFECTS).
+W_INTERACTION = {(1.0, 1.0): +1.0, (0.0, 1.0): -1.0,      # difference-of-differences
+                 (1.0, 0.0): -1.0, (0.0, 0.0): +1.0}
+W_MAIN = {(1.0, 1.0): +0.5, (0.0, 1.0): -0.5,             # main effect of `cond`,
+          (1.0, 0.0): +0.5, (0.0, 0.0): -0.5}             # equal weight over `mod`
 
 
-def _interaction_cluster(cells, alpha):
-    """Signed cluster mass of the per-bin difference-of-differences t (equal cell
-    weight). Parametric threshold only -- the two-group time_perm_cluster path
-    does not apply to a 4-cell contrast."""
+def _cell_stats(cells):
+    """Per-cell mean, variance and n; None if any cell has < 2 trials."""
     means, varis, ns = {}, {}, {}
     for k, v in cells.items():
         if len(v) < 2:
-            return np.nan
+            return None
         means[k] = v.mean(0); varis[k] = v.var(0, ddof=1); ns[k] = len(v)
-    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
-           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
-    se = np.sqrt(sum(varis[k] / ns[k] for k in cells))
+    return means, varis, ns
+
+
+def _combine(means, w):
+    return sum(w[k] * means[k] for k in means)
+
+
+def _interaction_cohens_d(cells, w=None):
+    """Standardised cell-weighted contrast of the four cell means (equal cell
+    weight), pooled within-cell SD. NaN if any cell has < 2 trials."""
+    w = W_INTERACTION if w is None else w
+    st = _cell_stats(cells)
+    if st is None:
+        return np.nan
+    means, _, ns = st
+    ssq = sum((ns[k] - 1) * cells[k].var(ddof=1) for k in cells)
+    sp = np.sqrt(ssq / sum(ns[k] - 1 for k in ns))
+    return np.nan if sp == 0 else _combine(means, w) / sp
+
+
+def _cell_weighted_t(cells, w):
+    """Per-bin t of the cell-weighted contrast; (tvals, total_n) or (None, None)."""
+    st = _cell_stats(cells)
+    if st is None:
+        return None, None
+    means, varis, ns = st
+    num = _combine(means, w)
+    se = np.sqrt(sum(w[k] ** 2 * varis[k] / ns[k] for k in cells))
     with np.errstate(divide='ignore', invalid='ignore'):
-        tvals = np.where(se > 0, dod / se, 0.0)
-    thr = _t_dist.ppf(1 - alpha / 2, sum(ns.values()) - 4)
+        return np.where(se > 0, num / se, 0.0), sum(ns.values())
+
+
+def _interaction_cluster(cells, alpha, w=None):
+    """Signed cluster mass of the per-bin cell-weighted t (equal cell weight).
+    Parametric threshold only -- the two-group time_perm_cluster path does not
+    apply to a 4-cell contrast."""
+    tvals, n_tot = _cell_weighted_t(cells, W_INTERACTION if w is None else w)
+    if tvals is None:
+        return np.nan
+    thr = _t_dist.ppf(1 - alpha / 2, n_tot - 4)
     supra = np.isfinite(tvals) & (np.abs(tvals) > thr)
     return 0.0 if not supra.any() else float(np.sum(tvals[supra]))
 
 
-def _interaction_peak_t(cells):
-    """Signed per-bin difference-of-differences t at the moment of maximal |t|
-    (equal cell weight). Amplitude-only complement to `_interaction_cluster`, in
-    the same spirit as `_peak_t_effect` for the two-group case."""
-    means, varis, ns = {}, {}, {}
-    for k, v in cells.items():
-        if len(v) < 2:
-            return np.nan
-        means[k] = v.mean(0); varis[k] = v.var(0, ddof=1); ns[k] = len(v)
-    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
-           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
-    se = np.sqrt(sum(varis[k] / ns[k] for k in cells))
-    with np.errstate(divide='ignore', invalid='ignore'):
-        tvals = np.where(se > 0, dod / se, 0.0)
+def _interaction_peak_t(cells, w=None):
+    """Signed per-bin cell-weighted t at the moment of maximal |t| (equal cell
+    weight). Amplitude-only complement to `_interaction_cluster`, in the same
+    spirit as `_peak_t_effect` for the two-group case."""
+    tvals, _ = _cell_weighted_t(cells, W_INTERACTION if w is None else w)
+    if tvals is None:
+        return np.nan
     tvals = np.atleast_1d(tvals)
     tvals = tvals[np.isfinite(tvals)]
     if tvals.size == 0:
         return 0.0
-    return float(tvals[np.argmax(np.abs(tvals))])   # signed peak d-o-d t
+    return float(tvals[np.argmax(np.abs(tvals))])   # signed peak cell-weighted t
 
 
-def _interaction_effect(hg, cond, mod, effect_measure, alpha):
-    """Balanced 2x2 interaction effect between the (cond, mod) cells of one
-    electrode; mirrors `_effect_from_arrays` but equal-cell-weighted."""
+def _interaction_effect(hg, cond, mod, effect_measure, alpha, w=None):
+    """Balanced 2x2 cell-weighted effect between the (cond, mod) cells of one
+    electrode; mirrors `_effect_from_arrays` but equal-cell-weighted. `w` selects
+    the contrast: `W_INTERACTION` (default) for the difference-of-differences,
+    `W_MAIN` for the main effect of `cond` balanced over `mod`."""
     valid = ~(np.isnan(cond) | np.isnan(mod))
     cells = _dod_cells(hg[valid], cond[valid], mod[valid])
     if cells is None:
         return np.nan
     _require_scalar_hg(next(iter(cells.values())), effect_measure)
     if effect_measure == 'cluster':
-        return _interaction_cluster(cells, alpha)
+        return _interaction_cluster(cells, alpha, w)
     if effect_measure == 'peak_t':
-        return _interaction_peak_t(cells)
+        return _interaction_peak_t(cells, w)
     if effect_measure == 'cohens_d':
-        return _interaction_cohens_d(cells)
+        return _interaction_cohens_d(cells, w)
     raise ValueError("effect_measure must be 'cohens_d', 'cluster' or 'peak_t'; "
                      f"got {effect_measure!r}")
 
 
+# A MAIN-effect contrast (contrast_mode='condition') scored by pooling all
+# trials on one side against all on the other is trial-count-weighted, and so is
+# NOT orthogonal to the other contrast unless the 2x2 cross-tab happens to be
+# proportional. When it is not -- e.g. incongruent trials are disproportionately
+# switch trials -- a purely congruency-driven electrode also scores a switch
+# effect, and every electrode inherits that leakage, which is exactly what a
+# spurious across-electrode correlation is made of. It is a SIGNAL confound, so
+# the disjoint-half split does not touch it: both halves carry the same design.
+#
+# Scoring the main effect as the equal-weight mean of the within-cell
+# differences (W_MAIN) makes the two contrasts orthogonal in cell-mean space by
+# construction, whatever the cell counts. The interaction path has always done
+# this (W_INTERACTION); this extends it to main effects.
+#
+# Simulated under a true null (independent per-electrode sensitivities), 12
+# subjects, ~330 electrodes, congruency correlated with switchType:
+#
+#     scoring                          naive     within-split
+#     pooled two-group (old)          +0.58         +0.44
+#     cell-weighted    (new)          -0.21         -0.07
+#
+# Set False to recover the old trial-count-weighted behaviour for comparison.
+BALANCE_MAIN_EFFECTS = True
+
+
 def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
-    """Per-electrode effect for a stability/flexibility contrast: balanced
-    difference-of-differences for an interaction, else the plain two-group
-    contrast on the collapsed label."""
+    """Per-electrode effect for a stability/flexibility contrast: an equal-cell-
+    weight difference-of-differences for an interaction, and (when
+    BALANCE_MAIN_EFFECTS) an equal-cell-weight main effect balanced over the
+    OTHER contrast's factor for a simple contrast -- so the two contrasts are
+    orthogonal regardless of cell imbalance."""
     spec = contrasts[key]
     if _is_interaction(spec):
         condcol, modcol = (('_scond', '_smod') if key == 'stability'
@@ -547,6 +606,13 @@ def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
                                    frame[condcol].to_numpy(),
                                    frame[modcol].to_numpy(),
                                    effect_measure, alpha)
+    othercol = '_flab' if labcol == '_slab' else '_slab'
+    if BALANCE_MAIN_EFFECTS and othercol in frame.columns:
+        other = frame[othercol].to_numpy()
+        if np.unique(other[~np.isnan(other)]).size == 2:
+            return _interaction_effect(frame['hg'].to_numpy(),
+                                       frame[labcol].to_numpy(), other,
+                                       effect_measure, alpha, w=W_MAIN)
     return _contrast_effect(frame, labcol, effect_measure, alpha)
 
 
@@ -568,8 +634,12 @@ def _stratified_half_split(sub, rng, strata_cols=('congruency', 'switchType')):
 def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
                           contrasts=None, effect_measure='cohens_d', alpha=0.05):
     """x from the stability contrast on one trial-half, y from the flexibility
-    contrast on the DISJOINT half -> their sampling noise is independent.
-    Averaged over many random disjoint splits for stability.
+    contrast on the DISJOINT half, averaged over many random disjoint splits.
+
+    DIAGNOSTIC ONLY -- do not feed this to the correlation. Averaging over
+    splits before correlating forfeits the disjoint-half design (see
+    `compute_sensitivities_per_split`); the analysis uses the per-split
+    estimator and correlates within a split.
 
     `contrast_mode`/`contrasts` pick which manipulations define stability vs
     flexibility; `effect_measure` picks how each contrast is quantified
@@ -594,6 +664,181 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
     return pd.DataFrame(rows)
 
 
+def compute_sensitivities_per_split(df, n_splits=200, seed=0,
+                                    contrast_mode='condition', contrasts=None,
+                                    effect_measure='cohens_d', alpha=0.05):
+    """Per-split, per-electrode effects on BOTH halves: xA, xB, yA, yB.
+
+    `compute_sensitivities` averages x and y over splits and hands one (x, y)
+    per electrode to the correlation. That forfeits the disjoint-half design:
+    the average is dominated by the K(K-1) cross terms cov(x_j, y_k), j != k,
+    whose halves overlap ~50%, so the across-electrode correlation reinstates
+    essentially all of the same-trial bias (see `split_resolved_corr`).
+
+    Keeping the splits separate lets the correlation be taken WITHIN a split,
+    where x and y really are estimated on disjoint trials, and averaged
+    afterwards. Computing the contrast on both halves rather than one also
+    buys the split-half reliabilities for free, which is what makes a null
+    correlation interpretable -- and it uses the data symmetrically by
+    construction, so the coin flip in `compute_sensitivities` is unnecessary
+    here.
+
+    Costs 2x the effect evaluations of `compute_sensitivities` (four per split
+    instead of two); with `effect_measure='cluster'`, where each evaluation runs
+    a permutation test, drop `n_splits` accordingly.
+    """
+    contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
+    work = _canonical_labels(df, contrasts)
+    strata = _strata_columns(contrasts)
+    rng = np.random.default_rng(seed)
+    rows = []
+    for (subj, elec), sub in work.groupby(['subject', 'electrode']):
+        sub = sub.reset_index(drop=True)
+        for k in range(n_splits):
+            h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
+            g1, g2 = sub.loc[h1], sub.loc[h2]
+            rows.append(dict(
+                subject=subj, electrode=elec, split=k,
+                xA=_effect_for(g1, 'stability', '_slab', contrasts, effect_measure, alpha),
+                xB=_effect_for(g2, 'stability', '_slab', contrasts, effect_measure, alpha),
+                yA=_effect_for(g1, 'flexibility', '_flab', contrasts, effect_measure, alpha),
+                yB=_effect_for(g2, 'flexibility', '_flab', contrasts, effect_measure, alpha),
+            ))
+    return pd.DataFrame(rows)
+
+
+def average_over_splits(per_split):
+    """Collapse the per-split table to one (x, y) per electrode, for the scatter
+    plot and for the split-averaged diagnostic correlation. Both halves are
+    averaged, which is the symmetric (lower-variance) version of the coin flip
+    in `compute_sensitivities`. This is NOT the estimator the inference uses."""
+    g = per_split.groupby(['subject', 'electrode'], as_index=False).mean(numeric_only=True)
+    g['x'] = g[['xA', 'xB']].mean(axis=1)
+    g['y'] = g[['yA', 'yB']].mean(axis=1)
+    return g[['subject', 'electrode', 'x', 'y']]
+
+
+def _unit_vector(v, method):
+    """Centre (and rank, for spearman) then scale to unit norm, so that the
+    correlation between two such vectors is exactly their dot product."""
+    a = np.asarray(v, float)
+    if method == 'spearman':
+        a = pd.Series(a).rank().to_numpy()
+    a = a - a.mean()
+    n = np.linalg.norm(a)
+    return a / n if n > 0 else a
+
+
+def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
+                        n_perm=10000, seed=1):
+    """Correlate within each split, then average -- with a noise ceiling.
+
+    Three quantities, all averaged over splits, all on residualised and
+    within-subject-centred values (same treatment as `prepare_continuous`):
+
+      S      = mean_k  1/2 [ corr(xA_k, yB_k) + corr(xB_k, yA_k) ]
+      rel_x  = mean_k  corr(xA_k, xB_k)
+      rel_y  = mean_k  corr(yA_k, yB_k)
+
+    `S` is the co-localization estimate: each term correlates a stability
+    effect against a flexibility effect measured on the OTHER half of that
+    electrode's trials, so same-trial noise cannot contribute. Both cross
+    directions are used, so the halves enter symmetrically.
+
+    `rel_x` and `rel_y` are the split-half reliabilities -- how well each effect
+    correlates with *itself* across halves. They are the noise ceiling, and
+    without them `S ~ 0` is uninterpretable: it cannot distinguish "the two
+    effects load on different electrodes" from "neither effect is measured well
+    enough to correlate with anything". `S_corrected = S / sqrt(rel_x * rel_y)`
+    is reported when both reliabilities are positive.
+
+    Note these are half-length reliabilities, i.e. they describe an effect
+    estimated from half the trials, not from all of them -- so read them as a
+    ceiling on `S`, not as "the reliability of the reported sensitivity" (for
+    that, Spearman-Brown them upward). Deliberately un-corrected here: `S` is
+    itself built from half-length estimates, so numerator and denominator are at
+    the same trial count and the ratio is the attenuation correction it should
+    be.
+
+    The null permutes the electrode labels of y within subject, using the SAME
+    permutation for every split, so it breaks the x-y electrode correspondence
+    while leaving each split's internal structure intact. `p` applies to
+    `corr_noise_corrected` as well: the two differ only by a fixed positive
+    denominator, so they order the null identically.
+    """
+    d = per_split.merge(pd.Series(resp, name='resp').rename_axis('electrode').reset_index(),
+                        on='electrode', how='left')
+    n_elec_in = d['electrode'].nunique()
+    d = d.dropna(subset=['xA', 'xB', 'yA', 'yB', 'resp'])
+
+    # Keep only electrodes present in EVERY split, so the per-split vectors are
+    # comparable and the permutation applies to a fixed electrode set. An
+    # electrode whose effect is undefined on even one split (a contrast cell
+    # emptied by that split) is dropped outright; `n_electrodes_dropped` reports
+    # how many, since with few trials per cell this can bite.
+    n_sp = per_split['split'].nunique()
+    complete = d.groupby('electrode')['split'].transform('size') == n_sp
+    d = d[complete]
+    d = d[d.groupby('subject')['electrode'].transform('nunique') >= min_elec]
+    if d.empty:
+        raise ValueError("no electrode survived the completeness / min_elec filter")
+
+    elecs = np.sort(d['electrode'].unique())
+    e_index = {e: i for i, e in enumerate(elecs)}
+    subj_of = d.drop_duplicates('electrode').set_index('electrode')['subject']
+    subj = subj_of.loc[elecs].to_numpy()
+    groups = [np.where(subj == s)[0] for s in np.unique(subj)]
+
+    splits = np.sort(d['split'].unique())
+    mats = {k: np.full((len(splits), len(elecs)), np.nan) for k in ('xA', 'xB', 'yA', 'yB')}
+    for si, s in enumerate(splits):
+        block = d[d['split'] == s]
+        cols = block['electrode'].map(e_index).to_numpy()
+        for k in mats:
+            mats[k][si, cols] = block[k].to_numpy()
+
+    # Residualise on responsiveness, then within-subject centre -- per split,
+    # per quantity, mirroring prepare_continuous.
+    resp_vec = d.drop_duplicates('electrode').set_index('electrode')['resp'].loc[elecs].to_numpy()
+    for k in mats:
+        for si in range(len(splits)):
+            r = _ols_resid(mats[k][si], resp_vec)
+            for g in groups:
+                r[g] -= r[g].mean()
+            mats[k][si] = r
+
+    U = {k: np.vstack([_unit_vector(mats[k][si], method) for si in range(len(splits))])
+         for k in mats}
+
+    # Because each row of U is centred and unit-norm, a correlation is a dot
+    # product, so the whole split-averaged cross-correlation under an electrode
+    # permutation `perm` of y is just a lookup in one precomputed matrix:
+    #   M[i, j] = mean_k 1/2 [ U_xA[k,i] U_yB[k,j] + U_xB[k,i] U_yA[k,j] ]
+    #   S(perm) = sum_i M[i, perm[i]],   S(identity) = trace(M)
+    # That turns each permutation from O(n_splits * n_elec) into O(n_elec).
+    M = 0.5 * (U['xA'].T @ U['yB'] + U['xB'].T @ U['yA']) / len(splits)
+    identity = np.arange(len(elecs))
+    obs = float(np.trace(M))
+    rel_x = float((U['xA'] * U['xB']).sum(1).mean())
+    rel_y = float((U['yA'] * U['yB']).sum(1).mean())
+
+    rng = np.random.default_rng(seed)
+    null = np.empty(n_perm)
+    for i in range(n_perm):
+        perm = identity.copy()
+        for g in groups:
+            perm[g] = g[rng.permutation(len(g))]
+        null[i] = M[identity, perm].sum()
+    p = float((np.sum(np.abs(null) >= abs(obs)) + 1) / (n_perm + 1))
+
+    denom = np.sqrt(rel_x * rel_y) if (rel_x > 0 and rel_y > 0) else np.nan
+    return dict(corr=obs, p=p, method=method,
+                n_electrodes=len(elecs), n_subjects=len(groups), n_splits=len(splits),
+                n_electrodes_dropped=int(n_elec_in - len(elecs)),
+                reliability_x=rel_x, reliability_y=rel_y,
+                corr_noise_corrected=(float(obs / denom) if np.isfinite(denom) else np.nan))
+
+
 def naive_sensitivities(df, contrast_mode='condition', contrasts=None,
                         effect_measure='cohens_d', alpha=0.05):
     """Per-electrode (x, y) from ALL trials (shares trial noise). Only for the
@@ -611,16 +856,25 @@ def naive_sensitivities(df, contrast_mode='condition', contrasts=None,
 
 def add_responsiveness(elec_df, df, responsiveness=None):
     """Overall task-drive per electrode (the gain confound). Prefer passing your
-    baseline-vs-signal cluster statistic; else use mean|HG| as a proxy."""
+    baseline-vs-signal cluster statistic; else use mean|HG| as a proxy.
+
+    The proxy must measure the electrode's GAIN, not its effects. The scalar
+    branch previously returned |mean HG| -- the absolute value of the electrode's
+    mean -- which is a function of the very contrasts being residualised: with
+    both effects pushing the mean the same way, |mean HG| behaves like their sum,
+    and regressing x and y on their own sum drives the residuals apart. Simulated
+    under a true null with a population-level effect in both contrasts, that
+    alone produced correlations of -0.12 to -0.21, i.e. spurious *segregation*;
+    mean|HG| lands at -0.07 to +0.03, level with the true-gain oracle. Both
+    branches now compute mean|HG|, as the docstring always said.
+    """
     elec_df = elec_df.copy()
     if responsiveness is not None:
         r = pd.Series(responsiveness)
     else:
         def _mean_abs(v):
-            arr = _stack(v.to_numpy())
-            if arr.ndim == 1:
-                return np.abs(np.nanmean(arr))        # scalar HG: |mean HG|
-            return np.nanmean(np.abs(arr))            # time-resolved HG: mean |HG|
+            # mean |HG| over trials (and time bins, for time-resolved HG)
+            return float(np.nanmean(np.abs(_stack(v.to_numpy()))))
         r = df.groupby('electrode')['hg'].apply(_mean_abs)
     elec_df['resp'] = elec_df['electrode'].map(r)
     return elec_df
@@ -1126,21 +1380,48 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                                     n_perm_label=2000, alpha=0.05, min_elec=3,
                                     contrast_mode='condition', contrasts=None,
                                     effect_measure='cohens_d',
-                                    fdr_correction='fdr_bh'):
-    elec = add_responsiveness(
-        compute_sensitivities(df, n_splits, contrast_mode=contrast_mode,
-                              contrasts=contrasts, effect_measure=effect_measure,
-                              alpha=alpha),
-        df, responsiveness)
+                                    fdr_correction='fdr_bh',
+                                    corr_method='spearman'):
+    """Continuous (A2) + categorical (A3) segregation tests on one trial table.
+
+    Returned keys:
+      correlation      PRIMARY. Split-resolved co-localization: the correlation
+                       is taken WITHIN each disjoint half-split and averaged, so
+                       x and y never share trials. Carries the split-half
+                       reliabilities (`reliability_x`, `reliability_y`) and the
+                       noise-corrected estimate, so a null result is
+                       interpretable rather than ambiguous.
+      correlation_split_averaged
+                       DIAGNOSTIC. The old estimator: average x and y over
+                       splits, then correlate once. Retained for comparison
+                       only -- averaging first reinstates the same-trial bias
+                       the split was meant to remove, so it typically sits
+                       between `correlation` and `naive_sensitivities`.
+      electrodes       per-electrode x, y (split-averaged), responsiveness, and
+                       the S/F labels -- for the scatter plot.
+      continuous       residualised/centred table behind the diagnostic.
+      labels, conjunction  the categorical (A3) arm, unchanged.
+    """
+    per_split = compute_sensitivities_per_split(
+        df, n_splits, contrast_mode=contrast_mode, contrasts=contrasts,
+        effect_measure=effect_measure, alpha=alpha)
+    elec = add_responsiveness(average_over_splits(per_split), df, responsiveness)
+    resp = elec.drop_duplicates('electrode').set_index('electrode')['resp']
+
+    corr = split_resolved_corr(per_split, resp, min_elec=min_elec,
+                               method=corr_method, n_perm=n_perm_corr)
     cont = prepare_continuous(elec, min_elec=min_elec)
-    corr = subject_clustered_corr(cont, n_perm=n_perm_corr)
+    corr_avg = subject_clustered_corr(cont, method=corr_method, n_perm=n_perm_corr)
+
     labels = per_electrode_labels(df, n_perm=n_perm_label, alpha=alpha,
                                   contrast_mode=contrast_mode, contrasts=contrasts,
                                   effect_measure=effect_measure,
                                   fdr_correction=fdr_correction)
     conj = cmh_conjunction(labels)
     return dict(electrodes=elec.merge(labels[['electrode', 'S', 'F']], on='electrode'),
-                continuous=cont, correlation=corr, labels=labels, conjunction=conj,
+                continuous=cont, correlation=corr,
+                correlation_split_averaged=corr_avg,
+                per_split=per_split, labels=labels, conjunction=conj,
                 contrast_mode=contrast_mode, effect_measure=effect_measure)
 
 
@@ -1188,6 +1469,24 @@ def _synthetic_df(effect_measure='cohens_d', n_time=20, seed=0):
     return pd.concat(frames, ignore_index=True)
 
 
+def _report(tag, out, df=None, contrast_mode='condition', effect_measure='cohens_d'):
+    c = out['correlation']
+    print(f"[{tag}] split-resolved r={c['corr']:+.3f} p={c['p']:.4f} "
+          f"(noise-corrected {c['corr_noise_corrected']:+.3f}; "
+          f"rel_x={c['reliability_x']:.3f} rel_y={c['reliability_y']:.3f}; "
+          f"n={c['n_electrodes']} elec, {c['n_electrodes_dropped']} dropped)")
+    a = out['correlation_split_averaged']
+    print(f"[{tag}] split-AVERAGED (biased diagnostic) r={a['corr']:+.3f} p={a['p']:.4f}")
+    if df is not None:
+        nv = add_responsiveness(
+            naive_sensitivities(df, contrast_mode=contrast_mode,
+                                effect_measure=effect_measure), df)
+        nv = subject_clustered_corr(prepare_continuous(nv), n_perm=500)
+        print(f"[{tag}] NAIVE (shared trials)          r={nv['corr']:+.3f} p={nv['p']:.4f}")
+    print(f"[{tag}] MH OR:", out['conjunction']['mh_odds_ratio'],
+          'CMH p:', out['conjunction']['cmh'].pvalue)
+
+
 if __name__ == '__main__':
     # small/fast settings so the smoke test exercises every option path quickly;
     # bump n_splits / n_perm_* for a real run.
@@ -1195,24 +1494,18 @@ if __name__ == '__main__':
         df = _synthetic_df(effect_measure='cohens_d')
         out = run_joint_distribution_analysis(df, n_splits=20, n_perm_corr=800,
                                               n_perm_label=100, contrast_mode=cm)
-        print(f"[{cm} / cohens_d] partial corr:", out['correlation'])
-        print(f"[{cm} / cohens_d] MH OR:", out['conjunction']['mh_odds_ratio'],
-              'CMH p:', out['conjunction']['cmh'].pvalue)
+        _report(f'{cm} / cohens_d', out, df, contrast_mode=cm)
 
     # cluster-mass effect measure on time-resolved HG (see USE_TIME_PERM_CLUSTER
     # to swap the deterministic mass for the real time_perm_cluster mask)
     dfc = _synthetic_df(effect_measure='cluster', n_time=16)
     outc = run_joint_distribution_analysis(dfc, n_splits=10, n_perm_corr=500,
                                            n_perm_label=50, effect_measure='cluster')
-    print("[condition / cluster] partial corr:", outc['correlation'])
-    print("[condition / cluster] MH OR:", outc['conjunction']['mh_odds_ratio'],
-          'CMH p:', outc['conjunction']['cmh'].pvalue)
+    _report('condition / cluster', outc)
     print(outc['conjunction']['pooled_table'])
 
     # peak_t: amplitude-only robustness complement to the cluster mass. Run it on
     # the SAME time-resolved data and compare the segregation verdict.
     outp = run_joint_distribution_analysis(dfc, n_splits=10, n_perm_corr=500,
                                            n_perm_label=50, effect_measure='peak_t')
-    print("[condition / peak_t] partial corr:", outp['correlation'])
-    print("[condition / peak_t] MH OR:", outp['conjunction']['mh_odds_ratio'],
-          'CMH p:', outp['conjunction']['cmh'].pvalue)
+    _report('condition / peak_t', outp)
