@@ -91,12 +91,30 @@ LWPC:  (i − c | 25% incongruent)   vs   (i − c | 75% incongruent)
 LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
 ```
 
-- **Unit of inference is the subject**, not the electrode. Average each simple
-  effect within subject over the lPFC electrode set and the pre-specified window,
-  then a paired t-test (or a cluster-permutation over time if you want the time
-  course; `stability_flexibility_timing.interaction_time_course` already produces
-  the difference-of-differences trace per electrode and
-  `_combine_electrode_traces` collapses it). - hmm i disagree with claude here. i think unit of inference can be the electrode.
+- **Unit of inference is the electrode**, with a subject-aware null. Score both
+  simple effects per electrode over the lPFC electrode set and the pre-specified
+  window, then test with a **within-subject permutation** — sign-flip each
+  electrode's difference-of-differences within its own subject — rather than an
+  ordinary t-test that treats electrodes as independent observations. The
+  distinction that matters is not electrode-vs-subject as the unit of
+  *measurement*, it is whether the *null* claims independence; permuting within
+  subject keeps the electrode-level statistic without ever making that claim.
+  This is the scheme the rest of the pipeline already uses
+  (`subject_clustered_corr` permutes y within subject;
+  `roi_group_enrichment_test` permutes the group label within subject), so §2 is
+  now consistent with §5, §9.2 and the anatomy module rather than an exception to
+  them. For the time course,
+  `stability_flexibility_timing.interaction_time_course` already produces the
+  difference-of-differences trace per electrode and `_combine_electrode_traces`
+  collapses it.
+- **Report `n_electrodes` and `n_subjects` together**, plus two cheap leverage
+  checks: the per-subject direction tally (how many subjects' electrode averages
+  point the expected way) as a descriptive consistency line, and a
+  leave-one-subject-out sweep (§9.2). lPFC coverage is skewed — a few subjects
+  supply a large share of the electrodes — so LOSO is what rules out a
+  one-subject result. Subject-level aggregation is *not* the fix: a paired t over
+  ~12 subjects has ~11 df and too little power to serve as the kill switch this
+  section exists to be.
 - **Report each simple effect's own sign and significance**, not just the
   interaction. Two simple effects with the same sign and different magnitude is
   the expected adaptation pattern; a sign flip is a different (and more
@@ -260,24 +278,62 @@ re-engineered:
   Note also the practical reason: there are too few individually significant
   LWPC/LWPS electrodes to do anatomy on directly.
 
-Standardize within subject before combining across subjects:
+**Pool electrodes across subjects for the maps and the anatomy model, and put
+the two effects on a common scale with ONE pooled scaling per effect — not a
+within-subject z-score:**
 
 ```python
-def within_subject_zscore(series):
-    sd = series.std(ddof=1)
-    if not np.isfinite(sd) or sd == 0:
-        return series * np.nan
-    return (series - series.mean()) / sd
-
-brain_table["lwpc_z"] = brain_table.groupby("subject")["lwpc_score"].transform(within_subject_zscore)
-brain_table["lwps_z"] = brain_table.groupby("subject")["lwps_score"].transform(within_subject_zscore)
+# one scale factor per EFFECT, computed across all electrodes pooled
+for src, dst in (("lwpc_score", "lwpc_s"), ("lwps_score", "lwps_s")):
+    sd = brain_table[src].std(ddof=1)
+    brain_table[dst] = brain_table[src] / sd if np.isfinite(sd) and sd > 0 else np.nan
 ```
 
-This is what makes `lwpc_z − lwps_z` a meaningful *relative* score: it does not
-claim the raw LWPC and LWPS units are comparable, only their within-subject
-standing. (`prepare_continuous` already does within-subject centering for the
-correlation path; the z-score is the version the anatomy model needs, because it
-puts the two effects on a common scale before differencing.)
+Three reasons this is the right shape, in descending order of how much they cost
+if ignored:
+
+1. **A within-subject z-score is degenerate at these electrode counts.** With
+   **2 electrodes** in a subject, `std(ddof=1)` forces the two z-scores to
+   *exactly* ±0.707 whatever the data — all magnitude information in that
+   subject is destroyed and replaced by a symmetric pair of extremes. With **1
+   electrode** the SD is `NaN`, so the subject is **silently dropped from the
+   brain map**. lPFC has several subjects in exactly that range, so this is not a
+   hypothetical. Pooled scaling has neither failure mode.
+2. **The scores are already commensurate.** `_interaction_effect` is a
+   difference-of-differences divided by the pooled within-cell SD — a
+   standardized, unit-free, *d*-like effect size for both LWPC and LWPS. The only
+   thing left to equalize before differencing is their overall marginal spread,
+   and a single pooled scale factor per effect does exactly that.
+3. **Subject gain is handled by the null, not by rescaling.** §5.2's null is a
+   within-electrode swap of the two effect labels, which preserves subject,
+   coverage, location and the electrode's own responsiveness *exactly*. A subject
+   with better SNR has larger |LWPC| **and** larger |LWPS|, and the swap carries
+   that through untouched, so it cannot manufacture an anatomy × effect-type
+   interaction. The `(1 | subject)` term in §5.2 and the LOSO sweep in §9.2 are
+   the remaining guards, and they are the right ones.
+
+This is consistent with §9.2: electrode-weighted inference pooled across subjects
+is acceptable and standard — what makes it safe is the leverage check, not
+per-subject normalization.
+
+**The one place a within-subject operation stays is the LWPC–LWPS correlation
+(§5.4 / the scatter), and there it is centering, not z-scoring.** That is the one
+number pooling can genuinely invent: a subject high on both axes for SNR reasons
+produces a positive pooled correlation that is a subject-level gain effect, not
+electrode-level co-localization. `prepare_continuous` already centers within
+subject, and centering is safe at small n in a way z-scoring is not — a
+1-electrode subject lands at (0, 0), contributing zero to the covariance
+numerator and to both variance sums, so it leaves `r` numerically unchanged
+instead of being dropped. You do not have to take a position on this in the
+abstract: `joint_scatter_diagnostics` already returns `corr` and
+`corr_within_subject` side by side. Report both; if they agree, say so in
+Methods and pool.
+
+**Check `min_elec` before reading any correlation.** `prepare_continuous` and
+`split_resolved_corr` both default to `min_elec=3`, which drops **whole
+subjects**, not marginal electrodes. That filter is a bigger lever on the
+effective N than anything in the pooling question above, so sweep it over
+{1, 2, 3} and report the sensitivity alongside the primary correlation.
 
 ### 5.2 The test, and the fallacy it has to avoid
 
@@ -289,8 +345,8 @@ interaction term.
 
 Two forms, both worth reporting:
 
-**Categorical (primary).** Relative score `Δ = lwpc_z − lwps_z` per electrode,
-tested against ROI / Destrieux parcel:
+**Categorical (primary).** Relative score `Δ = lwpc_s − lwps_s` per electrode
+(the pooled-scaled scores of §5.1), tested against ROI / Destrieux parcel:
 
 ```
 Δ_ij  ~  roi_j  +  responsiveness_ij  +  (1 | subject_i)
@@ -365,7 +421,7 @@ Five surfaces, from the same table:
 2. signed LWPS effect
 3. |LWPC|
 4. |LWPS|
-5. `lwpc_z − lwps_z` (the relative map)
+5. `lwpc_s − lwps_s` (the relative map)
 
 Map 5 is the one that carries the argument; 1–4 are what a reader needs to check
 that 5 is not being driven by one effect's magnitude alone.
@@ -386,8 +442,12 @@ it uses maps 3–4, never 1–2.
 Demote this. A single pooled cross-subject centroid is not a defensible primary
 test, for four reasons that all apply here:
 
-1. Subjects with more electrodes dominate — it is electrode-weighted, not
-   subject-level, inference.
+1. Subjects with more electrodes dominate the **location estimate itself** — a
+   pooled centroid is pulled toward wherever the densest implant happens to sit.
+   Note this is *not* the electrode-weighting question settled in §2 and §5.1: a
+   pooled effect score with a within-subject null and a LOSO sweep (§9.2) is
+   fine, whereas coverage moves a centroid's estimate and not merely its
+   variance, which no null can undo.
 2. Coverage is clinically determined, so a pooled centroid can reflect
    implantation strategy rather than physiology.
 3. A centroid need not land in cortex at all (bilateral distributions put it near

@@ -156,7 +156,7 @@ independently-decorated subpanels are expensive.
 
 ### F5 — Anatomy of the two effects *(C4)*
 `a` per-electrode signed LWPC and LWPS scores on the MNI surface · `b` the
-relative map (`lwpc_z − lwps_z`) · `c` the ROI × effect-type interaction test,
+relative map (`lwpc_s − lwps_s`) · `c` the ROI × effect-type interaction test,
 coverage-conditioned, with the within-electrode swap null · `d` split-half
 spatial reliability beside the between-effect similarity — **the noise ceiling,
 which is what makes `c` readable in either direction**.
