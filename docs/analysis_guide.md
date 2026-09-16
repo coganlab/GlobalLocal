@@ -1932,7 +1932,15 @@ covers per group, so it has no separate code path.
 > time-/run-aware folds (leave-one-run-out / `GroupKFold`), baseline-correct the
 > accuracy trace before cluster-forming, match trial counts. `FRAC_TRAIN` is a
 > quick probe: if the pre-stimulus cluster shrinks as the training set does, it is
-> a fold-leakage artifact rather than signal.
+> a fold-leakage artifact rather than signal. The full diagnostic protocol —
+> failure signatures, the mandatory within-condition ceiling, the positive-control
+> ladder, and the report block to print with every transfer — is in
+> [`cross_decoding_controls.md`](cross_decoding_controls.md). The *block-transfer*
+> form of cross-decoding planned for the manuscript (train congruency in one
+> incongruent-proportion block, test in the other) is specified in
+> [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
+> §4; it needs a new fold splitter, since train and test come from different
+> trials rather than from two labellings of the same trials.
 
 ### 17.1 Which electrodes are decoded
 
