@@ -91,30 +91,49 @@ LWPC:  (i − c | 25% incongruent)   vs   (i − c | 75% incongruent)
 LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
 ```
 
-- **Unit of inference is the electrode**, with a subject-aware null. Score both
-  simple effects per electrode over the lPFC electrode set and the pre-specified
-  window, then test with a **within-subject permutation** — sign-flip each
-  electrode's difference-of-differences within its own subject — rather than an
-  ordinary t-test that treats electrodes as independent observations. The
-  distinction that matters is not electrode-vs-subject as the unit of
-  *measurement*, it is whether the *null* claims independence; permuting within
-  subject keeps the electrode-level statistic without ever making that claim.
-  This is the scheme the rest of the pipeline already uses
-  (`subject_clustered_corr` permutes y within subject;
-  `roi_group_enrichment_test` permutes the group label within subject), so §2 is
-  now consistent with §5, §9.2 and the anatomy module rather than an exception to
-  them. For the time course,
-  `stability_flexibility_timing.interaction_time_course` already produces the
-  difference-of-differences trace per electrode and `_combine_electrode_traces`
-  collapses it.
+- **Unit of inference is the electrode, pooled across subjects — no subject term
+  in the null.** Score both simple effects per electrode over the lPFC electrode
+  set and the pre-specified window, then a one-sample **sign-flip permutation on
+  the per-electrode difference-of-differences**, electrodes exchangeable.
+
+  This matches the power traces §2 exists to interrogate, and that consistency is
+  the argument.
+  `create_list_of_single_channel_evokeds_across_subjects_for_roi_and_condition`
+  (`power/evoked_builders.py`) extracts one trial-averaged evoked per electrode
+  and `extend`s them into a flat list — subject identity is discarded at that
+  line — and `time_perm_cluster_between_two_evokeds` then runs
+  `time_perm_cluster(..., axis=0, permutation_type='independent')` on the
+  resulting `(n_electrodes, n_times)` array, permuting condition labels along the
+  electrode axis. §2's statistic is the same object: a mean over electrodes whose
+  SE comes from between-electrode spread. Holding the kill switch to a stricter
+  null than the traces it validates would let it fail a direction those traces
+  already reported — an incoherent thing to build.
+
+  Note the §2 test is the **paired** form of that null (the
+  difference-of-differences is formed *within* electrode before the test), so it
+  is more powerful than the trace null, not a relaxation of it. For the time
+  course, `stability_flexibility_timing.interaction_time_course` already produces
+  the per-electrode DoD trace and `_combine_electrode_traces` collapses it.
+- **State what pooling costs, rather than pretending it is free.** Electrodes
+  within a subject are correlated, so the effective N sits below the electrode
+  count by roughly the design effect `1 + (m̄ − 1)·ICC`. At ~174 lPFC electrodes
+  across 12 subjects (m̄ ≈ 14.5), an ICC of 0.1 puts the effective N near 74 and
+  an ICC of 0.3 near 34. **The consequence is an optimistically small p-value,
+  not a wrong sign** — and §2's output is a *direction*, cross-checked against
+  behavior and against each simple effect's own sign, so an inflated p changes
+  nothing about the verdict. This is the general rule for the plan: pooling
+  without a subject term costs an optimistic p-value in §2, the power traces and
+  the decoding, and that is acceptable. It is **not** acceptable on the
+  LWPC–LWPS correlation (§5.1), where between-subject SNR offsets can reverse the
+  sign and manufacture the effect outright. Optimistic p on a sanity check and a
+  fabricated effect on a headline claim are different categories of error.
 - **Report `n_electrodes` and `n_subjects` together**, plus two cheap leverage
-  checks: the per-subject direction tally (how many subjects' electrode averages
-  point the expected way) as a descriptive consistency line, and a
-  leave-one-subject-out sweep (§9.2). lPFC coverage is skewed — a few subjects
-  supply a large share of the electrodes — so LOSO is what rules out a
-  one-subject result. Subject-level aggregation is *not* the fix: a paired t over
-  ~12 subjects has ~11 df and too little power to serve as the kill switch this
-  section exists to be.
+  checks — kept as *descriptives*, since they are what actually protects this
+  result, not the p-value: the per-subject direction tally (how many subjects'
+  electrode averages point the expected way), and a leave-one-subject-out sweep
+  (§9.2). lPFC coverage is skewed, so LOSO is what rules out a one-subject
+  result. Subject-level aggregation is not the alternative: a paired t over ~12
+  subjects has ~11 df and too little power to serve as a kill switch.
 - **Report each simple effect's own sign and significance**, not just the
   interaction. Two simple effects with the same sign and different magnitude is
   the expected adaptation pattern; a sign flip is a different (and more
@@ -582,6 +601,23 @@ Two checks, both already specified:
 The block-centering decision in §4.3(a) is the same issue reaching the decoder.
 Keep the treatment consistent across §3, §4 and §5, and say which one the primary
 numbers use.
+
+### 9.4 Open — paired vs independent permutation in the power traces
+
+`time_perm_cluster_between_two_evokeds` passes
+`permutation_type='independent'`, but every electrode contributes an evoked to
+**both** conditions, so the design is paired. If the library takes that flag at
+face value, the null carries between-electrode variance that pairing would
+cancel, and the traces are **losing power** — conservative, not anti-conservative,
+so nothing already reported is called into question by it.
+
+**Unverified.** This is read off the call site only: `IEEG_Pipelines/` is an
+empty submodule in this checkout and `ieeg` is not installed, so
+`ieeg.calc.stats.time_perm_cluster` was never opened. Read it before acting.
+If it is confirmed, the fix is to test the within-electrode difference rather
+than the two condition stacks — which is what §2 already does, so §2 is the
+cheapest place to see whether the paired version recovers a real difference in
+sensitivity.
 
 ---
 
