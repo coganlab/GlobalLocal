@@ -96,7 +96,7 @@ LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
   then a paired t-test (or a cluster-permutation over time if you want the time
   course; `stability_flexibility_timing.interaction_time_course` already produces
   the difference-of-differences trace per electrode and
-  `_combine_electrode_traces` collapses it).
+  `_combine_electrode_traces` collapses it). - hmm i disagree with claude here. i think unit of inference can be the electrode.
 - **Report each simple effect's own sign and significance**, not just the
   interaction. Two simple effects with the same sign and different magnitude is
   the expected adaptation pattern; a sign flip is a different (and more
