@@ -111,9 +111,12 @@ LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
 
   Note the §2 test is the **paired** form of that null (the
   difference-of-differences is formed *within* electrode before the test), so it
-  is more powerful than the trace null, not a relaxation of it. For the time
-  course, `stability_flexibility_timing.interaction_time_course` already produces
-  the per-electrode DoD trace and `_combine_electrode_traces` collapses it.
+  is more powerful than the trace null as currently configured, not a relaxation
+  of it. §9.4 shows the traces can be switched to the same paired null with one
+  line, at which point §2 becomes simply the windowed case of the trace test.
+  For the time course, `stability_flexibility_timing.interaction_time_course`
+  already produces the per-electrode DoD trace and `_combine_electrode_traces`
+  collapses it.
 - **State what pooling costs, rather than pretending it is free.** Electrodes
   within a subject are correlated, so the effective N sits below the electrode
   count by roughly the design effect `1 + (m̄ − 1)·ICC`. At ~174 lPFC electrodes
@@ -602,22 +605,50 @@ The block-centering decision in §4.3(a) is the same issue reaching the decoder.
 Keep the treatment consistent across §3, §4 and §5, and say which one the primary
 numbers use.
 
-### 9.4 Open — paired vs independent permutation in the power traces
+### 9.4 The power traces run an independent permutation on a paired design
 
-`time_perm_cluster_between_two_evokeds` passes
-`permutation_type='independent'`, but every electrode contributes an evoked to
-**both** conditions, so the design is paired. If the library takes that flag at
-face value, the null carries between-electrode variance that pairing would
-cancel, and the traces are **losing power** — conservative, not anti-conservative,
-so nothing already reported is called into question by it.
+**Verified against `ieeg.calc.stats.time_perm_cluster`.** `permutation_type` is
+forwarded unchanged into `scipy.stats.permutation_test`, so `'independent'`
+pools the observations of both samples along `axis` and randomly re-partitions
+them. Every electrode contributes an evoked to **both** conditions, so the design
+is paired and the null is carrying between-electrode variance — electrodes differ
+enormously in overall HG amplitude — that pairing would cancel. The traces are
+therefore **losing sensitivity**. This is conservative, not anti-conservative:
+nothing already reported is called into question by it.
 
-**Unverified.** This is read off the call site only: `IEEG_Pipelines/` is an
-empty submodule in this checkout and `ieeg` is not installed, so
-`ieeg.calc.stats.time_perm_cluster` was never opened. Read it before acting.
-If it is confirmed, the fix is to test the within-electrode difference rather
-than the two condition stacks — which is what §2 already does, so §2 is the
-cheapest place to see whether the paired version recovers a real difference in
-sensitivity.
+**This is a configuration choice, not a bug, and the paired path is already
+wired.** `dcc_scripts/power/run_power_traces_dcc.py` sets
+`STAT_FUNC_CHOICE = 'ttest'`, which resolves to `PERMUTATION_TYPE =
+'independent'`. The `'ttest_rel'` branch in the same block resolves to
+`PERMUTATION_TYPE = 'samples'`, and the `mean_diff` branch carries the comment
+"Choose based on whether the observations are matched." One line switches the
+statistic and the permutation type together.
+
+**The switch also makes §2 and the traces the same procedure.** For two samples,
+scipy's `'samples'` permutation randomly swaps the paired observations, which for
+a difference statistic is exactly a sign-flip on the per-pair difference — the
+test §2 specifies. Under `'ttest_rel'` / `'samples'`, §2 stops being "the paired
+form of the trace null" and becomes the windowed case of it: same unit (electrode,
+pooled across subjects), same null family.
+
+Two checks before flipping, neither yet done:
+
+1. **Assert the pairing is real.** `time_perm_cluster` calls
+   `make_data_same(sig2, sig1.shape, axis, -1, True, rng)` before testing, and
+   `'samples'` pairs whatever sits at matching indices. The two evokeds are built
+   by the same loop over the same subjects and electrode dict so the order should
+   match, but a mismatch would make the paired test *wrong* rather than merely
+   conservative. Add `assert evoked_cond1.ch_names == evoked_cond2.ch_names` to
+   `time_perm_cluster_between_two_evokeds` — worth having under either mode.
+2. **Smoke-test `ttest_rel` through the vectorized path** on one ROI before a
+   full sweep. `_handle_stat_func` will take its "stat_func returns a tuple"
+   branch for scipy's `ttest_rel`, and `vectorized=True` batches the input.
+
+Minor, unrelated, and not worth fixing on its own: `time_perm_cluster_between_two_evokeds`
+defaults to `stat_func=None` and forwards it, overriding `time_perm_cluster`'s own
+`stat_func=ttest` default and reaching `inspect.signature(None)`. The DCC path
+always passes `stat_func` explicitly, so this only bites a direct call with
+defaults from a notebook.
 
 ---
 
