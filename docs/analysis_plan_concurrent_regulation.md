@@ -91,30 +91,52 @@ LWPC:  (i − c | 25% incongruent)   vs   (i − c | 75% incongruent)
 LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
 ```
 
-- **Unit of inference is the electrode**, with a subject-aware null. Score both
-  simple effects per electrode over the lPFC electrode set and the pre-specified
-  window, then test with a **within-subject permutation** — sign-flip each
-  electrode's difference-of-differences within its own subject — rather than an
-  ordinary t-test that treats electrodes as independent observations. The
-  distinction that matters is not electrode-vs-subject as the unit of
-  *measurement*, it is whether the *null* claims independence; permuting within
-  subject keeps the electrode-level statistic without ever making that claim.
-  This is the scheme the rest of the pipeline already uses
-  (`subject_clustered_corr` permutes y within subject;
-  `roi_group_enrichment_test` permutes the group label within subject), so §2 is
-  now consistent with §5, §9.2 and the anatomy module rather than an exception to
-  them. For the time course,
-  `stability_flexibility_timing.interaction_time_course` already produces the
-  difference-of-differences trace per electrode and `_combine_electrode_traces`
+- **Unit of inference is the electrode, pooled across subjects — no subject term
+  in the null.** Score both simple effects per electrode over the lPFC electrode
+  set and the pre-specified window, then a one-sample **sign-flip permutation on
+  the per-electrode difference-of-differences**, electrodes exchangeable.
+
+  This matches the power traces §2 exists to interrogate, and that consistency is
+  the argument.
+  `create_list_of_single_channel_evokeds_across_subjects_for_roi_and_condition`
+  (`power/evoked_builders.py`) extracts one trial-averaged evoked per electrode
+  and `extend`s them into a flat list — subject identity is discarded at that
+  line — and `time_perm_cluster_between_two_evokeds` then runs
+  `time_perm_cluster(..., axis=0, permutation_type='independent')` on the
+  resulting `(n_electrodes, n_times)` array, permuting condition labels along the
+  electrode axis. §2's statistic is the same object: a mean over electrodes whose
+  SE comes from between-electrode spread. Holding the kill switch to a stricter
+  null than the traces it validates would let it fail a direction those traces
+  already reported — an incoherent thing to build.
+
+  Note the §2 test is the **paired** form of that null (the
+  difference-of-differences is formed *within* electrode before the test), so it
+  is more powerful than the trace null as currently configured, not a relaxation
+  of it. §9.4 shows the traces can be switched to the same paired null with one
+  line, at which point §2 becomes simply the windowed case of the trace test.
+  For the time course, `stability_flexibility_timing.interaction_time_course`
+  already produces the per-electrode DoD trace and `_combine_electrode_traces`
   collapses it.
+- **State what pooling costs, rather than pretending it is free.** Electrodes
+  within a subject are correlated, so the effective N sits below the electrode
+  count by roughly the design effect `1 + (m̄ − 1)·ICC`. At ~174 lPFC electrodes
+  across 12 subjects (m̄ ≈ 14.5), an ICC of 0.1 puts the effective N near 74 and
+  an ICC of 0.3 near 34. **The consequence is an optimistically small p-value,
+  not a wrong sign** — and §2's output is a *direction*, cross-checked against
+  behavior and against each simple effect's own sign, so an inflated p changes
+  nothing about the verdict. This is the general rule for the plan: pooling
+  without a subject term costs an optimistic p-value in §2, the power traces and
+  the decoding, and that is acceptable. It is **not** acceptable on the
+  LWPC–LWPS correlation (§5.1), where between-subject SNR offsets can reverse the
+  sign and manufacture the effect outright. Optimistic p on a sanity check and a
+  fabricated effect on a headline claim are different categories of error.
 - **Report `n_electrodes` and `n_subjects` together**, plus two cheap leverage
-  checks: the per-subject direction tally (how many subjects' electrode averages
-  point the expected way) as a descriptive consistency line, and a
-  leave-one-subject-out sweep (§9.2). lPFC coverage is skewed — a few subjects
-  supply a large share of the electrodes — so LOSO is what rules out a
-  one-subject result. Subject-level aggregation is *not* the fix: a paired t over
-  ~12 subjects has ~11 df and too little power to serve as the kill switch this
-  section exists to be.
+  checks — kept as *descriptives*, since they are what actually protects this
+  result, not the p-value: the per-subject direction tally (how many subjects'
+  electrode averages point the expected way), and a leave-one-subject-out sweep
+  (§9.2). lPFC coverage is skewed, so LOSO is what rules out a one-subject
+  result. Subject-level aggregation is not the alternative: a paired t over ~12
+  subjects has ~11 df and too little power to serve as a kill switch.
 - **Report each simple effect's own sign and significance**, not just the
   interaction. Two simple effects with the same sign and different magnitude is
   the expected adaptation pattern; a sign flip is a different (and more
@@ -582,6 +604,51 @@ Two checks, both already specified:
 The block-centering decision in §4.3(a) is the same issue reaching the decoder.
 Keep the treatment consistent across §3, §4 and §5, and say which one the primary
 numbers use.
+
+### 9.4 The power traces run an independent permutation on a paired design
+
+**Verified against `ieeg.calc.stats.time_perm_cluster`.** `permutation_type` is
+forwarded unchanged into `scipy.stats.permutation_test`, so `'independent'`
+pools the observations of both samples along `axis` and randomly re-partitions
+them. Every electrode contributes an evoked to **both** conditions, so the design
+is paired and the null is carrying between-electrode variance — electrodes differ
+enormously in overall HG amplitude — that pairing would cancel. The traces are
+therefore **losing sensitivity**. This is conservative, not anti-conservative:
+nothing already reported is called into question by it.
+
+**This is a configuration choice, not a bug, and the paired path is already
+wired.** `dcc_scripts/power/run_power_traces_dcc.py` sets
+`STAT_FUNC_CHOICE = 'ttest'`, which resolves to `PERMUTATION_TYPE =
+'independent'`. The `'ttest_rel'` branch in the same block resolves to
+`PERMUTATION_TYPE = 'samples'`, and the `mean_diff` branch carries the comment
+"Choose based on whether the observations are matched." One line switches the
+statistic and the permutation type together.
+
+**The switch also makes §2 and the traces the same procedure.** For two samples,
+scipy's `'samples'` permutation randomly swaps the paired observations, which for
+a difference statistic is exactly a sign-flip on the per-pair difference — the
+test §2 specifies. Under `'ttest_rel'` / `'samples'`, §2 stops being "the paired
+form of the trace null" and becomes the windowed case of it: same unit (electrode,
+pooled across subjects), same null family.
+
+Two checks before flipping, neither yet done:
+
+1. **Assert the pairing is real.** `time_perm_cluster` calls
+   `make_data_same(sig2, sig1.shape, axis, -1, True, rng)` before testing, and
+   `'samples'` pairs whatever sits at matching indices. The two evokeds are built
+   by the same loop over the same subjects and electrode dict so the order should
+   match, but a mismatch would make the paired test *wrong* rather than merely
+   conservative. Add `assert evoked_cond1.ch_names == evoked_cond2.ch_names` to
+   `time_perm_cluster_between_two_evokeds` — worth having under either mode.
+2. **Smoke-test `ttest_rel` through the vectorized path** on one ROI before a
+   full sweep. `_handle_stat_func` will take its "stat_func returns a tuple"
+   branch for scipy's `ttest_rel`, and `vectorized=True` batches the input.
+
+Minor, unrelated, and not worth fixing on its own: `time_perm_cluster_between_two_evokeds`
+defaults to `stat_func=None` and forwards it, overriding `time_perm_cluster`'s own
+`stat_func=ttest` default and reaching `inspect.signature(None)`. The DCC path
+always passes `stat_func` explicitly, so this only bites a direct call with
+defaults from a notebook.
 
 ---
 
