@@ -146,6 +146,17 @@ LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
   trial-count-weighted contrasts leak the main effect into the interaction; see
   simplification plan §2.2b.
 
+- **Implemented** as `statistical_method='time_perm_cluster_interaction'`
+  (`dcc_scripts/power/power_traces_dcc.py`). One run emits all three tests per
+  ROI: both simple effects and the difference-of-differences, each cluster-
+  corrected across time on the pooled-electrode unit. Orientation is pinned
+  LOW-proportion-minus-HIGH by selecting the subtraction pairs by name, so a
+  POSITIVE effect is the predicted shrinkage. Note this is the opposite sign
+  from `windowed_anova._signed_contrast_per_window` and from
+  `W_INTERACTION` in the segregation module, both of which compute high−low.
+  Requires `STAT_FUNC_CHOICE = 'ttest_rel'` (→ `permutation_type='samples'`);
+  the design is paired and `'independent'` throws the pairing away.
+
 **Kill switch.** If the two adaptation directions disagree with the behavioral
 ones, stop and re-read the epoch metadata before running anything in §3–§8. This
 check costs an afternoon and protects the whole week.
@@ -640,6 +651,11 @@ Two checks before flipping, neither yet done:
    match, but a mismatch would make the paired test *wrong* rather than merely
    conservative. Add `assert evoked_cond1.ch_names == evoked_cond2.ch_names` to
    `time_perm_cluster_between_two_evokeds` — worth having under either mode.
+   
+   **Check 1 is now implemented** as a `ValueError` at the top of
+  `time_perm_cluster_between_two_evokeds`, raised only under
+  `permutation_type='samples'`.
+
 2. **Smoke-test `ttest_rel` through the vectorized path** on one ROI before a
    full sweep. `_handle_stat_func` will take its "stat_func returns a tuple"
    branch for scipy's `ttest_rel`, and `vectorized=True` batches the input.
