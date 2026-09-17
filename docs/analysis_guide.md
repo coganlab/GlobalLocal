@@ -1737,6 +1737,15 @@ finished within-electrode windowed ANOVA runs via
 transient interactions (§14.2), and it needs no epoched data (point it at the run
 dirs).
 
+**Two analysis arms.** `ARM=categorical` (default) runs the S/F-label enrichment
+described above. `ARM=continuous` instead carries the threshold-free LWPC/LWPS
+scores into the ROI and coordinate analyses; `ARM=both` runs both paths and puts
+the latter's products in `continuous/`. The continuous arm can either read
+`electrodes.csv` and `per_split.csv` from a completed segregation run or compute
+them from `EPOCHS_ROOT_FILE`. Reusing the CSVs avoids repeating the expensive
+split-half scoring. `PER_SPLIT_CSV` is optional, but without it the noise-ceiling
+and minimum-electrode sweep cannot be calculated.
+
 **Two anatomical levels.** `ANAT_LEVEL=group` counts/tests the coarse ROI groups
 of `config/rois.py`; `ANAT_LEVEL=destrieux` uses the **raw Destrieux labels**.
 `auto` (default) picks Destrieux whenever the analysis is restricted to one ROI
@@ -1810,6 +1819,19 @@ DATA_SOURCE=synthetic SYNTHETIC_ENRICHMENT=0.0 bash submit_stability_flexibility
 # real run on the A1 electrodes — set EPOCHS_ROOT_FILE in the submit script:
 bash submit_stability_flexibility_anatomy_dcc.sh
 
+# threshold-free continuous anatomy, reusing a completed segregation run:
+STATS=/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats
+SEG_RUN="$STATS/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh"
+ARM=continuous \
+  SCORES_CSV="$SEG_RUN/electrodes.csv" \
+  PER_SPLIT_CSV="$SEG_RUN/per_split.csv" \
+  bash submit_stability_flexibility_anatomy_dcc.sh
+
+# Or leave both CSV variables unset to score the epochs in this job. N_SPLITS
+# controls that calculation; USE_COORDS=0 avoids recon-dependent spatial panels:
+ARM=continuous N_SPLITS=200 USE_COORDS=0 \
+  bash submit_stability_flexibility_anatomy_dcc.sh
+
 # real run on the POWER_TRACES electrodes (cluster-corrected), lpfc only,
 # counted by raw Destrieux label. Loads no epoched data — just the finished run:
 POWER_FIGS=/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs
@@ -1823,6 +1845,11 @@ LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
 |---|---|---|
 | `DATA_SOURCE` | `real` | `real` = real electrodes + ROI atlas; `synthetic` = ground-truth dry run. |
 | `SYNTHETIC_ENRICHMENT` | `0.6` | synthetic only: strength of the planted group×ROI association (`0.0` = null). |
+| `ARM` | `categorical` | `categorical` = S/F-label enrichment; `continuous` = threshold-free score anatomy; `both` = both analyses. |
+| `SCORES_CSV` | — | continuous only: a completed segregation run's `electrodes.csv`; when unset, recompute from epochs. |
+| `PER_SPLIT_CSV` | — | continuous only: the matching `per_split.csv`, required for the noise ceiling and `min_elec` sweep. |
+| `N_SPLITS` | `200` | number of disjoint half-splits when the continuous scores are computed in this job. |
+| `USE_COORDS` | `1` | set to `0` to skip reconstruction-dependent coordinate and centroid panels. |
 | `LABEL_SOURCE` | `a1` | `a1` = fit the window-mean ANOVA here; `power_traces` = read finished cluster-corrected runs. |
 | `PT_RUN_DIR` | — | `power_traces` only: one 4-factor run dir (containing `summary.csv`). |
 | `PT_RUN_CPC` / `PT_RUN_SPS` / `PT_RUN_CPS` / `PT_RUN_SPC` | — | …or one run dir per interaction (CPC + SPS required). |
@@ -1833,11 +1860,13 @@ LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
 | `ANAT_LEVEL` | `auto` | `auto` \| `group` \| `destrieux` — level for the histogram + enrichment test. |
 | `HIST_TOP_N` | — | cap the Destrieux histogram at the N most-populated labels. |
 | `MAKE_BRAIN` / `BRAIN_HEMI` | `1` / `both` | render the brain figure; hemisphere(s) to draw. |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window. A1 route only. |
-| `ELECTRODES` | `all` | `all` or `sig`. A1 route only. |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | analysis window configured by the submit script. |
+| `ELECTRODES` | `sig` | `all` or `sig`, configured by the submit script. |
 | `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
 | `MIN_SUBJECTS` | `3` | keep only ROIs sampled in ≥ this many subjects (the coverage condition). |
 | `N_PERM` | `10000` | within-subject permutations for the enrichment null. |
+| `SEED` | `0` | random seed for scoring and permutation procedures. |
+| `ROI_DICT_DIR` | — | optional directory containing a cached electrodes-to-ROI atlas JSON. |
 
 **Outputs** →
 `results/<epochs_or_pt_or_synthetic_tag>/anatomy_<label_source>_<roi_or_wholebrain>_window_<tmin>to<tmax>s_<electrodes>/`:

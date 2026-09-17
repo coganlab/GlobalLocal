@@ -6,8 +6,8 @@
 #   bash submit_stability_flexibility_anatomy_dcc.sh                       # real data, A1 electrodes
 #   DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh # dry-run
 #   ARM=continuous \
-#     SCORES_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_sig_all_rois_proportion_difference_fdr_bh/electrodes.csv" \
-#     PER_SPLIT_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_sig_all_rois_proportion_difference_fdr_bh/per_split.csv" \
+#     SCORES_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/electrodes.csv" \
+#     PER_SPLIT_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/per_split.csv" \
 #     bash submit_stability_flexibility_anatomy_dcc.sh                 # reuse scores
 #
 #   # power_traces (cluster-corrected) electrodes, lpfc only, counted by raw
@@ -45,10 +45,10 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # segregation run, for example:
 #   /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/
 #     <epochs_root>/segregation_results/
-#     window_0.0to1.5s_sig_all_rois_proportion_difference_fdr_bh/electrodes.csv
+#     window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/electrodes.csv
 #   /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/
 #     <epochs_root>/segregation_results/
-#     window_0.0to1.5s_sig_all_rois_proportion_difference_fdr_bh/per_split.csv
+#     window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/per_split.csv
 # Leave them blank to calculate the scores from EPOCHS_ROOT_FILE instead.
 # PER_SPLIT_CSV enables the noise-ceiling and minimum-electrode sweep.
 # N_SPLITS is used only when calculating scores here; USE_COORDS=0 skips the
