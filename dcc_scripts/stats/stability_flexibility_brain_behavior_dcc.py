@@ -258,8 +258,13 @@ def attach_group_hg(trials, hg_by_subject, labels, flag_cols=(('S', 'hg_lwpc'),
 # ---------------------------------------------------------------------------
 def _adjustment_weight(cond, mod, pos, neg):
     """The trial's cell weight in the equal-cell-weight difference-of-differences:
-    +1 on the (pos, high) and (neg, low) diagonal, -1 on the other, NaN if the trial
-    falls in neither (an unusable condition label or a missing proportion)."""
+    +1 on the (pos, LOW) and (neg, high) diagonal, -1 on the other, NaN if the trial
+    falls in neither (an unusable condition label or a missing proportion).
+
+    LOW-proportion carries the +1, matching `_dod_rt` and the neural SIGN
+    CONVENTION (see `stability_flexibility_segregation`): a subject's mean
+    `adj_congruency` is their behavioral LWPC / 4 on the SAME orientation, so
+    positive = the condition effect shrinks in the high-proportion block."""
     num = pd.to_numeric(pd.Series(mod), errors='coerce').to_numpy()
     finite = num[np.isfinite(num)]
     if finite.size == 0:
@@ -269,8 +274,8 @@ def _adjustment_weight(cond, mod, pos, neg):
         return np.full(len(num), np.nan)
     cond = np.asarray(cond).astype(str)
     cond_sign = np.where(cond == pos, 1.0, np.where(cond == neg, -1.0, np.nan))
-    mod_sign = np.where(np.isclose(num, hi), 1.0,
-                        np.where(np.isclose(num, lo), -1.0, np.nan))
+    mod_sign = np.where(np.isclose(num, lo), 1.0,
+                        np.where(np.isclose(num, hi), -1.0, np.nan))
     return cond_sign * mod_sign
 
 
