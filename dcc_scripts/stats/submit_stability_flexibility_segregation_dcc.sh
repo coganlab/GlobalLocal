@@ -18,7 +18,7 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thr
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
 WINDOW_TMAX=1.5
-ELECTRODES=all            # 'all' or 'sig'
+ELECTRODES=all          # 'all' or 'sig'
 # NOTE: sbatch --export separates VAR=VALUE pairs with commas, so a
 # comma-containing value cannot be passed in that list -- it would be truncated
 # at the first comma. ROIS is therefore `export`ed here and reaches the job
@@ -49,7 +49,7 @@ N_PERM_LABEL=${N_PERM_LABEL:-1000}
 # scatter, stop. No splits, no permutations -- minutes instead of hours, and it
 # is step 1 of the plan's order of operations. SCATTER_N_SPLITS>0 scores the
 # sensitivities on disjoint trial halves instead of all trials.
-SCATTER_ONLY=${SCATTER_ONLY:-1}
+SCATTER_ONLY=${SCATTER_ONLY:-0}
 SCATTER_N_SPLITS=${SCATTER_N_SPLITS:-200}
 mkdir -p out
 

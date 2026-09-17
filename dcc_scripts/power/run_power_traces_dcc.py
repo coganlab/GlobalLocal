@@ -69,7 +69,7 @@ ACC_TRIALS_ONLY = True
 N_JOBS = -1 
 
 # stats
-STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova'
+STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova' or 'time_perm_cluster_interaction' (follow up tests for anova)
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
@@ -87,13 +87,15 @@ ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
 ANOVA_LABEL_ALPHA = float(os.environ.get('ANOVA_LABEL_ALPHA', 0.05))
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 
-if STATISTICAL_METHOD == 'time_perm_cluster':
+if STATISTICAL_METHOD in ('time_perm_cluster', 'time_perm_cluster_interaction'):
     WINDOW_SIZE = None
     STEP_SIZE = None
     
-# Additional parameters for time-permutation cluster statistics - these are only relevant is STATISTICAL_METHOD = 'time_perm_cluster'
-STAT_FUNC_CHOICE = 'ttest'
+# Additional parameters for time-permutation cluster statistics - these are only relevant if STATISTICAL_METHOD = 'time_perm_cluster'
 # Options: 'ttest', 'ttest_ind', 'ttest_rel', or 'mean_diff'.
+STAT_FUNC_CHOICE = 'ttest'
+if STATISTICAL_METHOD == 'time_perm_cluster_interaction':
+    STAT_FUNC_CHOICE = 'ttest_rel' # relative ttest is required for the interaction since the difference scores are in the same electrodes
 
 if STAT_FUNC_CHOICE == 'mean_diff':
     STAT_FUNC = mean_diff

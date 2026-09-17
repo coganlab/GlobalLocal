@@ -206,6 +206,7 @@ def main(args):
     # 5. Statistical testing
     # ------------------------------------------------------------------
     significant_clusters = {}
+    interaction_clusters = {}
     interaction_results = None
 
     if args.statistical_method == 'time_perm_cluster':
@@ -238,6 +239,81 @@ def main(args):
                 print(f"   Skipping ROI {roi}: Missing prepared evoked data for "
                       f"one or both conditions.")
 
+    elif args.statistical_method == 'time_perm_cluster_interaction':
+        # ---- Follow-up DIRECTION tests for a 2x2 design (LWPC / LWPS) ------
+        # anova_lm reports F, and F = t^2 for a 1-df term, so the ANOVA says an
+        # interaction EXISTS but not which way it goes. These three follow-ups
+        # recover the sign, all on the (n_electrodes, n_times) unit the traces
+        # already use:
+        #  1. simple effect in the 25% block (i-c | 25%)
+        #  2. simple effect in the 75% block (i-c | 75%)
+        #  3. the interaction: test 1's difference wave against 2's
+        #     = the difference-of-differences, oriented LOW minus HIGH.
+        if not subtraction_pairs:
+            raise ValueError(
+                f"condition_label '{condition_label}' has no 'subtraction_pairs'; "
+                f"the interaction follow-up needs two simple-effect pairs.")
+            
+            usable = [p for p in subtraction_pairs
+                      if p[0] in evks_dict_elecs and p[1] in evks_dict_elecs]
+            # Orientation is pinned LOW-first so a POSITIVE effect means the condition
+            # effect SHRINKS in the high-proportion block (adaptation, matching
+            # behavior). The registry lists high first -- select by name, don't rely
+            # on list order.
+            try:
+                low_pair = next(p for p in usable if '25' in p[0])
+                high_pair = next(p for p in usable if '75' in p[0])
+            except StopIteration:
+                raise ValueError(
+                    f"interaction follow-up needs one 25% and one 75% subtraction "
+                    f"pair; registry gave {usable}"
+                )
+            
+            diffs = create_subtracted_evokeds_dict(
+                evks_dict_elecs, [low_pair, high_pair], rois)
+            low_name, high_name = '-'.join(low_pair), '-'.join(high_pair)
+            print(f"\nInteraction follow-up: ({low_name}) vs ({high_name})")
+            print("  positive delta = condition effect SHRINKS in the 75% block")
+            
+            p_values_dict = {}
+            for roi in rois:
+                print(f"-- Processing ROI: {roi} --")
+                d_low, d_high = diffs[low_name][roi], diffs[high_name][roi]
+                if d_low is None or d_high is None:
+                    print(f"    Skipping ROI {roi}: missing evoked data.")
+                    continue
+                
+                tests = {
+                    f'simple_{low_name}':   (evks_dict_elecs[low_pair[0]][roi],
+                                             evks_dict_elecs[low_pair[1]][roi]),
+                    f'simple_{high_name}':  (evks_dict_elecs[high_pair[0]][roi],
+                                             evks_dict_elecs[high_pair[1]][roi]),
+                    'interaction':          (d_low, d_high)
+                }
+                for test_name, (e1, e2) in tests.items():
+                    if e1 is None or e2 is None:
+                        continue
+                    mask, pvals = time_perm_cluster_between_two_evokeds(
+                        e1, e2,
+                        p_thresh=args.p_thresh_for_time_perm_cluster_stats,
+                        p_cluster=args.p_cluster, n_perm=args.n_perm,
+                        tails=args.tails, axis=0, stat_func=args.stat_func,
+                        ignore_adjacency=None,
+                        permutation_type=args.permutation_type,
+                        vectorized=True, n_jobs=args.n_jobs, seed=None, verbose=True
+                    )
+                    # The signed effect the F discards. Report it next to the mask --
+                    # a cluster with no sign attached is what got us here.
+                    delta = (e1.data - e2.data).mean(axis=0)
+                    m = np.asarray(mask, bool).ravel()
+                    inside = (m.shape == delta.shape) and m.any()
+                    print(f"   [{test_name}] mean delta "
+                        f"{'in sig cluster' if inside else 'over epoch (n.s.)'}: "
+                        f"{(delta[m] if inside else delta).mean():+.5f}")
+                    if test_name == 'interaction':
+                        interaction_clusters[roi] = mask
+                        p_values_dict[roi] = pvals
+            
     elif args.statistical_method == 'anova':
         # anova_interactions may legitimately be empty (single main-effect ANOVA);
         # we only require at least one factor to run the ANOVA.
@@ -388,6 +464,7 @@ def main(args):
                 subtracted_evks_dict_elecs, rois, sub_pair_names, sub_save_name,
                 plot_params, save_dir=save_dir,
                 window_size=args.window_size, sampling_rate=args.sampling_rate,
+                significant_clusters=interaction_clusters or None,
                 error_type='sem',
                 plot_style=args.plot_style,
                 save_name_suffix=elec_string_to_add_to_filename,

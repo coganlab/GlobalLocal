@@ -393,6 +393,15 @@ def time_perm_cluster_between_two_evokeds(evoked_cond1, evoked_cond2, p_thresh=0
 
     https://ieeg-pipelines.readthedocs.io/en/latest/references/ieeg.calc.stats.time_perm_cluster.html
     """
+    # A 'samples' permutation pairs observations by INDEX. If the two evokeds
+    # carry different channels (or the same ones in a different order), the test silently pairs unrelated electrodes, which is wrong, not merely conservative.
+    # 'independent' pools and repartitions, so order doesn't matter there.
+    if permutation_type == 'samples' and evoked_cond1.ch_names != evoked_cond2.ch_names:
+        raise ValueError(
+            "paired permutation ('samples') requires identical channel order; "
+            f"got {len(evoked_cond1.ch_names)} vs {len(evoked_cond2.ch_names)} channels"
+        )
+        
     data1 = evoked_cond1.data
     data2 = evoked_cond2.data
 
