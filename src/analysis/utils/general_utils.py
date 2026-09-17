@@ -402,7 +402,11 @@ def load_existing_subjects_electrodes_to_ROIs_dict(save_dir=None, filename=ROI_D
     Parameters:
     ----------
     save_dir : str, optional
-        Directory to load from. Defaults to src/analysis/config.
+        Directory to load from. Defaults to src/analysis/config. An empty or
+        whitespace-only string means the same thing — it's what an unset
+        knob looks like after sbatch --export passes it through, and joining
+        it would otherwise yield a bare relative filename that resolves
+        against the job's cwd.
     filename : str, optional
         Name of the JSON file.
 
@@ -413,7 +417,8 @@ def load_existing_subjects_electrodes_to_ROIs_dict(save_dir=None, filename=ROI_D
     ValueError
         If it's there but can't be parsed.
     """
-    if save_dir is None:
+    save_dir = save_dir.strip() if isinstance(save_dir, str) else save_dir
+    if not save_dir:
         save_dir = get_default_roi_dict_dir()
 
     filepath = os.path.join(save_dir, filename)
