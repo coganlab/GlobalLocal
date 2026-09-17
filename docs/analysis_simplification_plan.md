@@ -5,8 +5,25 @@ pipelines (2026-09). Records what the diagnosis found, what to do instead, and
 why. Companion to `analysis_guide.md` (which describes the pipelines as built);
 this document argues for changing which of them is primary.
 
-**Scientific question.** Do stability adaptation (LWPC) and flexibility
-adaptation (LWPS) rely on shared or independent neural mechanisms in lPFC?
+> **Framing superseded (2026-09).** The paper's narrative has moved from
+> *shared vs. independent mechanisms* to **concurrent regulation of stability and
+> flexibility, characterized in the brain** — see
+> [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md),
+> which is the active plan. Two consequences for this document: the
+> independent-vs-dependent argument is retired (the absent cross-effects are a
+> scoping statement, not a result), and §2.8's "optional, and probably omit"
+> verdict on cross-decoding no longer holds — the *block-transfer* form of it
+> (train congruency in one incongruent-proportion block, test in the other) is
+> now a planned analysis, for the reason §2.8 itself gives. **Everything else
+> here still stands**, in particular the estimator diagnoses in §1.1–§1.4 and the
+> three bias fixes in §2.2/§2.2b/§2.2c, which the new plan depends on and does
+> not re-derive.
+
+**Scientific question (as originally posed).** Do stability adaptation (LWPC) and
+flexibility adaptation (LWPS) rely on shared or independent neural mechanisms in
+lPFC? Under the current narrative this becomes the descriptive question of
+whether the two adaptation effects are expressed by overlapping or distinct
+electrode populations — asked and reported without the dissociation framing.
 
 ---
 
@@ -599,7 +616,24 @@ statistical inference was performed on a pre-specified window." If you want an
 actual timing claim ("stability adapts earlier than flexibility"), onset latency
 with a bootstrap CI on the difference is a sharper instrument than a cluster bar.
 
-### 2.8 Optional confirmatory: minimal cross-decoding
+### 2.8 Cross-decoding — ~~optional confirmatory~~ **now planned, in a different form**
+
+> **Updated 2026-09.** The caveat at the end of this section (a transfer between
+> *congruency* and *switchType* asks a base-effect question, not the adaptation
+> question) is correct and is exactly why the analysis has been re-specified
+> rather than dropped. The planned form transfers **across block levels within one
+> contrast** — train congruency in the 25%-incongruent blocks, test in the 75%
+> blocks — which makes LWPC a cross-condition generalization failure and *is* the
+> adaptation question, stated multivariately. Designs, the mandatory
+> within-block ceiling, the block-centering control, and the implementation gap
+> (train and test come from different trials, so the fold splitter has to be
+> replaced) are in
+> [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
+> §4; the troubleshooting protocol is in
+> [`cross_decoding_controls.md`](cross_decoding_controls.md). The
+> leave-one-block-out recommendation below applies to it unchanged, and matters
+> more, not less. The A4 congruency ↔ switchType transfer stays optional and
+> supplementary, labelled as the base-effect question this section says it is.
 
 This is **A4** in the existing battery, and it is already specified in depth —
 designs, the double-dipping guard, the within-block 2×2, temporal generalization
