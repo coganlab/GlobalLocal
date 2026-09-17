@@ -101,10 +101,32 @@ Interpretation: A significant enrichment result means selectivity-group membersh
 
 The continuous arm of [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md) §5–§7. Same anatomy join and same coverage bookkeeping as above, but the response is the per-electrode **score** rather than a binary flag, so no electrode has to survive a threshold and the effect sizes are not discarded. Everything turns on `delta = lwpc_s - lwps_s`, a within-electrode contrast between the two effects — which is why the test is an effect-type x anatomy interaction rather than the difference-of-significance fallacy.
 
+Select this path in `submit_stability_flexibility_anatomy_dcc.sh` with
+`ARM=continuous` (or use `ARM=both` to retain the categorical analysis). To
+reuse scores rather than recompute them from epochs, point `SCORES_CSV` at a
+segregation run's `electrodes.csv` and `PER_SPLIT_CSV` at the matching
+`per_split.csv`, for example:
+
+```bash
+STATS=/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats
+SEG_RUN="$STATS/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh"
+ARM=continuous \
+  SCORES_CSV="$SEG_RUN/electrodes.csv" \
+  PER_SPLIT_CSV="$SEG_RUN/per_split.csv" \
+  bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
+`SCORES_CSV` is the input that skips score computation. `PER_SPLIT_CSV` is
+optional, but supplying it enables the split-half noise ceiling and the
+minimum-electrode sweep. If neither path is supplied, the job scores
+`EPOCHS_ROOT_FILE` using `N_SPLITS` (default 200). Set `USE_COORDS=0` when the
+reconstruction files are unavailable and coordinate/centroid panels should be
+skipped.
+
 Signs: LWPC and LWPS are scored LOW-proportion minus HIGH-proportion, so a positive score is the behavioral adaptation direction (the condition effect shrinks in the high-proportion block) — see [`analysis_guide.md`](analysis_guide.md) §Sign convention. `delta > 0` therefore means the electrode carries more LWPC adaptation than LWPS adaptation.
 
 - `summary.txt`: read this first. Primary ROI test, leave-one-subject-out leverage, coordinate regression per hemisphere, medoid displacement, noise ceiling, `min_elec` sweep.
-- `scores.csv` / `per_split.csv`: the disjoint-half LWPC/LWPS scores and the per-split table they were averaged from. Point a later run at these (`SCORES_CSV`, `PER_SPLIT_CSV`) to skip re-scoring.
+- `scores.csv` / `per_split.csv`: copies of the disjoint-half LWPC/LWPS scores and the per-split table used by this anatomy run. They are anatomy outputs; for the first reuse from the segregation pipeline, `SCORES_CSV` normally points at segregation's `electrodes.csv` and `PER_SPLIT_CSV` at segregation's `per_split.csv`.
 - `scores_with_anatomy.csv`: one row per electrode with `lwpc_s`, `lwps_s`, `delta`, `roi`, `anat`, `mni_x/y/z`, `hemi`, `resp`.
 - `delta_per_roi.csv`: per-ROI mean `delta` (raw and nuisance-adjusted), permutation p and BH q. `delta > 0` = LWPC-dominant.
 - `delta_roi_loso.csv`: the same statistic with each subject dropped. Read leverage off `observed_stat`, not `p` — p saturates at the permutation floor.

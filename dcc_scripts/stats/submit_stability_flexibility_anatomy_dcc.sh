@@ -5,6 +5,10 @@
 # Usage:
 #   bash submit_stability_flexibility_anatomy_dcc.sh                       # real data, A1 electrodes
 #   DATA_SOURCE=synthetic bash submit_stability_flexibility_anatomy_dcc.sh # dry-run
+#   ARM=continuous \
+#     SCORES_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/electrodes.csv" \
+#     PER_SPLIT_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/per_split.csv" \
+#     bash submit_stability_flexibility_anatomy_dcc.sh                 # reuse scores
 #
 #   # power_traces (cluster-corrected) electrodes, lpfc only, counted by raw
 #   # Destrieux label:
@@ -30,6 +34,31 @@ ELECTRODES=sig            # 'all' or 'sig'
 DATA_SOURCE=${DATA_SOURCE:-real}
 # synthetic-only knob: 0.0 = null (no group×ROI association), 0.6 = planted.
 SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
+
+# ---------------------------------------------------------------------------
+# Analysis arm and continuous-score inputs.
+#   categorical : binary stability/flexibility groups -> ROI enrichment.
+#   continuous  : threshold-free LWPC/LWPS scores -> ROI/coordinate analyses.
+#   both        : run categorical and continuous analyses.
+#
+# For a fast continuous run, point SCORES_CSV and PER_SPLIT_CSV at a completed
+# segregation run, for example:
+#   /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/
+#     <epochs_root>/segregation_results/
+#     window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/electrodes.csv
+#   /hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/
+#     <epochs_root>/segregation_results/
+#     window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/per_split.csv
+# Leave them blank to calculate the scores from EPOCHS_ROOT_FILE instead.
+# PER_SPLIT_CSV enables the noise-ceiling and minimum-electrode sweep.
+# N_SPLITS is used only when calculating scores here; USE_COORDS=0 skips the
+# reconstruction-dependent coordinate and centroid panels.
+# ---------------------------------------------------------------------------
+ARM=${ARM:-categorical}
+SCORES_CSV=${SCORES_CSV:-}
+PER_SPLIT_CSV=${PER_SPLIT_CSV:-}
+N_SPLITS=${N_SPLITS:-200}
+USE_COORDS=${USE_COORDS:-1}
 
 # ---------------------------------------------------------------------------
 # Electrode definition.
@@ -70,10 +99,13 @@ FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (LABEL_SOURCE=a1)
 ALPHA=${ALPHA:-0.05}
 MIN_SUBJECTS=${MIN_SUBJECTS:-3}      # keep ROIs sampled in >= this many subjects
 N_PERM=${N_PERM:-10000}             # within-subject permutations for the null
+SEED=${SEED:-0}
+# Optional directory containing a precomputed electrodes-to-ROI atlas JSON.
+ROI_DICT_DIR=${ROI_DICT_DIR:-}
 
 mkdir -p out
 
-echo "Submitting stability/flexibility A3 anatomy (source=$DATA_SOURCE, labels=$LABEL_SOURCE, roi=${ROI_FILTER:-wholebrain}, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
+echo "Submitting stability/flexibility A3 anatomy (source=$DATA_SOURCE, arm=$ARM, labels=$LABEL_SOURCE, roi=${ROI_FILTER:-wholebrain}, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
 sbatch --job-name="sf_anatomy_${LABEL_SOURCE}_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_ENRICHMENT="$SYNTHETIC_ENRICHMENT",LABEL_SOURCE="$LABEL_SOURCE",PT_RUN_DIR="$PT_RUN_DIR",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",PT_CORRECTION="$PT_CORRECTION",PT_ALPHA="$PT_ALPHA",PT_ROI="$PT_ROI",ROI_FILTER="$ROI_FILTER",ANAT_LEVEL="$ANAT_LEVEL",HIST_TOP_N="$HIST_TOP_N",MAKE_BRAIN="$MAKE_BRAIN",BRAIN_HEMI="$BRAIN_HEMI",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",MIN_SUBJECTS="$MIN_SUBJECTS",N_PERM="$N_PERM" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_ENRICHMENT="$SYNTHETIC_ENRICHMENT",ARM="$ARM",SCORES_CSV="$SCORES_CSV",PER_SPLIT_CSV="$PER_SPLIT_CSV",N_SPLITS="$N_SPLITS",USE_COORDS="$USE_COORDS",LABEL_SOURCE="$LABEL_SOURCE",PT_RUN_DIR="$PT_RUN_DIR",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",PT_CORRECTION="$PT_CORRECTION",PT_ALPHA="$PT_ALPHA",PT_ROI="$PT_ROI",ROI_FILTER="$ROI_FILTER",ANAT_LEVEL="$ANAT_LEVEL",HIST_TOP_N="$HIST_TOP_N",MAKE_BRAIN="$MAKE_BRAIN",BRAIN_HEMI="$BRAIN_HEMI",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",MIN_SUBJECTS="$MIN_SUBJECTS",N_PERM="$N_PERM",SEED="$SEED",ROI_DICT_DIR="$ROI_DICT_DIR" \
     sbatch_stability_flexibility_anatomy_dcc.sh
