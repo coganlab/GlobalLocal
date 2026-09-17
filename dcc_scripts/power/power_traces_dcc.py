@@ -524,6 +524,13 @@ def main(args):
                         null_F=info['null_F'],
                         window_mask=info['window_mask'],
                         sample_mask=info['sample_mask'],
+                        # F = t^2 for a 1-df term, so observed_F carries no sign.
+                        # These three hold the direction it discards; all are already
+                        # computed by run_windowed_anova_cluster_correction and were
+                        # simply were written out.
+                        signed_contrast=info['signed_contrast'], # positive values here currently read as congruency effect shrinks in the 25% incongruent block relative to the 75% incongruent block. Flip it when reading.
+                        pos_window_mask=info['pos_window_mask'],
+                        neg_window_mask=info['neg_window_mask']
                     )
         except NameError:
             pass
