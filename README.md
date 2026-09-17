@@ -31,6 +31,7 @@ only remember one thing about the layout, remember this:
 |---|---|
 | **What each file does** | Part 1 below — the codebase map |
 | **How to run an analysis** (motivation, method, knobs, outputs) | [`docs/analysis_guide.md`](docs/analysis_guide.md) — the single guide to every analysis path, including the stability-vs-flexibility A1–A7 battery |
+| **How to run and interpret N4 continuous-score anatomy** | [`docs/n4_continuous_anatomy.md`](docs/n4_continuous_anatomy.md) — primary ROI/Destrieux test, continuous brain maps, reliability, and descriptive medoids |
 | **What shape the data is at each step** of A1–A7 | [`docs/stability_flexibility_data_flow.md`](docs/stability_flexibility_data_flow.md) |
 | **What each output file means** | [`docs/stability_flexibility_outputs_guide.md`](docs/stability_flexibility_outputs_guide.md) |
 | **How to break up a file that got too big** | [`docs/refactoring_guide.md`](docs/refactoring_guide.md) |
