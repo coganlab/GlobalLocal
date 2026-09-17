@@ -56,7 +56,11 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
                                        incongruent_proportion interaction,
                                        flexibility = LWPS = switchType x
                                        switch_proportion interaction (each a 2x2
-                                       difference-of-differences, high vs low block)
+                                       difference-of-differences, LOW minus HIGH
+                                       block, so positive = the condition effect
+                                       shrinks in the high-proportion block, the
+                                       direction behaviour shows -- see
+                                       SIGN CONVENTION below)
                        Or pass an explicit `contrasts` spec (see `resolve_contrasts`).
   * `effect_measure` : 'cohens_d'   -> standardized mean difference on window-mean HG [default]
                        'cluster'    -> aggregate time-permutation cluster statistic
@@ -98,10 +102,14 @@ from statsmodels.stats.anova import anova_lm
 #
 #   INTERACTION {'kind': 'interaction',
 #                'cond': {simple spec},   # e.g. congruency i vs c
-#                'mod':  {simple spec}}   # e.g. incongruent_proportion high vs low
+#                'mod':  {simple spec}}   # e.g. incongruent_proportion low vs high
 #       A 2x2 difference-of-differences: how much the `cond` effect changes
 #       between the two `mod` levels -- i.e. the LWPC (congruency x incongruent-
 #       proportion) and LWPS (switchType x switch-proportion) interactions.
+#       The sign is set by which `mod` level is `pos`: the preset makes the LOW-
+#       proportion block `pos`, so the effect is (cond | low) - (cond | high) and
+#       a POSITIVE score is the behavioural adaptation direction (see
+#       SIGN CONVENTION below).
 #       It is scored as the difference-of-differences of the four CELL means,
 #       weighted EQUALLY across cells (see `_interaction_effect`). This matters
 #       because the proportion design makes the four cells deliberately unequal
@@ -117,19 +125,50 @@ from statsmodels.stats.anova import anova_lm
 # `pos`/`neg` in a simple spec may be a category label ('i'), an explicit value
 # (75.0), a collection, or the sentinels 'high'/'low' (resolved to the column's
 # extreme values by `finalize_contrasts`).
+# ============================ SIGN CONVENTION ==============================
+# The proportion interactions are scored LOW-proportion MINUS HIGH-proportion:
+#
+#     LWPC = (i - c | 25% incongruent) - (i - c | 75% incongruent)
+#     LWPS = (s - r | 25% switch)      - (s - r | 75% switch)
+#
+# so that a POSITIVE score means the condition effect SHRINKS in the
+# high-proportion block -- the direction behaviour shows (the classic
+# list-wide proactive-control adjustment), for both LWPC and LWPS.
+#
+# This is a convention, not a hypothesis: nothing downstream assumes the neural
+# effect runs that way. Every test on these scores is two-sided, the electrode
+# labels come from an unsigned F, and `stability_flexibility_timing` orients each
+# waveform by its own dominant deflection. The convention exists so that "+" means
+# the same thing in the neural scores, in the behavioural d-o-d
+# (`stability_flexibility_brain_behavior`) and in the manuscript's prose.
+#
+# It is implemented in ONE place -- which `mod` level is `pos` below. `W_INTERACTION`
+# is keyed on pos/neg, not on high/low, so it needs no change; neither does any
+# consumer. `tests/analysis/stats/test_effect_sign_conventions.py` pins it.
+#
+# NOT on this convention (deliberately, and stated where they are defined):
+#   * `windowed_anova._signed_contrast_per_window` orders factor levels
+#     ALPHABETICALLY, which for congruency x incongruentProportion works out to
+#     high - low, i.e. the negative of LWPC here. It is used to split clusters at
+#     sign flips and to colour pos/neg cluster bars, neither of which depends on
+#     the absolute orientation.
+#   * the cross-decoding `block_difference` is high - low on decoding ACCURACY,
+#     which is not a condition effect and has no adaptation direction.
+# ===========================================================================
 _CONTRAST_PRESETS = {
     'condition': {
         'stability':   dict(col='congruency', pos='i', neg='c'),
         'flexibility': dict(col='switchType', pos='s', neg='r'),
     },
-    # LWPC / LWPS: the congruency x proportion and switch x proportion interactions
+    # LWPC / LWPS: the congruency x proportion and switch x proportion interactions,
+    # oriented LOW minus HIGH so positive = the behavioural adaptation direction.
     'proportion': {
         'stability':   dict(kind='interaction',
                             cond=dict(col='congruency', pos='i', neg='c'),
-                            mod=dict(col='incongruent_proportion', pos='high', neg='low')),
+                            mod=dict(col='incongruent_proportion', pos='low', neg='high')),
         'flexibility': dict(kind='interaction',
                             cond=dict(col='switchType', pos='s', neg='r'),
-                            mod=dict(col='switch_proportion', pos='high', neg='low')),
+                            mod=dict(col='switch_proportion', pos='low', neg='high')),
     },
 }
 

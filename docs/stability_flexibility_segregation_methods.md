@@ -133,7 +133,10 @@ proportion, whether the effect grows or shrinks in high-proportion blocks. The
 behavioural adjustment has a known direction, but no neural population is
 required to mirror it, so no sign was imposed at any selection step. The signed
 direction of every electrode's interaction was nevertheless recorded and is
-reported descriptively.
+reported descriptively; it is oriented **low-proportion minus high-proportion**,
+so that a positive value denotes the behavioural adaptation direction (the
+condition effect is smaller in the high-proportion block) for both LWPC and LWPS,
+and for the behavioural difference-of-differences it is compared against.
 
 ### Effect measure: signed supra-threshold *t* mass over time
 
@@ -391,7 +394,10 @@ proportion, whether the effect grows or shrinks in high-proportion blocks. The
 behavioural adjustment has a known direction, but no neural population is
 required to mirror it, so no sign was imposed at any selection step. The signed
 direction of every electrode's interaction was nevertheless recorded and is
-reported descriptively.
+reported descriptively; it is oriented **low-proportion minus high-proportion**,
+so that a positive value denotes the behavioural adaptation direction (the
+condition effect is smaller in the high-proportion block) for both LWPC and LWPS,
+and for the behavioural difference-of-differences it is compared against.
 
 ### Effect measure: standardised difference-of-differences (Cohen's *d*)
 

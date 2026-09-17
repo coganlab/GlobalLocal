@@ -16,12 +16,18 @@ The two behavioral constructs mirror the neural ones exactly:
 
 - **LWPC (stability) behavioral magnitude** = the congruency × incongruent-
   proportion interaction on RT — how much the congruency effect (RT_i − RT_c)
-  CHANGES in high- vs low-incongruent-proportion blocks. Empirically this is a
+  CHANGES in low- vs high-incongruent-proportion blocks. Empirically this is a
   *shrinking* adjustment (the congruency effect is smaller in mostly-incongruent
-  blocks), so the signed d-o-d below is typically negative.
+  blocks), so the signed d-o-d below is typically POSITIVE.
 - **LWPS (flexibility) behavioral magnitude** = the switchType × switch-
   proportion interaction on RT — how much the switch cost (RT_s − RT_r) changes in
-  high- vs low-switch-proportion blocks; likewise typically a *shrinking* effect.
+  low- vs high-switch-proportion blocks; likewise typically a *shrinking* effect,
+  and likewise positive.
+
+Both are scored LOW-proportion minus HIGH-proportion, the same orientation the
+neural scores use (see SIGN CONVENTION in ``stability_flexibility_segregation``),
+so "+" means the same thing on both sides of every correlation below. Flipping one
+side without the other silently negates every ``corr_lwpc`` / ``corr_lwps`` here.
 
 The magnitudes are kept SIGNED rather than sign-corrected, and every test built on
 them is two-sided, so nothing here assumes which way an effect must run. That
@@ -74,9 +80,15 @@ _BLOCK_PROPORTION_MAP = {
 
 def _dod_rt(sub, cond_col, mod_col, pos, neg, rt_col='RT'):
     """Equal-cell-weight difference-of-differences of mean RT over the 2x2
-    (cond × mod) cells: (pos@hi - neg@hi) - (pos@lo - neg@lo). NaN if any of the
+    (cond × mod) cells: (pos@lo - neg@lo) - (pos@hi - neg@hi). NaN if any of the
     four cells is empty. ``mod_col`` is the proportion column; its two levels are
-    taken as the df-wide max ('high') and min ('low')."""
+    taken as the df-wide max ('high') and min ('low').
+
+    LOW minus HIGH, matching the neural SIGN CONVENTION in
+    ``stability_flexibility_segregation``: positive = the condition effect
+    (RT_i - RT_c, RT_s - RT_r) SHRINKS in the high-proportion block, which is the
+    direction behaviour shows. Brain and behaviour have to be on the same
+    orientation or the A6 correlations below change sign for no reason."""
     num = pd.to_numeric(sub[mod_col], errors='coerce')
     hi, lo = num.max(), num.min()
     if not np.isfinite(hi) or hi == lo:
@@ -88,8 +100,8 @@ def _dod_rt(sub, cond_col, mod_col, pos, neg, rt_col='RT'):
             if not sel.any():
                 return np.nan
             cells[(clab, mlab)] = sub.loc[sel, rt_col].mean()
-    return ((cells[('pos', 'hi')] - cells[('neg', 'hi')])
-            - (cells[('pos', 'lo')] - cells[('neg', 'lo')]))
+    return ((cells[('pos', 'lo')] - cells[('neg', 'lo')])
+            - (cells[('pos', 'hi')] - cells[('neg', 'hi')]))
 
 
 def behavioral_lwpc_lwps_magnitudes(behav_df, rt_col='RT', subject_col='subject',
@@ -109,8 +121,8 @@ def behavioral_lwpc_lwps_magnitudes(behav_df, rt_col='RT', subject_col='subject'
     -------
     DataFrame: one row per subject with ``lwpc`` and ``lwps`` RT magnitudes
     (difference-of-differences, in RT units; SIGNED — positive = the condition
-    effect is larger in the high-proportion block, negative = smaller, which is
-    the usual behavioral direction) plus ``n_trials``.
+    effect is SMALLER in the high-proportion block, which is the usual behavioral
+    direction; negative = larger) plus ``n_trials``.
     """
     d = behav_df.copy()
     if correct_only and 'acc' in d.columns:

@@ -78,15 +78,23 @@ def _dod_over_time(cells):
     means. ``cells`` maps (cond, mod) in {1.,0.}×{1.,0.} to a (n_trials, n_time)
     array (from ``_dod_cells``). Returns a (n_time,) signed d-o-d vector:
 
-        [ mean(cond=1,mod=1) - mean(cond=0,mod=1) ]        # cond effect, HIGH block
-      - [ mean(cond=1,mod=0) - mean(cond=0,mod=0) ]        # cond effect, LOW  block
+        [ mean(cond=1,mod=1) - mean(cond=0,mod=1) ]        # cond effect at mod=pos
+      - [ mean(cond=1,mod=0) - mean(cond=0,mod=0) ]        # cond effect at mod=neg
 
-    i.e. how much the condition effect (e.g. congruency) CHANGES between the high-
-    and low-proportion blocks, as a function of time — signed, so it captures the
+    i.e. how much the condition effect (e.g. congruency) CHANGES between the two
+    proportion blocks, as a function of time — signed, so it captures the
     modulation whether the condition effect grows or shrinks (the direction is not
     assumed). Equal weighting of the four cells makes it orthogonal to both main
     effects (the same balance the scalar ``_interaction_cohens_d`` enforces), so a
-    pure main effect can't leak in."""
+    pure main effect can't leak in.
+
+    ``mod=1`` is whichever level the contrast spec marks ``pos``, so the ORIENTATION
+    is inherited from the preset rather than fixed here: under the proportion preset
+    ``pos`` is the LOW-proportion block, giving (cond | low) - (cond | high) and a
+    positive trace where the condition effect shrinks in the high-proportion block
+    (see SIGN CONVENTION in ``stability_flexibility_segregation``). Onsets are
+    unaffected either way — ``onset_50pct_peak`` orients each waveform by its own
+    dominant deflection unless given an explicit ``expected_sign``."""
     means = {k: np.asarray(v, float).mean(axis=0) for k, v in cells.items()}
     return ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
             - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))

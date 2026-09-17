@@ -43,7 +43,9 @@ def test_behavioral_magnitudes_recover_planted_dod():
                              switchType=sw, incongruent_proportion=inc,
                              switch_proportion=swp))
     mags = behavioral_lwpc_lwps_magnitudes(pd.DataFrame(rows))
-    assert np.nanmean(mags['lwpc']) == pytest.approx(60.0, abs=8.0)
+    # scored LOW minus HIGH, so an effect that GROWS in the 75% block is negative
+    # (the real behavioral direction, a shrinking effect, is positive)
+    assert np.nanmean(mags['lwpc']) == pytest.approx(-60.0, abs=8.0)
     assert abs(np.nanmean(mags['lwps'])) < 15.0           # no planted LWPS effect
 
 

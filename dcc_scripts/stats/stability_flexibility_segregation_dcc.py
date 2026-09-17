@@ -225,6 +225,12 @@ def save_results(out, save_dir):
     out['electrodes'].to_csv(os.path.join(save_dir, 'electrodes.csv'), index=False)
     out['labels'].to_csv(os.path.join(save_dir, 'labels.csv'), index=False)
     out['continuous'].to_csv(os.path.join(save_dir, 'continuous.csv'), index=False)
+    # The per-split effects (xA, xB, yA, yB per electrode per split). Big but
+    # cheap to store, and it is the only thing the split-half NOISE CEILING can
+    # be recomputed from -- the anatomy job's continuous arm reads it back
+    # (PER_SPLIT_CSV) rather than re-scoring hours of epochs.
+    if 'per_split' in out:
+        out['per_split'].to_csv(os.path.join(save_dir, 'per_split.csv'), index=False)
 
     with open(os.path.join(save_dir, 'correlation.json'), 'w') as f:
         json.dump(_json_safe(out['correlation']), f, indent=2)

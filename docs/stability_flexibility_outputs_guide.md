@@ -97,6 +97,26 @@ Two-panel diagnostic.
 
 Interpretation: A significant enrichment result means selectivity-group membership is associated with anatomy beyond what electrode coverage alone forces. Non-significant enrichment with only a handful of selective electrodes should be reported as underpowered/descriptive.
 
+### The `continuous/` subdirectory (`ARM=continuous` or `ARM=both`)
+
+The continuous arm of [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md) §5–§7. Same anatomy join and same coverage bookkeeping as above, but the response is the per-electrode **score** rather than a binary flag, so no electrode has to survive a threshold and the effect sizes are not discarded. Everything turns on `delta = lwpc_s - lwps_s`, a within-electrode contrast between the two effects — which is why the test is an effect-type x anatomy interaction rather than the difference-of-significance fallacy.
+
+Signs: LWPC and LWPS are scored LOW-proportion minus HIGH-proportion, so a positive score is the behavioral adaptation direction (the condition effect shrinks in the high-proportion block) — see [`analysis_guide.md`](analysis_guide.md) §Sign convention. `delta > 0` therefore means the electrode carries more LWPC adaptation than LWPS adaptation.
+
+- `summary.txt`: read this first. Primary ROI test, leave-one-subject-out leverage, coordinate regression per hemisphere, medoid displacement, noise ceiling, `min_elec` sweep.
+- `scores.csv` / `per_split.csv`: the disjoint-half LWPC/LWPS scores and the per-split table they were averaged from. Point a later run at these (`SCORES_CSV`, `PER_SPLIT_CSV`) to skip re-scoring.
+- `scores_with_anatomy.csv`: one row per electrode with `lwpc_s`, `lwps_s`, `delta`, `roi`, `anat`, `mni_x/y/z`, `hemi`, `resp`.
+- `delta_per_roi.csv`: per-ROI mean `delta` (raw and nuisance-adjusted), permutation p and BH q. `delta > 0` = LWPC-dominant.
+- `delta_roi_loso.csv`: the same statistic with each subject dropped. Read leverage off `observed_stat`, not `p` — p saturates at the permutation floor.
+- `min_elec_sweep.csv`: the LWPC-LWPS correlation at `min_elec` 1/2/3. That filter drops **whole subjects**, so it moves the effective N more than any scaling choice.
+- `delta_by_roi.png`: mean +/- SEM of `delta` per ROI with every electrode drawn on. Also the fallback figure when the surface stack is missing.
+- `joint_scatter.png`: the per-electrode LWPC-vs-LWPS scatter on the pooled-scaled scores, with the split-half ceiling annotated.
+- `score_map_{lwpc_s,lwps_s,abs_lwpc,abs_lwps,delta}.png` (+ `_colorbar.png`): the five §6 surfaces. `delta` carries the argument; the other four are what a reader needs to check it is not driven by one effect's magnitude alone. The renderer takes one colour per call, so the scalar is drawn as nine colour bins — hence the separate colourbar.
+- `score_centers.csv`: per subject x hemisphere weighted medoid displacement (LWPC minus LWPS). Descriptive only.
+- `score_anatomy.json`: machine-readable version of the summary.
+
+Interpretation: the ROI test asks whether the *relative* score varies with anatomy once subject and responsiveness are conditioned on, against a null that swaps the two effect labels within each electrode (which preserves subject, coverage, location and responsiveness exactly). Report the noise ceiling next to every spatial number — without it, "the two maps do not correlate" cannot be told apart from "neither map is measured well enough to correlate with anything".
+
 ## Segregation output directory
 
 Typical directory name: `window_<tmin>to<tmax>s_<electrodes>_<rois>_<contrast_mode>_<effect_measure>_<fdr_correction>`, with `_scatter_only_splits<N>` appended for a `SCATTER_ONLY` run so its scatter does not overwrite a full run's.
