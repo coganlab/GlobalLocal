@@ -1,0 +1,52 @@
+======================================================================
+N4 — CONTINUOUS SCORES -> ANATOMY (plan §5–§7)
+======================================================================
+electrodes: 330 | mapped to an ROI: 330 | with MNI coords: 330
+scores: LWPC (x) and LWPS (y) on DISJOINT trial halves, each an equal-cell-weight
+  difference-of-differences / pooled within-cell SD, scaled by ONE pooled factor per effect.
+  delta = lwpc_s - lwps_s  (>0 = LWPC-dominant electrode)
+----------------------------------------------------------------------
+§5.2 PRIMARY — delta ~ ROI + responsiveness + (1|subject), within-electrode swap null:
+      F = 41.187   permutation p = 0.0004998  -> significant
+      ROIs tested (coverage-filtered): ['acc', 'dlpfc', 'lpfc', 'occ', 'parietal', 'v1']
+      electrodes = 330, subjects = 12
+     roi  n_electrodes  n_subjects  mean_delta  mean_delta_adj      p      q
+     acc            36           7    1.155647        1.203830 0.0005 0.0005
+   dlpfc            56           9    1.176484        1.110152 0.0005 0.0005
+    lpfc            61           9    0.817146        0.843956 0.0005 0.0005
+     occ            72          11   -0.772752       -0.711202 0.0005 0.0005
+parietal            51           8   -1.263085       -1.134837 0.0005 0.0005
+      v1            54           9   -1.031226       -0.887119 0.0005 0.0005
+----------------------------------------------------------------------
+§9.2 leverage — the same test with each subject dropped (fewer permutations):
+      F = 41.187 on all subjects; 32.850 to 40.948 across the 12 leave-one-out fits
+      largest shift: dropping S02 moves F by -8.337 (p there = 0.000999)
+      p range across folds: 0.000999 to 0.000999
+----------------------------------------------------------------------
+§5.2 SECONDARY — delta ~ MNI coordinates (slopes in delta units/mm):
+      [all] F = 74.371  p = 0.0004998  (n=330)   mni_y=+0.02251 (p=0.0004998)  mni_z=-0.00119 (p=0.8791)  mni_x=+0.00201 (p=0.3673)
+      [lh] F = 33.053  p = 0.0004998  (n=167)   mni_y=+0.02053 (p=0.0004998)  mni_z=-0.00744 (p=0.4268)  mni_x=+0.00643 (p=0.7271)
+      [rh] F = 39.315  p = 0.0004998  (n=163)   mni_y=+0.02385 (p=0.0004998)  mni_z=-0.00100 (p=0.9425)  mni_x=+0.01737 (p=0.2519)
+      a POSITIVE mni_y slope = LWPC dominance increases ANTERIORLY
+----------------------------------------------------------------------
+§7 DESCRIPTIVE — per-subject × hemisphere medoids (24 groups):
+      LWPC sits +35.9 mm anterior, -1.3 mm lateral, -6.5 mm superior to LWPS
+      p (anterior) = 0.0004998   mean |displacement| = 39.6 mm
+      Descriptive only — the coordinate regression above makes the same claim without a centroid.
+----------------------------------------------------------------------
+§5.4 NOISE CEILING — what a null spatial correlation is allowed to mean:
+      [electrode-level, n=330] LWPC-vs-LWPS r = -0.101   ceiling: LWPC +0.387 / LWPS +0.424   noise-corrected -0.248
+      [parcel-level, n=6] LWPC-vs-LWPS r = -0.864   ceiling: LWPC +0.831 / LWPS +0.854   noise-corrected -1.026
+      §5.1 min_elec sweep (it drops WHOLE SUBJECTS):
+ min_elec      corr      p  n_electrodes  n_subjects  reliability_x  reliability_y  corr_noise_corrected
+        1 -0.113236 0.0005           330          12       0.388649       0.398799             -0.287626
+        2 -0.113236 0.0005           330          12       0.388649       0.398799             -0.287626
+        3 -0.113236 0.0005           330          12       0.388649       0.398799             -0.287626
+----------------------------------------------------------------------
+pooled LWPC–LWPS correlation r = -0.247   within-subject r = -0.281
+      (if these agree, say so in Methods and pool — plan §5.1)
+======================================================================
+Reading: the test is an effect-type × anatomy INTERACTION, because the response
+is the within-electrode difference between the two effects. It therefore cannot
+commit the difference-of-significance fallacy. Every number above is conditioned
+on coverage, and none of them is interpretable without the §5.4 ceiling.

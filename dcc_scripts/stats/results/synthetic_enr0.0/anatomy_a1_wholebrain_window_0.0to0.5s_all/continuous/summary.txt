@@ -1,0 +1,52 @@
+======================================================================
+N4 — CONTINUOUS SCORES -> ANATOMY (plan §5–§7)
+======================================================================
+electrodes: 330 | mapped to an ROI: 330 | with MNI coords: 330
+scores: LWPC (x) and LWPS (y) on DISJOINT trial halves, each an equal-cell-weight
+  difference-of-differences / pooled within-cell SD, scaled by ONE pooled factor per effect.
+  delta = lwpc_s - lwps_s  (>0 = LWPC-dominant electrode)
+----------------------------------------------------------------------
+§5.2 PRIMARY — delta ~ ROI + responsiveness + (1|subject), within-electrode swap null:
+      F = 0.523   permutation p = 0.6852  -> n.s.
+      ROIs tested (coverage-filtered): ['acc', 'dlpfc', 'lpfc', 'occ', 'parietal', 'v1']
+      electrodes = 330, subjects = 12
+     roi  n_electrodes  n_subjects  mean_delta  mean_delta_adj        p        q
+     acc            36           7    0.288136        0.263005 0.100950 0.605697
+   dlpfc            56           9    0.097594       -0.059699 0.738131 0.985507
+    lpfc            61           9    0.052726        0.071266 0.525237 0.985507
+     occ            72          11    0.046309       -0.002158 0.985507 0.985507
+parietal            51           8   -0.012202       -0.173792 0.432284 0.985507
+      v1            54           9    0.137007       -0.026917 0.863568 0.985507
+----------------------------------------------------------------------
+§9.2 leverage — the same test with each subject dropped (fewer permutations):
+      F = 0.523 on all subjects; 0.297 to 0.805 across the 12 leave-one-out fits
+      largest shift: dropping S03 moves F by +0.282 (p there = 0.5175)
+      p range across folds: 0.5175 to 0.8861
+----------------------------------------------------------------------
+§5.2 SECONDARY — delta ~ MNI coordinates (slopes in delta units/mm):
+      [all] F = 0.830  p = 0.4438  (n=330)   mni_y=+0.00267 (p=0.2059)  mni_z=+0.00594 (p=0.3838)  mni_x=+0.00202 (p=0.2824)
+      [lh] F = 0.209  p = 0.8766  (n=167)   mni_y=+0.00203 (p=0.4228)  mni_z=+0.00297 (p=0.7286)  mni_x=+0.00465 (p=0.7151)
+      [rh] F = 0.612  p = 0.6392  (n=163)   mni_y=+0.00186 (p=0.5827)  mni_z=+0.00335 (p=0.7841)  mni_x=+0.01711 (p=0.3008)
+      a POSITIVE mni_y slope = LWPC dominance increases ANTERIORLY
+----------------------------------------------------------------------
+§7 DESCRIPTIVE — per-subject × hemisphere medoids (24 groups):
+      LWPC sits -9.5 mm anterior, +1.1 mm lateral, +2.0 mm superior to LWPS
+      p (anterior) = 0.1874   mean |displacement| = 23.1 mm
+      Descriptive only — the coordinate regression above makes the same claim without a centroid.
+----------------------------------------------------------------------
+§5.4 NOISE CEILING — what a null spatial correlation is allowed to mean:
+      [electrode-level, n=330] LWPC-vs-LWPS r = +0.043   ceiling: LWPC +0.295 / LWPS +0.318   noise-corrected +0.139
+      [parcel-level, n=6] LWPC-vs-LWPS r = +0.091   ceiling: LWPC +0.329 / LWPS +0.077   noise-corrected +0.574
+      §5.1 min_elec sweep (it drops WHOLE SUBJECTS):
+ min_elec     corr        p  n_electrodes  n_subjects  reliability_x  reliability_y  corr_noise_corrected
+        1 0.038894 0.101449           330          12       0.293937       0.306343              0.129615
+        2 0.038894 0.101449           330          12       0.293937       0.306343              0.129615
+        3 0.038894 0.101449           330          12       0.293937       0.306343              0.129615
+----------------------------------------------------------------------
+pooled LWPC–LWPS correlation r = +0.098   within-subject r = +0.094
+      (if these agree, say so in Methods and pool — plan §5.1)
+======================================================================
+Reading: the test is an effect-type × anatomy INTERACTION, because the response
+is the within-electrode difference between the two effects. It therefore cannot
+commit the difference-of-significance fallacy. Every number above is conditioned
+on coverage, and none of them is interpretable without the §5.4 ceiling.
