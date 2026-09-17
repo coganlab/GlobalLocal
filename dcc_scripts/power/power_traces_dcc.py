@@ -36,8 +36,10 @@ from src.analysis.config.condition_registry import (
 )
 import src.analysis.utils.general_utils as utils
 from src.analysis.power.power_traces import (
+    DIRECTION_TEST_SUBDIR,
     make_multi_channel_evokeds_for_all_conditions_and_rois,
     plot_power_traces_for_all_rois,
+    plot_direction_test_traces,
     create_subtracted_evokeds_dict,
     time_perm_cluster_between_two_evokeds,
     process_windowed_data_for_anova,
@@ -209,6 +211,16 @@ def main(args):
     interaction_clusters = {}
     interaction_results = None
 
+    # N2 direction tests. `direction_panels` says what each of the three tests
+    # plots (which evoked dict, which two traces, how to name the figure);
+    # `direction_clusters` / `direction_p_values` / `direction_deltas` carry the
+    # per-ROI result. Filled only by the interaction branch below; consumed by
+    # the figure block in §7b and the save block in §8.
+    direction_panels = {}
+    direction_clusters = {}
+    direction_p_values = {}
+    direction_deltas = {}
+
     if args.statistical_method == 'time_perm_cluster':
         print("\nRunning statistical tests comparing TWO conditions")
         if len(condition_names) != 2:
@@ -274,7 +286,33 @@ def main(args):
         low_name, high_name = '-'.join(low_pair), '-'.join(high_pair)
         print(f"\nInteraction follow-up: ({low_name}) vs ({high_name})")
         print("  positive delta = condition effect SHRINKS in the 75% block")
-        
+
+        # One entry per test. `evks`/`traces` are what the figure draws (and what
+        # the test compares, which is the point -- the bar belongs to the traces
+        # under it). `label` is the printed name, kept as-is so the slurm logs
+        # stay greppable. `stem` goes in the filename.
+        direction_panels = {
+            'simple_low': {
+                'label': f'simple_{low_name}', 'stem': low_name,
+                'evks': evks_dict_elecs, 'traces': [low_pair[0], low_pair[1]],
+                'title': f'{low_name} (simple effect, low-proportion block)',
+            },
+            'simple_high': {
+                'label': f'simple_{high_name}', 'stem': high_name,
+                'evks': evks_dict_elecs, 'traces': [high_pair[0], high_pair[1]],
+                'title': f'{high_name} (simple effect, high-proportion block)',
+            },
+            'interaction': {
+                'label': 'interaction', 'stem': 'low_minus_high',
+                'evks': diffs, 'traces': [low_name, high_name],
+                'title': f'({low_name}) vs ({high_name}) — positive = effect '
+                         f'shrinks in the high-proportion block',
+            },
+        }
+        direction_clusters = {k: {} for k in direction_panels}
+        direction_p_values = {k: {} for k in direction_panels}
+        direction_deltas = {k: {} for k in direction_panels}
+
         p_values_dict = {}
         for roi in rois:
             print(f"-- Processing ROI: {roi} --")
@@ -282,15 +320,12 @@ def main(args):
             if d_low is None or d_high is None:
                 print(f"    Skipping ROI {roi}: missing evoked data.")
                 continue
-            
-            tests = {
-                f'simple_{low_name}':   (evks_dict_elecs[low_pair[0]][roi],
-                                            evks_dict_elecs[low_pair[1]][roi]),
-                f'simple_{high_name}':  (evks_dict_elecs[high_pair[0]][roi],
-                                            evks_dict_elecs[high_pair[1]][roi]),
-                'interaction':          (d_low, d_high)
-            }
-            for test_name, (e1, e2) in tests.items():
+
+            for test_key, panel in direction_panels.items():
+                test_name = panel['label']
+                name1, name2 = panel['traces']
+                e1 = panel['evks'][name1][roi]
+                e2 = panel['evks'][name2][roi]
                 if e1 is None or e2 is None:
                     continue
                 mask, pvals = time_perm_cluster_between_two_evokeds(
@@ -310,10 +345,18 @@ def main(args):
                 print(f"   [{test_name}] mean delta "
                     f"{'in sig cluster' if inside else 'over epoch (n.s.)'}: "
                     f"{(delta[m] if inside else delta).mean():+.5f}")
-                if test_name == 'interaction':
+
+                # Kept per test so each one gets its own figure (§7b) and its
+                # own npz (§8), instead of the interaction mask being the only
+                # one that survives the run.
+                direction_clusters[test_key][roi] = mask
+                direction_p_values[test_key][roi] = pvals
+                direction_deltas[test_key][roi] = delta
+
+                if test_key == 'interaction':
                     interaction_clusters[roi] = mask
                     p_values_dict[roi] = pvals
-        
+
     elif args.statistical_method == 'anova':
         # anova_interactions may legitimately be empty (single main-effect ANOVA);
         # we only require at least one factor to run the ANOVA.
@@ -474,6 +517,28 @@ def main(args):
                   "missing from evks_dict).")
 
     # ------------------------------------------------------------------
+    # 7b. N2 direction-test figures — one per test, not one for the set.
+    #
+    # The subtraction figure above draws both difference waves with the
+    # INTERACTION bar on them, so the two simple effects have no figure of
+    # their own: you can see that the effect changed across blocks, but not
+    # whether either block had an effect to begin with, which is step 1 of
+    # reading N2. Each test gets its own figure here, carrying its own bar.
+    # ------------------------------------------------------------------
+    if direction_panels:
+        print(f"\nPlotting N2 direction-test figures to: "
+              f"{os.path.join(save_dir, DIRECTION_TEST_SUBDIR)}")
+        plot_direction_test_traces(
+            direction_panels, direction_clusters, rois,
+            condition_label, len(args.subjects), plot_params,
+            save_dir=save_dir,
+            window_size=args.window_size, sampling_rate=args.sampling_rate,
+            error_type='sem',
+            plot_style=args.plot_style,
+            save_name_suffix=elec_string_to_add_to_filename,
+        )
+
+    # ------------------------------------------------------------------
     # 8. Save results
     # ------------------------------------------------------------------
 
@@ -495,6 +560,25 @@ def main(args):
                          f'{conditions_save_name}_significant_clusters.npz'),
             **significant_clusters
         )
+
+    # The three N2 masks used to exist only on stdout and, for the interaction,
+    # as a bar drawn on a figure. Persist them so a direction can be re-read,
+    # re-plotted, or checked against the segregation scores without re-running.
+    for test_key, by_roi in direction_clusters.items():
+        for roi, mask in by_roi.items():
+            np.savez(
+                os.path.join(
+                    utils._subdir(save_dir, roi),
+                    f'{conditions_save_name}_{roi}_n2_direction_{test_key}_cluster.npz'
+                ),
+                mask=np.asarray(mask, bool),
+                cluster_p_values=np.asarray(direction_p_values[test_key][roi]),
+                # Signed, averaged over electrodes, per timepoint: positive
+                # means the condition effect shrinks in the high-proportion
+                # block. This is the number F throws away.
+                delta=direction_deltas[test_key][roi],
+                traces=np.array(direction_panels[test_key]['traces']),
+            )
 
     if interaction_results is not None:
         # Persist as one file per ROI / interaction (masks + p values)

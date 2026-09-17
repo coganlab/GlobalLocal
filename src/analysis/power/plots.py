@@ -52,6 +52,11 @@ DEFAULT_PLOT_STYLE = {
     # Other
     'figsize': (12, 8),
     'text_color': '#002060',
+    # y position of the significance bar, in data units. A number pins it, which
+    # is what you want across a set of figures sharing one y scale. ``None``
+    # puts it just above the data and opens headroom for it -- use it for
+    # difference waves, whose amplitude is nothing like the raw traces'. Pair
+    # ``None`` with ``ylim: None``; with both set, the headroom wins.
     'sig_cluster_height': 0.3,
 
     # Electrode-level context.  The colored line remains the across-electrode
@@ -226,7 +231,6 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
     # Resolve plot style with defaults
     s = {**DEFAULT_PLOT_STYLE, **(plot_style or {})}
     figsize = s['figsize']
-    sig_cluster_height = s['sig_cluster_height']
     fig, ax = plt.subplots(figsize=figsize)
     deviation_rankings = {}
 
@@ -371,55 +375,6 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
             clusters.append((start_idx, end_idx))
         return clusters
 
-    # logging.debug(f"--- For ROI: {roi} --- significant_clusters is: {significant_clusters}")
-
-    if significant_clusters is not None:
-
-        # logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
-
-        # The indices below index `times`, which is at SAMPLE resolution, so the
-        # mask must be sample-resolution too. A window-level mask (one entry per
-        # sliding window) silently draws the bar compressed into the first few
-        # hundred ms of the epoch instead of erroring. Catch it here.
-        n_mask = len(list(significant_clusters))
-        if n_mask != len(times):
-            raise ValueError(
-                f"significant_clusters has {n_mask} entries but the time axis has "
-                f"{len(times)} samples. Pass a sample-level mask (e.g. "
-                f"`sample_mask` from the ANOVA cluster results), not a "
-                f"window-level one — indices are used to index `times` directly."
-            )
-
-        clusters = find_clusters(significant_clusters)
-
-        # # Determine y position for the bars
-        # max_y = np.max(mean_true_accuracy + se_true_accuracy)
-        # min_y = np.min(mean_shuffle_accuracy - se_shuffle_accuracy)
-        # sig_cluster_height = max_y + 0.02  # Adjust as needed
-        # plt.ylim([min_y, sig_cluster_height + 0.05])  # Adjust ylim to accommodate the bars
-
-        # Plot horizontal bars and asterisks for significant clusters
-        for cluster in clusters:
-            start_idx, end_idx = cluster
-
-            if window_size is None:
-                window_size = 0 # set to zero for point-wise analysis
-
-            if window_size is None or window_size == 0:
-                # Point-wise analysis: Bar spans the centers of the first/last points
-                start_time = times[start_idx]
-                end_time = times[end_idx]
-            else:
-                # Windowed analysis: Bar spans the outer edges of the first/last windows
-                window_duration = window_size / sampling_rate
-                start_time = times[start_idx] - (window_duration / 2)
-                end_time = times[end_idx] + (window_duration / 2)
-
-            plt.hlines(y=sig_cluster_height, xmin=start_time, xmax=end_time, color='black', linewidth=8)
-            # Place an asterisk at the center of the bar
-            center_time = (start_time + end_time) / 2
-            plt.text(center_time, sig_cluster_height + 0.01, '*', ha='center', va='bottom', fontsize=25)
-
     # Customize plot
     text_color = s['text_color']
 
@@ -447,6 +402,71 @@ def plot_power_trace_for_roi(evks_dict, roi, condition_names, conditions_save_na
         ax.set_ylim(s['ylim'])
     if s['xlim']:
         ax.set_xlim(s['xlim'])
+
+    # logging.debug(f"--- For ROI: {roi} --- significant_clusters is: {significant_clusters}")
+
+    # Drawn AFTER the limits so an auto bar height can be read off the axis that
+    # actually gets rendered. With an explicit `sig_cluster_height` the bar lands
+    # in the same place it always did.
+    if significant_clusters is not None:
+
+        # logging.debug(f"    -> Not None. Trying to find and plot clusters for {roi}.")
+
+        # The indices below index `times`, which is at SAMPLE resolution, so the
+        # mask must be sample-resolution too. A window-level mask (one entry per
+        # sliding window) silently draws the bar compressed into the first few
+        # hundred ms of the epoch instead of erroring. Catch it here.
+        n_mask = len(list(significant_clusters))
+        if n_mask != len(times):
+            raise ValueError(
+                f"significant_clusters has {n_mask} entries but the time axis has "
+                f"{len(times)} samples. Pass a sample-level mask (e.g. "
+                f"`sample_mask` from the ANOVA cluster results), not a "
+                f"window-level one — indices are used to index `times` directly."
+            )
+
+        clusters = find_clusters(significant_clusters)
+
+        # A fixed height is a power-trace convention: every figure in a set puts
+        # the bar at the same y so they can be read side by side. It only works
+        # when the figures share a scale. Difference waves are roughly an order
+        # of magnitude smaller than the raw traces they come from, so `None`
+        # means "put the bar just above whatever this axis turned out to be, and
+        # open up the headroom for it" -- otherwise the bar sits off-screen or
+        # on top of the data it is annotating.
+        if s['sig_cluster_height'] is None:
+            y_low, y_high = ax.get_ylim()
+            y_span = y_high - y_low
+            sig_cluster_height = y_high + 0.06 * y_span
+            asterisk_offset = 0.01 * y_span
+            # Room for the bar and the asterisk above it.
+            ax.set_ylim(y_low, y_high + 0.18 * y_span)
+        else:
+            sig_cluster_height = s['sig_cluster_height']
+            asterisk_offset = 0.01
+
+        # Plot horizontal bars and asterisks for significant clusters
+        for cluster in clusters:
+            start_idx, end_idx = cluster
+
+            if window_size is None:
+                window_size = 0 # set to zero for point-wise analysis
+
+            if window_size is None or window_size == 0:
+                # Point-wise analysis: Bar spans the centers of the first/last points
+                start_time = times[start_idx]
+                end_time = times[end_idx]
+            else:
+                # Windowed analysis: Bar spans the outer edges of the first/last windows
+                window_duration = window_size / sampling_rate
+                start_time = times[start_idx] - (window_duration / 2)
+                end_time = times[end_idx] + (window_duration / 2)
+
+            ax.hlines(y=sig_cluster_height, xmin=start_time, xmax=end_time, color='black', linewidth=8)
+            # Place an asterisk at the center of the bar
+            center_time = (start_time + end_time) / 2
+            ax.text(center_time, sig_cluster_height + asterisk_offset, '*',
+                    ha='center', va='bottom', fontsize=25)
 
     if s['show_legend']:
         ax.legend(loc='best', framealpha=0.95, fontsize=s.get('legend_font_size', 10))
@@ -527,6 +547,92 @@ def plot_power_traces_for_all_rois(evks_dict_elecs, rois, condition_names, condi
     if save_dir:
         print(f"\nAll plots saved to: {save_dir}")
     plt.close()
+
+
+#: Subdirectory of the run's save_dir that the N2 direction-test figures land in.
+DIRECTION_TEST_SUBDIR = 'n2_direction_tests'
+
+
+def direction_test_save_name(condition_label, test_key, stem, n_subjects):
+    """Filename stem for one N2 direction-test figure.
+
+    ``<condition_label>_n2_direction_<test_key>_<stem>_<n>_subjects``, e.g.
+    ``stimulus_lwpc_conditions_n2_direction_simple_low_Stimulus_i25-Stimulus_c25_24_subjects``.
+    ``plot_power_trace_for_roi`` prefixes the ROI and appends the electrode-set
+    suffix and the shading type, so the ROI, the test, the conditions being
+    contrasted and the electrode set are all readable off the filename -- which
+    matters here because three figures per ROI now differ only by the test.
+    """
+    return (f"{condition_label}_n2_direction_{test_key}_{stem}_"
+            f"{n_subjects}_subjects")
+
+
+def plot_direction_test_traces(direction_panels, direction_clusters, rois,
+                               condition_label, n_subjects, plotting_parameters,
+                               save_dir=None, window_size=None,
+                               sampling_rate=None, error_type='sem',
+                               plot_style=None, save_name_suffix=None):
+    """One figure per N2 direction test, each carrying its OWN cluster bar.
+
+    The subtraction figure draws both difference waves with the *interaction*
+    bar on them, which leaves the two simple effects without a figure: you can
+    see that the effect changed across blocks but not whether either block had
+    an effect to begin with, and that is step 1 of reading N2
+    (``docs/n2_direction_tests.md`` §7).
+
+    Parameters
+    ----------
+    direction_panels : dict
+        ``test_key -> {'stem', 'title', 'evks', 'traces'}``. ``evks`` is the
+        evoked dict to draw from (raw conditions for the simple effects, the
+        difference waves for the interaction) and ``traces`` the two names in
+        it that the test compared -- the bar belongs over the traces it was
+        computed from.
+    direction_clusters : dict
+        ``test_key -> roi -> sample-level boolean mask``. A missing ROI draws
+        the traces without a bar rather than failing.
+    rois, condition_label, n_subjects, plotting_parameters, window_size,
+    sampling_rate, error_type, save_name_suffix
+        As for :func:`plot_power_traces_for_all_rois`.
+    save_dir : str or None
+        The run's output directory. Figures go in its
+        ``n2_direction_tests`` subdirectory, then one folder per ROI.
+    plot_style : dict or None
+        Base style. Each panel's ``title`` is filled in from the panel, and the
+        interaction panel additionally drops the raw-trace y limits: difference
+        waves are roughly an order of magnitude smaller, so those limits flatten
+        them onto the zero line and park the bar at a height with no data near
+        it.
+
+    Returns
+    -------
+    dict
+        ``test_key -> save-name stem``, in the order the figures were drawn.
+    """
+    out_dir = os.path.join(save_dir, DIRECTION_TEST_SUBDIR) if save_dir else None
+    save_names = {}
+
+    for test_key, panel in direction_panels.items():
+        style = {**(plot_style or {}), 'title': panel.get('title')}
+        if test_key == 'interaction':
+            style.update(ylim=None, yticks=None, sig_cluster_height=None)
+
+        save_name = direction_test_save_name(
+            condition_label, test_key, panel['stem'], n_subjects)
+        save_names[test_key] = save_name
+
+        plot_power_traces_for_all_rois(
+            panel['evks'], rois, panel['traces'], save_name,
+            plotting_parameters,
+            window_size=window_size, sampling_rate=sampling_rate,
+            significant_clusters=direction_clusters.get(test_key) or None,
+            save_dir=out_dir,
+            error_type=error_type,
+            plot_style=style,
+            save_name_suffix=save_name_suffix,
+        )
+
+    return save_names
 
 
 def apply_plot_style(ax, roi, style=None):
@@ -818,7 +924,9 @@ def plot_2way_interaction_for_roi(
         # {'pos': bool[n_times], 'neg': bool[n_times]} from the sign-aware path.
         ylim = ax.get_ylim() if s.get('ylim') is None else s['ylim']
         span = ylim[1] - ylim[0]
-        bar_y_top = s.get('sig_cluster_height', ylim[1] - span * 0.04)
+        bar_y_top = s.get('sig_cluster_height')
+        if bar_y_top is None:   # 'None' means "auto" everywhere, not "0"
+            bar_y_top = ylim[1] - span * 0.04
         bar_y_step = span * 0.04
 
         if isinstance(interaction_mask, dict):
