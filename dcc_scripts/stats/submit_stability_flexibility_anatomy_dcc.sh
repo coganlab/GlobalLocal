@@ -55,9 +55,11 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # N_SPLITS is used only when calculating scores here; USE_COORDS=0 skips the
 # reconstruction-dependent coordinate and centroid panels.
 # ---------------------------------------------------------------------------
-ARM=${ARM:-categorical}
-SCORES_CSV=${SCORES_CSV:-}
-PER_SPLIT_CSV=${PER_SPLIT_CSV:-}
+coganlab/jz421/GlobalLocal/dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh
+
+ARM=${ARM:-continuous}
+SCORES_CSV=${SCORES_CSV:"$SEG_RUN/electrodes.csv"}
+PER_SPLIT_CSV=${PER_SPLIT_CSV:"$SEG_RUN/per_split.csv"}
 N_SPLITS=${N_SPLITS:-200}
 USE_COORDS=${USE_COORDS:-1}
 
