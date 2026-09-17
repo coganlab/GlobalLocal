@@ -75,6 +75,21 @@ if project_root not in sys.path:
 
 from dcc_scripts.stats.stability_flexibility_anatomy_dcc import main
 
+
+def _env(name, default=None):
+    """`os.environ[name]`, stripped, with blank treated as unset.
+
+    sbatch --export always defines the variables it is handed, so a knob the
+    submit script left empty arrives as '' rather than missing. '' is falsy but
+    it is NOT None, so a plain os.environ.get() sends an empty string down into
+    the analysis — os.path.join('', name) then silently becomes a bare relative
+    path, and an `is None` guard never fires. Normalise once, here.
+    """
+    value = os.environ.get(name)
+    value = value.strip() if value is not None else None
+    return value if value else default
+
+
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
 # ---------------------------------------------------------------------------
@@ -88,29 +103,29 @@ SUBJECTS = ['D0057', 'D0059', 'D0063', 'D0065', 'D0069', 'D0077', 'D0090',
             'D0144', 'D0145', 'D0146']
 
 # --- data source: 'real' (epoched data + ROI atlas) or 'synthetic' (dry run) ---
-DATA_SOURCE = os.environ.get('DATA_SOURCE', 'real')
+DATA_SOURCE = _env('DATA_SOURCE', 'real')
 # synthetic-only: strength of the planted group×ROI association (0 = null).
-SYNTHETIC_ENRICHMENT = float(os.environ.get('SYNTHETIC_ENRICHMENT', '0.6'))
+SYNTHETIC_ENRICHMENT = float(_env('SYNTHETIC_ENRICHMENT', '0.6'))
 
 # --- which arm: 'categorical' (S/F groups), 'continuous' (LWPC/LWPS scores,
 #     plan §5–§7) or 'both' ---
-ARM = os.environ.get('ARM', 'categorical')
+ARM = _env('ARM', 'categorical')
 
 # continuous arm: where the scores come from. Point these at a finished
 # stability_flexibility_segregation run to skip re-scoring (hours -> seconds).
-SCORES_CSV = os.environ.get('SCORES_CSV')          # its electrodes.csv
-PER_SPLIT_CSV = os.environ.get('PER_SPLIT_CSV')    # its per_split.csv (ceiling)
-N_SPLITS = int(os.environ.get('N_SPLITS', '200'))  # only when scoring here
-USE_COORDS = os.environ.get('USE_COORDS', '1') not in ('0', 'false', 'False')
+SCORES_CSV = _env('SCORES_CSV')          # its electrodes.csv
+PER_SPLIT_CSV = _env('PER_SPLIT_CSV')    # its per_split.csv (ceiling)
+N_SPLITS = int(_env('N_SPLITS', '200'))  # only when scoring here
+USE_COORDS = _env('USE_COORDS', '1') not in ('0', 'false', 'False')
 
 # --- electrode definition: 'a1' (window-mean ANOVA here) or 'power_traces'
 #     (finished cluster-corrected within-electrode ANOVA runs) ---
-LABEL_SOURCE = os.environ.get('LABEL_SOURCE', 'a1')
+LABEL_SOURCE = _env('LABEL_SOURCE', 'a1')
 
 # power_traces route: where the finished runs live. Either ONE run whose ANOVA
 # had all four interaction terms, or one run per interaction.
-PT_RUN_DIR = os.environ.get('PT_RUN_DIR')
-PT_RUNS = {k: os.environ.get(f'PT_RUN_{k}') for k in ('CPC', 'SPS', 'CPS', 'SPC')}
+PT_RUN_DIR = _env('PT_RUN_DIR')
+PT_RUNS = {k: _env(f'PT_RUN_{k}') for k in ('CPC', 'SPS', 'CPS', 'SPC')}
 PT_RUNS = {k: v for k, v in PT_RUNS.items() if v}
 if LABEL_SOURCE == 'power_traces' and DATA_SOURCE != 'synthetic':
     if PT_RUN_DIR:
@@ -127,12 +142,12 @@ else:
 
 # BH across electrodes within (roi, effect) — the right family for a test that
 # counts electrodes. 'cluster' reproduces the raw lab convention instead.
-PT_CORRECTION = os.environ.get('PT_CORRECTION', 'fdr_bh')
-PT_ALPHA = os.environ.get('PT_ALPHA')            # defaults to ALPHA below
-PT_ROI = os.environ.get('PT_ROI')                # the ANOVA run's ROI, e.g. 'lpfc'
+PT_CORRECTION = _env('PT_CORRECTION', 'fdr_bh')
+PT_ALPHA = _env('PT_ALPHA')            # defaults to ALPHA below
+PT_ROI = _env('PT_ROI')                # the ANOVA run's ROI, e.g. 'lpfc'
 
 # --- epochs / analysis window (A1 route on real data only) ---
-EPOCHS_ROOT_FILE = os.environ.get('EPOCHS_ROOT_FILE')
+EPOCHS_ROOT_FILE = _env('EPOCHS_ROOT_FILE')
 # The continuous arm reading finished score CSVs needs no epoched data either.
 _needs_epochs = not (ARM == 'continuous' and SCORES_CSV)
 if DATA_SOURCE == 'real' and LABEL_SOURCE == 'a1' and _needs_epochs \
@@ -142,43 +157,45 @@ if DATA_SOURCE == 'real' and LABEL_SOURCE == 'a1' and _needs_epochs \
                      "(or run with DATA_SOURCE=synthetic to skip data loading, "
                      "or LABEL_SOURCE=power_traces to read finished ANOVA runs).")
 
-WINDOW_TMIN = float(os.environ.get('WINDOW_TMIN', '0.0'))   # seconds post-stimulus
-WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
+WINDOW_TMIN = float(_env('WINDOW_TMIN', '0.0'))   # seconds post-stimulus
+WINDOW_TMAX = float(_env('WINDOW_TMAX', '0.5'))
 
 # --- electrode selection ---
-ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
+ELECTRODES = _env('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS_DICT = None
 
 # --- A1 hyperparameter (the electrode definition A3 sits on) ---
-CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
-FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
-ALPHA = float(os.environ.get('ALPHA', '0.05'))
+CONTRAST_MODE = _env('CONTRAST_MODE', 'proportion')
+FDR_CORRECTION = _env('FDR_CORRECTION', 'fdr_bh')
+ALPHA = float(_env('ALPHA', '0.05'))
 
 # --- A3 hyperparameters ---
 # keep only ROIs sampled in >= MIN_SUBJECTS subjects (the coverage condition).
-MIN_SUBJECTS = int(os.environ.get('MIN_SUBJECTS', '3'))
-N_PERM = int(os.environ.get('N_PERM', '10000'))            # within-subject perms
-SEED = int(os.environ.get('SEED', '0'))
+MIN_SUBJECTS = int(_env('MIN_SUBJECTS', '3'))
+N_PERM = int(_env('N_PERM', '10000'))            # within-subject perms
+SEED = int(_env('SEED', '0'))
 # where the electrodes-to-ROIs atlas json is cached (real data only).
-ROI_DICT_DIR = os.environ.get('ROI_DICT_DIR')
+# None (not '') means "look in src/analysis/config" — an empty string would
+# instead resolve the json against the job's cwd and fail there.
+ROI_DICT_DIR = _env('ROI_DICT_DIR')
 
 # --- anatomical scope ---
 # Restrict the anatomy to one (or several, comma-separated) ROI groups from
 # src/analysis/config/rois.py, e.g. 'lpfc'. Empty = whole brain.
-_roi_filter = os.environ.get('ROI_FILTER', '').strip()
+_roi_filter = _env('ROI_FILTER', '')
 ROI_FILTER = None
 if _roi_filter:
     parts = [p.strip() for p in _roi_filter.split(',') if p.strip()]
     ROI_FILTER = parts[0] if len(parts) == 1 else parts
 # 'auto' | 'group' | 'destrieux' — which level the histogram + test run on.
-ANAT_LEVEL = os.environ.get('ANAT_LEVEL', 'auto')
+ANAT_LEVEL = _env('ANAT_LEVEL', 'auto')
 # Cap the Destrieux histogram at the N most-populated labels (blank = all).
-_top_n = os.environ.get('HIST_TOP_N', '').strip()
+_top_n = _env('HIST_TOP_N')
 HIST_TOP_N = int(_top_n) if _top_n else None
 
 # --- brain figure ---
-MAKE_BRAIN = os.environ.get('MAKE_BRAIN', '1') not in ('0', 'false', 'False')
-BRAIN_HEMI = os.environ.get('BRAIN_HEMI', 'both')   # 'both' | 'lh' | 'rh' | 'split'
+MAKE_BRAIN = _env('MAKE_BRAIN', '1') not in ('0', 'false', 'False')
+BRAIN_HEMI = _env('BRAIN_HEMI', 'both')   # 'both' | 'lh' | 'rh' | 'split'
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else (
