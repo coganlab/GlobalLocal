@@ -36,8 +36,11 @@ from .windowed_anova import (
 )
 from .plots import (
     DEFAULT_PLOT_STYLE,
+    DIRECTION_TEST_SUBDIR,
     plot_power_trace_for_roi,
     plot_power_traces_for_all_rois,
+    direction_test_save_name,
+    plot_direction_test_traces,
     apply_plot_style,
     compute_subcell_evoked_data,
     plot_2way_interaction_for_roi,
@@ -70,8 +73,11 @@ __all__ = [
     "run_windowed_anova_cluster_correction",
     # plots
     "DEFAULT_PLOT_STYLE",
+    "DIRECTION_TEST_SUBDIR",
     "plot_power_trace_for_roi",
     "plot_power_traces_for_all_rois",
+    "direction_test_save_name",
+    "plot_direction_test_traces",
     "apply_plot_style",
     "compute_subcell_evoked_data",
     "plot_2way_interaction_for_roi",
