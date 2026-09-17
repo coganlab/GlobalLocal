@@ -24,7 +24,8 @@ N2 lives here:
 
 | Role | File |
 |---|---|
-| **The test itself** | `dcc_scripts/power/power_traces_dcc.py:242-315` — the `statistical_method == 'time_perm_cluster_interaction'` branch |
+| **The test itself** | `dcc_scripts/power/power_traces_dcc.py` — the `statistical_method == 'time_perm_cluster_interaction'` branch |
+| **The per-test figures** | `src/analysis/power/plots.py` — `plot_direction_test_traces` |
 | **The knobs** | `dcc_scripts/power/run_power_traces_dcc.py` — plain Python constants at the top |
 | **Cluster wrapper** | `dcc_scripts/power/sbatch_power_traces_dcc.sh` |
 | **Job submitter** | `dcc_scripts/power/submit_specific_conditions_power_traces_dcc.sh` |
@@ -155,8 +156,12 @@ BIDS epochs on disk
         ▼
   (mask over time, cluster p-values)  +  a printed mean signed delta
         │
-        ├──> stdout / slurm .out    <- THE PRIMARY RESULT LIVES HERE (see §6)
-        └──> the interaction mask is drawn on the subtraction figure
+        ├──> stdout / slurm .out             the printed deltas (see §6)
+        ├──> n2_direction_tests/<roi>/...    one figure PER TEST, each with its
+        │                                    own cluster bar
+        ├──> <roi>/..._n2_direction_<test>_cluster.npz   mask, cluster p-values,
+        │                                    signed delta
+        └──> the interaction mask is also drawn on the subtraction figure
 ```
 
 ### What the unit of inference is, and what that costs
@@ -343,24 +348,52 @@ pytest tests/analysis/stats/test_effect_sign_conventions.py -v
 
 ---
 
-## 6. Outputs — and what you don't get
+## 6. Outputs
 
-### The primary result is in stdout. Keep the slurm log.
+### Each of the three tests gets its own figure and its own npz
 
-This is the single most important operational fact about N2. Read
-`power_traces_dcc.py:477-536`: the save block persists results for the
-`time_perm_cluster` branch and the `anova` branch. **The interaction branch's
-masks and cluster p-values are never written to disk.** `significant_clusters`
-stays empty and `interaction_results` stays `None`, so both `if` guards are
-skipped. The `p_values_dict` the branch builds is not saved either.
+All three masks are persisted, and all three are plotted over the traces they
+were computed from:
 
-So the N2 result exists in exactly two places:
+```
+<save_dir>/n2_direction_tests/<roi>/
+    <roi>_<label>_n2_direction_simple_low_<low_pair>_<n>_subjects_<elec>_sem_shading.{png,pdf}
+    <roi>_<label>_n2_direction_simple_high_<high_pair>_<n>_subjects_<elec>_sem_shading.{png,pdf}
+    <roi>_<label>_n2_direction_interaction_low_minus_high_<n>_subjects_<elec>_sem_shading.{png,pdf}
+```
 
-1. **The slurm `.out` file** — the printed deltas and the per-test cluster output.
-2. **The subtraction figure** — which carries the interaction mask only, not the
-   two simple effects.
+- The two **simple-effect** figures draw the raw condition traces (`i25` vs
+  `c25`, `i75` vs `c75`) on the same y scale as the main power-trace figure, so
+  they can be read against it directly. Their bar is that block's own simple
+  effect — which is what §7 step 1 asks for and what the subtraction figure
+  cannot show you.
+- The **interaction** figure draws the two difference waves with the
+  interaction bar. It drops the raw-trace `ylim`/`yticks` and auto-places the
+  bar, because difference waves are roughly an order of magnitude smaller than
+  the traces they come from: on the raw-trace axis they flatten onto zero and
+  the bar sits at a height with no data near it.
 
-Archive `out/aligned_svm_ncv/slurm_<jobid>.out` somewhere you will find it again.
+The masks themselves land next to the evoked npz files, one file per ROI per
+test:
+
+```
+<roi>/<conditions_save_name>_<roi>_n2_direction_{simple_low,simple_high,interaction}_cluster.npz
+    mask              sample-level boolean, the cluster bar
+    cluster_p_values  from time_perm_cluster
+    delta             signed, averaged over electrodes, per timepoint
+                      (positive = effect shrinks in the high-proportion block)
+    traces            the two names the test contrasted
+```
+
+`delta` is the number `F` throws away, at full time resolution — so the
+direction can be re-read, re-plotted or checked against the segregation scores
+(§9) without re-running anything.
+
+### Still keep the slurm log
+
+The printed per-test deltas (below) are the fastest read on the result and are
+the only place the "in sig cluster" vs "over epoch (n.s.)" distinction is
+spelled out for you. Archive `out/aligned_svm_ncv/slurm_<jobid>.out`.
 
 ### What the log looks like
 
@@ -373,7 +406,10 @@ Interaction follow-up: (Stimulus_i25-Stimulus_c25) vs (Stimulus_i75-Stimulus_c75
    [interaction]                       mean delta in sig cluster: +0.03535
 ```
 
-Reading the delta line (`power_traces_dcc.py:307-312`):
+The bracketed names are unchanged, so old logs still grep. The figure and npz
+filenames use the shorter `simple_low` / `simple_high` / `interaction` keys.
+
+Reading the delta line:
 
 - `delta = (e1.data - e2.data).mean(axis=0)` — the signed effect averaged over
   electrodes, per timepoint. This is the number `F` throws away.
@@ -395,12 +431,15 @@ from `ANOVA_UNIT` unconditionally at `run_power_traces_dcc.py:261`.)
 
 | File | Contains | Useful for N2? |
 |---|---|---|
-| `<roi>/<roi>_<label>_subtractions_<n>_subjects_<elec>_sem_shading.{png,pdf}` | the two difference waves with the **interaction** cluster bar | ✅ **this is the N2 figure** |
+| `n2_direction_tests/<roi>/..._n2_direction_simple_low_<low_pair>_...{png,pdf}` | `i25` vs `c25` with the **low-block simple-effect** bar | ✅ **§7 step 1** |
+| `n2_direction_tests/<roi>/..._n2_direction_simple_high_<high_pair>_...{png,pdf}` | `i75` vs `c75` with the **high-block simple-effect** bar | ✅ **§7 step 1** |
+| `n2_direction_tests/<roi>/..._n2_direction_interaction_low_minus_high_...{png,pdf}` | the two difference waves, auto-scaled, with the **interaction** bar | ✅ **§7 step 2** |
+| `<roi>/..._n2_direction_<test>_cluster.npz` | `mask`, `cluster_p_values`, `delta`, `traces` — one per ROI per test | ✅ the result, in numbers |
+| `<roi>/<roi>_<label>_subtractions_<n>_subjects_<elec>_sem_shading.{png,pdf}` | both difference waves on the raw-trace y scale, with the **interaction** cluster bar | the older single N2 figure |
 | `<roi>/<roi>_<label>_<n>_subjects_<elec>_sem_shading.{png,pdf}` | the four raw condition traces, **no** cluster bar | context |
 | `<roi>/..._electrode_deviations.txt` | the most deviant electrodes in the baseline window | leverage check |
 | `<roi>/<save_name>_<condition>_<roi>_evoked.npz` | `data`, `times`, `ch_names` — the `(n_elec, n_times)` matrices | ✅ lets you recompute anything |
 | `<save_name>_metadata.json` | condition label, ROIs, `statistical_method` | confirms which method ran |
-| — | the three masks and cluster p-values | ❌ **not saved** |
 
 The `_evoked.npz` files are the escape hatch: since every per-condition
 `(n_electrodes, n_times)` matrix is saved with its channel names, you can
@@ -462,8 +501,8 @@ same in occipital cortex as in lPFC is a warning about the baseline, not a findi
 
 ## 8. Known gaps against the plan
 
-Three things plan §2 asks for that the code does **not** currently do. None block
-the direction read; all of them are what you would need for a manuscript.
+Two things plan §2 asks for that the code does **not** currently do. Neither
+blocks the direction read; both are what you would need for a manuscript.
 
 1. **No per-subject direction tally.** The plan asks how many subjects' electrode
    averages point the expected way. Subject identity is discarded at
@@ -476,12 +515,9 @@ the direction read; all of them are what you would need for a manuscript.
    there is no equivalent on the N2 path. lPFC coverage is skewed, and LOSO is what
    rules out a one-subject result. Same workaround: rebuild from the npz files.
 
-3. **The masks and p-values are not persisted** (§6). Adding `interaction_clusters`
-   to the save block at `power_traces_dcc.py:492` would be a few lines.
-
 Two design-level caveats:
 
-4. **The direction test runs on the 4-cell sets, not the block-balanced 8-cell
+3. **The direction test runs on the 4-cell sets, not the block-balanced 8-cell
    sets**, because only the former have `subtraction_pairs`. The 4-cell sets do
    split by the tested proportion factor — `Stimulus_c25` is a single BIDS event
    (`Stimulus/c25.0`), congruent trials in 25%-incongruent blocks — so the LWPC
@@ -489,7 +525,7 @@ Two design-level caveats:
    proportion factor (switch proportion, for LWPC). Check the per-cell counts
    before treating a marginal interaction as real.
 
-5. **`N_PERM = 500`** floors any p-value at about 0.002. Adequate for a direction
+4. **`N_PERM = 500`** floors any p-value at about 0.002. Adequate for a direction
    check; raise it if the number goes in a paper.
 
 ---
@@ -561,10 +597,11 @@ Their outputs are documented separately in
 [ ] smoke test: 1 subject, N_PERM=2, lpfc only, completes
 [ ] submit with ELECTRODES=sig
 [ ] submit with ELECTRODES=all      (direction must not depend on the filter)
-[ ] ARCHIVE THE SLURM .out FILES    (the masks are not saved anywhere else)
+[ ] archive the slurm .out files    (fastest read on the three deltas)
 [ ] record n_electrodes AND n_subjects for each ROI
-[ ] both simple effects positive in lpfc?
+[ ] both simple effects positive in lpfc?   <- n2_direction_tests/<roi>/*simple_{low,high}*
 [ ] interaction positive  =  adaptation, N2 passes
+                                            <- n2_direction_tests/<roi>/*interaction*
 [ ] compare against the behavioral LWPC/LWPS direction  <- KILL SWITCH
 [ ] occ does not show the same pattern
 ```

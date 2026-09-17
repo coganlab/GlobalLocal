@@ -155,7 +155,10 @@ LWPS:  (s − r | 25% switch)        vs   (s − r | 75% switch)
   from `windowed_anova._signed_contrast_per_window` and from
   `W_INTERACTION` in the segregation module, both of which compute high−low.
   Requires `STAT_FUNC_CHOICE = 'ttest_rel'` (→ `permutation_type='samples'`);
-  the design is paired and `'independent'` throws the pairing away.
+  the design is paired and `'independent'` throws the pairing away. Each of the
+  three tests gets its own figure (traces + that test's own cluster bar) under
+  `n2_direction_tests/<roi>/`, and its own npz with the mask, cluster p-values
+  and the signed delta; see `n2_direction_tests.md` §6.
 
 **Kill switch.** If the two adaptation directions disagree with the behavioral
 ones, stop and re-read the epoch metadata before running anything in §3–§8. This
