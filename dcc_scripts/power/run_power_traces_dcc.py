@@ -69,7 +69,7 @@ ACC_TRIALS_ONLY = True
 N_JOBS = -1 
 
 # stats
-STATISTICAL_METHOD = 'anova' # 'time_perm_cluster' or 'anova' or 'time_perm_cluster_interaction' (follow up tests for anova)
+STATISTICAL_METHOD = 'time_perm_cluster_interaction' # 'time_perm_cluster' or 'anova' or 'time_perm_cluster_interaction' (follow up tests for anova)
 SAMPLING_RATE = 256 # Or whatever your decimated sampling rate is (e.g., 100 Hz)
 WINDOW_SIZE = 64 # Sliding window size in samples. Set to None for time perm cluster stats. This is just for ANOVA.
 STEP_SIZE = 16 # Sliding window step size in samples. Set to None for time perm cluster stats. This is just for ANOVA.

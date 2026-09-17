@@ -20,7 +20,8 @@
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # Only used by LABEL_SOURCE=a1 — the power_traces route reads finished runs.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+# EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit"
+EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
 
 # ---------------------------------------------------------------------------
 # Analysis window (seconds relative to stimulus onset) and electrode set.
@@ -54,9 +55,11 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # N_SPLITS is used only when calculating scores here; USE_COORDS=0 skips the
 # reconstruction-dependent coordinate and centroid panels.
 # ---------------------------------------------------------------------------
-ARM=${ARM:-categorical}
-SCORES_CSV=${SCORES_CSV:-}
-PER_SPLIT_CSV=${PER_SPLIT_CSV:-}
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh"
+
+ARM=${ARM:-continuous}
+SCORES_CSV=${SCORES_CSV:"$SEG_RUN/electrodes.csv"}
+PER_SPLIT_CSV=${PER_SPLIT_CSV:"$SEG_RUN/per_split.csv"}
 N_SPLITS=${N_SPLITS:-200}
 USE_COORDS=${USE_COORDS:-1}
 
@@ -84,7 +87,7 @@ PT_ROI=${PT_ROI:-}                       # the ANOVA run's ROI, e.g. lpfc
 #   ANAT_LEVEL : auto | group | destrieux — level for the histogram + test.
 #                'auto' uses raw Destrieux labels once restricted to one group.
 # ---------------------------------------------------------------------------
-ROI_FILTER=${ROI_FILTER:-}
+ROI_FILTER=${ROI_FILTER:'lpfc'}
 ANAT_LEVEL=${ANAT_LEVEL:-auto}
 HIST_TOP_N=${HIST_TOP_N:-}               # cap the Destrieux histogram at N labels
 
@@ -94,14 +97,14 @@ MAKE_BRAIN=${MAKE_BRAIN:-1}
 BRAIN_HEMI=${BRAIN_HEMI:-both}
 
 # A1 electrode definition + A3 hyperparameters.
-CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (LABEL_SOURCE=a1)
 ALPHA=${ALPHA:-0.05}
 MIN_SUBJECTS=${MIN_SUBJECTS:-3}      # keep ROIs sampled in >= this many subjects
 N_PERM=${N_PERM:-10000}             # within-subject permutations for the null
 SEED=${SEED:-0}
 # Optional directory containing a precomputed electrodes-to-ROI atlas JSON.
-ROI_DICT_DIR=${ROI_DICT_DIR:-}
+ROI_DICT_DIR=${ROI_DICT_DIR:'/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/'}
 
 mkdir -p out
 
