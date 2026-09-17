@@ -654,19 +654,41 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
     recon templates are missing, and each public plotting function catches that
     and writes its own degraded figure instead.
     """
-    # ``PYVISTA_OFF_SCREEN`` controls the VTK framebuffer, but MNE's pyvistaqt
-    # backend still needs a valid X display while it constructs the scene. Batch
-    # jobs normally provide one through ``xvfb-run``; direct invocations of the
-    # Python entrypoint do not. Start the same virtual display programmatically
+    # MNE's pyvistaqt backend needs a valid X display while it constructs the
+    # scene. Batch jobs provide one through ``xvfb-run``; direct invocations of
+    # the Python entrypoint do not, so start the same virtual display here
     # before importing jim_mri (whose module import selects the Qt backend).
-    os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
+    #
+    # Which mode we then pick MATTERS, and getting it wrong is what made this
+    # fall back to the by-ROI figure while
+    # ``dcc_scripts/vis/plot_sig_electrodes_dcc.py`` rendered fine: with a
+    # DISPLAY available, forcing ``OFF_SCREEN`` on means the Qt window is never
+    # realized, so its OpenGL context is never current and the screenshot dies
+    # with ``RenderWindowUnavailable: Render window is not current``. Mirror the
+    # vis script: off-screen ONLY when there is genuinely no display.
     import pyvista as pv
-    pv.OFF_SCREEN = True
     if not os.environ.get("DISPLAY"):
-        pv.start_xvfb()
+        try:
+            pv.start_xvfb()          # sets DISPLAY when it succeeds
+        except Exception as exc:
+            print(f"[A3] could not start a virtual display "
+                  f"({type(exc).__name__}: {exc}); using PyVista off-screen.")
+    have_display = bool(os.environ.get("DISPLAY"))
+    if have_display:
+        os.environ.pop("PYVISTA_OFF_SCREEN", None)
+    else:
+        os.environ["PYVISTA_OFF_SCREEN"] = "true"
+    pv.OFF_SCREEN = not have_display
+    try:
+        pv.global_theme.allow_empty_mesh = True
+    except Exception:                # older pyvista has no such theme option
+        pass
+    print(f"[A3] 3D rendering: "
+          f"{'virtual display ' + os.environ['DISPLAY'] if have_display else 'pyvista off-screen (no DISPLAY)'}")
 
     import matplotlib.colors as mcolors
-    from dcc_scripts.vis.plot_sig_electrodes_dcc import electrodes_to_global_indices
+    from dcc_scripts.vis.plot_sig_electrodes_dcc import (
+        electrodes_to_global_indices, save_brain_image)
     from src.analysis.vis.jim_mri import plot_on_average
 
     offsets, subjects_no_zeros = _fsaverage_index_space(subjects)
@@ -686,7 +708,12 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                               **vis_kwargs)
     if fig is None:
         raise RuntimeError("no electrodes in any set to plot")
-    fig.save_image(out_path)
+    # ``save_brain_image`` (not ``Brain.save_image``) because pyvista < 0.48
+    # doesn't make the render window current before grabbing its framebuffer;
+    # the helper retries with an explicit ``MakeCurrent()``.
+    if not save_brain_image(fig, out_path):
+        fig.close()
+        raise RuntimeError(f"could not screenshot the brain figure to {out_path}")
     fig.close()
     print(f"[A3] brain figure -> {out_path}")
 
@@ -700,8 +727,10 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                                    transparency=transparency, show=False,
                                    **vis_kwargs)
             path = f"{base}_{name}.png"
-            sfig.save_image(path)
+            saved = save_brain_image(sfig, path)
             sfig.close()
+            if not saved:                # the combined figure already landed --
+                continue                 # a missing per-set panel isn't fatal
             per_set[name] = path
             print(f"[A3] brain figure ({name}) -> {path}")
 
