@@ -49,6 +49,38 @@ What this module provides
   group. Guarded: falls back to the ROI-histogram figure when the heavy surface
   stack / recon templates are unavailable, e.g. off the cluster.
 
+The CONTINUOUS arm (plan §5–§7)
+-------------------------------
+Everything above needs electrodes to individually pass a significance threshold,
+of which there are too few, and it throws the effect sizes away. The second half
+of this module asks the same anatomical question of the CONTINUOUS per-electrode
+scores instead, on an anatomically- (not effect-) defined electrode set:
+
+- ``attach_scores`` — the :func:`attach_roi` join for scores rather than flags,
+  plus the pooled per-effect scaling and ``delta = lwpc_s - lwps_s``.
+- ``build_electrode_coord_map`` — ``{electrode -> fsaverage/MNI mm}``.
+- ``relative_score_roi_test`` — ``delta ~ roi + responsiveness + (1|subject)``
+  with a within-electrode effect-label swap null (§5.2, primary).
+- ``relative_score_coordinate_test`` — ``delta ~ MNI coords``, per hemisphere
+  (§5.2, secondary).
+- ``map_reliability`` — the split-half spatial NOISE CEILING every spatial
+  number has to be read against (§5.4).
+- ``score_centers_per_subject`` — per-subject weighted medoids (§7, descriptive).
+- ``leave_one_subject_out`` — the §9.2 leverage sweep for any of the above.
+- ``plot_scores_on_brain`` / ``plot_score_maps`` — the five §6 surfaces, same
+  renderer and the same graceful degradation as the group figure.
+
+Drop-in usage for that arm, starting from the segregation module's scores::
+
+    from src.analysis.stats import stability_flexibility_segregation as sfs
+    per_split = sfs.compute_sensitivities_per_split(df, contrast_mode='proportion')
+    elec      = sfs.add_responsiveness(sfs.average_over_splits(per_split), df)
+    scores    = attach_scores(elec, e2r, electrodes_to_anat=e2a,
+                              electrodes_to_coords=build_electrode_coord_map(subjects))
+    cover     = build_coverage_matrix(scores)
+    roi_res   = relative_score_roi_test(scores, cover, min_subjects=3)
+    ceiling   = map_reliability(per_split, parcels=e2r)   # report next to it
+
 Drop-in usage
 -------------
 A1 (or ``power_traces_conjunction.electrode_labels``) gives you ``labels``
@@ -550,27 +582,131 @@ def group_electrode_lists(labels_with_roi, groups=("both", "S_only", "F_only")):
     return {g: d.loc[d['group'] == g, 'electrode'].tolist() for g in groups}
 
 
-def group_electrodes_by_subject(labels_with_roi, groups=("both", "S_only", "F_only")):
-    """``{group -> {subject -> [channel names]}}`` — the shape the vis stack wants.
+def electrodes_by_subject(frame):
+    """``{subject -> [bare channel names]}`` for one table of electrodes.
 
     ``plot_sig_electrodes_dcc.electrodes_to_global_indices`` consumes
-    ``{subject_with_zeros: [channel, ...]}`` per colour group, with BARE channel
+    ``{subject_with_zeros: [channel, ...]}`` per colour set, with BARE channel
     names (they are looked up in each subject's ``info['ch_names']``). Any
     ``"{subject}-"`` prefix carried by the ``electrode`` column is stripped here.
     """
-    out = {}
-    for g in groups:
-        d = labels_with_roi[labels_with_roi['group'] == g]
-        per_subject = {}
-        for subject, electrode in zip(d['subject'].astype(str),
-                                      d['electrode'].astype(str)):
-            channel = electrode[len(subject) + 1:] \
-                if electrode.startswith(f"{subject}-") else electrode
-            bucket = per_subject.setdefault(subject, [])
-            if channel not in bucket:
-                bucket.append(channel)
-        out[g] = per_subject
-    return out
+    per_subject = {}
+    for subject, electrode in zip(frame['subject'].astype(str),
+                                  frame['electrode'].astype(str)):
+        channel = electrode[len(subject) + 1:] \
+            if electrode.startswith(f"{subject}-") else electrode
+        bucket = per_subject.setdefault(subject, [])
+        if channel not in bucket:
+            bucket.append(channel)
+    return per_subject
+
+
+def group_electrodes_by_subject(labels_with_roi, groups=("both", "S_only", "F_only")):
+    """``{group -> {subject -> [channel names]}}`` — the shape the vis stack wants."""
+    return {g: electrodes_by_subject(labels_with_roi[labels_with_roi['group'] == g])
+            for g in groups}
+
+
+def _fsaverage_index_space(subjects):
+    """``({subject_no_zeros: (offset, ch_names)}, [subject_no_zeros, ...])``.
+
+    The fsaverage "global index" space the lab's vis stack addresses electrodes
+    in: every subject's channels are concatenated in order, and an electrode is
+    named by its position in that concatenation. Built subject-by-subject rather
+    than all-or-nothing because some cluster runs have labels for a subject whose
+    ECoG_Recon files are not mounted (for example D57) — that subject is skipped
+    with a warning instead of killing the whole figure.
+    """
+    from collections import OrderedDict
+    from dcc_scripts.vis.plot_sig_electrodes_dcc import strip_leading_zeros
+    from src.analysis.vis.jim_mri import subject_to_info
+
+    offsets, usable, running = OrderedDict(), [], 0
+    for subject in subjects:
+        subject_no_zeros = strip_leading_zeros(str(subject))
+        try:
+            info = subject_to_info(subject_no_zeros)
+        except Exception as exc:
+            print(f"[A3] Warning: could not load fsaverage info for "
+                  f"{subject_no_zeros}; skipping this subject in the brain "
+                  f"figure ({type(exc).__name__}: {exc}).")
+            continue
+        offsets[subject_no_zeros] = (running, info["ch_names"])
+        usable.append(subject_no_zeros)
+        running += len(info["ch_names"])
+    if not offsets:
+        raise RuntimeError("no subjects with loadable fsaverage electrode info")
+    return offsets, usable
+
+
+def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
+                           transparency=0.4, rm_wm=False, per_set_figures=False,
+                           **vis_kwargs):
+    """Render colour-coded electrode sets on the fsaverage brain. Raises on failure.
+
+    ``sets`` is a list of ``(name, {subject: [channels]}, colour)``. Each set is
+    drawn in one ``plot_on_average`` call onto the SAME ``Brain``, which is the
+    only thing the renderer supports (one colour per call) and is why both the
+    discrete group figure and the continuous score map are expressed as a list of
+    single-colour sets — the continuous one just bins its scalar first.
+
+    Callers own the fallback: this function raises when the surface stack or the
+    recon templates are missing, and each public plotting function catches that
+    and writes its own degraded figure instead.
+    """
+    # ``PYVISTA_OFF_SCREEN`` controls the VTK framebuffer, but MNE's pyvistaqt
+    # backend still needs a valid X display while it constructs the scene. Batch
+    # jobs normally provide one through ``xvfb-run``; direct invocations of the
+    # Python entrypoint do not. Start the same virtual display programmatically
+    # before importing jim_mri (whose module import selects the Qt backend).
+    os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
+    import pyvista as pv
+    pv.OFF_SCREEN = True
+    if not os.environ.get("DISPLAY"):
+        pv.start_xvfb()
+
+    import matplotlib.colors as mcolors
+    from dcc_scripts.vis.plot_sig_electrodes_dcc import electrodes_to_global_indices
+    from src.analysis.vis.jim_mri import plot_on_average
+
+    offsets, subjects_no_zeros = _fsaverage_index_space(subjects)
+    base, _ = os.path.splitext(out_path)
+
+    picks = [(name, sorted(electrodes_to_global_indices(by_subject, offsets)),
+              mcolors.to_rgb(color)) for name, by_subject, color in sets]
+
+    fig = None
+    for name, idx, rgb in picks:
+        if not idx:
+            print(f"[A3] {name}: no electrodes to plot.")
+            continue
+        fig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
+                              hemi=hemi, color=rgb, size=size,
+                              transparency=transparency, fig=fig, show=False,
+                              **vis_kwargs)
+    if fig is None:
+        raise RuntimeError("no electrodes in any set to plot")
+    fig.save_image(out_path)
+    fig.close()
+    print(f"[A3] brain figure -> {out_path}")
+
+    per_set = {}
+    if per_set_figures:
+        for name, idx, rgb in picks:
+            if not idx:
+                continue
+            sfig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
+                                   hemi=hemi, color=rgb, size=size,
+                                   transparency=transparency, show=False,
+                                   **vis_kwargs)
+            path = f"{base}_{name}.png"
+            sfig.save_image(path)
+            sfig.close()
+            per_set[name] = path
+            print(f"[A3] brain figure ({name}) -> {path}")
+
+    return dict(combined=out_path, per_set=per_set,
+                counts={name: len(idx) for name, idx, _ in picks})
 
 
 def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
@@ -614,100 +750,20 @@ def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
     base, ext = os.path.splitext(out_path)
     if ext.lower() not in ('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'):
         out_path = base + '.png'
+    if subjects is None:
+        subjects = sorted(labels_with_roi['subject'].astype(str).unique())
 
     try:
-        # ``PYVISTA_OFF_SCREEN`` controls the VTK framebuffer, but MNE's
-        # pyvistaqt backend still needs a valid X display while it constructs
-        # the scene.  Batch jobs normally provide one through ``xvfb-run``;
-        # direct invocations of the Python entrypoint do not.  Start the same
-        # virtual display programmatically before importing jim_mri (whose
-        # module import selects the Qt backend).
-        os.environ.setdefault("PYVISTA_OFF_SCREEN", "true")
-        import pyvista as pv
-        pv.OFF_SCREEN = True
-        if not os.environ.get("DISPLAY"):
-            pv.start_xvfb()
-
         # Reuse the project's electrode renderer + its index bookkeeping rather
         # than writing new surface code. Kept behind a try/except so a missing
         # heavy dependency degrades gracefully instead of killing the job.
-        import matplotlib.colors as mcolors
-        from dcc_scripts.vis.plot_sig_electrodes_dcc import (
-            strip_leading_zeros, electrodes_to_global_indices)
-        # Use the project's MRI helpers for both loading and rendering.  The
-        # upstream ieeg helper defaults to ~/Box/ECoG_Recon on the cluster,
-        # whereas jim_mri points at the mounted full recon dataset in /cwork.
-        from src.analysis.vis.jim_mri import plot_on_average, subject_to_info
-        from collections import OrderedDict
-
-        if subjects is None:
-            subjects = sorted(labels_with_roi['subject'].astype(str).unique())
-
-        # Build the fsaverage index space subject-by-subject. Some cluster runs
-        # have labels for a subject whose ECoG_Recon files are not mounted (for
-        # example D57); the previous all-or-nothing map raised immediately and
-        # caused A3 to write only the histogram fallback even when the remaining
-        # subjects were renderable. Match the old vis behaviour more closely by
-        # skipping only the missing subject and plotting every usable one.
-        offsets = OrderedDict()
-        subjects_no_zeros = []
-        running = 0
-        for subject in subjects:
-            subject_no_zeros = strip_leading_zeros(str(subject))
-            try:
-                info = subject_to_info(subject_no_zeros)
-            except Exception as exc:
-                print(f"[A3] Warning: could not load fsaverage info for "
-                      f"{subject_no_zeros}; skipping this subject in the brain "
-                      f"figure ({type(exc).__name__}: {exc}).")
-                continue
-            offsets[subject_no_zeros] = (running, info["ch_names"])
-            subjects_no_zeros.append(subject_no_zeros)
-            running += len(info["ch_names"])
-
-        if not offsets:
-            raise RuntimeError("no subjects with loadable fsaverage electrode info")
-
-        indices = {g: electrodes_to_global_indices(by_subject.get(g, {}), offsets)
-                   for g in groups}
-
-        def _rgb(g):
-            return mcolors.to_rgb(colors.get(g, '#000000'))
-
-        fig = None
-        for g in groups:
-            if not indices[g]:
-                print(f"[A3] {g}: no electrodes to plot.")
-                continue
-            fig = plot_on_average(subjects_no_zeros, picks=sorted(indices[g]),
-                                  rm_wm=rm_wm, hemi=hemi, color=_rgb(g),
-                                  size=size, transparency=transparency,
-                                  fig=fig, show=False, **vis_kwargs)
-        if fig is None:
-            raise RuntimeError("no electrodes in any selectivity group to plot")
-        fig.save_image(out_path)
-        fig.close()
-        print(f"[A3] brain figure -> {out_path}")
-
-        per_group = {}
-        if per_group_figures:
-            for g in groups:
-                if not indices[g]:
-                    continue
-                gfig = plot_on_average(subjects_no_zeros, picks=sorted(indices[g]),
-                                       rm_wm=rm_wm, hemi=hemi, color=_rgb(g),
-                                       size=size, transparency=transparency,
-                                       show=False, **vis_kwargs)
-                gpath = f"{base}_{g}.png"
-                gfig.save_image(gpath)
-                gfig.close()
-                per_group[g] = gpath
-                print(f"[A3] brain figure ({g}) -> {gpath}")
-
-        counts = {g: sum(len(v) for v in by_subject.get(g, {}).values())
-                  for g in groups}
-        return dict(combined=out_path, per_group=per_group, counts=counts,
-                    fallback=False)
+        rendered = _render_electrode_sets(
+            [(g, by_subject.get(g, {}), colors.get(g, '#000000')) for g in groups],
+            out_path, subjects=subjects, hemi=hemi, size=size,
+            transparency=transparency, rm_wm=rm_wm,
+            per_set_figures=per_group_figures, **vis_kwargs)
+        return dict(combined=rendered['combined'], per_group=rendered['per_set'],
+                    counts=rendered['counts'], fallback=False)
 
     except Exception as exc:  # pragma: no cover - depends on cluster-only stack
         print(f"[A3] brain-surface render unavailable ({type(exc).__name__}: {exc}); "
@@ -718,6 +774,745 @@ def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
                                   roi_col=roi_col)
         return dict(combined=fallback, per_group={}, fallback=True,
                     error=f"{type(exc).__name__}: {exc}")
+
+
+# ---------------------------------------------------------------------------
+# CONTINUOUS ARM (plan §5-§7): per-electrode LWPC/LWPS scores -> anatomy
+# ---------------------------------------------------------------------------
+# Everything above defines electrodes by a binary S/F flag and asks whether
+# GROUP membership is associated with ROI. That throws away the effect sizes and
+# needs electrodes to individually survive a threshold, of which there are too
+# few. The functions below take the CONTINUOUS per-electrode scores instead
+# (`compute_sensitivities_per_split` + `average_over_splits`, i.e. LWPC on one
+# trial half and LWPS on the disjoint half) and ask the same anatomical question
+# of them, on an anatomically-defined electrode set.
+#
+# The whole arm turns on one quantity:
+#
+#     delta = lwpc_s - lwps_s        (both pooled-scaled, see `attach_scores`)
+#
+# `delta` is the effect-type contrast computed WITHIN an electrode, so
+# regressing it on anatomy IS the effect-type x anatomy interaction. Testing
+# "LWPC is significant in region A, LWPS is not, therefore a dissociation" is
+# the difference-of-significance fallacy (Nieuwenhuis, Forstmann & Wagenmakers
+# 2011); a model of `delta` cannot commit it, because the comparison between the
+# two effects happens before anything is tested.
+#
+# The null everywhere in this section is the WITHIN-ELECTRODE SWAP of the two
+# effect labels: give this electrode's LWPC score to LWPS and vice versa. Note
+# what that does to `delta` -- it negates it. So the swap null is exactly a
+# random SIGN FLIP of `delta` per electrode, which is why it is cheap and why it
+# preserves, exactly rather than approximately, every nuisance structure:
+# subject, coverage, electrode location, the electrode's own responsiveness, and
+# the marginal distribution of both effects. Only the assignment of effect type
+# moves. Do NOT shuffle locations between LWPC and LWPS instead: that null
+# breaks coverage and answers a different question.
+
+
+def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
+                  electrodes_to_coords=None, electrode_fmt="{subject}-{channel}",
+                  score_cols=('x', 'y')):
+    """Join continuous per-electrode scores to anatomy; add the pooled scaling.
+
+    The continuous sibling of :func:`attach_roi` -- same join, same electrode-id
+    reconciliation, no S/F flags.
+
+    Parameters
+    ----------
+    elec_df : DataFrame with ``subject, electrode`` and the two score columns
+        (default ``x`` = LWPC, ``y`` = LWPS, the spelling
+        ``average_over_splits`` / ``run_joint_distribution_analysis()['electrodes']``
+        emits). An existing ``resp`` column (from ``add_responsiveness``) is
+        carried through and used as the covariate by the tests below.
+    electrodes_to_rois / electrodes_to_anat : as in :func:`attach_roi`.
+    electrodes_to_coords : ``{electrode -> (x, y, z)}`` in fsaverage/MNI mm, from
+        :func:`build_electrode_coord_map`. Adds ``mni_x/mni_y/mni_z`` and a
+        ``hemi`` column (``'lh'`` / ``'rh'`` by the sign of x).
+
+    Returns
+    -------
+    DataFrame with ``lwpc_score``/``lwps_score`` (raw), ``lwpc_s``/``lwps_s``
+    (pooled-scaled), ``abs_lwpc``/``abs_lwps`` (for the |score| maps and the
+    centroid weights, which need non-negative weights), ``delta`` and the
+    anatomy columns.
+
+    The scaling is ONE factor per EFFECT, computed across all electrodes pooled
+    -- deliberately NOT a within-subject z-score:
+
+    * a within-subject z-score is degenerate at these electrode counts. With 2
+      electrodes in a subject ``std(ddof=1)`` forces the two z-scores to exactly
+      +/-0.707 whatever the data; with 1 electrode the SD is NaN and the subject
+      drops out of the map silently. lPFC has subjects in exactly that range.
+    * the scores are already commensurate -- ``_interaction_effect`` divides the
+      difference-of-differences by the pooled within-cell SD, so both are d-like
+      already. All that is left to equalise is their marginal spread, which one
+      pooled factor per effect does.
+    * subject gain is handled by the null (a better-SNR subject has larger |LWPC|
+      AND larger |LWPS|, and the swap carries that through untouched), by the
+      subject term in the models below, and by the leave-one-subject-out sweep.
+    """
+    out = elec_df.copy()
+    xc, yc = score_cols
+    out = out.rename(columns={xc: 'lwpc_score', yc: 'lwps_score'})
+    ids = electrode_ids(out, electrode_fmt=electrode_fmt)
+    out['electrode_id'] = ids
+    out['roi'] = ids.map(dict(electrodes_to_rois))
+    if electrodes_to_anat is not None:
+        out['anat'] = ids.map(dict(electrodes_to_anat))
+    if electrodes_to_coords is not None:
+        coords = dict(electrodes_to_coords)
+        xyz = np.array([coords.get(e, (np.nan, np.nan, np.nan)) for e in ids],
+                       dtype=float)
+        out['mni_x'], out['mni_y'], out['mni_z'] = xyz.T
+        hemi = np.where(xyz[:, 0] < 0, 'lh', 'rh').astype(object)
+        hemi[~np.isfinite(xyz[:, 0])] = np.nan
+        out['hemi'] = hemi
+
+    # one scale factor per EFFECT, across all electrodes pooled
+    for src, dst in (('lwpc_score', 'lwpc_s'), ('lwps_score', 'lwps_s')):
+        sd = out[src].std(ddof=1)
+        out[dst] = out[src] / sd if np.isfinite(sd) and sd > 0 else np.nan
+    out['abs_lwpc'] = out['lwpc_s'].abs()
+    out['abs_lwps'] = out['lwps_s'].abs()
+    out['delta'] = out['lwpc_s'] - out['lwps_s']
+    return out
+
+
+def build_electrode_coord_map(subjects, subjects_dir=None,
+                              electrode_fmt="{subject}-{channel}",
+                              to_fsaverage=True):
+    """``{electrode -> (x, y, z)}`` in fsaverage/MNI millimetres.
+
+    Same path the brain figures place electrodes with:
+    ``jim_mri.subject_to_info(subject)`` -> montage ``ch_pos`` (forced to the
+    ``mri`` frame), then the subject's talairach transform to fsaverage so
+    coordinates from different subjects are comparable. Keys use the ORIGINAL
+    subject spelling (``D0057-LTP1``) even though the recon directories use the
+    stripped one (``D57``), so the map joins straight onto the score table.
+
+    A subject whose recon files are not mounted is skipped with a warning
+    (same behaviour as the brain figure), so this degrades to a partial map
+    rather than killing the job; the coordinate test then runs on whoever is
+    left and reports its own n.
+    """
+    import mne
+    from dcc_scripts.vis.plot_sig_electrodes_dcc import strip_leading_zeros
+    from src.analysis.vis.jim_mri import subject_to_info, force2frame, get_sub_dir
+
+    out = {}
+    for subject in subjects:
+        sub = strip_leading_zeros(str(subject))
+        try:
+            info = subject_to_info(sub, subjects_dir)
+            montage = info.get_montage()
+            force2frame(montage, 'mri')
+            pos = montage.get_positions()['ch_pos']
+            trans = (mne.read_talxfm(sub, get_sub_dir(subjects_dir))['trans']
+                     if to_fsaverage else None)
+        except Exception as exc:
+            print(f"[A3] Warning: no coordinates for {subject} "
+                  f"({type(exc).__name__}: {exc}); skipping.")
+            continue
+        for channel, xyz in pos.items():
+            v = np.asarray(xyz, float)
+            if trans is not None:
+                v = mne.transforms.apply_trans(trans, v)
+            out[electrode_fmt.format(subject=subject, channel=channel)] = v * 1000.
+    return out
+
+
+# ---------------------------------------------------------------------------
+# the swap null and the nuisance model shared by both continuous tests
+# ---------------------------------------------------------------------------
+def _nuisance_design(d, covariates=('resp',), subject_col='subject'):
+    """Design matrix for the terms every model below conditions on.
+
+    Intercept + subject dummies + centred covariates (responsiveness by
+    default). The subject dummies are the fixed-effect, no-shrinkage version of
+    the plan's ``(1 | subject)``: under a permutation test the shrinkage a mixed
+    model would apply buys nothing (the null is built by resampling, not from a
+    parametric df), and dummies cannot fail to converge on a subject with two
+    electrodes, which a random intercept can.
+
+    Responsiveness enters as a COVARIATE here, not only as the
+    pre-residualisation `prepare_continuous` already does, because a region with
+    globally larger HG would otherwise show up as a region with larger scores.
+    """
+    cols, names = [np.ones(len(d))], ['intercept']
+    subs = pd.get_dummies(d[subject_col].astype(str), drop_first=True)
+    if subs.shape[1]:
+        cols.append(subs.to_numpy(float))
+        names += [f"subject[{c}]" for c in subs.columns]
+    for c in (covariates or ()):
+        if c in d.columns and pd.to_numeric(d[c], errors='coerce').notna().any():
+            v = pd.to_numeric(d[c], errors='coerce').to_numpy(float)
+            v = np.where(np.isfinite(v), v, np.nanmean(v))
+            cols.append(v - v.mean())
+            names.append(c)
+    return np.column_stack(cols), names
+
+
+def _swap_null(delta, X, stat_fn, n_perm=10000, seed=0, chunk=512):
+    """Observed statistic + its within-electrode-swap null distribution.
+
+    `stat_fn` maps an ``(m, n_electrodes)`` block of nuisance-residualised delta
+    values to an ``(m, q)`` block of statistics, so the same machinery serves the
+    ROI test and the coordinate test. The swap negates delta (see the section
+    header), so the null is generated by sign flips; residualisation is a fixed
+    linear map, so it is re-applied to every permuted vector rather than to the
+    observed one only.
+
+    Permutations run in chunks: the full ``(n_perm, n_electrodes)`` matrix would
+    be hundreds of MB at the electrode counts here, and nothing needs it at once.
+    """
+    delta = np.asarray(delta, float)
+    B = np.linalg.pinv(X)
+
+    def resid(D):
+        return D - (D @ B.T) @ X.T
+
+    obs = np.asarray(stat_fn(resid(delta[None, :])), float)[0]
+    null = np.empty((int(n_perm), obs.size))
+    rng = np.random.default_rng(seed)
+    done = 0
+    while done < n_perm:
+        m = int(min(chunk, n_perm - done))
+        signs = rng.choice((-1.0, 1.0), size=(m, delta.size))
+        null[done:done + m] = stat_fn(resid(signs * delta))
+        done += m
+    return obs, null
+
+
+def _perm_p(obs, null, two_sided=True):
+    """``(#{null at least as extreme} + 1) / (n_perm + 1)``, column-wise."""
+    o, n = (np.abs(obs), np.abs(null)) if two_sided else (obs, null)
+    return (np.sum(n >= o, axis=0) + 1) / (null.shape[0] + 1)
+
+
+def _fdr(p):
+    """Benjamini-Hochberg q-values; falls back to raw p if statsmodels is absent."""
+    p = np.asarray(p, float)
+    try:
+        from statsmodels.stats.multitest import multipletests
+        return multipletests(p, method='fdr_bh')[1]
+    except Exception:
+        return p
+
+
+# ---------------------------------------------------------------------------
+# §5.2 categorical (primary): delta ~ roi + responsiveness + (1 | subject)
+# ---------------------------------------------------------------------------
+def relative_score_roi_test(scores_with_roi, coverage, min_subjects: int = 3,
+                            n_perm: int = 10000, seed: int = 0, roi_col='roi',
+                            value_col='delta', covariates=('resp',)):
+    """Is the RELATIVE score (LWPC - LWPS) associated with ROI, given coverage?
+
+    The continuous counterpart of :func:`roi_group_enrichment_test`, and the
+    primary anatomical test of the plan's §5.2. Same coverage bookkeeping (drop
+    ROIs covered in fewer than ``min_subjects`` subjects, hold each electrode's
+    ROI fixed in the null); different statistic, because the response is a
+    number per electrode rather than a category.
+
+    Model, with subject dummies standing in for ``(1 | subject)``::
+
+        delta_ij ~ roi_j + responsiveness_ij + (1 | subject_i)
+
+    Statistic: the one-way F of ROI on the residualised delta -- between-ROI sum
+    of squares over within-ROI sum of squares. Reported with a PERMUTATION
+    p-value, so the F's parametric assumptions never have to hold; it is used
+    only because it is the scale-free way to compare "spread between ROIs"
+    against "spread within them" across permutations.
+
+    Null: the within-electrode swap of the two effect labels (= a sign flip of
+    delta), which keeps every electrode exactly where it is.
+
+    Returns a dict with ``observed_stat`` (F), ``p``, the ``per_roi`` table
+    (n, subjects, raw and adjusted mean delta, per-ROI two-sided p and BH q) and
+    the ``null``. A positive mean delta in an ROI means LWPC-dominant there.
+    """
+    per_roi_cov = coverage.sum(axis=0)
+    kept = sorted(str(r) for r in per_roi_cov.index[per_roi_cov >= min_subjects])
+
+    d = scores_with_roi.dropna(subset=[value_col, roi_col]).copy()
+    d = d[d[roi_col].astype(str).isin(kept)]
+    d[roi_col] = d[roi_col].astype(str)
+
+    def _empty(note):
+        return dict(rois_tested=kept, observed_stat=0.0, p=1.0,
+                    per_roi=pd.DataFrame(columns=[roi_col, 'n_electrodes',
+                                                  'n_subjects', 'mean_delta',
+                                                  'mean_delta_adj', 'p', 'q']),
+                    per_roi_coverage=per_roi_cov.reindex(kept),
+                    n_electrodes=int(len(d)),
+                    n_subjects=int(d['subject'].nunique()),
+                    roi_col=roi_col, value_col=value_col, note=note)
+
+    if len(kept) < 2 or d[roi_col].nunique() < 2 or len(d) < 4:
+        return _empty("insufficient coverage/variation for a relative-score test")
+
+    rois = sorted(d[roi_col].unique())
+    idx = {r: i for i, r in enumerate(rois)}
+    k, n = len(rois), len(d)
+    G = np.zeros((k, n))
+    for j, r in enumerate(d[roi_col]):
+        G[idx[r], j] = 1.0
+    n_r = G.sum(axis=1)
+    G = G / n_r[:, None]                      # rows average within an ROI
+
+    X, _ = _nuisance_design(d, covariates=covariates)
+    dfe = max(n - k - (X.shape[1] - 1), 1)
+
+    def stat_fn(R):                            # R: (m, n) residualised delta
+        means = R @ G.T                        # (m, k) ROI means
+        ssb = (means ** 2 * n_r).sum(axis=1)
+        ssw = np.maximum((R ** 2).sum(axis=1) - ssb, 1e-12)
+        F = (ssb / max(k - 1, 1)) / (ssw / dfe)
+        return np.column_stack([F, means])
+
+    obs, null = _swap_null(d[value_col].to_numpy(float), X, stat_fn,
+                           n_perm=n_perm, seed=seed)
+    p_F = float(_perm_p(obs[:1], null[:, :1], two_sided=False)[0])
+    p_roi = _perm_p(obs[1:], null[:, 1:], two_sided=True)
+
+    per_roi = pd.DataFrame({
+        roi_col: rois,
+        'n_electrodes': n_r.astype(int),
+        'n_subjects': [d.loc[d[roi_col] == r, 'subject'].nunique() for r in rois],
+        'mean_delta': [d.loc[d[roi_col] == r, value_col].mean() for r in rois],
+        'mean_delta_adj': obs[1:],
+        'p': p_roi,
+        'q': _fdr(p_roi)})
+
+    return dict(rois_tested=rois, observed_stat=float(obs[0]), p=p_F,
+                null=null[:, 0], per_roi=per_roi,
+                per_roi_coverage=per_roi_cov.reindex(rois),
+                n_electrodes=int(n), n_subjects=int(d['subject'].nunique()),
+                roi_col=roi_col, value_col=value_col)
+
+
+# ---------------------------------------------------------------------------
+# §5.2 continuous (secondary): delta ~ MNI coordinates
+# ---------------------------------------------------------------------------
+def _coordinate_fit(d, value_col, coord_cols, covariates, n_perm, seed):
+    """One hemisphere's coordinate regression + swap null. Helper for below."""
+    n = len(d)
+    Z0 = d[list(coord_cols)].to_numpy(float)
+    X, _ = _nuisance_design(d, covariates=covariates)
+    B = np.linalg.pinv(X)
+    Z = Z0 - X @ (B @ Z0)                      # coords residualised on nuisance
+    if n < len(coord_cols) + 3 or np.linalg.matrix_rank(Z) < Z.shape[1]:
+        return dict(observed_stat=np.nan, p=np.nan, n_electrodes=int(n),
+                    n_subjects=int(d['subject'].nunique()),
+                    slopes=pd.DataFrame(columns=['axis', 'slope_per_mm', 'p']),
+                    note="too few electrodes / rank-deficient coordinates")
+
+    # Frisch-Waugh: with both sides residualised on the nuisance terms, the
+    # slopes and the block F are those of the full model, but the permutation
+    # only has to touch a 3-column regression.
+    Q, _ = np.linalg.qr(Z)
+    Zp = np.linalg.pinv(Z)
+    kc = Z.shape[1]
+    dfe = max(n - kc - (X.shape[1] - 1), 1)
+
+    def stat_fn(R):
+        ssf = ((R @ Q) ** 2).sum(axis=1)
+        sse = np.maximum((R ** 2).sum(axis=1) - ssf, 1e-12)
+        return np.column_stack([(ssf / kc) / (sse / dfe), R @ Zp.T])
+
+    obs, null = _swap_null(d[value_col].to_numpy(float), X, stat_fn,
+                           n_perm=n_perm, seed=seed)
+    slopes = pd.DataFrame({
+        'axis': list(coord_cols),
+        'slope_per_mm': obs[1:],
+        'p': _perm_p(obs[1:], null[:, 1:], two_sided=True)})
+    return dict(observed_stat=float(obs[0]),
+                p=float(_perm_p(obs[:1], null[:, :1], two_sided=False)[0]),
+                slopes=slopes, null=null[:, 0], n_electrodes=int(n),
+                n_subjects=int(d['subject'].nunique()))
+
+
+def relative_score_coordinate_test(scores_with_coords, n_perm: int = 10000,
+                                   seed: int = 0, value_col='delta',
+                                   coord_cols=('mni_y', 'mni_z', 'mni_x'),
+                                   covariates=('resp',), by_hemisphere=True):
+    """``delta ~ y + z + x + responsiveness + (1 | subject)``, per hemisphere.
+
+    The "LWPC sits anterior to LWPS" claim stated as an AXIS rather than as a
+    point, which is why the plan leads with this rather than with a centroid
+    (§7): a slope uses every electrode and is not moved by where the densest
+    implant happens to sit.
+
+    Run per hemisphere because a bilateral fit on the x axis is meaningless
+    (mirrored coordinates cancel) and because left and right coverage differ.
+    ``y`` is listed first only for readability -- the block F tests all three
+    axes jointly and the per-axis slopes come from the same fit.
+
+    Slopes are in delta units (pooled SDs) per millimetre: a positive ``mni_y``
+    slope means LWPC dominance increases ANTERIORLY. Same swap null as §5.2.
+
+    Returns ``{'all': result, 'lh': result, 'rh': result}`` (hemispheres only
+    when a ``hemi`` column is present and ``by_hemisphere``).
+    """
+    d = scores_with_coords.dropna(subset=[value_col, *coord_cols]).copy()
+    out = {'all': _coordinate_fit(d, value_col, coord_cols, covariates,
+                                  n_perm, seed)}
+    if by_hemisphere and 'hemi' in d.columns:
+        for h in ('lh', 'rh'):
+            sub = d[d['hemi'] == h]
+            if len(sub):
+                out[h] = _coordinate_fit(sub, value_col, coord_cols, covariates,
+                                         n_perm, seed)
+    return out
+
+
+# ---------------------------------------------------------------------------
+# §5.4 the noise ceiling -- what a null spatial correlation is allowed to mean
+# ---------------------------------------------------------------------------
+def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
+    """Split-half ceiling for the SPATIAL comparison of the two maps.
+
+    ``split_resolved_corr`` already reports this at the electrode level for the
+    residualised, within-subject-centred scores it correlates. This is the map
+    version of the same argument, computed on the raw per-split effects and,
+    optionally, after averaging electrodes within a parcel -- which is the unit
+    the anatomical claims are actually made on.
+
+    Per split k, over the units (electrodes, or parcels when ``parcels`` is
+    given)::
+
+        between = mean_k  1/2 [ corr(xA_k, yB_k) + corr(xB_k, yA_k) ]
+        rel_lwpc = mean_k  corr(xA_k, xB_k)
+        rel_lwps = mean_k  corr(yA_k, yB_k)
+
+    `between` never correlates two effects measured on the same trials, so
+    shared trial noise cannot inflate it. `rel_*` is how well each map
+    correlates with ITSELF across disjoint halves, i.e. the most any correlation
+    with it could be. Read together: between 0.35 against a ceiling of 0.40 means
+    the maps are as similar as the noise permits (same anatomy); between 0.05
+    against 0.40 means they are distinct. Without the ceiling, "the maps do not
+    correlate" cannot be told apart from "neither map is measured well enough to
+    correlate with anything" (Nili et al. 2014) -- report it next to every
+    spatial number.
+
+    ``parcels`` is a dict/Series ``{electrode -> parcel}`` (the same ``roi`` or
+    ``anat`` map the tests use).
+    """
+    from scipy.stats import spearmanr, pearsonr
+    fn = spearmanr if method == 'spearman' else pearsonr
+
+    d = per_split.dropna(subset=['xA', 'xB', 'yA', 'yB']).copy()
+    # keep only electrodes defined on EVERY split, so each split's vectors are
+    # over the same units and the averages are comparable
+    n_sp = per_split['split'].nunique()
+    d = d[d.groupby('electrode')['split'].transform('size') == n_sp]
+    unit = 'electrode'
+    if parcels is not None:
+        d['parcel'] = d['electrode'].map(dict(parcels))
+        d = d.dropna(subset=['parcel'])
+        d = d.groupby(['split', 'parcel'], as_index=False)[['xA', 'xB', 'yA', 'yB']].mean()
+        unit = 'parcel'
+    if d.empty:
+        raise ValueError("no unit survived the completeness / parcel filter")
+
+    rows = []
+    for _, g in d.groupby('split'):
+        if len(g) < min_units:
+            continue
+        xa, xb = g['xA'].to_numpy(), g['xB'].to_numpy()
+        ya, yb = g['yA'].to_numpy(), g['yB'].to_numpy()
+        rows.append((0.5 * (fn(xa, yb)[0] + fn(xb, ya)[0]),
+                     fn(xa, xb)[0], fn(ya, yb)[0]))
+    if not rows:
+        raise ValueError(f"every split has fewer than min_units={min_units} {unit}s")
+    between, rel_x, rel_y = np.nanmean(np.array(rows, float), axis=0)
+    denom = np.sqrt(rel_x * rel_y) if (rel_x > 0 and rel_y > 0) else np.nan
+
+    return dict(between=float(between), reliability_lwpc=float(rel_x),
+                reliability_lwps=float(rel_y),
+                between_noise_corrected=(float(between / denom)
+                                         if np.isfinite(denom) else np.nan),
+                unit=unit, n_units=int(d[unit].nunique()),
+                n_splits=int(len(rows)), method=method)
+
+
+# ---------------------------------------------------------------------------
+# §7 centroids / medoids -- DESCRIPTIVE ONLY
+# ---------------------------------------------------------------------------
+def score_centers_per_subject(scores_with_coords, n_perm: int = 10000,
+                              seed: int = 0, medoid=True, min_elec: int = 3,
+                              weight_cols=('abs_lwpc', 'abs_lwps'),
+                              coord_cols=('mni_x', 'mni_y', 'mni_z')):
+    """Weighted LWPC vs LWPS centre per subject x hemisphere, compared within subject.
+
+    A single pooled cross-subject centroid is not a defensible test: subjects
+    with more electrodes dominate the LOCATION ESTIMATE itself (not merely its
+    variance, so no null can undo it), coverage is clinically determined, a
+    centroid need not land in cortex, and signed weights cancel. This is the
+    defensible version -- per subject, per hemisphere, over the SAME electrodes,
+    with NON-NEGATIVE weights (|score|, which is why `attach_scores` emits
+    ``abs_lwpc``/``abs_lwps``), compared within subject, and with the same
+    within-electrode swap null as §5.2.
+
+    ``medoid=True`` (default) reports the observed electrode minimising the
+    weighted distance to the others, so the reported location is a real
+    recording site rather than a point in the middle of a hole.
+
+    Statistic: the mean over subject x hemisphere of the LWPC-minus-LWPS
+    displacement, reported per axis, with the anterior (y) displacement carrying
+    the "LWPC sits N mm anterior to LWPS" claim. Lead with the coordinate
+    regression above; this is the descriptive panel next to it.
+    """
+    w1c, w2c = weight_cols
+    d = scores_with_coords.dropna(subset=[w1c, w2c, *coord_cols]).copy()
+    if 'hemi' not in d.columns:
+        d['hemi'] = np.where(d[coord_cols[0]].to_numpy(float) < 0, 'lh', 'rh')
+
+    rng = np.random.default_rng(seed)
+    rows, per_perm = [], []
+    for (subject, hemi), g in d.groupby(['subject', 'hemi']):
+        if len(g) < min_elec:
+            continue
+        P = g[list(coord_cols)].to_numpy(float)
+        w1 = g[w1c].to_numpy(float)
+        w2 = g[w2c].to_numpy(float)
+        D = np.linalg.norm(P[:, None, :] - P[None, :, :], axis=-1)
+
+        def centers(W):                        # W: (m, n) weights -> (m, 3)
+            if medoid:
+                return P[np.argmin(W @ D, axis=1)]
+            tot = np.maximum(W.sum(axis=1, keepdims=True), 1e-12)
+            return (W @ P) / tot
+
+        obs = centers(w1[None, :])[0] - centers(w2[None, :])[0]
+        swap = rng.random((int(n_perm), len(g))) < 0.5
+        disp = (centers(np.where(swap, w2, w1)) - centers(np.where(swap, w1, w2)))
+        p_y = float((np.sum(np.abs(disp[:, 1]) >= abs(obs[1])) + 1) / (n_perm + 1))
+        rows.append(dict(subject=subject, hemi=hemi, n_electrodes=int(len(g)),
+                         dx=obs[0], dy=obs[1], dz=obs[2],
+                         distance=float(np.linalg.norm(obs)), p_anterior=p_y))
+        per_perm.append(disp)
+
+    if not rows:
+        return dict(per_group=pd.DataFrame(rows), n_groups=0,
+                    note=f"no subject x hemisphere had >= {min_elec} electrodes")
+
+    per_group = pd.DataFrame(rows)
+    obs_mean = per_group[['dx', 'dy', 'dz']].to_numpy(float).mean(axis=0)
+    # one draw per permutation index across ALL groups, so the group mean has a
+    # coherent null: every electrode swaps independently, as in §5.2
+    null_mean = np.mean(np.stack(per_perm, axis=0), axis=0)        # (n_perm, 3)
+    p_axis = [(np.sum(np.abs(null_mean[:, i]) >= abs(obs_mean[i])) + 1)
+              / (n_perm + 1) for i in range(3)]
+    return dict(per_group=per_group, n_groups=int(len(per_group)),
+                center='medoid' if medoid else 'weighted centroid',
+                mean_displacement=dict(zip(('dx', 'dy', 'dz'), obs_mean)),
+                p=dict(zip(('dx', 'dy', 'dz'), map(float, p_axis))),
+                mean_distance=float(per_group['distance'].mean()))
+
+
+# ---------------------------------------------------------------------------
+# §9.2 subject-level sanity on every pooled number
+# ---------------------------------------------------------------------------
+def leave_one_subject_out(test_fn, table, subject_col='subject',
+                          keys=('observed_stat', 'p', 'n_electrodes')):
+    """Re-run `test_fn(table)` with each subject dropped in turn.
+
+    Electrode-weighted inference pooled across subjects is standard; what makes
+    it safe is checking that two subjects are not supplying the result. Pass a
+    one-argument callable, e.g.::
+
+        sfa.leave_one_subject_out(
+            lambda t: sfa.relative_score_roi_test(t, cover, n_perm=2000), scores)
+
+    Note the coverage matrix is deliberately NOT recomputed per fold, so every
+    fold tests the same ROI set and the rows are comparable.
+    """
+    def row(tag, res):
+        out = {'dropped': tag}
+        out.update({k: res[k] for k in keys if k in res})
+        return out
+
+    rows = [row('(none)', test_fn(table))]
+    for s in sorted(table[subject_col].astype(str).unique()):
+        sub = table[table[subject_col].astype(str) != s]
+        if sub.empty:
+            continue
+        rows.append(row(s, test_fn(sub)))
+    return pd.DataFrame(rows)
+
+
+# ---------------------------------------------------------------------------
+# §6 brain maps of the continuous scores
+# ---------------------------------------------------------------------------
+# The five surfaces of the plan. Map 5 carries the argument; 1-4 are what a
+# reader needs in order to check that it is not driven by one effect's magnitude
+# alone. The |score| maps use a sequential colormap because they have no sign.
+SCORE_MAPS = (
+    dict(value_col='lwpc_s', label='signed LWPC (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='lwps_s', label='signed LWPS (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='abs_lwpc', label='|LWPC|', cmap='viridis', symmetric=False),
+    dict(value_col='abs_lwps', label='|LWPS|', cmap='viridis', symmetric=False),
+    dict(value_col='delta', label='LWPC - LWPS (relative map)',
+         cmap='coolwarm', symmetric=True),
+)
+
+
+def plot_score_by_roi(scores_with_roi, out_path=None, value_col='delta',
+                      roi_col='roi', coverage=None, rois=None, title=None):
+    """Mean +/- SEM of a per-electrode score by ROI, with the electrodes drawn on.
+
+    The flat companion to the brain map: it is what the §5.2 test is looking at,
+    and it is the fallback figure when the surface stack is unavailable.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    d = scores_with_roi.dropna(subset=[value_col, roi_col])
+    if rois is not None:
+        d = d[d[roi_col].astype(str).isin([str(r) for r in rois])]
+    g = d.groupby(d[roi_col].astype(str))[value_col]
+    order = g.mean().sort_values(ascending=False).index.tolist()
+    means = g.mean().reindex(order)
+    sems = (g.std(ddof=1) / np.sqrt(g.count())).reindex(order)
+    counts = g.count().reindex(order)
+
+    fig, ax = plt.subplots(figsize=(max(6, 1.1 * len(order)), 4.5))
+    x = np.arange(len(order))
+    ax.bar(x, means.to_numpy(), yerr=sems.to_numpy(), width=.65,
+           color="#9ecae1", edgecolor="#3182bd", capsize=3, zorder=2)
+    rng = np.random.default_rng(0)
+    for i, r in enumerate(order):
+        v = d.loc[d[roi_col].astype(str) == r, value_col].to_numpy(float)
+        ax.scatter(i + rng.uniform(-.18, .18, v.size), v, s=8, alpha=.45,
+                   color="#444", zorder=3)
+    ax.axhline(0, color='k', lw=.8, zorder=1)
+    labels = [f"{r}\n(n={int(counts[r])})" for r in order]
+    if coverage is not None:
+        cov = coverage.sum(axis=0)
+        labels = [f"{l}\n{int(cov.get(r, 0))} subj" for l, r in zip(labels, order)]
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=30, ha='right', fontsize=8)
+    ax.set(ylabel=value_col,
+           title=title or f"A3 · {value_col} by "
+                          f"{'Destrieux label' if roi_col == 'anat' else 'ROI'} "
+                          f"(>0 = LWPC-dominant)")
+    fig.tight_layout()
+    if out_path is not None:
+        fig.savefig(out_path, dpi=140, bbox_inches='tight')
+    return fig
+
+
+def _score_colorbar(edges, cmap, label, out_path):
+    """Standalone colourbar for a brain map (`plot_on_average` draws none)."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.colors import BoundaryNorm
+
+    fig, ax = plt.subplots(figsize=(5, 0.9))
+    cm = plt.get_cmap(cmap, len(edges) - 1)
+    fig.colorbar(plt.cm.ScalarMappable(norm=BoundaryNorm(edges, cm.N), cmap=cm),
+                 cax=ax, orientation='horizontal', label=label)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=140, bbox_inches='tight')
+    plt.close(fig)
+    return out_path
+
+
+def plot_scores_on_brain(scores_with_roi, out_path, value_col='delta',
+                         cmap='coolwarm', n_bins=9, symmetric=True, vlim=None,
+                         clip_pct=98, subjects=None, hemi='both', size=0.45,
+                         transparency=0.4, rm_wm=False, coverage=None,
+                         roi_col='roi', label=None, **vis_kwargs):
+    """Continuous sibling of :func:`plot_selectivity_groups_on_brain`.
+
+    ``plot_on_average`` takes ONE colour per call, so a continuous scalar is
+    rendered by binning it into ``n_bins`` colour bins and drawing each bin as
+    its own set onto the same brain -- the same global-index path the group
+    figure and the coverage figures use, so all of them stay comparable. A
+    standalone colourbar is written next to the figure because the renderer
+    draws none.
+
+    ``symmetric=True`` centres the scale on zero (the right choice for the
+    signed and relative maps, where the sign is the message); the |score| maps
+    pass ``symmetric=False``. The scale is clipped at the ``clip_pct``
+    percentile of |value| so a couple of extreme electrodes cannot flatten
+    everything else, and the clipping is stated on the colourbar.
+
+    Degrades to :func:`plot_score_by_roi` when the surface stack or the recon
+    templates are missing, exactly as the group figure degrades to its histogram.
+    """
+    d = scores_with_roi.dropna(subset=[value_col]).copy()
+    if d.empty:
+        raise ValueError(f"no electrode has a finite {value_col}")
+    base, ext = os.path.splitext(out_path)
+    if ext.lower() not in ('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'):
+        out_path = base + '.png'
+    if subjects is None:
+        subjects = sorted(d['subject'].astype(str).unique())
+
+    v = d[value_col].to_numpy(float)
+    if vlim is not None:
+        lo, hi = vlim
+    elif symmetric:
+        hi = float(np.nanpercentile(np.abs(v), clip_pct)) or float(np.abs(v).max())
+        lo = -hi
+    else:
+        lo = float(np.nanmin(v))
+        hi = float(np.nanpercentile(v, clip_pct)) or float(np.nanmax(v))
+    if not np.isfinite([lo, hi]).all() or hi <= lo:
+        lo, hi = float(np.nanmin(v)), float(np.nanmax(v)) + 1e-9
+
+    edges = np.linspace(lo, hi, int(n_bins) + 1)
+    bins = np.clip(np.digitize(v, edges) - 1, 0, int(n_bins) - 1)
+
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    cm = plt.get_cmap(cmap, int(n_bins))
+    sets = [(f"bin{b:02d}", electrodes_by_subject(d[bins == b]), cm(b))
+            for b in range(int(n_bins)) if np.any(bins == b)]
+    cbar = _score_colorbar(edges, cmap,
+                           f"{label or value_col}  (clipped at {clip_pct}th pct)",
+                           f"{base}_colorbar.png")
+
+    try:
+        rendered = _render_electrode_sets(sets, out_path, subjects=subjects,
+                                          hemi=hemi, size=size,
+                                          transparency=transparency,
+                                          rm_wm=rm_wm, **vis_kwargs)
+        return dict(combined=rendered['combined'], colorbar=cbar, vlim=(lo, hi),
+                    n_electrodes=int(len(d)), fallback=False)
+    except Exception as exc:  # pragma: no cover - depends on cluster-only stack
+        print(f"[A3] brain-surface render unavailable ({type(exc).__name__}: {exc}); "
+              f"falling back to the by-ROI figure.")
+        fallback = f"{base}_by_roi.png"
+        if roi_col in d.columns and d[roi_col].notna().any():
+            plot_score_by_roi(d, out_path=fallback, value_col=value_col,
+                              roi_col=roi_col, coverage=coverage)
+            plt.close('all')
+        else:
+            fallback = None
+        return dict(combined=fallback, colorbar=cbar, vlim=(lo, hi),
+                    n_electrodes=int(len(d)), fallback=True,
+                    error=f"{type(exc).__name__}: {exc}")
+
+
+def plot_score_maps(scores_with_roi, out_dir, prefix='score_map', maps=SCORE_MAPS,
+                    **kwargs):
+    """The five §6 surfaces from one score table. Returns {value_col -> result}."""
+    os.makedirs(out_dir, exist_ok=True)
+    out = {}
+    for spec in maps:
+        out[spec['value_col']] = plot_scores_on_brain(
+            scores_with_roi,
+            os.path.join(out_dir, f"{prefix}_{spec['value_col']}.png"),
+            value_col=spec['value_col'], cmap=spec['cmap'],
+            symmetric=spec['symmetric'], label=spec['label'], **kwargs)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -801,6 +1596,78 @@ def _synthetic_anatomy(n_subj=12, seed=0, enrichment=0.6,
     return labels, e2r
 
 
+def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
+                      rois=("dlpfc", "lpfc", "acc", "parietal", "occ", "v1"),
+                      anterior=("dlpfc", "lpfc", "acc")):
+    """Continuous scores with a planted anatomy x effect-type interaction.
+
+    The continuous counterpart of :func:`_synthetic_anatomy`: per-electrode LWPC
+    and LWPS scores, an ROI map, fake Destrieux sublabels and fake MNI
+    coordinates.
+
+    What is planted, at strength ``gradient``: the anterior ROIs carry the LWPC
+    effect and the posterior ones carry LWPS, both NEGATIVE (the direction
+    behavioural adaptation predicts — the condition effect shrinks in the
+    high-proportion block). So ``delta = lwpc - lwps`` is negative anteriorly and
+    positive posteriorly, |LWPC| is larger anteriorly and |LWPS| posteriorly.
+    Planting MAGNITUDE rather than sign is what makes the §7 centroids testable
+    at all: they weight by |score| and are blind to a purely signed dissociation.
+    ``gradient=0`` is the null — the tests must not manufacture significance on it.
+
+    A per-subject GAIN multiplies both scores and the responsiveness proxy, so
+    the pooled-scaling and covariate paths are exercised rather than assumed.
+
+    Returns ``(scores, electrodes_to_rois, electrodes_to_anat,
+    electrodes_to_coords)`` — ready for :func:`attach_scores`.
+    """
+    rng = np.random.default_rng(seed)
+    rois = list(rois)
+    # rough MNI centres (mm): anterior ROIs sit at large +y, posterior at -y
+    centers = {r: np.array([40.0, (35.0 if r in anterior else -55.0),
+                            20.0 + 6 * i]) for i, r in enumerate(rois)}
+
+    rows, e2r, e2a, e2c = [], {}, {}, {}
+    for s in range(n_subj):
+        subject = f"S{s:02d}"
+        gain = float(np.exp(rng.normal(0, gain_sd)))
+        covered = rng.choice(rois, size=int(rng.integers(3, len(rois) + 1)),
+                             replace=False).tolist()
+        for e in range(int(rng.integers(15, 40))):
+            roi = str(rng.choice(covered))
+            electrode = f"{subject}-e{e}"
+            front = 1.0 if roi in anterior else 0.0
+            lwpc = gain * (-gradient * front + rng.normal(0, 0.6))
+            lwps = gain * (-gradient * (1.0 - front) + rng.normal(0, 0.6))
+            side = 1.0 if rng.random() < 0.5 else -1.0
+            e2r[electrode] = roi
+            e2a[electrode] = f"{roi}_lab{int(rng.integers(0, 4))}"
+            e2c[electrode] = (centers[roi] + rng.normal(0, 8, 3)) * [side, 1, 1]
+            rows.append(dict(subject=subject, electrode=electrode,
+                             x=lwpc, y=lwps,
+                             resp=gain * float(rng.uniform(0.5, 1.5))))
+    return pd.DataFrame(rows), e2r, e2a, e2c
+
+
+def _synthetic_per_split(scores, n_splits=20, noise=1.0, seed=0):
+    """A fake ``compute_sensitivities_per_split`` table for a score table.
+
+    Each split re-measures both effects on two disjoint halves, i.e. the true
+    per-electrode score plus independent measurement noise. That is all
+    :func:`map_reliability` needs, so the §5.4 ceiling path can be exercised on
+    the synthetic route (where there are no trials to split) and unit-tested with
+    a known answer: raising ``noise`` must lower the reliabilities.
+    """
+    rng = np.random.default_rng(seed)
+    rows = []
+    for k in range(int(n_splits)):
+        for r in scores.itertuples():
+            rows.append(dict(
+                subject=r.subject, electrode=r.electrode, split=k,
+                xA=r.x + rng.normal(0, noise), xB=r.x + rng.normal(0, noise),
+                yA=r.y + rng.normal(0, noise), yB=r.y + rng.normal(0, noise)))
+    return pd.DataFrame(rows)
+
+
 if __name__ == '__main__':
     # smoke test: planted enrichment should be detected; the null (enrichment=0)
     # should not manufacture significance. Run at BOTH anatomical levels — whole
@@ -825,4 +1692,26 @@ if __name__ == '__main__':
               f"chi2={res_a['observed_stat']:.2f} p={res_a['p']:.4f} "
               f"(n_elec={res_a['n_electrodes']})")
         print(res_a['contingency'])
+        print("-" * 60)
+
+    # the CONTINUOUS arm (§5), same shape of check: a planted anatomy x
+    # effect-type interaction must be found, and the null must not manufacture one
+    for grad in (0.0, 0.8):
+        scores, e2r, e2a, e2c = _synthetic_scores(gradient=grad, seed=1)
+        tab = attach_scores(scores, e2r, electrodes_to_anat=e2a,
+                            electrodes_to_coords=e2c)
+        cover = build_coverage_matrix(tab)
+        roi_res = relative_score_roi_test(tab, cover, min_subjects=3, n_perm=2000)
+        coord_res = relative_score_coordinate_test(tab, n_perm=2000)['all']
+        print(f"[gradient={grad}] delta ~ roi: F={roi_res['observed_stat']:.2f} "
+              f"p={roi_res['p']:.4f} (n_elec={roi_res['n_electrodes']})")
+        print(roi_res['per_roi'].to_string(index=False))
+        y = coord_res['slopes'].set_index('axis').loc['mni_y']
+        print(f"  delta ~ coords: F={coord_res['observed_stat']:.2f} "
+              f"p={coord_res['p']:.4f} | anterior slope "
+              f"{y['slope_per_mm']:+.5f}/mm (p={y['p']:.4f})")
+        centers = score_centers_per_subject(tab, n_perm=2000)
+        print(f"  {centers['center']}s: LWPC sits "
+              f"{centers['mean_displacement']['dy']:+.1f} mm anterior to LWPS "
+              f"(p={centers['p']['dy']:.4f}, {centers['n_groups']} subject x hemi)")
         print("-" * 60)

@@ -7,6 +7,8 @@ from. The enrichment test's behaviour (planted association detected, null not
 manufacturing significance) is checked at both levels.
 """
 
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -303,3 +305,204 @@ def test_brain_plot_falls_back_to_a_histogram_without_the_surface_stack(tmp_path
         assert (tmp_path / 'selectivity_groups_on_brain_roi_hist.png').exists()
     else:                                        # a full stack is installed
         assert (tmp_path / 'selectivity_groups_on_brain.png').exists()
+
+
+# ---------------------------------------------------------------------------
+# the CONTINUOUS arm (plan §5–§7): scores -> anatomy
+# ---------------------------------------------------------------------------
+@pytest.fixture
+def planted_scores():
+    """Scores with a planted anatomy x effect-type interaction (+ the null)."""
+    def _make(gradient, seed=3):
+        scores, e2r, e2a, e2c = sfa._synthetic_scores(n_subj=14, gradient=gradient,
+                                                      seed=seed)
+        tab = sfa.attach_scores(scores, e2r, electrodes_to_anat=e2a,
+                                electrodes_to_coords=e2c)
+        return tab, sfa.build_coverage_matrix(tab)
+    return _make
+
+
+def test_attach_scores_pools_the_scaling_and_keeps_tiny_subjects():
+    """ONE scale factor per effect, pooled — not a within-subject z-score.
+
+    The failure mode the plan names: a within-subject z forces a 2-electrode
+    subject to exactly +/-0.707 and drops a 1-electrode subject (SD is NaN).
+    Pooled scaling has to survive both, and has to preserve the RATIOS between
+    electrodes, which is what the maps and the anatomy model read.
+    """
+    scores = pd.DataFrame({
+        'subject': ['A', 'A', 'B', 'B', 'C'],          # C has one electrode
+        'electrode': ['A-1', 'A-2', 'B-1', 'B-2', 'C-1'],
+        'x': [2.0, 1.0, -1.0, 0.5, 4.0],
+        'y': [0.0, 1.0, 1.0, -0.5, 1.0],
+    })
+    tab = sfa.attach_scores(scores, {}, electrodes_to_coords=None)
+
+    assert len(tab) == 5                                # nobody is dropped
+    sd = scores['x'].std(ddof=1)
+    assert np.allclose(tab['lwpc_s'], scores['x'] / sd)
+    # one factor for the whole column => ratios between electrodes are untouched
+    assert np.isclose(tab['lwpc_s'].iloc[0] / tab['lwpc_s'].iloc[1],
+                      scores['x'].iloc[0] / scores['x'].iloc[1])
+    assert np.allclose(tab['delta'], tab['lwpc_s'] - tab['lwps_s'])
+    assert np.allclose(tab['abs_lwpc'], tab['lwpc_s'].abs())
+
+
+def test_attach_scores_joins_anatomy_and_both_electrode_spellings():
+    scores = pd.DataFrame({
+        'subject': ['D0057', 'D0059'],
+        'electrode': ['D0057-LTP1', 'RTA1'],            # prefixed and bare
+        'x': [1.0, -1.0], 'y': [0.5, 0.25],
+    })
+    tab = sfa.attach_scores(
+        scores, {'D0057-LTP1': 'lpfc', 'D0059-RTA1': 'parietal'},
+        electrodes_to_anat={'D0057-LTP1': 'G_front_middle'},
+        electrodes_to_coords={'D0057-LTP1': (-40., 30., 20.),
+                              'D0059-RTA1': (45., -50., 10.)})
+
+    assert tab['roi'].tolist() == ['lpfc', 'parietal']
+    assert tab['anat'].tolist()[0] == 'G_front_middle'
+    assert pd.isna(tab['anat'].tolist()[1])
+    assert tab['hemi'].tolist() == ['lh', 'rh']         # sign of x
+    assert tab['mni_y'].tolist() == [30., -50.]
+
+
+@pytest.mark.parametrize('gradient,planted', [(0.8, True), (0.0, False)])
+def test_relative_score_roi_test_finds_planted_anatomy_and_not_the_null(
+        planted_scores, gradient, planted):
+    tab, cover = planted_scores(gradient)
+
+    res = sfa.relative_score_roi_test(tab, cover, min_subjects=3, n_perm=1000,
+                                      seed=0)
+
+    assert res['n_electrodes'] == len(tab.dropna(subset=['delta']))
+    if planted:
+        assert res['p'] < 0.05
+        per_roi = res['per_roi'].set_index('roi')['mean_delta_adj']
+        # LWPC was planted anteriorly, LWPS posteriorly, both negative:
+        # delta = lwpc - lwps is therefore NEGATIVE in front, POSITIVE behind
+        assert per_roi[['dlpfc', 'lpfc', 'acc']].max() < 0
+        assert per_roi[['occ', 'parietal', 'v1']].min() > 0
+    else:
+        assert res['p'] > 0.05
+
+
+def test_roi_test_is_invariant_to_the_sign_of_delta(planted_scores):
+    """The swap null IS a sign flip of delta, so the test cannot prefer a direction.
+
+    Swapping an electrode's LWPC and LWPS scores negates delta. That makes the
+    null exactly symmetric, and it means relabelling which effect is 'first'
+    cannot change the answer — worth pinning, because a statistic that failed
+    this would be reading effect-type order rather than anatomy.
+    """
+    tab, cover = planted_scores(0.8)
+    flipped = tab.copy()
+    flipped['delta'] = -flipped['delta']
+
+    a = sfa.relative_score_roi_test(tab, cover, n_perm=300, seed=0)
+    b = sfa.relative_score_roi_test(flipped, cover, n_perm=300, seed=0)
+
+    assert np.isclose(a['observed_stat'], b['observed_stat'])
+    assert a['p'] == b['p']
+    assert np.allclose(a['per_roi']['mean_delta_adj'],
+                       -b['per_roi']['mean_delta_adj'])
+
+
+def test_roi_test_drops_rois_below_the_coverage_threshold(planted_scores):
+    tab, cover = planted_scores(0.8)
+    per_roi_cov = cover.sum(axis=0)
+    threshold = int(per_roi_cov.max())               # keeps at most a few ROIs
+
+    res = sfa.relative_score_roi_test(tab, cover, min_subjects=threshold,
+                                      n_perm=200, seed=0)
+
+    assert all(per_roi_cov[r] >= threshold for r in res['rois_tested'])
+    assert len(res['rois_tested']) < cover.shape[1]
+
+
+def test_roi_test_returns_a_well_formed_result_when_degenerate(planted_scores):
+    tab, cover = planted_scores(0.8)
+    res = sfa.relative_score_roi_test(tab, cover, min_subjects=999, n_perm=100)
+
+    assert res['p'] == 1.0 and 'note' in res
+    assert res['per_roi'].empty
+
+
+@pytest.mark.parametrize('gradient,planted', [(0.8, True), (0.0, False)])
+def test_coordinate_test_recovers_the_planted_axis(planted_scores, gradient,
+                                                   planted):
+    tab, _ = planted_scores(gradient)
+
+    res = sfa.relative_score_coordinate_test(tab, n_perm=1000, seed=0)
+
+    assert set(res) == {'all', 'lh', 'rh'}
+    y = res['all']['slopes'].set_index('axis').loc['mni_y']
+    if planted:
+        assert res['all']['p'] < 0.05
+        # delta falls as y rises (LWPC dominance is anterior and delta is
+        # negative there), so the anterior slope must be negative and reliable
+        assert y['slope_per_mm'] < 0 and y['p'] < 0.05
+    else:
+        assert res['all']['p'] > 0.05
+
+
+def test_map_reliability_ceiling_falls_as_noise_rises():
+    """The ceiling has to behave like a ceiling, or it cannot license a null."""
+    scores, e2r, _, _ = sfa._synthetic_scores(n_subj=10, gradient=0.8, seed=6)
+    clean = sfa.map_reliability(sfa._synthetic_per_split(scores, noise=0.3, seed=1))
+    noisy = sfa.map_reliability(sfa._synthetic_per_split(scores, noise=2.0, seed=1))
+
+    assert clean['reliability_lwpc'] > noisy['reliability_lwpc']
+    assert clean['reliability_lwps'] > noisy['reliability_lwps']
+    assert clean['reliability_lwpc'] <= 1.0
+    # ...and the parcel-level version aggregates to one value per ROI
+    parcel = sfa.map_reliability(sfa._synthetic_per_split(scores, noise=0.3, seed=1),
+                                 parcels=e2r)
+    assert parcel['unit'] == 'parcel'
+    assert parcel['n_units'] == len(set(e2r.values()))
+
+
+def test_score_centers_are_real_electrodes_and_use_the_swap_null(planted_scores):
+    tab, _ = planted_scores(0.8)
+
+    res = sfa.score_centers_per_subject(tab, n_perm=500, seed=0, min_elec=3)
+
+    assert res['center'] == 'medoid'
+    assert res['n_groups'] > 0
+    # planted: |LWPC| is larger anteriorly, so its centre sits anterior to LWPS's
+    assert res['mean_displacement']['dy'] > 0 and res['p']['dy'] < 0.05
+    # every group is one subject x one hemisphere, as the plan requires
+    assert set(res['per_group']['hemi']) <= {'lh', 'rh'}
+    assert (res['per_group']['n_electrodes'] >= 3).all()
+
+    null = sfa.score_centers_per_subject(planted_scores(0.0)[0], n_perm=500,
+                                         seed=0, min_elec=3)
+    assert null['p']['dy'] > 0.05
+
+
+def test_leave_one_subject_out_covers_every_subject(planted_scores):
+    tab, cover = planted_scores(0.8)
+
+    sweep = sfa.leave_one_subject_out(
+        lambda t: sfa.relative_score_roi_test(t, cover, n_perm=100, seed=0), tab)
+
+    assert sweep['dropped'].iloc[0] == '(none)'
+    assert len(sweep) == tab['subject'].nunique() + 1
+    assert {'observed_stat', 'p', 'n_electrodes'} <= set(sweep.columns)
+    # each fold really drops a subject's electrodes
+    assert (sweep['n_electrodes'].iloc[1:] < sweep['n_electrodes'].iloc[0]).all()
+
+
+def test_score_map_falls_back_to_the_by_roi_figure_without_the_surface_stack(
+        planted_scores, tmp_path):
+    tab, cover = planted_scores(0.8)
+
+    out = sfa.plot_scores_on_brain(tab, str(tmp_path / 'delta_map.png'),
+                                   value_col='delta', coverage=cover)
+
+    assert os.path.exists(out['colorbar'])          # written either way
+    if out['fallback']:
+        assert out['combined'].endswith('_by_roi.png')
+        assert os.path.exists(out['combined'])
+    else:
+        assert os.path.exists(str(tmp_path / 'delta_map.png'))

@@ -24,6 +24,23 @@ LABEL_SOURCE=power_traces  read finished within-electrode windowed-ANOVA runs
                            PT_ALPHA, PT_ROI (the ANOVA's ROI, e.g. lpfc).
                            No epoched data is loaded on this route.
 
+Choosing the arm
+----------------
+ARM=categorical  (default) binary S/F labels -> group×ROI enrichment.
+ARM=continuous   plan §5–§7: per-electrode LWPC/LWPS SCORES -> anatomy. No
+                 electrode threshold anywhere; tests delta = lwpc - lwps against
+                 ROI and against MNI coordinates, with the noise ceiling and the
+                 leave-one-subject-out sweep. Score input, cheapest first:
+                   SCORES_CSV      a finished segregation run's electrodes.csv
+                   PER_SPLIT_CSV   its per_split.csv — needed for the §5.4
+                                   ceiling and the min_elec sweep
+                 With neither, the scores are computed here from the epoched data
+                 (needs EPOCHS_ROOT_FILE; N_SPLITS controls the cost) and written
+                 out so the next run can take the CSV route.
+                 USE_COORDS=0 skips the coordinate/centroid panels (they need the
+                 recon files).
+ARM=both         categorical, then continuous into a `continuous/` subdir.
+
 Restricting the anatomy
 -----------------------
 ROI_FILTER=lpfc   keep only electrodes whose Destrieux label falls in the `lpfc`
@@ -75,6 +92,17 @@ DATA_SOURCE = os.environ.get('DATA_SOURCE', 'real')
 # synthetic-only: strength of the planted group×ROI association (0 = null).
 SYNTHETIC_ENRICHMENT = float(os.environ.get('SYNTHETIC_ENRICHMENT', '0.6'))
 
+# --- which arm: 'categorical' (S/F groups), 'continuous' (LWPC/LWPS scores,
+#     plan §5–§7) or 'both' ---
+ARM = os.environ.get('ARM', 'categorical')
+
+# continuous arm: where the scores come from. Point these at a finished
+# stability_flexibility_segregation run to skip re-scoring (hours -> seconds).
+SCORES_CSV = os.environ.get('SCORES_CSV')          # its electrodes.csv
+PER_SPLIT_CSV = os.environ.get('PER_SPLIT_CSV')    # its per_split.csv (ceiling)
+N_SPLITS = int(os.environ.get('N_SPLITS', '200'))  # only when scoring here
+USE_COORDS = os.environ.get('USE_COORDS', '1') not in ('0', 'false', 'False')
+
 # --- electrode definition: 'a1' (window-mean ANOVA here) or 'power_traces'
 #     (finished cluster-corrected within-electrode ANOVA runs) ---
 LABEL_SOURCE = os.environ.get('LABEL_SOURCE', 'a1')
@@ -105,7 +133,10 @@ PT_ROI = os.environ.get('PT_ROI')                # the ANOVA run's ROI, e.g. 'lp
 
 # --- epochs / analysis window (A1 route on real data only) ---
 EPOCHS_ROOT_FILE = os.environ.get('EPOCHS_ROOT_FILE')
-if DATA_SOURCE == 'real' and LABEL_SOURCE == 'a1' and EPOCHS_ROOT_FILE is None:
+# The continuous arm reading finished score CSVs needs no epoched data either.
+_needs_epochs = not (ARM == 'continuous' and SCORES_CSV)
+if DATA_SOURCE == 'real' and LABEL_SOURCE == 'a1' and _needs_epochs \
+        and EPOCHS_ROOT_FILE is None:
     raise ValueError("EPOCHS_ROOT_FILE environment variable not set. "
                      "Set it via sbatch --export=ALL,EPOCHS_ROOT_FILE=... "
                      "(or run with DATA_SOURCE=synthetic to skip data loading, "
@@ -170,6 +201,12 @@ def run_analysis():
         acc_trials_only=ACC_TRIALS_ONLY,
         data_source=DATA_SOURCE,
         synthetic_enrichment=SYNTHETIC_ENRICHMENT,
+        arm=ARM,
+        scores_csv=SCORES_CSV,
+        per_split_csv=PER_SPLIT_CSV,
+        n_splits=N_SPLITS,
+        use_coords=USE_COORDS,
+        responsiveness=None,
         label_source=LABEL_SOURCE,
         pt_runs=PT_RUNS,
         pt_correction=PT_CORRECTION,
@@ -200,6 +237,11 @@ def run_analysis():
     print("=" * 70)
     print(f"Data source:      {DATA_SOURCE}"
           + (f" (planted enrichment={SYNTHETIC_ENRICHMENT})" if DATA_SOURCE == 'synthetic' else ""))
+    print(f"Arm:              {ARM}")
+    if ARM in ('continuous', 'both'):
+        print(f"  scores:             {SCORES_CSV or f'computed here ({N_SPLITS} splits)'}")
+        print(f"  per-split (ceiling): {PER_SPLIT_CSV or ('computed here' if not SCORES_CSV else 'MISSING')}")
+        print(f"  MNI coordinates:     {'yes' if USE_COORDS else 'no'}")
     print(f"Label source:     {LABEL_SOURCE}")
     if LABEL_SOURCE == 'power_traces':
         print(f"  power_traces runs:  {PT_RUNS}")
