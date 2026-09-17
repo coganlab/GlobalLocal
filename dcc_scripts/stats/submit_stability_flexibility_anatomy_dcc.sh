@@ -102,7 +102,7 @@ MIN_SUBJECTS=${MIN_SUBJECTS:-3}      # keep ROIs sampled in >= this many subject
 N_PERM=${N_PERM:-10000}             # within-subject permutations for the null
 SEED=${SEED:-0}
 # Optional directory containing a precomputed electrodes-to-ROI atlas JSON.
-ROI_DICT_DIR=${ROI_DICT_DIR:-}
+ROI_DICT_DIR=${ROI_DICT_DIR:'/hpc/home/jz421/coganlab/jz421/GlobalLocal/src/analysis/config/'}
 
 mkdir -p out
 
