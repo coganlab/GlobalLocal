@@ -379,10 +379,11 @@ def test_relative_score_roi_test_finds_planted_anatomy_and_not_the_null(
     if planted:
         assert res['p'] < 0.05
         per_roi = res['per_roi'].set_index('roi')['mean_delta_adj']
-        # LWPC was planted anteriorly, LWPS posteriorly, both negative:
-        # delta = lwpc - lwps is therefore NEGATIVE in front, POSITIVE behind
-        assert per_roi[['dlpfc', 'lpfc', 'acc']].max() < 0
-        assert per_roi[['occ', 'parietal', 'v1']].min() > 0
+        # LWPC was planted anteriorly, LWPS posteriorly, both positive (the
+        # adaptation direction): delta = lwpc - lwps is POSITIVE in front,
+        # NEGATIVE behind
+        assert per_roi[['dlpfc', 'lpfc', 'acc']].min() > 0
+        assert per_roi[['occ', 'parietal', 'v1']].max() < 0
     else:
         assert res['p'] > 0.05
 
@@ -439,9 +440,9 @@ def test_coordinate_test_recovers_the_planted_axis(planted_scores, gradient,
     y = res['all']['slopes'].set_index('axis').loc['mni_y']
     if planted:
         assert res['all']['p'] < 0.05
-        # delta falls as y rises (LWPC dominance is anterior and delta is
-        # negative there), so the anterior slope must be negative and reliable
-        assert y['slope_per_mm'] < 0 and y['p'] < 0.05
+        # delta rises with y (LWPC dominance is anterior and delta is positive
+        # there), so the anterior slope must be positive and reliable
+        assert y['slope_per_mm'] > 0 and y['p'] < 0.05
     else:
         assert res['all']['p'] > 0.05
 

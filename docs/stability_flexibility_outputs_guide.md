@@ -101,6 +101,8 @@ Interpretation: A significant enrichment result means selectivity-group membersh
 
 The continuous arm of [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md) §5–§7. Same anatomy join and same coverage bookkeeping as above, but the response is the per-electrode **score** rather than a binary flag, so no electrode has to survive a threshold and the effect sizes are not discarded. Everything turns on `delta = lwpc_s - lwps_s`, a within-electrode contrast between the two effects — which is why the test is an effect-type x anatomy interaction rather than the difference-of-significance fallacy.
 
+Signs: LWPC and LWPS are scored LOW-proportion minus HIGH-proportion, so a positive score is the behavioral adaptation direction (the condition effect shrinks in the high-proportion block) — see [`analysis_guide.md`](analysis_guide.md) §Sign convention. `delta > 0` therefore means the electrode carries more LWPC adaptation than LWPS adaptation.
+
 - `summary.txt`: read this first. Primary ROI test, leave-one-subject-out leverage, coordinate regression per hemisphere, medoid displacement, noise ceiling, `min_elec` sweep.
 - `scores.csv` / `per_split.csv`: the disjoint-half LWPC/LWPS scores and the per-split table they were averaged from. Point a later run at these (`SCORES_CSV`, `PER_SPLIT_CSV`) to skip re-scoring.
 - `scores_with_anatomy.csv`: one row per electrode with `lwpc_s`, `lwps_s`, `delta`, `roi`, `anat`, `mni_x/y/z`, `hemi`, `resp`.

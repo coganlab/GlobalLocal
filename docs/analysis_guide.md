@@ -713,6 +713,32 @@ Two constructs, each a **two-way interaction** on single-trial high-gamma (HG):
   assumed: an electrode is LWPS-selective if it carries the interaction in either
   direction.
 
+**Sign convention (one orientation, everywhere).** Both interactions are scored
+**LOW-proportion minus HIGH-proportion**:
+
+```
+LWPC = (i − c | 25% incongruent) − (i − c | 75% incongruent)
+LWPS = (s − r | 25% switch)      − (s − r | 75% switch)
+```
+
+so a **positive** value means the condition effect **shrinks** in the
+high-proportion block — the direction behavior shows, on both the neural scores
+(`stability_flexibility_segregation`, one definition point: which proportion level
+is `pos` in `_CONTRAST_PRESETS`) and the behavioral d-o-d
+(`stability_flexibility_brain_behavior`, plus the trial-level `w(t)` weights in
+§A6). `tests/analysis/stats/test_effect_sign_conventions.py` pins both sides.
+
+This is a naming convention, not a hypothesis. The electrode labels come from an
+unsigned *F*, every test on the scores is two-sided, and
+`stability_flexibility_timing` orients each waveform by its own dominant
+deflection — so nothing assumes the neural effect runs the behavioral way. Two
+quantities are deliberately **not** on this convention, and say so where they are
+defined: `windowed_anova._signed_contrast_per_window` (alphabetical level order,
+which for congruency × incongruentProportion works out to high − low; it is used
+for sign-splitting clusters and colouring pos/neg bars, neither of which depends
+on the absolute orientation), and the cross-decoding `block_difference` (high −
+low on decoding *accuracy*, not a condition effect).
+
 "Shared vs distinct" is **three questions, not one**, and the answer can differ at
 each level:
 
@@ -2333,8 +2359,8 @@ difference-of-differences the rest of the battery is built on**:
 
 ```
 adj_congruency(t) = w(t) * (RT_t − mean RT of that subject)
-w(t) = +1 for (i, high-incongruent) and (c, low-incongruent)
-       −1 for (c, high-incongruent) and (i, low-incongruent)
+w(t) = +1 for (i, LOW-incongruent) and (c, high-incongruent)
+       −1 for (c, LOW-incongruent) and (i, high-incongruent)
 ```
 
 those being exactly the four cell weights of the LWPC d-o-d — so a subject's mean

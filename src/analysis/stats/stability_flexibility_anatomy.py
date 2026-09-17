@@ -1606,13 +1606,15 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
     coordinates.
 
     What is planted, at strength ``gradient``: the anterior ROIs carry the LWPC
-    effect and the posterior ones carry LWPS, both NEGATIVE (the direction
-    behavioural adaptation predicts — the condition effect shrinks in the
-    high-proportion block). So ``delta = lwpc - lwps`` is negative anteriorly and
-    positive posteriorly, |LWPC| is larger anteriorly and |LWPS| posteriorly.
-    Planting MAGNITUDE rather than sign is what makes the §7 centroids testable
-    at all: they weight by |score| and are blind to a purely signed dissociation.
-    ``gradient=0`` is the null — the tests must not manufacture significance on it.
+    effect and the posterior ones carry LWPS, both POSITIVE — which on the
+    LOW-minus-HIGH sign convention (see ``stability_flexibility_segregation``) is
+    the direction behavioural adaptation predicts, i.e. the condition effect
+    shrinks in the high-proportion block. So ``delta = lwpc - lwps`` is positive
+    anteriorly and negative posteriorly, |LWPC| is larger anteriorly and |LWPS|
+    posteriorly. Planting MAGNITUDE rather than sign is what makes the §7
+    centroids testable at all: they weight by |score| and are blind to a purely
+    signed dissociation. ``gradient=0`` is the null — the tests must not
+    manufacture significance on it.
 
     A per-subject GAIN multiplies both scores and the responsiveness proxy, so
     the pooled-scaling and covariate paths are exercised rather than assumed.
@@ -1636,8 +1638,8 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
             roi = str(rng.choice(covered))
             electrode = f"{subject}-e{e}"
             front = 1.0 if roi in anterior else 0.0
-            lwpc = gain * (-gradient * front + rng.normal(0, 0.6))
-            lwps = gain * (-gradient * (1.0 - front) + rng.normal(0, 0.6))
+            lwpc = gain * (gradient * front + rng.normal(0, 0.6))
+            lwps = gain * (gradient * (1.0 - front) + rng.normal(0, 0.6))
             side = 1.0 if rng.random() < 0.5 else -1.0
             e2r[electrode] = roi
             e2a[electrode] = f"{roi}_lab{int(rng.integers(0, 4))}"
