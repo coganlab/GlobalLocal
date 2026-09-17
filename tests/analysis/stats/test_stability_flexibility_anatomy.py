@@ -307,6 +307,47 @@ def test_brain_plot_falls_back_to_a_histogram_without_the_surface_stack(tmp_path
         assert (tmp_path / 'selectivity_groups_on_brain.png').exists()
 
 
+def test_a_flat_screenshot_is_recognised_as_blank(tmp_path):
+    """An unrealized render window screenshots to a flat frame, not an error.
+
+    ``save_brain_image`` reports success for such a frame, so the only thing
+    standing between a broken renderer and five empty score maps is this check.
+    A real fsaverage render fills much of the frame; a solid one fills none.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    def _write(name, facecolor, draw=None):
+        path = str(tmp_path / name)
+        fig, ax = plt.subplots(figsize=(4, 4))
+        ax.set_axis_off()
+        ax.set(xlim=(0, 1), ylim=(0, 1))
+        if draw is not None:
+            draw(ax)
+        fig.savefig(path, dpi=100, facecolor=facecolor)
+        plt.close(fig)
+        return path
+
+    # what a hidden Qt window yields: a solid frame, either background colour
+    assert sfa._looks_blank(_write('white.png', 'white'))
+    assert sfa._looks_blank(_write('black.png', 'black'))
+    # what a real render yields: a brain covering a good part of the frame,
+    # with or without electrodes drawn on it
+    brain = _write('brain.png', 'white',
+                   lambda ax: ax.add_patch(plt.Circle((.5, .5), .3, color='#999')))
+    assert not sfa._looks_blank(brain)
+    rng = np.random.default_rng(0)
+    with_elecs = _write(
+        'brain_elecs.png', 'white',
+        lambda ax: (ax.add_patch(plt.Circle((.5, .5), .3, color='#999')),
+                    ax.scatter(rng.uniform(.3, .7, 60), rng.uniform(.3, .7, 60),
+                               s=8, color='r')))
+    assert not sfa._looks_blank(with_elecs)
+    # a check that cannot run must never condemn a figure
+    assert not sfa._looks_blank(str(tmp_path / 'does_not_exist.png'))
+
+
 # ---------------------------------------------------------------------------
 # the CONTINUOUS arm (plan §5–§7): scores -> anatomy
 # ---------------------------------------------------------------------------

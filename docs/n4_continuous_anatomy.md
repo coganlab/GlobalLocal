@@ -121,6 +121,17 @@ lwps_s = lwps_score / SD(lwps_score across all electrodes)
 delta  = lwpc_s - lwps_s
 ```
 
+**Units.** `lwpc_score`/`lwps_score` are Cohen's *d* — a difference-of-differences
+of cell means over the pooled within-cell SD of single-trial high-gamma — so the
+raw scores are already unit-free. `lwpc_s`/`lwps_s`/`delta` are that *d* divided
+by its own across-electrode SD, so their unit is **"SDs of this effect across
+this dataset's electrodes"**: `lwpc_s = 1.5` means an electrode 1.5 cross-electrode
+SDs above the mean LWPC *d*, not *d* = 1.5 and not a z-score (the mean is not
+removed, and nothing is standardized within subject). They are a *relative*,
+sample-dependent scale: the same electrode rescored against a different electrode
+set gets a different number, so compare them within a run, never across runs, and
+quote `lwpc_score`/`lwps_score` when an absolute effect size is wanted.
+
 There is no subtraction of the pooled mean because the interaction asks about
 relative spatial variation; a global offset cannot create between-ROI spread
 after the nuisance intercept. There is deliberately no within-subject z-score.

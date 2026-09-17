@@ -639,6 +639,30 @@ def _fsaverage_index_space(subjects):
     return offsets, usable
 
 
+def _looks_blank(path):
+    """True when a saved screenshot is one flat colour, i.e. nothing rendered.
+
+    A render window that was never realized screenshots to a solid background
+    rather than failing, so ``save_brain_image`` can report success for a figure
+    with no brain in it -- which is how a whole cluster run once produced five
+    empty score maps. A real fsaverage render covers a large part of the frame,
+    so "almost every pixel matches the corner pixel" is a safe blank test.
+    Returns False when the image can't be read: never block a figure over a
+    check that failed to run.
+    """
+    try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.image as mpimg
+        img = np.asarray(mpimg.imread(path))
+    except Exception:
+        return False
+    if img.size == 0:
+        return True
+    px = img.reshape(-1, img.shape[-1]) if img.ndim == 3 else img.reshape(-1, 1)
+    return float(np.all(px == px[0], axis=-1).mean()) > 0.999
+
+
 def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                            transparency=0.4, rm_wm=False, per_set_figures=False,
                            **vis_kwargs):
@@ -686,6 +710,14 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
     print(f"[A3] 3D rendering: "
           f"{'virtual display ' + os.environ['DISPLAY'] if have_display else 'pyvista off-screen (no DISPLAY)'}")
 
+    # The other half of mirroring the vis script, and what made every A3 brain
+    # figure come out BLANK once the off-screen half was fixed: showing the
+    # window is what realizes its OpenGL context, so with a DISPLAY we must ask
+    # for it. ``show=False`` there leaves a hidden Qt window whose framebuffer
+    # screenshots to a flat background -- no error, no fallback, just an empty
+    # PNG. Without a DISPLAY we are off-screen and there is nothing to show.
+    show = have_display
+
     import matplotlib.colors as mcolors
     from dcc_scripts.vis.plot_sig_electrodes_dcc import (
         electrodes_to_global_indices, save_brain_image)
@@ -704,7 +736,7 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
             continue
         fig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
                               hemi=hemi, color=rgb, size=size,
-                              transparency=transparency, fig=fig, show=False,
+                              transparency=transparency, fig=fig, show=show,
                               **vis_kwargs)
     if fig is None:
         raise RuntimeError("no electrodes in any set to plot")
@@ -715,6 +747,10 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
         fig.close()
         raise RuntimeError(f"could not screenshot the brain figure to {out_path}")
     fig.close()
+    if _looks_blank(out_path):
+        raise RuntimeError(
+            f"the brain figure written to {out_path} is blank -- the render "
+            f"window produced an empty frame")
     print(f"[A3] brain figure -> {out_path}")
 
     per_set = {}
@@ -724,13 +760,16 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                 continue
             sfig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
                                    hemi=hemi, color=rgb, size=size,
-                                   transparency=transparency, show=False,
+                                   transparency=transparency, show=show,
                                    **vis_kwargs)
             path = f"{base}_{name}.png"
             saved = save_brain_image(sfig, path)
             sfig.close()
-            if not saved:                # the combined figure already landed --
-                continue                 # a missing per-set panel isn't fatal
+            if not saved or _looks_blank(path):
+                print(f"[A3] per-set panel {name} came out blank or unsaved; "
+                      f"skipping it.")
+                continue                 # the combined figure already landed --
+                                         # a missing per-set panel isn't fatal
             per_set[name] = path
             print(f"[A3] brain figure ({name}) -> {path}")
 
