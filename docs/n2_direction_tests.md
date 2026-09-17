@@ -577,4 +577,5 @@ Their outputs are documented separately in
 - [`stability_flexibility_data_flow.md`](stability_flexibility_data_flow.md) — the A1–A7 walkthrough
 - [`analysis_guide.md`](analysis_guide.md) — the pipelines as built
 - [`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md) — how to read the N4 segregation/anatomy outputs
+- [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) — how to run and interpret the N4 continuous-score anatomy tests, maps, and descriptive medoids
 - [`analysis_simplification_plan.md`](analysis_simplification_plan.md) §2.2b — why the contrasts are cell-balanced
