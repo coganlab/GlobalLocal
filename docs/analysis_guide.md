@@ -30,6 +30,7 @@ companion docs remain, each with a job this one doesn't do:
 | `analysis_simplification_plan.md` | **Which analysis should be primary**, and why the decoding battery should not be. Diagnostic findings on the decoding pipeline, the baseline, and two defects in the segregation estimator |
 | `stability_flexibility_data_flow.md` | The **shape of the data at every step** of A1–A7 — one fake dataset followed end to end with the actual intermediate tables printed. Backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py` |
 | `stability_flexibility_segregation_methods.md` | Manuscript-ready **Methods** text for the segregation analysis, in a `cluster` and a `cohens_d` version |
+| `n4_anatomy_segregation_methods.md` | Manuscript-ready **combined N4 Methods** for continuous segregation, coverage-conditioned anatomy, coordinate follow-ups, maps, and descriptive medoids |
 | `refactoring_guide.md` | How the big modules were split (and how to split the next one). Records what has already been done to `decoding/` and `power/` |
 | `learning_assignments/segregation_bootstrap/README.md` | **A7** — a build-a-feature self-check with a pytest grader (§20) |
 
