@@ -397,6 +397,9 @@ def main(args):
         subjects_dir            : str | None       recon dir (<subject>/elec_recon/); None = jim_mri default
         save_dir                : str              output directory (created if missing)
         hemi                    : str              'both' | 'lh' | 'rh' | 'split'
+        zoom                    : float | None     per-panel camera zoom (<1 zooms out);
+                                                   None = renderer default, which keeps
+                                                   the two 'split' panels apart
         size                    : float            electrode marker size
         transparency            : float            brain transparency
         rm_wm                   : bool             drop white-matter electrodes when plotting
@@ -460,6 +463,7 @@ def main(args):
     # and there is nothing to show.
     show_brain = HAVE_DISPLAY
     failed_figures = []
+    brain_zoom = getattr(args, "zoom", None)
 
     # ---- 3. Combined brain: every condition overlaid on one figure ---------
     print("\n=== Plotting combined brain figure ===")
@@ -472,14 +476,15 @@ def main(args):
         fig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
-            transparency=args.transparency, fig=fig, show=show_brain)
+            transparency=args.transparency, fig=fig, show=show_brain,
+            zoom=brain_zoom)
     if mutually_exclusive and overlap:
         print(f"  overlap: {len(overlap)} electrodes shared by >1 condition.")
         fig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=overlap,
             rm_wm=args.rm_wm, hemi=args.hemi, color=overlap_color,
             size=args.size, transparency=args.transparency, fig=fig,
-            show=show_brain)
+            show=show_brain, zoom=brain_zoom)
 
     if fig is not None:
         combined_name = getattr(args, "combined_name", "combined")
@@ -498,7 +503,7 @@ def main(args):
         cfig = plot_on_average(
             subjects_no_zeros, subj_dir=subjects_dir, picks=sorted(indices),
             rm_wm=args.rm_wm, hemi=args.hemi, color=color, size=args.size,
-            transparency=args.transparency, show=show_brain)
+            transparency=args.transparency, show=show_brain, zoom=brain_zoom)
         cpath = os.path.join(args.save_dir, f"brain_{name}.png")
         if save_brain_image(cfig, cpath):
             print(f"  Saved brain for {name} -> {cpath}")

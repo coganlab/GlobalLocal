@@ -1860,7 +1860,8 @@ LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
 | `ROI_FILTER` | — | restrict the **anatomy** to one/several ROI groups of `config/rois.py`. Empty = whole brain. |
 | `ANAT_LEVEL` | `auto` | `auto` \| `group` \| `destrieux` — level for the histogram + enrichment test. |
 | `HIST_TOP_N` | — | cap the Destrieux histogram at the N most-populated labels. |
-| `MAKE_BRAIN` / `BRAIN_HEMI` | `1` / `both` | render the brain figure; hemisphere(s) to draw. |
+| `MAKE_BRAIN` / `BRAIN_HEMI` | `1` / `both` | render the brain figure; hemisphere(s) to draw (`both` \| `lh` \| `rh` \| `split`). |
+| `BRAIN_ZOOM` | — | per-panel camera zoom; `<1` zooms out. Blank keeps the renderer default (which already separates the two `split` panels); lower it to push them further apart. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | analysis window configured by the submit script. |
 | `ELECTRODES` | `sig` | `all` or `sig`, configured by the submit script. |
 | `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |

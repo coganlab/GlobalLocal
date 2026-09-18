@@ -281,6 +281,69 @@ def get_grey_matter(subjects: Sequence[str]) -> set[str]:
     return grey_matter
 
 
+# ---------------------------------------------------------------------------
+# window geometry for multi-panel Brain figures
+# ---------------------------------------------------------------------------
+# ``mne.viz.Brain`` tiles one subplot per hemisphere when ``hemi='split'``, but
+# its ``size`` argument is the size of the WHOLE window, not of one panel. Left
+# at MNE's default 800, a split figure therefore renders each hemisphere into a
+# 400x800 viewport -- a frame half as wide as it is tall -- so the two lateral
+# views overrun their panels, lose their outermost electrodes off the edges of
+# the image, and meet in the middle with no gap. Size the window per panel
+# instead, and pull the split cameras back so the hemispheres sit clearly apart
+# rather than edge to edge.
+BRAIN_PANEL_SIZE = 800      # pixels per subplot
+BRAIN_SPLIT_ZOOM = 0.7      # <1 zooms out, i.e. margin around each hemisphere
+
+
+def _brain_window_size(hemi: str, panel: int = BRAIN_PANEL_SIZE) -> tuple:
+    """``(width, height)`` giving every panel of a ``Brain`` its own square."""
+    return (panel * (2 if hemi == 'split' else 1), panel)
+
+
+def zoom_brain_panels(fig: Brain, zoom: float) -> None:
+    """Zoom every panel of ``fig`` by ``zoom``; below 1 pulls the camera back.
+
+    Cameras are per-subplot, so a split figure needs both of them visited --
+    zooming the active panel alone leaves the other one untouched.
+    """
+    plotter = getattr(fig, 'plotter', None)
+    if plotter is None or not zoom or float(zoom) == 1.:
+        return
+    shape = tuple(getattr(plotter, 'shape', (1, 1)))
+    panels = ([(r, c) for r in range(shape[0]) for c in range(shape[1])]
+              if len(shape) == 2 else [(i,) for i in range(shape[0])])
+    try:
+        for panel in panels:
+            plotter.subplot(*panel)
+            plotter.camera.zoom(float(zoom))
+        plotter.subplot(*panels[0])
+    except Exception as exc:     # a backend without per-panel cameras
+        print(f"could not zoom the brain panels by {zoom} "
+              f"({type(exc).__name__}: {exc})")
+
+
+def _new_brain(subject: str, subj_dir: PathLike, hemi: str = 'both',
+               surface: str = 'pial', transparency: float = 0.5,
+               background: str = 'white', units: str = 'm', show: bool = True,
+               fig_size: tuple | int = None, zoom: float = None) -> Brain:
+    """A ``Brain`` whose window is sized for the panel grid ``hemi`` implies.
+
+    ``fig_size`` and ``zoom`` default to :func:`_brain_window_size` and
+    ``BRAIN_SPLIT_ZOOM`` (split only); those defaults are what keep
+    ``hemi='split'`` from rendering the hemispheres cropped and touching.
+    """
+    if fig_size is None:
+        fig_size = _brain_window_size(hemi)
+    if zoom is None:
+        zoom = BRAIN_SPLIT_ZOOM if hemi == 'split' else 1.
+    fig = Brain(subject, subjects_dir=subj_dir, cortex='low_contrast',
+                alpha=transparency, background=background, surf=surface,
+                hemi=hemi, units=units, show=show, size=fig_size)
+    zoom_brain_panels(fig, zoom)
+    return fig
+
+
 def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
                     subj_dir: PathLike = None, rm_wm: bool = True,
                     picks: list[int | str, ...] = None, surface: str = 'pial',
@@ -288,7 +351,8 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
                     size: float = 0.35, fig: Brain = None,
                     label_every: int = None, background: str = 'white',
                     units: str = 'm', transparency: float = 0.6,
-                    average: str = 'fsaverage', show: bool = True) -> Brain:
+                    average: str = 'fsaverage', show: bool = True,
+                    fig_size: tuple | int = None, zoom: float = None) -> Brain:
     """Plots the signal on the average brain
 
     Takes a signal instance or list of signal instances and plots them on the
@@ -328,6 +392,15 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
         The average brain to plot on, by default 'fsaverage'
     show: bool, optional
         Whether to show the figure, by default True
+    fig_size: tuple | int, optional
+        Size of the whole window in pixels. By default one
+        ``BRAIN_PANEL_SIZE`` square per panel, so ``hemi='split'`` gets a
+        window twice as wide as it is tall instead of squeezing both
+        hemispheres into one square.
+    zoom: float, optional
+        Camera zoom applied to every panel; below 1 zooms out. By default
+        ``BRAIN_SPLIT_ZOOM`` when ``hemi='split'`` (which separates the two
+        hemispheres) and 1 otherwise. Ignored when ``fig`` is given.
 
     Returns
     -------
@@ -337,9 +410,9 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
 
     subj_dir = get_sub_dir(subj_dir)
     if fig is None:
-        fig = Brain(average, subjects_dir=subj_dir, cortex='low_contrast',
-                    alpha=transparency, background=background, surf=surface,
-                    hemi=hemi, units=units, show=show)
+        fig = _new_brain(average, subj_dir, hemi=hemi, surface=surface,
+                         transparency=transparency, background=background,
+                         units=units, show=show, fig_size=fig_size, zoom=zoom)
 
     if isinstance(sigs, (Signal, mne.Info)):
         sigs = [sigs]
@@ -482,8 +555,8 @@ def plot_subj_sig_and_nonsig(inst: Signal | mne.Info | str, subj_dir: PathLike =
               hemi: str = 'both', fig: Brain = None, trans=None,
               sig_color: tuple = (1, 1, 0), nonsig_color: tuple = (1, 1, 1),
               size: float = 0.35, show: bool = True, background: str = 'white',
-              title: str = None, units: str = 'm', transparency: float = 0.5
-              ) -> Brain:
+              title: str = None, units: str = 'm', transparency: float = 0.5,
+              fig_size: tuple | int = None, zoom: float = None) -> Brain:
     """Plots significant and non-significant electrodes on the subject's brain with different colors.
 
     Additional Parameters
@@ -496,6 +569,10 @@ def plot_subj_sig_and_nonsig(inst: Signal | mne.Info | str, subj_dir: PathLike =
         The color of significant electrodes.
     nonsig_color : tuple, optional
         The color of non-significant electrodes.
+    fig_size : tuple | int, optional
+        Window size in pixels; see :func:`plot_on_average`.
+    zoom : float, optional
+        Per-panel camera zoom; see :func:`plot_on_average`.
     """
     if isinstance(inst, Signal):
         info = inst.info
@@ -515,14 +592,14 @@ def plot_subj_sig_and_nonsig(inst: Signal | mne.Info | str, subj_dir: PathLike =
     if trans is None:
         trans = mne.transforms.Transform(fro='head', to='mri')
     if fig is None:
-        fig = Brain(sub, subjects_dir=subj_dir, cortex='low_contrast',
-                    alpha=transparency, background=background, surf=surface,
-                    hemi=hemi, show=show, units=units)
+        fig = _new_brain(sub, subj_dir, hemi=hemi, surface=surface,
+                         transparency=transparency, background=background,
+                         units=units, show=show, fig_size=fig_size, zoom=zoom)
 
     # Set the title if provided
     if title is not None:
         mne.viz.set_3d_title(fig, title, size=40)
-    
+
     # Plot non-significant electrodes
     if nonsig_picks:
         if isinstance(nonsig_picks[0], str):
@@ -560,8 +637,8 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
               hemi: str = 'both', fig: Brain = None,
               trans=None, color: matplotlib.colors = None,
               size: float = 0.35, show: bool = True, background: str = 'white',
-              title: str = None, units: str = 'm', transparency: float = 0.5
-              ) -> Brain:
+              title: str = None, units: str = 'm', transparency: float = 0.5,
+              fig_size: tuple | int = None, zoom: float = None) -> Brain:
     """Plots the electrodes on the subject's brain
 
     Parameters
@@ -598,6 +675,10 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
         Units of the electrodes
     transparency: float, optional
         Transparency of the brain
+    fig_size: tuple | int, optional
+        Window size in pixels; see :func:`plot_on_average`.
+    zoom: float, optional
+        Per-panel camera zoom; see :func:`plot_on_average`.
 
     Returns
     -------
@@ -622,9 +703,9 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
     if trans is None:
         trans = mne.transforms.Transform(fro='head', to='mri')
     if fig is None:
-        fig = Brain(sub, subjects_dir=subj_dir, cortex='low_contrast',
-                    alpha=transparency, background=background, surf=surface,
-                    hemi=hemi, show=show, units=units)
+        fig = _new_brain(sub, subj_dir, hemi=hemi, surface=surface,
+                         transparency=transparency, background=background,
+                         units=units, show=show, fig_size=fig_size, zoom=zoom)
 
     # Set the title if provided
     if title is not None:

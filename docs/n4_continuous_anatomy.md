@@ -802,7 +802,8 @@ If it is null with a poor ceiling:
 | `SEED` | `0` | Reproducibility of permutations and plot jitter. |
 | `USE_COORDS` | `1` | Controls coordinate test and centres, not the primary ROI test. |
 | `MAKE_BRAIN` | `1` | Controls five surface/fallback maps, not statistics. |
-| `BRAIN_HEMI` | `both` | Display choice (`both`, `lh`, `rh`, `split`). |
+| `BRAIN_HEMI` | `both` | Display choice (`both`, `lh`, `rh`, `split`). `split` draws one hemisphere per panel in a window twice as wide. |
+| `BRAIN_ZOOM` | renderer default | Per-panel camera zoom (`<1` zooms out). Display choice only; lower it to widen the gap between the `split` hemispheres. |
 | `ELECTRODES` | runner `all`, submitter `sig` | CSV route inherits its input population; in-job scoring must be changed to `all` for N4. |
 
 Two non-obvious distinctions:
