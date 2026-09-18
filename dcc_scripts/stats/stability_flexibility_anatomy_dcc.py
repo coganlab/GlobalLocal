@@ -174,7 +174,8 @@ def save_results(labels_with_roi, coverage, enrich, save_dir, roi_col='roi'):
 # figures
 # ---------------------------------------------------------------------------
 def make_plots(labels_with_roi, coverage, enrich, save_dir, roi_col='roi',
-               subjects=None, hemi='both', make_brain=True, hist_top_n=None):
+               subjects=None, hemi='both', make_brain=True, hist_top_n=None,
+               brain_zoom=None):
     has_anat = ('anat' in labels_with_roi.columns
                 and labels_with_roi['anat'].notna().any())
 
@@ -226,7 +227,8 @@ def make_plots(labels_with_roi, coverage, enrich, save_dir, roi_col='roi',
         brain = sfa.plot_selectivity_groups_on_brain(
             labels_with_roi,
             os.path.join(save_dir, 'selectivity_groups_on_brain.png'),
-            coverage=coverage, subjects=subjects, hemi=hemi, roi_col=roi_col)
+            coverage=coverage, subjects=subjects, hemi=hemi, roi_col=roi_col,
+            zoom=brain_zoom)
         print(f"brain figure -> {brain.get('combined')}")
     return brain
 
@@ -502,7 +504,8 @@ def main_categorical(args):
                        subjects=brain_subjects,
                        hemi=getattr(args, 'brain_hemi', 'both'),
                        make_brain=getattr(args, 'make_brain', True),
-                       hist_top_n=getattr(args, 'hist_top_n', None))
+                       hist_top_n=getattr(args, 'hist_top_n', None),
+                       brain_zoom=getattr(args, 'brain_zoom', None))
     write_summary(lab_roi, coverage, enrich, args.save_dir, alpha=alpha,
                   min_subjects=min_subjects, roi_col=roi_col, brain=brain,
                   meta=dict(
@@ -717,7 +720,7 @@ def run_score_anatomy(args):
         maps = sfa.plot_score_maps(
             tab, save_dir, subjects=getattr(args, 'brain_subjects', None) or args.subjects,
             hemi=getattr(args, 'brain_hemi', 'both'), roi_col=roi_col,
-            coverage=coverage)
+            coverage=coverage, zoom=getattr(args, 'brain_zoom', None))
         plt.close('all')
 
     # 6. persist + summarise ------------------------------------------------------
