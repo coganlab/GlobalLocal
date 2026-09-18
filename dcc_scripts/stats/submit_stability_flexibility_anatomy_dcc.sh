@@ -94,7 +94,7 @@ HIST_TOP_N=${HIST_TOP_N:-}               # cap the Destrieux histogram at N labe
 # Brain figure (needs mne + pyvista + the recon templates; falls back to the
 # ROI histogram when they're missing).
 MAKE_BRAIN=${MAKE_BRAIN:-1}
-BRAIN_HEMI=${BRAIN_HEMI:-both}
+BRAIN_HEMI=${BRAIN_HEMI:-split}
 
 # A1 electrode definition + A3 hyperparameters.
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects

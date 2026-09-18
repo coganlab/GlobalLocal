@@ -5,17 +5,25 @@
 # cells being contrasted hold 3:1 vs 1:3 mixtures of the OTHER proportion block
 # and a block-level offset enters the contrast at every timepoint. Kept for
 # reference; prefer the block-balanced sets.
-CONDITIONS=(
-    stimulus_lwpc_conditions
-    stimulus_lwps_conditions
-    stimulus_congruency_by_switch_proportion_conditions
-    stimulus_switch_type_by_incongruent_proportion_conditions
-)
+# CONDITIONS=(
+#     stimulus_lwpc_conditions
+#     stimulus_lwps_conditions
+#     # stimulus_congruency_by_switch_proportion_conditions
+#     # stimulus_switch_type_by_incongruent_proportion_conditions
+# )
 
 # CONDITIONS=(
-#     stimulus_congruency_conditions
-#     stimulus_switch_type_conditions
+#     stimulus_big_letter_conditions
+#     stimulus_small_letter_conditions
+#     stimulus_task_conditions
+#     # stimulus_congruency_by_switch_proportion_conditions
+#     # stimulus_switch_type_by_incongruent_proportion_conditions
 # )
+
+CONDITIONS=(
+    stimulus_congruency_conditions
+    stimulus_switch_type_conditions
+)
 
 
 # One cell per block type + full-factorial ANOVA, so the 2-way terms are
