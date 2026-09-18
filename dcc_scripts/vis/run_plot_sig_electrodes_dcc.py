@@ -86,7 +86,8 @@ SUBJECTS_DIR = os.environ.get("ECOG_RECON_DIR") or None
 SAVE_DIR = os.path.join(project_root, "src", "analysis", "vis", "figs")
 
 # ---- Brain plotting style --------------------------------------------------
-HEMI = "both"
+HEMI = "both"             # both | lh | rh | split
+ZOOM = None               # per-panel camera zoom; <1 zooms out, None = default
 MARKER_SIZE = 0.45
 TRANSPARENCY = 0.4
 RM_WM = False               # drop white-matter electrodes when plotting
@@ -113,6 +114,7 @@ def run_analysis():
         subjects_dir=SUBJECTS_DIR,
         save_dir=SAVE_DIR,
         hemi=HEMI,
+        zoom=ZOOM,
         size=MARKER_SIZE,
         transparency=TRANSPARENCY,
         rm_wm=RM_WM,
