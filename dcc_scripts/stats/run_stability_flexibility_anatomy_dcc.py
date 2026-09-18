@@ -196,6 +196,11 @@ HIST_TOP_N = int(_top_n) if _top_n else None
 # --- brain figure ---
 MAKE_BRAIN = _env('MAKE_BRAIN', '1') not in ('0', 'false', 'False')
 BRAIN_HEMI = _env('BRAIN_HEMI', 'both')   # 'both' | 'lh' | 'rh' | 'split'
+# Per-panel camera zoom; <1 zooms out. Blank uses the renderer's default, which
+# already zooms the two 'split' panels out far enough to keep the hemispheres
+# apart -- set it to push them further apart (0.6) or fill the panels (1.0).
+_brain_zoom = _env('BRAIN_ZOOM')
+BRAIN_ZOOM = float(_brain_zoom) if _brain_zoom else None
 
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else (
@@ -239,6 +244,7 @@ def run_analysis():
         hist_top_n=HIST_TOP_N,
         make_brain=MAKE_BRAIN,
         brain_hemi=BRAIN_HEMI,
+        brain_zoom=BRAIN_ZOOM,
         alpha=ALPHA,
         contrast_mode=CONTRAST_MODE,
         fdr_correction=FDR_CORRECTION,
@@ -271,7 +277,8 @@ def run_analysis():
     print(f"Electrodes:       {ELECTRODES}")
     print(f"ROI filter:       {ROI_FILTER or 'none (whole brain)'}")
     print(f"Anatomical level: {ANAT_LEVEL}")
-    print(f"Brain figure:     {'yes' if MAKE_BRAIN else 'no'} (hemi={BRAIN_HEMI})")
+    print(f"Brain figure:     {'yes' if MAKE_BRAIN else 'no'} (hemi={BRAIN_HEMI}, "
+          f"zoom={BRAIN_ZOOM if BRAIN_ZOOM is not None else 'default'})")
     print("-" * 70)
     print(f"contrast_mode:    {CONTRAST_MODE}")
     print(f"fdr_correction:   {FDR_CORRECTION}")
