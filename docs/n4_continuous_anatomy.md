@@ -905,3 +905,201 @@ Related reading:
   broader A1–A6 data flow; and
 - [`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md)
   — the wider segregation/anatomy output family.
+
+---
+
+## 15. Findings from the lPFC run
+
+Results from the continuous arm run on the lPFC-restricted electrode set
+(`scores_with_anatomy.csv`: **398 electrodes, 22 subjects**, 254 lh / 144 rh,
+`roi == 'lpfc'`, one Destrieux label per electrode in `anat`). Numbers below are
+permutation p-values from the functions named in [§1](#1-where-the-code-lives),
+20 000 permutations unless stated.
+
+Read this section together with the [interpretation
+checklist](#11-interpretation-checklist). Two caveats apply throughout:
+
+- **The noise ceiling has not been computed for this run.** `map_reliability`
+  (§7) needs the `per_split` object, which is not in the CSV. Every effect size
+  below is uncalibrated until it is.
+- **The z axis emerged from a three-axis block**, and several weighting and
+  centre variants were examined before it was identified. The block `F` is the
+  multiplicity-protected headline; the per-axis result is exploratory pending
+  the split-half confirmation in [§15.6](#156-open-items).
+
+### 15.1 The two scores are positively coupled, not segregated
+
+The per-electrode scores are centred near zero, not positive:
+
+| | mean | median | fraction < 0 |
+|---|---|---|---|
+| `lwpc_s` | +0.034 | −0.024 | **51.0 %** (203/398) |
+| `lwps_s` | +0.181 | +0.096 | 43.7 % (174/398) |
+
+Positive-LWPC and positive-LWPS electrodes **co-occur more than chance**:
+135 electrodes are positive on both, against a within-subject permutation null
+of 121.6 ± 4.2 (**p = 0.0016**). Independence alone predicts ~110. The
+continuous version agrees — after residualising responsiveness and centring
+within subject (`prepare_continuous` → `subject_clustered_corr`):
+
+- Spearman **r = +0.19, p = 0.0001**; Pearson r = +0.22 (raw, unresidualised: +0.31)
+
+**Claim supported:** within lPFC, the two effects are carried by an overlapping
+population with a positive within-subject coupling — mixed selectivity, not two
+segregated subpopulations.
+
+**Consequence for figures.** Two thresholded maps will *look* disjoint whatever
+the truth: at marginal positive rates of 49 % and 56 %, independence alone leaves
+only ~28 % of electrodes in both maps. Apparent segregation in a thresholded dot
+map is not evidence of segregation, and the eye has no null. Do not read
+dissociation off the overlay.
+
+### 15.2 A dorsoventral gradient in the relative balance
+
+`relative_score_coordinate_test(value_col='delta')`, coords ordered `z, y, x`:
+
+| | block F | p | z slope (per mm) | z p |
+|---|---|---|---|---|
+| pooled | 2.87 | **0.032** | **−0.0077** | **0.0075** |
+
+Since `delta = lwpc_s − lwps_s`, a negative z slope means **LWPS dominance
+increases dorsally and LWPC dominance increases ventrally**, ~0.6 pooled SD
+across the dorsoventral extent of the coverage. Robustness:
+
+| check | result |
+|---|---|
+| add hemisphere dummy to nuisance design | z slope −0.0074, p = 0.0094 |
+| `z × hemisphere` interaction | coef +0.0031, **p = 0.65** (one shared slope) |
+| leave-one-subject-out | z stays p < 0.05 in **21/22** folds (worst: drop D0146 → p = 0.090) |
+| drop the `resp` covariate | z p = 0.0070 |
+
+The per-hemisphere fits (lh z p = 0.21, rh z p = 0.98) are **not** a
+non-replication: the interaction test finds no slope heterogeneity to explain,
+and the subsets are underpowered (n = 254 / 144). Only 6 of 22 subjects are
+bilateral, so the subject dummies already absorb most of hemisphere. The lh
+block `F` is significant (p = 0.0042) but carried by x (p = 0.064), the one axis
+that is meaningful only within a hemisphere.
+
+**Corroboration at the parcel level.** `relative_score_roi_test(roi_col='anat')`,
+coverage-conditioned, `min_subjects=3`: omnibus **F = 1.90, p = 0.0099**
+(396 electrodes, 22 subjects). The extremes order dorsoventrally, matching the
+continuous slope:
+
+| Destrieux label | n | adj. mean `delta` | p | q |
+|---|---|---|---|---|
+| `lh_S_front_sup` | 33 | −0.54 | 0.010 | 0.128 |
+| `lh_G_front_sup` | 47 | −0.30 | 0.013 | 0.128 |
+| `rh_G_front_middle` | 34 | +0.41 | 0.021 | 0.131 |
+| `lh_G_front_inf-Triangul` | 26 | +0.31 | 0.124 | 0.336 |
+
+No single label survives FDR (min q = 0.13), so **the omnibus is the claim** and
+the labels are description. Two independent spatial parameterisations — a
+continuous coordinate and a categorical parcel — agreeing is stronger than
+either alone.
+
+### 15.3 The anterior–posterior hypothesis is null
+
+`delta ~ y`: p = 0.58 pooled, 0.77 lh, 0.22 rh. The §8 centre machinery is built
+around this axis (`p_anterior`, "LWPC sits N mm anterior to LWPS"); in this
+dataset it is the deadest of the three. Report it as a null, not as a pending
+result.
+
+### 15.4 The effect is intrinsically signed — magnitude formulations do not carry it
+
+This is the single most consequential property of the result. `delta` is a
+*contrast*; its sign is its content. Replacing it with any magnitude-based
+quantity destroys it:
+
+| value tested | z slope | z p | block F p | null used |
+|---|---|---|---|---|
+| `delta = lwpc_s − lwps_s` | **−0.0077** | **0.0075** | **0.032** | sign-flip swap |
+| `abs_lwpc − abs_lwps` | +0.0023 | 0.32 | 0.15 | sign-flip swap |
+| `lwpc_s` alone | −0.0037 | 0.12 | — | within-subject permutation |
+| `lwps_s` alone | +0.0040 | 0.062 | — | within-subject permutation |
+| `abs_lwpc` alone | +0.0014 | 0.38 | — | within-subject permutation |
+| `abs_lwps` alone | −0.0009 | 0.53 | — | within-subject permutation |
+| `delta`, both-positive electrodes only (n = 135) | −0.0059 | 0.26 | 0.21 | sign-flip swap |
+
+Reading the table:
+
+- The magnitude contrast `abs_lwpc − abs_lwps` is null and even flips sign. The
+  gradient is about **which effect dominates**, not about where effects are large.
+- Neither score alone reaches significance, and their slopes are
+  **opposite-signed**, each roughly half the `delta` slope. That is why the
+  difference detects what neither map does: it is a genuine relative effect.
+- Restricting to both-positive electrodes preserves the slope direction and
+  magnitude (−0.0059) but loses significance at a third of the sample. This is
+  a power loss, not counter-evidence — but it is not support either.
+- **Negative electrodes are not noise to discard.** A negative `delta` *is* LWPS
+  dominance, i.e. the dorsal end of the gradient. Clipping scores at zero
+  removes exactly the electrodes carrying one pole of the dissociation.
+
+⚠️ **Null validity.** The sign-flip null in `_swap_null` is valid only for a
+paired difference, where negation equals the label swap. It is valid for
+`abs_lwpc − abs_lwps` (negation swaps the two magnitudes) and **invalid** for any
+single score. Passing `value_col='lwpc_s'` or `value_col='abs_lwpc'` to
+`relative_score_coordinate_test` sign-flips non-negative or unpaired quantities
+and tests nothing. The single-score rows above use a within-subject permutation
+of the score instead.
+
+### 15.5 Why the centres are null, and how to draw them honestly
+
+`score_centers_per_subject` is null on every axis under every weighting:
+
+| weighting / centre | dx (p) | dy (p) | dz (p) |
+|---|---|---|---|
+| `abs`, `medoid=True` | +0.69 (0.59) | +0.46 (0.80) | −3.26 (0.15) |
+| `abs`, `medoid=False` | +0.61 (0.35) | +0.89 (0.33) | +1.42 (0.26) |
+| positive-clipped, `medoid=True` | +2.08 (0.29) | −0.86 (0.76) | −1.95 (0.56) |
+
+**This is expected, not a contradiction.** The centres weight by `|score|`, and
+as `_synthetic_scores` states, they are "blind to a purely signed dissociation."
+The effect in this dataset is exactly that. No weighting of the existing centre
+statistic can detect it.
+
+Two implementation hazards, both visible here:
+
+- `medoid=True` returns **exactly zero** displacement for 6 of 25
+  subject × hemisphere groups (including groups of 26, 20, 15 and 15
+  electrodes). The medoid takes only *n* discrete values, and on clustered depth
+  shafts the weighted-distance argmin is insensitive to the weights, so both
+  labels snap to the same contact. Those zeros bias the group mean toward the
+  null. `medoid=False` produces none.
+- The two centre definitions **disagree in sign on dz** (−3.26 vs +1.42). At
+  these electrode counts the statistic is not stable to the snapping choice.
+- Positive clipping additionally leaves 2 groups with all-zero LWPC weights and
+  1 with all-zero LWPS weights — undefined centres returned as zero displacement.
+
+**A centre figure that depicts the real result.** Rather than centres of the two
+*scores* (which are blind to the effect), show centres of the two sign-defined
+*electrode sets*:
+
+| | LWPC-dominant (`delta > 0`) | LWPS-dominant (`delta < 0`) | Δz |
+|---|---|---|---|
+| pooled | n = 186, z̄ = 24.6 | n = 212, z̄ = 29.3 | **−4.6 mm** |
+| lh | n = 118, z̄ = 21.0 | n = 136, z̄ = 28.3 | −7.3 mm |
+| rh | n = 68, z̄ = 30.9 | n = 76, z̄ = 31.1 | −0.1 mm |
+
+Within subject × hemisphere (both sets ≥ 2 electrodes, 21 groups): mean
+Δz = **−1.83 mm**, 14/21 in the expected direction. The pooled numbers are
+coverage-inflated — quote the within-subject value.
+
+This is a **descriptive depiction of §15.2, not an independent test**: the sets
+are defined by the sign of the quantity the regression models, so testing the
+separation would be circular. Label it descriptive and carry the p-value from
+the coordinate regression.
+
+### 15.6 Open items
+
+1. **Compute the noise ceiling.** `map_reliability` on the `per_split` object
+   (§7). Until the maps are shown to be split-half reliable, the gradient's
+   effect size is uninterpretable even with a valid p-value. This gates
+   everything above.
+2. **Confirm the z gradient out of sample.** Fit the slope on half the subjects
+   and test on the held-out half, or use odd/even splits from
+   `compute_sensitivities_per_split`. This is what moves the dorsoventral result
+   from exploratory to confirmatory.
+3. **Do not promote the centre statistic.** §13's warning ("a medoid p-value is
+   smaller than the ROI-test p-value → do not promote it") applies in reverse
+   here: a null centre does not qualify the coordinate and parcel results,
+   because the centre cannot see a signed effect at all.
