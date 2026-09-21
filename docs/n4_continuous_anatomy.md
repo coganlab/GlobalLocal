@@ -942,9 +942,10 @@ Two cautions that shape how this is presented:
   data, ≈ 0.30 at full data). Individual electrodes must not be interpreted; the
   reliable quantities are the low-dimensional summaries — the correlation and
   the gradient.
-- **`summary.txt`'s noise-corrected correlation of +1.374 is out of range and
-  should not be reported.** [§15.3](#153-how-reliable-are-the-maps) explains the
-  cause and the fix.
+- **`summary.txt`'s noise-corrected correlations (+1.374, +1.369) are out of
+  range and should not be reported.** The cause was a rank-transform artefact,
+  now fixed in `map_reliability`; [§15.3](#153-how-reliable-are-the-maps) has
+  the corrected values.
 
 The dorsoventral axis was still one of three tested, and the cross-validation
 below controls trial noise, not subject sampling — see
@@ -983,27 +984,49 @@ empirically.
 Reliability must be computed **within a split**, where `xA` and `xB` are
 genuinely disjoint trial halves:
 
-| | LWPC | LWPS |
+| split-half reliability (electrode level) | LWPC | LWPS |
 |---|---|---|
-| split-half reliability (half data) | +0.178 | +0.163 |
-| Spearman-Brown → full data | +0.302 | +0.280 |
+| Spearman (the `method` default, used for `between`) | +0.162 | +0.097 |
+| Pearson (used for the noise correction) | +0.178 | +0.163 |
 
 ⚠️ **Do not compute reliability after averaging over splits.** The A-half of one
 split overlaps the B-half of another, so `corr(x̄A, x̄B)` across split-averaged
 maps returns **+0.987** — an artefact, not a ceiling.
 
-⚠️ **`summary.txt` divides by the wrong ceiling.** It reports
-`noise-corrected +1.374`, which is impossible for a correlation. The cause is
-applying a **half-data** reliability to **full-data** maps. With Spearman-Brown:
+⚠️ **Do not Spearman-Brown these upward either.** Both sides of
+`map_reliability` are already half-length — `between` correlates two half-trial
+estimates and so do the reliabilities — so numerator and denominator sit at the
+same trial count and the ratio is already the attenuation correction it should
+be. Correcting only the denominator to full length would understate it.
 
-| | ceiling | observed r | noise-corrected |
+⚠️ **The out-of-range correction was a rank-transform artefact.**
+`summary.txt` reported `noise-corrected +1.374`, impossible for a correlation.
+The cause is that the attenuation formula is classical-test-theory algebra for
+**Pearson** correlations, while `method` defaults to Spearman. Ranking deflates
+the self-reliabilities much more than the cross term:
+
+| | `between` | ceiling √(rel·rel) | corrected |
 |---|---|---|---|
-| half-data (as reported) | 0.170 | +0.308 | **+1.81** ❌ impossible |
-| full-data (corrected) | 0.291 | +0.308 | **+1.06** ✅ in range |
+| Spearman (as previously reported) | +0.172 | 0.125 | **+1.374** ❌ |
+| Pearson (correct algebra) | +0.174 | 0.170 | **+1.022** ✅ |
+
+Note `between` is nearly identical either way (0.172 vs 0.174) — only the
+ceiling moves. This is not sampling noise: 95 % of individual splits exceed 1
+under Spearman, and the bootstrap interval on the Pearson value is
+**[0.998, 1.046]**. `map_reliability` now always computes
+`between_noise_corrected` from Pearson, reports
+`between_noise_corrected_ci`, and sets `note` when the value is out of range or
+undefined.
 
 A corrected value of ~1.0 is itself the finding: **the two maps are correlated
-at their ceiling.** A value above 1 is the diagnostic that the ceiling was
-mis-scaled, not evidence of a super-perfect correlation.
+at their ceiling** — whatever is reliably mapped is essentially common to both.
+
+⚠️ **The parcel-level ceiling is not estimable and should be dropped.**
+`summary.txt` reports `noise-corrected +1.369` over 21 Destrieux parcels, but
+the Pearson reliability of the LWPC parcel map is **−0.026** — no recoverable
+signal — so the ratio is undefined, and `map_reliability` now returns `nan`
+with a note rather than a number. Quote `between` (+0.275) and the
+reliabilities instead.
 
 **What low reliability does and does not invalidate.** A per-electrode
 reliability of ~0.30 means individual electrode scores are mostly noise, so no
@@ -1228,17 +1251,28 @@ circular.
 The three analyses the previous revision listed as blocking are **done**
 (§15.3 ceiling, §15.5 cross-validation, §15.7 magnitude). What remains:
 
-1. **Fix the noise correction in the pipeline.** `summary.txt` reports
-   `noise-corrected +1.374` / `+1.369`, both impossible. Apply Spearman-Brown to
-   the half-data reliability before dividing ([§15.3](#153-how-reliable-are-the-maps)).
-   Also reconcile the §5.1 `min_elec` sweep, which reports
-   `reliability_y = −0.094` — a different estimator giving a negative
-   reliability, which needs explaining or removing.
-2. **Confirm across subjects, not just across trials.** The cross-validation in
-   §15.5 splits *trials*, so it controls trial noise but not subject sampling.
-   Leave-one-subject-out (21/22 folds) is reassuring but is not a held-out test.
-   Fit the slope on half the subjects and test on the other half.
-3. **Keep the multiplicity caveat.** z was one of three axes. The block F
+1. ~~**Fix the noise correction in the pipeline.**~~ **Done.**
+   `map_reliability` now computes `between_noise_corrected` from Pearson
+   correlations whatever `method` is, returns a bootstrap
+   `between_noise_corrected_ci`, and sets `note` when the ratio is out of range
+   or undefined. `split_resolved_corr` gained a `reliability_note` explaining a
+   non-positive reliability instead of returning a bare `NaN`. **Re-run the
+   pipeline to regenerate `summary.txt`** — the archived one still carries the
+   +1.374 / +1.369 values.
+2. **The §5.1 `min_elec` sweep's negative `reliability_y` (−0.094) is
+   explained, not a bug.** `split_resolved_corr` residualises on responsiveness
+   and **within-subject centres**; `map_reliability` does not. At these
+   per-subject electrode counts (median 14, min 1, two subjects with ≤ 3)
+   centring removes most of the between-electrode variance the reliability is
+   computed over, driving it to ~0. Reproduced here: +0.080 / −0.058 after
+   centring, against +0.162 / +0.097 without. Read the sweep's `corr` as
+   uninterpretable, not as a null — `reliability_note` now says so.
+
+3. **Confirming across held-out subjects is deferred.** The cross-validation in
+   §15.5 splits *trials*, so it controls trial noise but not subject sampling;
+   leave-one-subject-out (21/22 folds) is reassuring but is not a held-out test.
+   Deliberately not run — revisit if a reviewer asks.
+4. **Keep the multiplicity caveat.** z was one of three axes. The block F
    (p = 0.032) is the protected headline; Bonferroni over three axes puts the
    z slope at 0.0225.
 
