@@ -1264,6 +1264,28 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
 
     ``parcels`` is a dict/Series ``{electrode -> parcel}`` (the same ``roi`` or
     ``anat`` map the tests use).
+
+    Both sides are HALF-LENGTH -- ``between`` correlates two half-trial
+    estimates, and so do ``rel_*`` -- so numerator and denominator sit at the
+    same trial count and the ratio is the attenuation correction it should be.
+    Do NOT Spearman-Brown the reliabilities up here: that would pair a
+    full-length ceiling with a half-length numerator and understate the ratio.
+
+    ``between_noise_corrected`` is always computed from PEARSON correlations,
+    whatever ``method`` is, because the attenuation formula is classical-test-
+    theory algebra for linear measurements. Ranking is a non-linear transform
+    that deflates the self-reliabilities more than it deflates the cross term,
+    so a Spearman ratio is not an attenuation correction and can sit far above
+    1 (on the lPFC run: 1.374 under Spearman, 1.022 under Pearson, from nearly
+    identical ``between`` values of 0.172 and 0.174). ``between`` itself is
+    still reported under ``method``, which stays Spearman by default for
+    robustness to outliers.
+
+    A corrected value above 1 is out of range for a correlation. It means the
+    reliabilities are too small to bound anything, not that the maps are
+    more-than-perfectly correlated -- ``note`` says so, and
+    ``between_noise_corrected_ci`` (bootstrap over splits) shows how unstable
+    the ratio is. Report ``between`` and the reliabilities in that case.
     """
     from scipy.stats import spearmanr, pearsonr
     fn = spearmanr if method == 'spearman' else pearsonr
@@ -1282,7 +1304,7 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     if d.empty:
         raise ValueError("no unit survived the completeness / parcel filter")
 
-    rows = []
+    rows, rows_p = [], []
     for _, g in d.groupby('split'):
         if len(g) < min_units:
             continue
@@ -1290,15 +1312,57 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
         ya, yb = g['yA'].to_numpy(), g['yB'].to_numpy()
         rows.append((0.5 * (fn(xa, yb)[0] + fn(xb, ya)[0]),
                      fn(xa, xb)[0], fn(ya, yb)[0]))
+        # The attenuation correction below is Pearson algebra, so it is always
+        # computed on Pearson correlations even when `method='spearman'` --
+        # see `between_noise_corrected` in the docstring.
+        rows_p.append((0.5 * (pearsonr(xa, yb)[0] + pearsonr(xb, ya)[0]),
+                       pearsonr(xa, xb)[0], pearsonr(ya, yb)[0]))
     if not rows:
         raise ValueError(f"every split has fewer than min_units={min_units} {unit}s")
     between, rel_x, rel_y = np.nanmean(np.array(rows, float), axis=0)
-    denom = np.sqrt(rel_x * rel_y) if (rel_x > 0 and rel_y > 0) else np.nan
+    arr_p = np.array(rows_p, float)
+    between_p, rel_xp, rel_yp = np.nanmean(arr_p, axis=0)
+
+    def _corrected(b, rx, ry):
+        return b / np.sqrt(rx * ry) if (rx > 0 and ry > 0) else np.nan
+
+    corrected = _corrected(between_p, rel_xp, rel_yp)
+
+    # The ratio is unstable when the reliabilities are small, so report a
+    # bootstrap interval over splits next to the point estimate rather than the
+    # point estimate alone.
+    if np.isfinite(corrected):
+        rng = np.random.default_rng(0)
+        boot = np.array([_corrected(*arr_p[rng.integers(0, len(arr_p), len(arr_p))].mean(axis=0))
+                         for _ in range(2000)], float)
+        ci = (tuple(float(v) for v in np.nanpercentile(boot, [2.5, 97.5]))
+              if np.isfinite(boot).any() else (np.nan, np.nan))
+    else:
+        # The point estimate is undefined, so a bootstrap of it is not an
+        # interval for anything -- resamples that happen to land on a tiny
+        # positive reliability produce arbitrarily large ratios.
+        ci = (np.nan, np.nan)
+
+    note = None
+    if not np.isfinite(corrected):
+        note = ("noise correction undefined: a split-half reliability is <= 0, so "
+                "neither map is measured well enough to bound a correlation. "
+                "Report `between` and the reliabilities, not a corrected value.")
+    elif corrected > 1.0:
+        note = (f"noise-corrected value {corrected:.3f} exceeds 1, which is out of "
+                "range for a correlation. At reliabilities this low the ratio is "
+                "not estimable; report it as 'at the ceiling' and quote `between` "
+                "and the reliabilities instead of the ratio.")
 
     return dict(between=float(between), reliability_lwpc=float(rel_x),
                 reliability_lwps=float(rel_y),
-                between_noise_corrected=(float(between / denom)
-                                         if np.isfinite(denom) else np.nan),
+                between_noise_corrected=(float(corrected)
+                                         if np.isfinite(corrected) else np.nan),
+                between_noise_corrected_ci=ci,
+                between_pearson=float(between_p),
+                reliability_lwpc_pearson=float(rel_xp),
+                reliability_lwps_pearson=float(rel_yp),
+                note=note,
                 unit=unit, n_units=int(d[unit].nunique()),
                 n_splits=int(len(rows)), method=method)
 
