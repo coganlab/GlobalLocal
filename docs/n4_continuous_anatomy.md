@@ -1042,6 +1042,62 @@ single score. Passing `value_col='lwpc_s'` or `value_col='abs_lwpc'` to
 and tests nothing. The single-score rows above use a within-subject permutation
 of the score instead.
 
+#### Is the gradient magnitude-dominance or sign-discordance?
+
+`delta` is large both when LWPC exceeds LWPS in magnitude *and* when the two
+have opposite signs. Those are different claims, so the gradient was decomposed
+by sign quadrant. The `++`/`--`/concordant/discordant partitions are invariant
+under the per-electrode label swap, so the sign-flip null stays valid inside
+each subset (a subset defined by the sign of `delta` would **not** be — the swap
+moves electrodes across it).
+
+| subset | n | `delta` z slope | p |
+|---|---|---|---|
+| all | 398 | −0.0077 | 0.0075 |
+| **concordant (`++` or `--`)** | **249** | **−0.0082** | **0.0032** |
+| discordant (`+-` or `-+`) | 149 | −0.0149 | 0.029 |
+| `++` only | 135 | −0.0059 | 0.26 |
+| `--` only | 114 | −0.0079 | 0.023 |
+
+**The gradient is not a discordance artifact.** It is present in the concordant
+electrodes alone, slightly more cleanly than in the full sample, and the slope
+is the same sign in every quadrant.
+
+But the magnitude contrast stays null even there (`abs_lwpc − abs_lwps` among
+concordant electrodes: z slope +0.0008, **p = 0.76**). The reason is
+arithmetic: among `++` electrodes `delta = abs_lwpc − abs_lwps`, while among
+`--` electrodes `delta = −(abs_lwpc − abs_lwps)`. The two concordant quadrants
+therefore contribute **opposite-signed magnitude gradients**, which cancel when
+pooled, while their `delta` gradients agree. Whatever varies along z is the
+signed contrast, not the magnitude ordering.
+
+The per-score slopes say the same thing: going dorsal, `lwpc_s` shifts negative
+(−0.0037, p = 0.12) and `lwps_s` shifts positive (+0.0040, p = 0.062) — a smooth
+additive shift in opposite directions that sums to the `delta` slope.
+
+**Neither score's own sign varies with z**, only their ordering does
+(within-subject permutation):
+
+| | r | p |
+|---|---|---|
+| P(`lwpc_s` > 0) vs z | −0.021 | 0.68 |
+| P(`lwps_s` > 0) vs z | +0.043 | 0.42 |
+| **P(`delta` > 0) vs z** | **−0.144** | **0.0058** |
+
+So the result is a *relative reordering* along the dorsoventral axis, not a sign
+reversal of either effect. The fraction of LWPC-dominant electrodes falls
+dorsally while each effect's own direction is unchanged.
+
+**Consequence.** A magnitude-based measure is not a more interpretable version
+of this result; it is a different hypothesis, and in this dataset that
+hypothesis is false. If it is to be tested properly, note that `|score|` is a
+**biased** magnitude estimator — for a null electrode E`|score|` ≈ 0.8 σ, pure
+noise floor — so `abs_lwpc − abs_lwps` largely contrasts two noise floors. The
+unbiased alternative uses the disjoint splits already produced by
+`compute_sensitivities_per_split`: for independent split estimates x₁, x₂ of the
+same effect, E[x₁·x₂] = μ², with no rectification bias. Build magnitude that way
+before concluding anything about magnitudes.
+
 ### 15.5 Why the centres are null, and how to draw them honestly
 
 `score_centers_per_subject` is null on every axis under every weighting:
