@@ -886,10 +886,27 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     p = float((np.sum(np.abs(null) >= abs(obs)) + 1) / (n_perm + 1))
 
     denom = np.sqrt(rel_x * rel_y) if (rel_x > 0 and rel_y > 0) else np.nan
+    # A reliability <= 0 is not a small effect, it is no measurement: the two
+    # halves of the same effect do not agree at all. It happens here mainly
+    # because these values are within-subject centred, which at small
+    # per-subject electrode counts removes most of the between-electrode
+    # variance the reliability is computed over. Say so rather than returning a
+    # bare NaN, and never report `corr` as a null result on that basis.
+    note = None
+    if not (rel_x > 0 and rel_y > 0):
+        small = int((pd.Series(subj).value_counts() <= 3).sum())
+        note = (f"reliability_x={rel_x:+.3f}, reliability_y={rel_y:+.3f}: a "
+                "split-half reliability <= 0 means that map carries no "
+                "recoverable signal after within-subject centring "
+                f"({small} subject(s) contribute <= 3 electrodes). `corr` is "
+                "uninterpretable here -- it cannot distinguish 'the effects "
+                "load on different electrodes' from 'neither effect is "
+                "measured well enough to correlate with anything'. Compare "
+                "against map_reliability, which does not centre.")
     return dict(corr=obs, p=p, method=method,
                 n_electrodes=len(elecs), n_subjects=len(groups), n_splits=len(splits),
                 n_electrodes_dropped=int(n_elec_in - len(elecs)),
-                reliability_x=rel_x, reliability_y=rel_y,
+                reliability_x=rel_x, reliability_y=rel_y, reliability_note=note,
                 corr_noise_corrected=(float(obs / denom) if np.isfinite(denom) else np.nan))
 
 
