@@ -94,7 +94,7 @@ HIST_TOP_N=${HIST_TOP_N:-}               # cap the Destrieux histogram at N labe
 # Brain figure (needs mne + pyvista + the recon templates; falls back to the
 # ROI histogram when they're missing).
 MAKE_BRAIN=${MAKE_BRAIN:-1}
-BRAIN_HEMI=${BRAIN_HEMI:-both}   # both | lh | rh | split
+BRAIN_HEMI=${BRAIN_HEMI:-split}   # both | lh | rh | split
 # Per-panel camera zoom; <1 zooms out. Blank keeps the renderer's default, which
 # already separates the two 'split' panels; lower it (e.g. 0.6) to push the
 # hemispheres further apart, raise it to 1 to fill each panel.
