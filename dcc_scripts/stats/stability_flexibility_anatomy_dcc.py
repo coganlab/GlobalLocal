@@ -140,7 +140,7 @@ def resolve_anat_level(anat_level, labels_with_roi, roi_filter=None):
 # ---------------------------------------------------------------------------
 # serialization
 # ---------------------------------------------------------------------------
-def ≈(labels_with_roi, coverage, enrich, save_dir, roi_col='roi'):
+def save_results(labels_with_roi, coverage, enrich, save_dir, roi_col='roi'):
     os.makedirs(save_dir, exist_ok=True)
     labels_with_roi.to_csv(os.path.join(save_dir, 'anatomy_labels_roi.csv'), index=False)
     coverage.astype(int).to_csv(os.path.join(save_dir, 'coverage_matrix.csv'))
