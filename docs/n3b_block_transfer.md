@@ -1,7 +1,8 @@
 # N3b: block-transfer cross-decoding
 
-**Status:** planned; implementation in progress.
+**Status:** implemented and validated on synthetic data; not yet run on real data.
 **Spec:** `docs/analysis_plan_concurrent_regulation.md` §4. Controls and decision rules: `docs/cross_decoding_controls.md`.
+**Run it:** `cd dcc_scripts/decoding && bash submit_block_transfer_dcc.sh` (Part 3).
 
 N3b trains a classifier in one kind of block and tests it in another:
 
@@ -20,10 +21,12 @@ The existing decoder (`Decoder.cv_cm_jim_window_shuffle`) always cuts its train 
 - run on all significant electrodes of an ROI (LPFC by default), with no electrode groups;
 - explain the design choices well enough that the code can be maintained by someone who didn't write it.
 
-**Decisions:**
-- implement with a walkthrough (this doc);
-- delete dead code in a separate commit;
-- fix the A4 NaN-padding bug as well (see 1.1).
+This doc has three parts:
+- **Part 1:** the concepts, as answers to the design questions;
+- **Part 2:** what was built;
+- **Part 3:** how to run it and read the output.
+
+The same change also fixed the A4 padding bug (see 1.1 and "Changes to A4" at the end), and it removed dead code.
 
 ## The data this has to work with
 
@@ -47,8 +50,8 @@ Inside a block, the classes run about **3:1, and the majority class flips betwee
 - **Stratifying a split:** dealing the trials into folds so that every fold is a small copy of the whole set. If 25% of the trials are incongruent, every fold is about 25% incongruent. It never adds or removes a trial. It only stops a random split from, say, putting most of the rare trials in one fold.
 - **`stratify_labels`** (in `cv_cm_jim_window_shuffle`) is the label the folds are kept proportional on. The default is the training labels. A4 passes `strata`, which is the index of the condition each trial came from (0–15 for the 16 cells). So every fold has the same mix of all 16 cells, and therefore of congruency, switch type and both proportions at once. That matters in label transfer, which scores on switch type: folds balanced only on congruency could come out lopsided on switch type.
 - **Balancing is a different thing.** It changes the data: you subsample so that groups have equal counts.
-  - **A4 does not balance.** Its IR/IS/CR/CS cells look equal only because `LabeledArray.from_dict` pads every condition to the same height with all-NaN rows.
-  - At test time those rows are filled with random noise and scored. Rare cells such as I25 are mostly padding. This is the bug fixed alongside N3b.
+  - **A4 does not balance.** Before this change, its IR/IS/CR/CS cells looked equal only because `LabeledArray.from_dict` pads every condition to the same height with all-NaN rows.
+  - At test time those rows were filled with random noise and scored, so rare cells such as I25 were mostly padding. A4 now drops them (see "Changes to A4" at the end).
 - **N3b needs both:** balancing, then stratified folds.
 
 ### 1.2 What to balance
@@ -136,104 +139,115 @@ Any pre-stimulus windows that come out significant are an artifact flag (`cross_
 
 ---
 
-## Part 2: implementation plan (one commit per step)
+## Part 2: how it is built
 
-### Step 1: `decoder.py`, new `test_only` option on `cv_cm_jim_window_shuffle`
+### The call path
 
-- New keyword `test_only=None`: a boolean per trial.
-- Trials marked True are never trained on. Folds are cut from the other trials, and every fold's classifier is scored on **all** the marked trials.
-- The fold loop becomes:
-  ```python
-  trainable = np.arange(len(labels)) if test_only is None else np.flatnonzero(~test_only)
-  fixed_test = None if test_only is None else np.flatnonzero(test_only)
-  for f, (tr, te) in enumerate(splitter.split(np.zeros(len(trainable)), strat[trainable])):
-      train_idx = trainable[tr]
-      test_idx = trainable[te] if fixed_test is None else fixed_test
-  ```
-  plus a length check and a docstring paragraph.
-- **Unchanged:** shuffle (still permutes training labels only), `frac_train`, `folds_as_samples`, temporal generalization (it gives cross-block temporal generalization for free), and the output shapes.
-- With `test_only=None` the folds are identical to before, because the splitter only reads the number of trials from X.
+Everything below the job function is the ordinary cross-decoding pipeline; the new pieces are marked **new**.
 
-### Step 2: fix A4 padding (`cross_decoding.py`)
-
-- **`build_cross_decoding_arrays`:** drop rows that are NaN on every channel, which is pure padding, and skip conditions left with no rows. Rows missing only some subjects are kept and imputed as before (mixup when training, noise when testing).
-  - This fixes every A4 design.
-  - It also covers the all-NaN rows that `_restrict_to_electrodes` creates.
-- **Equal LDA priors in a shared `make_decoder(...)` factory**, used by `run_cross_decoding` and N3b.
-  - Why this is needed: the padding was hiding the 3:1 class ratio in A4's within-block decodes. Without equal priors those numbers would lean toward the majority class.
-  - Confirm against the installed `ieeg` that `PcaEstimateDecoder` uses the `clf` instance as-is.
-
-### Step 3: N3b library, new `src/analysis/decoding/block_transfer.py`
-
-**`prepare(roi_labeled_arrays, roi, cells, strings, block_col)`** (no `ieeg` needed):
-- Calls `build_cross_decoding_arrays(arrays, roi, strings, strings)`.
-- Looks up each trial's factor levels through `cells`.
-- Returns the data, labels, strata, each trial's `block_col` level, and its balance group (class × incongruent proportion × switch proportion, 8 groups).
-
-**`balanced_subsample(groups, rng)`:** the same number of trials from every group (the smallest group's size), in their original order.
-
-**`run_block_transfer(...)`:**
-```python
-for r in range(n_resamples):
-    k = balanced_subsample(groups, rng)             # new balanced draw every repeat
-    Xk = X[k].copy()
-    if center:                                      # AFTER balancing -> mean = class midpoint
-        for lvl in (lo, hi): Xk[block[k] == lvl] -= np.nanmean(Xk[block[k] == lvl], axis=0)
-    dec = make_decoder(cats, 2, n_splits=n_splits, n_repeats=1, random_state=seed + r)
-    for tr, te in ((lo, lo), (lo, hi), (hi, hi), (hi, lo)):
-        use = np.isin(block[k], (tr, te))
-        test_only = None if tr == te else (block[k][use] == te)   # within = ordinary CV
-        for shuffle in (False, True):
-            cm = dec.cv_cm_jim_window_shuffle(Xk[use], y[k][use], normalize='true', obs_axs=0,
-                     window=window, step_size=step_size, stratify_labels=strata[k][use],
-                     test_only=test_only, shuffle=shuffle)
 ```
-- Same seed ⇒ within(lo) and lo→hi use identical folds.
-- X1 and X3 have identical groups, so they draw identical resamples.
-- The output feeds straight into `compute_accuracies` and the cluster test.
+submit_block_transfer_dcc.sh                       new: ANALYSIS=block_transfer, ROI, ELECTRODES
+ └ sbatch_stability_flexibility_cross_decoding_dcc.sh
+    └ run_stability_flexibility_cross_decoding_dcc.py     environment variables -> args
+       └ stability_flexibility_cross_decoding_dcc.main(args)
+          └ run_block_transfer_job(args)                  new: loads the ROI, loops X1-X3 x centering
+             ├ _build_roi_arrays                          the ROI pseudopopulation (sig or all electrodes)
+             ├ block_transfer.run_block_transfer          new: balance -> center -> the 2x2
+             │  ├ cross_decoding.build_cross_decoding_arrays   trials + labels, padding rows dropped
+             │  ├ cross_decoding.make_decoder                  PCA -> LDA with equal priors
+             │  └ Decoder.cv_cm_jim_window_shuffle(test_only=...)   folds -> confusion matrices
+             ├ _summarise                                 accuracy + cluster test vs the shuffle null
+             └ summary.txt, block_transfer.json, block_transfer_traces.npz, figures
+```
 
-**Synthetic generator:** `synthetic_roi_labeled_arrays` gets three new keywords.
-- `block_code='same'|'specific'`: with `'specific'`, the congruency axis in 75%-incongruent cells is a third axis at right angles to the first.
-- `block_offset`: a tonic shift along the congruency axis applied to every 75%-incongruent trial.
-- `design_proportions`: when True, cell sizes follow the 25/75 design, i.e. 3:1 classes within a block.
-- The default output stays byte-identical.
+### What changed, file by file
 
-### Step 4: the N3b job
+- **`src/analysis/decoding/decoder.py`: `test_only`.** A new optional argument of `cv_cm_jim_window_shuffle`: a True/False flag per trial. Flagged trials are never trained on. The folds are cut from the unflagged trials only, and every fold's classifier is scored on all the flagged trials. With `test_only=None` (the default) the function behaves exactly as before. The whole change is the few lines that pick `train_idx` and `test_idx` in the fold loop.
+- **`src/analysis/decoding/cross_decoding.py`:**
+  - `build_cross_decoding_arrays` drops padding rows (see 1.1) through `_drop_padding_rows`.
+  - `make_decoder` builds the Decoder with equal LDA priors (see 1.2). It passes them as `clf_params`, which also stops `ieeg` printing "No initial parameters" on every fit.
+  - `synthetic_roi_labeled_arrays` gains `block_code`, `block_offset` and `design_proportions`, so tests can plant a block-specific code, a tonic block shift and 3:1 cells. Its default output is byte-identical to before.
+- **`src/analysis/decoding/block_transfer.py` (new, about 150 lines, reads top to bottom):**
+  - `prepare`: trials, labels, each trial's block level and balance group.
+  - `balanced_subsample`: equal trials from every group.
+  - `center_levels`: subtract each level's mean trial.
+  - `run_block_transfer`: the resample loop that produces the 2x2.
+- **`dcc_scripts/decoding/stability_flexibility_cross_decoding_dcc.py`:** `run_block_transfer_job` and its three small helpers (`_summarise_block_transfer`, `_plot_block_transfer`, `_write_block_transfer_summary`). `main()` hands off to it when `args.analysis == 'block_transfer'`, so none of the A4 electrode-group code runs.
+- **`dcc_scripts/decoding/run_stability_flexibility_cross_decoding_dcc.py`:**
+  - reads `ANALYSIS` (default `a4`, so existing submissions are unchanged);
+  - gives block-transfer runs their own results folder;
+  - always puts synthetic runs under `results/synthetic_<code>/`, so a dry run can no longer overwrite a real run's folder.
+- **`dcc_scripts/decoding/submit_block_transfer_dcc.sh` (new):** one job, readable on one screen.
+- **Removed dead code:**
+  - `decoder.py`: a commented-out older copy of `cv_cm_jim_window_shuffle`, `fit_predict`, `cv_cm_return_scores`, `calculate_scores`, and unused imports. Its comments no longer claim a StandardScaler; the `ieeg` pipeline is PCA → LDA.
+  - `cross_decoding.py`: `CONTRASTS`, `resolve_contrast` and their helpers. They were used only by one test, and they coded incongruent as 1 while the rest of the module codes it as 0.
 
-**`stability_flexibility_cross_decoding_dcc.py`:**
-- `main()` dispatches to `run_block_transfer_job(args)` when `ANALYSIS=block_transfer`.
-- The job loads data with the existing `_build_roi_arrays` (`ELECTRODES` alone decides sig vs all).
-- It prints the 8 group sizes and the balanced n; this is the go/no-go from the concurrent-regulation plan §4.4.
-- It runs X1, X2 and X3, each uncentered and centered.
-- Each cell goes through the existing `_summarise` (cluster test vs shuffle).
-- It adds a ceiling test (within the test level > transfer into it).
-- **Outputs:**
-  - `block_transfer.json`
-  - `block_transfer_traces.npz`
-  - `summary.txt`
-  - figures made with `plot_accuracies_nature_style`
+### Tests
 
-**Runner:** `run_stability_flexibility_cross_decoding_dcc.py` reads `ANALYSIS=a4|block_transfer` (default `a4`). For N3b, `N_REPEATS` means the number of balanced resamples.
+`tests/analysis/decoding/test_block_transfer.py`:
 
-**Submit script:** new `submit_block_transfer_dcc.sh`, one job per call through the existing sbatch wrapper.
+- **The decoder:** `test_only` trials are never trained on and are always the whole test set, and a transfer trains on exactly the folds of the matching within-level decode.
+- **Balancing and centering (no `ieeg` needed):** the 8 balance groups, equal counts after balancing, and the balance-then-center order. The class midpoint lands at 0; centering the raw 3:1 trials would put it a quarter of the class difference off.
+- **Planted answers on synthetic data:**
+  - a block-invariant code transfers as well as it decodes;
+  - a block-specific code fails X1 in both directions but still passes X3;
+  - a tonic block offset breaks only uncentered transfer;
+  - within-level accuracies don't move with centering.
+- **End to end:** `main()` with `analysis='block_transfer'` on synthetic data writes all its outputs.
 
-**Tests:** new `tests/analysis/decoding/test_block_transfer.py` checks that:
-- `test_only` trials are never trained on;
-- a block-invariant code transfers;
-- a block-specific code fails X1 but passes X3;
-- a block offset breaks only uncentered X1;
-- within-level cells are identical centered and uncentered;
-- balancing and centering do what 1.2 and 1.5 require;
-- an end-to-end synthetic run of the job writes its outputs.
+`tests/analysis/decoding/test_cross_decoding.py` adds tests for the padding fix and for equal priors on a 3:1 class split.
 
-### Step 5: remove dead code
+To run them outside the cluster: `pip install -e . pytest`, then `python -m pytest -o addopts="" tests/analysis/decoding -q`.
 
-- **`decoder.py`:** the commented-out old method, `fit_predict`, `cv_cm_return_scores`, `calculate_scores`, and unused imports. Also fix the comments claiming a StandardScaler: the `ieeg` pipeline is PCA → LDA.
-- **`cross_decoding.py`:** `DEFAULT_CELL_COLS`, `_congruency_label`, `_switch_label`, `CONTRASTS`, `resolve_contrast`, and their test. They coded incongruent as 1 while the rest of the module codes it as 0.
+---
 
-### Step 6: update this doc
+## Part 3: running it and reading the output
 
-Replace this plan with a walkthrough of what was built, how to run it, and how to read `summary.txt`.
+### Running
+
+- **Synthetic dry run** (seconds to minutes, anywhere): `ANALYSIS=block_transfer DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific N_REPEATS=10 WINDOW_SIZE=16 STEP_SIZE=8 python dcc_scripts/decoding/run_stability_flexibility_cross_decoding_dcc.py`. The planted answer is "X1 fails, X3 transfers". The default `SYNTHETIC_CODE` plants a block-invariant code, so everything should transfer.
+- **Real data on the DCC:**
+  ```
+  cd dcc_scripts/decoding
+  bash submit_block_transfer_dcc.sh                                   # lpfc, sig electrodes
+  ROI=acc ELECTRODES=all bash submit_block_transfer_dcc.sh            # another region, every electrode
+  EPOCHS_ROOT_FILE=<root with the sig_chans you mean> bash submit_block_transfer_dcc.sh
+  ```
+- **Cost:** 3 designs × 2 centerings × 4 cells × (true + shuffle) × `N_REPEATS` resamples × `N_SPLITS` folds × windows. That is about as many classifier fits as the A4 battery, so it fits the same 16 h allocation.
+- **Check the log first.** For each design it prints the real trials available per class per physical block, and how many of each are kept per resample. That is the go/no-go of the concurrent-regulation plan §4.4. If the kept number is in the low teens, expect a null and say so up front.
+
+### Outputs
+
+Written to `results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S>/stimulus_experiment_conditions/`:
+
+| File | Contents |
+|---|---|
+| `summary.txt` | Read this first. For every design and centering: the 2×2 table, the ceiling test, the go/no-go line, any artifact flag, and the reading guide |
+| `block_transfer.json` | The same numbers per cell, plus the run's settings and the group sizes |
+| `block_transfer_traces.npz` | Accuracy traces, windows × resamples. Keys look like `X1_centered_25to75_true` / `..._shuffle` |
+| `<design>_<centering>_<train>to<test>_<roi>_block_transfer.{pdf,png,eps}` | The transfer into a level, drawn against that level's own within-level accuracy (its ceiling) and the shuffle null. Bars mark windows where the transfer beats shuffle |
+
+### Reading `summary.txt`
+
+Each design gets a block like this one:
+
+```
+X1_uncentered: congruency, trained in one incongruent_proportion level and tested in the other
+   balanced to 40 trials per class per physical block (available: {...})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%       0.812 (3/0)       0.515 (0/0)
+              75%       0.506 (0/0)       0.803 (3/0)
+   25% -> 75% vs within 75%: below that ceiling in 3 windows
+   75% -> 25% vs within 25%: below that ceiling in 3 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+```
+
+- **The table:** rows are the level trained on, columns the level tested on. The diagonal is the within-level ceiling; off the diagonal is transfer. Each cell shows the mean accuracy after stimulus onset, then (significant post / pre windows against the shuffle null).
+- **The "vs within" lines** compare each transfer with the ceiling of the level it is tested on (see 1.4).
+- **The CEILING line** is the go/no-go (the first row of the table in 1.6).
+- **An ARTIFACT FLAG line** appears if any cell is significant before stimulus onset.
+- **Read the pairs together:** a design's uncentered and centered blocks, then X1 against X3.
 
 ---
 
@@ -247,8 +261,9 @@ Replace this plan with a walkthrough of what was built, how to run it, and how t
 - **Stale material:** `src/analysis/decoding/cross_decoding_tutorial.ipynb` and `docs/skeletons/a4_cross_decoding.py` describe functions that no longer exist.
 - **`TEMPGEN_GROUPS=both,all`** is cut at the comma by `sbatch --export` in the A4 submit script.
 
-## Verification
+## Changes to A4
 
-1. Run the decoding tests: `python -m pytest -o addopts="" tests/analysis/decoding/test_cross_decoding*.py tests/analysis/decoding/test_block_transfer.py -q`.
-2. Run a synthetic end-to-end job: `ANALYSIS=block_transfer DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific N_REPEATS=2 N_PERM=50 WINDOW_SIZE=16 STEP_SIZE=8 python dcc_scripts/decoding/run_stability_flexibility_cross_decoding_dcc.py`. `summary.txt` should show X1 transfer ≈ 0.5, X3 transfer ≈ within, and identical within-level cells centered vs uncentered.
-3. On the DCC: `cd dcc_scripts/decoding && bash submit_block_transfer_dcc.sh`. Check the group-size and go/no-go lines in the log first.
+The padding fix (1.1) changes every A4 design, so A4 numbers from before this change aren't comparable with new runs.
+
+- `build_cross_decoding_arrays` now drops the all-NaN padding rows. Before, they were filled by mixup when training and scored as noise when testing, which pulled accuracies toward chance, most of all for rare cells.
+- `run_cross_decoding` now uses equal LDA priors (`make_decoder`). Without the padding, the within-block decodes (A4(0)) have their real 3:1 class ratio, and training-frequency priors would lean toward the majority class.
