@@ -57,6 +57,11 @@ The SYNTHETIC path uses a ground-truth pseudopopulation with a KNOWN
 shared-vs-orthogonal code (`cd.synthetic_roi_labeled_arrays`), which validates the
 whole path and that the analysis discriminates the two codes.
 
+With `args.analysis == 'block_transfer'` the job runs N3b instead
+(`run_block_transfer_job`, docs/n3b_block_transfer.md): each contrast is trained
+in one block level and tested in the other, on every electrode of the ROI, with
+no electrode groups.
+
 Driven by `run_stability_flexibility_cross_decoding_dcc.py` (wrapped by
 `sbatch_stability_flexibility_cross_decoding_dcc.sh`). Not run directly on the
 cluster; call `main(args)` with a populated argument namespace.
@@ -69,6 +74,7 @@ import sys
 import os
 import re
 import json
+from types import SimpleNamespace
 
 # ---------------------------------------------------------------------------
 # PATH SETUP (mirrors the other dcc_scripts entrypoints)
@@ -93,6 +99,7 @@ import matplotlib
 matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
+from src.analysis.decoding import block_transfer as bt
 from src.analysis.decoding import cross_decoding as cd
 from src.analysis.decoding.accuracy_stats import (
     compute_accuracies, perform_time_perm_cluster_test_for_accuracies)
@@ -665,10 +672,198 @@ def _roi_channel_names(arrays, roi):
 
 
 # ---------------------------------------------------------------------------
+# N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md)
+# ---------------------------------------------------------------------------
+# name -> (decoded contrast, block factor it is transferred across)
+BLOCK_TRANSFER_DESIGNS = {
+    'X1': ('congruency', 'incongruent_proportion'),
+    'X2': ('switchType', 'switch_proportion'),
+    'X3': ('congruency', 'switch_proportion'),   # the control for X1, on the same trials
+}
+
+
+def _window_centers(n_windows, args):
+    """Centre of each decoding window, in seconds from stimulus onset."""
+    return (getattr(args, 'first_time_point', -1.0)
+            + (np.arange(n_windows) * args.step_size + args.window_size / 2)
+            / getattr(args, 'sampling_rate', 256))
+
+
+def _summarise_block_transfer(out, args, cluster_kw):
+    """One `bt.run_block_transfer` 2x2 -> a summary per cell, plus the ceiling test.
+
+    Every cell gets the ordinary `_summarise` (cluster test against its own
+    shuffle null) and its post-stimulus mean. Each transfer is also compared with
+    the within-level accuracy of the level it is SCORED on: `below_ceiling` marks
+    the windows where within(test) > transfer(train -> test).
+    """
+    summary = {}
+    for (train, test), cms in out['cells'].items():
+        s = _summarise(dict(cms, conditions=[]), **cluster_kw)
+        post = _window_centers(s['n_windows'], args) > 0
+        s['post_mean_accuracy'] = float(s['acc_true'][post].mean()) if post.any() else None
+        s['n_sig_post'] = int(s['significant_windows'][post].sum())
+        s['n_sig_pre'] = int(s['significant_windows'][~post].sum())
+        summary[(train, test)] = s
+    for (train, test), s in summary.items():
+        if train != test:
+            below, _ = perform_time_perm_cluster_test_for_accuracies(
+                summary[(test, test)]['acc_true'], s['acc_true'], **cluster_kw)
+            s['below_ceiling'] = np.asarray(below).astype(bool).ravel()
+            s['n_below_ceiling'] = int(s['below_ceiling'].sum())
+    return summary
+
+
+def _plot_block_transfer(results, args, roi):
+    """For each design, centering and test level: the transfer INTO a level,
+    against that level's own within-level accuracy (its ceiling) and the null."""
+    from src.analysis.decoding.plots.accuracies import plot_accuracies_nature_style
+    for key, res in results.items():
+        lo, hi = res['levels']
+        for train, test in ((lo, hi), (hi, lo)):
+            transfer = res['cells'][f'{train}->{test}']
+            within = res['cells'][f'{test}->{test}']
+            plot_accuracies_nature_style(
+                _window_centers(transfer['acc_true'].shape[0], args),
+                {f'within {test}%': within['acc_true'],
+                 f'{train}% -> {test}%': transfer['acc_true'],
+                 'shuffle': transfer['acc_shuffle']},
+                significant_clusters=transfer['significant_windows'],
+                window_size=args.window_size, step_size=args.step_size,
+                sampling_rate=getattr(args, 'sampling_rate', 256),
+                comparison_name=f'{key}_{train}to{test}', roi=roi, save_dir=args.save_dir,
+                title=f"{res['design']} {res['contrast']}: {train}% -> {test}% "
+                      f"({'centered' if res['centered'] else 'uncentered'})",
+                samples_axis=1, filename_suffix='block_transfer')
+
+
+def _write_block_transfer_summary(results, meta, save_dir):
+    def cell(s):
+        acc = s['post_mean_accuracy']
+        return ("n/a" if acc is None else f"{acc:.3f}") + f" ({s['n_sig_post']}/{s['n_sig_pre']})"
+
+    lines = ["=" * 72, "N3b BLOCK-TRANSFER CROSS-DECODING", "=" * 72]
+    lines += [f"{k:>22}: {v}" for k, v in meta.items()]
+    if meta['n_resamples'] < 5:
+        lines.append(f"NOTE: with only {meta['n_resamples']} resamples the cluster tests "
+                     "cannot reach p < .05, so every significance count below is 0 by "
+                     "construction. Use N_REPEATS >= 10 for a real run.")
+    for key, res in results.items():
+        lo, hi = res['levels']
+        c = res['cells']
+        lines += ["-" * 72,
+                  f"{key}: {res['contrast']}, trained in one {res['block_col']} level "
+                  "and tested in the other",
+                  f"   balanced to {res['n_per_group']} trials per class per physical block "
+                  f"(available: {res['group_sizes']})",
+                  "   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):",
+                  f"   {'train | test':>14}{str(lo) + '%':>18}{str(hi) + '%':>18}"]
+        for train in (lo, hi):
+            lines.append(f"   {str(train) + '%':>14}{cell(c[f'{train}->{lo}']):>18}"
+                         f"{cell(c[f'{train}->{hi}']):>18}")
+        for train, test in ((lo, hi), (hi, lo)):
+            lines.append(f"   {train}% -> {test}% vs within {test}%: below that ceiling in "
+                         f"{c[f'{train}->{test}']['n_below_ceiling']} windows")
+        flat = [f'{level}%' for level in (lo, hi) if c[f'{level}->{level}']['n_sig_post'] == 0]
+        lines.append("   CEILING: " + (f"within {', '.join(flat)} never beats shuffle "
+                                        "after stimulus onset -> nothing to transfer; "
+                                        "this design is NOT interpretable" if flat else
+                                        "both within-level decodes beat shuffle -> interpretable"))
+        n_pre = sum(s['n_sig_pre'] for s in c.values())
+        if n_pre:
+            lines.append(f"   ARTIFACT FLAG: {n_pre} significant pre-stimulus windows across "
+                         "the 2x2 (congruency/switch information cannot exist there yet)")
+
+    lines += ["=" * 72,
+              "Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the",
+              "within accuracy of the level it is TESTED on.",
+              "  transfer ~ within, centered and uncentered  -> the same code in both levels",
+              "  below within uncentered only                -> same axis, a tonic block shift",
+              "  below within centered, in BOTH directions   -> block context reorganizes the",
+              "                                                 code; counts only if X3 transfers",
+              "  below in one direction only                 -> the training level's code is",
+              "                                                 weaker, not a different axis",
+              "Resamples are not independent subjects, so window-wise p-values are optimistic.",
+              "=" * 72]
+    txt = "\n".join(lines)
+    with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:
+        f.write(txt + "\n")
+    print(txt)
+
+
+def run_block_transfer_job(args):
+    """N3b on every electrode of the decoded ROI array, with no electrode groups.
+
+    `args.electrodes` alone decides whether that means the task-significant
+    ('sig') or all ('all') electrodes of `args.roi`. Runs every design in
+    BLOCK_TRANSFER_DESIGNS, uncentered and centered, and writes
+    block_transfer.json, block_transfer_traces.npz, summary.txt and figures.
+    """
+    cluster_kw = dict(n_perm=getattr(args, 'n_perm', 200), seed=getattr(args, 'seed', 42))
+    if args.data_source == 'synthetic':
+        # A planted answer: 'block_specific' puts congruency on a different axis in
+        # each incongruent-proportion level, so X1 must fail while X3 transfers.
+        # Synthetic epochs have no pre-stimulus period, so every window counts as post.
+        args = SimpleNamespace(**{**vars(args), 'first_time_point': 0.0})
+        roi, cells = 'synthetic', cd.synthetic_condition_cells()
+        arrays = cd.synthetic_roi_labeled_arrays(
+            code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
+            block_code=('specific' if getattr(args, 'synthetic_code', None) == 'block_specific'
+                        else 'same'))
+        n_channels = next(iter(arrays[roi].values())).shape[1]
+    else:
+        from src.analysis.utils.general_utils import resolve_lab_root
+        # no electrode definition here: ELECTRODES alone picks 'sig' or 'all'
+        load_args = SimpleNamespace(**{**vars(args), 'electrode_definition': None})
+        roi, arrays, channel_names, cells = _build_roi_arrays(
+            load_args, resolve_lab_root(args.LAB_root))
+        n_channels = len(channel_names)
+
+    results, traces = {}, {}
+    for name, (contrast, block_col) in BLOCK_TRANSFER_DESIGNS.items():
+        for center in (False, True):
+            key = f"{name}_{'centered' if center else 'uncentered'}"
+            print(f"N3b {key}: {contrast} across {block_col}")
+            out = bt.run_block_transfer(
+                arrays, roi, cells, contrast, block_col, center=center,
+                n_resamples=args.n_repeats, n_splits=args.n_splits,
+                explained_variance=args.explained_variance, window=args.window_size,
+                step_size=args.step_size, frac_train=getattr(args, 'frac_train', None),
+                seed=getattr(args, 'seed', 0))
+            print(f"   trials per class per physical block: {out['group_sizes']} "
+                  f"-> {out['n_per_group']} of each kept per resample")
+            summary = _summarise_block_transfer(out, args, cluster_kw)
+            results[key] = dict(
+                design=name, contrast=contrast, block_col=block_col, centered=center,
+                levels=out['levels'], group_sizes=out['group_sizes'],
+                n_per_group=out['n_per_group'],
+                cells={f'{train}->{test}': s for (train, test), s in summary.items()})
+            for (train, test), s in summary.items():
+                traces[f'{key}_{train}to{test}_true'] = s['acc_true']
+                traces[f'{key}_{train}to{test}_shuffle'] = s['acc_shuffle']
+
+    meta = dict(data_source=args.data_source, roi=roi, electrodes=args.electrodes,
+                n_channels=n_channels,
+                epochs_root_file=getattr(args, 'epochs_root_file', None),
+                window_size=args.window_size, step_size=args.step_size,
+                n_splits=args.n_splits, n_resamples=args.n_repeats,
+                n_perm=cluster_kw['n_perm'], seed=cluster_kw['seed'],
+                save_dir=args.save_dir)
+    with open(os.path.join(args.save_dir, 'block_transfer.json'), 'w') as f:
+        json.dump(_json_safe(_strip_arrays(dict(meta, designs=results))), f, indent=2)
+    np.savez(os.path.join(args.save_dir, 'block_transfer_traces.npz'), **traces)
+    _plot_block_transfer(results, args, roi)
+    _write_block_transfer_summary(results, meta, args.save_dir)
+    return results
+
+
+# ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
 def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
+    if getattr(args, 'analysis', 'a4') == 'block_transfer':
+        return run_block_transfer_job(args)
 
     # Decoder settings shared by every decode in this job.
     dec_kw = dict(n_splits=args.n_splits, n_repeats=args.n_repeats,

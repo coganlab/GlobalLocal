@@ -222,3 +222,33 @@ def test_a_tonic_block_offset_breaks_only_uncentered_transfer():
     # so the within-level ceilings cannot move
     assert np.isclose(raw[(25, 25)], centered[(25, 25)], atol=0.02)
     assert np.isclose(raw[(75, 75)], centered[(75, 75)], atol=0.02)
+
+
+# ---------------------------------------------------------------------------
+# 4. the DCC job, end to end on synthetic data
+# ---------------------------------------------------------------------------
+@ieeg_required
+def test_the_block_transfer_job_runs_end_to_end(tmp_path):
+    """`ANALYSIS=block_transfer` through `main()`: no electrode groups, all three
+    designs, both centerings, and the planted answer comes out."""
+    from types import SimpleNamespace
+    from dcc_scripts.decoding import stability_flexibility_cross_decoding_dcc as xd
+
+    args = SimpleNamespace(
+        analysis='block_transfer', data_source='synthetic', synthetic_code='block_specific',
+        electrodes='sig', window_size=16, step_size=16, sampling_rate=256,
+        n_splits=3, n_repeats=2, explained_variance=0.8, frac_train=None,
+        n_perm=20, seed=0, save_dir=str(tmp_path))
+    results = xd.main(args)
+
+    assert set(results) == {f'{d}_{c}' for d in ('X1', 'X2', 'X3')
+                            for c in ('uncentered', 'centered')}
+    for name in ('block_transfer.json', 'block_transfer_traces.npz', 'summary.txt',
+                 'X1_uncentered_25to75_synthetic_block_transfer.png'):
+        assert (tmp_path / name).exists(), name
+    x1, x3 = results['X1_uncentered']['cells'], results['X3_uncentered']['cells']
+    assert x1['25->75']['post_mean_accuracy'] < 0.6 < x1['75->75']['post_mean_accuracy']
+    assert x3['25->75']['post_mean_accuracy'] > 0.6
+    summary = (tmp_path / 'summary.txt').read_text()
+    assert summary.count('CEILING:') == 6            # one verdict per design x centering
+    assert 'cannot reach p < .05' in summary         # 2 resamples: flagged, not misread
