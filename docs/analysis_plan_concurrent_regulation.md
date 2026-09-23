@@ -192,6 +192,13 @@ Nothing structural. Three reporting additions:
 
 ## 4. N3b — block-transfer cross-decoding (the new analysis)
 
+> **Implemented for X1–X3.** See `docs/n3b_block_transfer.md` for what was
+> built, how to run it (`dcc_scripts/decoding/submit_block_transfer_dcc.sh`)
+> and how to read the output. The build differs from the §4.2 sketch in two
+> ways. It uses a `test_only` mask on the existing decoder instead of a
+> `groups=` splitter. It also balances classes within each physical block,
+> which the X3 control needs.
+
 This is the analysis worth adding, because it is the *decoding analogue of the
 adaptation effect itself*, which the existing A4 (train congruency → test
 switchType) is not. A4 asks whether conflict and switching share a coding axis;

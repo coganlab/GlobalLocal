@@ -1,15 +1,13 @@
 """The `Decoder` estimator and its cross-validated confusion-matrix methods."""
 
 import numpy as np
-from scipy.stats import norm, t
-from sklearn.model_selection import (cross_val_score, StratifiedKFold,
-                                     StratifiedShuffleSplit)
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from sklearn.model_selection import StratifiedKFold, StratifiedShuffleSplit
+from sklearn.metrics import confusion_matrix
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.base import BaseEstimator
-from ieeg.decoding.models import PcaLdaClassification, PcaEstimateDecoder
+from ieeg.decoding.models import PcaEstimateDecoder
 from ieeg.calc.oversample import MinimumNaNSplit
-from src.analysis.utils.general_utils import make_or_load_subjects_electrodes_to_ROIs_dict, windower
+from src.analysis.utils.general_utils import windower
 
 from .data_prep import flatten_features, mixup2, sample_fold
 
@@ -68,7 +66,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
             # fill in test data nans with noise from distribution
             is_nan = np.isnan(x_test)
-            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan)) # NaNs are filled with independent and identically distributed noise, which is intentionally non-informative, approximately matching the scaled-feature distribution after the scaler maps everything to unit variance. This is so test imputation doesn't leak class info.
+            x_test[is_nan] = np.random.normal(0, 1, np.sum(is_nan)) # NaNs are filled with independent and identically distributed noise, which is intentionally non-informative, so test imputation doesn't leak class info.
 
             # feature selection
             train_in = flatten_features(x_train, obs_axs) # flatten features collapses everything except the trial axis into one feature dimension so end up with (n_trials, n_channels * n_timepoints)
@@ -79,8 +77,8 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                 test_in = test_in[:, tidx]
 
             # fit model and score results
-            self.fit(train_in, y_train) # fits scaler -> pca -> clf. Called fresh every iteration, so decoder.model.named_steps['pca'] is overwritten on every fold.
-            pred = self.predict(test_in) # transforms with the same scaler/pca, then predicts
+            self.fit(train_in, y_train) # fits pca -> clf (there is no scaler). Called fresh every iteration, so decoder.model.named_steps['pca'] is overwritten on every fold.
+            pred = self.predict(test_in) # transforms with the same pca, then predicts
             rep, fold = divmod(f, self.n_splits)
             mats[rep, fold] = confusion_matrix(y_test, pred)
 
@@ -95,102 +93,13 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         else:
             divisor = 1
         return matk / divisor # returns accuracy per repeat of shape (n_repeats, n_cats, n_cats), with the n_repeats distribution being used later for significance testing
-    
-    # untested 11/30
-    # def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray,
-    #             normalize: str = None, obs_axs: int = -2, time_axs: int = -1, n_jobs: int = 1,
-    #             window: int = None, step_size: int = 1,
-    #                 shuffle: bool = False, oversample: bool = True) -> np.ndarray:
-    #     """Cross-validated confusion matrix with windowing and optional shuffling. REPLACING THIS, DEPRECATED"""
-    #     n_cats = len(set(labels))
-    #     time_axs_positive = time_axs % x_data.ndim
-
-    #     out_shape = (self.n_repeats, self.n_splits, n_cats, n_cats)
-
-    #     if window is not None:
-    #         # Include the step size in the windowed output shape
-    #         steps = (x_data.shape[time_axs_positive] - window) // step_size + 1
-    #         out_shape = (steps,) + out_shape
-                
-    #     mats = np.zeros(out_shape, dtype=np.uint8)
-    #     data = x_data.swapaxes(0, obs_axs)
-
-    #     if shuffle:
-    #         # shuffled label pool
-    #         label_stack = []
-    #         for i in range(self.n_repeats):
-    #             label_stack.append(labels.copy())
-    #             self.shuffle_labels(data, label_stack[-1], 0)
-
-    #         # build the test/train indices from the shuffled labels for each
-    #         # repetition, then chain together the repetitions
-    #         # splits = (train, test)
-
-    #         print("Shuffle validation:")
-    #         for i, labels in enumerate(label_stack):
-    #             # Compare with the first repetition to ensure variety in shuffles
-    #             if i > 0:
-    #                 diff = np.sum(label_stack[0] != labels)
-
-    #         idxs = ((self.split(data, l), l) for l in label_stack)
-    #         idxs = ((itertools.islice(s, self.n_splits),
-    #                  itertools.repeat(l, self.n_splits))
-    #                 for s, l in idxs)
-    #         splits, label = zip(*idxs)
-    #         splits = itertools.chain.from_iterable(splits)
-    #         label = itertools.chain.from_iterable(label)
-    #         idxs = zip(splits, label)
-
-    #     else:
-    #         idxs = ((splits, labels) for splits in self.split(data, labels))
-    
-    #     # 11/1 below is aaron's code for windowing. 
-    #     def proc(train_idx, test_idx, l):
-    #         x_stacked, y_train, y_test = sample_fold(train_idx, test_idx, data, l, 0, oversample)
-    #         print(f"x_stacked shape: {x_stacked.shape}")
-
-    #         # Use the updated windower function with step_size
-    #         windowed = windower(x_stacked, window, axis=time_axs, step_size=step_size)
-    #         print(f"windowed shape: {windowed.shape}")
-
-    #         out = np.zeros((windowed.shape[0], n_cats, n_cats), dtype=np.uint8)
-    #         for i, x_window in enumerate(windowed):
-    #             x_flat = x_window.reshape(x_window.shape[0], -1)
-    #             x_train, x_test = np.split(x_flat, [train_idx.shape[0]], 0)
-    #             out[i] = self.fit_predict(x_train, x_test, y_train, y_test)
-    #         return out
-
-    #     # # loop over folds and repetitions
-    #     if n_jobs == 1:
-    #         idxs = tqdm(idxs, total=self.n_splits * self.n_repeats)
-    #         results = (proc(train_idx, test_idx, l) for (train_idx, test_idx), l in idxs)
-    #     else:
-    #         results = Parallel(n_jobs=n_jobs, return_as='generator', verbose=40)(
-    #             delayed(proc)(train_idx, test_idx, l)
-    #             for (train_idx, test_idx), l in idxs)
-
-    #     # # Collect the results
-    #     for i, result in enumerate(results):
-    #         rep, fold = divmod(i, self.n_splits)
-    #         mats[:, rep, fold] = result
-
-    #     # normalize, sum the folds
-    #     mats = np.sum(mats, axis=-3)
-    #     if normalize == 'true':
-    #         divisor = np.sum(mats, axis=-1, keepdims=True)
-    #     elif normalize == 'pred':
-    #         divisor = np.sum(mats, axis=-2, keepdims=True)
-    #     elif normalize == 'all':
-    #         divisor = self.n_repeats
-    #     else:
-    #         divisor = 1
-    #     return mats / divisor
 
     def cv_cm_jim_window_shuffle(self, x_data: np.ndarray, labels: np.ndarray, normalize: str = None,
         obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1,
         shuffle: bool = False, oversample: bool = True, folds_as_samples: bool = False,
         labels_test: np.ndarray = None, stratify_labels: np.ndarray = None,
-        frac_train: float = None, temporal_generalization: bool = False) -> np.ndarray:
+        frac_train: float = None, temporal_generalization: bool = False,
+        test_only: np.ndarray = None) -> np.ndarray:
         """
         Cross-validated confusion matrix with windowing, optional shuffling, and an option to treat folds as independent samples.
 
@@ -212,10 +121,21 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         can leave a test fold with a lopsided (or absent) test class.
 
         `shuffle=True` permutes the TRAIN labels and refits, so the null carries the
-        variance of the whole estimation pipeline (scaler -> PCA -> LDA, mixup, fold
+        variance of the whole estimation pipeline (PCA -> LDA, mixup, fold
         structure). For a cross-decode this is exactly the right null: "does an axis
         trained on real congruency labels predict switchType better than an axis
         trained on scrambled ones?"
+
+        Block transfer (`test_only`)
+        ----------------------------
+        Pass a boolean mask to train on one set of trials and score on another,
+        e.g. train in 25%-incongruent blocks and test in 75%-incongruent blocks.
+        Trials marked True are never trained on: the folds are cut from the
+        unmarked trials only, and every fold's classifier is scored on ALL the
+        marked trials instead of its own held-out fold. Folds are still needed
+        so the transfer trains on exactly the trials an ordinary within-block
+        decode (`test_only=None` on the unmarked trials alone, same seed) trains
+        on, which makes the two accuracies directly comparable.
 
         Train/test proportion (`frac_train`)
         ------------------------------------
@@ -262,6 +182,20 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         if len(strat) != len(labels):
             raise ValueError(
                 f"stratify_labels has {len(strat)} entries but labels has {len(labels)}")
+
+        # Which trials the folds are cut from, and what each fold is scored on.
+        # By default every trial is trainable and each fold scores its own
+        # held-out part; with `test_only` the marked trials form one fixed test set.
+        if test_only is None:
+            trainable, fixed_test = np.arange(len(labels)), None
+        else:
+            test_only = np.asarray(test_only, dtype=bool)
+            if len(test_only) != len(labels):
+                raise ValueError(
+                    f"test_only has {len(test_only)} entries but labels has {len(labels)}")
+            trainable, fixed_test = np.flatnonzero(~test_only), np.flatnonzero(test_only)
+            if len(trainable) == 0 or len(fixed_test) == 0:
+                raise ValueError("test_only must leave at least one trial on each side")
 
         # Convert negative time axis to positive (e.g., -1 becomes 3 for 4D array)
         time_axs_positive = time_axs % x_data.ndim
@@ -314,8 +248,13 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                                                   train_size=frac_train,
                                                   random_state=rng)
 
-            # Iterate through each fold
-            for f, (train_idx, test_idx) in enumerate(splitter.split(data, strat)):
+            # Iterate through each fold. The splitter only needs the number of
+            # trials from X, so it is handed a placeholder; its indices point into
+            # `trainable` and are mapped back to trial numbers.
+            folds = splitter.split(np.zeros(len(trainable)), strat[trainable])
+            for f, (train_pos, test_pos) in enumerate(folds):
+                train_idx = trainable[train_pos]
+                test_idx = trainable[test_pos] if fixed_test is None else fixed_test
                 # Extract train/test data for this fold
                 x_train = data[train_idx]
                 y_train = labels[train_idx].copy()  # Copy to avoid modifying original
@@ -509,73 +448,3 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
             return np.squeeze(np.array(out_cm)) # remove window dimension
         else:
             return np.array(out_cm) # Shape: (n_windows, n_cats, n_cats)
-    
-    def fit_predict(self, x_train, x_test, y_train, y_test):
-        # fit model and score results
-        self.model.fit(x_train, y_train)
-        pred = self.model.predict(x_test)
-        return confusion_matrix(y_test, pred)
-    
-    def cv_cm_return_scores(self, x_data: np.ndarray, labels: np.ndarray,
-                            normalize: str = None, obs_axs: int = -2):
-        '''
-        trying to get the scores manually from cv cm but i realize that in decoders.py, PcaLdaClassification already has a get_scores function. Try get_scores with shuffle=True to get fake, permuted scores.
-        '''
-        # Get the confusion matrix by calling `cv_cm`
-        cm = self.cv_cm_jim(x_data, labels, normalize, obs_axs)
-
-        # Average the confusion matrices across the repetitions
-        cm_avg = np.mean(cm, axis=0)  # Now cm_avg will be of shape (2, 2)
-
-        # Calculate the individual decoding scores (Accuracy, Precision, etc.)
-        scores = self.calculate_scores(cm_avg)
-
-        return cm_avg, scores
-
-    def calculate_scores(self, cm):
-        """
-        Calculate the individual decoding scores from the confusion matrix. 10/27 Ugh Aaron already does this directly in the PcaLdaClassification class... 
-
-        Parameters:
-        - cm: The confusion matrix (averaged over folds).
-
-        Returns:
-        - scores: A dictionary containing the scores (accuracy, precision, recall, f1, d-prime) for each class.
-        """
-        scores = {}
-        tp = np.diag(cm)  # True Positives
-        fp = np.sum(cm, axis=0) - tp  # False Positives
-        fn = np.sum(cm, axis=1) - tp  # False Negatives
-        tn = np.sum(cm) - (fp + fn + tp)  # True Negatives
-
-        # Calculate accuracy, precision, recall, and f1 score
-        accuracy = np.sum(tp) / np.sum(cm)
-        precision = tp / (tp + fp + 1e-8)
-        recall = tp / (tp + fn + 1e-8)
-        f1 = 2 * (precision * recall) / (precision + recall + 1e-8)
-
-        # Store the basic scores
-        scores['accuracy'] = accuracy
-        scores['precision'] = precision
-        scores['recall'] = recall
-        scores['f1'] = f1
-
-        # Calculate hit rate and false alarm rate
-        hit_rate = recall  # Hit rate is the same as recall (TP / (TP + FN))
-        false_alarm_rate = fp / (fp + tn + 1e-8)  # False alarm rate (FP / (FP + TN))
-
-        # Ensure hit_rate and false_alarm_rate are in valid range [0, 1] for Z-transform
-        hit_rate = np.clip(hit_rate, 1e-8, 1 - 1e-8)
-        false_alarm_rate = np.clip(false_alarm_rate, 1e-8, 1 - 1e-8)
-
-        # Z-transform to calculate d-prime
-        z_hit_rate = norm.ppf(hit_rate)  # Z-transform for hit rate
-        z_false_alarm_rate = norm.ppf(false_alarm_rate)  # Z-transform for false alarm rate
-
-        # Calculate d-prime
-        d_prime = z_hit_rate - z_false_alarm_rate
-
-        # Store d-prime in the scores dictionary
-        scores['d_prime'] = d_prime
-
-        return scores

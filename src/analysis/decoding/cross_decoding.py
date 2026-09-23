@@ -12,7 +12,14 @@ This module is deliberately thin. The decoding pipeline it needs already exists:
 - **Pseudopopulation** — `put_data_in_labeled_array_per_roi_subject` pads each
   subject's trials to the per-condition max with NaN and concatenates subjects
   along the CHANNEL axis, so an ROI's LabeledArray is already a cross-subject
-  pseudopopulation; `mixup2` fills the padding.
+  pseudopopulation. `LabeledArray.from_dict` then pads every condition to one
+  common height with rows that are NaN on every channel; those are not trials,
+  and `build_cross_decoding_arrays` drops them. The gaps that remain (a subject
+  with fewer trials in a condition) are filled per fold: `mixup2` for training
+  trials, noise for test trials.
+- **Classifier** — PCA -> LDA with EQUAL class priors (`make_decoder`), so a
+  within-block decode whose classes run 3:1 is not pulled toward the majority
+  class.
 - **Disjoint train/test** — `Decoder.cv_cm_jim_window_shuffle` cross-validates,
   so the trials a transferred accuracy is scored on were never trained on. That
   is the circularity guard; nothing extra is required.
@@ -52,45 +59,6 @@ Designs
 from __future__ import annotations
 
 import numpy as np
-
-# ---------------------------------------------------------------------------
-# contrasts: a contrast maps a condition cell to a binary class {0, 1} (or None
-# to drop). The full cell also carries the block proportions, so a "within-block"
-# restriction is just a contrast that returns None outside the block.
-# ---------------------------------------------------------------------------
-DEFAULT_CELL_COLS = ("congruency", "switchType",
-                     "incongruent_proportion", "switch_proportion")
-
-
-def _congruency_label(cell):
-    v = cell["congruency"]
-    return {"i": 1, "c": 0}.get(v, None)
-
-
-def _switch_label(cell):
-    v = cell["switchType"]
-    return {"s": 1, "r": 0}.get(v, None)
-
-
-# named contrasts. 'stability' == congruency (i vs c), 'flexibility' == switchType
-# (s vs r); the process aliases make cross-decoding calls read like the plan.
-CONTRASTS = {
-    "congruency": _congruency_label,
-    "switchType": _switch_label,
-    "stability": _congruency_label,
-    "flexibility": _switch_label,
-}
-
-
-def resolve_contrast(contrast):
-    """Accept a name (str, looked up in CONTRASTS) or a cell->label callable."""
-    if callable(contrast):
-        return contrast
-    if contrast in CONTRASTS:
-        return CONTRASTS[contrast]
-    raise KeyError(f"unknown contrast {contrast!r}; known: {list(CONTRASTS)} "
-                   "or pass a cell->{0,1,None} callable")
-
 
 # ---------------------------------------------------------------------------
 # condition cells -> the class groups `build_cross_decoding_arrays` wants
@@ -359,6 +327,19 @@ def _normalize_groups(strings_to_find):
     return [list(g) for g in strings_to_find]
 
 
+def _drop_padding_rows(arr, obs_axs=0):
+    """Remove the rows (trials) that are NaN on every channel and time point.
+
+    `LabeledArray.from_dict` pads every condition to one common height with such
+    rows, so a rare cell can be mostly padding. Kept, they would be filled by
+    mixup when training and scored as pure noise when testing. Rows missing only
+    SOME channels (a subject with fewer trials in this condition) are real
+    pseudo-trials and stay; the decoder imputes their gaps.
+    """
+    other = tuple(ax for ax in range(arr.ndim) if ax != obs_axs % arr.ndim)
+    return np.compress(~np.isnan(arr).all(axis=other), arr, axis=obs_axs)
+
+
 def _same_partition(a, b):
     """True when two labellings of the same trials split them the SAME way —
     identical, or a pure renaming of the classes (e.g. 0/1 flipped).
@@ -405,6 +386,9 @@ def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
     Stratifying on `strata` rather than on `labels_train` is the point: a split
     balanced only on the training contrast can hand you a test fold that is
     lopsided on — or entirely missing — a class of the contrast you SCORE.
+
+    Rows that are NaN on every channel are padding, not trials, and are dropped
+    (`_drop_padding_rows`); a condition left with no rows is skipped.
     """
     train_groups = _normalize_groups(train_strings)
     test_groups = _normalize_groups(test_strings)
@@ -419,8 +403,11 @@ def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
         c_test = _class_of(condition_name, test_groups)
         if c_train is None or c_test is None:
             continue                      # not labelled by BOTH contrasts -> unusable
-        arr = np.asarray(roi_labeled_arrays[roi][condition_name])
+        arr = _drop_padding_rows(np.asarray(roi_labeled_arrays[roi][condition_name]),
+                                 obs_axs)
         n = arr.shape[obs_axs]
+        if n == 0:
+            continue                      # nothing but padding in this condition
         chunks.append(arr)
         ltrain.append(np.full(n, c_train))
         ltest.append(np.full(n, c_test))
@@ -497,6 +484,30 @@ def filter_conditions(roi_labeled_arrays, roi, keep, new_roi=None):
     return {new_roi or roi: kept}
 
 
+def make_decoder(cats, n_train_classes=None, *, explained_variance=0.8, n_splits=5,
+                 n_repeats=10, oversample=True, random_state=42):
+    """The Decoder every cross-decode uses: PCA -> LDA with EQUAL class priors.
+
+    LDA's default priors are the training class frequencies. Inside one block the
+    classes run about 3:1 (75% congruent in a 25%-incongruent block), and for a
+    weak effect a 3:1 prior pulls nearly every prediction to the majority class.
+    Equal priors keep chance at 0.5 without throwing trials away.
+
+    `cats` are the classes the confusion matrix is scored on; `n_train_classes`
+    (default: as many) is how many classes the classifier is fit on.
+    """
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    from .decoder import Decoder      # local import: keeps `ieeg` off the import path
+                                      # for callers that only want the tables above
+    n = n_train_classes or len(cats)
+    # Passed as `clf_params`, which `PcaEstimateDecoder` applies with set_params on
+    # every refit (without them it also prints "No initial parameters" per fit).
+    return Decoder(cats, explained_variance, oversample=oversample, n_splits=n_splits,
+                   n_repeats=n_repeats, random_state=random_state,
+                   clf=LinearDiscriminantAnalysis(),
+                   clf_params={'priors': np.full(n, 1.0 / n)})
+
+
 def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
                        n_splits=5, n_repeats=10, n_shuffle_repeats=None,
                        explained_variance=0.8, obs_axs=0, time_axs=-1,
@@ -530,8 +541,6 @@ def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
     """
     arrays = build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
                                          test_strings, obs_axs=obs_axs)
-    from .decoder import Decoder      # local import: keeps `ieeg` off the import path
-                                      # for callers that only want the tables above
 
     common = dict(normalize='true', obs_axs=obs_axs, time_axs=time_axs,
                   window=window, step_size=step_size, oversample=oversample,
@@ -542,8 +551,9 @@ def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
                   temporal_generalization=temporal_generalization)
 
     def _decoder(n_rep):
-        return Decoder(arrays['cats_test'], explained_variance, oversample=oversample,
-                       n_splits=n_splits, n_repeats=n_rep, random_state=random_state)
+        return make_decoder(arrays['cats_test'], len(arrays['cats_train']),
+                            explained_variance=explained_variance, oversample=oversample,
+                            n_splits=n_splits, n_repeats=n_rep, random_state=random_state)
 
     cm_true = _decoder(n_repeats).cv_cm_jim_window_shuffle(
         arrays['data'], arrays['labels_train'], shuffle=False, **common)
@@ -561,7 +571,9 @@ def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
 # answer, so every launcher keeps its no-data dry run
 # ---------------------------------------------------------------------------
 def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell=40,
-                                 n_time=32, seed=0, amp=1.2, noise=1.0, roi="synthetic"):
+                                 n_time=32, seed=0, amp=1.2, noise=1.0, roi="synthetic",
+                                 block_code="same", block_offset=0.0,
+                                 design_proportions=False):
     """`{roi: {condition_name: ndarray(trials, channels, time)}}` with a known truth.
 
     code='shared'      : congruency and switchType load on the SAME population axis
@@ -569,6 +581,23 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
     code='orthogonal'  : congruency on axis w1, switchType on w2 ⟂ w1 -> training on
                          one should NOT transfer, even though BOTH are individually
                          decodable.
+
+    Block structure, for the block-transfer analysis (`block_transfer.py`). The
+    defaults leave the output exactly as it was:
+
+    block_code='same'     : congruency uses the same axis in both incongruent-
+                            proportion blocks (a block-invariant code).
+    block_code='specific' : in 75%-incongruent cells congruency uses a third axis
+                            w3 ⟂ w1, w2, so congruency learned in one incongruent-
+                            proportion block must NOT transfer to the other, while
+                            transfer across switch proportion still works.
+    block_offset          : a tonic shift of this size along the congruency axis,
+                            added to every trial of the 75%-incongruent cells at
+                            every time point. It breaks UNcentered transfer only.
+    design_proportions    : cell sizes follow the task, where inside a block the
+                            frequent level of each factor has 3x the trials of the
+                            rare one (e.g. 75% congruent in a 25%-incongruent
+                            block). Each block holds 4 * n_trials_per_cell trials.
 
     Condition names follow the project's substring convention
     (``Stimulus_<c|i>_<r|s>_<25|75>inc_<25|75>sw``) so the same
@@ -581,6 +610,9 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
     w2 = rng.normal(size=n_channels); w2 -= (w2 @ w1) * w1; w2 /= np.linalg.norm(w2)
     cong_axis = w1
     switch_axis = w1 if code == "shared" else w2
+    # drawn from its own stream so that the default output is unchanged
+    w3 = np.random.default_rng([seed, 1]).normal(size=n_channels)
+    w3 -= (w3 @ w1) * w1 + (w3 @ w2) * w2; w3 /= np.linalg.norm(w3)
     win = slice(n_time // 4, 3 * n_time // 4)
 
     conditions = {}
@@ -589,10 +621,18 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
             for inc_prop in (25, 75):
                 for sw_prop in (25, 75):
                     name = f"Stimulus_{cong}_{sw}_{inc_prop}inc_{sw_prop}sw"
-                    x = rng.normal(0, noise, (n_trials_per_cell, n_channels, n_time))
-                    pattern = (amp * (cong == "i") * cong_axis
+                    n = n_trials_per_cell
+                    if design_proportions:
+                        p_cong = 0.75 if (cong == "i") == (inc_prop == 75) else 0.25
+                        p_sw = 0.75 if (sw == "s") == (sw_prop == 75) else 0.25
+                        n = max(2, int(round(4 * n_trials_per_cell * p_cong * p_sw)))
+                    x = rng.normal(0, noise, (n, n_channels, n_time))
+                    axis = w3 if (block_code == "specific" and inc_prop == 75) else cong_axis
+                    pattern = (amp * (cong == "i") * axis
                                + amp * (sw == "s") * switch_axis)
                     x[:, :, win] += pattern[None, :, None]
+                    if inc_prop == 75 and block_offset:
+                        x += block_offset * cong_axis[None, :, None]
                     conditions[name] = x
     return {roi: conditions}
 
