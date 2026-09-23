@@ -610,7 +610,9 @@ def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
 # answer, so every launcher keeps its no-data dry run
 # ---------------------------------------------------------------------------
 def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell=40,
-                                 n_time=32, seed=0, amp=1.2, noise=1.0, roi="synthetic"):
+                                 n_time=32, seed=0, amp=1.2, noise=1.0, roi="synthetic",
+                                 block_code="same", block_offset=0.0,
+                                 design_proportions=False):
     """`{roi: {condition_name: ndarray(trials, channels, time)}}` with a known truth.
 
     code='shared'      : congruency and switchType load on the SAME population axis
@@ -618,6 +620,23 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
     code='orthogonal'  : congruency on axis w1, switchType on w2 ⟂ w1 -> training on
                          one should NOT transfer, even though BOTH are individually
                          decodable.
+
+    Block structure, for the block-transfer analysis (`block_transfer.py`). The
+    defaults leave the output exactly as it was:
+
+    block_code='same'     : congruency uses the same axis in both incongruent-
+                            proportion blocks (a block-invariant code).
+    block_code='specific' : in 75%-incongruent cells congruency uses a third axis
+                            w3 ⟂ w1, w2, so congruency learned in one incongruent-
+                            proportion block must NOT transfer to the other, while
+                            transfer across switch proportion still works.
+    block_offset          : a tonic shift of this size along the congruency axis,
+                            added to every trial of the 75%-incongruent cells at
+                            every time point. It breaks UNcentered transfer only.
+    design_proportions    : cell sizes follow the task, where inside a block the
+                            frequent level of each factor has 3x the trials of the
+                            rare one (e.g. 75% congruent in a 25%-incongruent
+                            block). Each block holds 4 * n_trials_per_cell trials.
 
     Condition names follow the project's substring convention
     (``Stimulus_<c|i>_<r|s>_<25|75>inc_<25|75>sw``) so the same
@@ -630,6 +649,9 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
     w2 = rng.normal(size=n_channels); w2 -= (w2 @ w1) * w1; w2 /= np.linalg.norm(w2)
     cong_axis = w1
     switch_axis = w1 if code == "shared" else w2
+    # drawn from its own stream so that the default output is unchanged
+    w3 = np.random.default_rng([seed, 1]).normal(size=n_channels)
+    w3 -= (w3 @ w1) * w1 + (w3 @ w2) * w2; w3 /= np.linalg.norm(w3)
     win = slice(n_time // 4, 3 * n_time // 4)
 
     conditions = {}
@@ -638,10 +660,18 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
             for inc_prop in (25, 75):
                 for sw_prop in (25, 75):
                     name = f"Stimulus_{cong}_{sw}_{inc_prop}inc_{sw_prop}sw"
-                    x = rng.normal(0, noise, (n_trials_per_cell, n_channels, n_time))
-                    pattern = (amp * (cong == "i") * cong_axis
+                    n = n_trials_per_cell
+                    if design_proportions:
+                        p_cong = 0.75 if (cong == "i") == (inc_prop == 75) else 0.25
+                        p_sw = 0.75 if (sw == "s") == (sw_prop == 75) else 0.25
+                        n = max(2, int(round(4 * n_trials_per_cell * p_cong * p_sw)))
+                    x = rng.normal(0, noise, (n, n_channels, n_time))
+                    axis = w3 if (block_code == "specific" and inc_prop == 75) else cong_axis
+                    pattern = (amp * (cong == "i") * axis
                                + amp * (sw == "s") * switch_axis)
                     x[:, :, win] += pattern[None, :, None]
+                    if inc_prop == 75 and block_offset:
+                        x += block_offset * cong_axis[None, :, None]
                     conditions[name] = x
     return {roi: conditions}
 
