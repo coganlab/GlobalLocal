@@ -114,10 +114,8 @@ def test_raises_on_unknown_roi():
         build_cross_decoding_arrays(synthetic_roi_labeled_arrays(), "nope", STAB, FLEX)
 
 
-def test_padding_rows_are_dropped_but_partial_rows_are_kept():
-    """`LabeledArray.from_dict` pads every condition with rows that are NaN on
-    every channel; those are not trials. A row missing only SOME channels (a
-    subject with fewer trials in the condition) is a real pseudo-trial."""
+def test_pure_padding_is_dropped_but_partial_rows_are_kept_for_fold_handling():
+    """Partial rows are training-subsampled or test-noise-filled inside a fold."""
     arrs = synthetic_roi_labeled_arrays(seed=0)
     name = 'Stimulus_i_s_25inc_25sw'
     padded = np.concatenate([arrs['synthetic'][name], np.full((25, 40, 32), np.nan)])
@@ -126,8 +124,26 @@ def test_padding_rows_are_dropped_but_partial_rows_are_kept():
 
     out = build_cross_decoding_arrays(arrs, "synthetic", STAB, FLEX)
     rows = out['data'][out['strata'] == out['conditions'].index(name)]
-    assert len(rows) == 40                         # the 25 padding rows are gone
+    assert len(rows) == 40                         # only 25 pure-padding rows are gone
     assert np.isnan(rows[0, :10]).all() and not np.isnan(rows[0, 10:]).any()
+
+
+@ieeg_required
+def test_fold_subsamples_incomplete_training_rows_but_noise_fills_test_rows():
+    from src.analysis.decoding.data_prep import sample_fold
+
+    X = np.arange(8 * 2 * 3, dtype=float).reshape(8, 2, 3)
+    y = np.array([0, 0, 0, 1, 1, 1, 0, 1])
+    X[0, 0, 0] = np.nan       # incomplete training row: must be removed
+    X[6, 0, 0] = np.nan       # incomplete test row: must be noise-filled and kept
+
+    out, y_train, y_test = sample_fold(
+        np.arange(6), np.arange(6, 8), X, y, axis=0, oversample=False)
+
+    assert np.array_equal(y_train, [0, 0, 1, 1])  # balanced to two complete/class
+    assert np.array_equal(y_test, [0, 1])
+    assert out.shape[0] == 6                       # four train + both test rows
+    assert not np.isnan(out).any()
 
 
 def test_a_condition_that_is_only_padding_is_skipped():
