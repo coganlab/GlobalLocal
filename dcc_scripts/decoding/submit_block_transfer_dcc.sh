@@ -18,8 +18,7 @@
 #
 # Results: results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S>/
 # stimulus_experiment_conditions/ -> summary.txt first.
-
-EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
+EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"}
 ROI=${ROI:-lpfc}
 ELECTRODES=${ELECTRODES:-sig}
 DATA_SOURCE=${DATA_SOURCE:-real}
