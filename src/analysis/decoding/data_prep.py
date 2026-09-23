@@ -256,7 +256,7 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
     # Same split but along the specified axis
     x_train, x_test = np.split(x_stacked, [sep], axis=axis)
     
-    # Step 7: Apply mixup augmentation to training data if requested
+    # Step 7: Handle incomplete training pseudo-trials.
     if oversample:
         # mixup2 modifies x_train IN PLACE
         # It finds NaN trials and fills them with weighted combinations
@@ -269,6 +269,26 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
         #    - Finds two random trials (one from same class, one from any class)
         #    - Creates weighted average: l * same_class + (1-l) * other_class
         #    - Where l is drawn from Beta(alpha, alpha) distribution
+    else:
+        # Cross-decoding chooses subsampling rather than synthesizing training
+        # data. First remove every incomplete pseudo-trial, then keep an equal
+        # number from each class so missingness cannot change the class prior.
+        other = tuple(i for i in range(x_train.ndim) if i != axis)
+        complete = ~np.isnan(x_train).any(axis=other)
+        x_train = np.compress(complete, x_train, axis=axis)
+        y_train = y_train[complete]
+        classes, counts = np.unique(y_train, return_counts=True)
+        if len(classes) < 2 or counts.min() == 0:
+            raise ValueError("training fold has fewer than two complete classes after "
+                             "subsampling incomplete pseudo-trials")
+        n_per_class = counts.min()
+        # Deterministic selection preserves the guarantee that within-level and
+        # transfer calls made with the same folds train identical classifiers.
+        keep = np.sort(np.concatenate([
+            np.flatnonzero(y_train == label)[:n_per_class] for label in classes
+        ]))
+        x_train = np.take(x_train, keep, axis=axis)
+        y_train = y_train[keep]
     
     # Step 8: Fill test data NaNs with random noise
     # This is simpler than mixup - just replace NaNs with Gaussian noise

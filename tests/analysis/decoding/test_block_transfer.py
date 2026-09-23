@@ -19,10 +19,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 from src.analysis.decoding import block_transfer as bt  # noqa: E402
 from src.analysis.decoding import cross_decoding as cd  # noqa: E402
+from src.analysis.config import experiment_conditions as ec  # noqa: E402
 
 CELLS = cd.synthetic_condition_cells()
 X1 = ('congruency', 'incongruent_proportion')
 X3 = ('congruency', 'switch_proportion')
+X2B = ('switchType', 'incongruent_proportion')
 
 ieeg_required = pytest.mark.skipif(
     __import__('importlib').util.find_spec('ieeg') is None,
@@ -120,7 +122,7 @@ def _task_like_arrays(**kw):
     return cd.synthetic_roi_labeled_arrays(code='orthogonal', design_proportions=True, **kw)
 
 
-def test_prepare_groups_are_one_class_in_one_physical_block():
+def test_prepare_groups_are_one_class_in_one_transfer_level():
     arrs = _task_like_arrays(seed=0)
     name = 'Stimulus_i_s_25inc_25sw'
     arrs['synthetic'][name] = np.concatenate(
@@ -129,17 +131,38 @@ def test_prepare_groups_are_one_class_in_one_physical_block():
     p = bt.prepare(arrs, 'synthetic', CELLS, *X1)
 
     sizes = dict(zip(*np.unique(p['groups'], return_counts=True)))
-    assert len(sizes) == 8                        # 2 classes x 4 physical blocks
-    assert sizes['i|inc25|sw25'] == 40            # 30 + 10 real trials, padding gone
-    assert sizes['c|inc25|sw25'] == 120           # the 3:1 majority
+    assert len(sizes) == 4                        # 2 classes x 2 transfer levels
+    assert sizes['i|incongruent_proportion=25'] == 80
+    assert sizes['c|incongruent_proportion=25'] == 240
     assert set(p['block']) == {25, 75}
     assert not np.isnan(p['X']).all(axis=(1, 2)).any()
 
 
-def test_prepare_needs_both_block_factors():
+def test_prepare_only_needs_the_contrast_and_transfer_factor():
+    pooled = {name: dict(cell, switch_proportion=None) for name, cell in CELLS.items()}
+    p = bt.prepare(_task_like_arrays(), 'synthetic', pooled, *X1)
+    assert len(np.unique(p['groups'])) == 4
+
+
+def test_prepare_rejects_a_missing_transfer_factor():
     pooled = {name: dict(cell, incongruent_proportion=None) for name, cell in CELLS.items()}
-    with pytest.raises(ValueError, match="stimulus_experiment_conditions"):
+    with pytest.raises(ValueError, match="design-specific"):
         bt.prepare(_task_like_arrays(), 'synthetic', pooled, *X1)
+
+
+@pytest.mark.parametrize('conditions, contrast, block_col', [
+    (ec.stimulus_lwpc_conditions, 'congruency', 'incongruent_proportion'),
+    (ec.stimulus_lwps_conditions, 'switchType', 'switch_proportion'),
+    (ec.stimulus_congruency_by_switch_proportion_conditions,
+     'congruency', 'switch_proportion'),
+    (ec.stimulus_switch_type_by_incongruent_proportion_conditions,
+     'switchType', 'incongruent_proportion'),
+])
+def test_n3b_pooled_condition_sets_have_the_required_2x2(conditions, contrast, block_col):
+    cells = cd.condition_cells(conditions, required=(contrast, block_col))
+    assert len(cells) == 4
+    assert {cell[contrast] for cell in cells.values()} == set(bt.CONTRAST_LEVELS[contrast])
+    assert {cell[block_col] for cell in cells.values()} == {25, 75}
 
 
 def test_balanced_subsample_keeps_the_smallest_group_size_from_every_group():
@@ -229,7 +252,7 @@ def test_a_tonic_block_offset_breaks_only_uncentered_transfer():
 # ---------------------------------------------------------------------------
 @ieeg_required
 def test_the_block_transfer_job_runs_end_to_end(tmp_path):
-    """`ANALYSIS=block_transfer` through `main()`: no electrode groups, all three
+    """`ANALYSIS=block_transfer` through `main()`: no electrode groups, all four
     designs, both centerings, and the planted answer comes out."""
     from types import SimpleNamespace
     from dcc_scripts.decoding import stability_flexibility_cross_decoding_dcc as xd
@@ -241,7 +264,7 @@ def test_the_block_transfer_job_runs_end_to_end(tmp_path):
         n_perm=20, seed=0, save_dir=str(tmp_path))
     results = xd.main(args)
 
-    assert set(results) == {f'{d}_{c}' for d in ('X1', 'X2', 'X3')
+    assert set(results) == {f'{d}_{c}' for d in ('X1', 'X2', 'X2b', 'X3')
                             for c in ('uncentered', 'centered')}
     for name in ('block_transfer.json', 'block_transfer_traces.npz', 'summary.txt',
                  'X1_uncentered_25to75_synthetic_block_transfer.png'):
@@ -250,5 +273,5 @@ def test_the_block_transfer_job_runs_end_to_end(tmp_path):
     assert x1['25->75']['post_mean_accuracy'] < 0.6 < x1['75->75']['post_mean_accuracy']
     assert x3['25->75']['post_mean_accuracy'] > 0.6
     summary = (tmp_path / 'summary.txt').read_text()
-    assert summary.count('CEILING:') == 6            # one verdict per design x centering
+    assert summary.count('CEILING:') == 8            # one verdict per design x centering
     assert 'cannot reach p < .05' in summary         # 2 resamples: flagged, not misread

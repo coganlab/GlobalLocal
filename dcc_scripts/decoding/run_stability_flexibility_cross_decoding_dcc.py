@@ -92,8 +92,8 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 #       on all four factors, so a fold can never be lopsided on a proportion.
 #   stimulus_main_effect_conditions  the pooled 2x2 (Stimulus_i{r,s}/c{r,s}), 4
 #       cells collapsing BOTH proportions — "ALL congruency vs ALL switch type"
-#       with ~4x the trials per cell, hence less NaN padding / mixup in the
-#       pseudopopulation. A4(0)/A4(0b) are skipped (no block factor to split on);
+#       with ~4x the trials per cell, hence less padding before fold-wise training
+#       subsampling. A4(0)/A4(0b) are skipped (no block factor to split on);
 #       label transfer A4(a) and temporal generalization A4(c) run unchanged.
 #
 # Note A4(a) is pooled over the proportions under EITHER set: its classes are
@@ -234,7 +234,8 @@ if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
 if ANALYSIS == 'block_transfer' and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         current_script_dir, 'results', _tag,
-        f'block_transfer_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}', CONDITIONS_NAME)
+        f'block_transfer_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}',
+        'pooled_design_conditions')
 
 
 def run_analysis():
@@ -296,7 +297,10 @@ def run_analysis():
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
-    print(f"Conditions:       {len(CONDITIONS)} cells")
+    if ANALYSIS == 'block_transfer':
+        print("Conditions:       design-specific pooled 2x2 sets (LWPC/LWPS/control)")
+    else:
+        print(f"Conditions:       {len(CONDITIONS)} cells")
     print(f"ROI:              {ROI} | electrodes: {ELECTRODES}")
     print("-" * 72)
     if ANALYSIS == 'block_transfer':

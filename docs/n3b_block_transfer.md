@@ -11,6 +11,7 @@ N3b trains a classifier in one kind of block and tests it in another:
 | **X1** | congruency | 25%-incongruent blocks → 75%-incongruent blocks | primary (LWPC) |
 | **X2** | switch type | 25%-switch blocks → 75%-switch blocks | primary (LWPS) |
 | **X3** | congruency | 25%-switch blocks → 75%-switch blocks | positive control for X1 |
+| **X2b** | switch type | 25%-incongruent blocks → 75%-incongruent blocks | reciprocal control for X2 |
 
 Every design runs in both directions.
 
@@ -50,20 +51,18 @@ Inside a block, the classes run about **3:1, and the majority class flips betwee
 - **Stratifying a split:** dealing the trials into folds so that every fold is a small copy of the whole set. If 25% of the trials are incongruent, every fold is about 25% incongruent. It never adds or removes a trial. It only stops a random split from, say, putting most of the rare trials in one fold.
 - **`stratify_labels`** (in `cv_cm_jim_window_shuffle`) is the label the folds are kept proportional on. The default is the training labels. A4 passes `strata`, which is the index of the condition each trial came from (0–15 for the 16 cells). So every fold has the same mix of all 16 cells, and therefore of congruency, switch type and both proportions at once. That matters in label transfer, which scores on switch type: folds balanced only on congruency could come out lopsided on switch type.
 - **Balancing is a different thing.** It changes the data: you subsample so that groups have equal counts.
-  - **A4 does not balance.** Before this change, its IR/IS/CR/CS cells looked equal only because `LabeledArray.from_dict` pads every condition to the same height with all-NaN rows.
-  - At test time those rows were filled with random noise and scored, so rare cells such as I25 were mostly padding. A4 now drops them (see "Changes to A4" at the end).
+  - **A4 subsamples training data instead of using mixup.** Pure-padding rows are removed up front; within each fold, incomplete training pseudo-trials are removed and the remaining classes are subsampled to equal sizes.
+  - Partial test rows are still filled with independent noise, as in the normal decoder. This preserves test observations without synthesizing training signal.
 - **N3b needs both:** balancing, then stratified folds.
 
 ### 1.2 What to balance
 
 - **Balancing is needed because of the 3:1 ratio inside a block.** LDA's default priors are the training class frequencies. For a weak effect, a 3:1 prior pushes nearly every prediction to the majority class. In the simple 1-D case with d′ = 0.5, balanced accuracy is 0.51 instead of 0.60, even though the signal is there. In X1 the majority also flips between training and testing.
-- **Balance incongruent vs congruent within each of the four physical blocks A–D.** That's 8 groups (class × incongruent proportion × switch proportion), all equal. It keeps C25, I25, C75 and I75 equal, and it also stops X3 from being confounded:
-  - In the 25%-switch blocks (A+C), about 76% of incongruent trials come from block A and about 76% of congruent trials from block C.
-  - So without per-block balancing, the "congruency" classifier can learn the A-vs-C difference, which is the incongruent-proportion block effect.
-  - That effect carries over to B-vs-D, so the control would look good for the wrong reason.
-- **This costs about 5% more trials than balancing only C25/I25/C75/I75.** The 4-group version keeps about 42 trials per class per level per subject; the 8-group version keeps about 40.
-- **X1 and X3 then run on exactly the same trials in every resample.** That makes X3 a clean control.
-- **Do not balance on switch type** (or on congruency for X2). It is 25/75 inside a block by design, so balancing it would cut the data in half. The folds are stratified on the full 16-cell condition instead.
+- **Use a design-specific pooled 2×2 condition set and balance its four contrast × transfer-level cells.** X1 uses `stimulus_lwpc_conditions`, X2 uses `stimulus_lwps_conditions`, X3 uses `stimulus_congruency_by_switch_proportion_conditions`, and X2b uses `stimulus_switch_type_by_incongruent_proportion_conditions`. The irrelevant block factor is pooled rather than split into 16 cells, retaining more trials.
+- **This is the higher-trial-count version of N3b.** The four-group version keeps about 42 trials per class per level per subject rather than about 40 when balancing all eight full-factor cells.
+- **X1 and X3 use their respective pooled condition definitions.** They cover the same physical trial population while grouping it by different transfer factors.
+- **Tradeoff for X3:** pooling incongruent proportion means congruency can correlate with the physical A/C or B/D block mix. Treat X3 as a positive control with that caveat; the requested gain in retained trials comes from not balancing the nuisance factor's eight full-factor cells.
+- **Do not additionally balance on switch type** in X1 (or on congruency in X2). It is 25/75 inside a block by design, so doing so would cut the data in half. Folds are stratified on the four pooled condition cells.
 
 ### 1.3 Trial loss
 
@@ -150,10 +149,10 @@ submit_block_transfer_dcc.sh                       new: ANALYSIS=block_transfer,
  └ sbatch_stability_flexibility_cross_decoding_dcc.sh
     └ run_stability_flexibility_cross_decoding_dcc.py     environment variables -> args
        └ stability_flexibility_cross_decoding_dcc.main(args)
-          └ run_block_transfer_job(args)                  new: loads the ROI, loops X1-X3 x centering
+          └ run_block_transfer_job(args)                  new: loads the ROI, loops all four designs x centering
              ├ _build_roi_arrays                          the ROI pseudopopulation (sig or all electrodes)
              ├ block_transfer.run_block_transfer          new: balance -> center -> the 2x2
-             │  ├ cross_decoding.build_cross_decoding_arrays   trials + labels, padding rows dropped
+             │  ├ cross_decoding.build_cross_decoding_arrays   remove pure-padding rows
              │  ├ cross_decoding.make_decoder                  PCA -> LDA with equal priors
              │  └ Decoder.cv_cm_jim_window_shuffle(test_only=...)   folds -> confusion matrices
              ├ _summarise                                 accuracy + cluster test vs the shuffle null
@@ -164,7 +163,7 @@ submit_block_transfer_dcc.sh                       new: ANALYSIS=block_transfer,
 
 - **`src/analysis/decoding/decoder.py`: `test_only`.** A new optional argument of `cv_cm_jim_window_shuffle`: a True/False flag per trial. Flagged trials are never trained on. The folds are cut from the unflagged trials only, and every fold's classifier is scored on all the flagged trials. With `test_only=None` (the default) the function behaves exactly as before. The whole change is the few lines that pick `train_idx` and `test_idx` in the fold loop.
 - **`src/analysis/decoding/cross_decoding.py`:**
-  - `build_cross_decoding_arrays` drops padding rows (see 1.1) through `_drop_padding_rows`.
+  - `build_cross_decoding_arrays` drops pure-padding rows through `_drop_padding_rows`. Fold preparation subsamples incomplete training rows and balances the surviving classes; test gaps retain the independent-noise fill.
   - `make_decoder` builds the Decoder with equal LDA priors (see 1.2). It passes them as `clf_params`, which also stops `ieeg` printing "No initial parameters" on every fit.
   - `synthetic_roi_labeled_arrays` gains `block_code`, `block_offset` and `design_proportions`, so tests can plant a block-specific code, a tonic block shift and 3:1 cells. Its default output is byte-identical to before.
 - **`src/analysis/decoding/block_transfer.py` (new, about 150 lines, reads top to bottom):**
@@ -187,7 +186,7 @@ submit_block_transfer_dcc.sh                       new: ANALYSIS=block_transfer,
 `tests/analysis/decoding/test_block_transfer.py`:
 
 - **The decoder:** `test_only` trials are never trained on and are always the whole test set, and a transfer trains on exactly the folds of the matching within-level decode.
-- **Balancing and centering (no `ieeg` needed):** the 8 balance groups, equal counts after balancing, and the balance-then-center order. The class midpoint lands at 0; centering the raw 3:1 trials would put it a quarter of the class difference off.
+- **Balancing and centering (no `ieeg` needed):** the four design-specific balance groups, equal counts after balancing, and the balance-then-center order. The class midpoint lands at 0; centering the raw 3:1 trials would put it a quarter of the class difference off.
 - **Planted answers on synthetic data:**
   - a block-invariant code transfers as well as it decodes;
   - a block-specific code fails X1 in both directions but still passes X3;
@@ -216,12 +215,12 @@ To run them outside the cluster: `pip install -e . pytest`, then `python -m pyte
   ROI=acc ELECTRODES=all bash submit_block_transfer_dcc.sh            # another region, every electrode
   EPOCHS_ROOT_FILE=<root with the sig_chans you mean> bash submit_block_transfer_dcc.sh
   ```
-- **Cost:** 3 designs × 2 centerings × 4 cells × (true + shuffle) × `N_REPEATS` resamples × `N_SPLITS` folds × windows. That is roughly as many classifier fits as the A4 battery, which runs in the same 16 h allocation. Check the first real run's runtime before scaling up.
-- **Check the log first.** For each design it prints the real trials available per class per physical block, and how many of each are kept per resample. That is the go/no-go of the concurrent-regulation plan §4.4. If the kept number is in the low teens, expect a null and say so up front.
+- **Cost:** 4 designs × 2 centerings × 4 cells × (true + shuffle) × `N_REPEATS` resamples × `N_SPLITS` folds × windows. Check the first real run's runtime before scaling up.
+- **Check the log first.** For each design it prints the real trials available per contrast × transfer-level cell, and how many of each are kept per resample. That is the go/no-go of the concurrent-regulation plan §4.4. If the kept number is in the low teens, expect a null and say so up front.
 
 ### Outputs
 
-Written to `results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S>/stimulus_experiment_conditions/`:
+Written to `results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S>/pooled_design_conditions/`:
 
 | File | Contents |
 |---|---|
@@ -236,7 +235,7 @@ Each design gets a block like this one. It comes from the synthetic dry run abov
 
 ```
 X1_uncentered: congruency, trained in one incongruent_proportion level and tested in the other
-   balanced to 40 trials per class per physical block (available: {'c|inc25|sw25': 120, ...})
+   balanced to 80 trials per contrast × transfer-level cell (available: {'c|inc25|sw25': 120, ...})
    post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
      train | test               25%               75%
               25%       0.870 (3/0)       0.513 (2/0)
@@ -263,8 +262,6 @@ In that run:
 
 - **A4(0b) cross cells** (congruency by switch proportion, switch type by incongruent proportion) have the same class-mix confound as unbalanced X3 (see 1.2). This predates the padding fix. For within-block numbers, use N3b's balanced within-level cells.
 - **Resamples aren't independent subjects,** so cluster p-values are optimistic. X1-vs-X3 on the same trials is the load-bearing contrast.
-- **`mixup2` crashes** if a subject has no same-class trial in a training fold. This is rare, but possible for low-accuracy subjects.
-- **Seeds don't control mixup or the test-noise fill,** which use the global `np.random`.
 - **Follow-ups if transfer sits at chance:** the PCA basis is fit on the training level (`cross_decoding_controls.md` §4.3). X4 and X5 aren't built: X4 needs a letter-identity condition set.
 - **Stale material:** `src/analysis/decoding/cross_decoding_tutorial.ipynb` and `docs/skeletons/a4_cross_decoding.py` describe functions that no longer exist.
 - **`TEMPGEN_GROUPS=both,all`** is cut at the comma by `sbatch --export` in the A4 submit script.
@@ -273,5 +270,5 @@ In that run:
 
 The padding fix (1.1) changes every A4 design, so A4 numbers from before this change aren't comparable with new runs.
 
-- `build_cross_decoding_arrays` now drops the all-NaN padding rows. Before, they were filled by mixup when training and scored as noise when testing, which pulled accuracies toward chance, most of all for rare cells.
+- `build_cross_decoding_arrays` drops all-NaN padding rows. In each fold, cross-decoding subsamples incomplete training rows and equalizes the surviving class counts instead of applying mixup. Incomplete test rows remain and are filled with independent noise.
 - `run_cross_decoding` now uses equal LDA priors (`make_decoder`). Without the padding, the within-block decodes (A4(0)) have their real 3:1 class ratio, and training-frequency priors would lean toward the majority class.
