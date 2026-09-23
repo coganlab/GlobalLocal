@@ -205,7 +205,10 @@ To run them outside the cluster: `pip install -e . pytest`, then `python -m pyte
 
 ### Running
 
-- **Synthetic dry run** (seconds to minutes, anywhere): `ANALYSIS=block_transfer DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific N_REPEATS=10 WINDOW_SIZE=16 STEP_SIZE=8 python dcc_scripts/decoding/run_stability_flexibility_cross_decoding_dcc.py`. The planted answer is "X1 fails, X3 transfers". The default `SYNTHETIC_CODE` plants a block-invariant code, so everything should transfer.
+- **Synthetic dry run** (runs anywhere): `ANALYSIS=block_transfer DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific N_REPEATS=10 WINDOW_SIZE=16 STEP_SIZE=8 python dcc_scripts/decoding/run_stability_flexibility_cross_decoding_dcc.py`.
+  - It takes about 20 minutes on a 4-core machine. `N_REPEATS=2` finishes in a couple of minutes, but then nothing can reach significance, and the summary says so.
+  - The planted answer is "X1 fails, X3 transfers". The default `SYNTHETIC_CODE` plants a block-invariant code, so everything should transfer.
+  - The results go under `results/synthetic_<code>/`.
 - **Real data on the DCC:**
   ```
   cd dcc_scripts/decoding
@@ -213,7 +216,7 @@ To run them outside the cluster: `pip install -e . pytest`, then `python -m pyte
   ROI=acc ELECTRODES=all bash submit_block_transfer_dcc.sh            # another region, every electrode
   EPOCHS_ROOT_FILE=<root with the sig_chans you mean> bash submit_block_transfer_dcc.sh
   ```
-- **Cost:** 3 designs × 2 centerings × 4 cells × (true + shuffle) × `N_REPEATS` resamples × `N_SPLITS` folds × windows. That is about as many classifier fits as the A4 battery, so it fits the same 16 h allocation.
+- **Cost:** 3 designs × 2 centerings × 4 cells × (true + shuffle) × `N_REPEATS` resamples × `N_SPLITS` folds × windows. That is roughly as many classifier fits as the A4 battery, which runs in the same 16 h allocation. Check the first real run's runtime before scaling up.
 - **Check the log first.** For each design it prints the real trials available per class per physical block, and how many of each are kept per resample. That is the go/no-go of the concurrent-regulation plan §4.4. If the kept number is in the low teens, expect a null and say so up front.
 
 ### Outputs
@@ -229,19 +232,24 @@ Written to `results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S
 
 ### Reading `summary.txt`
 
-Each design gets a block like this one:
+Each design gets a block like this one. It comes from the synthetic dry run above with `SYNTHETIC_CODE=block_specific`, where the planted answer is that congruency uses a different axis in each incongruent-proportion level:
 
 ```
 X1_uncentered: congruency, trained in one incongruent_proportion level and tested in the other
-   balanced to 40 trials per class per physical block (available: {...})
+   balanced to 40 trials per class per physical block (available: {'c|inc25|sw25': 120, ...})
    post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
      train | test               25%               75%
-              25%       0.812 (3/0)       0.515 (0/0)
-              75%       0.506 (0/0)       0.803 (3/0)
+              25%       0.870 (3/0)       0.513 (2/0)
+              75%       0.510 (0/0)       0.879 (3/0)
    25% -> 75% vs within 75%: below that ceiling in 3 windows
    75% -> 25% vs within 25%: below that ceiling in 3 windows
    CEILING: both within-level decodes beat shuffle -> interpretable
 ```
+
+In that run:
+- **X1** transfer sits at chance in both directions, uncentered and centered (0.51–0.53 against ceilings of 0.87–0.88). That is the "reorganizes the code" row of the table in 1.6.
+- **X2 and X3** transfer at their within-level accuracy (about 0.88 and 0.75).
+- **The 25% → 75% cell is "significant" in 2 windows at 0.513.** Resamples share trials, so tiny departures from the shuffle null can pass the cluster test. Judge a transfer against its ceiling, not against shuffle alone.
 
 - **The table:** rows are the level trained on, columns the level tested on. The diagonal is the within-level ceiling; off the diagonal is transfer. Each cell shows the mean accuracy after stimulus onset, then (significant post / pre windows against the shuffle null).
 - **The "vs within" lines** compare each transfer with the ceiling of the level it is tested on (see 1.4).
