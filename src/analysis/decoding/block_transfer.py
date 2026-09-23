@@ -13,11 +13,9 @@ test; everything else is the ordinary cross-decoding pipeline:
 
 Each resample does three things, in this order:
 
-1. **Balance.** Keep the same number of trials of each class from each physical
-   block (class x incongruent proportion x switch proportion = 8 groups). Classes
-   run about 3:1 inside a block and the majority flips between levels; this
-   evens them out, and keeps the classes from differing in which physical
-   blocks they come from.
+1. **Balance.** Keep the same number of trials in each class x transfer-level
+   cell.  The design-specific condition sets pool over the irrelevant block
+   factor, retaining more trials than the full 16-cell condition set.
 2. **Center** (optional). Subtract each level's mean trial. The trials are
    already balanced, so that mean is the midpoint between the classes: the
    level moves as a whole. Centering on the raw 3:1 mean would instead shift
@@ -47,28 +45,28 @@ def prepare(roi_labeled_arrays, roi, cells, contrast, block_col):
     `block_col` is the factor transferred across.
 
     Returns dict with
-        X      : (n_trials, n_channels, n_time); padding rows already dropped
+        X      : (n_trials, n_channels, n_time); pure-padding rows already dropped
         y      : class of each trial (0 = incongruent / switch)
         strata : source condition of each trial; the folds are stratified on it
         block  : the trial's level of `block_col` (25 or 75)
-        groups : the balance group, e.g. 'i|inc25|sw75' = one class in one
-                 physical block
+        groups : the balance group, e.g. 'i|incongruent_proportion=25' = one
+                 class in one transfer-factor level
         cats   : class definitions, for the Decoder
     """
     if contrast not in CONTRAST_LEVELS:
         raise ValueError(f"contrast must be one of {list(CONTRAST_LEVELS)}; got {contrast!r}")
     if block_col not in BLOCK_FACTORS:
         raise ValueError(f"block_col must be one of {BLOCK_FACTORS}; got {block_col!r}")
-    missing = [f for f in BLOCK_FACTORS if any(c.get(f) is None for c in cells.values())]
+    required = (contrast, block_col)
+    missing = [f for f in required if any(c.get(f) is None for c in cells.values())]
     if missing:
         raise ValueError(f"every condition must declare {missing}; block transfer needs "
-                         "the full 2x2x2x2 set (stimulus_experiment_conditions)")
+                         "a design-specific contrast-by-block condition set")
 
     strings = class_strings(cells, contrast, *CONTRAST_LEVELS[contrast])
     a = build_cross_decoding_arrays(roi_labeled_arrays, roi, strings, strings)
     source = [cells[c] for c in np.asarray(a['conditions'])[a['strata']]]
-    groups = np.array([f"{c[contrast]}|inc{c['incongruent_proportion']}"
-                       f"|sw{c['switch_proportion']}" for c in source])
+    groups = np.array([f"{c[contrast]}|{block_col}={c[block_col]}" for c in source])
     block = np.array([c[block_col] for c in source])
     return dict(X=a['data'], y=a['labels_train'], strata=a['strata'], block=block,
                 groups=groups, cats=a['cats_train'])

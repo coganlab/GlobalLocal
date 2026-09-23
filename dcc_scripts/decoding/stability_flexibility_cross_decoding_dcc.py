@@ -103,6 +103,7 @@ from src.analysis.decoding import block_transfer as bt
 from src.analysis.decoding import cross_decoding as cd
 from src.analysis.decoding.accuracy_stats import (
     compute_accuracies, perform_time_perm_cluster_test_for_accuracies)
+from src.analysis.config import experiment_conditions
 
 STAB, FLEX, BOTH = "#2c7fb8", "#d95f0e", "#31a354"
 
@@ -535,7 +536,7 @@ def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
 # ---------------------------------------------------------------------------
 # the decoded ROI pseudopopulation (real data)
 # ---------------------------------------------------------------------------
-def _build_roi_arrays(args, LAB_root, trial_partitions=None):
+def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=None):
     """Load the epochs and build the ROI LabeledArray this job decodes.
 
     Mirrors `decoding_dcc.main`'s setup so A4 decodes exactly what the ordinary
@@ -580,7 +581,9 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None):
     else:
         raise ValueError(f"electrodes must be 'all' or 'sig'; got {args.electrodes!r}")
 
-    cells = cd.condition_cells(args.conditions)
+    cells = cd.condition_cells(
+        args.conditions,
+        required=required_fields or cd.CROSS_DECODE_FIELDS)
     condition_names = list(cells)
     print(f"conditions: {len(condition_names)} decodable cells "
           f"(of {len(args.conditions)} in the condition set)")
@@ -676,9 +679,13 @@ def _roi_channel_names(arrays, roi):
 # ---------------------------------------------------------------------------
 # name -> (decoded contrast, block factor it is transferred across)
 BLOCK_TRANSFER_DESIGNS = {
-    'X1': ('congruency', 'incongruent_proportion'),
-    'X2': ('switchType', 'switch_proportion'),
-    'X3': ('congruency', 'switch_proportion'),   # the control for X1, on the same trials
+    # name: (decoded contrast, transfer factor, pooled condition-set name)
+    'X1': ('congruency', 'incongruent_proportion', 'stimulus_lwpc_conditions'),
+    'X2': ('switchType', 'switch_proportion', 'stimulus_lwps_conditions'),
+    'X3': ('congruency', 'switch_proportion',
+           'stimulus_congruency_by_switch_proportion_conditions'),
+    'X2b': ('switchType', 'incongruent_proportion',
+           'stimulus_switch_type_by_incongruent_proportion_conditions'),
 }
 
 
@@ -754,7 +761,7 @@ def _write_block_transfer_summary(results, meta, save_dir):
         lines += ["-" * 72,
                   f"{key}: {res['contrast']}, trained in one {res['block_col']} level "
                   "and tested in the other",
-                  f"   balanced to {res['n_per_group']} trials per class per physical block "
+                  f"   balanced to {res['n_per_group']} trials per contrast x transfer cell "
                   f"(available: {res['group_sizes']})",
                   "   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):",
                   f"   {'train | test':>14}{str(lo) + '%':>18}{str(hi) + '%':>18}"]
@@ -780,7 +787,7 @@ def _write_block_transfer_summary(results, meta, save_dir):
               "  transfer ~ within, centered and uncentered  -> the same code in both levels",
               "  below within uncentered only                -> same axis, a tonic block shift",
               "  below within centered, in BOTH directions   -> block context reorganizes the",
-              "                                                 code; counts only if X3 transfers",
+              "                                                 code; check its cross-factor control",
               "  below in one direction only                 -> the training level's code is",
               "                                                 weaker, not a different axis",
               "Resamples are not independent subjects, so window-wise p-values are optimistic.",
@@ -814,13 +821,22 @@ def run_block_transfer_job(args):
     else:
         from src.analysis.utils.general_utils import resolve_lab_root
         # no electrode definition here: ELECTRODES alone picks 'sig' or 'all'
-        load_args = SimpleNamespace(**{**vars(args), 'electrode_definition': None})
-        roi, arrays, channel_names, cells = _build_roi_arrays(
-            load_args, resolve_lab_root(args.LAB_root))
-        n_channels = len(channel_names)
+        roi = args.roi
+        LAB_root = resolve_lab_root(args.LAB_root)
+        n_channels = None
 
     results, traces = {}, {}
-    for name, (contrast, block_col) in BLOCK_TRANSFER_DESIGNS.items():
+    for name, (contrast, block_col, conditions_name) in BLOCK_TRANSFER_DESIGNS.items():
+        if args.data_source != 'synthetic':
+            design_args = SimpleNamespace(
+                **{**vars(args),
+                   'conditions': getattr(experiment_conditions, conditions_name)})
+            roi, arrays, channel_names, cells = _build_roi_arrays(
+                design_args, LAB_root, required_fields=(contrast, block_col))
+            if n_channels is None:
+                n_channels = len(channel_names)
+            elif n_channels != len(channel_names):
+                raise ValueError("N3b condition sets produced different electrode counts")
         for center in (False, True):
             key = f"{name}_{'centered' if center else 'uncentered'}"
             print(f"N3b {key}: {contrast} across {block_col}")
@@ -830,11 +846,12 @@ def run_block_transfer_job(args):
                 explained_variance=args.explained_variance, window=args.window_size,
                 step_size=args.step_size, frac_train=getattr(args, 'frac_train', None),
                 seed=getattr(args, 'seed', 0))
-            print(f"   trials per class per physical block: {out['group_sizes']} "
+            print(f"   trials per contrast x transfer cell: {out['group_sizes']} "
                   f"-> {out['n_per_group']} of each kept per resample")
             summary = _summarise_block_transfer(out, args, cluster_kw)
             results[key] = dict(
                 design=name, contrast=contrast, block_col=block_col, centered=center,
+                conditions_name=conditions_name,
                 levels=out['levels'], group_sizes=out['group_sizes'],
                 n_per_group=out['n_per_group'],
                 cells={f'{train}->{test}': s for (train, test), s in summary.items()})

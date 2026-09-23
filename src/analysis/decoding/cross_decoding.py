@@ -10,13 +10,11 @@ contrast and ask whether its decision axis transfers to the other.
 This module is deliberately thin. The decoding pipeline it needs already exists:
 
 - **Pseudopopulation** — `put_data_in_labeled_array_per_roi_subject` pads each
-  subject's trials to the per-condition max with NaN and concatenates subjects
-  along the CHANNEL axis, so an ROI's LabeledArray is already a cross-subject
-  pseudopopulation. `LabeledArray.from_dict` then pads every condition to one
-  common height with rows that are NaN on every channel; those are not trials,
-  and `build_cross_decoding_arrays` drops them. The gaps that remain (a subject
-  with fewer trials in a condition) are filled per fold: `mixup2` for training
-  trials, noise for test trials.
+  subject's trials with NaN before concatenating subjects along the channel
+  axis. `build_cross_decoding_arrays` removes only pure-padding rows. Within
+  each fold, incomplete training rows are subsampled out and the surviving
+  classes are balanced; incomplete test rows retain the pipeline's
+  non-informative noise fill.
 - **Classifier** — PCA -> LDA with EQUAL class priors (`make_decoder`), so a
   within-block decode whose classes run 3:1 is not pulled toward the majority
   class.
@@ -328,14 +326,7 @@ def _normalize_groups(strings_to_find):
 
 
 def _drop_padding_rows(arr, obs_axs=0):
-    """Remove the rows (trials) that are NaN on every channel and time point.
-
-    `LabeledArray.from_dict` pads every condition to one common height with such
-    rows, so a rare cell can be mostly padding. Kept, they would be filled by
-    mixup when training and scored as pure noise when testing. Rows missing only
-    SOME channels (a subject with fewer trials in this condition) are real
-    pseudo-trials and stay; the decoder imputes their gaps.
-    """
+    """Remove pure-padding rows while retaining partial rows for fold handling."""
     other = tuple(ax for ax in range(arr.ndim) if ax != obs_axs % arr.ndim)
     return np.compress(~np.isnan(arr).all(axis=other), arr, axis=obs_axs)
 
@@ -387,8 +378,10 @@ def build_cross_decoding_arrays(roi_labeled_arrays, roi, train_strings,
     balanced only on the training contrast can hand you a test fold that is
     lopsided on — or entirely missing — a class of the contrast you SCORE.
 
-    Rows that are NaN on every channel are padding, not trials, and are dropped
-    (`_drop_padding_rows`); a condition left with no rows is skipped.
+    Pure-padding rows are removed here (`_drop_padding_rows`). Partial rows stay:
+    each fold subsamples incomplete rows from its training set instead of using
+    mixup, while the existing non-informative noise fill remains valid for test
+    rows. A condition left with no real rows is skipped.
     """
     train_groups = _normalize_groups(train_strings)
     test_groups = _normalize_groups(test_strings)
@@ -485,7 +478,7 @@ def filter_conditions(roi_labeled_arrays, roi, keep, new_roi=None):
 
 
 def make_decoder(cats, n_train_classes=None, *, explained_variance=0.8, n_splits=5,
-                 n_repeats=10, oversample=True, random_state=42):
+                 n_repeats=10, oversample=False, random_state=42):
     """The Decoder every cross-decode uses: PCA -> LDA with EQUAL class priors.
 
     LDA's default priors are the training class frequencies. Inside one block the
@@ -493,7 +486,9 @@ def make_decoder(cats, n_train_classes=None, *, explained_variance=0.8, n_splits
     weak effect a 3:1 prior pulls nearly every prediction to the majority class.
     Equal priors keep chance at 0.5 without throwing trials away.
 
-    `cats` are the classes the confusion matrix is scored on; `n_train_classes`
+    Cross-decoding defaults `oversample=False`: each fold subsamples incomplete
+    training rows instead of applying mixup. `cats` are the classes the confusion
+    matrix is scored on; `n_train_classes`
     (default: as many) is how many classes the classifier is fit on.
     """
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -513,7 +508,7 @@ def run_cross_decoding(roi_labeled_arrays, roi, train_strings, test_strings, *,
                        explained_variance=0.8, obs_axs=0, time_axs=-1,
                        window=None, step_size=1, frac_train=None,
                        temporal_generalization=False, folds_as_samples=False,
-                       oversample=True, random_state=42):
+                       oversample=False, random_state=42):
     """Train on `train_strings`, score against `test_strings`, plus a shuffle null.
 
     A thin wrapper over `Decoder.cv_cm_jim_window_shuffle` — it exists so the
