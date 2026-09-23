@@ -61,45 +61,6 @@ from __future__ import annotations
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# contrasts: a contrast maps a condition cell to a binary class {0, 1} (or None
-# to drop). The full cell also carries the block proportions, so a "within-block"
-# restriction is just a contrast that returns None outside the block.
-# ---------------------------------------------------------------------------
-DEFAULT_CELL_COLS = ("congruency", "switchType",
-                     "incongruent_proportion", "switch_proportion")
-
-
-def _congruency_label(cell):
-    v = cell["congruency"]
-    return {"i": 1, "c": 0}.get(v, None)
-
-
-def _switch_label(cell):
-    v = cell["switchType"]
-    return {"s": 1, "r": 0}.get(v, None)
-
-
-# named contrasts. 'stability' == congruency (i vs c), 'flexibility' == switchType
-# (s vs r); the process aliases make cross-decoding calls read like the plan.
-CONTRASTS = {
-    "congruency": _congruency_label,
-    "switchType": _switch_label,
-    "stability": _congruency_label,
-    "flexibility": _switch_label,
-}
-
-
-def resolve_contrast(contrast):
-    """Accept a name (str, looked up in CONTRASTS) or a cell->label callable."""
-    if callable(contrast):
-        return contrast
-    if contrast in CONTRASTS:
-        return CONTRASTS[contrast]
-    raise KeyError(f"unknown contrast {contrast!r}; known: {list(CONTRASTS)} "
-                   "or pass a cell->{0,1,None} callable")
-
-
-# ---------------------------------------------------------------------------
 # condition cells -> the class groups `build_cross_decoding_arrays` wants
 # ---------------------------------------------------------------------------
 # The Decoder identifies classes by SUBSTRINGS of the condition name, which makes

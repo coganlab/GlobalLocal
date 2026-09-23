@@ -24,7 +24,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 from src.analysis.decoding.cross_decoding import (  # noqa: E402
     build_cross_decoding_arrays,
-    resolve_contrast,
     synthetic_roi_labeled_arrays,
 )
 
@@ -145,16 +144,6 @@ def test_flat_string_list_is_accepted():
     flat = build_cross_decoding_arrays(arrs, "synthetic", ["_i_", "_c_"], FLEX)
     nested = build_cross_decoding_arrays(arrs, "synthetic", STAB, FLEX)
     assert np.array_equal(flat['labels_train'], nested['labels_train'])
-
-
-def test_resolve_contrast_names_and_callables():
-    cell = {"congruency": "i", "switchType": "r"}
-    assert resolve_contrast("congruency")(cell) == 1
-    assert resolve_contrast("stability")(cell) == 1      # alias
-    assert resolve_contrast("switchType")(cell) == 0
-    assert resolve_contrast(lambda c: 42)(cell) == 42
-    with pytest.raises(KeyError):
-        resolve_contrast("not_a_contrast")
 
 
 # ---------------------------------------------------------------------------
