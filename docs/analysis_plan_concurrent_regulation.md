@@ -192,12 +192,12 @@ Nothing structural. Three reporting additions:
 
 ## 4. N3b — block-transfer cross-decoding (the new analysis)
 
-> **Implemented for X1–X3.** See `docs/n3b_block_transfer.md` for what was
+> **Implemented for X1, X2, X2b, and X3.** See `docs/n3b_block_transfer.md` for what was
 > built, how to run it (`dcc_scripts/decoding/submit_block_transfer_dcc.sh`)
 > and how to read the output. The build differs from the §4.2 sketch in two
 > ways. It uses a `test_only` mask on the existing decoder instead of a
-> `groups=` splitter. It also balances classes within each physical block,
-> which the X3 control needs.
+> `groups=` splitter. It loads a pooled, design-specific 2×2 condition set and
+> balances the four contrast × transfer-level cells.
 
 This is the analysis worth adding, because it is the *decoding analogue of the
 adaptation effect itself*, which the existing A4 (train congruency → test
@@ -210,42 +210,38 @@ that is a base-effect question and it belongs in the supplement.
 |---|---|---|---|
 | **X1 (primary)** | congruency, in 25%-incongruent blocks | congruency, in 75%-incongruent blocks (and reverse) | LWPC as a **cross-condition generalization failure**: if block context reconfigures the congruency code, transfer drops below the within-block ceiling |
 | **X2 (primary)** | switchType, in 25%-switch blocks | switchType, in 75%-switch blocks (and reverse) | the same for LWPS |
+| **X2b (reciprocal control)** | switchType, in 25%-incongruent blocks | switchType, in 75%-incongruent blocks (and reverse) | switch coding across the block factor used by X1; reciprocal counterpart to X3 |
 | **X3 (positive control)** | congruency, in 25%-switch blocks | congruency, in 75%-switch blocks | congruency across a factor that should **not** reconfigure it. Same ROI, same trial-count regime, same effect-size regime as X1 — this is what makes a null X1 interpretable |
 | **X4 (positive control)** | big letter, task = global | big letter, task = local (occipital) | validates the transfer **code path** on a signal that must be there. Caveat: on congruent trials big and small letter are confounded, so this is a code-path control, not a claim about global-specific coding |
 | **X5 (optional)** | incongruent proportion (25 vs 75, collapsing congruency) | switch proportion (25 vs 75, collapsing switchType) | do the two block-context signals share an axis? Orthogonal factors of the same 2×2, so it is well posed |
 
-X1–X3 are the week's target. X4 is cheap insurance. X5 only if X1/X2 land clean.
+X1, X2, X2b, and X3 are implemented. The letter-identity X4 remains a proposed
+code-path control; X5 remains optional.
 
-### 4.2 The implementation gap — read this before scheduling
+### 4.2 Implementation
 
 `build_cross_decoding_arrays` constructs **two labellings of the same trials**
 and lets `StratifiedKFold` inside `cv_cm_jim_window_shuffle` make train and test
-disjoint. X1–X4 are the other shape: **one labelling, two disjoint trial
+disjoint. N3b is the other shape: **one labelling, two disjoint trial
 populations** (the blocks), where which trials train and which test is *fixed by
 the design*, not by the fold.
 
-So the fold splitter must be replaced, not reused. Concretely:
+The implemented path keeps the existing splitter but restricts it to the
+training population. Concretely:
 
 ```
-new in cross_decoding.py:
-  build_block_transfer_arrays(roi_labeled_arrays, roi, contrast, block_col,
-                              train_level, test_level)
-      -> data, labels, group (train/test membership), strata (condition cell)
+block_transfer.prepare(...)
+    -> data, labels, transfer level, condition strata, balance group
 
-new in decoder.py (or a sibling of cv_cm_jim_window_shuffle):
-  accept `groups=` and split with PredefinedSplit / LeaveOneGroupOut so the
-  train fold is exactly the train-level trials and the test fold the test-level
-  trials; repeats then resample *within* those populations (subsample the
-  larger side to the smaller, average over subsamples) rather than repartitioning
-  across them.
+Decoder.cv_cm_jim_window_shuffle(..., test_only=mask)
+    -> cut folds only among unmasked training-level trials
+    -> score every fold's classifier on all masked test-level trials
 ```
 
 `shuffle=True` keeps working unchanged and remains the right null (permute train
-labels, refit). `filter_conditions` + `block_condition_sets` already give the
-condition name sets for each block level, so the *condition bookkeeping* is done;
-it is the splitter that is missing. Budget **half a day plus tests**, and write
-the test against `synthetic_roi_labeled_arrays` first (a planted shared code must
-transfer across blocks; a planted block-specific code must not).
+labels, refit). Each resample balances the four contrast × transfer-level cells,
+then optionally centers each transfer level. Synthetic tests assert that a
+planted shared code transfers and a planted block-specific code does not.
 
 ### 4.3 Two things that will decide whether X1/X2 mean anything
 

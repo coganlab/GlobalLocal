@@ -10,9 +10,10 @@ It covers both shapes of cross-decode in this project:
 
 - **label transfer** — two labellings of the *same* trials (A4: train congruency,
   score switchType). `build_cross_decoding_arrays` + `labels_test=`.
-- **block transfer** — one labelling, two *disjoint trial populations* (X1–X4:
-  train congruency in 25%-incongruent blocks, test in 75%). Needs the new
-  splitter (plan §4.2); the diagnostics below apply to it identically, plus §6.
+- **block transfer** — one labelling, two *disjoint trial populations* (N3b X1,
+  X2, X2b, and X3). The implemented `test_only` path cuts folds only from the
+  training level and scores every fold on the other level; the diagnostics below
+  apply to it identically, plus §6.
 
 ---
 
@@ -186,14 +187,16 @@ Three re-runs, any of which diagnoses it:
 If transfer appears under any of these, the null was a basis artifact. Report the
 version with the pre-specified basis and note the sensitivity.
 
-### 4.4 NaN / mixup asymmetry
+### 4.4 NaN / train-test asymmetry
 
-Train and test are imputed **differently**: `sample_fold` fills training NaNs
-with `mixup2` (informed combinations) and test NaNs with i.i.d. Gaussian noise
-(`decoder.py:71`, deliberately non-informative so imputation cannot leak class
-information). That asymmetry is correct for ordinary CV, but it bites a transfer
-whose test population draws more heavily on sparsely-covered subjects: the test
-features are then substantially noise.
+Cross-decoding deliberately handles missing train and test values differently.
+With its default `oversample=False`, `sample_fold` removes incomplete training
+pseudo-trials and deterministically subsamples the surviving classes to the same
+count; it does **not** use `mixup2`. Partial test rows are retained and their NaNs
+are filled with i.i.d. Gaussian noise, deliberately non-informative so test
+imputation cannot leak class information. A transfer whose test population draws
+more heavily on sparsely-covered subjects can nevertheless be depressed because
+more of its test features are noise.
 
 **Check:** per-subject channel coverage in the train population vs the test
 population, and the fraction of test features that were NaN-filled. If the test

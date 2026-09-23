@@ -136,9 +136,11 @@ the adaptation effects now.
 ### F4 — Decoding the two adaptations *(C3)*
 `a` LWPC decoding · `b` LWPS decoding, both across anatomically-defined lPFC
 electrodes, each against its refit shuffle null and with n per class printed ·
-`c` block-transfer: within-block accuracy beside 25% ↔ 75% transfer, for
-congruency across incongruent proportion (X1) and the positive control,
-congruency across switch proportion (X3).
+`c` block-transfer: within-block accuracy beside 25% ↔ 75% transfer, for both
+primary effects — congruency across incongruent proportion (X1) and switch type
+across switch proportion (X2) — plus their reciprocal controls, congruency
+across switch proportion (X3) and switch type across incongruent proportion
+(X2b).
 
 The caption's job is the claim in C3: adding electrodes yields information
 individual electrodes do not carry. Not "multivariate beats univariate" — the
