@@ -190,7 +190,8 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         obs_axs : int = -2, time_axs: int = -1, window: int = None, step_size: int = 1,
         shuffle: bool = False, oversample: bool = True, folds_as_samples: bool = False,
         labels_test: np.ndarray = None, stratify_labels: np.ndarray = None,
-        frac_train: float = None, temporal_generalization: bool = False) -> np.ndarray:
+        frac_train: float = None, temporal_generalization: bool = False,
+        test_only: np.ndarray = None) -> np.ndarray:
         """
         Cross-validated confusion matrix with windowing, optional shuffling, and an option to treat folds as independent samples.
 
@@ -216,6 +217,17 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         structure). For a cross-decode this is exactly the right null: "does an axis
         trained on real congruency labels predict switchType better than an axis
         trained on scrambled ones?"
+
+        Block transfer (`test_only`)
+        ----------------------------
+        Pass a boolean mask to train on one set of trials and score on another,
+        e.g. train in 25%-incongruent blocks and test in 75%-incongruent blocks.
+        Trials marked True are never trained on: the folds are cut from the
+        unmarked trials only, and every fold's classifier is scored on ALL the
+        marked trials instead of its own held-out fold. Folds are still needed
+        so the transfer trains on exactly the trials an ordinary within-block
+        decode (`test_only=None` on the unmarked trials alone, same seed) trains
+        on, which makes the two accuracies directly comparable.
 
         Train/test proportion (`frac_train`)
         ------------------------------------
@@ -262,6 +274,20 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         if len(strat) != len(labels):
             raise ValueError(
                 f"stratify_labels has {len(strat)} entries but labels has {len(labels)}")
+
+        # Which trials the folds are cut from, and what each fold is scored on.
+        # By default every trial is trainable and each fold scores its own
+        # held-out part; with `test_only` the marked trials form one fixed test set.
+        if test_only is None:
+            trainable, fixed_test = np.arange(len(labels)), None
+        else:
+            test_only = np.asarray(test_only, dtype=bool)
+            if len(test_only) != len(labels):
+                raise ValueError(
+                    f"test_only has {len(test_only)} entries but labels has {len(labels)}")
+            trainable, fixed_test = np.flatnonzero(~test_only), np.flatnonzero(test_only)
+            if len(trainable) == 0 or len(fixed_test) == 0:
+                raise ValueError("test_only must leave at least one trial on each side")
 
         # Convert negative time axis to positive (e.g., -1 becomes 3 for 4D array)
         time_axs_positive = time_axs % x_data.ndim
@@ -314,8 +340,13 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                                                   train_size=frac_train,
                                                   random_state=rng)
 
-            # Iterate through each fold
-            for f, (train_idx, test_idx) in enumerate(splitter.split(data, strat)):
+            # Iterate through each fold. The splitter only needs the number of
+            # trials from X, so it is handed a placeholder; its indices point into
+            # `trainable` and are mapped back to trial numbers.
+            folds = splitter.split(np.zeros(len(trainable)), strat[trainable])
+            for f, (train_pos, test_pos) in enumerate(folds):
+                train_idx = trainable[train_pos]
+                test_idx = trainable[test_pos] if fixed_test is None else fixed_test
                 # Extract train/test data for this fold
                 x_train = data[train_idx]
                 y_train = labels[train_idx].copy()  # Copy to avoid modifying original
