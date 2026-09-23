@@ -115,6 +115,30 @@ def test_raises_on_unknown_roi():
         build_cross_decoding_arrays(synthetic_roi_labeled_arrays(), "nope", STAB, FLEX)
 
 
+def test_padding_rows_are_dropped_but_partial_rows_are_kept():
+    """`LabeledArray.from_dict` pads every condition with rows that are NaN on
+    every channel; those are not trials. A row missing only SOME channels (a
+    subject with fewer trials in the condition) is a real pseudo-trial."""
+    arrs = synthetic_roi_labeled_arrays(seed=0)
+    name = 'Stimulus_i_s_25inc_25sw'
+    padded = np.concatenate([arrs['synthetic'][name], np.full((25, 40, 32), np.nan)])
+    padded[0, :10] = np.nan                        # one subject missing from row 0
+    arrs['synthetic'][name] = padded
+
+    out = build_cross_decoding_arrays(arrs, "synthetic", STAB, FLEX)
+    rows = out['data'][out['strata'] == out['conditions'].index(name)]
+    assert len(rows) == 40                         # the 25 padding rows are gone
+    assert np.isnan(rows[0, :10]).all() and not np.isnan(rows[0, 10:]).any()
+
+
+def test_a_condition_that_is_only_padding_is_skipped():
+    arrs = synthetic_roi_labeled_arrays(seed=0)
+    arrs['synthetic']['Stimulus_i_s_25inc_25sw'] = np.full((5, 40, 32), np.nan)
+    out = build_cross_decoding_arrays(arrs, "synthetic", STAB, FLEX)
+    assert 'Stimulus_i_s_25inc_25sw' not in out['conditions']
+    assert not np.isnan(out['data']).all(axis=(1, 2)).any()
+
+
 def test_flat_string_list_is_accepted():
     """['_i_', '_c_'] should behave like [['_i_'], ['_c_']]."""
     arrs = synthetic_roi_labeled_arrays(seed=0)
@@ -200,6 +224,32 @@ def test_shared_code_transfers_and_orthogonal_code_does_not():
     # ... but only the shared code transfers across contrasts
     assert accs[("shared", "cross")] > 0.65
     assert 0.35 < accs[("orthogonal", "cross")] < 0.65
+
+
+@ieeg_required
+def test_equal_priors_stop_a_3_to_1_class_split_pulling_toward_the_majority():
+    """Inside one block the classes run 3:1. LDA's default priors (the training
+    frequencies) then over-predict the majority class; `make_decoder`'s equal
+    priors must not."""
+    from src.analysis.decoding.accuracy_stats import compute_accuracies
+    from src.analysis.decoding.cross_decoding import make_decoder
+    rng = np.random.default_rng(2)
+    X = rng.normal(0, 1, (160, 4, 16))
+    y = np.array([0] * 120 + [1] * 40)
+    X[y == 1] += 0.25                              # a weak signal
+    kw = dict(obs_axs=0, window=16, step_size=16)
+    equal = make_decoder({('a',): 0, ('b',): 1}, n_splits=3, n_repeats=2,
+                         oversample=False, random_state=7)
+
+    counts_plain = _decoder().cv_cm_jim_window_shuffle(X, y, **kw)
+    counts_equal = equal.cv_cm_jim_window_shuffle(X, y, **kw)
+    share_majority = lambda cm: cm[..., 0].sum() / cm.sum()
+    assert share_majority(counts_plain) > share_majority(counts_equal) + 0.05
+
+    acc_plain, acc_equal = compute_accuracies(
+        _decoder().cv_cm_jim_window_shuffle(X, y, normalize='true', **kw),
+        equal.cv_cm_jim_window_shuffle(X, y, normalize='true', **kw))
+    assert acc_equal.mean() > acc_plain.mean() + 0.02
 
 
 @ieeg_required
