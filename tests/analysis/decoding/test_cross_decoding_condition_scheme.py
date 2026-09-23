@@ -270,7 +270,8 @@ def _stub_data_loading(monkeypatch, cells, labels, channel_names):
     arrays = {'lpfc': _fake_roi_arrays(cells)}
     monkeypatch.setattr(xd, '_resolve_labels', lambda args, df=None: labels)
     monkeypatch.setattr(xd, '_build_roi_arrays',
-                        lambda args, lab_root: ('lpfc', arrays, channel_names, cells))
+                        lambda args, lab_root, trial_partitions=None:
+                        ('lpfc', arrays, channel_names, cells))
     monkeypatch.setattr('src.analysis.utils.general_utils.resolve_lab_root',
                         lambda explicit=None: '/nonexistent')
 

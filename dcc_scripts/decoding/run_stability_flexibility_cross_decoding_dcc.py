@@ -46,6 +46,18 @@ from src.analysis.utils.anova_label_selection import anova_label_run_slug
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
 # ---------------------------------------------------------------------------
+# Which analysis this job runs:
+#   'a4'             the stability/flexibility cross-decoding battery (default)
+#   'block_transfer' N3b (docs/n3b_block_transfer.md): each contrast trained in
+#                    one block level and tested in the other, on EVERY electrode
+#                    of ROI. ELECTRODES alone picks 'sig' or 'all'; the electrode
+#                    group settings below (ELECTRODE_DEFINITION, the ANOVA CSV,
+#                    power traces, REFERENCE_GROUP, TEMPGEN_GROUPS) are unused,
+#                    and N_REPEATS counts balanced resamples.
+ANALYSIS = os.environ.get('ANALYSIS', 'a4')
+if ANALYSIS not in ('a4', 'block_transfer'):
+    raise ValueError(f"ANALYSIS must be 'a4' or 'block_transfer'; got {ANALYSIS!r}")
+
 LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
 ACC_TRIALS_ONLY = True
@@ -205,7 +217,9 @@ FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
 # --- output ---
 # The ROI, electrode set and definition route all change what was decoded, so
 # they go in the path — otherwise two runs overwrite each other's results.
-_tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_{SYNTHETIC_CODE}'
+# A synthetic run must never share a folder with the real results, even when
+# the submit script also exports EPOCHS_ROOT_FILE.
+_tag = f'synthetic_{SYNTHETIC_CODE}' if DATA_SOURCE == 'synthetic' else EPOCHS_ROOT_FILE
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     current_script_dir, 'results', _tag,
     f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
@@ -217,11 +231,16 @@ if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
         anova_label_run_slug(
             ANOVA_LABELS_CSV, effect=ANOVA_LABEL_EFFECT, correction=FDR_CORRECTION,
             alpha=ALPHA, roi=ANOVA_LABEL_ROI))
+if ANALYSIS == 'block_transfer' and not os.environ.get('SAVE_DIR'):
+    SAVE_DIR = os.path.join(
+        current_script_dir, 'results', _tag,
+        f'block_transfer_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}', CONDITIONS_NAME)
 
 
 def run_analysis():
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     args = SimpleNamespace(
+        analysis=ANALYSIS,
         timestamp=timestamp,
         LAB_root=LAB_ROOT,
         subjects=SUBJECTS,
@@ -268,7 +287,8 @@ def run_analysis():
     )
 
     print("=" * 72)
-    print("STABILITY vs FLEXIBILITY — A4 CROSS-DECODING")
+    print("N3b BLOCK-TRANSFER CROSS-DECODING" if ANALYSIS == 'block_transfer'
+          else "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING")
     print("=" * 72)
     print(f"Data source:      {DATA_SOURCE}"
           + (f" (code={SYNTHETIC_CODE})" if DATA_SOURCE == 'synthetic' else ""))
@@ -279,12 +299,15 @@ def run_analysis():
     print(f"Conditions:       {len(CONDITIONS)} cells")
     print(f"ROI:              {ROI} | electrodes: {ELECTRODES}")
     print("-" * 72)
-    print(f"Elec definition:  {ELECTRODE_DEFINITION}"
-          + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
-             f"roi={POWER_TRACES_ROI})" if ELECTRODE_DEFINITION == 'power_traces' else ""))
-    print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
-          f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
-    print(f"alpha (A1):       {ALPHA}")
+    if ANALYSIS == 'block_transfer':
+        print("Electrode groups: none (every loaded electrode is decoded)")
+    else:
+        print(f"Elec definition:  {ELECTRODE_DEFINITION}"
+              + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
+                 f"roi={POWER_TRACES_ROI})" if ELECTRODE_DEFINITION == 'power_traces' else ""))
+        print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
+              f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
+        print(f"alpha (A1):       {ALPHA}")
     print(f"window/step:      {WINDOW_SIZE}/{STEP_SIZE} samples "
           f"| n_splits: {N_SPLITS} | n_repeats: {N_REPEATS}")
     print("train fraction:   "
