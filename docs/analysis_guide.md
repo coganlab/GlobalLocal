@@ -1922,11 +1922,11 @@ everything the transfer needs:
 
 | Requirement | Where it already comes from |
 |---|---|
-| cross-subject **pseudopopulation** | the ROI LabeledArray — `put_data_in_labeled_array_per_roi_subject` NaN-pads each subject to the per-condition max and concatenates subjects along the **channel** axis; `mixup2` fills the padding |
+| cross-subject **pseudopopulation** | the ROI LabeledArray — `put_data_in_labeled_array_per_roi_subject` NaN-pads each subject to the per-condition max and concatenates subjects along the **channel** axis; pure-padding rows are removed, incomplete training rows are subsampled, and incomplete test features are filled with independent noise |
 | **disjoint train/test** (circularity guard) | the CV split inside `cv_cm_jim_window_shuffle` |
-| **null centred at chance** | `shuffle=True` permutes the TRAIN labels and **refits**, so the null carries the variance of the whole pipeline (scaler → PCA → LDA, mixup, folds) |
+| **null centred at chance** | `shuffle=True` permutes the TRAIN labels and **refits**, so the null carries the variance of the whole pipeline (PCA → LDA, fold-wise training subsampling, folds) |
 | **multiple comparisons** | `time_perm_cluster` over the time-resolved accuracy trace |
-| classifier | the project `Decoder` (scaler → PCA → LDA) |
+| classifier | the project `Decoder` (PCA → LDA, with equal class priors for cross-decoding) |
 
 All A4 adds is a **second label vector**:
 
@@ -1992,12 +1992,12 @@ covers per group, so it has no separate code path.
 > a fold-leakage artifact rather than signal. The full diagnostic protocol —
 > failure signatures, the mandatory within-condition ceiling, the positive-control
 > ladder, and the report block to print with every transfer — is in
-> [`cross_decoding_controls.md`](cross_decoding_controls.md). The *block-transfer*
-> form of cross-decoding planned for the manuscript (train congruency in one
-> incongruent-proportion block, test in the other) is specified in
-> [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
-> §4; it needs a new fold splitter, since train and test come from different
-> trials rather than from two labellings of the same trials.
+> [`cross_decoding_controls.md`](cross_decoding_controls.md). The implemented
+> N3b *block-transfer* analysis trains congruency or switch type in one block
+> level and tests it in the other. It uses pooled design-specific 2×2 condition
+> sets and the decoder's `test_only` path; see
+> [`n3b_block_transfer.md`](n3b_block_transfer.md) for the designs, run command,
+> outputs, and interpretation.
 
 ### 17.1 Which electrodes are decoded
 
@@ -2057,7 +2057,7 @@ Two sets are useful (`CONDITIONS=<name>`):
 | `CONDITIONS` | Cells | Designs that run | Why pick it |
 |---|---|---|---|
 | `stimulus_experiment_conditions` (default) | 16 — the full 2×2×2×2 | all of (0), (0b), (a), (c) | the only set that supports the within-block designs; also stratifies the CV folds on **all four** factors, so no fold can be lopsided on a proportion |
-| `stimulus_main_effect_conditions` | 4 — `Stimulus_i{r,s}` / `Stimulus_c{r,s}`, both proportions collapsed | (a) and (c); (0)/(0b) skipped | same pooled transfer with **~4× the trials per cell**, hence less NaN padding / `mixup2` fill in the pseudopopulation. Folds are then stratified on congruency × switchType only |
+| `stimulus_main_effect_conditions` | 4 — `Stimulus_i{r,s}` / `Stimulus_c{r,s}`, both proportions collapsed | (a) and (c); (0)/(0b) skipped | same pooled transfer with **~4× the trials per cell**, hence fewer incomplete rows before fold-wise training subsampling. Folds are then stratified on congruency × switchType only |
 
 `response_experiment_conditions` is the response-locked 16-cell equivalent of the
 default and works identically (pair it with a response-locked `EPOCHS_ROOT_FILE`).

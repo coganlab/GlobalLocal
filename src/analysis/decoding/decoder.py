@@ -104,7 +104,9 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         Cross-validated confusion matrix with windowing, optional shuffling, and an option to treat folds as independent samples.
 
         This function performs cross-validated decoding with optional sliding windows over time.
-        It can shuffle labels (for permutation testing) and handles missing data via mixup.
+        It can shuffle labels for permutation testing. With `oversample=True`,
+        missing training data use mixup; with `False`, incomplete training rows
+        are subsampled and balanced. Missing test values use independent noise.
 
         Cross-decoding (`labels_test`)
         ------------------------------
@@ -121,7 +123,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         can leave a test fold with a lopsided (or absent) test class.
 
         `shuffle=True` permutes the TRAIN labels and refits, so the null carries the
-        variance of the whole estimation pipeline (PCA -> LDA, mixup, fold
+        variance of the whole estimation pipeline (PCA -> LDA, fold preprocessing,
         structure). For a cross-decode this is exactly the right null: "does an axis
         trained on real congruency labels predict switchType better than an axis
         trained on scrambled ones?"
@@ -349,7 +351,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
 
         2. sample_fold is called:
         - Reorders data to put train first, test second
-        - Applies mixup to fill training NaNs with smart combinations
+        - Applies mixup or complete-row subsampling to training NaNs
         - Fills test NaNs with random noise
         - Returns processed (100, 10, 256) with no NaNs
 
@@ -388,7 +390,7 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         
         # Step 4: Use sample_fold for preprocessing. 
         # This handles:
-        # - Mixup augmentation for training NaNs
+        # - Mixup augmentation or complete-row subsampling for training NaNs
         # - Random noise filling for test NaNs
         # - Proper data splitting
         x_processed, y_train_proc, y_test_proc = sample_fold(
