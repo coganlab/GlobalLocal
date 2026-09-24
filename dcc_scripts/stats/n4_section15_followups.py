@@ -209,13 +209,36 @@ def section_4(s, ps, H, args):
         wth = np.mean([within(H[a][:, k], H[b][:, k]) for k in range(H[a].shape[1])])
         print(f"  {lab:<28} {pooled:+.3f}     {wth:+.3f}")
 
-    # split-averaged disjoint maps: mean(xA) against mean(yB), and xB against yA
+    # Averaging each half over the splits rebuilds the full-data map (every trial
+    # lands in half A about half the time), so mean(xA) vs mean(yB) is NOT
+    # disjoint -- it is the full-data, shared-trial correlation. Kept only to
+    # label that number correctly.
     xa_bar, yb_bar = H['xA'].mean(1), H['yB'].mean(1)
     xb_bar, ya_bar = H['xB'].mean(1), H['yA'].mean(1)
     r_dis = 0.5 * (within(xa_bar, yb_bar) + within(xb_bar, ya_bar))
-    print(f"split-averaged disjoint-half within-subject r = {r_dis:+.3f}")
+    print(f"split-averaged 'disjoint' within-subject r = {r_dis:+.3f} -- SHARES TRIALS: "
+          f"corr(mean xA, mean xB) = {pearsonr(H['xA'].mean(1), H['xB'].mean(1))[0]:.3f}, "
+          "so each averaged half is the full-data map")
     print(f"thresholded maps: expected overlap under independence = "
           f"{pos_x.mean() * pos_y.mean():.0%} of electrodes")
+
+    # Controlling for responsiveness as well as subject. `split_resolved_corr`
+    # is the pipeline's version (summary.txt §5.1 sweep): disjoint halves,
+    # residualised on resp, centred within subject.
+    for c in ('lwpc_s', 'lwps_s'):
+        print(f"corr({c}, resp) within subject {within(s[c].to_numpy(float), s['resp'].to_numpy(float)):+.3f}")
+    from src.analysis.stats import stability_flexibility_segregation as sfs
+    raw = pd.read_csv(args.per_split)
+    resp = s.set_index('electrode')['resp']
+    for m in ('spearman', 'pearson'):
+        r = sfs.split_resolved_corr(raw, resp, min_elec=1, method=m, n_perm=args.n_perm_cv, seed=args.seed)
+        print(f"[pipeline: split_resolved_corr] subject + resp, disjoint halves ({m}): r {r['corr']:+.3f}  "
+              f"p {r['p']:.4f}  reliabilities LWPC {r['reliability_x']:+.3f} / LWPS {r['reliability_y']:+.3f}")
+    print("  NB: a cross-map r above sqrt(rel_x * rel_y) is impossible for independent halves. "
+          "compute_sensitivities_per_split draws a new split per ELECTRODE, so within a "
+          "subject electrode i's half A overlaps electrode j's half B; trial noise shared "
+          "across electrodes then biases within-subject reliabilities down. The cross-effect "
+          "r is barely affected (different contrasts on the same trials).")
 
 
 # ---------------------------------------------------------------------------
