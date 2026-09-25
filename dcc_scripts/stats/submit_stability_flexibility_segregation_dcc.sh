@@ -40,9 +40,9 @@ MIN_ELEC=${MIN_ELEC:-3}
 # N_PERM_CORR=${N_PERM_CORR:-1000}
 # N_PERM_LABEL=${N_PERM_LABEL:-1000}
 
-N_SPLITS=${N_SPLITS:-200}
-N_PERM_CORR=${N_PERM_CORR:-1000}
-N_PERM_LABEL=${N_PERM_LABEL:-1000}
+N_SPLITS=${N_SPLITS:-1000}
+N_PERM_CORR=${N_PERM_CORR:-10000}
+N_PERM_LABEL=${N_PERM_LABEL:-10000}
 
 # Scatter-only (docs/analysis_simplification_plan.md 2.5): assemble the trial
 # table, score both contrasts per electrode, draw the subject-coloured joint

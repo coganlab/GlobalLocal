@@ -1,62 +1,58 @@
 ======================================================================
 N4 — CONTINUOUS SCORES -> ANATOMY (plan §5–§7)
 ======================================================================
-electrodes: 398 | mapped to an ROI: 398 | with MNI coords: 398
+electrodes: 171 | mapped to an ROI: 171 | with MNI coords: 171
 scores: LWPC (x) and LWPS (y) on DISJOINT trial halves, each an equal-cell-weight
   difference-of-differences / pooled within-cell SD, scaled by ONE pooled factor per effect.
   delta = lwpc_s - lwps_s  (>0 = LWPC-dominant electrode)
 ----------------------------------------------------------------------
 §5.2 PRIMARY — delta ~ Destrieux label + responsiveness + (1|subject), within-electrode swap null:
-      F = 1.895   permutation p = 0.0104  -> significant
-      Destrieux labels tested (coverage-filtered): ['ctx_lh_G_front_inf-Opercular', 'ctx_lh_G_front_inf-Orbital', 'ctx_lh_G_front_inf-Triangul', 'ctx_lh_G_front_middle', 'ctx_lh_G_front_sup', 'ctx_lh_Lat_Fis-ant-Horizont', 'ctx_lh_S_circular_insula_sup', 'ctx_lh_S_front_inf', 'ctx_lh_S_front_middle', 'ctx_lh_S_front_sup', 'ctx_rh_G_front_inf-Opercular', 'ctx_rh_G_front_inf-Orbital', 'ctx_rh_G_front_inf-Triangul', 'ctx_rh_G_front_middle', 'ctx_rh_G_front_sup', 'ctx_rh_S_circular_insula_sup', 'ctx_rh_S_front_inf', 'ctx_rh_S_front_middle', 'ctx_rh_S_front_sup']
-      electrodes = 396, subjects = 22
+      F = 0.907   permutation p = 0.2877  -> n.s.
+      Destrieux labels tested (coverage-filtered): ['ctx_lh_G_front_inf-Opercular', 'ctx_lh_G_front_inf-Triangul', 'ctx_lh_G_front_middle', 'ctx_lh_G_front_sup', 'ctx_lh_S_circular_insula_sup', 'ctx_lh_S_front_inf', 'ctx_lh_S_front_middle', 'ctx_lh_S_front_sup', 'ctx_rh_G_front_inf-Opercular', 'ctx_rh_G_front_middle', 'ctx_rh_G_front_sup', 'ctx_rh_S_circular_insula_sup', 'ctx_rh_S_front_inf', 'ctx_rh_S_front_middle', 'ctx_rh_S_front_sup']
+      electrodes = 167, subjects = 21
                         anat  n_electrodes  n_subjects  mean_delta  mean_delta_adj        p        q
-ctx_lh_G_front_inf-Opercular            21           7   -0.097254        0.020271 0.939106 0.990901
-  ctx_lh_G_front_inf-Orbital             5           4   -0.426513       -0.359991 0.497850 0.781699
- ctx_lh_G_front_inf-Triangul            26           9    0.280842        0.309031 0.124188 0.337081
-       ctx_lh_G_front_middle            54           9    0.124269        0.232712 0.059594 0.271673
-          ctx_lh_G_front_sup            47           9   -0.271662       -0.297053 0.013299 0.126337
- ctx_lh_Lat_Fis-ant-Horizont             5           4    0.031873       -0.007501 0.990901 0.990901
-ctx_lh_S_circular_insula_sup            28          11    0.086749        0.294723 0.112489 0.337081
-          ctx_lh_S_front_inf            20           8   -0.506299       -0.009858 0.970603 0.990901
-       ctx_lh_S_front_middle            14           5   -0.455857       -0.219925 0.423558 0.731600
-          ctx_lh_S_front_sup            33           8   -0.780298       -0.535756 0.008799 0.126337
-ctx_rh_G_front_inf-Opercular            11           6   -0.094818       -0.261725 0.646235 0.858461
-  ctx_rh_G_front_inf-Orbital             4           3   -0.036124        0.849162 0.071493 0.271673
- ctx_rh_G_front_inf-Triangul             7           5   -0.345116        0.204867 0.534847 0.781699
-       ctx_rh_G_front_middle            34           8    0.097951        0.412739 0.020398 0.129187
-          ctx_rh_G_front_sup            31           9   -0.336808       -0.259836 0.162984 0.387086
-ctx_rh_S_circular_insula_sup            12           7   -0.373382       -0.169622 0.729527 0.866313
-          ctx_rh_S_front_inf            10           4    0.450581        0.396017 0.251375 0.530680
-       ctx_rh_S_front_middle            11           4   -0.045169        0.109932 0.677732 0.858461
-          ctx_rh_S_front_sup            23           8   -0.092191       -0.156003 0.368563 0.700270
+ctx_lh_G_front_inf-Opercular            11           6   -0.204958        0.147384 0.671533 0.812457
+ ctx_lh_G_front_inf-Triangul             7           5   -0.246948       -0.149312 0.684932 0.812457
+       ctx_lh_G_front_middle            37           7    0.242614        0.134884 0.356264 0.795858
+          ctx_lh_G_front_sup            10           5   -0.035692       -0.319501 0.375462 0.795858
+ctx_lh_S_circular_insula_sup            15           8    0.139920        0.278887 0.280472 0.795858
+          ctx_lh_S_front_inf            15           6   -0.593432        0.015572 0.955704 0.955704
+       ctx_lh_S_front_middle             8           3   -0.424516       -0.114624 0.666533 0.812457
+          ctx_lh_S_front_sup            15           6   -0.882252       -0.315494 0.350865 0.795858
+ctx_rh_G_front_inf-Opercular             5           3    1.038949        0.591694 0.424458 0.795858
+       ctx_rh_G_front_middle            11           6   -0.188988        0.361200 0.296270 0.795858
+          ctx_rh_G_front_sup             5           4   -0.395009       -0.123356 0.795520 0.852343
+ctx_rh_S_circular_insula_sup             8           5   -0.286010       -0.581561 0.237476 0.795858
+          ctx_rh_S_front_inf             6           3    0.655250        0.199563 0.685731 0.812457
+       ctx_rh_S_front_middle             7           4    0.036683        0.132635 0.704130 0.812457
+          ctx_rh_S_front_sup             7           4    0.008607       -0.703919 0.000800 0.011999
 ----------------------------------------------------------------------
 §9.2 leverage — the same test with each subject dropped (fewer permutations):
-      F = 1.895 on all subjects; 1.593 to 2.380 across the 22 leave-one-out fits
-      largest shift: dropping D0134 moves F by +0.485 (p there = 0.003996)
-      p range across folds: 0.002997 to 0.06094
+      F = 0.907 on all subjects; 0.775 to 1.227 across the 21 leave-one-out fits
+      largest shift: dropping D0133 moves F by +0.320 (p there = 0.0989)
+      p range across folds: 0.0989 to 0.4486
 ----------------------------------------------------------------------
 §5.2 SECONDARY — delta ~ MNI coordinates (slopes in delta units/mm):
-      [all] F = 2.872  p = 0.0302  (n=398)   mni_y=+0.00237 (p=0.5742)  mni_z=-0.00770 (p=0.007399)  mni_x=+0.00129 (p=0.6226)
-      [lh] F = 4.243  p = 0.0048  (n=254)   mni_y=+0.00140 (p=0.7698)  mni_z=-0.00521 (p=0.2126)  mni_x=-0.01307 (p=0.06739)
-      [rh] F = 2.337  p = 0.1233  (n=144)   mni_y=+0.01289 (p=0.2216)  mni_z=+0.00021 (p=0.978)  mni_x=+0.01709 (p=0.1714)
+      [all] F = 1.444  p = 0.2828  (n=171)   mni_y=+0.00840 (p=0.3013)  mni_z=-0.00747 (p=0.2334)  mni_x=-0.00024 (p=0.9658)
+      [lh] F = 1.267  p = 0.2595  (n=120)   mni_y=+0.00418 (p=0.6219)  mni_z=-0.01112 (p=0.154)  mni_x=+0.00444 (p=0.7816)
+      [rh] F = 1.250  p = 0.4802  (n=51)   mni_y=+0.01011 (p=0.6863)  mni_z=-0.00271 (p=0.8844)  mni_x=+0.03120 (p=0.2849)
       a POSITIVE mni_y slope = LWPC dominance increases ANTERIORLY
 ----------------------------------------------------------------------
-§7 DESCRIPTIVE — per-subject × hemisphere medoids (25 groups):
-      LWPC sits +0.5 mm anterior, +0.7 mm lateral, -3.3 mm superior to LWPS
-      p (anterior) = 0.8012   mean |displacement| = 14.6 mm
+§7 DESCRIPTIVE — per-subject × hemisphere medoids (20 groups):
+      LWPC sits +0.8 mm anterior, -0.2 mm lateral, -2.3 mm superior to LWPS
+      p (anterior) = 0.7092   mean |displacement| = 12.1 mm
       Descriptive only — the coordinate regression above makes the same claim without a centroid.
 ----------------------------------------------------------------------
 §5.4 NOISE CEILING — what a null spatial correlation is allowed to mean:
-      [electrode-level, n=398] LWPC-vs-LWPS r = +0.172   ceiling: LWPC +0.162 / LWPS +0.097   noise-corrected +1.374
-      [parcel-level, n=21] LWPC-vs-LWPS r = +0.275   ceiling: LWPC +0.156 / LWPS +0.260   noise-corrected +1.369
+      [electrode-level, n=171] LWPC-vs-LWPS r = +0.117   ceiling: LWPC +0.145 / LWPS +0.200   noise-corrected +0.684
+      [parcel-level, n=19] LWPC-vs-LWPS r = +0.118   ceiling: LWPC -0.136 / LWPS +0.290   noise-corrected +nan
       §5.1 min_elec sweep (it drops WHOLE SUBJECTS):
- min_elec     corr      p  n_electrodes  n_subjects  reliability_x  reliability_y  corr_noise_corrected
-        1 0.097039 0.0005           398          22       0.069007      -0.093923                   NaN
-        2 0.097076 0.0005           397          21       0.069111      -0.093852                   NaN
-        3 0.097076 0.0005           397          21       0.069111      -0.093852                   NaN
+ min_elec     corr        p  n_electrodes  n_subjects  reliability_x  reliability_y  corr_noise_corrected
+        1 0.078353 0.053473           171          21       0.021429      -0.005283                   NaN
+        2 0.078624 0.053473           169          19       0.021686      -0.004699                   NaN
+        3 0.076587 0.051474           167          18       0.013581      -0.000218                   NaN
 ----------------------------------------------------------------------
-pooled LWPC–LWPS correlation r = +0.316   within-subject r = +0.224
+pooled LWPC–LWPS correlation r = +0.201   within-subject r = +0.176
       (if these agree, say so in Methods and pool — plan §5.1)
 ======================================================================
 Reading: the test is an effect-type × anatomy INTERACTION, because the response

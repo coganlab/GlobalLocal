@@ -55,7 +55,7 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # N_SPLITS is used only when calculating scores here; USE_COORDS=0 skips the
 # reconstruction-dependent coordinate and centroid panels.
 # ---------------------------------------------------------------------------
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh"
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_sig_lpfc_proportion_cohens_d_fdr_bh"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}
