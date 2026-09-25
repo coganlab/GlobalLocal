@@ -14,7 +14,8 @@
   the positive-on-both electrodes alone does (section 9), the centroid shuffle
   test of LWPC-positive vs LWPS-positive electrodes (section 10), and a test of
   whether the gradient differs inside a subset such as the task-significant
-  electrodes (section 11, needs ``--subset-scores``).
+  electrodes (section 11, needs ``--subset-scores``), and LWPC and LWPS by
+  height band (section 12).
 
 This script is the single place both live, so every §15 claim can be re-run
 from the archived outputs without the cluster::
@@ -397,7 +398,7 @@ def section_8(s, ps, H, args):
         print(f"  {lab:<32}" + '  '.join(f"{a} {tab[a].mean():+.2f} (p {c['p'][a]:.2f})" for a in ('dx', 'dy', 'dz'))
               + f"   zero-displacement groups {int(np.sum(tab['distance'] == 0))}/{len(tab)}")
 
-    banner('§15.8  sign-defined centres (descriptive only -- circular as a test)  [follow-up]')
+    banner('§15.8  sign-defined centres: a restatement of the delta ~ z slope, not independent evidence  [follow-up]')
     for lab, sub in (('pooled', s), ('lh', s[s['hemi'] == 'lh']), ('rh', s[s['hemi'] == 'rh'])):
         pc, ps_ = sub[sub['delta'] > 0], sub[sub['delta'] < 0]
         print(f"  {lab:<7} LWPC-dominant n {len(pc):>3} z {pc['mni_z'].mean():5.1f}   "
@@ -410,6 +411,26 @@ def section_8(s, ps, H, args):
     rows = np.asarray(rows)
     print(f"  within subject x hemisphere ({len(rows)} groups): mean dz {rows.mean():+.2f} mm, "
           f"{int(np.sum(rows < 0))}/{len(rows)} in the expected direction")
+
+    # The same comparison as a test. It is valid as long as the two sets are
+    # re-formed inside every permutation (swap labels -> new signs of delta ->
+    # new sets), but it restates the delta ~ z slope rather than adding
+    # independent evidence. Heights are centred within participant.
+    zc = (s['mni_z'] - s.groupby('subject')['mni_z'].transform('mean')).to_numpy()
+    x, y = s['lwpc_s'].to_numpy(), s['lwps_s'].to_numpy()
+
+    def gap(a, b):
+        d = a - b
+        return zc[d > 0].mean() - zc[d < 0].mean()
+
+    obs = gap(x, y)
+    rng = np.random.default_rng(args.seed)
+    null = np.empty(args.n_perm)
+    for k in range(args.n_perm):
+        sw = rng.random(len(x)) < 0.5
+        null[k] = gap(np.where(sw, y, x), np.where(sw, x, y))
+    print(f"  as a test (sets re-formed in every swap, heights centred within participant): "
+          f"dz {obs:+.2f} mm, p {(np.sum(np.abs(null) >= abs(obs)) + 1) / (args.n_perm + 1):.4f}")
 
 
 # ---------------------------------------------------------------------------
@@ -538,9 +559,63 @@ def section_11(s, ps, H, args):
     row = r['slopes'].set_index('axis').loc['z_x_subset']
     print(f"  slope difference (subset - rest) {row['slope_per_mm']:+.4f}  p {row['p']:.3f}")
 
+    # Is membership of the subset itself organised by height? If it were,
+    # restricting to it would change the spatial sampling, not just the count.
+    g = d['subject'].to_numpy()
+    zc = (d['mni_z'] - d.groupby('subject')['mni_z'].transform('mean')).to_numpy()
+    mc = (d['in_subset'] - d.groupby('subject')['in_subset'].transform('mean')).to_numpy()
+    r = pearsonr(zc, mc)[0]
+    null = np.array([pearsonr(zc[idx], mc)[0] for idx in within_subject_perms(g, args.n_perm_cv, args.seed)])
+    print(f"  subset membership vs height, within participant: r {r:+.3f}  "
+          f"p {(np.sum(np.abs(null) >= abs(r)) + 1) / (len(null) + 1):.3f}")
+
+
+# ---------------------------------------------------------------------------
+# what the tilt looks like: LWPC and LWPS by height band
+# ---------------------------------------------------------------------------
+def _band_table(d, edges, H=None):
+    """Adjusted mean Cohen's d of each effect per height band, and the per-band LWPC-LWPS r."""
+    d = d.copy()
+    X, _ = sfa._nuisance_design(d)
+    for col in ('lwpc_score', 'lwps_score'):          # remove participant + responsiveness offsets
+        v = d[col].to_numpy(float)
+        d[col + '_adj'] = v - X @ np.linalg.lstsq(X, v, rcond=None)[0] + v.mean()
+    d['band'] = pd.cut(d['mni_z'], edges, labels=['ventral', 'middle', 'dorsal'], include_lowest=True)
+    rows = []
+    for band, g in d.groupby('band', observed=True):
+        row = dict(band=band, n=len(g), z=f"{g['mni_z'].min():.0f} to {g['mni_z'].max():.0f}",
+                   lwpc_d=g['lwpc_score_adj'].mean(), lwps_d=g['lwps_score_adj'].mean(),
+                   mean_delta=g['delta'].mean(), lwpc_dominant=(g['delta'] > 0).mean())
+        if H is not None:                              # separate halves, centred within participant
+            m = (d['band'] == band).to_numpy()
+            subj = d['subject'].to_numpy()[m]
+
+            def c(v):
+                v = pd.Series(v[m])
+                return (v - v.groupby(subj).transform('mean')).to_numpy()
+            row['r_separate_halves'] = np.mean([
+                0.5 * (pearsonr(c(H['xA'][:, k]), c(H['yB'][:, k]))[0]
+                       + pearsonr(c(H['xB'][:, k]), c(H['yA'][:, k]))[0]) for k in range(H['xA'].shape[1])])
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def section_12(s, ps, H, args):
+    banner('LWPC and LWPS by height band (descriptive; tertiles of this run\'s MNI z)')
+    edges = np.percentile(s['mni_z'], [0, 100 / 3, 200 / 3, 100])
+    print(_band_table(s, edges, H).round(3).to_string(index=False))
+    X, _ = sfa._nuisance_design(s)
+    R = np.eye(len(s)) - X @ np.linalg.pinv(X)
+    r = pearsonr(R @ s['mni_z'].to_numpy(float), R @ s['delta'].to_numpy(float))[0]
+    print(f"share of delta's variance explained by height, within participant: {r ** 2:.1%}")
+    if args.subset_scores:
+        sub = set(pd.read_csv(args.subset_scores)['electrode'])
+        print("\nsubset only, same band edges:")
+        print(_band_table(s[s['electrode'].isin(sub)].reset_index(drop=True), edges).round(3).to_string(index=False))
+
 
 SECTIONS = {3: section_3, 4: section_4, 5: section_5, 6: section_6, 7: section_7, 8: section_8,
-            9: section_9, 10: section_10, 11: section_11}
+            9: section_9, 10: section_10, 11: section_11, 12: section_12}
 
 
 def main(argv=None):
@@ -553,7 +628,7 @@ def main(argv=None):
     ap.add_argument('--n-boot', type=int, default=2000, help='subject bootstrap resamples')
     ap.add_argument('--n-sim', type=int, default=500, help='simulations for the ++ selection check')
     ap.add_argument('--seed', type=int, default=0)
-    ap.add_argument('--sections', default='3,4,5,6,7,8,9,10,11')
+    ap.add_argument('--sections', default='3,4,5,6,7,8,9,10,11,12')
     ap.add_argument('--subset-scores', default=None,
                     help="section 11: a subset run's scores_with_anatomy.csv (e.g. task-significant "
                          "electrodes); its slope is compared with the rest's, in this run's units")
