@@ -599,7 +599,8 @@ def run_score_anatomy(args):
     if args.data_source == 'synthetic':
         print("DATA SOURCE: synthetic (pipeline / path validation)")
         gradient = getattr(args, 'synthetic_enrichment', 0.6)
-        scores, e2r, e2a, e2c = sfa._synthetic_scores(gradient=gradient, seed=seed)
+        scores, e2r, e2a, e2c = sfa._synthetic_scores(gradient=gradient, seed=seed,
+                                                      main_effects='inherited')
         # there are no trials to split on this route, so fake the per-split table
         # too — otherwise the §5.4 ceiling and the min_elec sweep never run and
         # the dry run does not validate the path it is there to validate
@@ -693,6 +694,17 @@ def run_score_anatomy(args):
     scatter_diag = scat.joint_scatter_diagnostics(
         tab, value_cols=('lwpc_s', 'lwps_s'))
 
+    # 4b. main effects as the reference (only on scores from a MAIN_EFFECTS=1 run);
+    # a failure there must not cost the outputs above
+    main_lines, main = [], None
+    if 'dm' in tab:
+        try:
+            main_lines, main = run_main_effect_anatomy(
+                args, tab, per_split, coverage, roi_col, has_coords, save_dir,
+                min_subjects=min_subjects, n_perm=n_perm, seed=seed)
+        except Exception as exc:
+            main_lines = ["-" * 70, f"MAIN EFFECTS: failed ({type(exc).__name__}: {exc})"]
+
     # 5. figures ------------------------------------------------------------------
     # The §2.5 joint scatter, on the pooled-scaled scores this arm tests, with
     # the noise ceiling annotated on it — same figure and same diagnostics the
@@ -752,20 +764,80 @@ def run_score_anatomy(args):
         scatter_correlation=dict(corr=scatter_diag['corr'],
                                  corr_within_subject=scatter_diag['corr_within_subject'],
                                  flags=scatter_diag['flags']),
-        maps={k: v.get('combined') for k, v in maps.items()})
+        maps={k: v.get('combined') for k, v in maps.items()},
+        main_effects=main)
     with open(os.path.join(save_dir, 'score_anatomy.json'), 'w') as f:
         json.dump(summary, f, indent=2, default=str)
 
     write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
                         scatter_diag, save_dir, roi_col=roi_col,
-                        alpha=getattr(args, 'alpha', 0.05))
+                        alpha=getattr(args, 'alpha', 0.05), main_lines=main_lines)
     return dict(scores=tab, coverage=coverage, roi_test=roi_res, loso=loso,
                 coordinate_test=coord_res, centers=centers, ceiling=ceiling,
                 scatter_diagnostics=scatter_diag, maps=maps, save_dir=save_dir)
 
 
+def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
+                            save_dir, min_subjects=3, n_perm=10000, seed=0):
+    """The anatomy on dm = congruency - switch, and Tests 1 and 2 linking it to
+    delta (docs/closing_figure_plan.md). Runs when the scores come from a
+    MAIN_EFFECTS=1 segregation run. Returns (summary lines, JSON-able dict)."""
+    from src.analysis.stats import stability_flexibility_segregation as sfs
+    roi = sfa.relative_score_roi_test(tab, coverage, min_subjects=min_subjects,
+                                      n_perm=n_perm, seed=seed, roi_col=roi_col,
+                                      value_col='dm')
+    roi['per_roi'].to_csv(os.path.join(save_dir, 'dm_per_roi.csv'), index=False)
+    lines = ["-" * 70,
+             "MAIN EFFECTS — dm = cong_s - switch_s (>0 = congruency-dominant), "
+             "same cells and halves as LWPC/LWPS",
+             f"  dm ~ {roi_col} (swap null): F = {roi['observed_stat']:.3f}   "
+             f"p = {roi['p']:.4g}   (rows in dm_per_roi.csv)"]
+    out = dict(roi_F=roi['observed_stat'], roi_p=roi['p'])
+
+    if per_split is not None and set(sfs.MAIN_EFFECT_COLS) <= set(per_split.columns):
+        rel = sfa.map_reliability(sfs.main_effect_view(per_split))
+        out['reliability'] = dict(congruency=rel['reliability_lwpc'],
+                                  switch=rel['reliability_lwps'])
+        lines.append(f"  split-half reliability: congruency {rel['reliability_lwpc']:+.3f}"
+                     f" / switch {rel['reliability_lwps']:+.3f} (LWPC/LWPS in the ceiling "
+                     "above). Compare the two levels only next to these.")
+        track = sfa.delta_tracking_test(tab, per_split, n_perm=n_perm, seed=seed)
+        track.to_csv(os.path.join(save_dir, 'delta_tracking.csv'), index=False)
+        out['tracking'] = track.to_dict(orient='records')
+        lines += ["  TEST 1 — does dm track delta? (separate halves, split_resolved_corr)",
+                  track.to_string(index=False)]
+    else:
+        lines.append("  no main-effect halves in PER_SPLIT_CSV: reliabilities, Test 1 "
+                     "and the opposite-half rows of Test 2 skipped")
+
+    if has_coords:
+        tilt = sfa.tilt_with_main_effect_covariate(tab, per_split, n_perm=n_perm,
+                                                   seed=seed)
+        tilt['table'].to_csv(os.path.join(save_dir, 'tilt_with_dm.csv'), index=False)
+        out['tilt'] = dict(axis=tilt['axis'], shrinkage=tilt['shrinkage'],
+                           table=tilt['table'].to_dict(orient='records'))
+        lines += [f"  TEST 2 — does delta's {tilt['axis']} tilt survive dm? (swap null)",
+                  tilt['table'].to_string(index=False),
+                  "  shrinkage (1 - with/without): " + ", ".join(
+                      f"{k} {v:+.2f}" for k, v in tilt['shrinkage'].items())
+                  + " (near 1 = inherited; only read it if delta's own p < .05)"]
+
+    sfa.plot_score_by_roi(tab, out_path=os.path.join(save_dir, 'dm_by_roi.png'),
+                          value_col='dm', roi_col=roi_col, coverage=coverage,
+                          rois=roi['rois_tested'] or None,
+                          title=f"dm by {roi_col} (>0 = congruency-dominant)")
+    if getattr(args, 'make_brain', True):
+        sfa.plot_score_maps(tab, save_dir, maps=sfa.MAIN_EFFECT_MAPS,
+                            subjects=getattr(args, 'brain_subjects', None) or args.subjects,
+                            hemi=getattr(args, 'brain_hemi', 'both'), roi_col=roi_col,
+                            coverage=coverage, zoom=getattr(args, 'brain_zoom', None))
+    plt.close('all')
+    return lines, out
+
+
 def write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
-                        scatter_diag, save_dir, roi_col='roi', alpha=0.05):
+                        scatter_diag, save_dir, roi_col='roi', alpha=0.05,
+                        main_lines=()):
     """The continuous arm's `summary.txt`, written to be read top to bottom."""
     level = "Destrieux label" if roi_col == 'anat' else "ROI"
     sig = "significant" if roi_res['p'] < alpha else "n.s."
@@ -871,6 +943,7 @@ def write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
     ]
     for f in scatter_diag['flags']:
         lines.append(f"      !  {f}")
+    lines += list(main_lines)
     lines += [
         "=" * 70,
         "Reading: the test is an effect-type × anatomy INTERACTION, because the "

@@ -172,9 +172,11 @@ With the per-participant counts (42, 152, 137, 50), the noise correlation is abo
 
 ### Code change
 
-- [ ] Extend `compute_sensitivities_per_split` (`stability_flexibility_segregation.py:707`) to also return main-effect columns on the same `g1`/`g2` halves: congruency on halves A and B, and switch type on halves A and B. Score them with `W_MAIN` over the proportion cells, in the proportion-mode run, so the splits are shared.
-- [ ] Add a synthetic check with two planted worlds: an adaptation tilt inherited from a main-effect tilt, and an adaptation tilt with no main-effect tilt. Test 2 below must shrink the slope in the first world and leave it in the second.
+- [x] Extend `compute_sensitivities_per_split` (`stability_flexibility_segregation.py:707`) to also return main-effect columns on the same `g1`/`g2` halves: congruency on halves A and B, and switch type on halves A and B. Score them with `W_MAIN` over the proportion cells, in the proportion-mode run, so the splits are shared.
+- [x] Add a synthetic check with two planted worlds: an adaptation tilt inherited from a main-effect tilt, and an adaptation tilt with no main-effect tilt. Test 2 below must shrink the slope in the first world and leave it in the second.
 - [ ] Rerun both electrode sets (all lPFC and task-significant) with the new columns.
+
+Implemented; how to run it and read the outputs is §16 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
 ### Test 1: do the two deltas track each other?
 
@@ -260,7 +262,7 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 
 ### This week, in order
 
-- [ ] Add matched-half main-effect columns to `compute_sensitivities_per_split`, with the synthetic inherited/independent check.
+- [x] Add matched-half main-effect columns to `compute_sensitivities_per_split`, with the synthetic inherited/independent check.
 - [ ] Rerun the proportion-mode score jobs for all lPFC and task-significant with the new columns.
 - [ ] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm coordinate test.
 - [ ] Make the height figure: panels b and c.

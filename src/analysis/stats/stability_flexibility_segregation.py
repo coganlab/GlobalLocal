@@ -632,12 +632,13 @@ def _interaction_effect(hg, cond, mod, effect_measure, alpha, w=None):
 BALANCE_MAIN_EFFECTS = True
 
 
-def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
+def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha, w=None):
     """Per-electrode effect for a stability/flexibility contrast: an equal-cell-
     weight difference-of-differences for an interaction, and (when
     BALANCE_MAIN_EFFECTS) an equal-cell-weight main effect balanced over the
     OTHER contrast's factor for a simple contrast -- so the two contrasts are
-    orthogonal regardless of cell imbalance."""
+    orthogonal regardless of cell imbalance. For an interaction, `w=W_MAIN`
+    scores the `cond` main effect on the same four cells instead."""
     spec = contrasts[key]
     if _is_interaction(spec):
         condcol, modcol = (('_scond', '_smod') if key == 'stability'
@@ -645,7 +646,7 @@ def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
         return _interaction_effect(frame['hg'].to_numpy(),
                                    frame[condcol].to_numpy(),
                                    frame[modcol].to_numpy(),
-                                   effect_measure, alpha)
+                                   effect_measure, alpha, w=w)
     othercol = '_flab' if labcol == '_slab' else '_slab'
     if BALANCE_MAIN_EFFECTS and othercol in frame.columns:
         other = frame[othercol].to_numpy()
@@ -654,6 +655,20 @@ def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha):
                                        frame[labcol].to_numpy(), other,
                                        effect_measure, alpha, w=W_MAIN)
     return _contrast_effect(frame, labcol, effect_measure, alpha)
+
+
+# Main effects (congruency, switch type) scored in the proportion run on the
+# same cells and halves as LWPC/LWPS (`main_effects=True`). See
+# docs/closing_figure_plan.md for why not a separate condition-mode run: its
+# halves do not line up, and block effects leak into its congruency score.
+MAIN_EFFECT_COLS = ('mxA', 'mxB', 'myA', 'myB')
+
+
+def main_effect_view(per_split):
+    """The per-split table with the main effects in the xA/xB/yA/yB slots, so
+    `split_resolved_corr`, `map_reliability` etc. run on them unchanged."""
+    return per_split[['subject', 'electrode', 'split', *MAIN_EFFECT_COLS]].rename(
+        columns=dict(zip(MAIN_EFFECT_COLS, ('xA', 'xB', 'yA', 'yB'))))
 
 
 def _stratified_half_split(sub, rng, strata_cols=('congruency', 'switchType')):
@@ -706,7 +721,8 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
 
 def compute_sensitivities_per_split(df, n_splits=200, seed=0,
                                     contrast_mode='condition', contrasts=None,
-                                    effect_measure='cohens_d', alpha=0.05):
+                                    effect_measure='cohens_d', alpha=0.05,
+                                    main_effects=False):
     """Per-split, per-electrode effects on BOTH halves: xA, xB, yA, yB.
 
     `compute_sensitivities` averages x and y over splits and hands one (x, y)
@@ -726,8 +742,15 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
     Costs 2x the effect evaluations of `compute_sensitivities` (four per split
     instead of two); with `effect_measure='cluster'`, where each evaluation runs
     a permutation test, drop `n_splits` accordingly.
+
+    `main_effects=True` (proportion mode only) also scores each process's main
+    effect, W_MAIN over the same four cells, on the same halves: `mxA`/`mxB`
+    (congruency) and `myA`/`myB` (switch type). `xA`..`yB` are unchanged.
     """
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
+    if main_effects and not _is_interaction(contrasts['stability']):
+        raise ValueError("main_effects=True needs contrast_mode='proportion'; in "
+                         "condition mode x and y already are the main effects")
     work = _canonical_labels(df, contrasts)
     strata = _strata_columns(contrasts)
     rng = np.random.default_rng(seed)
@@ -737,13 +760,21 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
         for k in range(n_splits):
             h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
             g1, g2 = sub.loc[h1], sub.loc[h2]
-            rows.append(dict(
+            row = dict(
                 subject=subj, electrode=elec, split=k,
                 xA=_effect_for(g1, 'stability', '_slab', contrasts, effect_measure, alpha),
                 xB=_effect_for(g2, 'stability', '_slab', contrasts, effect_measure, alpha),
                 yA=_effect_for(g1, 'flexibility', '_flab', contrasts, effect_measure, alpha),
                 yB=_effect_for(g2, 'flexibility', '_flab', contrasts, effect_measure, alpha),
-            ))
+            )
+            if main_effects:
+                for col, g, key, lab in (('mxA', g1, 'stability', '_slab'),
+                                         ('mxB', g2, 'stability', '_slab'),
+                                         ('myA', g1, 'flexibility', '_flab'),
+                                         ('myB', g2, 'flexibility', '_flab')):
+                    row[col] = _effect_for(g, key, lab, contrasts, effect_measure,
+                                           alpha, w=W_MAIN)
+            rows.append(row)
     return pd.DataFrame(rows)
 
 
@@ -751,11 +782,15 @@ def average_over_splits(per_split):
     """Collapse the per-split table to one (x, y) per electrode, for the scatter
     plot and for the split-averaged diagnostic correlation. Both halves are
     averaged, which is the symmetric (lower-variance) version of the coin flip
-    in `compute_sensitivities`. This is NOT the estimator the inference uses."""
+    in `compute_sensitivities`. This is NOT the estimator the inference uses.
+    Main-effect columns, when present, become `mx` and `my` the same way."""
     g = per_split.groupby(['subject', 'electrode'], as_index=False).mean(numeric_only=True)
     g['x'] = g[['xA', 'xB']].mean(axis=1)
     g['y'] = g[['yA', 'yB']].mean(axis=1)
-    return g[['subject', 'electrode', 'x', 'y']]
+    if set(MAIN_EFFECT_COLS) <= set(g.columns):
+        g['mx'] = g[['mxA', 'mxB']].mean(axis=1)
+        g['my'] = g[['myA', 'myB']].mean(axis=1)
+    return g[[c for c in ('subject', 'electrode', 'x', 'y', 'mx', 'my') if c in g]]
 
 
 def _unit_vector(v, method):
@@ -770,7 +805,7 @@ def _unit_vector(v, method):
 
 
 def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
-                        n_perm=10000, seed=1):
+                        n_perm=10000, seed=1, covariates=None):
     """Correlate within each split, then average -- with a noise ceiling.
 
     Three quantities, all averaged over splits, all on residualised and
@@ -805,11 +840,20 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     while leaving each split's internal structure intact. `p` applies to
     `corr_noise_corrected` as well: the two differ only by a fixed positive
     denominator, so they order the null identically.
+
+    `covariates` (optional DataFrame indexed by electrode, e.g. MNI
+    coordinates) are regressed out together with responsiveness. They are
+    centred within subject first, which makes the within-subject residuals
+    exactly orthogonal to them.
     """
     d = per_split.merge(pd.Series(resp, name='resp').rename_axis('electrode').reset_index(),
                         on='electrode', how='left')
+    cov_cols = [] if covariates is None else list(covariates.columns)
+    if cov_cols:
+        d = d.merge(covariates.rename_axis('electrode').reset_index(),
+                    on='electrode', how='left')
     n_elec_in = d['electrode'].nunique()
-    d = d.dropna(subset=['xA', 'xB', 'yA', 'yB', 'resp'])
+    d = d.dropna(subset=['xA', 'xB', 'yA', 'yB', 'resp', *cov_cols])
 
     # Keep only electrodes present in EVERY split, so the per-split vectors are
     # comparable and the permutation applies to a fixed electrode set. An
@@ -854,9 +898,16 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     # Residualise on responsiveness, then within-subject centre -- per split,
     # per quantity, mirroring prepare_continuous.
     resp_vec = d.drop_duplicates('electrode').set_index('electrode')['resp'].loc[elecs].to_numpy()
+    if cov_cols:
+        C = d.drop_duplicates('electrode').set_index('electrode')[cov_cols].loc[elecs].to_numpy(
+            float, copy=True)
+        for g in groups:
+            C[g] -= C[g].mean(axis=0)
+        design = np.column_stack([np.ones(len(elecs)), resp_vec, C])
     for k in mats:
         for si in range(len(splits)):
-            r = _ols_resid(mats[k][si], resp_vec)
+            r = (mats[k][si] - design @ np.linalg.lstsq(design, mats[k][si], rcond=None)[0]
+                 if cov_cols else _ols_resid(mats[k][si], resp_vec))
             for g in groups:
                 r[g] -= r[g].mean()
             mats[k][si] = r
@@ -1452,7 +1503,8 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                                     contrast_mode='condition', contrasts=None,
                                     effect_measure='cohens_d',
                                     fdr_correction='fdr_bh',
-                                    corr_method='spearman'):
+                                    corr_method='spearman',
+                                    main_effects=False):
     """Continuous (A2) + categorical (A3) segregation tests on one trial table.
 
     Returned keys:
@@ -1472,10 +1524,15 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                        the S/F labels -- for the scatter plot.
       continuous       residualised/centred table behind the diagnostic.
       labels, conjunction  the categorical (A3) arm, unchanged.
+      main_effect_correlation
+                       with `main_effects=True`: `correlation` for congruency
+                       vs switch type on the same halves. The main-effect maps
+                       are far more reliable, so compare the two levels only
+                       next to their reliabilities.
     """
     per_split = compute_sensitivities_per_split(
         df, n_splits, contrast_mode=contrast_mode, contrasts=contrasts,
-        effect_measure=effect_measure, alpha=alpha)
+        effect_measure=effect_measure, alpha=alpha, main_effects=main_effects)
     elec = add_responsiveness(average_over_splits(per_split), df, responsiveness)
     resp = elec.drop_duplicates('electrode').set_index('electrode')['resp']
 
@@ -1489,11 +1546,14 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                                   effect_measure=effect_measure,
                                   fdr_correction=fdr_correction)
     conj = cmh_conjunction(labels)
+    extra = {} if not main_effects else dict(main_effect_correlation=split_resolved_corr(
+        main_effect_view(per_split), resp, min_elec=min_elec, method=corr_method,
+        n_perm=n_perm_corr))
     return dict(electrodes=elec.merge(labels[['electrode', 'S', 'F']], on='electrode'),
                 continuous=cont, correlation=corr,
                 correlation_split_averaged=corr_avg,
                 per_split=per_split, labels=labels, conjunction=conj,
-                contrast_mode=contrast_mode, effect_measure=effect_measure)
+                contrast_mode=contrast_mode, effect_measure=effect_measure, **extra)
 
 
 # ----------------------------------------------------------------------------
