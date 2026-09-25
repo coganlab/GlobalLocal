@@ -10,8 +10,11 @@
   part of the job: the cross-validated gradient (§15.5), every magnitude
   version of the gradient including the unbiased cross-validated mu^2 one
   (§15.7), the concordance subsets, the co-occurrence count (§15.4), the
-  sign-defined centres (§15.8), and a simulation of what fitting the gradient
-  on the positive-on-both electrodes alone does (section 9).
+  sign-defined centres (§15.8), a simulation of what fitting the gradient on
+  the positive-on-both electrodes alone does (section 9), the centroid shuffle
+  test of LWPC-positive vs LWPS-positive electrodes (section 10), and a test of
+  whether the gradient differs inside a subset such as the task-significant
+  electrodes (section 11, needs ``--subset-scores``).
 
 This script is the single place both live, so every §15 claim can be re-run
 from the archived outputs without the cluster::
@@ -463,8 +466,81 @@ def section_9(s, ps, H, args):
             print(f"  {k:<42} mean slope {v[:, 0].mean():+.4f}   P(p < .05) {np.mean(v[:, 1] < .05):.2f}")
 
 
+# ---------------------------------------------------------------------------
+# are LWPC-positive and LWPS-positive electrodes in different places?
+# ---------------------------------------------------------------------------
+def centroid_shuffle_test(d, group_cols=('subject',), n_perm=20000, seed=0):
+    """Distance between the LWPC-positive and LWPS-positive centroids, against a shuffle.
+
+    Only electrodes positive on at least one score enter. Each keeps its MNI
+    position and its type, the pair (LWPC > 0, LWPS > 0); an electrode positive
+    on both counts toward both centroids. The statistic is the Euclidean
+    distance between the two centroids.
+
+    The null shuffles the types among electrodes of the same group
+    (``group_cols``: participant, or participant x hemisphere; ``()`` shuffles
+    across everyone). That keeps each group's mix of types and each electrode's
+    position, and breaks only the link between type and position. Shuffling
+    across everyone ignores that the mix of types differs between participants,
+    whose coverage also differs, so a participant-level difference can pass for
+    anatomy.
+    """
+    u = d[(d['lwpc_s'] > 0) | (d['lwps_s'] > 0)].reset_index(drop=True)
+    types = np.column_stack([u['lwpc_s'] > 0, u['lwps_s'] > 0])
+    xyz = u[['mni_x', 'mni_y', 'mni_z']].to_numpy(float)
+
+    def centroid_gap(t):
+        return xyz[t[:, 0]].mean(axis=0) - xyz[t[:, 1]].mean(axis=0)
+
+    gap = centroid_gap(types)
+    obs = float(np.linalg.norm(gap))
+    keys = (u[list(group_cols)].astype(str).agg('|'.join, axis=1).to_numpy()
+            if group_cols else np.zeros(len(u)))
+    null = np.array([np.linalg.norm(centroid_gap(types[idx]))
+                     for idx in within_subject_perms(keys, n_perm, seed)])
+    return dict(distance=obs, gap=gap, null_median=float(np.median(null)),
+                p=float((np.sum(null >= obs) + 1) / (n_perm + 1)), n=len(u),
+                n_lwpc=int(types[:, 0].sum()), n_lwps=int(types[:, 1].sum()),
+                n_both=int(types.all(axis=1).sum()))
+
+
+def section_10(s, ps, H, args):
+    banner('are LWPC-positive and LWPS-positive electrodes in different places?  [centroid shuffle test]')
+    for lab, d, cols in (('shuffle across all electrodes', s, ()),
+                         ('shuffle within participant', s, ('subject',)),
+                         ('shuffle within participant x hemisphere', s, ('subject', 'hemi')),
+                         ('left hemisphere, within participant', s[s['hemi'] == 'lh'], ('subject',)),
+                         ('right hemisphere, within participant', s[s['hemi'] == 'rh'], ('subject',))):
+        r = centroid_shuffle_test(d, cols, n_perm=args.n_perm, seed=args.seed)
+        print(f"  {lab:<40} n {r['n']:>3} (LWPC+ {r['n_lwpc']}, LWPS+ {r['n_lwps']}, both {r['n_both']})  "
+              f"distance {r['distance']:.2f} mm (dz {r['gap'][2]:+.2f})  "
+              f"null median {r['null_median']:.2f}  p {r['p']:.3f}")
+
+
+# ---------------------------------------------------------------------------
+# does the gradient differ inside a subset (e.g. task-significant electrodes)?
+# ---------------------------------------------------------------------------
+def section_11(s, ps, H, args):
+    if not args.subset_scores:
+        print("\n(section 11 skipped: pass --subset-scores <subset run>/scores_with_anatomy.csv)")
+        return
+    banner('does the z slope differ between a subset and the rest?  [swap null, one scale]')
+    # Fitted in the FULL run's units, so the two slopes are directly comparable.
+    sub = set(pd.read_csv(args.subset_scores)['electrode'])
+    d = s.assign(in_subset=s['electrode'].isin(sub).astype(float))
+    for lab, part in (('in subset', d[d['in_subset'] == 1]), ('rest', d[d['in_subset'] == 0])):
+        b, p, n = swap_slope(part, 'delta', args.n_perm, args.seed)
+        print(f"  {lab:<10} n {n:>3}  z slope {b:+.4f}  p {p:.4f}")
+    # the interaction: one model, with the subset's own intercept and z slope
+    d['z_x_subset'] = d['mni_z'] * d['in_subset']
+    r = sfa._coordinate_fit(d, 'delta', (*COORDS, 'z_x_subset'), ('resp', 'in_subset'),
+                            args.n_perm, args.seed)
+    row = r['slopes'].set_index('axis').loc['z_x_subset']
+    print(f"  slope difference (subset - rest) {row['slope_per_mm']:+.4f}  p {row['p']:.3f}")
+
+
 SECTIONS = {3: section_3, 4: section_4, 5: section_5, 6: section_6, 7: section_7, 8: section_8,
-            9: section_9}
+            9: section_9, 10: section_10, 11: section_11}
 
 
 def main(argv=None):
@@ -477,7 +553,10 @@ def main(argv=None):
     ap.add_argument('--n-boot', type=int, default=2000, help='subject bootstrap resamples')
     ap.add_argument('--n-sim', type=int, default=500, help='simulations for the ++ selection check')
     ap.add_argument('--seed', type=int, default=0)
-    ap.add_argument('--sections', default='3,4,5,6,7,8,9')
+    ap.add_argument('--sections', default='3,4,5,6,7,8,9,10,11')
+    ap.add_argument('--subset-scores', default=None,
+                    help="section 11: a subset run's scores_with_anatomy.csv (e.g. task-significant "
+                         "electrodes); its slope is compared with the rest's, in this run's units")
     args = ap.parse_args(argv)
 
     s, ps = load(args.scores, args.per_split)
