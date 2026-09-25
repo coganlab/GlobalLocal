@@ -90,6 +90,11 @@ if ALIGN_TO_POWER_TRACES_RUN:
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
 
+# MAIN_EFFECTS=1 (proportion mode): also score congruency and switch type on the
+# same halves (mx/my columns) for the main-effect anatomy, docs/closing_figure_plan.md
+MAIN_EFFECTS = (os.environ.get('MAIN_EFFECTS', '0') not in ('0', '', 'false', 'False')
+                and CONTRAST_MODE == 'proportion')
+
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 # Comma-separated names from src.analysis.config.rois, or 'all' to keep every
@@ -128,6 +133,8 @@ _roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
                         f'_{_roi_tag}_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
+if MAIN_EFFECTS and not SCATTER_ONLY:   # never overwrite an archived LWPC/LWPS-only run
+    SAVE_DIR += '_main_effects'
 # Keep the scatter-only run in its own directory: its sensitivities are scored
 # differently (all trials, by default) from the ones a full run plots, so writing
 # both scatters to the same path would silently overwrite one with the other.
@@ -152,6 +159,7 @@ def run_analysis():
         responsiveness=RESPONSIVENESS,
         contrast_mode=CONTRAST_MODE,
         effect_measure=EFFECT_MEASURE,
+        main_effects=MAIN_EFFECTS,
         n_splits=N_SPLITS,
         n_perm_corr=N_PERM_CORR,
         n_perm_label=N_PERM_LABEL,

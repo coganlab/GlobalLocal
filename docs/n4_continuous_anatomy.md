@@ -1584,3 +1584,130 @@ was small"):
 - [ ] Deferred: confirmation across held-out participants. The trial-half
       replication controls trial noise only; leave-one-participant-out is
       reassuring but is not a held-out test.
+
+---
+
+## 16. Main effects as the reference for the tilt
+
+The question from [`closing_figure_plan.md`](closing_figure_plan.md): is the
+dorsoventral tilt in delta (LWPC − LWPS) inherited from how the base effects,
+congruency and switch type, are organized?
+
+### 16.1 How the scores are made
+
+`compute_sensitivities_per_split(..., contrast_mode='proportion',
+main_effects=True)` also scores each process's main effect, from the same four
+cells as its adaptation effect with equal weight over the proportion levels
+(`W_MAIN`), on the same trial halves:
+
+```text
+congruency = ½[(i − c | 25 %) + (i − c | 75 %)]      per_split: mxA, mxB   electrodes: mx
+switch     = ½[(s − r | 25 %) + (s − r | 75 %)]      per_split: myA, myB   electrodes: my
+```
+
+LWPC and LWPS come out identical with or without it; the split draws do not
+change. Do not use a separate `CONTRAST_MODE=condition` run instead. Its halves
+do not line up with these. It also weights congruency by trial count over the
+proportion levels, so block effects leak into it (see "Two traps in a separate
+condition-mode run" in the plan).
+
+`attach_scores` turns `mx`/`my` into `cong_s`, `switch_s` and
+`dm = cong_s − switch_s` (positive = relatively congruency-dominant), with the
+same pooled scaling as `lwpc_s`/`lwps_s`. The swap null is valid for dm because
+it is a paired difference, so every test in this document takes
+`value_col='dm'`.
+
+### 16.2 How to run it
+
+1. Segregation, once per electrode set. `MAIN_EFFECTS=1` is the default in
+   the submitter. The output directory gets a `_main_effects` suffix, so the
+   archived LWPC/LWPS-only runs are never overwritten. Scoring takes about
+   twice as long.
+
+   ```bash
+   cd dcc_scripts/stats
+   ROIS=lpfc CONTRAST_MODE=proportion EFFECT_MEASURE=cohens_d N_SPLITS=200 \
+   N_PERM_CORR=10000 bash submit_stability_flexibility_segregation_dcc.sh
+   ```
+
+   For the task-significant set, edit `ELECTRODES=sig` in the submitter as
+   before (§9.5).
+
+2. Anatomy. `SEG_RUN` in `submit_stability_flexibility_anatomy_dcc.sh` now
+   points at the all-lPFC `_main_effects` directory; change `all` to `sig` in it
+   for the task-significant set. When the scores carry `mx`/`my`, the
+   continuous arm runs the main-effect block after the usual N4 outputs. With
+   older CSVs it runs exactly as before.
+
+   ```bash
+   ARM=continuous ROI_FILTER=lpfc ANAT_LEVEL=destrieux N_PERM=10000 \
+     bash submit_stability_flexibility_anatomy_dcc.sh
+   ```
+
+### 16.3 What it writes (in `continuous/`)
+
+| Output | Contents |
+|---|---|
+| `summary.txt`, block `MAIN EFFECTS` | dm parcel test, main-effect reliabilities, Test 1 and Test 2 tables |
+| `score_anatomy.json`, key `main_effects` | the same numbers |
+| `dm_per_roi.csv`, `dm_by_roi.png` | the parcel test on dm (column names as in `delta_per_roi.csv`) |
+| `score_map_cong_s.png`, `score_map_switch_s.png`, `score_map_dm.png` | main-effect maps (with `MAKE_BRAIN=1`) |
+| `delta_tracking.csv` | Test 1 |
+| `tilt_with_dm.csv` | Test 2 |
+
+The segregation run's own `summary.txt` and `correlation_main_effects.json`
+report the congruency–switch co-localization on the same halves.
+
+### 16.4 The two tests
+
+**Test 1, `delta_tracking_test`: does dm track delta?** This is
+`split_resolved_corr`, the pre-specified co-localization test, applied to dm
+and delta: dm from one half against delta from the other within every split,
+residualized on responsiveness, centred within participant, Spearman,
+participants with at least three electrodes, within-participant permutation
+null. Rows in `delta_tracking.csv`:
+
+- `dm vs delta`: the primary number. A shared smooth gradient counts here,
+  because that is the "inherited" hypothesis.
+- `dm vs delta, + MNI covariates`: the same with coordinates partialled out
+  within participant (`split_resolved_corr(covariates=...)`). Does the tracking
+  go beyond shared geography?
+- `congruency vs LWPC`, `switch vs LWPS`, and the two crossed pairings as
+  controls.
+
+The reliabilities in each row are within participant, so they are biased low
+(§15.4). Compare them, and never divide by them.
+
+**Test 2, `tilt_with_main_effect_covariate`: does delta's z tilt survive dm?**
+Rows in `tilt_with_dm.csv`, all `relative_score_coordinate_test`'s fit with the
+swap null:
+
+| fit | question |
+|---|---|
+| `dm` | Do the main effects tilt? An inherited tilt needs a negative z slope: congruency weaker than switch dorsally. |
+| `delta` | The §15.7 tilt, on the same electrodes. |
+| `delta + dm` | The tilt with dm as a covariate, on full-data scores. dm and delta share trials here, with a noise correlation of about +0.05. |
+| `delta, split halves` / `delta + dm from the opposite half` | Each half of every split refitted with dm from the other half, then averaged. This is the clean version. No p-value; read the full-data rows for it. |
+
+`shrinkage = 1 − with/without`. Near 1, the tilt is carried by the main effects.
+Near 0, it survives them. It is only meaningful when the `delta` row itself is
+significant. The swap null flips only the adaptation labels, which also breaks
+delta's link with dm, so the null is conservative.
+
+### 16.5 Reading the outcome
+
+| Result | Ending (from the plan) |
+|---|---|
+| Test 1 positive, dm tilts the same way, shrinkage near 1 | Each adaptation scales with the local strength of the demand it regulates. |
+| dm has no matching tilt, or shrinkage near 0 with `delta + dm` still significant | Adaptation has spatial structure of its own. |
+| dm organized (parcel or coordinate test) but Test 1 null | The demands are organized; their adaptation is shared. |
+
+The main-effect maps will be far more reliable than the adaptation maps. Put the
+two levels' correlations next to their reliabilities, never as "the main effects
+are more segregated", and never as a noise-corrected ratio.
+
+The synthetic check is in `tests/analysis/stats/test_main_effect_anatomy.py`.
+It uses `_synthetic_scores(main_effects='inherited' | 'independent')`: the
+inherited world must shrink the tilt and show tracking, and the independent
+world must do neither. `DATA_SOURCE=synthetic` runs the inherited world through
+the job; its planted layout is anterior–posterior, so its z rows are nulls.

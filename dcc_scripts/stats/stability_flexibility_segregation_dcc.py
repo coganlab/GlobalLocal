@@ -243,6 +243,10 @@ def save_results(out, save_dir):
         with open(os.path.join(save_dir, 'correlation_split_averaged.json'), 'w') as f:
             json.dump(_json_safe(out['correlation_split_averaged']), f, indent=2)
 
+    if 'main_effect_correlation' in out:
+        with open(os.path.join(save_dir, 'correlation_main_effects.json'), 'w') as f:
+            json.dump(_json_safe(out['main_effect_correlation']), f, indent=2)
+
     k = out['conjunction']
     conj_json = dict(
         mh_odds_ratio=k['mh_odds_ratio'],
@@ -298,6 +302,13 @@ def write_summary(out, save_dir, meta):
         a = out['correlation_split_averaged']
         lines += [f"  diagnostic: split-averaged (biased) corr = {a['corr']:+.4f}"
                   f"  p = {a['p']:.4g}   [not for inference]"]
+    if 'main_effect_correlation' in out:
+        m = out['main_effect_correlation']
+        lines += [f"MAIN EFFECTS (congruency vs switch, same halves): corr = "
+                  f"{m['corr']:+.4f}  p = {m['p']:.4g}   reliability_x = "
+                  f"{m['reliability_x']:+.4f}  reliability_y = {m['reliability_y']:+.4f}",
+                  "     compare with the LWPC/LWPS corr only next to both levels' "
+                  "reliabilities"]
     lines += [
         "-" * 68,
         f"CATEGORICAL (CMH): MH odds ratio = {k['mh_odds_ratio']:.4f}",
@@ -608,6 +619,7 @@ def main(args):
     # analysis options (default to the original behaviour)
     contrast_mode = getattr(args, 'contrast_mode', 'condition')
     effect_measure = getattr(args, 'effect_measure', 'cohens_d')
+    main_effects = getattr(args, 'main_effects', False)
 
     print(f"LAB_root: {LAB_root}")
     print(f"contrast_mode: {contrast_mode} | effect_measure: {effect_measure}")
@@ -632,7 +644,8 @@ def main(args):
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec,
         contrast_mode=contrast_mode, effect_measure=effect_measure,
-        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
+        main_effects=main_effects)
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
@@ -650,6 +663,7 @@ def main(args):
         electrodes=args.electrodes,
         rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
         contrast_mode=contrast_mode, effect_measure=effect_measure,
+        main_effects=main_effects,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label,
         fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
