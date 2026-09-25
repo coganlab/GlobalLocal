@@ -902,7 +902,9 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
     DataFrame with ``lwpc_score``/``lwps_score`` (raw), ``lwpc_s``/``lwps_s``
     (pooled-scaled), ``abs_lwpc``/``abs_lwps`` (for the |score| maps and the
     centroid weights, which need non-negative weights), ``delta`` and the
-    anatomy columns.
+    anatomy columns. Main effects (``mx``/``my`` from a ``main_effects=True``
+    run) get the same treatment: ``cong_s``, ``switch_s`` and
+    ``dm = cong_s - switch_s``, which every test below takes as ``value_col``.
 
     The scaling is ONE factor per EFFECT, computed across all electrodes pooled
     -- deliberately NOT a within-subject z-score:
@@ -921,7 +923,8 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
     """
     out = elec_df.copy()
     xc, yc = score_cols
-    out = out.rename(columns={xc: 'lwpc_score', yc: 'lwps_score'})
+    out = out.rename(columns={xc: 'lwpc_score', yc: 'lwps_score',
+                              'mx': 'cong_score', 'my': 'switch_score'})
     ids = electrode_ids(out, electrode_fmt=electrode_fmt)
     out['electrode_id'] = ids
     out['roi'] = ids.map(dict(electrodes_to_rois))
@@ -937,12 +940,17 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
         out['hemi'] = hemi
 
     # one scale factor per EFFECT, across all electrodes pooled
-    for src, dst in (('lwpc_score', 'lwpc_s'), ('lwps_score', 'lwps_s')):
+    for src, dst in (('lwpc_score', 'lwpc_s'), ('lwps_score', 'lwps_s'),
+                     ('cong_score', 'cong_s'), ('switch_score', 'switch_s')):
+        if src not in out:
+            continue
         sd = out[src].std(ddof=1)
         out[dst] = out[src] / sd if np.isfinite(sd) and sd > 0 else np.nan
     out['abs_lwpc'] = out['lwpc_s'].abs()
     out['abs_lwps'] = out['lwps_s'].abs()
     out['delta'] = out['lwpc_s'] - out['lwps_s']
+    if 'cong_s' in out:
+        out['dm'] = out['cong_s'] - out['switch_s']
     return out
 
 
@@ -1474,6 +1482,102 @@ def leave_one_subject_out(test_fn, table, subject_col='subject',
 
 
 # ---------------------------------------------------------------------------
+# main effects as the reference for the delta tilt (docs/closing_figure_plan.md)
+# ---------------------------------------------------------------------------
+def _delta_halves(scores, per_split):
+    """Per-split table with dm in the x slots and delta in the y slots, each
+    half divided by its effect's full-data pooled SD (read back off `scores`)."""
+    s = scores.set_index('electrode')
+    ps = per_split[per_split['electrode'].isin(s.index)]
+    sd = {k: np.nanmedian(s[f'{k}_score'] / s[f'{k}_s'])
+          for k in ('lwpc', 'lwps', 'cong', 'switch')}
+    return ps[['subject', 'electrode', 'split']].assign(
+        xA=ps['mxA'] / sd['cong'] - ps['myA'] / sd['switch'],
+        xB=ps['mxB'] / sd['cong'] - ps['myB'] / sd['switch'],
+        yA=ps['xA'] / sd['lwpc'] - ps['yA'] / sd['lwps'],
+        yB=ps['xB'] / sd['lwpc'] - ps['yB'] / sd['lwps'])
+
+
+def delta_tracking_test(scores, per_split, n_perm=10000, seed=1, min_elec=3,
+                        coord_cols=('mni_y', 'mni_z', 'mni_x')):
+    """Test 1: does the main-effect delta (dm) track delta across electrodes?
+
+    The pre-specified co-localization test, ``split_resolved_corr``, on dm and
+    delta instead of LWPC and LWPS: one from each disjoint half within every
+    split, residualised on responsiveness, centred within participant,
+    Spearman, within-participant permutation null. Then with MNI coordinates as
+    covariates (does the tracking go beyond a shared gradient?), then per
+    process, with the crossed pairings as controls. One row per comparison;
+    ``reliability_x``/``reliability_y`` are the two maps' split-half
+    reliabilities (within participant, so biased low: §15.4 of
+    docs/n4_continuous_anatomy.md).
+    """
+    from .stability_flexibility_segregation import split_resolved_corr
+    s = scores.set_index('electrode')
+    ps = per_split[per_split['electrode'].isin(s.index)]
+    deltas = _delta_halves(scores, per_split)
+    runs = [('dm vs delta', deltas, None)]
+    if set(coord_cols) <= set(s.columns) and s[list(coord_cols)].notna().all(axis=1).any():
+        xyz = s[list(coord_cols)].dropna()
+        runs.append(('dm vs delta, + MNI covariates',
+                     deltas[deltas['electrode'].isin(xyz.index)], xyz))
+    for name, a, b in (('congruency vs LWPC', 'mx', 'x'), ('switch vs LWPS', 'my', 'y'),
+                       ('congruency vs LWPS (crossed)', 'mx', 'y'),
+                       ('switch vs LWPC (crossed)', 'my', 'x')):
+        runs.append((name, ps[['subject', 'electrode', 'split']].assign(
+            xA=ps[a + 'A'], xB=ps[a + 'B'], yA=ps[b + 'A'], yB=ps[b + 'B']), None))
+    rows = []
+    for name, table, cov in runs:
+        r = split_resolved_corr(table, s['resp'], min_elec=min_elec, n_perm=n_perm,
+                                seed=seed, covariates=cov)
+        rows.append(dict(comparison=name, **{k: r[k] for k in (
+            'corr', 'p', 'reliability_x', 'reliability_y', 'n_electrodes', 'n_subjects')}))
+    return pd.DataFrame(rows)
+
+
+def tilt_with_main_effect_covariate(scores, per_split=None, axis='mni_z',
+                                    coord_cols=('mni_y', 'mni_z', 'mni_x'),
+                                    covariates=('resp',), n_perm=10000, seed=0):
+    """Test 2: does delta's tilt survive dm as a covariate?
+
+    ``relative_score_coordinate_test``'s fit (swap null) for dm (do the main
+    effects tilt the same way?), delta, and delta + dm. The swap flips only the
+    adaptation labels, which also breaks delta's link with dm, so that null is
+    conservative. dm and delta share trials there (noise correlation ~+0.05),
+    so with ``per_split`` delta is also refitted on each half of every split
+    with dm from the OPPOSITE half, and the slopes averaged (these two rows
+    have no p-value; read the full-data rows for it).
+
+    Returns ``table`` and ``shrinkage = 1 - with/without`` on ``axis``: near 1
+    the tilt is carried by the main effects, near 0 it survives them. Only
+    interpretable when delta's tilt without dm is itself distinguishable from 0.
+    """
+    d = scores.dropna(subset=['delta', 'dm', *coord_cols]).reset_index(drop=True)
+
+    def fit(data, value, covs, n):
+        r = _coordinate_fit(data, value, coord_cols, covs, n, seed)
+        return tuple(r['slopes'].set_index('axis').loc[axis, ['slope_per_mm', 'p']])
+
+    rows = [('dm', *fit(d, 'dm', covariates, n_perm)),
+            ('delta', *fit(d, 'delta', covariates, n_perm)),
+            ('delta + dm', *fit(d, 'delta', (*covariates, 'dm'), n_perm))]
+    shrinkage = {'same trials': 1 - rows[2][1] / rows[1][1]}
+    if per_split is not None and 'mxA' in per_split:
+        without, with_ = [], []
+        for _, hk in _delta_halves(d, per_split).groupby('split'):
+            dk = d.merge(hk.drop(columns=['subject', 'split']), on='electrode').dropna(
+                subset=['xA', 'xB', 'yA', 'yB'])
+            for da, dm in (('yA', 'xB'), ('yB', 'xA')):
+                without.append(fit(dk, da, covariates, 0)[0])
+                with_.append(fit(dk, da, (*covariates, dm), 0)[0])
+        rows += [('delta, split halves', np.mean(without), np.nan),
+                 ('delta + dm from the opposite half', np.mean(with_), np.nan)]
+        shrinkage['opposite half'] = 1 - np.mean(with_) / np.mean(without)
+    return dict(axis=axis, table=pd.DataFrame(rows, columns=['fit', 'slope_per_mm', 'p']),
+                shrinkage=shrinkage)
+
+
+# ---------------------------------------------------------------------------
 # §6 brain maps of the continuous scores
 # ---------------------------------------------------------------------------
 # The five surfaces of the plan. Map 5 carries the argument; 1-4 are what a
@@ -1487,6 +1591,14 @@ SCORE_MAPS = (
     dict(value_col='abs_lwpc', label='|LWPC|', cmap='viridis', symmetric=False),
     dict(value_col='abs_lwps', label='|LWPS|', cmap='viridis', symmetric=False),
     dict(value_col='delta', label='LWPC - LWPS (relative map)',
+         cmap='coolwarm', symmetric=True),
+)
+MAIN_EFFECT_MAPS = (
+    dict(value_col='cong_s', label='signed congruency (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='switch_s', label='signed switch type (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='dm', label='congruency - switch (relative map)',
          cmap='coolwarm', symmetric=True),
 )
 
@@ -1730,7 +1842,7 @@ def _synthetic_anatomy(n_subj=12, seed=0, enrichment=0.6,
 
 def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
                       rois=("dlpfc", "lpfc", "acc", "parietal", "occ", "v1"),
-                      anterior=("dlpfc", "lpfc", "acc")):
+                      anterior=("dlpfc", "lpfc", "acc"), main_effects=None):
     """Continuous scores with a planted anatomy x effect-type interaction.
 
     The continuous counterpart of :func:`_synthetic_anatomy`: per-electrode LWPC
@@ -1750,6 +1862,12 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
 
     A per-subject GAIN multiplies both scores and the responsiveness proxy, so
     the pooled-scaling and covariate paths are exercised rather than assumed.
+
+    ``main_effects`` adds congruency/switch scores (``mx``/``my``) for the two
+    worlds of the main-effect check: ``'inherited'`` gives the main effects
+    the anterior/posterior layout and makes each adaptation score a share of
+    its own main effect; ``'independent'`` gives the main effects no layout and
+    leaves ``x``/``y`` as they are.
 
     Returns ``(scores, electrodes_to_rois, electrodes_to_anat,
     electrodes_to_coords)`` — ready for :func:`attach_scores`.
@@ -1779,7 +1897,22 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
             rows.append(dict(subject=subject, electrode=electrode,
                              x=lwpc, y=lwps,
                              resp=gain * float(rng.uniform(0.5, 1.5))))
-    return pd.DataFrame(rows), e2r, e2a, e2c
+    scores = pd.DataFrame(rows)
+    if main_effects not in (None, 'inherited', 'independent'):
+        raise ValueError("main_effects must be None, 'inherited' or 'independent'")
+    if main_effects:                         # own stream: x/y above are unchanged
+        rng = np.random.default_rng(seed + 1)
+        n, inherited = len(scores), main_effects == 'inherited'
+        g = scores.groupby('subject')['resp'].transform('mean').to_numpy()  # ~ gain
+        front = scores['electrode'].map(e2r).isin(anterior).to_numpy(float)
+        scores['mx'] = g * (0.5 + 1.5 * inherited * gradient * front
+                            + rng.normal(0, 0.3, n))
+        scores['my'] = g * (0.5 + 1.5 * inherited * gradient * (1 - front)
+                            + rng.normal(0, 0.3, n))
+        if inherited:
+            scores['x'] = 0.5 * scores['mx'] + g * rng.normal(0, 0.3, n)
+            scores['y'] = 0.5 * scores['my'] + g * rng.normal(0, 0.3, n)
+    return scores, e2r, e2a, e2c
 
 
 def _synthetic_per_split(scores, n_splits=20, noise=1.0, seed=0):
@@ -1799,7 +1932,13 @@ def _synthetic_per_split(scores, n_splits=20, noise=1.0, seed=0):
                 subject=r.subject, electrode=r.electrode, split=k,
                 xA=r.x + rng.normal(0, noise), xB=r.x + rng.normal(0, noise),
                 yA=r.y + rng.normal(0, noise), yB=r.y + rng.normal(0, noise)))
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    if 'mx' in scores:              # main effects: better measured, own stream
+        rng = np.random.default_rng(seed + 1)
+        for c in ('mxA', 'mxB', 'myA', 'myB'):
+            out[c] = (np.tile(scores[c[:2]].to_numpy(float), int(n_splits))
+                      + rng.normal(0, noise / 3, len(out)))
+    return out
 
 
 if __name__ == '__main__':
