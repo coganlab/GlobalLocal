@@ -434,6 +434,21 @@ Read the result comparatively:
 - corrected values can exceed ±1 under noisy finite-sample estimates; treat them
   as an instability warning, not a literal correlation.
 
+Three things to know before quoting any of these numbers (worked through on
+real data in [§15.4](#154-how-reliable-are-the-maps)):
+
+- `between_noise_corrected` is computed from **Pearson** correlations whatever
+  `method` is. The attenuation formula is Pearson algebra, and a Spearman ratio
+  can sit far above 1.
+- `between_noise_corrected_ci` bootstraps the **splits**. The splits all
+  re-divide the same trials and electrodes, so it only measures which trials fell
+  in which half; it is not a confidence interval. Resample participants for
+  sampling uncertainty.
+- The within-participant reliabilities that `split_resolved_corr` reports (the
+  `min_elec` sweep) are biased low, because `compute_sensitivities_per_split`
+  draws a new trial split for each electrode. Treat a zero or negative value
+  there as unusable, not as a map with no signal.
+
 The anatomy job also reruns the disjoint-half electrode correlation with
 `min_elec` equal to 1, 2, and 3. `min_elec` drops whole subjects that have too few
 eligible electrodes, so changes across `min_elec_sweep.csv` reveal an important
@@ -604,13 +619,25 @@ CONTRAST_MODE=proportion ELECTRODES=all N_SPLITS=200 N_PERM=10000 \
   bash submit_stability_flexibility_anatomy_dcc.sh
 ```
 
-Before doing this, edit the anatomy submitter's hard-coded `EPOCHS_ROOT_FILE`,
-window, and electrode setting. The submitter currently sets `ELECTRODES=sig`, so
-the command-line prefix alone cannot override that assignment; change it to
-`all` in the file for the anatomically defined N4 population. The DCC core pins
-the in-job estimator to `EFFECT_MEASURE='cohens_d'`; it is not an environment
-variable exposed by the anatomy runner. Reusing a verified segregation
-`electrodes.csv` is nevertheless clearer and safer.
+Before doing this, edit the anatomy submitter's hard-coded `EPOCHS_ROOT_FILE`
+and window. The submitter also sets `SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}`,
+which treats an empty value as unset, so blank the `SEG_RUN` default in the file
+rather than on the command line. The DCC core pins the in-job estimator to
+`EFFECT_MEASURE='cohens_d'`; it is not an environment variable exposed by the
+anatomy runner. Reusing a verified segregation `electrodes.csv` is nevertheless
+clearer and safer.
+
+**`ELECTRODES` does not select electrodes in the anatomy job, on either route.**
+On the CSV route the electrode set is whatever the CSV contains
+(`load_scores`, `stability_flexibility_anatomy_dcc.py`). On this in-job route,
+`run_stability_flexibility_anatomy_dcc.py` hard-codes `ROIS_DICT = None`, and
+`resolve_electrodes_to_keep` keeps every channel when that is `None`. The only
+visible effect of `ELECTRODES=sig` is the `_sig` suffix on the output directory.
+To analyse task-significant electrodes, produce their scores upstream: set
+`ELECTRODES=sig` in `submit_stability_flexibility_segregation_dcc.sh` (it is
+hard-coded there too, so edit the line), run it, and point `SCORES_CSV` and
+`PER_SPLIT_CSV` at the resulting `window_<tmin>to<tmax>s_sig_<rois>_...`
+directory.
 
 ### 9.6 Run without reconstruction/display support
 
@@ -784,6 +811,10 @@ If it is null with a poor ceiling:
 > shared anatomical organization from insufficient precision, and the null is
 > inconclusive.
 
+For the lPFC runs, the worked version of this language, covering both the
+all-electrode and task-significant sets, is in
+[§15.12](#1512-reporting).
+
 ---
 
 ## 12. Parameters that change the answer
@@ -833,10 +864,14 @@ The upstream segregation submitter defaults to `ROIS=lpfc`. Recompute scores
 with `ROIS=all`; changing only `ROI_FILTER` cannot restore electrodes that never
 entered `electrodes.csv`.
 
-### “The in-job run used significant electrodes”
+### “I set `ELECTRODES=sig` but the run used every electrode”
 
-The anatomy submitter assigns `ELECTRODES=sig`. Edit it to `all`, or—preferably—
-provide a verified all-electrode score CSV.
+`ELECTRODES` has no effect on which electrodes the anatomy job analyses. With
+`SCORES_CSV` set, the electrodes are the ones in that CSV; computing scores in
+the job keeps every channel because the runner hard-codes `ROIS_DICT = None`.
+The output directory still ends in `_sig`, so rename or delete it. To analyse
+task-significant electrodes, run the segregation job with `ELECTRODES=sig` and
+point `SCORES_CSV` / `PER_SPLIT_CSV` at that run ([§9.5](#95-compute-scores-inside-the-anatomy-job--supported-but-expensive)).
 
 ### “No cortical surfaces appeared”
 
@@ -908,56 +943,85 @@ Related reading:
 
 ---
 
-## 15. Findings from the lPFC run
+## 15. Findings from the lPFC runs
 
-Results from the continuous arm on the lPFC-restricted electrode set
-(**398 electrodes, 22 subjects**, 254 lh / 144 rh, `roi == 'lpfc'`), using
-`scores_with_anatomy.csv`, `per_split.csv` (200 splits × 4 columns: `xA`/`xB` =
-LWPC on disjoint trial halves A and B, `yA`/`yB` = LWPS on the same halves) and
-the pipeline's own `summary.txt`. Permutation p-values, 20 000 permutations
-unless stated.
+Two runs of the continuous arm on lPFC (`roi == 'lpfc'`), both scored on 200
+disjoint half-splits with `CONTRAST_MODE=proportion` and
+`EFFECT_MEASURE=cohens_d`:
 
-Every number below — the pipeline results and the hand-run follow-ups
-(cross-validated slope, μ² magnitude test, concordance subsets, sign-defined
-centres) — is reproduced from those two CSVs by
-`dcc_scripts/stats/n4_section15_followups.py --scores … --per-split …`, which
-labels each block `[pipeline: <function>]` or `[follow-up]`.
+| run | electrodes | participants | upstream segregation run |
+|---|---|---|---|
+| **all lPFC** | 398 (254 lh / 144 rh) | 22 | `window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh` |
+| **task-significant lPFC** | 171 (120 lh / 51 rh) | 21 | `window_0.0to1.5s_sig_lpfc_proportion_cohens_d_fdr_bh` |
+
+"Task-significant" is `ELECTRODES=sig`: electrodes significant against baseline
+in the epochs file's stimulus test, the set the power-trace and decoding
+analyses use. It is not selected on LWPC or LWPS. Every task-significant
+electrode is also in the all-lPFC run with identical scores, so the smaller run
+is a subset of the larger.
+
+Every number below is reproduced from the runs' `scores_with_anatomy.csv` and
+`per_split.csv` by
+
+```bash
+python dcc_scripts/stats/n4_section15_followups.py \
+    --scores        <all-lPFC run>/scores_with_anatomy.csv \
+    --per-split     <all-lPFC run>/per_split.csv \
+    --subset-scores <task-significant run>/scores_with_anatomy.csv
+```
+
+and by the same command on the task-significant run without
+`--subset-scores`. Each block of output is labelled `[pipeline: <function>]` or
+`[follow-up]`. Swap-null p-values use 20,000 permutations and coordinate-shuffle
+p-values 2,000. The co-localization test in §15.5 is quoted from the segregation
+runs' own `summary.txt`. The few numbers that were computed by hand and are not
+in the script are marked as such.
 
 ### 15.1 Takeaway
 
-**Two results, both now confirmed against the split-half data, and one question
-settled in the negative.**
+1. **LWPC and LWPS are carried by one intermixed lPFC population, not separate
+   modules.** Across all lPFC electrodes the two effects are positively
+   correlated (pre-specified test: r = +0.097, p ≤ 0.001), and electrodes
+   positive for each effect sit in the same place (centroids 1.4 mm apart,
+   p = 0.95). The task-significant set shows the same pattern at lower power
+   (r = +0.077, p = 0.057; centroids p = 0.44).
+2. **The balance between them tilts along the dorsoventral axis.** Ventral lPFC
+   is roughly balanced and dorsal lPFC leans LWPS. Across all lPFC the z slope of
+   delta is −0.0077 SD/mm (p = 0.0075), and it replicates across disjoint trial
+   halves (p = 0.005). Task-significant electrodes have the same slope
+   (−0.0075 SD/mm) but too few electrodes for significance (p = 0.24), and their
+   slope does not differ from the other electrodes' (p = 0.67).
+3. **The tilt is an effect-type × height interaction, not segregation.**
+   Electrodes positive for each effect occur at every height, the correlation
+   between the effects is positive in every height band, and height explains 2 %
+   of delta's variance. Among task-significant electrodes both effects are
+   positive at every height; LWPC is simply lower dorsally.
+4. **The dorsoventral axis was not predicted.** The predicted anterior–posterior
+   axis is null in both sets (p = 0.58 and 0.30). z is one of three axes, so the
+   three-axis block test (p = 0.032) is the protected result, and the
+   Bonferroni-corrected z p is 0.022.
 
-1. **The two effects share their reliable spatial variance.** LWPC and LWPS are
-   carried by the same electrodes, the correlation is not an artefact of shared
-   trials, and after the correct reliability correction the two maps are
-   correlated **at their noise ceiling** — whatever is reliably mapped is
-   essentially common to both. Mixed selectivity, not segregated subpopulations.
-2. **Within that shared population, the LWPC-versus-LWPS balance shifts along
-   the dorsoventral axis**, and the gradient **replicates across disjoint trial
-   halves** (98.5 % sign agreement; cross-validated p = 0.005). Roughly 91 % of
-   the observed slope is signal.
-3. **The magnitude hypothesis is dead, not merely unsupported.** Tested with an
-   unbiased cross-validated estimator, there is no dorsoventral gradient in
-   either effect's magnitude (p = 0.40). The effect is about which effect
-   *dominates in sign*, not about which is *larger*.
+Single electrodes are mostly noise: full-data split-half reliability is
+0.26–0.39, and an electrode's sign agrees between its two trial halves only
+51–59 % of the time. Interpret population summaries only.
 
-Two cautions that shape how this is presented:
+### 15.2 Corrections to the previous revision
 
-- **Per-electrode maps are mostly noise** (split-half reliability ≈ 0.18 at half
-  data, ≈ 0.30 at full data). Individual electrodes must not be interpreted; the
-  reliable quantities are the low-dimensional summaries — the correlation and
-  the gradient.
-- **`summary.txt`'s noise-corrected correlations (+1.374, +1.369) are out of
-  range and should not be reported.** The cause was a rank-transform artefact,
-  now fixed in `map_reliability`; [§15.3](#153-how-reliable-are-the-maps) has
-  the corrected values.
+The previous version of this section made five claims that do not hold.
 
-The dorsoventral axis was still one of three tested, and the cross-validation
-below controls trial noise, not subject sampling — see
-[§15.9](#159-what-to-do-next).
+| previous claim | correction |
+|---|---|
+| The two maps are "correlated at their noise ceiling" (noise-corrected r = 1.02, 95 % interval [0.998, 1.046]) | That interval resamples the 200 splits, which re-divide the same trials and electrodes; it measures only which trials fell in which half. Resampling participants gives [0.54, 4.71], with 9 % of resamples undefined. The ratio is not estimable at these reliabilities (§15.4). |
+| On the split-averaged maps the disjoint-half within-subject correlation is r = +0.243 | Averaging each half over 200 splits rebuilds the full-data map (corr(mean xA, mean xB) = 0.987), so this correlation shares trials. It is the same quantity as `summary.txt`'s within-subject r = +0.224. |
+| The §5.1 sweep's negative `reliability_y` comes from within-subject centring removing variance | Centring pushes a reliability toward zero, not below it, and cannot explain a cross-map r larger than √(rel_x · rel_y). The likely cause is the per-electrode split (§15.4). |
+| Testing the separation of the sign-defined centres would be circular | A test is valid when the two sets are re-formed inside every permutation (§15.10). It restates the slope rather than adding evidence. |
+| LWPC dominance increases ventrally | delta is negative on average in every height band, because LWPS is larger overall. Ventral lPFC is roughly balanced (mean delta −0.02) and dorsal lPFC leans LWPS (−0.24). |
 
-### 15.2 Vocabulary used in this section
+The magnitude null was also called "settled". It is better described as
+uninformative, because absolute values cannot register a small shift of scores
+centred near zero (§15.9).
+
+### 15.3 Vocabulary used in this section
 
 Each electrode carries two **signed** scores: positive means the effect runs in
 the direction behaviour predicts, negative means it runs the other way.
@@ -968,8 +1032,8 @@ delta = lwpc_s - lwps_s        # positive = LWPC-dominant, negative = LWPS-domin
 
 Electrodes are grouped by whether their two scores point the same way:
 
-- **concordant** — both scores have the **same** sign (`++` or `--`).
-- **discordant** — the scores have **opposite** signs (`+-` or `-+`).
+- **concordant**: both scores have the **same** sign (`++` or `--`).
+- **discordant**: the scores have **opposite** signs (`+-` or `-+`).
 
 This matters because `delta` mixes two things a reader might not want mixed:
 
@@ -981,144 +1045,285 @@ This matters because `delta` mixes two things a reader might not want mixed:
 | D | +1.0 | +1.0 | **0.0** | concordant `++` | neither (tied) |
 
 A and B have identical magnitude relationships but **opposite deltas**; C has the
-largest `delta` despite its two effects being equal in size.
-[§15.7](#157-why-magnitude-versions-do-not-work) resolves that ambiguity
-empirically.
+largest `delta` despite its two effects being equal in size. None of this needs
+resolving to read the results, because the tests are about how `delta` changes
+across electrodes, not about any one electrode's value (§15.7).
 
-### 15.3 How reliable are the maps?
+### 15.4 How reliable are the maps?
 
-Reliability must be computed **within a split**, where `xA` and `xB` are
-genuinely disjoint trial halves:
+Split-half reliability is computed within each split, where `xA` and `xB` are
+disjoint trial halves, and averaged over splits (`map_reliability`):
 
-| split-half reliability (electrode level) | LWPC | LWPS |
-|---|---|---|
-| Spearman (the `method` default, used for `between`) | +0.162 | +0.097 |
-| Pearson (used for the noise correction) | +0.178 | +0.163 |
+| | all lPFC: LWPC | all lPFC: LWPS | task-sig: LWPC | task-sig: LWPS |
+|---|---|---|---|---|
+| Spearman, half data | +0.162 | +0.097 | +0.145 | +0.200 |
+| Pearson, half data | +0.178 | +0.163 | +0.148 | +0.241 |
+| Pearson, full data (Spearman–Brown) | 0.30 | 0.28 | 0.26 | 0.39 |
+| sign agreement between halves | 55.5 % | 51.0 % | 56.7 % | 59.4 % |
 
 ⚠️ **Do not compute reliability after averaging over splits.** The A-half of one
 split overlaps the B-half of another, so `corr(x̄A, x̄B)` across split-averaged
-maps returns **+0.987** — an artefact, not a ceiling.
+maps returns **+0.987**, an artefact, not a ceiling.
 
-⚠️ **Do not Spearman-Brown these upward either.** Both sides of
-`map_reliability` are already half-length — `between` correlates two half-trial
-estimates and so do the reliabilities — so numerator and denominator sit at the
-same trial count and the ratio is already the attenuation correction it should
-be. Correcting only the denominator to full length would understate it.
+⚠️ **Do not Spearman-Brown the reliabilities for the attenuation correction.**
+Both sides of `map_reliability` are half-length (`between` correlates two
+half-trial estimates, and so do the reliabilities), so the ratio is already at
+matched trial counts. The full-data row above is only for reading the averaged
+map.
 
-⚠️ **The out-of-range correction was a rank-transform artefact.**
-`summary.txt` reported `noise-corrected +1.374`, impossible for a correlation.
-The cause is that the attenuation formula is classical-test-theory algebra for
-**Pearson** correlations, while `method` defaults to Spearman. Ranking deflates
-the self-reliabilities much more than the cross term:
+⚠️ **The +1.374 in the archived `summary.txt` was a rank-transform artefact.**
+The attenuation formula is algebra for **Pearson** correlations, while `method`
+defaults to Spearman, and ranking deflates the self-reliabilities much more than
+the cross term:
 
-| | `between` | ceiling √(rel·rel) | corrected |
+| all lPFC | `between` | ceiling √(rel·rel) | ratio |
 |---|---|---|---|
-| Spearman (as previously reported) | +0.172 | 0.125 | **+1.374** ❌ |
-| Pearson (correct algebra) | +0.174 | 0.170 | **+1.022** ✅ |
+| Spearman (archived) | +0.172 | 0.125 | +1.374 |
+| Pearson | +0.174 | 0.170 | +1.022 |
 
-Note `between` is nearly identical either way (0.172 vs 0.174) — only the
-ceiling moves. This is not sampling noise: 95 % of individual splits exceed 1
-under Spearman, and the bootstrap interval on the Pearson value is
-**[0.998, 1.046]**. `map_reliability` now always computes
-`between_noise_corrected` from Pearson, reports
-`between_noise_corrected_ci`, and sets `note` when the value is out of range or
-undefined.
+`map_reliability` now computes `between_noise_corrected` from Pearson whatever
+`method` is, and sets `note` when the ratio is out of range or undefined.
 
-A corrected value of ~1.0 is itself the finding: **the two maps are correlated
-at their ceiling** — whatever is reliably mapped is essentially common to both.
+⚠️ **The noise-corrected ratio is not estimable at these reliabilities.** The
+Pearson ratio is 1.022 in all lPFC and 0.684 in the task-significant run. The
+`between_noise_corrected_ci` that `map_reliability` returns bootstraps the
+splits, so it only reflects which trials fell in which half (all lPFC
+[0.998, 1.046]; task-significant [0.654, 0.716]). Resampling participants
+gives the sampling uncertainty:
 
-⚠️ **The parcel-level ceiling is not estimable and should be dropped.**
-`summary.txt` reports `noise-corrected +1.369` over 21 Destrieux parcels, but
-the Pearson reliability of the LWPC parcel map is **−0.026** — no recoverable
-signal — so the ratio is undefined, and `map_reliability` now returns `nan`
-with a note rather than a number. Quote `between` (+0.275) and the
-reliabilities instead.
-
-**What low reliability does and does not invalidate.** A per-electrode
-reliability of ~0.30 means individual electrode scores are mostly noise, so no
-single electrode should be interpreted and any dot map is largely noise. It does
-**not** invalidate a gradient: the regression compresses 398 noisy electrodes
-into 3 slope parameters, and averaging suppresses noise. A noisy
-high-dimensional map with a reliable low-dimensional summary is the normal case,
-and [§15.5](#155-a-dorsoventral-gradient-in-the-relative-balance) verifies the
-summary directly rather than inferring it.
-
-### 15.4 The two effects share their reliable variance
-
-The per-electrode scores are centred near zero, not positive:
-
-| | mean | median | fraction < 0 |
-|---|---|---|---|
-| `lwpc_s` | +0.034 | −0.024 | **51.0 %** (203/398) |
-| `lwps_s` | +0.181 | +0.096 | 43.7 % (174/398) |
-
-Positive-LWPC and positive-LWPS electrodes **co-occur above chance**: 135
-positive on both, against a within-subject permutation null of 121.6 ± 4.2
-(**p = 0.0016**); independence predicts ~110.
-
-**The correlation is not shared-trial noise.** Because the averaged scores draw
-on both halves, the correlation was recomputed across **disjoint** halves:
-
-| | pooled r | within-subject r |
+| | participant bootstrap, 95 % | resamples undefined |
 |---|---|---|
-| `xA` vs `yA` (shares trials) | +0.169 | +0.116 |
-| `xB` vs `yB` (shares trials) | +0.200 | +0.146 |
-| **`xA` vs `yB`** (disjoint) | **+0.174** | **+0.126** |
-| **`xB` vs `yA`** (disjoint) | **+0.174** | **+0.114** |
+| all lPFC | [0.54, 4.71] | 9 % |
+| task-significant | [0.25, 2.64] | 10 % |
 
-Same-half and disjoint-half estimates agree, so no shared-trial inflation. On
-the split-averaged maps the disjoint-half within-subject correlation is
-**r = +0.243, p = 0.0005** (summary.txt reports +0.224 for the equivalent
-quantity).
+Report `between` and the two reliabilities, never the ratio or the split
+interval. The parcel-level ratio is undefined in both runs, because the LWPC
+parcel map's Pearson reliability is negative (−0.026 all lPFC, −0.201
+task-significant).
 
-**Claim supported, and strengthened by §15.3:** the two effects are carried by an
-overlapping population, and their reliable spatial variance is essentially
-*entirely* shared (noise-corrected r ≈ 1.0).
+⚠️ **Within-participant reliabilities are biased low by the split design.**
+`split_resolved_corr`, the pre-specified co-localization test (§15.5), centres
+each score within participant before computing reliabilities. There they come
+out at +0.069 / −0.094 for LWPC / LWPS in all lPFC (Pearson: +0.095 / −0.079)
+and +0.014 / −0.000 in the task-significant run. Two
+independent halves of a real map cannot have a negative expected correlation,
+and a cross-map correlation cannot exceed √(rel_x · rel_y). In all lPFC the
+cross-map r (+0.105, Pearson) breaks that bound in 99.75 % of participant
+resamples, so this is not sampling noise.
 
-**Consequence for figures.** Two thresholded maps will *look* disjoint whatever
-the truth: at marginal positive rates of 49 % and 56 %, independence alone leaves
-only ~28 % of electrodes in both maps. Apparent segregation in a thresholded dot
-map is not evidence of segregation.
+The likely cause: `compute_sensitivities_per_split` draws a new trial split for
+**each electrode**. Within a participant, electrode i's half A therefore shares
+about a quarter of the trials with electrode j's half B. Trial-level noise shared
+across a participant's electrodes then correlates one electrode's half A with its
+neighbours' half B, and within-participant centring turns that into a negative
+correlation between each electrode's own two halves. In a simulation with
+common-mode noise correlation 0.2–0.4, within-participant reliabilities that are
++0.06 to +0.10 with one split per participant fall to −0.04 to −0.15 with one
+split per electrode.
 
-### 15.5 A dorsoventral gradient in the relative balance
+This does not affect any reported result:
 
-`relative_score_coordinate_test(value_col='delta')`: block **F = 2.87,
-p = 0.032**; **z slope = −0.0077 per mm, p = 0.0075** (~0.6 pooled SD across the
-dorsoventral extent of the coverage). Negative slope means **LWPS dominance
-increases dorsally, LWPC dominance increases ventrally**.
+| result | affected by per-electrode splits? | why |
+|---|---|---|
+| parcel test, coordinate slopes, sign subsets, \|score\| | no | these use scores averaged over all splits, which equal the full-data scores however the splits were drawn |
+| cross-validated μ² | no | it multiplies an electrode's own two halves, which never share trials |
+| co-localization r | negligibly | it compares two different contrasts; same-half and separate-half correlations agree (§15.5) |
+| cross-validated slope | negligibly, toward zero | simulation: 0.0041 vs 0.0040 for a true 0.004 |
+| pooled (uncentred) reliabilities | negligibly | the bias is about 18 times smaller than within participant |
+| within-participant reliabilities | yes, pushed down | not reported |
 
-**Cross-validated confirmation.** The slope was refitted independently on each
-disjoint trial half of all 200 splits:
+One split per participant, shared by all its electrodes, is needed only to report
+a within-participant reliability or ceiling, or to confirm this explanation on
+the real trials. It has not been implemented. (The bound check and both
+simulations were run by hand and are not in the script.)
+
+**What low reliability does and does not invalidate.** A reliability of ~0.3
+means individual electrode scores are mostly noise, so no single electrode
+should be interpreted and any dot map is largely noise. It does **not**
+invalidate a slope or a correlation across electrodes: those summaries average
+over hundreds of noisy electrodes, and §15.7 checks the slope directly on
+separate trial halves.
+
+### 15.5 Do the two effects share electrodes?
+
+**Pre-specified test.** `split_resolved_corr` in the segregation runs: LWPC on one
+trial half against LWPS on the other, residualised on responsiveness, centred
+within participant, Spearman, participants with at least three electrodes
+(`min_elec = 3`). From each segregation run's `summary.txt`:
+
+| | all lPFC | task-significant |
+|---|---|---|
+| r | **+0.097** | +0.077 |
+| p (1,000 permutations) | **≤ 0.001** | 0.057 |
+| electrodes / participants | 397 / 21 | 167 / 18 |
+| participants dropped (< 3 electrodes) | D0069 | D0065, D0110, D0145 |
+
+With 1,000 permutations p cannot go below 0.001; the anatomy run's `min_elec`
+sweep (2,000 permutations) gives p = 0.0005 for the same all-lPFC value. For an
+exact p, rerun the segregation job with `N_PERM_CORR=10000`. Report the Spearman
+values: the Pearson version (task-significant r = +0.091, p = 0.034) is not the
+pre-specified test.
+
+Reading: across all lPFC the two effects share signal. In the task-significant
+set the association is not significant, and because its within-participant
+reliabilities are about zero, that null is not evidence of independence either.
+The two estimates are close (0.08 vs 0.10).
+
+**Supporting checks** (follow-ups, section 4 of the script):
+
+| | all lPFC | task-significant |
+|---|---|---|
+| electrodes positive on both effects | 135 vs 121.6 ± 4.2 expected, p = 0.001 | 96 vs 90.0 ± 2.3 expected, p = 0.01 |
+| responsiveness vs LWPC / LWPS, within participant | +0.14 / +0.24 | +0.16 / +0.33 |
+
+The expected counts come from shuffling the LWPS signs among each participant's
+electrodes. The count uses only the signs of full-data scores, so it is weaker
+than the pre-specified test and should not outrank it. More responsive
+electrodes adapt more on both effects, but controlling for responsiveness only
+trims the all-lPFC separate-half correlation from about +0.12 (participant only)
+to +0.105 (participant and responsiveness, Pearson).
+
+**Not shared-trial noise.** Correlations per split, averaged over splits:
+
+| | all lPFC: pooled r | all lPFC: within participant | task-sig: within participant |
+|---|---|---|---|
+| `xA` vs `yA` (same trials) | +0.169 | +0.116 | +0.097 |
+| `xB` vs `yB` (same trials) | +0.200 | +0.146 | +0.126 |
+| `xA` vs `yB` (separate trials) | +0.174 | +0.126 | +0.118 |
+| `xB` vs `yA` (separate trials) | +0.174 | +0.114 | +0.115 |
+
+Same-trial and separate-trial correlations agree, so sharing trials does not
+inflate the association.
+
+**The categorical (CMH) test is not computable in either run.** After FDR, no
+electrode is individually significant for LWPC in either run (all lPFC: 0 LWPC,
+0 LWPS; task-significant: 0 LWPC, 8 LWPS), so there are no groups to compare and
+the odds ratio is `nan`. The segregation summary's "segregated (n.s.)" label
+comes from the missing odds ratio, not from evidence of segregation. Report the
+test as not computable (see `stability_flexibility_outputs_guide.md`).
+
+**Thresholded maps look disjoint whatever the truth.** With 49 % of all-lPFC
+electrodes LWPC-positive and 56 % LWPS-positive, independence alone would leave
+only 28 % in both maps. Apparent segregation in a thresholded dot map is not
+evidence of segregation; §15.6 tests location directly.
+
+### 15.6 Are LWPC-positive and LWPS-positive electrodes in different places?
+
+`centroid_shuffle_test` (section 10 of the script). Only electrodes positive on
+at least one score enter. The statistic is the distance between the centroid of
+the LWPC-positive electrodes and the centroid of the LWPS-positive ones; an
+electrode positive on both counts toward both. The null shuffles the electrode
+types among electrodes of the same participant, which keeps every position and
+each participant's mix of types.
+
+| | all lPFC | task-significant |
+|---|---|---|
+| electrodes (LWPC+ / LWPS+ / both) | 284 (195 / 224 / 135) | 147 (114 / 129 / 96) |
+| centroid distance | 1.4 mm | 3.3 mm |
+| shuffle within participant | **p = 0.95** | **p = 0.44** |
+| shuffle within participant × hemisphere | p = 0.78 | p = 0.45 |
+| left hemisphere only (within participant) | 3.4 mm, p = 0.063 | 2.4 mm, p = 0.65 |
+| right hemisphere only (within participant) | 3.8 mm, p = 0.41 | 0.4 mm, p = 0.99 |
+
+No separation in either set. Design notes:
+
+- **Shuffle within participant.** The mix of types differs a lot between
+  participants, and participants cover different parts of lPFC. A shuffle across
+  all electrodes would let "this participant is LWPS-heavy and happens to have
+  dorsal electrodes" pass for anatomy. Here it happens not to change the answer
+  (across all electrodes: p = 0.79 all lPFC, 0.17 task-significant).
+- **Read the within-hemisphere rows.** The pooled 3-D distance in all lPFC is
+  almost all x (1.39 of 1.40 mm), so it mostly reflects how the two sets split
+  between hemispheres.
+- **It tests location, not balance.** Only signs enter, electrodes negative on
+  both effects are left out, and electrodes positive on both pull the two
+  centroids together.
+
+**Why it cannot see the dorsoventral tilt.** Take a dorsal electrode with LWPS 0.5
+and LWPC 0.2, and a ventral one with LWPC 0.5 and LWPS 0.2. Both are in both sets,
+so the centroids coincide, yet the balance flips from dorsal to ventral. "Positive
+electrodes of each kind sit in the same place" (this section) and "the balance
+shifts with height" (§15.7) are both true.
+
+### 15.7 The balance tilts along the dorsoventral axis
+
+`relative_score_coordinate_test(value_col='delta')`:
+`delta ~ mni_y + mni_z + mni_x + responsiveness + participant`, with the swap
+null. The parcel test (`relative_score_roi_test(roi_col='anat')`) is the plan's
+primary anatomical test and is shown alongside.
+
+| | all lPFC | task-significant |
+|---|---|---|
+| parcel omnibus (primary) | F = 1.90, **p = 0.010** (19 parcels) | F = 0.91, p = 0.29 (15 parcels) |
+| three-axis block F | 2.87, **p = 0.032** | 1.44, p = 0.29 |
+| z slope (SD/mm) | **−0.0077, p = 0.0075** | −0.0075, p = 0.24 |
+| y slope (SD/mm) | +0.0024, p = 0.58 | +0.0084, p = 0.30 |
+| x slope (SD/mm) | +0.0013, p = 0.62 | −0.0002, p = 0.97 |
+
+Units: each score is divided by its SD across the run's electrodes, so a slope is
+in those SDs per mm. Across the central 90 % of the all-lPFC z range (67 mm)
+delta changes by about 0.44 SD of delta.
+
+**Read it as an interaction.** The z slope of delta is exactly the LWPC slope minus
+the LWPS slope (all lPFC: −0.0037 − 0.0040 = −0.0077). So the test asks one
+question: do the two effects change differently with height? That is an
+effect-type × height interaction, tested by swapping the effect labels within
+electrodes. Subtracting within an electrode is the paired version of it: it
+cancels anything an electrode contributes to both scores (gain, responsiveness,
+participant). Neither effect's own slope is significant (all lPFC: LWPC −0.0037,
+p = 0.12; LWPS +0.0040, p = 0.06; task-significant: −0.0046, p = 0.29 and
++0.0029, p = 0.41), so describe the result as LWPC **relative to** LWPS, not as
+either effect changing on its own.
+
+**What it looks like.** Height bands (tertiles of the all-lPFC z; Cohen's d
+adjusted for participant and responsiveness; section 12 of the script):
+
+| band (MNI z, mm) | all lPFC: n | LWPC d | LWPS d | mean delta | LWPC–LWPS r | task-sig: n | LWPC d | LWPS d |
+|---|---|---|---|---|---|---|---|---|
+| ventral (−22 to 16) | 133 | 0.01 | 0.02 | −0.02 | +0.10 | 52 | 0.15 | 0.17 |
+| middle (16 to 38) | 132 | 0.06 | 0.08 | −0.18 | +0.10 | 72 | 0.16 | 0.17 |
+| dorsal (38 to 76) | 133 | −0.04 | 0.05 | −0.24 | +0.13 | 47 | 0.08 | 0.20 |
+
+LWPC–LWPS r is computed on separate trial halves, within participant. The band
+means are descriptive; the test is the slope.
+
+- **Negative scores are not needed for the tilt.** Among task-significant
+  electrodes both effects are positive at every height; LWPC is lower dorsally
+  and LWPS is not.
+- **A positive correlation and a tilt coexist.** In every band the effects are
+  positively correlated while the balance shifts: a shared component plus a
+  small height-dependent shift. Height explains 2.1 % of delta's variance within
+  participant.
+
+**Replication across trial halves.** The slope refitted separately on each half of
+every split (all lPFC; task-significant in brackets):
 
 | | result |
 |---|---|
-| mean z slope, half A | **−0.00780** |
-| mean z slope, half B | **−0.00759** |
-| sign agreement between halves | **98.5 %** (both negative) |
-| E[slope_A × slope_B] | **+4.96 × 10⁻⁵** |
-| within-subject coordinate-permutation null | p = **0.0050** |
+| mean z slope, half A / half B | −0.00780 / −0.00759 (−0.00784 / −0.00710) |
+| same sign in both halves | 98.5 % of splits (79.5 %) |
+| E[slope_A × slope_B] | 4.96 × 10⁻⁵ (2.34 × 10⁻⁵) |
+| share of the observed slope that is signal | 91 % (65 %) |
+| within-participant coordinate shuffle | **p = 0.005** (p = 0.15) |
 
-Because A and B are disjoint trials, E[slope_A · slope_B] is unbiased for
-slope², so a positive value means a real gradient with no noise floor to
-subtract. √(4.96 × 10⁻⁵) = 0.0070 against an observed slope of 0.0077 — about
-**91 % of the observed slope is signal**. This is the confirmation the earlier
-revision of this section listed as outstanding.
+Because the halves share no trials, E[slope_A · slope_B] is unbiased for the
+squared slope. This controls trial noise, not participant sampling.
 
-| robustness check | result |
+**Robustness (all lPFC).**
+
+| check | result |
 |---|---|
-| add hemisphere dummy to nuisance design | z slope −0.0074, p = 0.0094 |
-| `z × hemisphere` interaction | coef +0.0031, **p = 0.65** (one shared slope) |
-| leave-one-subject-out | z stays p < 0.05 in **21/22** folds (worst: drop D0146 → p = 0.090) |
-| drop the `resp` covariate | z p = 0.0070 |
+| add a hemisphere term | z slope −0.0074, p = 0.009 |
+| z × hemisphere interaction | +0.0031, p = 0.65 (one shared slope) |
+| drop the responsiveness covariate | z p = 0.007 |
+| leave one participant out | z p < 0.05 in 21/22 folds (worst: drop D0146, p = 0.09) |
 
-The per-hemisphere fits (lh z p = 0.21, rh z p = 0.98) are **not** a
-non-replication: the interaction test finds no heterogeneity to explain and the
-subsets are underpowered. Only 6 of 22 subjects are bilateral, so the subject
-dummies already absorb most of hemisphere.
+The separate hemisphere fits (left z p = 0.21, right p = 0.98) are underpowered,
+and the interaction finds no difference to explain. In the task-significant run
+no leave-one-out fold reaches p < 0.05 (worst p = 0.45), as expected at its
+power.
 
-**Corroboration at the parcel level.** `relative_score_roi_test(roi_col='anat')`:
-omnibus **F = 1.90, p = 0.0099** (summary.txt: p = 0.0104, different seed). The
-extremes order dorsoventrally, matching the continuous slope:
+**Parcels (all lPFC).** The extremes order dorsoventrally, matching the slope:
 
 | Destrieux label | n | adj. mean `delta` | p | q |
 |---|---|---|---|---|
@@ -1127,165 +1332,255 @@ extremes order dorsoventrally, matching the continuous slope:
 | `rh_G_front_middle` | 34 | +0.41 | 0.020 | 0.129 |
 | `lh_G_front_inf-Triangul` | 26 | +0.31 | 0.124 | 0.337 |
 
-No label survives FDR (min q = 0.13), so **the omnibus is the claim**.
+No label survives FDR, so the omnibus is the claim. In the task-significant run
+one parcel (`rh_S_front_sup`, 7 electrodes from 4 participants) has q = 0.012,
+but a parcel row means something only after a significant omnibus, and that
+omnibus is p = 0.29. Do not report it.
 
-**Is this compatible with §15.4?** Yes. "Correlated at the ceiling" is a global
-scalar summary with wide error bars at these reliabilities; it leaves room for a
-small systematic difference concentrated on one spatial axis. The two results
-together say: **a dominant shared component, plus a small but reliable
-dorsoventral difference.**
+**Task-significant electrodes vs the rest** (section 11, fitted in the all-lPFC
+run's units):
 
-### 15.6 The anterior–posterior hypothesis is null
-
-`delta ~ y`: p = 0.58 pooled, 0.77 lh, 0.22 rh. The §8 centre machinery is built
-around this axis (`p_anterior`). Report it as a null, not a pending result.
-
-### 15.7 Why magnitude versions do not work
-
-Every magnitude-based formulation is null:
-
-| value tested | z slope | z p | null used |
+| | electrodes | z slope (SD/mm) | p |
 |---|---|---|---|
-| `delta = lwpc_s − lwps_s` | **−0.0077** | **0.0075** | sign-flip swap |
-| `abs_lwpc − abs_lwps` | +0.0023 | 0.32 | sign-flip swap |
-| **cross-validated μ²: E[xA·xB] − E[yA·yB]** | **+0.0046** | **0.40** | sign-flip swap |
-| `lwpc_s` alone | −0.0037 | 0.12 | within-subject permutation |
-| `lwps_s` alone | +0.0040 | 0.062 | within-subject permutation |
-| `delta`, both-positive electrodes only (n = 135) | −0.0059 | 0.26 | sign-flip swap |
+| task-significant | 171 | −0.0076 | 0.24 |
+| other lPFC | 227 | −0.0103 | 0.001 |
+| difference | | +0.0027 | 0.67 |
 
-**The magnitude question is now settled, not merely unsupported.** `|score|` is a
-biased magnitude estimator — for a null electrode E`|score|` ≈ 0.8 σ, pure noise
-floor — so the null on `abs_lwpc − abs_lwps` was weak evidence. The unbiased
-estimator uses the disjoint halves directly: for independent estimates x₁, x₂ of
-the same effect, E[x₁·x₂] = μ², with no rectification bias. Computed that way:
+Task significance itself is not organised by height (within participant
+r = +0.005, p = 0.93), so restricting to it changes the number of electrodes, not
+the spatial sampling. Planting the all-lPFC slope on the task-significant layout
+at the observed reliability, p < 0.05 is reached 26 % of the time, against 66 %
+on the all-lPFC layout (section 9). The task-significant null is what that power
+predicts.
 
-- mean μ²: LWPC **+0.300**, LWPS **+0.310** — the two effects are the same size
-  overall;
-- gradient of the μ² difference along z: **p = 0.40** (block F p = 0.109);
-- corr(μ²_LWPC, z) = **+0.028**; corr(μ²_LWPS, z) = **−0.059**.
+### 15.8 The anterior–posterior hypothesis is null
 
-There is no dorsoventral magnitude gradient to find, with the best available
-estimator.
+`delta ~ y`: all lPFC p = 0.58 (left 0.77, right 0.22); task-significant
+p = 0.30 (left 0.62, right 0.69). The §8 centre machinery is built around this
+axis (`p_anterior`). Report it as a null.
 
-**Is `delta` just picking up sign disagreement?** Tested by splitting on
-concordance — these partitions are invariant under the per-electrode label swap,
-so the null stays valid inside each (a split on the *sign of `delta`* would not
-be, since the swap moves electrodes across it):
+### 15.9 Why unsigned and subset versions do not show it
+
+| value regressed on z | all lPFC | task-significant | null |
+|---|---|---|---|
+| `delta` (signed) | −0.0077, p = 0.0075 | −0.0075, p = 0.24 | swap |
+| `abs_lwpc − abs_lwps` | +0.0023, p = 0.32 | −0.0068, p = 0.17 | swap |
+| cross-validated μ²: E[xA·xB] − E[yA·yB] | +0.0046, p = 0.40 | −0.0163, p = 0.22 | swap |
+| `lwpc_s` alone | −0.0037, p = 0.12 | −0.0046, p = 0.29 | coordinate shuffle |
+| `lwps_s` alone | +0.0040, p = 0.06 | +0.0029, p = 0.41 | coordinate shuffle |
+| `delta`, positive-on-both electrodes only | −0.0059, p = 0.26 (n = 135) | −0.0047, p = 0.54 (n = 96) | swap |
+
+**Absolute values cannot register a small shift around zero.** Across all lPFC
+both scores are centred near zero (51 % of LWPC and 44 % of LWPS scores are
+negative), and across the covered z range each score shifts by only about
+0.25 SD. For a score distributed N(μ, 1), E|x| ≈ 0.80 + 0.4μ², which is nearly
+flat near zero: moving μ from 0 to 0.25 changes E|x| by about 0.025. In the
+task-significant set, where most scores are positive (67 % LWPC, 75 % LWPS; mean
+d 0.14 and 0.18), |score| ≈ score, and the absolute version gives nearly the
+signed slope (−0.0068 vs −0.0075). So the all-lPFC magnitude null reflects the
+transform, not evidence that negative scores drive the tilt.
+
+The cross-validated μ² (the mean over splits of xA·xB) removes the noise floor
+that biases |score| upward (E|score| ≈ 0.8σ for an electrode with no effect), but
+it is also quadratic in μ and just as insensitive near zero; its point estimate
+points one way in all lPFC and the other in the task-significant set. Neither
+unsigned version is informative. Say that unsigned measures did not detect the
+tilt, not that "neither effect's magnitude changes".
+
+**Fitting only the electrodes positive on both.** The test is valid, because
+swapping the labels keeps an electrode in the `++` set, but selecting on noisy
+signs shrinks the slope and discards most of the data. Planting the observed
+gradient on the all-lPFC layout at the observed reliability (section 9):
+
+| analysis | mean slope (true −0.0077) | P(p < 0.05) |
+|---|---|---|
+| all electrodes | −0.0079 | 66 % |
+| `++` electrodes, selected on the same data | −0.0033 | 10 % |
+| `++` selected on half A, fitted on half B | −0.0073 | 13 % |
+
+With no gradient planted, all three give p < 0.05 about 5 % of the time. Only
+about 68 % of electrodes that look `++` are truly `++`. The observed `++` result
+(p = 0.26, same direction) is what a real gradient would produce. Selecting on
+one score alone (for example LWPC > 0) is different: the swap moves electrodes in
+and out of the set, so the swap null no longer applies.
+
+**Is `delta` just picking up sign disagreement?** Concordance partitions are
+invariant under the label swap, so the null stays valid inside each (all lPFC):
 
 | subset | n | `delta` z slope | p |
 |---|---|---|---|
 | all | 398 | −0.0077 | 0.0075 |
-| **concordant (`++` or `--`)** | **249** | **−0.0082** | **0.0032** |
+| concordant (`++` or `--`) | 249 | −0.0082 | 0.003 |
 | discordant (`+-` or `-+`) | 149 | −0.0149 | 0.029 |
 | `++` only | 135 | −0.0059 | 0.26 |
 | `--` only | 114 | −0.0079 | 0.023 |
 
-**No** — the gradient is present in the concordant electrodes alone, slightly
-*more* cleanly than in the full sample, with the same sign in every quadrant.
+No: the tilt is present with the same sign in every subset. In the
+task-significant set every subset is non-significant (concordant p = 0.32), as
+expected at its size.
 
-But the magnitude contrast is null even there (+0.0008, **p = 0.76**), and
-electrodes A and B in [§15.2](#152-vocabulary-used-in-this-section) show why:
-among `++` electrodes `delta = abs_lwpc − abs_lwps`, while among `--` electrodes
-`delta = −(abs_lwpc − abs_lwps)`. The two concordant quadrants contribute
-**opposite-signed magnitude gradients that cancel when pooled**, while their
-`delta` gradients agree.
+**Which effect dominates moves with height; neither effect's sign does**
+(within-participant correlation with z, coordinate shuffle):
 
-Finally, **neither score's own sign varies with z** — only their ordering does:
-
-| | r | p |
+| | all lPFC | task-significant |
 |---|---|---|
-| P(`lwpc_s` > 0) vs z | −0.021 | 0.68 |
-| P(`lwps_s` > 0) vs z | +0.043 | 0.42 |
-| **P(`delta` > 0) vs z** | **−0.144** | **0.0058** |
-
-A *relative reordering* along the dorsoventral axis, not a sign reversal of
-either effect. The last row is the most presentable form of the result — the
-fraction of LWPC-dominant electrodes falls dorsally, stated as a proportion,
-with no negative values on display.
+| P(`lwpc_s` > 0) | r = −0.021, p = 0.67 | r = +0.012, p = 0.89 |
+| P(`lwps_s` > 0) | r = +0.043, p = 0.42 | r = +0.131, p = 0.12 |
+| P(`delta` > 0) | **r = −0.144, p = 0.006** | r = −0.096, p = 0.21 |
 
 ⚠️ **Null validity.** The sign-flip null in `_swap_null` is valid only for a
 paired difference, where negation equals the label swap. It is valid for
-`abs_lwpc − abs_lwps` and for the cross-validated μ² difference, and **invalid**
-for any single score — passing `value_col='lwpc_s'` or `'abs_lwpc'` to
-`relative_score_coordinate_test` tests nothing. The single-score rows use a
-within-subject permutation instead.
+`delta`, `abs_lwpc − abs_lwps` and the μ² difference, and **invalid** for any
+single score. Passing `value_col='lwpc_s'` or `'abs_lwpc'` to
+`relative_score_coordinate_test` tests nothing; the single-score rows use a
+within-participant coordinate shuffle instead.
 
-### 15.8 Why the centres are null, and how to draw them honestly
+### 15.10 Weighted centres
 
 `score_centers_per_subject` is null on every axis under every weighting:
 
-| weighting / centre | dx (p) | dy (p) | dz (p) |
-|---|---|---|---|
-| `abs`, `medoid=True` | +0.69 (0.59) | +0.46 (0.80) | −3.26 (0.15) |
-| `abs`, `medoid=False` | +0.61 (0.35) | +0.89 (0.33) | +1.42 (0.26) |
-| positive-clipped, `medoid=True` | +2.08 (0.29) | −0.86 (0.76) | −1.95 (0.56) |
+| weighting / centre | all lPFC: dx (p) | dy (p) | dz (p) | task-sig: dz (p) |
+|---|---|---|---|---|
+| `abs`, `medoid=True` | +0.69 (0.59) | +0.46 (0.80) | −3.26 (0.15) | −2.35 (0.44) |
+| `abs`, `medoid=False` | +0.61 (0.35) | +0.89 (0.33) | +1.42 (0.26) | −1.22 (0.35) |
+| positive-clipped, `medoid=True` | +2.08 (0.29) | −0.86 (0.76) | −1.95 (0.56) | +0.09 (0.98) |
 
-**Expected, not a contradiction.** The centres weight by `|score|`, and as
-`_synthetic_scores` states, they are "blind to a purely signed dissociation" —
-which [§15.7](#157-why-magnitude-versions-do-not-work) now establishes with an
-unbiased estimator. A null centre does not qualify §15.5.
+This is expected. The centres weight by |score|, which cannot see a shift of
+signed scores around zero (§15.9). A null centre does not qualify §15.7.
+Implementation hazards:
 
-Two implementation hazards, both visible here:
-
-- `medoid=True` returns **exactly zero** displacement for 6 of 25
-  subject × hemisphere groups (including groups of 26, 20, 15 and 15
-  electrodes). The medoid takes only *n* discrete values, and on clustered depth
-  shafts the weighted-distance argmin is insensitive to the weights, so both
+- `medoid=True` returns **exactly zero** displacement for 6 of 25 participant ×
+  hemisphere groups in all lPFC (7 of 20 in the task-significant run). The
+  medoid takes only *n* discrete values, and on clustered depth shafts both
   labels snap to the same contact. `medoid=False` produces none.
-- The two centre definitions **disagree in sign on dz** (−3.26 vs +1.42).
-- Positive clipping leaves 2 groups with all-zero LWPC weights and 1 with
-  all-zero LWPS weights — undefined centres returned as zero.
+- The two centre definitions disagree in sign on dz in all lPFC (−3.26 vs
+  +1.42).
+- Positive clipping leaves some groups with all-zero weights for one effect;
+  those centres are undefined and returned as zero.
 
-**A centre figure that depicts the real result.** Show centres of the two
-sign-defined *electrode sets* rather than of the two scores:
+**Centres of the sign-defined sets** describe the tilt directly:
 
-| | LWPC-dominant (`delta > 0`) | LWPS-dominant (`delta < 0`) | Δz |
+| all lPFC | LWPC-dominant (`delta > 0`) | LWPS-dominant (`delta < 0`) | Δz |
 |---|---|---|---|
-| pooled | n = 186, z̄ = 24.6 | n = 212, z̄ = 29.3 | **−4.6 mm** |
+| pooled | n = 186, z̄ = 24.6 | n = 212, z̄ = 29.3 | −4.6 mm |
 | lh | n = 118, z̄ = 21.0 | n = 136, z̄ = 28.3 | −7.3 mm |
 | rh | n = 68, z̄ = 30.9 | n = 76, z̄ = 31.1 | −0.1 mm |
 
-Within subject × hemisphere (both sets ≥ 2 electrodes, 21 groups): mean
-Δz = **−1.83 mm**, 14/21 in the expected direction. The pooled numbers are
-coverage-inflated — quote the within-subject value. This is a **descriptive
-depiction of §15.5, not an independent test**: the sets are defined by the sign
-of the quantity the regression models, so testing the separation would be
-circular.
+Averaged over participant × hemisphere groups (both sets ≥ 2 electrodes, 21
+groups) Δz is −1.83 mm, 14 of 21 in the expected direction; the pooled rows are
+coverage-inflated. As a test, re-forming the two sets inside every swap and
+centring heights within participant, Δz = −5.1 mm, p = 0.009 (task-significant:
+−2.7 mm, p = 0.29). The two Δz values differ because one averages groups and the
+other averages electrodes. The test is valid, but it restates §15.7 rather than
+adding independent evidence.
 
-### 15.9 What to do next
+### 15.11 Which electrode set to report
 
-The three analyses the previous revision listed as blocking are **done**
-(§15.3 ceiling, §15.5 cross-validation, §15.7 magnitude). What remains:
+The choice of primary population is open. The facts that bear on it:
 
-1. ~~**Fix the noise correction in the pipeline.**~~ **Done.**
-   `map_reliability` now computes `between_noise_corrected` from Pearson
-   correlations whatever `method` is, returns a bootstrap
-   `between_noise_corrected_ci`, and sets `note` when the ratio is out of range
-   or undefined. `split_resolved_corr` gained a `reliability_note` explaining a
-   non-positive reliability instead of returning a bare `NaN`. **Re-run the
-   pipeline to regenerate `summary.txt`** — the archived one still carries the
-   +1.374 / +1.369 values.
-2. **The §5.1 `min_elec` sweep's negative `reliability_y` (−0.094) is
-   explained, not a bug.** `split_resolved_corr` residualises on responsiveness
-   and **within-subject centres**; `map_reliability` does not. At these
-   per-subject electrode counts (median 14, min 1, two subjects with ≤ 3)
-   centring removes most of the between-electrode variance the reliability is
-   computed over, driving it to ~0. Reproduced here: +0.080 / −0.058 after
-   centring, against +0.162 / +0.097 without. Read the sweep's `corr` as
-   uninterpretable, not as a null — `reliability_note` now says so.
+- **Consistency.** The power-trace and decoding analyses use the
+  task-significant electrodes.
+- **The plan.** §5.1 of `analysis_plan_concurrent_regulation.md` and §2.3 of
+  this document specify an anatomical electrode set, "not effect-selected". The
+  task-significant selection is not made on LWPC or LWPS, so it does not create
+  the circularity those sections warn about, but "anatomical" most naturally
+  means every electrode in the region.
+- **Power, not a different result.** Both positive findings (co-localization and
+  the tilt) are significant only in all lPFC. Their estimates are the same in the
+  task-significant set (r 0.08 vs 0.10; slope −0.0075 vs −0.0077), the two
+  groups' slopes do not differ (p = 0.67), and task significance is unrelated to
+  height (p = 0.93).
 
-3. **Confirming across held-out subjects is deferred.** The cross-validation in
-   §15.5 splits *trials*, so it controls trial noise but not subject sampling;
-   leave-one-subject-out (21/22 folds) is reassuring but is not a held-out test.
-   Deliberately not run — revisit if a reviewer asks.
-4. **Keep the multiplicity caveat.** z was one of three axes. The block F
-   (p = 0.032) is the protected headline; Bonferroni over three axes puts the
-   z slope at 0.0225.
+Options:
 
-For reporting: lead with §15.4 (shared population, correlated at ceiling) and
-§15.5 (dorsoventral gradient, cross-validated), present the gradient as
-P(LWPC-dominant) falling with z or on a diverging **LWPS-dominant ←→
-LWPC-dominant** scale, add the §15.8 sign-defined centres as a labelled
-descriptive annotation, report §15.6 as an explicit null, and state §15.7 as a
-settled negative rather than an absence of evidence. Do not interpret individual
-electrodes anywhere ([§15.3](#153-how-reliable-are-the-maps)).
+1. **Task-significant as primary.** Consistent with the rest of the paper. The
+   anatomy section then claims no evidence of segregation and a non-significant
+   trend toward overlap, with the all-lPFC results as the larger-sample check.
+2. **All lPFC as primary.** Justified by the plan's anatomical population, stated
+   in Methods. The task-significant set becomes the consistency check. Without
+   that justification written down, switching populations for one section will
+   read as choosing the set that gives significance.
+
+Whichever is primary, report the other in full.
+
+### 15.12 Reporting
+
+**Tests to cite.**
+
+| claim | test | code |
+|---|---|---|
+| the effects share signal | pre-specified continuous correlation on separate halves | `split_resolved_corr` (segregation `summary.txt`) |
+| no anatomical separation | centroid shuffle within participant | `centroid_shuffle_test` (script section 10) |
+| balance differs by parcel | parcel omnibus, swap null | `relative_score_roi_test` |
+| balance tilts with height | coordinate regression, swap null; Bonferroni over 3 axes | `relative_score_coordinate_test` |
+| the tilt is not trial noise | slope refitted on each half, coordinate shuffle | script section 5 |
+| same tilt in both electrode sets | subset × z interaction, swap null | script section 11 |
+| anterior–posterior null | coordinate regression, y | `relative_score_coordinate_test` |
+
+**Figures.**
+
+- LWPC and LWPS against height: band or binned means ± SEM across participants,
+  two lines, one per effect. This is the figure for the tilt; the pipeline does
+  not make it yet.
+- `joint_scatter.png`: LWPC against LWPS. Re-annotate it with the pre-specified
+  r and remove the noise-corrected value it currently prints.
+- `delta_by_roi.png`: adjusted mean delta per parcel, reordered by mean z.
+- Per-electrode dot maps only as coverage or illustration, with a legend line
+  saying single electrodes are not interpretable. Never as evidence.
+
+**Draft Results paragraph** (task-significant electrodes as primary; for all lPFC
+as primary, swap the order of the two paragraphs and drop "Because this subset
+was small"):
+
+> To test whether LWPC and LWPS adaptation are carried by separate lPFC
+> populations, we scored each task-responsive lPFC electrode (171 electrodes, 21
+> participants) for both effects as a signed, standardized difference-of-differences
+> in high-gamma power. Both effects were positive on average (mean Cohen's
+> d = 0.14 for LWPC and 0.18 for LWPS). Single-electrode estimates were noisy
+> (split-half reliability 0.26–0.39), so we tested only population-level
+> summaries. We found no evidence that the two effects occupy different
+> electrodes or regions. LWPC and LWPS scores measured on separate halves of the
+> trials were weakly and non-significantly correlated (Spearman r = 0.08,
+> p = 0.057; 167 electrodes from 18 participants with at least three
+> electrodes). Electrodes positive for LWPC and for LWPS did not differ in
+> location (centroid distance 3.3 mm, p = 0.44, electrode labels shuffled within
+> participant), and the balance between the two effects (LWPC − LWPS) did not
+> differ across Destrieux parcels (F = 0.91, p = 0.29).
+>
+> Because this subset was small, we repeated the analyses on all lPFC electrodes
+> (398 electrodes, 22 participants). LWPC and LWPS were positively correlated
+> (r = 0.10, p ≤ 0.001), and electrodes positive for each were again not
+> spatially separated (centroid distance 1.4 mm, p = 0.95). The balance between
+> the two effects, however, differed across parcels (F = 1.90, p = 0.010) and
+> varied along the dorsoventral axis (three-axis F = 2.87, p = 0.03; z slope
+> −0.0077 SD/mm, p = 0.007, Bonferroni-corrected p = 0.022). We had not
+> predicted this axis, and the predicted anterior–posterior axis showed no effect
+> (p = 0.58). Relative to LWPS, LWPC adaptation was weaker in dorsal lPFC. Among
+> task-responsive electrodes, both effects were positive at every height, but
+> LWPC fell from d = 0.15 ventrally to 0.08 dorsally while LWPS stayed at
+> 0.17–0.20. This tilt replicated across independent halves of the trials
+> (p = 0.005) and was the same size among task-responsive electrodes
+> (−0.0075 SD/mm, p = 0.24; difference from the remaining electrodes, p = 0.67).
+> It did not appear in the unsigned magnitude of either effect (p ≥ 0.32).
+> Together, these results suggest that LWPC and LWPS adaptation are carried by an
+> overlapping, intermixed lPFC population whose balance shifts modestly along the
+> dorsoventral axis.
+
+### 15.13 Open items
+
+- [ ] Choose the primary electrode set (§15.11) and state the reason in Methods.
+- [ ] Rerun both segregation jobs with `N_PERM_CORR=10000` for exact
+      co-localization p-values.
+- [ ] Rerun both anatomy jobs so `summary.txt` carries the Pearson-based
+      noise-corrected value; the archived all-lPFC summary still shows +1.374 /
+      +1.369.
+- [ ] Make the LWPC-and-LWPS-by-height figure.
+- [ ] Re-annotate `joint_scatter.png` without the noise-corrected value.
+- [ ] Change `map_reliability`'s `between_noise_corrected_ci` from a split
+      bootstrap to a participant bootstrap (code not yet changed).
+- [ ] Optional: one trial split per participant in
+      `compute_sensitivities_per_split`, only to report within-participant
+      reliabilities or confirm §15.4's explanation.
+- [ ] Deferred: confirmation across held-out participants. The trial-half
+      replication controls trial noise only; leave-one-participant-out is
+      reassuring but is not a held-out test.
