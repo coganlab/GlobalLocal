@@ -37,6 +37,7 @@ only remember one thing about the layout, remember this:
 | **How to break up a file that got too big** | [`docs/refactoring_guide.md`](docs/refactoring_guide.md) |
 | **Manuscript Methods text** | [`docs/stability_flexibility_segregation_methods.md`](docs/stability_flexibility_segregation_methods.md) |
 | **The figure sequence for the paper** | [`docs/figure_plan.md`](docs/figure_plan.md) |
+| **The closing figure: main effects as a reference for LWPC/LWPS** | [`docs/closing_figure_plan.md`](docs/closing_figure_plan.md) — which planned analyses carry the ending, how to run the main-effect anatomy, and the electrode-set choice |
 | **Duplicated code that could be consolidated** | [`docs/consolidation_candidates.md`](docs/consolidation_candidates.md) |
 | **Environment setup, BIDS conversion, VPN, cluster access, running the experiment** | Parts 2–6 of this README |
 
@@ -290,6 +291,7 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `stability_flexibility_segregation_methods.md` | Manuscript-ready Methods text |
 | `refactoring_guide.md` (301) | How the big modules were split, and how to split the next one |
 | `figure_plan.md` (253) | The main-text figure sequence and the claim stack behind it |
+| `closing_figure_plan.md` (297) | The closing anatomy figure: assessment of each planned analysis, the matched-half main-effect anatomy, and the electrode-set choice |
 | `nested_electrode_selection.md` (349) | Design plan for making the diagonal (select on congruency → measure congruency) non-circular |
 | `consolidation_candidates.md` | Duplicated/near-duplicated code and what merging each would cost |
 | `skeletons/a1…a6_*.py` | Runnable assignment stubs for each battery step, with the drop-in target named at the top |
