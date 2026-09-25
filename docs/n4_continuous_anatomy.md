@@ -917,6 +917,12 @@ LWPC on disjoint trial halves A and B, `yA`/`yB` = LWPS on the same halves) and
 the pipeline's own `summary.txt`. Permutation p-values, 20 000 permutations
 unless stated.
 
+Every number below — the pipeline results and the hand-run follow-ups
+(cross-validated slope, μ² magnitude test, concordance subsets, sign-defined
+centres) — is reproduced from those two CSVs by
+`dcc_scripts/stats/n4_section15_followups.py --scores … --per-split …`, which
+labels each block `[pipeline: <function>]` or `[follow-up]`.
+
 ### 15.1 Takeaway
 
 **Two results, both now confirmed against the split-half data, and one question
