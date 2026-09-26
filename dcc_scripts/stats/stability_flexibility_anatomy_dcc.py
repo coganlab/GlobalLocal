@@ -754,10 +754,7 @@ def run_score_anatomy(args):
         n_electrodes=roi_res['n_electrodes'], n_subjects=roi_res['n_subjects'],
         per_roi_coverage={str(k): int(v) for k, v in roi_res['per_roi_coverage'].items()},
         loso_p_range=[float(loso['p'].min()), float(loso['p'].max())] if 'p' in loso else None,
-        coordinates={h: dict(F=r['observed_stat'], p=r['p'],
-                             n_electrodes=r['n_electrodes'],
-                             slopes=r['slopes'].to_dict(orient='records'))
-                     for h, r in (coord_res or {}).items()},
+        coordinates=_coordinate_summary(coord_res),
         centers=({k: v for k, v in centers.items() if k != 'per_group'}
                  if centers else None),
         ceiling={k: v for k, v in ceiling.items() if k != 'min_elec_sweep'},
@@ -781,18 +778,45 @@ def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
                             save_dir, min_subjects=3, n_perm=10000, seed=0):
     """The anatomy on dm = congruency - switch, and Tests 1 and 2 linking it to
     delta (docs/closing_figure_plan.md). Runs when the scores come from a
-    MAIN_EFFECTS=1 segregation run. Returns (summary lines, JSON-able dict)."""
+    MAIN_EFFECTS=1 segregation run. Returns (summary lines, JSON-able dict).
+
+    dm gets the same three tests as delta, with the same swap null (valid
+    because dm is a paired difference): the label test, its leave-one-subject-out
+    sweep, and the coordinate test pooled and per hemisphere."""
     from src.analysis.stats import stability_flexibility_segregation as sfs
+    print("main effects: dm label test, leave-one-subject-out, coordinate test")
     roi = sfa.relative_score_roi_test(tab, coverage, min_subjects=min_subjects,
                                       n_perm=n_perm, seed=seed, roi_col=roi_col,
                                       value_col='dm')
-    roi['per_roi'].to_csv(os.path.join(save_dir, 'dm_per_roi.csv'), index=False)
+    per_roi = roi['per_roi'].rename(columns={'mean_delta': 'mean_dm',
+                                             'mean_delta_adj': 'mean_dm_adj'})
+    per_roi.to_csv(os.path.join(save_dir, 'dm_per_roi.csv'), index=False)
+    loso = sfa.leave_one_subject_out(
+        lambda t: sfa.relative_score_roi_test(
+            t, coverage, min_subjects=min_subjects, roi_col=roi_col, value_col='dm',
+            n_perm=max(1000, n_perm // 10), seed=seed), tab)
+    loso.to_csv(os.path.join(save_dir, 'dm_roi_loso.csv'), index=False)
     lines = ["-" * 70,
              "MAIN EFFECTS — dm = cong_s - switch_s (>0 = congruency-dominant), "
              "same cells and halves as LWPC/LWPS",
-             f"  dm ~ {roi_col} (swap null): F = {roi['observed_stat']:.3f}   "
-             f"p = {roi['p']:.4g}   (rows in dm_per_roi.csv)"]
-    out = dict(roi_F=roi['observed_stat'], roi_p=roi['p'])
+             *_roi_test_lines(roi, 'dm', roi_col, getattr(args, 'alpha', 0.05),
+                              per_roi=per_roi),
+             *_leverage_lines(loso, "§9.2 leverage — the dm test with each subject "
+                                    "dropped (fewer permutations):")]
+    out = dict(roi_F=roi['observed_stat'], roi_p=roi['p'],
+               per_roi=per_roi.to_dict(orient='records'),
+               loso_p_range=([float(loso['p'].min()), float(loso['p'].max())]
+                             if 'p' in loso else None))
+    if has_coords:
+        coord = sfa.relative_score_coordinate_test(tab, n_perm=n_perm, seed=seed,
+                                                   value_col='dm')
+        _coordinate_table(coord).to_csv(os.path.join(save_dir, 'dm_coordinates.csv'),
+                                        index=False)
+        out['coordinates'] = _coordinate_summary(coord)
+        lines += _coordinate_lines(coord, "§5.2 SECONDARY — dm ~ MNI coordinates "
+                                          "(slopes in dm units/mm):",
+                                   "congruency dominance")
+    lines += ["-" * 70, "MAIN EFFECTS — dm against delta"]
 
     if per_split is not None and set(sfs.MAIN_EFFECT_COLS) <= set(per_split.columns):
         rel = sfa.map_reliability(sfs.main_effect_view(per_split))
@@ -835,12 +859,89 @@ def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
     return lines, out
 
 
+# ---------------------------------------------------------------------------
+# summary blocks shared by delta and dm
+# ---------------------------------------------------------------------------
+def _roi_test_lines(roi_res, value, roi_col, alpha, per_roi=None):
+    """The §5.2-primary block: omnibus F and p, what was tested, one row per label."""
+    level = "Destrieux label" if roi_col == 'anat' else "ROI"
+    sig = "significant" if roi_res['p'] < alpha else "n.s."
+    lines = [
+        f"§5.2 PRIMARY — {value} ~ {level} + responsiveness + (1|subject), "
+        f"within-electrode swap null:",
+        f"      F = {roi_res['observed_stat']:.3f}   permutation p = {roi_res['p']:.4g}"
+        f"  -> {sig}",
+        f"      {level}s tested (coverage-filtered): {roi_res['rois_tested']}",
+        f"      electrodes = {roi_res['n_electrodes']}, subjects = {roi_res['n_subjects']}",
+        (roi_res['per_roi'] if per_roi is None else per_roi).to_string(index=False),
+    ]
+    if 'note' in roi_res:
+        lines.append(f"      NOTE: {roi_res['note']}")
+    return lines
+
+
+def _leverage_lines(loso, title):
+    """The §9.2 block: how far dropping one subject moves the label test's F."""
+    if 'observed_stat' not in loso or len(loso) < 2:
+        return []
+    # Leverage is read off the STATISTIC, not the p-value: p saturates at the
+    # permutation floor, so a result carried by one subject and one that is
+    # not both print 0.0005 here.
+    base = float(loso.loc[loso['dropped'] == '(none)', 'observed_stat'].iloc[0])
+    drop = loso[loso['dropped'] != '(none)']
+    shift = (drop['observed_stat'] - base).abs()
+    worst = drop.loc[shift.idxmax()]
+    return [
+        "-" * 70,
+        title,
+        f"      F = {base:.3f} on all subjects; "
+        f"{drop['observed_stat'].min():.3f} to {drop['observed_stat'].max():.3f} "
+        f"across the {len(drop)} leave-one-out fits",
+        f"      largest shift: dropping {worst['dropped']} moves F by "
+        f"{worst['observed_stat'] - base:+.3f} (p there = {worst['p']:.4g})",
+        f"      p range across folds: {drop['p'].min():.4g} to {drop['p'].max():.4g}",
+    ]
+
+
+def _coordinate_lines(coord_res, title, positive):
+    """The §5.2-secondary block: block F and per-axis slopes, pooled and per
+    hemisphere. ``positive`` names what a positive slope means for the value."""
+    if not coord_res:
+        return []
+    lines = ["-" * 70, title]
+    for h, r in coord_res.items():
+        if not np.isfinite(r.get('observed_stat', np.nan)):
+            lines.append(f"      [{h}] {r.get('note', 'not estimable')}")
+            continue
+        s = "  ".join(f"{row.axis}={row.slope_per_mm:+.5f} (p={row.p:.4g})"
+                      for row in r['slopes'].itertuples())
+        lines.append(f"      [{h}] F = {r['observed_stat']:.3f}  p = {r['p']:.4g}"
+                     f"  (n={r['n_electrodes']})   {s}")
+    lines.append(f"      a POSITIVE mni_y slope = {positive} increases ANTERIORLY")
+    return lines
+
+
+def _coordinate_summary(coord_res):
+    """``relative_score_coordinate_test`` output in the shape `score_anatomy.json` keeps."""
+    return {h: dict(F=r['observed_stat'], p=r['p'], n_electrodes=r['n_electrodes'],
+                    slopes=r['slopes'].to_dict(orient='records'))
+            for h, r in (coord_res or {}).items()}
+
+
+def _coordinate_table(coord_res):
+    """One row per fit (all / lh / rh) and axis, with the fit's block F and p."""
+    rows = [dict(hemi=h, axis=row.axis, slope_per_mm=row.slope_per_mm, p=row.p,
+                 block_F=r['observed_stat'], block_p=r['p'],
+                 n_electrodes=r['n_electrodes'])
+            for h, r in (coord_res or {}).items() for row in r['slopes'].itertuples()]
+    return pd.DataFrame(rows, columns=['hemi', 'axis', 'slope_per_mm', 'p', 'block_F',
+                                       'block_p', 'n_electrodes'])
+
+
 def write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
                         scatter_diag, save_dir, roi_col='roi', alpha=0.05,
                         main_lines=()):
     """The continuous arm's `summary.txt`, written to be read top to bottom."""
-    level = "Destrieux label" if roi_col == 'anat' else "ROI"
-    sig = "significant" if roi_res['p'] < alpha else "n.s."
     lines = [
         "=" * 70,
         "N4 — CONTINUOUS SCORES -> ANATOMY (plan §5–§7)",
@@ -853,48 +954,13 @@ def write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
         "factor per effect.",
         "  delta = lwpc_s - lwps_s  (>0 = LWPC-dominant electrode)",
         "-" * 70,
-        f"§5.2 PRIMARY — delta ~ {level} + responsiveness + (1|subject), "
-        f"within-electrode swap null:",
-        f"      F = {roi_res['observed_stat']:.3f}   permutation p = {roi_res['p']:.4g}"
-        f"  -> {sig}",
-        f"      {level}s tested (coverage-filtered): {roi_res['rois_tested']}",
-        f"      electrodes = {roi_res['n_electrodes']}, subjects = {roi_res['n_subjects']}",
-        roi_res['per_roi'].to_string(index=False),
+        *_roi_test_lines(roi_res, 'delta', roi_col, alpha),
     ]
-    if 'note' in roi_res:
-        lines.append(f"      NOTE: {roi_res['note']}")
-    if 'observed_stat' in loso and len(loso) > 1:
-        # Leverage is read off the STATISTIC, not the p-value: p saturates at the
-        # permutation floor, so a result carried by one subject and one that is
-        # not both print 0.0005 here.
-        base = float(loso.loc[loso['dropped'] == '(none)', 'observed_stat'].iloc[0])
-        drop = loso[loso['dropped'] != '(none)']
-        shift = (drop['observed_stat'] - base).abs()
-        worst = drop.loc[shift.idxmax()]
-        lines += [
-            "-" * 70,
-            "§9.2 leverage — the same test with each subject dropped "
-            "(fewer permutations):",
-            f"      F = {base:.3f} on all subjects; "
-            f"{drop['observed_stat'].min():.3f} to {drop['observed_stat'].max():.3f} "
-            f"across the {len(drop)} leave-one-out fits",
-            f"      largest shift: dropping {worst['dropped']} moves F by "
-            f"{worst['observed_stat'] - base:+.3f} (p there = {worst['p']:.4g})",
-            f"      p range across folds: {drop['p'].min():.4g} to {drop['p'].max():.4g}",
-        ]
-    if coord_res:
-        lines += ["-" * 70,
-                  "§5.2 SECONDARY — delta ~ MNI coordinates (slopes in delta units/mm):"]
-        for h, r in coord_res.items():
-            if not np.isfinite(r.get('observed_stat', np.nan)):
-                lines.append(f"      [{h}] {r.get('note', 'not estimable')}")
-                continue
-            s = "  ".join(f"{row.axis}={row.slope_per_mm:+.5f} (p={row.p:.4g})"
-                          for row in r['slopes'].itertuples())
-            lines.append(f"      [{h}] F = {r['observed_stat']:.3f}  p = {r['p']:.4g}"
-                         f"  (n={r['n_electrodes']})   {s}")
-        lines.append("      a POSITIVE mni_y slope = LWPC dominance increases "
-                     "ANTERIORLY")
+    lines += _leverage_lines(loso, "§9.2 leverage — the same test with each subject "
+                                   "dropped (fewer permutations):")
+    lines += _coordinate_lines(coord_res, "§5.2 SECONDARY — delta ~ MNI coordinates "
+                                          "(slopes in delta units/mm):",
+                               "LWPC dominance")
     if centers and centers.get('n_groups'):
         d = centers['mean_displacement']
         lines += [

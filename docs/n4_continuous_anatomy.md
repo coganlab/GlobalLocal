@@ -1648,12 +1648,18 @@ it is a paired difference, so every test in this document takes
 
 | Output | Contents |
 |---|---|
-| `summary.txt`, block `MAIN EFFECTS` | dm parcel test, main-effect reliabilities, Test 1 and Test 2 tables |
+| `summary.txt`, block `MAIN EFFECTS` | dm's own anatomy, laid out like delta's blocks: the primary label test with its per-label rows, the leave-one-subject-out sweep, and the coordinate test (pooled, lh, rh). Then the main-effect reliabilities, Test 1 and Test 2. |
 | `score_anatomy.json`, key `main_effects` | the same numbers |
-| `dm_per_roi.csv`, `dm_by_roi.png` | the parcel test on dm (column names as in `delta_per_roi.csv`) |
+| `dm_per_roi.csv`, `dm_by_roi.png` | the label test on dm; columns as in `delta_per_roi.csv`, with `mean_dm`/`mean_dm_adj` for `mean_delta`/`mean_delta_adj` |
+| `dm_roi_loso.csv` | the label test on dm with each subject dropped (as `delta_roi_loso.csv`) |
+| `dm_coordinates.csv` | `dm ~ y + z + x + resp + subject`: one row per fit (`all`, `lh`, `rh`) and axis, with the slope, its p, and the fit's block F and p |
 | `score_map_cong_s.png`, `score_map_switch_s.png`, `score_map_dm.png` | main-effect maps (with `MAKE_BRAIN=1`) |
 | `delta_tracking.csv` | Test 1 |
 | `tilt_with_dm.csv` | Test 2 |
+
+Read dm's anatomy like delta's (§4, §5), with congruency in place of LWPC:
+a positive adjusted mean or slope means relatively congruency-dominant there, or
+increasingly so along that axis.
 
 The segregation run's own `summary.txt` and `correlation_main_effects.json`
 report the congruency–switch co-localization on the same halves.
