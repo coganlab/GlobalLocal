@@ -116,6 +116,38 @@ def test_test2_shrinks_an_inherited_tilt_and_leaves_an_independent_one(worlds):
     assert tn.loc['delta + dm', 'p'] < 0.05
 
 
+def test_continuous_arm_runs_the_label_and_coordinate_tests_on_dm(tmp_path):
+    """The job saves and prints dm's label test, leverage sweep and coordinate
+    test, and recovers the synthetic route's planted anterior/posterior layout."""
+    import json
+    from types import SimpleNamespace
+    dcc = pytest.importorskip('dcc_scripts.stats.stability_flexibility_anatomy_dcc')
+    dcc.run_score_anatomy(SimpleNamespace(
+        data_source='synthetic', save_dir=str(tmp_path), seed=0, n_perm=200,
+        min_subjects=3, roi_filter=None, anat_level='auto', make_brain=False,
+        alpha=0.05, subjects=[]))
+    out = tmp_path / 'continuous'
+
+    per_roi = pd.read_csv(out / 'dm_per_roi.csv')
+    assert {'mean_dm', 'mean_dm_adj', 'q'} <= set(per_roi.columns)
+    loso = pd.read_csv(out / 'dm_roi_loso.csv')
+    assert (loso['dropped'] == '(none)').sum() == 1 and len(loso) > 2
+    coords = pd.read_csv(out / 'dm_coordinates.csv').set_index(['hemi', 'axis'])
+    assert set(coords.index.get_level_values('hemi')) == {'all', 'lh', 'rh'}
+    # the inherited world plants congruency anteriorly and switch posteriorly
+    assert coords.loc[('all', 'mni_y'), 'slope_per_mm'] > 0
+    assert coords.loc[('all', 'mni_y'), 'p'] < 0.05
+
+    summary = (out / 'summary.txt').read_text()
+    for block in ('§5.2 PRIMARY — dm ~', '§9.2 leverage — the dm test',
+                  '§5.2 SECONDARY — dm ~ MNI coordinates',
+                  'congruency dominance increases ANTERIORLY', 'TEST 1', 'TEST 2'):
+        assert block in summary
+    main = json.loads((out / 'score_anatomy.json').read_text())['main_effects']
+    assert set(main['coordinates']) == {'all', 'lh', 'rh'}
+    assert len(main['per_roi']) == len(per_roi)
+
+
 def test_test1_finds_tracking_only_when_inherited(worlds):
     inh = sfa.delta_tracking_test(*worlds['inherited'], n_perm=500).set_index('comparison')
     ind = sfa.delta_tracking_test(*worlds['independent'], n_perm=500).set_index('comparison')
