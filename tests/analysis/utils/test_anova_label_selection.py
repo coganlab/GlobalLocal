@@ -2,8 +2,8 @@ import pandas as pd
 import pytest
 
 from src.analysis.utils.anova_label_selection import (
-    anova_label_run_slug, load_anova_labels, load_anova_label_electrodes,
-    selected_pairs)
+    anova_label_run_slug, contrast_mode_from_path, load_anova_labels,
+    load_anova_label_electrodes, selected_pairs)
 
 
 def _csv(tmp_path):
@@ -71,10 +71,29 @@ def test_both_selects_stability_flexibility_intersection(tmp_path):
     ("congruency_only", {("D1", "A1")}),
     ("switch_type", {("D1", "A2"), ("D2", "B1")}),
     ("switch_type_only", {("D1", "A2")}),
+    ("union", {("D1", "A1"), ("D1", "A2"), ("D2", "B1")}),
 ])
 def test_full_and_exclusive_effect_sets(tmp_path, effect, expected):
     assert selected_pairs(load_anova_label_electrodes(
         _csv(tmp_path), effect, correction="flags")) == expected
+
+
+def test_union_leaves_out_electrodes_with_neither_effect(tmp_path):
+    path = tmp_path / "anova_labels.csv"
+    pd.DataFrame({"subject": ["D1", "D1"], "electrode": ["A1", "A2"],
+                  "S": [1, 0], "F": [0, 0]}).to_csv(path, index=False)
+    assert selected_pairs(load_anova_label_electrodes(path, "union")) == {("D1", "A1")}
+
+
+@pytest.mark.parametrize("path, mode", [
+    ("results/epochs/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none",
+     "condition"),
+    ("results/epochs/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_fdr_bh/"
+     "anova_labels.csv", "proportion"),
+    ("results/epochs/my_labels/anova_labels.csv", None),
+])
+def test_contrast_mode_is_read_off_the_a1_folder_name(path, mode):
+    assert contrast_mode_from_path(path) == mode
 
 
 def test_both_requires_stability_and_flexibility_columns(tmp_path):

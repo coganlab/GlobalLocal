@@ -25,8 +25,12 @@ Designs:
   (a) label transfer: train on stability, test on flexibility (and vice versa),
       SEPARATELY on the both / S_only / F_only groups, plus the UNSELECTED
       reference group (`args.reference_group`, default 'all' = every electrode in
-      the decoded ROI array). Prediction: only 'both' cross-decodes; the
-      reference group says what the region does before any selection.
+      the decoded ROI array). Each group also decodes each contrast within
+      itself, on the same trials and folds: the ceiling every transfer is read
+      against. Prediction: only 'both' cross-decodes; the reference group says
+      what the region does before any selection. With main-effect labels
+      (`args.contrast_mode == 'condition'`) S_only / F_only are named
+      congruency_only / switch_type_only.
       This design is ALREADY pooled: its classes are every 'i' cell vs every 'c'
       cell and every 's' cell vs every 'r' cell, across both block proportions.
       Only design (0)/(0b) splits by proportion.
@@ -60,7 +64,11 @@ whole path and that the analysis discriminates the two codes.
 With `args.analysis == 'block_transfer'` the job runs N3b instead
 (`run_block_transfer_job`, docs/n3b_block_transfer.md): each contrast is trained
 in one block level and tested in the other, on every electrode of the ROI, with
-no electrode groups.
+no electrode groups. `args.analysis == 'task_transfer'` runs the task-transfer
+positive controls through the same function (docs/cross_decoding_controls.md
+§3.5): task trained on congruent (repeat) trials and tested on incongruent
+(switch) ones, and congruency / switch type trained in one task, tested in the
+other.
 
 Driven by `run_stability_flexibility_cross_decoding_dcc.py` (wrapped by
 `sbatch_stability_flexibility_cross_decoding_dcc.sh`). Not run directly on the
@@ -122,6 +130,9 @@ EFFECT_MEASURE = 'cluster'
 
 # how each block factor is spelled in result keys and figures
 _BLOCK_TAG = {'incongruent_proportion': 'incongruent', 'switch_proportion': 'switch'}
+
+# each label transfer -> the within decode of the labelling it is SCORED on
+_TRANSFER_CEILINGS = {'stab_to_flex': 'flex_to_flex', 'flex_to_stab': 'stab_to_stab'}
 
 
 # ---------------------------------------------------------------------------
@@ -321,7 +332,9 @@ def write_summary(results, save_dir, meta):
                              f"sig={r['n_sig_windows']}/{r['n_windows']}w")
 
     lines += ["-" * 72,
-              "A4(a) label transfer (train stability, test flexibility) by group:",
+              "A4(a) label transfer by group. stab = congruency (i vs c), flex = switch",
+              "      type (s vs r); stab_to_stab / flex_to_flex are the within-contrast",
+              "      ceilings, decoded on the same trials with the same folds.",
               "      prediction: only the 'both' group cross-decodes.",
               f"      '{meta.get('reference_group') or 'all'}' is the UNSELECTED "
               "reference set (every electrode in the",
@@ -335,6 +348,11 @@ def write_summary(results, save_dir, meta):
                 f"   [{g}] {direction}: mean acc={r['mean_accuracy']:.3f} "
                 f"peak={r['peak_accuracy']:.3f} (shuffle {r['shuffle_mean']:.3f}) "
                 f"sig windows={r['n_sig_windows']}/{r['n_windows']}")
+            if 'n_below_ceiling' in r:
+                ceiling = _TRANSFER_CEILINGS[direction]
+                lines.append(
+                    f"         vs {ceiling}, its ceiling: below it in {r['n_below_ceiling']} "
+                    f"windows; keeps {_retained_text(r, res[ceiling])} of it above chance")
 
     if results.get('temporal'):
         lines += ["-" * 72, "A4(c) temporal generalization (Fig 10):"]
@@ -464,26 +482,44 @@ def _resolve_labels(args, df=None):
         fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
 
-def _electrode_groups(labels):
+# The A1 table keeps one schema in both contrast modes (S = CPC, F = SPS), but
+# what the flags MEAN differs: the LWPC / LWPS interactions under 'proportion',
+# the congruency / switch-type MAIN effects under 'condition'. Groups are named
+# after what they hold, so a main-effect run never reports an "S_only" group.
+_GROUP_NAMES = {'proportion': ('both', 'S_only', 'F_only'),
+                'condition': ('both', 'congruency_only', 'switch_type_only')}
+
+
+def _electrode_groups(labels, contrast_mode='proportion'):
     """The three DISJOINT label-transfer groups, as ROI-array channel names."""
     chan = _channel_keys(labels)
     S = (labels['S'] == 1).to_numpy()
     F = (labels['F'] == 1).to_numpy()
+    both, s_only, f_only = _GROUP_NAMES[contrast_mode]
     return {
-        'both': chan[S & F].tolist(),
-        'S_only': chan[S & ~F].tolist(),
-        'F_only': chan[~S & F].tolist(),
+        both: chan[S & F].tolist(),
+        s_only: chan[S & ~F].tolist(),
+        f_only: chan[~S & F].tolist(),
     }
 
 
-def _interaction_groups(labels):
+def _interaction_groups(labels, contrast_mode='proportion'):
     """The FOUR interaction-defined electrode sets (possibly overlapping), keyed by
     the definition-group flag (CPC/SPS/CPS/SPC) so `cd.is_circular_decode` can name
     each set's double-dip cell. Used for the per-group within-block 2x2 that skips
-    the diagonal (define==decode) cell."""
+    the diagonal (define==decode) cell.
+
+    Main-effect labels (contrast_mode='condition') carry no interaction: their
+    CPC/SPS columns are the congruency / switch-type main effects, so the sets are
+    keyed 'congruency' / 'switch_type', whose circular cells are every decode of
+    their own contrast (`cd.MAIN_EFFECT_DECODE_CONTRAST`)."""
     chan = _channel_keys(labels)
-    return {flag: chan[(labels[flag] == 1).to_numpy()].tolist()
-            for flag in ('CPC', 'SPS', 'CPS', 'SPC') if flag in labels.columns}
+    if contrast_mode == 'condition':
+        flags = {'congruency': 'S', 'switch_type': 'F'}
+    else:
+        flags = {flag: flag for flag in ('CPC', 'SPS', 'CPS', 'SPC')}
+    return {name: chan[(labels[flag] == 1).to_numpy()].tolist()
+            for name, flag in flags.items() if flag in labels.columns}
 
 
 def _add_reference_group(groups, channel_names, args):
@@ -675,9 +711,9 @@ def _roi_channel_names(arrays, roi):
 
 
 # ---------------------------------------------------------------------------
-# N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md)
+# N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md), and the
+# task-transfer positive controls (docs/cross_decoding_controls.md §3.5)
 # ---------------------------------------------------------------------------
-# name -> (decoded contrast, block factor it is transferred across)
 BLOCK_TRANSFER_DESIGNS = {
     # name: (decoded contrast, transfer factor, pooled condition-set name)
     'X1': ('congruency', 'incongruent_proportion', 'stimulus_lwpc_conditions'),
@@ -687,6 +723,61 @@ BLOCK_TRANSFER_DESIGNS = {
     'X2b': ('switchType', 'incongruent_proportion',
            'stimulus_switch_type_by_incongruent_proportion_conditions'),
 }
+
+# The same train-in-one-level / test-in-the-other 2x2, across a trial-level
+# factor instead of a block. T1/T2 are the task x congruency and task x switch
+# type controls: task (global vs local) learned on congruent (repeat) trials and
+# tested on incongruent (switch) ones. T3/T4 swap the roles, so the contrast is
+# the A4 contrast at its own effect size. T2 and T4 carry the previous-task
+# confound: on a switch trial the previous task was the other one.
+TASK_TRANSFER_DESIGNS = {
+    'T1': ('task', 'congruency', 'stimulus_task_by_congruency_conditions'),
+    'T2': ('task', 'switchType', 'stimulus_task_by_switch_type_conditions'),
+    'T3': ('congruency', 'task', 'stimulus_task_by_congruency_conditions'),
+    'T4': ('switchType', 'task', 'stimulus_task_by_switch_type_conditions'),
+}
+
+TRANSFER_ANALYSES = {'block_transfer': BLOCK_TRANSFER_DESIGNS,
+                     'task_transfer': TASK_TRANSFER_DESIGNS}
+
+# how a transfer factor's levels are printed; block proportions print as '25%'
+_LEVEL_NAMES = {'congruency': {'c': 'congruent', 'i': 'incongruent'},
+                'switchType': {'r': 'repeat', 's': 'switch'},
+                'task': {'g': 'global', 'l': 'local'}}
+
+
+def _level_label(factor, level):
+    return _LEVEL_NAMES.get(factor, {}).get(level, f'{level}%')
+
+
+def _transfer_tag(factor, train, test):
+    """File-name tag for one transfer: '25to75' for a block, 'congruent_to_incongruent'."""
+    if factor in _LEVEL_NAMES:
+        return f'{_level_label(factor, train)}_to_{_level_label(factor, test)}'
+    return f'{train}to{test}'
+
+
+def _retained(transfer, ceiling, chance=0.5):
+    """Share of the ceiling's above-chance accuracy that a transfer keeps, over the
+    windows where the ceiling beats its shuffle null; None if it never does.
+
+    Both are summaries from `_summarise`, scored on the same test trials, so this
+    is the "transfer as a fraction of within-condition accuracy" of
+    docs/cross_decoding_controls.md §2: 1 = full transfer, 0 = none.
+    """
+    sig = np.asarray(ceiling['significant_windows'], bool)
+    if not sig.any():
+        return None
+    within = np.asarray(ceiling['acc_true']).mean(axis=1)[sig].mean()
+    across = np.asarray(transfer['acc_true']).mean(axis=1)[sig].mean()
+    if within <= chance:
+        return None
+    return float((across - chance) / (within - chance))
+
+
+def _retained_text(transfer, ceiling):
+    share = _retained(transfer, ceiling)
+    return "n/a (its ceiling never beats shuffle)" if share is None else f"{share:.0%}"
 
 
 def _window_centers(n_windows, args):
@@ -727,29 +818,61 @@ def _plot_block_transfer(results, args, roi):
     from src.analysis.decoding.plots.accuracies import plot_accuracies_nature_style
     for key, res in results.items():
         lo, hi = res['levels']
+        factor = res['block_col']
         for train, test in ((lo, hi), (hi, lo)):
             transfer = res['cells'][f'{train}->{test}']
             within = res['cells'][f'{test}->{test}']
+            into = f'{_level_label(factor, train)} -> {_level_label(factor, test)}'
             plot_accuracies_nature_style(
                 _window_centers(transfer['acc_true'].shape[0], args),
-                {f'within {test}%': within['acc_true'],
-                 f'{train}% -> {test}%': transfer['acc_true'],
+                {f'within {_level_label(factor, test)}': within['acc_true'],
+                 into: transfer['acc_true'],
                  'shuffle': transfer['acc_shuffle']},
                 significant_clusters=transfer['significant_windows'],
                 window_size=args.window_size, step_size=args.step_size,
                 sampling_rate=getattr(args, 'sampling_rate', 256),
-                comparison_name=f'{key}_{train}to{test}', roi=roi, save_dir=args.save_dir,
-                title=f"{res['design']} {res['contrast']}: {train}% -> {test}% "
+                comparison_name=f'{key}_{_transfer_tag(factor, train, test)}', roi=roi,
+                save_dir=args.save_dir,
+                title=f"{res['design']} {res['contrast']}: {into} "
                       f"({'centered' if res['centered'] else 'uncentered'})",
-                samples_axis=1, filename_suffix='block_transfer')
+                samples_axis=1,
+                filename_suffix=getattr(args, 'analysis', 'block_transfer'))
+
+
+def _task_effect_size_lines(results):
+    """Within-level task accuracy (T1) next to within-level congruency accuracy
+    (T3): the effect-size regime docs/closing_figure_plan.md asks the task
+    control to be read against."""
+    def within(key):
+        res = results.get(key)
+        if res is None:
+            return None
+        accs = [res['cells'][f'{level}->{level}']['post_mean_accuracy']
+                for level in res['levels']]
+        return None if None in accs else float(np.mean(accs))
+
+    task, cong = within('T1_uncentered'), within('T3_uncentered')
+    if task is None or cong is None:
+        return []
+    return ["-" * 72,
+            f"EFFECT SIZE: within-level task accuracy {task:.3f} (T1) vs congruency "
+            f"{cong:.3f} (T3), post-stimulus, uncentered.",
+            "   The further task sits above congruency, the more T1 shows only that the",
+            "   pipeline can transfer a strong code; T3 is the control at congruency's",
+            "   own effect size."]
 
 
 def _write_block_transfer_summary(results, meta, save_dir):
+    task_controls = meta.get('analysis') == 'task_transfer'
+
     def cell(s):
         acc = s['post_mean_accuracy']
         return ("n/a" if acc is None else f"{acc:.3f}") + f" ({s['n_sig_post']}/{s['n_sig_pre']})"
 
-    lines = ["=" * 72, "N3b BLOCK-TRANSFER CROSS-DECODING", "=" * 72]
+    lines = ["=" * 72,
+             "TASK-TRANSFER POSITIVE CONTROLS" if task_controls
+             else "N3b BLOCK-TRANSFER CROSS-DECODING",
+             "=" * 72]
     lines += [f"{k:>22}: {v}" for k, v in meta.items()]
     if meta['n_resamples'] < 5:
         lines.append(f"NOTE: with only {meta['n_resamples']} resamples the cluster tests "
@@ -758,40 +881,69 @@ def _write_block_transfer_summary(results, meta, save_dir):
     for key, res in results.items():
         lo, hi = res['levels']
         c = res['cells']
+        factor = res['block_col']
         lines += ["-" * 72,
-                  f"{key}: {res['contrast']}, trained in one {res['block_col']} level "
+                  f"{key}: {res['contrast']}, trained in one {factor} level "
                   "and tested in the other",
                   f"   balanced to {res['n_per_group']} trials per contrast x transfer cell "
                   f"(available: {res['group_sizes']})",
                   "   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):",
-                  f"   {'train | test':>14}{str(lo) + '%':>18}{str(hi) + '%':>18}"]
+                  f"   {'train | test':>14}{_level_label(factor, lo):>18}"
+                  f"{_level_label(factor, hi):>18}"]
         for train in (lo, hi):
-            lines.append(f"   {str(train) + '%':>14}{cell(c[f'{train}->{lo}']):>18}"
+            lines.append(f"   {_level_label(factor, train):>14}{cell(c[f'{train}->{lo}']):>18}"
                          f"{cell(c[f'{train}->{hi}']):>18}")
         for train, test in ((lo, hi), (hi, lo)):
-            lines.append(f"   {train}% -> {test}% vs within {test}%: below that ceiling in "
-                         f"{c[f'{train}->{test}']['n_below_ceiling']} windows")
-        flat = [f'{level}%' for level in (lo, hi) if c[f'{level}->{level}']['n_sig_post'] == 0]
+            transfer, ceiling = c[f'{train}->{test}'], c[f'{test}->{test}']
+            lines.append(f"   {_level_label(factor, train)} -> {_level_label(factor, test)} "
+                         f"vs within {_level_label(factor, test)}: below that ceiling in "
+                         f"{transfer['n_below_ceiling']} windows; keeps "
+                         f"{_retained_text(transfer, ceiling)} of it above chance")
+        flat = [_level_label(factor, level) for level in (lo, hi)
+                if c[f'{level}->{level}']['n_sig_post'] == 0]
         lines.append("   CEILING: " + (f"within {', '.join(flat)} never beats shuffle "
                                         "after stimulus onset -> nothing to transfer; "
                                         "this design is NOT interpretable" if flat else
                                         "both within-level decodes beat shuffle -> interpretable"))
         n_pre = sum(s['n_sig_pre'] for s in c.values())
-        if n_pre:
+        if n_pre and res['contrast'] == 'task':
+            lines.append(f"   PRE-STIMULUS: {n_pre} significant windows across the 2x2. The "
+                         "previous task predicts the current one on repeat trials, so some "
+                         "task information can precede the cue.")
+        elif n_pre:
             lines.append(f"   ARTIFACT FLAG: {n_pre} significant pre-stimulus windows across "
                          "the 2x2 (congruency/switch information cannot exist there yet)")
 
-    lines += ["=" * 72,
-              "Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the",
-              "within accuracy of the level it is TESTED on.",
-              "  transfer ~ within, centered and uncentered  -> the same code in both levels",
-              "  below within uncentered only                -> same axis, a tonic block shift",
-              "  below within centered, in BOTH directions   -> block context reorganizes the",
-              "                                                 code; check its cross-factor control",
-              "  below in one direction only                 -> the training level's code is",
-              "                                                 weaker, not a different axis",
-              "Resamples are not independent subjects, so window-wise p-values are optimistic.",
-              "=" * 72]
+    if task_controls:
+        lines += _task_effect_size_lines(results)
+        lines += ["=" * 72,
+                  "Reading (docs/cross_decoding_controls.md §3.5): compare each transfer with",
+                  "the within accuracy of the level it is TESTED on ('keeps X of it').",
+                  "  T1 task across congruency   -> the clean positive control: transfer ~",
+                  "                                 within means the pipeline carries a code",
+                  "                                 from one trial population to another",
+                  "  T2 task across switch type  -> confounded: on a switch trial the previous",
+                  "                                 task was the other one, so a drop is",
+                  "                                 expected even with a single task code",
+                  "  T3 / T4 congruency / switch -> the A4 contrasts, across task, at their",
+                  "  type across task               own effect size; set 'keeps X' beside the",
+                  "                                 A4 congruency <-> switch transfer's",
+                  "The task cue (frame colour) is drawn with the stimulus, so a task decoder is",
+                  "partly visual: T1 validates the code path, not congruency's effect size.",
+                  "Resamples are not independent subjects, so window-wise p-values are optimistic.",
+                  "=" * 72]
+    else:
+        lines += ["=" * 72,
+                  "Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the",
+                  "within accuracy of the level it is TESTED on.",
+                  "  transfer ~ within, centered and uncentered  -> the same code in both levels",
+                  "  below within uncentered only                -> same axis, a tonic block shift",
+                  "  below within centered, in BOTH directions   -> block context reorganizes the",
+                  "                                                 code; check its cross-factor control",
+                  "  below in one direction only                 -> the training level's code is",
+                  "                                                 weaker, not a different axis",
+                  "Resamples are not independent subjects, so window-wise p-values are optimistic.",
+                  "=" * 72]
     txt = "\n".join(lines)
     with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:
         f.write(txt + "\n")
@@ -799,24 +951,39 @@ def _write_block_transfer_summary(results, meta, save_dir):
 
 
 def run_block_transfer_job(args):
-    """N3b on every electrode of the decoded ROI array, with no electrode groups.
+    """N3b, or the task-transfer controls, on every electrode of the decoded ROI
+    array, with no electrode groups.
 
-    `args.electrodes` alone decides whether that means the task-significant
-    ('sig') or all ('all') electrodes of `args.roi`. Runs every design in
-    BLOCK_TRANSFER_DESIGNS, uncentered and centered, and writes
-    block_transfer.json, block_transfer_traces.npz, summary.txt and figures.
+    `args.analysis` picks the design table: 'block_transfer' (the default) runs
+    BLOCK_TRANSFER_DESIGNS, 'task_transfer' runs TASK_TRANSFER_DESIGNS.
+    `args.electrodes` alone decides whether the decoded electrodes are the
+    task-significant ('sig') or all ('all') electrodes of `args.roi`. Every design
+    runs uncentered and centered and writes <analysis>.json,
+    <analysis>_traces.npz, summary.txt and figures.
     """
+    analysis = getattr(args, 'analysis', 'block_transfer')
+    designs = TRANSFER_ANALYSES[analysis]
     cluster_kw = dict(n_perm=getattr(args, 'n_perm', 200), seed=getattr(args, 'seed', 42))
     if args.data_source == 'synthetic':
-        # A planted answer: 'block_specific' puts congruency on a different axis in
-        # each incongruent-proportion level, so X1 must fail while X3 transfers.
         # Synthetic epochs have no pre-stimulus period, so every window counts as post.
         args = SimpleNamespace(**{**vars(args), 'first_time_point': 0.0})
-        roi, cells = 'synthetic', cd.synthetic_condition_cells()
-        arrays = cd.synthetic_roi_labeled_arrays(
-            code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
-            block_code=('specific' if getattr(args, 'synthetic_code', None) == 'block_specific'
-                        else 'same'))
+        code = getattr(args, 'synthetic_code', None)
+        roi = 'synthetic'
+        if analysis == 'task_transfer':
+            # Planted answers: 'congruency_specific' puts task on a different axis
+            # on incongruent trials, so T1 must fail while T2 transfers; 'carryover'
+            # adds previous-task activity, which T2 and T4 cannot escape and T1 can.
+            cells = cd.synthetic_task_condition_cells()
+            arrays = cd.synthetic_task_labeled_arrays(
+                task_code='congruency_specific' if code == 'congruency_specific' else 'shared',
+                carryover=0.6 if code == 'carryover' else 0.0, seed=getattr(args, 'seed', 0))
+        else:
+            # A planted answer: 'block_specific' puts congruency on a different axis in
+            # each incongruent-proportion level, so X1 must fail while X3 transfers.
+            cells = cd.synthetic_condition_cells()
+            arrays = cd.synthetic_roi_labeled_arrays(
+                code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
+                block_code='specific' if code == 'block_specific' else 'same')
         n_channels = next(iter(arrays[roi].values())).shape[1]
     else:
         from src.analysis.utils.general_utils import resolve_lab_root
@@ -825,21 +992,25 @@ def run_block_transfer_job(args):
         LAB_root = resolve_lab_root(args.LAB_root)
         n_channels = None
 
-    results, traces = {}, {}
-    for name, (contrast, block_col, conditions_name) in BLOCK_TRANSFER_DESIGNS.items():
+    results, traces, loaded = {}, {}, {}
+    for name, (contrast, block_col, conditions_name) in designs.items():
         if args.data_source != 'synthetic':
-            design_args = SimpleNamespace(
-                **{**vars(args),
-                   'conditions': getattr(experiment_conditions, conditions_name)})
-            roi, arrays, channel_names, cells = _build_roi_arrays(
-                design_args, LAB_root, required_fields=(contrast, block_col))
+            # T1/T3 and T2/T4 decode the same condition set; load each set once
+            if conditions_name not in loaded:
+                design_args = SimpleNamespace(
+                    **{**vars(args),
+                       'conditions': getattr(experiment_conditions, conditions_name)})
+                loaded[conditions_name] = _build_roi_arrays(
+                    design_args, LAB_root, required_fields=(contrast, block_col))
+            roi, arrays, channel_names, cells = loaded[conditions_name]
             if n_channels is None:
                 n_channels = len(channel_names)
             elif n_channels != len(channel_names):
-                raise ValueError("N3b condition sets produced different electrode counts")
+                raise ValueError(f"{analysis} condition sets produced different "
+                                 "electrode counts")
         for center in (False, True):
             key = f"{name}_{'centered' if center else 'uncentered'}"
-            print(f"N3b {key}: {contrast} across {block_col}")
+            print(f"{analysis} {key}: {contrast} across {block_col}")
             out = bt.run_block_transfer(
                 arrays, roi, cells, contrast, block_col, center=center,
                 n_resamples=args.n_repeats, n_splits=args.n_splits,
@@ -856,19 +1027,20 @@ def run_block_transfer_job(args):
                 n_per_group=out['n_per_group'],
                 cells={f'{train}->{test}': s for (train, test), s in summary.items()})
             for (train, test), s in summary.items():
-                traces[f'{key}_{train}to{test}_true'] = s['acc_true']
-                traces[f'{key}_{train}to{test}_shuffle'] = s['acc_shuffle']
+                tag = _transfer_tag(block_col, train, test)
+                traces[f'{key}_{tag}_true'] = s['acc_true']
+                traces[f'{key}_{tag}_shuffle'] = s['acc_shuffle']
 
-    meta = dict(data_source=args.data_source, roi=roi, electrodes=args.electrodes,
-                n_channels=n_channels,
+    meta = dict(analysis=analysis, data_source=args.data_source, roi=roi,
+                electrodes=args.electrodes, n_channels=n_channels,
                 epochs_root_file=getattr(args, 'epochs_root_file', None),
                 window_size=args.window_size, step_size=args.step_size,
                 n_splits=args.n_splits, n_resamples=args.n_repeats,
                 n_perm=cluster_kw['n_perm'], seed=cluster_kw['seed'],
                 save_dir=args.save_dir)
-    with open(os.path.join(args.save_dir, 'block_transfer.json'), 'w') as f:
+    with open(os.path.join(args.save_dir, f'{analysis}.json'), 'w') as f:
         json.dump(_json_safe(_strip_arrays(dict(meta, designs=results))), f, indent=2)
-    np.savez(os.path.join(args.save_dir, 'block_transfer_traces.npz'), **traces)
+    np.savez(os.path.join(args.save_dir, f'{analysis}_traces.npz'), **traces)
     _plot_block_transfer(results, args, roi)
     _write_block_transfer_summary(results, meta, args.save_dir)
     return results
@@ -879,7 +1051,7 @@ def run_block_transfer_job(args):
 # ---------------------------------------------------------------------------
 def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
-    if getattr(args, 'analysis', 'a4') == 'block_transfer':
+    if getattr(args, 'analysis', 'a4') in TRANSFER_ANALYSES:
         return run_block_transfer_job(args)
 
     # Decoder settings shared by every decode in this job.
@@ -950,9 +1122,10 @@ def main(args):
                   f"{df.electrode.nunique()} electrodes")
             labels = _resolve_labels(args, df)
 
-        a1_groups = _electrode_groups(labels)
+        contrast_mode = getattr(args, 'contrast_mode', CONTRAST_MODE)
+        a1_groups = _electrode_groups(labels, contrast_mode)
         labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
-        interaction_groups = _interaction_groups(labels)
+        interaction_groups = _interaction_groups(labels, contrast_mode)
         print("A1 electrode groups: "
               + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
 
@@ -997,7 +1170,13 @@ def main(args):
         transfer_pairs = [(f'{train_key}_to_{test_key}',
                            (contrast_strings[train_key], contrast_strings[test_key]))]
     else:
+        # The two within-contrast decodes are each transfer's ceiling: same trials,
+        # same folds, scored on the labelling the transfer is scored on
+        # (docs/cross_decoding_controls.md §2). A null transfer means nothing
+        # unless its ceiling beats chance.
         transfer_pairs = [
+            ('stab_to_stab', (stab_strings, stab_strings)),
+            ('flex_to_flex', (flex_strings, flex_strings)),
             ('stab_to_flex', (stab_strings, flex_strings)),
             ('flex_to_stab', (flex_strings, stab_strings))]
     # A condition set that POOLS over a proportion (e.g.
@@ -1107,6 +1286,12 @@ def main(args):
             out = cd.run_cross_decoding(restricted, roi, tr, te, **dec_kw)
             entry[direction] = _summarise(out, **cluster_kw)
             entry[direction]['n_channels'] = n_kept
+        for direction, ceiling in _TRANSFER_CEILINGS.items():
+            if direction in entry and ceiling in entry:
+                below, _ = perform_time_perm_cluster_test_for_accuracies(
+                    entry[ceiling]['acc_true'], entry[direction]['acc_true'], **cluster_kw)
+                entry[direction]['n_below_ceiling'] = int(np.asarray(below).astype(bool).sum())
+                entry[direction]['retained'] = _retained(entry[direction], entry[ceiling])
         lt[g] = entry
     results['label_transfer'] = lt
 

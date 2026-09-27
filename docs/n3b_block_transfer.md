@@ -264,7 +264,7 @@ In that run:
 - **Resamples aren't independent subjects,** so cluster p-values are optimistic. X1-vs-X3 on the same trials is the load-bearing contrast.
 - **Follow-ups if transfer sits at chance:** the PCA basis is fit on the training level (`cross_decoding_controls.md` §4.3). X4 and X5 aren't built: X4 needs a letter-identity condition set.
 - **Stale material:** `src/analysis/decoding/cross_decoding_tutorial.ipynb` and `docs/skeletons/a4_cross_decoding.py` describe functions that no longer exist.
-- **`TEMPGEN_GROUPS=both,all`** is cut at the comma by `sbatch --export` in the A4 submit script.
+- **The same job runs the task-transfer controls:** `ANALYSIS=task_transfer` (`submit_task_transfer_dcc.sh`) swaps the block for a trial-level factor — task across congruency and switch type, congruency and switch type across task (`cross_decoding_controls.md` §3.5).
 
 ## Changes to A4
 

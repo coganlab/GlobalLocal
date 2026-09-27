@@ -13,8 +13,9 @@
 #   bash submit_block_transfer_dcc.sh                        # lpfc, significant electrodes
 #   ROI=acc bash submit_block_transfer_dcc.sh                # another region (config/rois.py)
 #   ELECTRODES=all bash submit_block_transfer_dcc.sh         # every electrode
-#   DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific bash submit_block_transfer_dcc.sh
-#                                    # planted answer: X1 must fail, X3 must transfer
+#   DATA_SOURCE=synthetic SYNTHETIC_CODE=block_specific WINDOW_SIZE=16 STEP_SIZE=8 \
+#       bash submit_block_transfer_dcc.sh   # planted answer: X1 must fail, X3 must transfer
+# (synthetic epochs are 32 samples long, so the 64-sample default window does not fit)
 #
 # Results: results/<EPOCHS_ROOT_FILE>/block_transfer_<ROI>_<ELECTRODES>_w<W>s<S>/
 # pooled_design_conditions/ -> summary.txt first.

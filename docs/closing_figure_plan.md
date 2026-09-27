@@ -120,6 +120,8 @@ Reviewers will ask for it, but it is the least likely to give a clean result.
 
 Training a congruency decoder and testing it on switch-type labels inside each group asks about base-effect geometry, not adaptation. The diagonal cells are circular unless selection and decoding use disjoint trial halves. Drop it unless the whole-lPFC version below produces an interpretable result.
 
+How to run it, with the main-effect decoding and power traces in the same groups: §17.5 of [`analysis_guide.md`](analysis_guide.md).
+
 ### Congruency ↔ switch cross-decoding with task positive controls
 
 - **Upside:** if congruency ↔ switch transfer fails while a real positive control transfers, the paper can say "separable codes". With the anatomy's "overlapping population", that is the plan's pre-committed headline: overlapping tissue, separable codes.
@@ -129,6 +131,7 @@ Training a congruency decoder and testing it on switch-type labels inside each g
 - **Task × switch type has a real confound:** on switch trials the previous task was the other one, so leftover previous-task activity differs between training and test trials. Task × congruency is the cleaner control.
 - **Prerequisite:** within-condition accuracy for both congruency and switch type must clear chance, or a failed transfer means nothing.
 - **Verdict:** supplement S5.
+- **Implemented** (not yet run on real data): the A4 transfer now reports its within-contrast ceilings, and `submit_task_transfer_dcc.sh` runs task × congruency, task × switch type, and congruency / switch type across task. The accuracy matching is not built; the summary prints task against congruency within-level accuracy instead. Run recipe: §17.5 of [`analysis_guide.md`](analysis_guide.md); rationale: §3.5 of [`cross_decoding_controls.md`](cross_decoding_controls.md).
 
 ### Cross-proportion (block) transfer
 

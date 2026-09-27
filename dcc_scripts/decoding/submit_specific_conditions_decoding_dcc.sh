@@ -1,12 +1,23 @@
 #!/bin/bash
 # Submit decoding jobs for multiple conditions
+#
+#   bash submit_specific_conditions_decoding_dcc.sh
+#   CONDITIONS="stimulus_congruency_conditions stimulus_switch_type_conditions" \
+#   ANOVA_LABELS_CSV=/path/to/..._condition_none \
+#       bash submit_specific_conditions_decoding_dcc.sh    # main-effect decoding in
+#                                                          # each main-effect population
 
-CONDITIONS=(
-    stimulus_lwpc_block_balanced_conditions
-    stimulus_lwps_block_balanced_conditions
-    stimulus_congruency_by_switch_prop_block_balanced_conditions
-    stimulus_switch_type_by_inc_prop_block_balanced_conditions
-)
+# Space-separated CONDITIONS in the environment replace this list.
+if [[ -n "${CONDITIONS:-}" ]]; then
+    read -r -a CONDITIONS <<< "$CONDITIONS"
+else
+    CONDITIONS=(
+        stimulus_lwpc_block_balanced_conditions
+        stimulus_lwps_block_balanced_conditions
+        stimulus_congruency_by_switch_prop_block_balanced_conditions
+        stimulus_switch_type_by_inc_prop_block_balanced_conditions
+    )
+fi
 
 # Override this in the environment when decoding a different epochs dataset.
 # EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
@@ -63,14 +74,24 @@ fi
 #     both congruency_only switch_type_only
 # )
 
-if [[ -z "${ANOVA_LABELS_CSVS[0]:-}" ]]; then
-    # Dummy value: ignored when no saved ANOVA-label CSV is supplied.
-    # Keeping one value ensures each condition is submitted only once.
-    ANOVA_LABEL_EFFECTS=("dummy")
-elif [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
+# A space-separated ANOVA_LABEL_EFFECTS in the environment works too.
+read -r -a ANOVA_LABEL_EFFECTS <<< "${ANOVA_LABEL_EFFECTS[*]:-}"
+if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
     # Optional override when using a real saved-label CSV.
     ANOVA_LABEL_EFFECTS=("$ANOVA_LABEL_EFFECT")
 fi
+
+# With no list, a CSV gets every population its contrast mode defines. The A1
+# folder name says which mode (..._<roi>_<mode>_<correction>); both modes keep
+# their two effects in the same S/F columns, so the names must match the mode.
+default_effects() {
+    case "$1" in
+        *_condition_*|*_condition/*|*_condition)
+            echo both congruency switch_type congruency_only switch_type_only ;;
+        *_proportion_*|*_proportion/*|*_proportion)
+            echo both lwpc lwps lwpc_only lwps_only ;;
+    esac
+}
 
 ANOVA_LABEL_CORRECTION="${ANOVA_LABEL_CORRECTION:-flags}" # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA="${ANOVA_LABEL_ALPHA:-0.05}"
@@ -81,8 +102,22 @@ mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     ANOVA_LABELS_CSV="${ANOVA_LABELS_CSVS[$CSV_INDEX]}"
-    for EFFECT_INDEX in "${!ANOVA_LABEL_EFFECTS[@]}"; do
-        ANOVA_LABEL_EFFECT="${ANOVA_LABEL_EFFECTS[$EFFECT_INDEX]}"
+    if [[ -z "$ANOVA_LABELS_CSV" ]]; then
+        # Dummy value: ignored when no saved ANOVA-label CSV is supplied.
+        # Keeping one value ensures each condition is submitted only once.
+        EFFECTS_THIS_CSV=("dummy")
+    elif [[ ${#ANOVA_LABEL_EFFECTS[@]} -gt 0 ]]; then
+        EFFECTS_THIS_CSV=("${ANOVA_LABEL_EFFECTS[@]}")
+    else
+        read -r -a EFFECTS_THIS_CSV <<< "$(default_effects "$ANOVA_LABELS_CSV")"
+        if [[ ${#EFFECTS_THIS_CSV[@]} -eq 0 ]]; then
+            echo "Skipping $ANOVA_LABELS_CSV: its folder names no contrast mode;" \
+                 "set ANOVA_LABEL_EFFECTS explicitly."
+            continue
+        fi
+    fi
+    for EFFECT_INDEX in "${!EFFECTS_THIS_CSV[@]}"; do
+        ANOVA_LABEL_EFFECT="${EFFECTS_THIS_CSV[$EFFECT_INDEX]}"
         for COND in "${CONDITIONS[@]}"; do
             echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
             sbatch --job-name="dec_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}" \
