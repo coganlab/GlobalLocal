@@ -171,6 +171,15 @@ Diagnostic panels for trial counts, electrode counts, p-values/q-values, split-h
 - `labels.csv` or similarly named label table: per-electrode continuous scores, p/q values, and thresholded S/F calls.
 - Permutation/null arrays or JSON summaries: support the plotted null distributions.
 
+## A6 brain–behavior output directory
+
+Typical directory name:
+`results/<epochs_root_file>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<rois>_<neural_summary>/`.
+Every file, the column definitions and how to read them are in
+[`a6_brain_behavior.md`](a6_brain_behavior.md) §9–§10. Read `summary.txt` first.
+Its section (1) is the per-participant result, reported RT-adjusted with its
+reliability ceiling; `participant_brain_behavior.png` is its figure.
+
 ## Power-traces conjunction output directory
 
 Typical directory name: `power_traces_conjunction_results/<run>/<correction>_alpha<alpha>/<roi>`.

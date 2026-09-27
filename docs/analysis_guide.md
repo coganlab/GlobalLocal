@@ -680,7 +680,9 @@ Path-level tests live under `tests/analysis/`:
 | `stats/test_stability_flexibility_anova_labels.py` | A1's four-interaction definition |
 | `stats/test_cmh_uninformative_strata.py` | the CMH empty-marginal fix (§14.5) |
 | `stats/test_stability_flexibility_timing.py` | A5, incl. the amplitude-invariance guard |
-| `stats/test_stability_flexibility_brain_behavior.py` | A6 |
+| `stats/test_stability_flexibility_brain_behavior.py` | A6 levels 2–3, and the blockType → proportion map pinned against the task code and `combinedData.csv` |
+| `stats/test_participant_brain_behavior.py` | A6 level 1: per-participant scores, the RT adjustment, shared-split reliability (§19) |
+| `stats/test_assemble_long_df.py` | the long table's `trial` / `rt` / `acc` columns |
 | `utils/test_labeled_array_utils.py`, `utils/test_general_utils.py` | shared plumbing |
 | `preproc/test_time_perm_cluster.py` | cluster permutation |
 
@@ -2570,35 +2572,60 @@ bin and carries no latency information — widen the window).
 
 ## 19. A6 — brain–behavior
 
-**Motivation.** Tie the neural selectivity to the **actual behavioral control
-adjustment**, so the substrates are shown to be *functional*. Two levels:
+> **Runbook and reading guide: [`a6_brain_behavior.md`](a6_brain_behavior.md).**
+> It covers the 2026-09-27 fixes (the behavioral block map, behavior from the same
+> trials, the ROI filter), the per-participant scores, the RT confound, every
+> output file and how to read it. This section is the summary.
 
-1. **Across subjects** (n = subjects, honest but underpowered) — does a subject
-   with more/stronger LWPC electrodes show a larger behavioral LWPC (congruency ×
+**Motivation.** Tie the neural adaptation to the **actual behavioral control
+adjustment**, so the substrates are shown to be *functional*. Three levels:
+
+1. **Across participants, continuous scores** (the version to report) — each
+   participant's mean signed per-electrode LWPC / LWPS d against its behavioral
+   LWPC / LWPS, both from the same trials, raw and with the RT-linked part of HG
+   removed, with split-half reliabilities and the ceiling they put on the
+   correlation.
+2. **Across subjects, label-based** (comparison only) — does a subject with
+   more/stronger LWPC electrodes show a larger behavioral LWPC (congruency ×
    incongruent-proportion) RT effect, and likewise LWPS?
-2. **Within subject, single-trial** (preferred, the powered test) — does
-   trial-by-trial HG in the LWPC electrode group predict the trial-by-trial
-   congruency-sequence RT adjustment (LWPS group ↔ switch adjustment), via a mixed
-   model with a subject random effect?
+3. **Within subject, single-trial** — does trial-by-trial HG in the LWPC electrode
+   group predict the trial-by-trial congruency-sequence RT adjustment (LWPS group ↔
+   switch adjustment), via a mixed model with a subject random effect?
 
 **Method.**
 
-1. Assembles the same window-mean long table as A1/A2/A3 and runs the A1 electrode
-   definition (`per_electrode_anova_labels`, `contrast_mode='proportion'`) →
-   per-electrode `S`/`F` flags.
-2. **Behavior**: per-subject LWPC/LWPS RT magnitudes from the raw trial table
-   (`combinedData.csv`; `subject_ID` renamed to `subject` on load) via
-   `behavioral_lwpc_lwps_magnitudes` — the **same** equal-cell-weight
-   difference-of-differences used for the neural interaction, so brain and
-   behavior are measured on the identical contrast.
-3. **Across subjects** (`subject_level_brain_behavior`) for all three neural
+1. Assembles the same window-mean long table as A1/A2/A3 (now with `trial`, `rt`
+   and `acc` from the epochs metadata), restricted to `ROIS` × `ELECTRODES`, and
+   runs the A1 electrode definition (`per_electrode_anova_labels`,
+   `contrast_mode='proportion'`) → per-electrode `S`/`F` flags.
+2. **Behavior**: per-participant LWPC/LWPS RT magnitudes from the long table's own
+   trials via `behavioral_lwpc_lwps_magnitudes` — the **same** equal-cell-weight
+   difference-of-differences used for the neural interaction, on the same trials.
+   `combinedData.csv` is only a cross-check. Its `blockType` map was wrong before
+   2026-09-27 (A and D swapped), which made the behavioral "LWPC" a congruency ×
+   switch-proportion contrast.
+3. **Per-participant scores** (`participant_scores`, `participant_brain_behavior`,
+   `rt_adjust_hg`): the mean of each participant's per-electrode d (raw and
+   RT-adjusted), reliabilities from one trial split per participant shared by all
+   its electrodes, matched and cross correlations, a joint regression of each
+   behavioral score on both neural scores, and a disjoint-half check.
+4. **Across subjects, label-based** (`subject_level_brain_behavior`) for all three
    summaries — `count` (`n_S`/`n_F`), `frac`, and `effect` (mean interaction F) —
    each with its **cross-pairing** control.
-4. **Within subject, single trial** (`trialwise_brain_behavior`).
+5. **Within subject, single trial** (`trialwise_brain_behavior`).
    `assemble_trial_table` builds a per-(subject, trial) table with RT and the
    window-mean HG averaged over the LWPC and LWPS electrode groups; the mixed model
    `adjustment ~ group HG` with a subject random intercept is then fit for the
    **matched** and the **cross** adjustment.
+
+**The RT confound.** If single-trial HG tracks RT within a cell, every electrode's
+d-o-d contains that slope × the participant's behavioral d-o-d. That builds a
+matched brain–behavior correlation, and a cross one in proportion to the
+behavioral LWPC–LWPS correlation (0.44), so "matched beats cross" and the joint
+regression both pass on RT coupling alone. `rt_adjust_hg` removes the RT-linked
+part of HG with the pooled within-cell slope (the ANCOVA slope over the 16 design
+cells); level (1) reports both variants. Details and a synthetic demonstration:
+[`a6_brain_behavior.md`](a6_brain_behavior.md) §4.1.
 
 **How the trial-level adjustment columns are defined.** `trialwise_brain_behavior`
 deliberately takes the adjustment columns as *input* — the operationalization is a
@@ -2620,54 +2647,67 @@ switchType × switch_proportion. **RT and the group HG are both centered within
 subject**, so the slope is a purely within-subject quantity — with an uncentered
 predictor, between-subject differences in mean HG would leak into the common
 slope, which is exactly what the "within subject" framing is meant to exclude.
+Because `w` averages about −0.5 over a subject's trials, a plain HG–RT correlation
+still leaks into both the matched and the cross slope; read level 3 with that in
+mind ([`a6_brain_behavior.md`](a6_brain_behavior.md) §11).
 
 **Scripts** (`dcc_scripts/stats`, prefix `stability_flexibility_brain_behavior`):
 
 ```bash
 cd dcc_scripts/stats
-# a planted matched coupling that beats its cross control at BOTH levels:
+# a planted link with RT coupling on top, and a matched coupling that beats its
+# cross control at levels 2 and 3:
 DATA_SOURCE=synthetic bash submit_stability_flexibility_brain_behavior_dcc.sh
+# the RT confound alone: level-1 raw r positive, RT-adjusted r ~0
+DATA_SOURCE=synthetic SYNTHETIC_LINK=0 SYNTHETIC_RT_COUPLING=0.4 SYNTHETIC_N_SUBJ=24 \
+    bash submit_stability_flexibility_brain_behavior_dcc.sh
 # the falsification: each neural group drives BOTH adjustments equally;
 # `specificity_ok` must stop holding:
 DATA_SOURCE=synthetic SYNTHETIC_CROSS_FRAC=1.0 \
     bash submit_stability_flexibility_brain_behavior_dcc.sh
-# real run — set EPOCHS_ROOT_FILE (and BEHAVIOR_CSV if not the repo-root copy):
+# real run — task-significant lPFC, 0-1.5 s, the N4 epochs file:
 bash submit_stability_flexibility_brain_behavior_dcc.sh
 ```
 
-| Variable | Default | Meaning |
+| Variable | Submitter default | Meaning |
 |---|---|---|
-| `DATA_SOURCE` | `real` | `real` = epoched data + behavioral CSV; `synthetic` = ground-truth dry run. |
-| `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
-| `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only: planted coupling strengths. |
-| `BEHAVIOR_CSV` | repo-root `combinedData.csv` | raw trial-level behavior. |
-| `BEHAVIOR_RT_COL` | `RT` | RT column in that table. |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window. |
-| `ELECTRODES` | `all` | `all` or `sig`. |
-| `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
-| `NEURAL_SUMMARY` | `count` | which per-subject neural summary headlines the across-subject level (`count`/`frac`/`effect`); all three are computed. |
-| `RUN_TRIALWISE` | `1` | set `0` for the across-subject level only (the single-trial level needs per-trial RT in the epochs metadata). |
+| `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
+| `ELECTRODES` / `ROIS` | `sig` / `lpfc` | the electrode set. `ELECTRODES` only filters when `ROIS` names a region (`ROIS=all` keeps every channel). |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | analysis window. |
+| `MIN_ELEC` | `3` | participants with fewer usable electrodes get no level-1 neural score. |
+| `PARTICIPANT_N_SPLITS` | `200` | shared trial splits behind the level-1 reliabilities. |
+| `BEHAVIOR_CSV` / `BEHAVIOR_RT_COL` | repo-root `combinedData.csv` / `RT` | cross-check only; a missing file skips it. |
+| `SYNTHETIC_LINK` / `SYNTHETIC_RT_COUPLING` | `0.6` / `0.3` | synthetic only, level 1: the planted brain–behavior r, and HG noise SDs per RT SD. |
+| `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only, levels 2–3: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
+| `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only, levels 2–3: planted coupling strengths. |
+| `ALPHA` / `FDR_CORRECTION` | `0.05` / `none` | A1 threshold for the level-2 S/F flags. |
+| `NEURAL_SUMMARY` | `count` | which label-based summary level 2 stars (`count`/`frac`/`effect`); all three are computed. |
+| `RUN_TRIALWISE` | `1` | set `0` to skip level 3. |
 
 **Outputs** →
-`results/<epochs_or_synthetic_tag>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<neural_summary>/`:
+`results/<epochs_or_synthetic_tag>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<rois>_<neural_summary>/`:
 
-- `electrode_labels.csv` — the A1 per-electrode S/F labels A6 sits on.
-- `behavioral_magnitudes.csv` — per-subject `lwpc`/`lwps` RT d-o-d (signed, ms).
-- `subject_table_<mode>.csv` — the merged neural × behavioral table per neural summary.
-- `across_subject.json` — matched and cross correlations, `n`, and the caveat.
-- `trial_df.csv` (real runs) — the single-trial table with group HG and both adjustments.
-- `trialwise.json` — matched/cross slopes, p, z, and `specificity_ok` per group.
-- `brain_behavior_summary.png` — 4 panels: both matched scatters, the across-subject
-  specificity bars, and the within-subject slopes with 95% CIs.
-- `summary.txt` — printed verdict.
+- `summary.txt` — the three levels in words; level 1 first.
+- `participant_scores.csv`, `participant_electrode_scores.csv`,
+  `participant_reliability.csv`, `participant_brain_behavior.json` / `.png` —
+  level 1 (columns in [`a6_brain_behavior.md`](a6_brain_behavior.md) §9).
+- `long_df.csv` (real runs) — the single-trial long table, including `trial`,
+  `rt`, `acc`; level 1 can be rerun from it offline.
+- `behavioral_magnitudes.csv` — per-participant `lwpc`/`lwps` RT d-o-d (signed,
+  ms), from the long table.
+- `electrode_labels.csv` — the A1 per-electrode S/F labels level 2 sits on.
+- `subject_table_<mode>.csv`, `across_subject.json` — level 2.
+- `trial_df.csv` (real runs), `trialwise.json` — level 3.
+- `brain_behavior_summary.png` — levels 2 and 3: both matched scatters, the
+  across-subject specificity bars, and the within-subject slopes with 95% CIs.
 
-**Reading:** the headline is the **specificity gap**, not a p-value. With thousands
-of trials every slope is "significant", so the claim rests on the **matched**
-pairing (LWPC group ↔ congruency-sequence adjustment; LWPS group ↔ switch
-adjustment) being *stronger* than the **cross** pairing (`specificity_ok`) at both
-levels. Report the across-subject correlation with its *n* and the honest
-"underpowered at n = subjects" caveat — a null there is uninformative; the
-within-subject mixed model is the real test.
+**Reading:** level 1 is the across-participant result. Read the RT-adjusted r
+against its reliability ceiling and the |r| needed at this n — a null is
+uninformative, and a raw r that shrinks after adjustment was carried by RT.
+Specificity is the joint-regression β, not matched |r| > cross |r|. At level 3,
+with thousands of trials every slope is "significant", so read the gap between
+the matched and cross slopes. See [`a6_brain_behavior.md`](a6_brain_behavior.md)
+§10 for the step-by-step reading and the sentence to write for each outcome.
 
 ---
 
@@ -2990,4 +3030,4 @@ in order for depth. Runnable stubs for each assignment are in `docs/skeletons/`.
 | Selection → decode orchestration (DCC) | `build_anova_selected_electrode_sets` | `src/analysis/decoding/run_anova_electrode_selection.py` |
 | power_traces windowed ANOVA (temporal-profile figure) | `run_within_electrode_windowed_anova_cluster_correction`, `load_significant_electrodes` | `src/analysis/power/windowed_anova.py` |
 | Timing | `interaction_time_course`, `onset_50pct_peak`, `jackknife_onset_difference` | `src/analysis/stats/stability_flexibility_timing.py` |
-| Brain–behavior | `subject_level_brain_behavior`, `trialwise_brain_behavior`, `behavioral_lwpc_lwps_magnitudes` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |
+| Brain–behavior | `participant_scores`, `participant_brain_behavior`, `rt_adjust_hg`, `subject_level_brain_behavior`, `trialwise_brain_behavior`, `behavioral_lwpc_lwps_magnitudes` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |

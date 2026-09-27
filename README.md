@@ -32,6 +32,7 @@ only remember one thing about the layout, remember this:
 | **What each file does** | Part 1 below — the codebase map |
 | **How to run an analysis** (motivation, method, knobs, outputs) | [`docs/analysis_guide.md`](docs/analysis_guide.md) — the single guide to every analysis path, including the stability-vs-flexibility A1–A7 battery |
 | **How to run and interpret N4 continuous-score anatomy** | [`docs/n4_continuous_anatomy.md`](docs/n4_continuous_anatomy.md) — primary ROI/Destrieux test, continuous brain maps, reliability, and descriptive medoids |
+| **How to run and interpret A6 brain–behavior** | [`docs/a6_brain_behavior.md`](docs/a6_brain_behavior.md) — one neural and one behavioral LWPC/LWPS score per participant, the RT confound, reliabilities, and how to read each output |
 | **What shape the data is at each step** of A1–A7 | [`docs/stability_flexibility_data_flow.md`](docs/stability_flexibility_data_flow.md) |
 | **What each output file means** | [`docs/stability_flexibility_outputs_guide.md`](docs/stability_flexibility_outputs_guide.md) |
 | **How to break up a file that got too big** | [`docs/refactoring_guide.md`](docs/refactoring_guide.md) |
@@ -293,6 +294,7 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `refactoring_guide.md` (301) | How the big modules were split, and how to split the next one |
 | `figure_plan.md` (253) | The main-text figure sequence and the claim stack behind it |
 | `closing_figure_plan.md` (297) | The closing anatomy figure: assessment of each planned analysis, the matched-half main-effect anatomy, and the electrode-set choice |
+| `a6_brain_behavior.md` | A6 runbook: the per-participant brain–behavior scores, the RT adjustment, the 2026-09-27 block-map fix, every output and how to read it |
 | `nested_electrode_selection.md` (349) | Design plan for making the diagonal (select on congruency → measure congruency) non-circular |
 | `consolidation_candidates.md` | Duplicated/near-duplicated code and what merging each would cost |
 | `skeletons/a1…a6_*.py` | Runnable assignment stubs for each battery step, with the drop-in target named at the top |

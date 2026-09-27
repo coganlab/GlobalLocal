@@ -109,12 +109,14 @@ This is the "select on the main effect, test adaptation inside" design from the 
 
 ### Brain–behavior
 
-Reviewers will ask for it, but it is the least likely to give a clean result.
+Reviewers will ask for it, but it is the least likely to give a clean result. How to run it and read the outputs: [`a6_brain_behavior.md`](a6_brain_behavior.md).
 
-- **Across participants:** n = 21–22. Each participant's behavioral LWPC and LWPS rest on the rare cells (about 40–50 trials each), so individual scores are unreliable and any correlation is attenuated (the "reliability paradox", Hedge et al., 2018). A null is uninformative; a positive result is fragile.
+- **Across participants:** one neural score per participant, the mean of its signed per-electrode d, against its behavioral d-o-d on the same trials (`participant_scores`). With n ≈ 18–21, significance needs |r| ≥ 0.43–0.47. Behavioral split-half reliability (full length, `combinedData.csv`) is 0.69 for LWPC but only 0.37 for LWPS, so the "reliability paradox" (Hedge et al., 2018) bites mainly on LWPS; the neural reliability comes from the run. A null is uninformative; a positive result is fragile.
+- **The behavioral LWPC was the wrong contrast until 2026-09-27.** The `blockType` map swapped blocks A and D, which turned "LWPC" into a congruency × switch-proportion contrast (mean 46 ms instead of 123 ms). It is fixed and pinned by tests; rerun anything computed with it.
+- **RT coupling, across participants.** If HG tracks RT within cells, every electrode's LWPC contains that slope × the participant's own behavioral LWPC. That builds a matched correlation which also passes "matched beats cross" and the joint regression. The job also reports scores with the RT-linked part of HG removed (`rt_adjust_hg`, the pooled within-cell slope): report those, with the raw ones as an upper bound.
 - **Trial-wise version, a trap in the current code:** the adjustment is w(t) · RT with w = +1 on the rare cells, so w averages about −0.5. Any plain HG–RT correlation leaks into the "matched" slope. The cross-pairing control cancels it only if both electrode groups are equally tied to RT.
 - **Safer model:** RT ~ congruency × incongruent proportion × HG, with a participant random effect; test the three-way term. Same for switch type × switch proportion.
-- **Verdict:** supplement unless striking. The direction tests, where the neural sign matches the behavioral sign, already link brain and behavior at the group level.
+- **Verdict:** supplement unless striking. The direction tests, where the neural sign matches the behavioral sign, link brain and behavior at the group level, but RT coupling predicts that sign too; recheck them on the RT-adjusted electrode scores (`participant_electrode_scores.csv`).
 
 ### Cross-decoding within main-effect groups
 
@@ -279,7 +281,7 @@ No scatter can show the separate-half r itself. The r averages 400 correlations 
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test |
 | S5 | Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control, labelled as base-effect geometry |
 | S8 | Cross-decoding control table for every transfer reported |
-| S-BB | Brain–behavior: across-participant correlation with its n and reliability caveat, and the three-way mixed model |
+| S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities and ceiling; and the three-way mixed model |
 | S-N4 | Task-significant anatomy in full; parcel test (`delta_by_roi.png`, reordered by mean z); anterior–posterior null |
 
 ## Priority order and weekly figure plan
@@ -298,6 +300,8 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 ### Next, if time
 
 - [ ] Main-effect electrodes on the brain, and adaptation traces within groups on disjoint halves (supplement).
+- [x] Per-participant brain–behavior scores (raw and RT-adjusted, shared-split reliability) and the behavioral block-map fix (`a6_brain_behavior.md`).
+- [ ] Run A6 on task-significant lPFC, then all lPFC and the 0–0.5 s window as checks.
 - [ ] Brain–behavior with the three-way mixed model.
 - [ ] Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control.
 

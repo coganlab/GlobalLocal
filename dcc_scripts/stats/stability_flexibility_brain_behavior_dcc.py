@@ -4,34 +4,46 @@ DCC core for A6 — brain-behavior correlation
 (`docs/analysis_guide.md` §19).
 
 Ties the A1 neural selectivity to the ACTUAL behavioral control adjustment, so the
-substrates are shown to be *functional* rather than incidental. Two levels with
-very different power, both run here:
+substrates are shown to be *functional* rather than incidental. Three levels, all
+run here:
 
-  (1) ACROSS SUBJECTS (n = subjects, honest but underpowered): does a subject with
+  (1) ACROSS PARTICIPANTS, CONTINUOUS SCORES (the across-participant result to
+      report): each participant's mean signed per-electrode LWPC / LWPS d against
+      its behavioral LWPC / LWPS from the same trials, raw and with the RT-linked
+      part of HG removed, with split-half reliabilities (one trial split per
+      participant), the reliability ceiling, a joint-regression specificity test
+      and a disjoint-half check.
+      -> `sbb.participant_scores`, `sbb.participant_brain_behavior`
+  (2) ACROSS SUBJECTS, LABEL-BASED (kept for comparison): does a subject with
       more/stronger LWPC electrodes show a larger behavioral LWPC (congruency x
       incongruent-proportion) RT effect, and likewise LWPS?
       -> `sbb.subject_level_brain_behavior`
-  (2) WITHIN SUBJECT, SINGLE TRIAL (preferred, far more power): does trial-by-trial
-      HG in the LWPC electrode group predict the trial-by-trial congruency
-      adjustment (LWPS group <-> switch adjustment), via a mixed model with a
-      subject random intercept?
+  (3) WITHIN SUBJECT, SINGLE TRIAL: does trial-by-trial HG in the LWPC electrode
+      group predict the trial-by-trial congruency adjustment (LWPS group <-> switch
+      adjustment), via a mixed model with a subject random intercept?
       -> `sbb.trialwise_brain_behavior`
 
 The MATCHED pairing should beat the CROSS pairing (LWPC group <-> switch
-adjustment, and vice versa). That gap is the specificity result and the whole point
-of A6, so both functions report the cross pairing alongside the matched one.
+adjustment, and vice versa), so every level reports the cross pairing alongside the
+matched one. RT coupling produces that pattern by itself (see
+`sbb.rt_adjust_hg`), which is why level (1) also reports RT-adjusted scores.
 
 Pipeline:
   1. Assemble the same window-mean long table as the A1/A2/A3 jobs
-     (`assemble_long_df`, contrast_mode='proportion') and run the A1 electrode
-     definition (`sfs.per_electrode_anova_labels`) -> per-electrode S/F flags.
-  2. Behavior: per-subject LWPC/LWPS RT magnitudes from the raw behavioral table
-     (`combinedData.csv` by default) via `sbb.behavioral_lwpc_lwps_magnitudes` --
-     the SAME equal-cell-weight difference-of-differences used for the neural
-     interaction, so brain and behavior are measured on the identical contrast.
-  3. Across-subject correlations for each neural summary ('count', 'frac', and the
-     mean interaction F), each with its cross-pairing control.
-  4. Single-trial table (`assemble_trial_table`): per (subject, trial) RT plus the
+     (`assemble_long_df`, contrast_mode='proportion'; it carries `trial`, `rt`
+     and `acc`) and run the A1 electrode definition
+     (`sfs.per_electrode_anova_labels`) -> per-electrode S/F flags. The electrode
+     set is ROIS x ELECTRODES (task-significant lPFC by default in the submit
+     script).
+  2. Behavior: per-subject LWPC/LWPS RT magnitudes from the long table's own
+     trials (the epochs metadata) via `sbb.behavioral_lwpc_lwps_magnitudes` -- the
+     SAME equal-cell-weight difference-of-differences used for the neural
+     interaction, on the same trials, for every participant with HG. The
+     behavioral CSV (`combinedData.csv`), when present, is only a cross-check.
+  3. Per-participant continuous scores and their correlations with behavior.
+  4. Across-subject correlations for each label-based neural summary ('count',
+     'frac', and the mean interaction F), each with its cross-pairing control.
+  5. Single-trial table (`assemble_trial_table`): per (subject, trial) RT plus the
      HG averaged over the LWPC and LWPS electrode groups, then the mixed models.
 
 The trial-level adjustment columns
@@ -43,8 +55,8 @@ difference-of-differences the rest of the battery is built on (`_adjustment_weig
 / `add_adjustment_columns`):
 
     adj_congruency(t) = w(t) * (RT_t - mean RT of that subject)
-    w(t) = +1 for (i, high-incongruent) and (c, low-incongruent)
-           -1 for (c, high-incongruent) and (i, low-incongruent)
+    w(t) = +1 for (i, low-incongruent) and (c, high-incongruent)
+           -1 for (c, low-incongruent) and (i, high-incongruent)
 
 Those are exactly the four cell weights of the LWPC d-o-d, so a trial's `adj` is
 large when its RT pushes the interaction in its own direction, and the mean of
@@ -60,8 +72,9 @@ mean HG would leak into the common slope, which is precisely the confound the
 
 On the SYNTHETIC path `sbb._synthetic_brain_behavior` plants a matched
 across-subject correlation AND a matched within-subject coupling, each stronger
-than its cross control, so the whole path is validated against ground truth in
-seconds with no data on disk.
+than its cross control, and `sbb._synthetic_long_df` plants a single-trial table
+for level (1) with a chosen brain-behavior link and RT coupling, so the whole path
+is validated against ground truth in seconds with no data on disk.
 
 Driven by `run_stability_flexibility_brain_behavior_dcc.py` (wrapped by
 `sbatch_stability_flexibility_brain_behavior_dcc.sh`). Not run directly on the
@@ -73,6 +86,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import sys
 import os
+import re
 import json
 
 # ---------------------------------------------------------------------------
@@ -144,23 +158,52 @@ def load_behavior(csv_path, subject_col='subject_ID', rt_col='RT'):
     return raw, behavior
 
 
+def behavior_from_long_df(df):
+    """Per-subject behavioral LWPC/LWPS magnitudes from the long table's own trials.
+
+    The epochs metadata carry RT, accuracy and the block proportions (parsed from
+    the event names), so behavior is scored on exactly the trials the HG scores
+    use, for every participant with HG, with no blockType map in the way."""
+    if 'rt' not in df.columns or not np.isfinite(
+            pd.to_numeric(df['rt'], errors='coerce')).any():
+        raise KeyError("the long table has no reaction times; rebuild it with the "
+                       "current `assemble_long_df`, which reads them from the "
+                       "epochs metadata")
+    trials = df.drop_duplicates(['subject', 'trial'])
+    if 'acc' in trials.columns and trials['acc'].isna().all():
+        trials = trials.drop(columns='acc')        # no accuracy recorded: keep all
+    return sbb.behavioral_lwpc_lwps_magnitudes(trials, rt_col='rt')
+
+
+def _subject_stem(s):
+    """'D0107A' -> 'D0107': the epochs and combinedData.csv spell some IDs differently."""
+    m = re.match(r'(D\d+)', str(s))
+    return m.group(1) if m else str(s)
+
+
+def csv_behavior_agreement(csv_behavior, behavior):
+    """Across-participant agreement of the CSV-based and long-table behavior.
+
+    Both score the same task sessions, so each participant's LWPC / LWPS should
+    agree closely; a poor LWPC agreement is what the old swapped blockType map
+    produced. The long table holds only the correct trials that survived
+    preprocessing, so expect close, not identical, values."""
+    a = csv_behavior.assign(stem=csv_behavior['subject'].map(_subject_stem))
+    b = behavior.assign(stem=behavior['subject'].map(_subject_stem))
+    m = a.merge(b, on='stem', suffixes=('_csv', '_epochs')).dropna(
+        subset=['lwpc_csv', 'lwpc_epochs', 'lwps_csv', 'lwps_epochs'])
+    out = dict(n_participants=len(m))
+    for eff in ('lwpc', 'lwps'):
+        x, y = m[f'{eff}_csv'], m[f'{eff}_epochs']
+        out[f'r_{eff}'] = (float(np.corrcoef(x, y)[0, 1])
+                           if len(m) >= 3 and x.std() > 0 and y.std() > 0 else np.nan)
+        out[f'mean_abs_diff_{eff}_ms'] = float(np.mean(np.abs(x - y))) if len(m) else np.nan
+    return out
+
+
 # ---------------------------------------------------------------------------
 # single-trial table (real data): RT + per-trial HG for each electrode group
 # ---------------------------------------------------------------------------
-# metadata column aliases -- the event-name parser emits the first of each pair,
-# but a metadata CSV attached upstream may already use the short name.
-_RT_COLS = ('reaction_time', 'RT', 'rt')
-_ACC_COLS = ('accuracy', 'acc')
-_SWITCH_COLS = ('task_sequence', 'switchType')
-
-
-def _first_col(md, names):
-    for n in names:
-        if n in md.columns:
-            return n
-    return None
-
-
 def assemble_trial_table(subjects_epochs, tmin, tmax, electrodes_to_keep=None):
     """Per-(subject, trial) behavior + the per-channel window-mean HG behind it.
 
@@ -179,7 +222,8 @@ def assemble_trial_table(subjects_epochs, tmin, tmax, electrodes_to_keep=None):
     is kept but yields a NaN switch adjustment, which the models drop per-column.
     """
     from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
-        _window_indices, _proportion_col)
+        _window_indices, _proportion_col, _first_col,
+        _RT_COLS, _ACC_COLS, _SWITCH_COLS)
 
     frames, hg_by_subject = [], {}
     for sub, epochs in subjects_epochs.items():
@@ -344,9 +388,82 @@ def save_results(labels, behavior, across, trialwise, save_dir):
         json.dump(_json_safe(trialwise), f, indent=2)
 
 
+def save_participant_results(ps, participant, save_dir, csv_check=None):
+    """The level-(1) outputs: per-participant and per-electrode scores, their
+    reliabilities, and the correlations (both variants) as JSON."""
+    os.makedirs(save_dir, exist_ok=True)
+    ps['scores'].to_csv(os.path.join(save_dir, 'participant_scores.csv'), index=False)
+    ps['electrodes'].to_csv(os.path.join(save_dir, 'participant_electrode_scores.csv'),
+                            index=False)
+    ps['reliability'].to_csv(os.path.join(save_dir, 'participant_reliability.csv'),
+                             index=False)
+    payload = {v: {k: val for k, val in res.items() if k != 'table'}
+               for v, res in participant.items()}
+    payload['settings'] = dict(n_splits=ps['n_splits'], min_elec=ps['min_elec'],
+                               notes=ps['notes'])
+    if csv_check is not None:
+        payload['behavior_csv_agreement'] = csv_check
+    with open(os.path.join(save_dir, 'participant_brain_behavior.json'), 'w') as f:
+        json.dump(_json_safe(payload), f, indent=2)
+
+
 # ---------------------------------------------------------------------------
 # figures
 # ---------------------------------------------------------------------------
+def make_participant_plots(participant, save_dir):
+    """Level (1): each participant's neural score against its behavioral score,
+    LWPC and LWPS (rows) x RT-adjusted and raw (columns), one dot per participant."""
+    variants = [(v, t) for v, t in (('rtadj', 'RT-adjusted (the claim)'),
+                                     ('raw', 'raw (upper bound)'))
+                if v in participant]
+    if not variants:
+        return
+    ink, muted, rule = '#1f1f1f', '#6b6b6b', '#d9d9d9'
+    fig, axes = plt.subplots(2, len(variants), figsize=(5.2 * len(variants), 8.4),
+                             squeeze=False)
+    for row, (eff, colour, name) in enumerate((('lwpc', STAB, 'LWPC'),
+                                               ('lwps', FLEX, 'LWPS'))):
+        for col, (variant, vtitle) in enumerate(variants):
+            res, a = participant[variant], axes[row, col]
+            t = res['table']
+            x = t[res['neural_columns'][eff]].to_numpy(float)
+            y = t[res['behavior_columns'][eff]].to_numpy(float)
+            a.axhline(0, color=rule, lw=0.8, zorder=0)
+            a.axvline(0, color=rule, lw=0.8, zorder=0)
+            if len(x) >= 3 and np.std(x) > 0:
+                b1, b0 = np.polyfit(x, y, 1)
+                xs = np.linspace(np.min(x), np.max(x), 2)
+                a.plot(xs, b0 + b1 * xs, color=colour, lw=1.5, zorder=2)
+            a.scatter(x, y, s=42, color=colour, edgecolor='white', linewidth=0.8,
+                      zorder=3)
+            lo, hi = res[f'ci_{eff}']
+            # stats sit above the plot area, so no participant is hidden under them
+            a.text(0.0, 1.02,
+                   f"r = {res[f'corr_{eff}']:+.2f} [{lo:+.2f}, {hi:+.2f}], "
+                   f"p = {res[f'p_{eff}']:.3g}, n = {res['n_participants']} "
+                   f"(|r| needed {res['r_crit']:.2f})\n"
+                   f"ceiling √(rel·rel) = {res[f'ceiling_{eff}']:.2f} · "
+                   f"disjoint-half r = {res[f'corr_{eff}_disjoint_half']:+.2f}",
+                   transform=a.transAxes, va='bottom', ha='left', fontsize=8.5,
+                   color=ink)
+            a.set_title(f"{name} · {vtitle}", fontsize=10, color=ink, loc='left',
+                        pad=34)
+            a.set_xlabel(f"neural {name}: mean electrode d (low − high)",
+                         fontsize=9, color=muted)
+            a.set_ylabel(f"behavioral {name}: RT d-o-d, ms (low − high)",
+                         fontsize=9, color=muted)
+            for side in ('top', 'right'):
+                a.spines[side].set_visible(False)
+            a.tick_params(colors=muted, labelsize=8)
+    fig.suptitle("A6 · across participants: neural vs behavioral adaptation "
+                 "(one dot per participant)", fontsize=11, color=ink, x=0.02,
+                 ha='left')
+    fig.tight_layout()
+    fig.savefig(os.path.join(save_dir, 'participant_brain_behavior.png'), dpi=140,
+                bbox_inches='tight')
+    plt.close(fig)
+
+
 def _slope_ci(slope, z):
     """95% CI from the mixed model's slope and z (SE = |slope / z|)."""
     if not np.isfinite(slope) or not np.isfinite(z) or z == 0:
@@ -422,8 +539,75 @@ def make_plots(across, trialwise, save_dir, primary='count'):
 # ---------------------------------------------------------------------------
 # text summary
 # ---------------------------------------------------------------------------
+_SCORE_LABELS = (('lwpc_neural', 'neural LWPC, raw'),
+                 ('lwpc_neural_rtadj', 'neural LWPC, RT-adjusted'),
+                 ('lwps_neural', 'neural LWPS, raw'),
+                 ('lwps_neural_rtadj', 'neural LWPS, RT-adjusted'),
+                 ('lwpc_behav', 'behavioral LWPC'),
+                 ('lwps_behav', 'behavioral LWPS'))
+
+
+def _participant_lines(ps, participant):
+    """Summary lines for level (1), the per-participant continuous scores."""
+    if ps is None:
+        return ["      NOT RUN — see the notes below."]
+    s = ps['scores']
+    rel = ps['reliability'].set_index('score')
+    n_ok = int(s[['lwpc_neural', 'lwps_neural']].notna().all(axis=1).sum())
+    lines = [
+        f"      {len(s)} participants in the long table; {n_ok} with >= "
+        f"{ps['min_elec']} usable electrodes (median {np.median(s['n_elec']):.0f} "
+        f"electrodes and {np.median(s['n_trials']):.0f} trials per participant)",
+        f"      split-half reliability of the participant values (one trial split per "
+        f"participant, {ps['n_splits']} splits): full length [half-length r]",
+    ]
+    for name, label in _SCORE_LABELS:
+        if name in rel.index:
+            lines.append(f"          {label:<26} {rel.loc[name, 'reliability']:5.2f}  "
+                         f"[{rel.loc[name, 'r_half']:+.2f} ± {rel.loc[name, 'sd_half']:.2f}]")
+    if 'rt_hg_r' in s.columns:
+        lines.append(f"      within-cell HG-RT correlation, median electrode per "
+                     f"participant, median over participants: "
+                     f"{np.nanmedian(s['rt_hg_r']):+.3f}")
+    for variant, title in (('rtadj', 'RT-ADJUSTED — the claim'),
+                           ('raw', 'RAW — upper bound; RT coupling inflates it')):
+        res = participant.get(variant)
+        if res is None:
+            continue
+        lines.append(f"      [{title}]  n = {res['n_participants']} participants; "
+                     f"|r| needed for p < .05: {res['r_crit']:.2f}")
+        for eff, name in (('lwpc', 'LWPC'), ('lwps', 'LWPS')):
+            lo, hi = res[f'ci_{eff}']
+            lines.append(
+                f"          MATCHED  {name} neural ↔ {name} RT : r = {res[f'corr_{eff}']:+.3f} "
+                f"[{lo:+.2f}, {hi:+.2f}]  p = {res[f'p_{eff}']:.4g}  "
+                f"rho = {res[f'rho_{eff}']:+.3f}  ceiling = {res[f'ceiling_{eff}']:.2f}")
+        lines += [
+            f"          CROSS    LWPC neural ↔ LWPS RT : r = {res['corr_cross_stab_lwps']:+.3f}  "
+            f"p = {res['p_cross_stab_lwps']:.4g}",
+            f"          CROSS    LWPS neural ↔ LWPC RT : r = {res['corr_cross_flex_lwpc']:+.3f}  "
+            f"p = {res['p_cross_flex_lwpc']:.4g}",
+        ]
+        for eff, name, other in (('lwpc', 'LWPC', 'LWPS'), ('lwps', 'LWPS', 'LWPC')):
+            j = res[f'joint_{eff}']
+            lines.append(
+                f"          JOINT    {name} RT ~ neural {name} (beta = {j['beta_matched']:+.2f}, "
+                f"p = {j['p_matched']:.3g}) + neural {other} (beta = {j['beta_cross']:+.2f}, "
+                f"p = {j['p_cross']:.3g})")
+        lines.append(
+            f"          half-length r, same half / disjoint halves: "
+            f"LWPC {res['corr_lwpc_same_half']:+.2f} / {res['corr_lwpc_disjoint_half']:+.2f}   "
+            f"LWPS {res['corr_lwps_same_half']:+.2f} / {res['corr_lwps_disjoint_half']:+.2f}")
+    res = participant.get('rtadj') or participant.get('raw')
+    if res is not None:
+        lines.append(f"      {res['caveat']}")
+    return lines
+
+
 def write_summary(labels, behavior, across, trialwise, save_dir, meta,
-                  primary='count', notes=(), alpha=0.05):
+                  primary='count', notes=(), alpha=0.05, ps=None, participant=None,
+                  csv_check=None, behavior_source=None):
+    participant = participant or {}
     lines = [
         "=" * 78,
         "STABILITY vs FLEXIBILITY — A6 BRAIN-BEHAVIOR",
@@ -436,11 +620,26 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
         f"electrodes: {len(labels)} | S (LWPC) = {int(labels['S'].sum())} | "
         f"F (LWPS) = {int(labels['F'].sum())} | "
         f"both = {int(((labels['S'] == 1) & (labels['F'] == 1)).sum())}",
-        f"behavioral magnitudes: {len(behavior)} subjects | "
-        f"mean LWPC = {np.nanmean(behavior['lwpc']):.1f} ms | "
+        f"behavioral magnitudes ({behavior_source or 'see meta'}): "
+        f"{len(behavior)} subjects | mean LWPC = {np.nanmean(behavior['lwpc']):.1f} ms | "
         f"mean LWPS = {np.nanmean(behavior['lwps']):.1f} ms",
+    ]
+    if csv_check is not None:
+        lines.append(
+            f"behavior cross-check vs the CSV ({csv_check['n_participants']} participants): "
+            f"r = {csv_check['r_lwpc']:+.2f} (LWPC), {csv_check['r_lwps']:+.2f} (LWPS); "
+            f"mean |difference| = {csv_check['mean_abs_diff_lwpc_ms']:.0f} / "
+            f"{csv_check['mean_abs_diff_lwps_ms']:.0f} ms")
+    lines += [
         "-" * 78,
-        "(1) ACROSS SUBJECTS — underpowered by design; supporting, not decisive",
+        "(1) ACROSS PARTICIPANTS, CONTINUOUS SCORES — the across-participant result",
+        "      neural = mean signed per-electrode d; behavior = RT d-o-d on the same",
+        "      trials; both LOW minus HIGH (positive = the effect shrinks in the",
+        "      high-proportion block).",
+        *_participant_lines(ps, participant),
+        "-" * 78,
+        "(2) ACROSS SUBJECTS, LABEL-BASED — for comparison only: counts need",
+        "    thresholded labels and 'effect' averages an unsigned F",
     ]
     for mode, desc in _NEURAL_MODES:
         res = across.get(mode)
@@ -469,7 +668,7 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
 
     lines += [
         "-" * 78,
-        "(2) WITHIN SUBJECT, SINGLE TRIAL — the powered test",
+        "(3) WITHIN SUBJECT, SINGLE TRIAL",
         "      model: adjustment ~ group HG, subject random intercept (mixedlm);",
         "      adjustment = the trial's signed contribution to its process's",
         "      difference-of-differences (d-o-d cell weight x subject-centered RT).",
@@ -494,12 +693,14 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
 
     lines += [
         "=" * 78,
-        "Reading: the headline is the SPECIFICITY GAP, not a p-value. With thousands",
-        "of trials every slope is 'significant', so the claim rests on the matched",
-        "pairing being STRONGER than the cross pairing (`specificity_ok`), at both",
-        "levels. The across-subject correlation is reported with its n and an honest",
-        "underpowered caveat — a null there is uninformative; the within-subject",
-        "mixed model is the real test.",
+        "Reading: (1) is the across-participant result. Read the RT-adjusted r against",
+        "its ceiling and the |r| needed at this n: a null is uninformative, and a raw r",
+        "that shrinks after adjustment was carried by RT coupling. Specificity is the",
+        "JOINT beta, not matched |r| > cross |r|: behavioral LWPC and LWPS correlate",
+        "across participants, and RT coupling alone makes matched beat cross. (2) is",
+        "kept for comparison only. In (3) every slope is 'significant' with thousands",
+        "of trials; a plain HG-RT correlation leaks into both slopes, so read it with",
+        "docs/a6_brain_behavior.md.",
     ]
     txt = "\n".join(str(x) for x in lines)
     with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:
@@ -514,25 +715,36 @@ def main(args):
     alpha = getattr(args, 'alpha', 0.05)
     primary = getattr(args, 'neural_summary', 'count')
     run_trialwise = getattr(args, 'run_trialwise', True)
+    min_elec = getattr(args, 'min_elec', 3)
+    participant_n_splits = getattr(args, 'participant_n_splits', 200)
+    seed = getattr(args, 'seed', 0)
     notes = []
 
     print(f"contrast_mode: {CONTRAST_MODE} | effect_measure: {EFFECT_MEASURE} | fdr_correction: {getattr(args, 'fdr_correction', 'fdr_bh')}")
     os.makedirs(args.save_dir, exist_ok=True)
 
-    trial_df = None
+    trial_df, csv_check = None, None
     if args.data_source == 'synthetic':
         print("DATA SOURCE: synthetic (pipeline / path validation)")
         labels, behavior, trial_df = sbb._synthetic_brain_behavior(
-            n_subj=getattr(args, 'synthetic_n_subj', 16),
-            seed=getattr(args, 'seed', 0),
+            n_subj=getattr(args, 'synthetic_n_subj', 16), seed=seed,
             across_beta=getattr(args, 'synthetic_across_beta', 1.2),
             within_beta=getattr(args, 'synthetic_within_beta', 0.6),
             cross_frac=getattr(args, 'synthetic_cross_frac', 0.25))
         hg_cols = dict(LWPC='hg_lwpc', LWPS='hg_lwps')
         print(f"synthetic: {len(labels)} electrodes | {len(behavior)} subjects | "
               f"{len(trial_df)} trials (planted matched > cross at both levels)")
+        long_df, _ = sbb._synthetic_long_df(
+            n_subj=getattr(args, 'synthetic_n_subj', 16), seed=seed,
+            link=getattr(args, 'synthetic_link', 0.6),
+            rt_coupling=getattr(args, 'synthetic_rt_coupling', 0.3))
+        print(f"synthetic long table: {len(long_df)} rows | "
+              f"{long_df.electrode.nunique()} electrodes (planted link = "
+              f"{getattr(args, 'synthetic_link', 0.6)}, RT coupling = "
+              f"{getattr(args, 'synthetic_rt_coupling', 0.3)})")
+        behavior_source = 'synthetic, planted'
     else:
-        print("DATA SOURCE: real epoched data + behavioral table")
+        print("DATA SOURCE: real epoched data (behavior from the epochs metadata)")
         from src.analysis.utils.general_utils import (
             resolve_lab_root, resolve_electrodes_to_keep,
             load_HG_ev1_rescaled_per_subject)
@@ -558,24 +770,39 @@ def main(args):
                     "the A1 (proportion) electrode definition, which needs the "
                     "block-proportion columns.")
         df.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
+        long_df = df
 
         print("A1: per-electrode two-way interaction ANOVA (Type III, FDR across electrodes)")
         labels = sfs.per_electrode_anova_labels(
             df, alpha=alpha, contrast_mode=CONTRAST_MODE,
             fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
 
-        # 2. behavior ---------------------------------------------------------------
-        print(f"behavior: {args.behavior_csv}")
-        _, behavior = load_behavior(args.behavior_csv, rt_col=args.behavior_rt_col)
-        shared = set(behavior['subject']) & set(labels['subject'])
-        print(f"behavioral magnitudes: {len(behavior)} subjects | "
-              f"{len(shared)} also have neural labels")
-        if not shared:
-            raise RuntimeError(
-                "no subject appears in BOTH the behavioral table and the neural "
-                f"labels. Behavioral subjects: {sorted(set(behavior['subject']))[:8]}... "
-                f"neural subjects: {sorted(set(labels['subject']))[:8]}... — check "
-                "that the two use the same subject-ID convention.")
+        # 2. behavior, from the same trials -----------------------------------------
+        csv_path = getattr(args, 'behavior_csv', None)
+        rt_col = getattr(args, 'behavior_rt_col', 'RT')
+        try:
+            behavior = behavior_from_long_df(df)
+            behavior_source = 'the long table\'s own trials (epochs metadata)'
+            print(f"behavioral magnitudes: {len(behavior)} subjects, from the long table")
+        except KeyError as e:
+            # no RT in the metadata: level (1) will say so; keep level (2) running
+            notes.append(f"behavior from the long table unavailable ({e}); levels (2) "
+                         "and (3) use the behavioral CSV")
+            _, behavior = load_behavior(csv_path, rt_col=rt_col)
+            behavior_source = f'the behavioral CSV ({csv_path})'
+            csv_path = None                        # nothing left to cross-check
+        if csv_path and os.path.exists(csv_path):
+            try:
+                _, csv_behavior = load_behavior(csv_path, rt_col=rt_col)
+                csv_check = csv_behavior_agreement(csv_behavior, behavior)
+                print(f"behavior cross-check vs {csv_path}: "
+                      f"r = {csv_check['r_lwpc']:+.2f} (LWPC), "
+                      f"{csv_check['r_lwps']:+.2f} (LWPS) over "
+                      f"{csv_check['n_participants']} participants")
+            except (KeyError, ValueError) as e:
+                notes.append(f"behavior CSV cross-check skipped: {e}")
+        elif csv_path:
+            notes.append(f"behavior CSV not found at {csv_path}; cross-check skipped")
 
         # 3. single-trial table for the within-subject level -------------------------
         if run_trialwise:
@@ -596,8 +823,31 @@ def main(args):
             notes.append("single-trial level disabled (RUN_TRIALWISE=0)")
         hg_cols = dict(LWPC='hg_lwpc', LWPS='hg_lwps')
 
-    # 4. across-subject correlations (every neural summary, each with its cross) ----
-    print("A6 (1): across-subject correlations + cross-pairing controls")
+    # 4. per-participant continuous scores (level 1) --------------------------------
+    print(f"A6 (1): per-participant continuous scores ({participant_n_splits} shared "
+          f"splits, min {min_elec} electrodes)")
+    ps, participant = None, {}
+    try:
+        ps = sbb.participant_scores(long_df, n_splits=participant_n_splits, seed=seed,
+                                    min_elec=min_elec)
+        notes += [f"participant scores: {n}" for n in ps['notes']]
+    except (KeyError, ValueError) as e:
+        notes.append(f"per-participant scores skipped: {e}")
+        print(f"WARNING: per-participant scores skipped: {e}")
+    if ps is not None:
+        for variant in ('rtadj', 'raw'):
+            try:
+                res = sbb.participant_brain_behavior(ps, variant=variant, alpha=alpha)
+            except KeyError as e:
+                notes.append(f"participant correlations ({variant}) skipped: {e}")
+                continue
+            participant[variant] = res
+            print(f"      [{variant}] n={res['n_participants']} | LWPC r={res['corr_lwpc']:+.3f} "
+                  f"(ceiling {res['ceiling_lwpc']:.2f}) | LWPS r={res['corr_lwps']:+.3f} "
+                  f"(ceiling {res['ceiling_lwps']:.2f}) | |r| needed {res['r_crit']:.2f}")
+
+    # 5. across-subject correlations, label-based (level 2) -------------------------
+    print("A6 (2): across-subject correlations (label-based) + cross-pairing controls")
     across = {}
     for mode, _desc in _NEURAL_MODES:
         try:
@@ -614,10 +864,10 @@ def main(args):
               f"LWPS={res['corr_lwps']:+.3f} | cross r: "
               f"{res['corr_cross_stab_lwps']:+.3f} / {res['corr_cross_flex_lwpc']:+.3f}")
 
-    # 5. within-subject single-trial mixed models -----------------------------------
+    # 6. within-subject single-trial mixed models (level 3) ------------------------
     trialwise = {}
     if trial_df is not None:
-        print("A6 (2): within-subject single-trial mixed models (matched vs cross)")
+        print("A6 (3): within-subject single-trial mixed models (matched vs cross)")
         for group, hg_col in hg_cols.items():
             usable = trial_df[[hg_col, 'adj_congruency', 'adj_switch']].dropna(
                 subset=[hg_col])
@@ -636,20 +886,29 @@ def main(args):
                 notes.append(f"{group} trial-level model failed: {type(e).__name__}: {e}")
                 print(f"WARNING: {group} trial-level model failed: {e}")
 
-    # 6. persist + plot + summarize --------------------------------------------------
+    # 7. persist + plot + summarize --------------------------------------------------
     save_results(labels, behavior, across, trialwise, args.save_dir)
+    if ps is not None:
+        save_participant_results(ps, participant, args.save_dir, csv_check=csv_check)
     make_plots(across, trialwise, args.save_dir, primary=primary)
+    make_participant_plots(participant, args.save_dir)
+    rois = getattr(args, 'rois_dict', None)
     write_summary(labels, behavior, across, trialwise, args.save_dir, notes=notes,
-                  primary=primary, alpha=alpha,
+                  primary=primary, alpha=alpha, ps=ps, participant=participant,
+                  csv_check=csv_check, behavior_source=behavior_source,
                   meta=dict(
                       data_source=args.data_source, task=args.task,
                       epochs_root_file=getattr(args, 'epochs_root_file', None),
                       behavior_csv=getattr(args, 'behavior_csv', None),
                       window=f"[{getattr(args, 'window_tmin', None)}, "
                              f"{getattr(args, 'window_tmax', None)}]s",
+                      electrodes=getattr(args, 'electrodes', None),
+                      rois='all' if rois is None else ','.join(rois),
                       contrast_mode=CONTRAST_MODE, effect_measure=EFFECT_MEASURE,
                       fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
                       primary_neural_summary=primary, alpha=alpha,
+                      min_elec=min_elec, participant_n_splits=participant_n_splits,
                       save_dir=args.save_dir))
     return dict(labels=labels, behavior=behavior, across=across,
-                trialwise=trialwise, trial_df=trial_df)
+                trialwise=trialwise, trial_df=trial_df, participant_scores=ps,
+                participant=participant, csv_check=csv_check)

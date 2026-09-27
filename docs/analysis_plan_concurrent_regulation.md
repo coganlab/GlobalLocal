@@ -57,7 +57,7 @@ Three framing rules that follow from it, and they change what gets written:
 
 | Piece | Where | Note |
 |---|---|---|
-| Behavioral LWPC/LWPS | `stats/erin_linear_mixed_effects_model.py`, `combinedData.csv` | done |
+| Behavioral LWPC/LWPS | `stats/erin_linear_mixed_effects_model.py`, `combinedData.csv` | done; **check the source**: that script is a post-error model with no congruency × proportion term, and its `blockType` map swapped blocks A and D until 2026-09-27. Per-participant values come from `behavioral_lwpc_lwps_magnitudes` (both positive on `combinedData.csv`: LWPC +123 ms, LWPS +97 ms; [`a6_brain_behavior.md`](a6_brain_behavior.md) §1.1) |
 | LWPC / LWPS power traces | `power/power_traces.py`, `dcc_scripts/power/` | done |
 | LWPC / LWPS decoding | `decoding/`, `dcc_scripts/decoding/run_decoding_dcc.py` | done |
 | Per-electrode continuous LWPC/LWPS scores | `stats/stability_flexibility_segregation.py` → `compute_sensitivities_per_split` with `contrast_mode='proportion'` | done, **this is the input to all of §5–§8** |

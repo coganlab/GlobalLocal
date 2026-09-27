@@ -14,7 +14,9 @@ on the cluster; call `main(args)` with a populated argument namespace.
 The analysis input `df` is long format, one row per (electrode, trial):
     subject, electrode, hg, congruency in {'c','i'}, switchType in {'s','r'}
 We build it by window-averaging HG_ev1_rescaled over [tmin, tmax] and reading
-`congruency` and `task_sequence` (-> switchType) from the epochs metadata.
+`congruency` and `task_sequence` (-> switchType) from the epochs metadata. The
+table also carries `trial` (the epoch index, shared by all of a subject's
+electrodes), `rt` and `acc`, which the A6 brain-behavior job needs.
 """
 
 import warnings
@@ -73,6 +75,29 @@ def _proportion_col(md, name):
     return np.full(len(md), np.nan)
 
 
+# metadata column aliases -- the event-name parser emits the first of each tuple,
+# but a metadata CSV attached upstream may already use a short name.
+_RT_COLS = ('reaction_time', 'RT', 'rt')
+_ACC_COLS = ('accuracy', 'acc')
+_SWITCH_COLS = ('task_sequence', 'switchType')
+
+
+def _first_col(md, names):
+    """The first of `names` that is a metadata column, or None."""
+    for n in names:
+        if n in md.columns:
+            return n
+    return None
+
+
+def _numeric_col(md, names):
+    """The first of `names` present in the metadata, as float; NaN if none is."""
+    col = _first_col(md, names)
+    if col is None:
+        return np.full(len(md), np.nan)
+    return pd.to_numeric(md[col], errors='coerce').to_numpy()
+
+
 def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
                      effect_measure='cohens_d'):
     """Build the (electrode, trial) long table from per-subject Epochs.
@@ -87,6 +112,14 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
     incongruent_proportion / switch_proportion
                 = metadata block proportions (for contrast_mode='proportion')
     electrode   = f"{subject}-{channel}"  (unique across subjects)
+    trial       = the epoch's index within its subject. Every electrode of a
+                  subject carries the same index for the same trial, so a trial
+                  split can be shared by all of them (the per-participant
+                  reliability in `stability_flexibility_brain_behavior` needs
+                  that), and it matches `trial` in the A6 single-trial table.
+    rt, acc     = metadata reaction time (ms) and accuracy, NaN when the metadata
+                  has neither ('reaction_time'/'RT'/'rt', 'accuracy'/'acc'). A6
+                  scores behavior from them and removes the RT-linked part of HG.
     """
     # Both time-resolved measures need the per-trial time COURSE. 'peak_t'
     # was previously excluded here, so it silently received window means and
@@ -103,10 +136,12 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
             md = make_metadata_from_event_names(epochs)
 
         cong = md['congruency'].to_numpy().astype(str)
-        sw = md['task_sequence'].to_numpy().astype(str) if 'task_sequence' in md.columns \
-            else md['switchType'].to_numpy().astype(str)
+        sw = md[_first_col(md, _SWITCH_COLS)].to_numpy().astype(str)
         inc_prop = _proportion_col(md, 'incongruent_proportion')
         sw_prop = _proportion_col(md, 'switch_proportion')
+        trial = np.arange(len(md))
+        rt = _numeric_col(md, _RT_COLS)
+        acc = _numeric_col(md, _ACC_COLS)
 
         times = epochs.times
         s_idx, e_idx = _window_indices(times, tmin, tmax)
@@ -126,10 +161,13 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
             fr = pd.DataFrame(dict(
                 subject=sub,
                 electrode=f"{sub}-{ch_names[ci]}",
+                trial=trial[keep_trials],
                 congruency=cong[keep_trials],
                 switchType=sw[keep_trials],
                 incongruent_proportion=inc_prop[keep_trials],
-                switch_proportion=sw_prop[keep_trials]))
+                switch_proportion=sw_prop[keep_trials],
+                rt=rt[keep_trials],
+                acc=acc[keep_trials]))
             if cluster:
                 # store each trial's windowed time course as an object cell
                 tc = win[keep_trials, ci, :]           # (n_kept, n_win)

@@ -91,7 +91,8 @@ flowchart TD
     A2C --> A7
     TC --> A4
     TC --> A5[A5 interaction_time_course -> onsets]
-    BEH[behavioral CSV] --> A6
+    SCALAR --> A6
+    BEH[RT + accuracy<br/>from the epochs metadata] --> A6
 ```
 
 ---
@@ -529,6 +530,13 @@ when that happens.
 
 ## 7. A6 — brain–behavior
 
+> The job now runs a per-participant continuous level first — each participant's
+> mean per-electrode LWPC / LWPS d against its behavioral d-o-d on the same
+> trials, raw and RT-adjusted, with shared-split reliabilities. That is the
+> across-participant result to report; its data flow, outputs and reading are in
+> [`a6_brain_behavior.md`](a6_brain_behavior.md). The worked example below
+> follows the two label-based levels, which the job now numbers (2) and (3).
+
 Three inputs converge here:
 
 ```
@@ -572,7 +580,7 @@ adj_congruency(t) = w(t) · (RT_t − that subject's mean RT)
 ```
 
 where `w(t)` is the trial's cell weight in the LWPC difference-of-differences
-(`+1` on the (i, high-incongruent) / (c, low-incongruent) diagonal, `−1` on the
+(`+1` on the (i, low-incongruent) / (c, high-incongruent) diagonal, `−1` on the
 other). A subject's mean `adj_congruency` is therefore their behavioral LWPC / 4.
 RT and the group HG are both **centred within subject**, so the mixed-model slope
 is a purely within-subject quantity. Full statement in
