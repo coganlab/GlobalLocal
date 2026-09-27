@@ -128,6 +128,8 @@ Reviewers will ask for it, but it is the least likely to give a clean result.
 
 Training a congruency decoder and testing it on switch-type labels inside each group asks about base-effect geometry, not adaptation. The diagonal cells are circular unless selection and decoding use disjoint trial halves. Drop it unless the whole-lPFC version below produces an interpretable result.
 
+How to run it, with the main-effect decoding and power traces in the same groups: §17.5 of [`analysis_guide.md`](analysis_guide.md).
+
 ### Congruency ↔ switch cross-decoding with task positive controls
 
 - **Upside:** if congruency ↔ switch transfer fails while a real positive control transfers, the paper can say "separable codes". With the anatomy's "overlapping population", that is the plan's pre-committed headline: overlapping tissue, separable codes.
@@ -137,6 +139,7 @@ Training a congruency decoder and testing it on switch-type labels inside each g
 - **Task × switch type has a real confound:** on switch trials the previous task was the other one, so leftover previous-task activity differs between training and test trials. Task × congruency is the cleaner control.
 - **Prerequisite:** within-condition accuracy for both congruency and switch type must clear chance, or a failed transfer means nothing.
 - **Verdict:** supplement S5.
+- **Implemented** (not yet run on real data): the A4 transfer now reports its within-contrast ceilings, and `submit_task_transfer_dcc.sh` runs task × congruency, task × switch type, and congruency / switch type across task. The accuracy matching is not built; the summary prints task against congruency within-level accuracy instead. Run recipe: §17.5 of [`analysis_guide.md`](analysis_guide.md); rationale: §3.5 of [`cross_decoding_controls.md`](cross_decoding_controls.md).
 
 ### Cross-proportion (block) transfer
 
@@ -243,7 +246,7 @@ Revised 2026-09-27 after the all-lPFC main-effect run. The data behind each pane
 
 | Panel | Content | Status |
 | --- | --- | --- |
-| a | Congruency against switch beside LWPC against LWPS, each annotated with its separate-half r and split-half reliabilities. Remove the noise-corrected value `joint_scatter.png` currently prints. | Adaptation half exists (re-annotate); base-effect half not made |
+| a | Congruency against switch beside LWPC against LWPS, on the scores each pre-specified test correlates: LWPC/LWPS from `x_resid`/`y_resid` in the segregation run's `continuous.csv`, congruency/switch the same transform of `mx`/`my`. Each half is annotated with its separate-half r, p and n, and the LWPC/LWPS half with the centroid test. Not `joint_scatter.png`; see "Panel a" below. | Not yet made; needs no rerun |
 | b | The two balances by Destrieux label: adjusted dm against adjusted delta, one dot per label, with each omnibus test and the label correlation (r = 0.73) | Data ready (`n4_section16_followups.py`); not plotted |
 | c | Congruency, switch, LWPC and LWPS by distance from the midline, participant means ± SEM per tertile, as matched small multiples. Replaces the "by height" panels; the height version goes to the supplement. | Data ready; not plotted |
 | d | Test 1: the dm–delta correlation with the matched and crossed pairings | Data ready (`delta_tracking.csv`); not plotted |
@@ -251,9 +254,32 @@ Revised 2026-09-27 after the all-lPFC main-effect run. The data behind each pane
 **Design notes.**
 
 - Show c as matched small multiples (base effects, adaptation) with shared axes and one legend, so they read as one comparison.
-- Plot participant-level means with SEM across participants, not electrode-level scatter. Single electrodes are not interpretable.
+- For c, plot participant-level means with SEM across participants, not electrode-level scatter. Single electrodes are not interpretable; panel a is the one electrode scatter, captioned as in "Panel a".
 - Test 2 stays in the text and supplement. It cannot say how much of the gradient is inherited (§16.6.6), so it does not carry a panel.
 - Per-electrode dot maps appear only as coverage or illustration, with a legend line saying single electrodes are not interpretable.
+
+### Panel a
+
+Plot the scores the pre-specified test correlates, not `joint_scatter.png`.
+
+| | `joint_scatter.png` | Panel a | Pre-specified test |
+| --- | --- | --- | --- |
+| Trials behind each score | all (split-averaged) | all (split-averaged) | LWPC and LWPS from opposite halves of each split |
+| Responsiveness removed | no | yes | yes |
+| Centred within participant | no | yes | yes |
+| Participants with < 3 electrodes | kept | dropped | dropped |
+
+- **Points:** `x_resid` and `y_resid` from the segregation run's `continuous.csv`. They are the points in `segregation_summary.png`'s residualized panel, so no rerun is needed. Check the count against the test's (all lPFC: 397 electrodes, 21 participants).
+- **Annotation:** the pre-specified r, p and n, and the centroid test. No fit line, second r or noise-corrected value.
+- **Caption:** the points correlate about twice as strongly as r, mostly because half-trial scores are noisier (§15.5), so the caption has to say what r is. Draft: "Each point is one electrode's LWPC and LWPS score from all trials, after regressing out overall responsiveness and subtracting each participant's mean. r is the pre-specified test: LWPC from one half of the trials against LWPS from the other, averaged over 200 random splits. Because each half has half the trials, r is smaller than the correlation among the plotted points."
+- **Leverage:** if a reviewer asks whether one participant drives r, answer with the pre-specified test rerun leaving out each participant (§15.13). The leave-one-out range on `joint_scatter.png` is for its own, uncorrected correlation.
+
+Why not the existing figures:
+
+- **`joint_scatter.png`:** no number on it is the pre-specified test. The r values, the leave-one-out range and the fit line's slope describe the plotted points (both axes are scaled to SD 1, so the slope is essentially their pooled Pearson r). The ceiling line's r uses separate halves, but it is pooled across participants and not residualised. Its axis labels say "disjoint half", but the points are split-averaged, which rebuilds the full-data scores (§15.2). Keep it as a pipeline diagnostic, in neither the main text nor the supplement.
+- **`segregation_summary.png`:** its residualized panel has the right points, but the r in its title is the separate-half test, not those points' own correlation. Its null panel permutes the plotted points, not the statistic whose p it prints. Its categorical panels need FDR labels, and no electrode passes FDR for LWPC.
+
+No scatter can show the separate-half r itself. The r averages 400 correlations (half A against half B and the reverse, over 200 splits), and a plot with one point per electrode shows either one of them or, averaged over splits, the full-data scores. To draw the separate-half relationship directly, bin instead: within each split, residualise and centre the half scores as the test does, bin electrodes by half-A LWPC and average half-B LWPS in each bin, then average over splits and both directions, with participant-bootstrap error bars. That matches the means ± SEM style of b and c but needs new code.
 
 ### Supplement placement
 
@@ -277,8 +303,9 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 - [x] Rerun the proportion-mode score job for all lPFC with the new columns.
 - [ ] Rerun it for the task-significant set.
 - [x] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm label and coordinate tests (all lPFC; §16.6 of `n4_continuous_anatomy.md`).
-- [ ] Plot the revised F5 panels a–d (§16.7.3 of `n4_continuous_anatomy.md`).
-- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; re-annotate `joint_scatter.png`; switch `between_noise_corrected_ci` to a participant bootstrap. (The Pearson-based value is in the all-lPFC main-effect run's `summary.txt`.)
+- [ ] Make panel a from `continuous.csv` (see "Panel a"), and run the leave-one-participant-out check on its r.
+- [ ] Plot the revised F5 panels b–d (§16.7.3 of `n4_continuous_anatomy.md`).
+- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; fix `joint_scatter.png`'s axis labels and drop its noise-corrected value (it stays a pipeline diagnostic); switch `between_noise_corrected_ci` to a participant bootstrap. (The Pearson-based value is in the all-lPFC main-effect run's `summary.txt`.)
 
 ### Next, if time
 
@@ -296,7 +323,7 @@ One row per figure, updated each week: the claim it carries, where it stands, th
 | F2 | Coverage and signal validation | Needs coverage table (S1) | Build per-ROI, per-participant table | – |
 | F3 | lPFC high gamma carries LWPC and LWPS in the expected directions | Traces done | Confirm direction tests match behavior | A direction opposite to behavior |
 | F4 | Both adaptations decodable from distributed lPFC activity | Done; transfer panel dropped | Report trial counts per decoder | – |
-| F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Main-effect anatomy done for all lPFC (§16.6) | Plot panels a–d; task-significant main-effect rerun | The task-significant replication. Settling whether the gradient is inherited would need a more reliable measure of the base-effect balance than these trial counts give. |
+| F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Main-effect anatomy done for all lPFC (§16.6) | Panel a from `continuous.csv`; plot panels b–d; task-significant main-effect rerun | The task-significant replication. Settling whether the gradient is inherited would need a more reliable measure of the base-effect balance than these trial counts give. |
 
 Keep this table in `docs/figure_plan.md` so the repo stays the source of truth.
 

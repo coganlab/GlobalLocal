@@ -1958,7 +1958,11 @@ the contrast you *score*.
   `all` — see §17.1). Prediction: only the `both` group cross-decodes. This is
   the **all-vs-all** decode: its classes span every condition cell, so it is
   already pooled across both block proportions (§17.2) — only (0)/(0b) split by
-  block.
+  block. Every group also decodes each contrast **within** itself
+  (`stab_to_stab`, `flex_to_flex`) on the same trials and folds, and each
+  transfer is reported against the within decode of the labelling it is scored
+  on: how many windows it falls below that ceiling, and the share of the
+  ceiling's above-chance accuracy it keeps ([`cross_decoding_controls.md`](cross_decoding_controls.md) §2).
 - **(c) Temporal generalization (Fig 10).** Train at *t*, test at *t′* →
   off-diagonal generalization = sustained/stable code, narrow diagonal =
   moving/phasic code. `cv_cm_jim_window_shuffle(..., temporal_generalization=True)`.
@@ -2011,7 +2015,8 @@ Three independent choices, easy to conflate:
 3. **How those loaded electrodes are split for the decodes** — the groups.
    `both`/`S_only`/`F_only` come from the interaction labels, and
    `REFERENCE_GROUP` (default `all`) adds the **unselected** set: every channel
-   in the decoded ROI array.
+   in the decoded ROI array. Main-effect labels (`CONTRAST_MODE=condition`) name
+   the same three groups `both`/`congruency_only`/`switch_type_only`.
 
 So "the `all` group" means *all the electrodes this run loaded* — with
 `ELECTRODES=sig` that is all baseline-significant electrodes in the ROI, with
@@ -2026,6 +2031,12 @@ decode is about. Set `REFERENCE_GROUP=''` to drop it.
 Temporal generalization costs `n_windows²` decodes per matrix, so it runs only on
 `TEMPGEN_GROUPS` (default `both`); use `TEMPGEN_GROUPS=both,all` to get the
 unselected comparison matrix too.
+
+**The csv route loads every electrode of the ROI.** With
+`ELECTRODE_DEFINITION=csv` the saved table *is* the electrode definition, so the
+array is not intersected with the baseline-significant list and `all` is every
+ROI electrode, whatever `ELECTRODES` says (and the output folder still says
+`sig`). Pair a csv run with controls run on `ELECTRODES=all`.
 
 ### 17.2 Conditions and contrasts — why the classes are derived, not written
 
@@ -2163,8 +2174,9 @@ EPOCHS_ROOT_FILE=Stimulus_-1.0to1.5sec_..._nan_policy_omit \
 ```
 
 Everything else has a working default: `ROI=lpfc`, `ELECTRODES=sig`,
-`CONDITIONS=stimulus_experiment_conditions`, window `[0.0, 0.5]s`,
-`ELECTRODE_DEFINITION=anova`. The `anova` definition needs the long single-trial
+`CONDITIONS=stimulus_experiment_conditions`, window `[0.0, 0.5]s`, and
+`ELECTRODE_DEFINITION=csv` over the saved A1 tables listed in the script (one
+`union` job per table, §17.5). The `anova` definition needs the long single-trial
 table (`effect_measure='cluster'`), so a real run assembles both; the
 `power_traces` route skips the long-table assembly entirely.
 
@@ -2212,11 +2224,14 @@ any interaction-based selection (§17.1).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs). |
+| `ELECTRODE_DEFINITION` | `anova` (`csv` in the submit script) | `anova` (in-job window-mean ANOVA), `power_traces` (finished cluster-corrected runs) or `csv` (a saved A1 `anova_labels.csv`). |
+| `ANOVA_LABELS_CSV` | the submit script's list | `csv` only: the A1 table, or its result folder. |
+| `ANOVA_LABEL_EFFECT` / `ANOVA_LABEL_EFFECTS` | `union` | `csv` only: which population of the table each job starts from; the job then decodes the disjoint groups left in it. `union` (either effect) keeps all of them in one job. The names must match the table's mode (`lwpc`… for proportion, `congruency`… for condition); the submit script skips, and the runner refuses, the other mode's names. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | `anova` only: definition window, in seconds from stimulus onset. |
-| `CONTRAST_MODE` | `proportion` | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. |
+| `CONTRAST_MODE` | `proportion` (`condition` in the submit script) | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. For a `csv` table it is read off the A1 folder name (`..._<roi>_<mode>_<correction>`), and a contradicting value is an error. |
 | `ALPHA` | `0.05` | FDR threshold for the electrode groups. |
-| `FDR_CORRECTION` | `fdr_bh` | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. |
+| `FDR_CORRECTION` | `fdr_bh` (submit script: `flags` for csv, `none` otherwise) | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. `flags` (csv only) keeps the saved table's own flags. |
+| `ELECTRODE_SELECTION_SPLIT` | `false` | `anova` only: fit the ANOVA on `ELECTRODE_SELECTION_FRAC` (0.3) of the trials and decode the rest, so no decode is circular. |
 | `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
 | `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
 | `POWER_TRACES_CORRECTION` | `fdr_bh` | `fdr_bh`, `cluster`, or `none`. |
@@ -2232,7 +2247,8 @@ any interaction-based selection (§17.1).
 | `FRAC_TRAIN` | unset | **proportion of trials used for training.** Unset keeps `StratifiedKFold` at `(N_SPLITS-1)/N_SPLITS`; setting it switches to `StratifiedShuffleSplit` at exactly this fraction. |
 | `EXPLAINED_VARIANCE` | `0.8` | PCA variance retained. |
 | `N_PERM` | `500` | permutations for the cluster test over windows. |
-| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. |
+| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. The submit script exports it rather than passing it through `sbatch --export`, which would cut it at the comma. |
+| `TRAIN_LABEL` / `TEST_LABEL` | unset | one requested decode instead of the battery (`stability`/`congruency`, `flexibility`/`switchType`); written to its own `train_<x>_test_<y>/` subfolder. |
 | `SEED` | `0` | random seed. |
 | `SAVE_DIR` | derived | override the output directory. |
 
@@ -2264,6 +2280,122 @@ differ in any of them don't overwrite each other:
   an assumed 0.5.
 - **Temporal generalization matrix:** broad off-diagonal generalization → a
   sustained/stable code; a narrow diagonal → a moving/phasic code.
+
+### 17.5 Main-effect populations and the task positive controls
+
+The runs behind two items of [`closing_figure_plan.md`](closing_figure_plan.md):
+"Cross-decoding within main-effect groups" (with main-effect decoding and power
+traces in the same groups) and "Congruency ↔ switch cross-decoding with task
+positive controls". Commands run from `dcc_scripts/decoding`; `COND_CSV` is the
+condition-mode A1 run, e.g. the second entry of the A4 submit script's list:
+
+```bash
+COND_CSV=/hpc/home/jz421/.../anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
+```
+
+**1. Cross-decoding in each main-effect population.** One job decodes every
+group of the table:
+
+```bash
+ANOVA_LABELS_CSV=$COND_CSV bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
+It reads `condition` off the folder name, so the groups are `both` (congruency ∩
+switch), `congruency_only`, `switch_type_only` and the reference `all` (every lPFC
+electrode, §17.1). Each gets both transfers and both within decodes. Two things to
+read into the result:
+
+- **Same-trial selection.** The table was fit on the trials this job decodes, so
+  a group's within decode of its *own* effect is inflated (`stab_to_stab` on
+  `congruency_only`, `flex_to_flex` on `switch_type_only`, both on `both`). The
+  transfers, and the ceiling of the other contrast, are not. For clean ceilings,
+  define the groups in the job on 30% of the trials and decode the other 70%:
+
+  ```bash
+  ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=true \
+      WINDOW_TMIN=0.0 WINDOW_TMAX=1.5 bash submit_stability_flexibility_cross_decoding_dcc.sh
+  ```
+
+  That route uses `ELECTRODES` (default `sig`) and raw p (`FDR_CORRECTION=none`,
+  as in the saved A1 runs).
+- **Condition set.** The default `stimulus_experiment_conditions` also runs the
+  block designs; there, the per-group 2×2 names the groups `congruency` and
+  `switch_type` and, without the trial split, skips every decode of a group's
+  own contrast (`cd.MAIN_EFFECT_DECODE_CONTRAST`).
+  `CONDITIONS=stimulus_main_effect_conditions` drops the block designs and gives
+  the transfer ~4× the trials per cell.
+
+**2. Main-effect decoding and power traces in the same populations.** The
+ordinary decoder and the power-trace job take the same table. With no effect
+list they submit every population of its mode (`both`, `congruency`,
+`switch_type`, `congruency_only`, `switch_type_only`):
+
+```bash
+CONDITIONS="stimulus_congruency_conditions stimulus_switch_type_conditions" \
+    ANOVA_LABELS_CSV=$COND_CSV bash submit_specific_conditions_decoding_dcc.sh
+cd ../power && ANOVA_LABELS_CSV=$COND_CSV bash submit_specific_conditions_power_traces_dcc.sh
+```
+
+Each population was selected on the effect these jobs show, so they are
+descriptive (supplement S2/S2b). For the adaptation traces inside the groups
+(S2c), set `CONDITIONS` to the block-balanced LWPC/LWPS sets. The A4 within
+decodes from step 1 are the main-effect decodes matched to the transfers: same
+trials, same folds.
+
+**3. The congruency ↔ switch transfer with task positive controls.** The transfer
+is the `all` group of step 1. The controls are a separate job, the N3b 2×2
+(train in one level, test in the other, uncentered and centered) with a
+trial-level factor in place of the block
+([`cross_decoding_controls.md`](cross_decoding_controls.md) §3.5):
+
+```bash
+ELECTRODES=all EPOCHS_ROOT_FILE=<the A4 run's> bash submit_task_transfer_dcc.sh
+```
+
+| Design | Decoded | Train → test | Condition set |
+|---|---|---|---|
+| T1 | task (global vs local) | congruent → incongruent trials | `stimulus_task_by_congruency_conditions` |
+| T2 | task | repeat → switch trials | `stimulus_task_by_switch_type_conditions` |
+| T3 | congruency | global-task → local-task trials | `stimulus_task_by_congruency_conditions` |
+| T4 | switch type | global-task → local-task trials | `stimulus_task_by_switch_type_conditions` |
+
+`ELECTRODES=all` because the csv route decodes every lPFC electrode; the control
+has to run on the electrodes of the transfer it controls. Results go to
+`results/<EPOCHS_ROOT_FILE>/task_transfer_<roi>_<electrodes>_w<W>s<S>/pooled_design_conditions/`,
+with the N3b file layout (`summary.txt`, `task_transfer.json`,
+`task_transfer_traces.npz`, one figure per transfer).
+
+Dry run first. The planted answer is T1 at chance while T2 transfers;
+`SYNTHETIC_CODE=carryover` plants the previous-task confound instead. It decodes
+all 4 designs × 2 centerings, and each took about 8 minutes at `N_REPEATS=5` on
+a busy 4-core machine, so submit it rather than running it on a laptop (the
+window must fit the 32-sample synthetic epochs):
+
+```bash
+DATA_SOURCE=synthetic SYNTHETIC_CODE=congruency_specific N_REPEATS=5 \
+    WINDOW_SIZE=16 STEP_SIZE=8 bash submit_task_transfer_dcc.sh
+```
+
+Reading, in this order:
+
+1. **The prerequisite.** In step 1, `stab_to_stab` and `flex_to_flex` on `all`
+   must beat shuffle. If either does not, a failed transfer means nothing.
+2. **T1.** Task learned on congruent trials should transfer to incongruent ones
+   at close to its within accuracy. If it does, the pipeline can carry a code from
+   one trial population to another, and a null congruency ↔ switch transfer is
+   not a pipeline failure.
+3. **The effect-size line.** The task cue (frame colour) is drawn with the
+   stimulus, so a task decoder is large and partly visual. `summary.txt` prints
+   within-level task accuracy (T1) next to within-level congruency accuracy (T3).
+   The further apart they are, the less T1 says about a congruency-sized code.
+4. **T3.** Congruency across task is the control at congruency's own effect size.
+   Set its "keeps X% of it" beside the A4 transfer's: congruency transferring
+   across task while failing to transfer to switch type is the "separable codes"
+   result.
+5. **T2 / T4.** On a switch trial the previous task was the other one, so
+   leftover previous-task activity reverses between the two levels. A drop here is
+   expected even with one task code; report T2 but lean on T1 (the plan's own
+   call).
 
 ---
 

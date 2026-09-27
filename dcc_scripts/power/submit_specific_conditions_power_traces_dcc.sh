@@ -20,10 +20,16 @@
 #     # stimulus_switch_type_by_incongruent_proportion_conditions
 # )
 
-CONDITIONS=(
-    stimulus_congruency_conditions
-    stimulus_switch_type_conditions
-)
+# Space-separated CONDITIONS in the environment replace this list, e.g.
+#   CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions"
+if [[ -n "${CONDITIONS:-}" ]]; then
+    read -r -a CONDITIONS <<< "$CONDITIONS"
+else
+    CONDITIONS=(
+        stimulus_congruency_conditions
+        stimulus_switch_type_conditions
+    )
+fi
 
 
 # One cell per block type + full-factorial ANOVA, so the 2-way terms are
@@ -109,9 +115,23 @@ fi
 #     congruency_only switch_type_only
 # )
 
+# A space-separated ANOVA_LABEL_EFFECTS in the environment works too.
+read -r -a ANOVA_LABEL_EFFECTS <<< "${ANOVA_LABEL_EFFECTS[*]:-}"
 if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
     ANOVA_LABEL_EFFECTS=("$ANOVA_LABEL_EFFECT")
 fi
+
+# With no list, a CSV gets every population its contrast mode defines. The A1
+# folder name says which mode (..._<roi>_<mode>_<correction>); both modes keep
+# their two effects in the same S/F columns, so the names must match the mode.
+default_effects() {
+    case "$1" in
+        *_condition_*|*_condition/*|*_condition)
+            echo both congruency switch_type congruency_only switch_type_only ;;
+        *_proportion_*|*_proportion/*|*_proportion)
+            echo both lwpc lwps lwpc_only lwps_only ;;
+    esac
+}
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
@@ -140,8 +160,15 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     # nine identical jobs all writing the same output directory. Run once instead.
     if [[ -z "$ANOVA_LABELS_CSV" ]]; then
         EFFECTS_THIS_CSV=("all_${ELECTRODES}_elecs")
-    else
+    elif [[ ${#ANOVA_LABEL_EFFECTS[@]} -gt 0 ]]; then
         EFFECTS_THIS_CSV=("${ANOVA_LABEL_EFFECTS[@]}")
+    else
+        read -r -a EFFECTS_THIS_CSV <<< "$(default_effects "$ANOVA_LABELS_CSV")"
+        if [[ ${#EFFECTS_THIS_CSV[@]} -eq 0 ]]; then
+            echo "Skipping $ANOVA_LABELS_CSV: its folder names no contrast mode;" \
+                 "set ANOVA_LABEL_EFFECTS explicitly."
+            continue
+        fi
     fi
 
     for EFFECT_INDEX in "${!EFFECTS_THIS_CSV[@]}"; do

@@ -46,11 +46,23 @@ def test_composite_groups_have_no_diagonal():
     assert not is_circular_decode("both", "congruency", "incongruent_proportion")
 
 
+DECODE_CELLS = [("congruency", "incongruent_proportion"),
+                ("congruency", "switch_proportion"),
+                ("switchType", "switch_proportion"),
+                ("switchType", "incongruent_proportion")]
+
+
 def test_every_group_leaves_three_clean_cells():
-    decode_cells = [("congruency", "incongruent_proportion"),
-                    ("congruency", "switch_proportion"),
-                    ("switchType", "switch_proportion"),
-                    ("switchType", "incongruent_proportion")]
     for group in DEFINITION_DECODE_DIAGONAL:
-        clean = [c for c in decode_cells if not is_circular_decode(group, *c)]
+        clean = [c for c in DECODE_CELLS if not is_circular_decode(group, *c)]
         assert len(clean) == 3, f"group {group!r} should keep 3 off-diagonal cells"
+
+
+@pytest.mark.parametrize("group,contrast", [("congruency", "congruency"),
+                                            ("switch_type", "switchType")])
+def test_a_main_effect_group_double_dips_on_its_contrast_in_every_block(group, contrast):
+    """Electrodes picked for a congruency MAIN effect were picked on every
+    congruency cell, whichever block splits it; only the other contrast is clean."""
+    circular = [c for c in DECODE_CELLS if is_circular_decode(group, *c)]
+    assert circular == [c for c in DECODE_CELLS if c[0] == contrast]
+    assert circular_decode_for_group(group) == (contrast, "any block")

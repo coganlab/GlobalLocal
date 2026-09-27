@@ -2,8 +2,11 @@
 
 Train a contrast in one level of a block factor and score it in the other. For
 example, X1 learns congruency in 25%-incongruent blocks and tests it in
-75%-incongruent blocks. The only new idea is WHICH trials train and which
-test; everything else is the ordinary cross-decoding pipeline:
+75%-incongruent blocks. The task-transfer positive controls
+(docs/cross_decoding_controls.md §3.5) are the same 2x2 with a trial-level
+factor in place of the block: T1 learns task (global vs local) on congruent
+trials and tests it on incongruent ones. The only new idea is WHICH trials train
+and which test; everything else is the ordinary cross-decoding pipeline:
 
 - `build_cross_decoding_arrays` for the trials and labels;
 - `make_decoder` for the classifier (PCA -> LDA, equal priors);
@@ -34,29 +37,34 @@ from .cross_decoding import build_cross_decoding_arrays, class_strings, make_dec
 
 BLOCK_FACTORS = ("incongruent_proportion", "switch_proportion")
 # decoded contrast -> (class 0, class 1) levels, the order `class_strings` uses
-CONTRAST_LEVELS = {"congruency": ("i", "c"), "switchType": ("s", "r")}
+CONTRAST_LEVELS = {"congruency": ("i", "c"), "switchType": ("s", "r"), "task": ("g", "l")}
+# what a contrast can be transferred ACROSS: a block factor (N3b), or another
+# trial-level factor (the task-transfer controls)
+TRANSFER_FACTORS = BLOCK_FACTORS + tuple(CONTRAST_LEVELS)
 
 
 def prepare(roi_labeled_arrays, roi, cells, contrast, block_col):
     """One ROI's trials with the labels block transfer needs.
 
-    `cells` is the condition -> factor-level table (`cd.condition_cells` or
-    `cd.synthetic_condition_cells`), `contrast` is 'congruency' or 'switchType',
-    `block_col` is the factor transferred across.
+    `cells` is the condition -> factor-level table (`cd.condition_cells`,
+    `cd.synthetic_condition_cells` or `cd.synthetic_task_condition_cells`),
+    `contrast` is one of CONTRAST_LEVELS, and `block_col` is the factor
+    transferred across (any of TRANSFER_FACTORS but the contrast itself).
 
     Returns dict with
         X      : (n_trials, n_channels, n_time); pure-padding rows already dropped
-        y      : class of each trial (0 = incongruent / switch)
+        y      : class of each trial (0 = incongruent / switch / global)
         strata : source condition of each trial; the folds are stratified on it
-        block  : the trial's level of `block_col` (25 or 75)
+        block  : the trial's level of `block_col` (25 or 75; 'c' or 'i'; ...)
         groups : the balance group, e.g. 'i|incongruent_proportion=25' = one
                  class in one transfer-factor level
         cats   : class definitions, for the Decoder
     """
     if contrast not in CONTRAST_LEVELS:
         raise ValueError(f"contrast must be one of {list(CONTRAST_LEVELS)}; got {contrast!r}")
-    if block_col not in BLOCK_FACTORS:
-        raise ValueError(f"block_col must be one of {BLOCK_FACTORS}; got {block_col!r}")
+    if block_col not in TRANSFER_FACTORS or block_col == contrast:
+        raise ValueError(f"block_col must be one of {TRANSFER_FACTORS} other than the "
+                         f"contrast; got {block_col!r}")
     required = (contrast, block_col)
     missing = [f for f in required if any(c.get(f) is None for c in cells.values())]
     if missing:

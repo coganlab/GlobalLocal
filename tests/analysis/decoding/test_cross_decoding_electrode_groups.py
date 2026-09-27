@@ -70,6 +70,16 @@ def test_interaction_groups_keyed_by_definition_flag():
     assert inter['CPC'] == ['D1-A1', 'D1-A2']
 
 
+def test_main_effect_labels_name_the_groups_after_the_main_effects():
+    """A condition-mode A1 table keeps the S/F (= CPC/SPS) schema, but its flags
+    are the congruency and switch-type main effects."""
+    labels = _anova_style_labels()
+    assert xd._electrode_groups(labels, 'condition') == {
+        'both': ['D1-A1'], 'congruency_only': ['D1-A2'], 'switch_type_only': ['D2-B1']}
+    assert xd._interaction_groups(labels, 'condition') == {
+        'congruency': ['D1-A1', 'D1-A2'], 'switch_type': ['D1-A1', 'D2-B1']}
+
+
 def test_power_traces_keys_actually_slice_the_array():
     """End-to-end on the restriction itself: bare-electrode labels must not
     silently select zero channels."""
@@ -127,6 +137,17 @@ def test_power_traces_route_requires_run_directories():
     with pytest.raises(ValueError, match='power_traces_runs'):
         xd._resolve_labels(SimpleNamespace(electrode_definition='power_traces',
                                            alpha=0.05, power_traces_runs=None))
+
+
+def test_csv_union_keeps_every_disjoint_group(tmp_path):
+    """ANOVA_LABEL_EFFECT=union: one job decodes both / S-only / F-only."""
+    path = tmp_path / 'anova_labels.csv'
+    _anova_style_labels().to_csv(path, index=False)
+    labels = xd._resolve_labels(SimpleNamespace(
+        electrode_definition='csv', anova_labels_csv=str(path), anova_label_effect='union',
+        anova_label_roi=None, fdr_correction='flags', alpha=.05))
+    assert xd._electrode_groups(labels, 'condition') == {
+        'both': ['D1-A1'], 'congruency_only': ['D1-A2'], 'switch_type_only': ['D2-B1']}
 
 
 def test_csv_route_honors_requested_raw_correction(tmp_path):

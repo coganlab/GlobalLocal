@@ -18,9 +18,16 @@
 #   TEMPGEN_GROUPS=both,all bash submit_..._dcc.sh                             # + unselected tempgen
 #   FRAC_TRAIN=0.5 bash submit_..._dcc.sh                                      # set the train/test split
 #   ANOVA_LABELS_CSV=/path/to/anova_labels.csv bash submit_..._dcc.sh          # one saved A1 run
+#   ANOVA_LABEL_EFFECTS="congruency switch_type" bash submit_..._dcc.sh        # one job per population
 #   ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=/path/to/run \
 #       bash submit_..._dcc.sh                                                 # define electrodes from
 #                                                                              # the power-trace runs
+#   ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=true \
+#       WINDOW_TMAX=1.5 bash submit_..._dcc.sh                                 # main-effect groups on 30%
+#                                                                              # of trials, decode the rest
+#
+# The task x congruency / task x switch type positive controls for the transfer
+# are a separate job: submit_task_transfer_dcc.sh.
 #
 # See docs/analysis_guide.md §17 for what each knob does and how to read the output.
 
@@ -88,20 +95,50 @@ ANOVA_LABELS_CSVS=(
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
-ANOVA_LABEL_EFFECTS=(
-    both lwpc lwps congruency switch_type
-    lwpc_only lwps_only congruency_only switch_type_only
-)
-if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
-    ANOVA_LABEL_EFFECTS=("$ANOVA_LABEL_EFFECT")
+# Only the csv route reads a saved A1 table. The anova and power_traces routes
+# define their own electrodes, so they are submitted once, with no table: looping
+# them over the table x effect list would submit identical jobs into folders named
+# after tables they never read.
+if [[ "$ELECTRODE_DEFINITION" != csv ]]; then
+    ANOVA_LABELS_CSVS=("")
 fi
+
+# Which populations of each table to submit, one job each (space-separated).
+# A4 first restricts the table to the named population, then decodes the disjoint
+# groups left in it -- both / S_only / F_only, named both / congruency_only /
+# switch_type_only for a main-effect table -- plus REFERENCE_GROUP. The default,
+# `union` (every electrode with either effect), keeps all of those groups in ONE
+# job per table. Name a population to decode only it, e.g.
+#   ANOVA_LABEL_EFFECTS="both congruency_only switch_type_only"
+# Effect names belong to the table's contrast mode: lwpc / lwps / lwpc_only /
+# lwps_only for a proportion table, congruency / switch_type / congruency_only /
+# switch_type_only for a condition table (both and union work for either); a name
+# from the other mode is skipped. ANOVA_LABEL_EFFECT (one name) still works.
+if [[ -n "${ANOVA_LABEL_EFFECT:-}" ]]; then
+    ANOVA_LABEL_EFFECTS=$ANOVA_LABEL_EFFECT
+fi
+read -r -a EFFECT_LIST <<< "${ANOVA_LABEL_EFFECTS:-union}"
 ANOVA_LABEL_CORRECTION=${ANOVA_LABEL_CORRECTION:-flags} # flags | none | fdr_bh
 ANOVA_LABEL_ALPHA=${ANOVA_LABEL_ALPHA:-0.05}
 ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-} # only set when the CSV itself has an roi column
-CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+# proportion=LWPC/LWPS interactions; condition=congruency/switch main effects.
+# For a saved table this is read off its folder name (..._<roi>_<mode>_<correction>),
+# since the table's S/F flags mean whatever the A1 run that wrote them computed.
+CONTRAST_MODE=${CONTRAST_MODE:-condition}
+csv_contrast_mode() {
+    case "$1" in
+        *_condition_*|*_condition/*|*_condition) echo condition ;;
+        *_proportion_*|*_proportion/*|*_proportion) echo proportion ;;
+        *) echo "$CONTRAST_MODE" ;;
+    esac
+}
 # For CSV runs, use the ordinary launcher's ANOVA_LABEL_CORRECTION and
 # ANOVA_LABEL_ALPHA names. Explicit FDR_CORRECTION/ALPHA still take precedence.
-FDR_CORRECTION=${FDR_CORRECTION:-$ANOVA_LABEL_CORRECTION}
+# 'flags' only means something for a saved table; the in-job ANOVA picks one
+# (none = raw p, as in the saved A1 runs above; fdr_bh = BH across electrodes).
+if [[ -z "${FDR_CORRECTION:-}" ]]; then
+    [[ "$ELECTRODE_DEFINITION" == csv ]] && FDR_CORRECTION=$ANOVA_LABEL_CORRECTION || FDR_CORRECTION=none
+fi
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}          # seconds relative to stimulus onset
 WINDOW_TMAX=${WINDOW_TMAX:-0.5}
 ALPHA=${ALPHA:-$ANOVA_LABEL_ALPHA}
@@ -136,10 +173,13 @@ SEED=${SEED:-0}
 # Temporal generalization costs n_windows^2 decodes per matrix, so it runs only
 # on these groups. 'both,all' adds the unselected reference matrix; '' skips it.
 # Use `-` rather than `:-`: unset -> default "both", explicitly empty -> disable.
-TEMPGEN_GROUPS=${TEMPGEN_GROUPS-both}
+# sbatch --export splits its list on commas, so 'both,all' would reach the job
+# as 'both'; export it here and let --export=ALL carry it instead.
+export TEMPGEN_GROUPS=${TEMPGEN_GROUPS-both}
 # Optional single requested transfer. Same labels = ordinary within-contrast
 # decoding; different labels = cross-decoding. Leave both blank for the full
-# backward-compatible bidirectional battery.
+# battery: both transfers plus the two within-contrast decodes they are read
+# against. A single pair writes to its own train_<x>_test_<y>/ subfolder.
 TRAIN_LABEL=${TRAIN_LABEL:-}
 TEST_LABEL=${TEST_LABEL:-}
 
@@ -152,14 +192,28 @@ mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     ANOVA_LABELS_CSV=${ANOVA_LABELS_CSVS[$CSV_INDEX]}
-    for EFFECT_INDEX in "${!ANOVA_LABEL_EFFECTS[@]}"; do
-        ANOVA_LABEL_EFFECT=${ANOVA_LABEL_EFFECTS[$EFFECT_INDEX]}
+    if [[ -n "$ANOVA_LABELS_CSV" ]]; then
+        JOB_CONTRAST_MODE=$(csv_contrast_mode "$ANOVA_LABELS_CSV")
+        EFFECTS_THIS_CSV=("${EFFECT_LIST[@]}")
+    else
+        # no table: the effect is unused, so submit once
+        JOB_CONTRAST_MODE=$CONTRAST_MODE
+        EFFECTS_THIS_CSV=(both)
+    fi
+    for EFFECT_INDEX in "${!EFFECTS_THIS_CSV[@]}"; do
+        ANOVA_LABEL_EFFECT=${EFFECTS_THIS_CSV[$EFFECT_INDEX]}
+        case "$JOB_CONTRAST_MODE:$ANOVA_LABEL_EFFECT" in
+            condition:lwpc|condition:lwps|condition:lwpc_only|condition:lwps_only|\
+            proportion:congruency|proportion:switch_type|proportion:congruency_only|proportion:switch_type_only)
+                echo "Skipping effect=$ANOVA_LABEL_EFFECT for the $JOB_CONTRAST_MODE-mode table $ANOVA_LABELS_CSV"
+                continue ;;
+        esac
         for COND in "${CONDITION_LIST[@]}"; do
             echo "Submitting stability/flexibility A4 cross-decoding"
             echo "  condition=$COND  anova_labels=${ANOVA_LABELS_CSV:-none}  effect=$ANOVA_LABEL_EFFECT"
-            echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$CONTRAST_MODE  correction=$FDR_CORRECTION"
+            echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$JOB_CONTRAST_MODE  correction=$FDR_CORRECTION"
             sbatch --job-name="sf_xdec_a${CSV_INDEX}e${EFFECT_INDEX}_${DATA_SOURCE}_${ROI}" \
-                --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$COND",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TEMPGEN_GROUPS="$TEMPGEN_GROUPS",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
+                --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$COND",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$JOB_CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
                 sbatch_stability_flexibility_cross_decoding_dcc.sh
         done
     done
