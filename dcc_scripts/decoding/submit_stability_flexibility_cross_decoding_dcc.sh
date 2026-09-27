@@ -13,8 +13,10 @@
 #   bash submit_stability_flexibility_cross_decoding_dcc.sh                    # real data, defaults
 #   ROI=acc bash submit_stability_flexibility_cross_decoding_dcc.sh            # a different region
 #   ELECTRODES=all bash submit_..._dcc.sh                                      # every ROI electrode
-#   DATA_SOURCE=synthetic bash submit_..._dcc.sh                               # ground-truth dry run
-#   DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal bash submit_..._dcc.sh     # the null code
+#   DATA_SOURCE=synthetic WINDOW_SIZE=16 STEP_SIZE=16 bash submit_..._dcc.sh   # ground-truth dry run
+#   DATA_SOURCE=synthetic SYNTHETIC_CODE=orthogonal WINDOW_SIZE=16 STEP_SIZE=16 \
+#       bash submit_..._dcc.sh                                                 # the null code
+#   (synthetic epochs are 32 samples long, so the 64-sample default window does not fit)
 #   TEMPGEN_GROUPS=both,all bash submit_..._dcc.sh                             # + unselected tempgen
 #   FRAC_TRAIN=0.5 bash submit_..._dcc.sh                                      # set the train/test split
 #   ANOVA_LABELS_CSV=/path/to/anova_labels.csv bash submit_..._dcc.sh          # one saved A1 run
