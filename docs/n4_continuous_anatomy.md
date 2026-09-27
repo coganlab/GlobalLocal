@@ -401,8 +401,16 @@ subject/responsiveness-adjusted statistics, not whether a bar's SEM crosses zero
 
 Every point is an electrode (`lwpc_s` on x, `lwps_s` on y). It reports both the
 pooled and within-subject correlation and, when `per_split.csv` is supplied,
-annotates the split-half ceiling. This is useful context for whether the effects
-share electrodes, but it is not the primary anatomy interaction.
+annotates the split-half ceiling. It is a descriptive diagnostic, useful for
+checking whether one participant or a few electrodes carry the cloud, and it is
+not the primary anatomy interaction.
+
+It is not the co-localization figure to report either. The points are
+split-averaged scores, which equal the full-data scores (§15.2), although the
+axis labels say "disjoint half", and they are not residualised on responsiveness
+or centred within participant. So neither the points nor any number printed on
+them is the pre-specified test (`split_resolved_corr`). The figure to report is
+in §15.12.
 
 ---
 
@@ -726,7 +734,7 @@ In `scores_with_anatomy.csv`, check:
 
 | Files | Interpretation |
 |---|---|
-| `joint_scatter.png` | electrode-level LWPC–LWPS relationship with pooled/within-subject diagnostics and ceiling annotation |
+| `joint_scatter.png` | electrode-level LWPC–LWPS relationship with pooled/within-subject diagnostics and ceiling annotation; a diagnostic on uncorrected scores, not the figure to report (§6) |
 | `score_map_<value>.png` | rendered surface for each of the five values |
 | `score_map_<value>_colorbar.png` | required scale for that map |
 | `score_map_<value>_by_roi.png` | fallback only when the surface cannot render |
@@ -1195,6 +1203,18 @@ to +0.105 (participant and responsiveness, Pearson).
 Same-trial and separate-trial correlations agree, so sharing trials does not
 inflate the association.
 
+**Why a scatter of the scores shows a stronger correlation than r.** The
+pre-specified r has no scatter of its own: it averages 400 correlations (half A
+against half B and the reverse, over 200 splits). A plot with one point per
+electrode shows either one of them or, averaged over splits, the full-data
+scores (§15.2). Those correlate about twice as strongly: +0.22 within participant
+before responsiveness is removed (§15.2; with it removed, the value is in the
+segregation run's `correlation_split_averaged.json`). Shared trials add little,
+as the table shows. Most of the gap is attenuation: a score from half the trials
+is noisier (Pearson reliability about 0.17, against 0.29 from all trials, §15.4),
+so correlations between half-trial scores are smaller. A figure of the scores
+must therefore say which r it prints (§15.12).
+
 **The categorical (CMH) test is not computable in either run.** After FDR, no
 electrode is individually significant for LWPC in either run (all lPFC: 0 LWPC,
 0 LWPS; task-significant: 0 LWPC, 8 LWPS), so there are no groups to compare and
@@ -1522,8 +1542,14 @@ Whichever is primary, report the other in full.
 - LWPC and LWPS against height: band or binned means ± SEM across participants,
   two lines, one per effect. This is the figure for the tilt; the pipeline does
   not make it yet.
-- `joint_scatter.png`: LWPC against LWPS. Re-annotate it with the pre-specified
-  r and remove the noise-corrected value it currently prints.
+- LWPC against LWPS: `x_resid`/`y_resid` from the segregation run's
+  `continuous.csv`, the responsiveness-residualised, participant-centred scores
+  the pre-specified test correlates, labelled with its r, p and n. The points
+  correlate more strongly than r (§15.5), so the caption must say that r compares
+  separate trial halves. Not `joint_scatter.png`: neither its points nor its
+  numbers are the pre-specified test (§6). Specification and caption: "Panel a"
+  in [`closing_figure_plan.md`](closing_figure_plan.md#panel-a). The pipeline
+  does not make it yet.
 - `delta_by_roi.png`: adjusted mean delta per parcel, reordered by mean z.
 - Per-electrode dot maps only as coverage or illustration, with a legend line
   saying single electrodes are not interpretable. Never as evidence.
@@ -1575,7 +1601,14 @@ was small"):
       noise-corrected value; the archived all-lPFC summary still shows +1.374 /
       +1.369.
 - [ ] Make the LWPC-and-LWPS-by-height figure.
-- [ ] Re-annotate `joint_scatter.png` without the noise-corrected value.
+- [ ] Make the LWPC-against-LWPS figure from `continuous.csv` (§15.12). No rerun
+      is needed.
+- [ ] Leave-one-participant-out on the pre-specified correlation
+      (`split_resolved_corr` with each participant dropped). The leave-one-out
+      range on `joint_scatter.png` is for its own, uncorrected correlation.
+- [ ] Keep `joint_scatter.png` as a pipeline diagnostic, but fix its axis labels
+      (they say "disjoint half"; the points are split-averaged) and drop the
+      noise-corrected value from its annotation (code not yet changed).
 - [ ] Change `map_reliability`'s `between_noise_corrected_ci` from a split
       bootstrap to a participant bootstrap (code not yet changed).
 - [ ] Optional: one trial split per participant in
