@@ -38,6 +38,7 @@ only remember one thing about the layout, remember this:
 | **Manuscript Methods text** | [`docs/stability_flexibility_segregation_methods.md`](docs/stability_flexibility_segregation_methods.md) |
 | **The figure sequence for the paper** | [`docs/figure_plan.md`](docs/figure_plan.md) |
 | **The closing figure: main effects as a reference for LWPC/LWPS** | [`docs/closing_figure_plan.md`](docs/closing_figure_plan.md) — which planned analyses carry the ending, how to run the main-effect anatomy, and the electrode-set choice |
+| **How to run the main-effect cross-decoding, decoding and power traces, and the task positive controls** | [`docs/analysis_guide.md` §17.5](docs/analysis_guide.md#175-runbook-main-effect-populations-and-the-task-positive-controls) — the step-by-step runbook, in submission order |
 | **Duplicated code that could be consolidated** | [`docs/consolidation_candidates.md`](docs/consolidation_candidates.md) |
 | **Environment setup, BIDS conversion, VPN, cluster access, running the experiment** | Parts 2–6 of this README |
 
