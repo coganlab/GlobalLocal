@@ -2091,7 +2091,7 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 
 | Panel | Shows | Data | Status |
 |---|---|---|---|
-| a | Shared electrodes at both levels: congruency vs switch beside LWPC vs LWPS, each annotated with its separate-half r and split-half reliabilities | `scores_with_anatomy.csv`; r from `correlation_main_effects.json` and `min_elec_sweep.csv` | `joint_scatter.png` is the adaptation half (re-annotate, §15.12). The base-effect half needs `plot_joint_scatter(value_cols=('cong_s', 'switch_s'))`. |
+| a | Shared electrodes at both levels: congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualised, participant-centred scores each pre-specified test correlates, annotated with its separate-half r, p and n | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`; congruency/switch: the same transform of `mx`/`my` in its `electrodes.csv`; r from the segregation `summary.txt` and `correlation_main_effects.json` | Not plotted; no rerun needed. Not `joint_scatter.png` (§6); specification and caption in `closing_figure_plan.md`, "Panel a". |
 | b | The two balances by label: adjusted dm (x) against adjusted delta (y), one dot per label, sized by electrodes, coloured by distance from the midline; each omnibus F and p, and r = 0.73 | `panel_b_label_means.csv` (script §4), or `dm_per_roi.csv` + `delta_per_roi.csv` | Data ready; not plotted |
 | c | The four scores by distance from the midline: base effects and adaptation as matched small multiples, participant mean ± SEM per tertile | `panel_c_midline.csv` (script §3) | Data ready; not plotted. Replaces the planned "by height" panels. |
 | d | The link: r for dm vs delta, the two matched and the two crossed pairings, with p | `delta_tracking.csv` | Data ready; not plotted |
@@ -2115,8 +2115,8 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 - [ ] Decide how to name the axis: the pre-specified model reports height, the
       follow-up favours distance from the midline (advisor question in
       `closing_figure_plan.md`).
-- [ ] Plot panels b–d from the script's tables, and add the base-effect half of
-      panel a.
+- [ ] Make panel a, both halves, as specified in `closing_figure_plan.md`
+      ("Panel a"), and plot panels b–d from the script's tables.
 - [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
       have Test 2 print dm's reliability, the implied share and the bootstrap
       interval next to the shrinkage.
