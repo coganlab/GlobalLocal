@@ -41,7 +41,8 @@ if project_root not in sys.path:
 from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import main
 from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import rois_dict as ALL_ROIS_DICT
-from src.analysis.utils.anova_label_selection import anova_label_run_slug
+from src.analysis.utils.anova_label_selection import (
+    MODE_EFFECTS, anova_label_run_slug, contrast_mode_from_path)
 
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
@@ -54,9 +55,15 @@ from src.analysis.utils.anova_label_selection import anova_label_run_slug
 #                    group settings below (ELECTRODE_DEFINITION, the ANOVA CSV,
 #                    power traces, REFERENCE_GROUP, TEMPGEN_GROUPS) are unused,
 #                    and N_REPEATS counts balanced resamples.
+#   'task_transfer'  the task x congruency / task x switch type positive controls
+#                    (docs/cross_decoding_controls.md §3.5): the same job as
+#                    'block_transfer' with task, congruency and switch type as
+#                    the transfer factors. SYNTHETIC_CODE: shared |
+#                    congruency_specific | carryover.
 ANALYSIS = os.environ.get('ANALYSIS', 'a4')
-if ANALYSIS not in ('a4', 'block_transfer'):
-    raise ValueError(f"ANALYSIS must be 'a4' or 'block_transfer'; got {ANALYSIS!r}")
+if ANALYSIS not in ('a4', 'block_transfer', 'task_transfer'):
+    raise ValueError("ANALYSIS must be 'a4', 'block_transfer' or 'task_transfer'; "
+                     f"got {ANALYSIS!r}")
 
 LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
@@ -132,15 +139,19 @@ CONDITIONS = getattr(experiment_conditions, CONDITIONS_NAME)
 #                     'sig' keeps the baseline task-significant ones, 'all' keeps
 #                     every electrode in the ROI.
 #   the GROUPS      = how those loaded electrodes are then split for the decodes:
-#                     both / S_only / F_only from the interaction labels, plus the
-#                     unselected REFERENCE_GROUP over all of them.
+#                     both / S_only / F_only from the interaction labels (both /
+#                     congruency_only / switch_type_only from main-effect labels),
+#                     plus the unselected REFERENCE_GROUP over all of them.
 ROI = os.environ.get('ROI', 'lpfc')                         # a key of ROIS_DICT
 ROIS_DICT = {ROI: ALL_ROIS_DICT[ROI]} if ROI in ALL_ROIS_DICT else None
 if DATA_SOURCE == 'real' and ROIS_DICT is None:
     raise ValueError(f"ROI={ROI!r} is not in src/analysis/config/rois.py "
                      f"(have {sorted(ALL_ROIS_DICT)}).")
 ELECTRODES = os.environ.get('ELECTRODES', 'sig')            # 'all' or 'sig'
-CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+# 'proportion' = LWPC/LWPS interaction labels, 'condition' = congruency /
+# switch-type main-effect labels. On the csv route it is read off the A1 folder
+# name when unset (see below). Default 'proportion'.
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE') or None
 FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 ELECTRODE_SELECTION_SPLIT = os.environ.get(
@@ -158,12 +169,42 @@ if not 0 < ELECTRODE_SELECTION_FRAC < 1:
 #                     are exactly the electrodes the power-trace figures call
 #                     significant. More sensitive to transient interactions the
 #                     window mean dilutes; requires the run directories below.
+#   'csv'          -- the S/F flags of a saved A1 anova_labels.csv (ANOVA_LABELS_CSV).
+#                     ANOVA_LABEL_EFFECT first restricts it to one population
+#                     (both, congruency, lwpc_only, ...); the job then decodes the
+#                     disjoint groups left in it. 'union' keeps every group.
 ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'both')
 # Most A1 files are already generated for one ROI and therefore do not carry a
 # separate ``roi`` column. Leave this unset unless the CSV actually has one.
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
+
+# A saved A1 table stores its two effects in the same S/F columns whichever
+# contrast mode built it, and its folder names the mode
+# (``..._<roi>_<mode>_<correction>``). On the csv route the mode only names the
+# groups, so take it from the folder and refuse a contradiction: that would
+# report main-effect electrodes as LWPC/LWPS ones, or the reverse.
+_csv_mode = (contrast_mode_from_path(ANOVA_LABELS_CSV)
+             if ELECTRODE_DEFINITION == 'csv' and ANOVA_LABELS_CSV else None)
+if _csv_mode and CONTRAST_MODE and CONTRAST_MODE != _csv_mode:
+    raise ValueError(f"CONTRAST_MODE={CONTRAST_MODE!r}, but {ANOVA_LABELS_CSV} is a "
+                     f"{_csv_mode}-mode A1 table; leave CONTRAST_MODE unset or match it.")
+CONTRAST_MODE = CONTRAST_MODE or _csv_mode or 'proportion'
+if CONTRAST_MODE not in MODE_EFFECTS:
+    raise ValueError(f"CONTRAST_MODE must be one of {sorted(MODE_EFFECTS)}; "
+                     f"got {CONTRAST_MODE!r}")
+_other_mode = [mode for mode, names in MODE_EFFECTS.items()
+               if mode != CONTRAST_MODE and ANOVA_LABEL_EFFECT.strip().lower() in names]
+if ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'csv' and _other_mode:
+    raise ValueError(
+        f"ANOVA_LABEL_EFFECT={ANOVA_LABEL_EFFECT!r} names a {_other_mode[0]}-mode "
+        f"population, but these are {CONTRAST_MODE}-mode labels; use one of "
+        f"{list(MODE_EFFECTS[CONTRAST_MODE])}, 'both' or 'union'.")
+if (ANALYSIS == 'a4' and DATA_SOURCE == 'real' and ELECTRODE_DEFINITION == 'anova'
+        and FDR_CORRECTION not in ('fdr_bh', 'none')):
+    raise ValueError("ELECTRODE_DEFINITION=anova fits the ANOVA in this job, so "
+                     f"FDR_CORRECTION must be 'fdr_bh' or 'none'; got {FDR_CORRECTION!r}.")
 
 # power_traces route: either ONE run whose ANOVA carried all four interactions,
 #   POWER_TRACES_RUN_DIR=/path/to/run
@@ -225,16 +266,19 @@ SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
     f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}',
     CONDITIONS_NAME)
-if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
+if ANOVA_LABELS_CSV and ELECTRODE_DEFINITION == 'csv' and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
         anova_label_run_slug(
             ANOVA_LABELS_CSV, effect=ANOVA_LABEL_EFFECT, correction=FDR_CORRECTION,
             alpha=ALPHA, roi=ANOVA_LABEL_ROI))
-if ANALYSIS == 'block_transfer' and not os.environ.get('SAVE_DIR'):
+# A single requested transfer writes the same file names as the full battery.
+if TRAIN_LABEL and not os.environ.get('SAVE_DIR'):
+    SAVE_DIR = os.path.join(SAVE_DIR, f'train_{TRAIN_LABEL.lower()}_test_{TEST_LABEL.lower()}')
+if ANALYSIS in ('block_transfer', 'task_transfer') and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         current_script_dir, 'results', _tag,
-        f'block_transfer_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}',
+        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}',
         'pooled_design_conditions')
 
 
@@ -287,9 +331,11 @@ def run_analysis():
         save_dir=SAVE_DIR,
     )
 
+    transfer_job = ANALYSIS in ('block_transfer', 'task_transfer')
     print("=" * 72)
-    print("N3b BLOCK-TRANSFER CROSS-DECODING" if ANALYSIS == 'block_transfer'
-          else "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING")
+    print({'block_transfer': "N3b BLOCK-TRANSFER CROSS-DECODING",
+           'task_transfer': "TASK-TRANSFER POSITIVE CONTROLS"}.get(
+               ANALYSIS, "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING"))
     print("=" * 72)
     print(f"Data source:      {DATA_SOURCE}"
           + (f" (code={SYNTHETIC_CODE})" if DATA_SOURCE == 'synthetic' else ""))
@@ -299,11 +345,13 @@ def run_analysis():
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     if ANALYSIS == 'block_transfer':
         print("Conditions:       design-specific pooled 2x2 sets (LWPC/LWPS/control)")
+    elif ANALYSIS == 'task_transfer':
+        print("Conditions:       stimulus_task_by_congruency / _by_switch_type (pooled 2x2)")
     else:
         print(f"Conditions:       {len(CONDITIONS)} cells")
     print(f"ROI:              {ROI} | electrodes: {ELECTRODES}")
     print("-" * 72)
-    if ANALYSIS == 'block_transfer':
+    if transfer_job:
         print("Electrode groups: none (every loaded electrode is decoded)")
     else:
         print(f"Elec definition:  {ELECTRODE_DEFINITION}"

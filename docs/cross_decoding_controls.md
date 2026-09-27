@@ -127,6 +127,51 @@ That contrast *is* the finding. Its absence — congruency failing to transfer
 across both — means the failure is generic (SNR, block nonstationarity, or the
 pipeline), not specific to LWPC.
 
+### 3.5 Task across congruency and switch type (the controls for the A4 transfer)
+
+The positive controls for the congruency ↔ switch **label** transfer
+(`docs/closing_figure_plan.md`, "Congruency ↔ switch cross-decoding with task
+positive controls"). They reuse the block-transfer 2×2 with a trial-level factor
+in place of the block (`ANALYSIS=task_transfer`, `submit_task_transfer_dcc.sh`;
+run recipe in [`analysis_guide.md`](analysis_guide.md) §17.5):
+
+| Design | Decoded | Train → test | What a transfer shows |
+|---|---|---|---|
+| T1 | task | congruent → incongruent | the pipeline carries a code across trial populations — the clean control |
+| T2 | task | repeat → switch | same, but confounded (below) |
+| T3 | congruency | global task → local task | the A4 contrast transfers at its own effect size |
+| T4 | switch type | global task → local task | same for switch type, with T2's confound |
+
+Each design balances its four class × level cells and runs uncentered and
+centered, exactly like N3b, so the reading rules of §2 and
+[`n3b_block_transfer.md`](n3b_block_transfer.md) §1.6 apply. `summary.txt` adds, per
+transfer, the share of the ceiling's above-chance accuracy it keeps (over the
+windows where the ceiling beats shuffle), and one line setting within-level task
+accuracy (T1) against within-level congruency accuracy (T3).
+
+What each can and cannot license:
+
+- **T1 is a code-path control, not an effect-size control.** The frame colour
+  that cues the task is drawn with the stimulus (`src/task/mainTask.m:163`), so a
+  stimulus-locked task decoder partly decodes colour: large and partly visual. A
+  T1 transfer rules out a broken pipeline; it does not show a congruency-sized
+  code would survive. The plan's fix — subsample electrodes or trials until
+  within-level task accuracy matches congruency's — is not built; the effect-size
+  line says how far apart they are.
+- **T3 is the matched control.** It *is* a congruency decoder, so it lives in the
+  effect-size regime of the A4 transfer. Its task shift (the frame colour again)
+  is a tonic offset between the two levels, which centering removes.
+- **T2 and T4 carry a real confound.** On a switch trial the previous task was the
+  other one. Leftover previous-task activity then agrees with the current task
+  on repeat trials and opposes it on switch trials (T2), and flips its relation to
+  switch type between the tasks (T4). Centering cannot remove it: it is a class ×
+  level interaction, not a level offset. A T2/T4 drop is expected even with one
+  code; `SYNTHETIC_CODE=carryover` plants it.
+- **Pre-stimulus task windows are not automatically artifacts.** The previous
+  task predicts the current one on repeat trials, so some task information can
+  exist before the cue. `summary.txt` flags them separately from congruency /
+  switch-type pre-stimulus windows, which remain artifacts (§6).
+
 ---
 
 ## 4. F1 — transfer sits at chance
@@ -298,6 +343,7 @@ transfer acc               ___  (null ___, p ___)
 pre-stimulus cluster       none / [t0, t1]             <- artifact meter
 reverse direction          75%inc -> 25%inc: ___
 positive control X3        congruency across switch proportion: ___
+positive control T1 / T3   task across congruency: ___ ; congruency across task: ___
 ```
 
 The two lines that carry all the interpretive weight are **within-condition acc**
