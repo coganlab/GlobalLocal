@@ -19,6 +19,14 @@ The closing question becomes: **is the dorsoventral tilt in LWPC − LWPS inheri
 | Main effects show no matching tilt, or the tilt survives the covariate | Adaptation has spatial structure of its own, beyond the base effects. |
 | Main effects are clearly organized, but adaptation delta is unrelated to them | The demands are organized in space; their adaptation is shared. |
 
+**Outcome, all lPFC (2026-09-27; §16.6 of `n4_continuous_anatomy.md`).** None of the three rows fits cleanly.
+- **Label level:** the main-effect balance differs across Destrieux labels (p = 0.017), in step with the adaptation balance (label r = 0.73).
+- **Electrode level:** the main-effect balance tracks the adaptation balance, process-specifically (Test 1, r = 0.09, p = 0.0003).
+- **The tilt:** whether it is inherited cannot be determined. The main-effect balance is too noisy (split-half reliability 0.08) for the covariate test to separate none from all.
+- **The axis:** the tilt is better described as dorsomedial versus ventrolateral than as dorsoventral, and it is carried by LWPC.
+
+Ending sentence: *each adaptation tracks the local strength of the demand it regulates; whether the spatial gradient in their balance is inherited from the base effects could not be determined.*
+
 Keep the overlap result (one intermixed population) as the anatomy headline. The tilt is modest and was not predicted, so the closing figure explains it rather than carrying the paper.
 
 The other ideas are worth running but belong in the supplement unless they come out strong: main-effect electrode maps, adaptation within main-effect groups, brain–behavior, and congruency ↔ switch cross-decoding with task controls. The cross-proportion transfer stays shelved.
@@ -32,7 +40,7 @@ The paper now characterizes concurrent regulation rather than arguing that stabi
 | N1 | Both adaptations are present in the same subjects and sessions | Behavioral LWPC and LWPS (RT, errors) | Done |
 | N2 | lPFC high gamma carries both adaptation effects | LWPC and LWPS power traces in task-significant lPFC electrodes; direction tests | Traces done; direction tests implemented (`docs/n2_direction_tests.md`) |
 | N3 | Both adaptations are decodable from distributed lPFC activity | LWPC and LWPS decoding from task-significant lPFC electrodes | Done; block-transfer cross-decoding shelved |
-| N4 | How the two effects are organized across lPFC | Continuous per-electrode scores, anatomy (§15 of `docs/n4_continuous_anatomy.md`) | Done: overlap plus a dorsoventral tilt |
+| N4 | How the two effects are organized across lPFC | Continuous per-electrode scores, anatomy (§15 and §16 of `docs/n4_continuous_anatomy.md`) | Done for all lPFC: overlap at both levels, a dorsomedial gradient in the adaptation balance, main effects as the reference (§16.6) |
 
 The gap is a closing figure that ties N2–N4 together. The candidates are the ideas assessed below.
 
@@ -174,7 +182,8 @@ With the per-participant counts (42, 152, 137, 50), the noise correlation is abo
 
 - [x] Extend `compute_sensitivities_per_split` (`stability_flexibility_segregation.py:707`) to also return main-effect columns on the same `g1`/`g2` halves: congruency on halves A and B, and switch type on halves A and B. Score them with `W_MAIN` over the proportion cells, in the proportion-mode run, so the splits are shared.
 - [x] Add a synthetic check with two planted worlds: an adaptation tilt inherited from a main-effect tilt, and an adaptation tilt with no main-effect tilt. Test 2 below must shrink the slope in the first world and leave it in the second.
-- [ ] Rerun both electrode sets (all lPFC and task-significant) with the new columns.
+- [x] Rerun all lPFC with the new columns (2026-09-26; results in §16.6 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)).
+- [ ] Rerun the task-significant set with the new columns.
 
 Implemented; how to run it and read the outputs is §16 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
@@ -228,20 +237,22 @@ Without that justification in Methods, switching populations for one section rea
 
 ## Proposed closing figure
 
-One anatomy figure (F5) with four panels: the overlap, the tilt, the base effects on the same axis, and the link between them. It ends the paper on the arc: both adaptations in behavior, both in lPFC high gamma, decodable, one shared population, and a balance that does (or does not) follow the base demands.
+One anatomy figure (F5) with four panels: the overlap at both levels, the two balances by label, the gradient, and the link between the levels. It ends the paper on the arc: both adaptations in behavior, both in lPFC high gamma, decodable, one shared population, and a balance that tracks the base demands electrode by electrode.
+
+Revised 2026-09-27 after the all-lPFC main-effect run. The data behind each panel, and which parts still need plotting code, are in §16.7.3 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
 | Panel | Content | Status |
 | --- | --- | --- |
-| a | LWPC against LWPS across electrodes (`joint_scatter.png`), annotated with the pre-specified separate-half r and the centroid test. Remove the noise-corrected value it currently prints. | Re-annotate |
-| b | LWPC and LWPS against height: band or binned means ± SEM across participants, one line per effect. This is the figure for the tilt. | Not yet made by the pipeline |
-| c | Congruency and switch main effects against height, same bands and axes as b. If the tilt is inherited, it shows here. | Needs the new main-effect columns |
-| d | Main-effect delta against adaptation delta across electrodes (separate halves, within participant), with the z slope of the adaptation delta before and after the covariate. | Needs Tests 1 and 2 |
+| a | Congruency against switch beside LWPC against LWPS, each annotated with its separate-half r and split-half reliabilities. Remove the noise-corrected value `joint_scatter.png` currently prints. | Adaptation half exists (re-annotate); base-effect half not made |
+| b | The two balances by Destrieux label: adjusted dm against adjusted delta, one dot per label, with each omnibus test and the label correlation (r = 0.73) | Data ready (`n4_section16_followups.py`); not plotted |
+| c | Congruency, switch, LWPC and LWPS by distance from the midline, participant means ± SEM per tertile, as matched small multiples. Replaces the "by height" panels; the height version goes to the supplement. | Data ready; not plotted |
+| d | Test 1: the dm–delta correlation with the matched and crossed pairings | Data ready (`delta_tracking.csv`); not plotted |
 
 **Design notes.**
 
-- Show b and c as matched small multiples with shared axes and one legend, so they read as one comparison.
+- Show c as matched small multiples (base effects, adaptation) with shared axes and one legend, so they read as one comparison.
 - Plot participant-level means with SEM across participants, not electrode-level scatter. Single electrodes are not interpretable.
-- If the tilt turns out inherited, panel d carries the ending. If not, panel c becomes the "base effects differ" contrast and d the null.
+- Test 2 stays in the text and supplement. It cannot say how much of the gradient is inherited (§16.6.6), so it does not carry a panel.
 - Per-electrode dot maps appear only as coverage or illustration, with a legend line saying single electrodes are not interpretable.
 
 ### Supplement placement
@@ -254,7 +265,7 @@ One anatomy figure (F5) with four panels: the overlap, the tilt, the base effect
 | S5 | Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control, labelled as base-effect geometry |
 | S8 | Cross-decoding control table for every transfer reported |
 | S-BB | Brain–behavior: across-participant correlation with its n and reliability caveat, and the three-way mixed model |
-| S-N4 | Task-significant anatomy in full; parcel test (`delta_by_roi.png`, reordered by mean z); anterior–posterior null |
+| S-N4 | Task-significant anatomy in full; per-label bars for both balances (`delta_by_roi.png`, `dm_by_roi.png`); both coordinate tables and the height-vs-midline models; panel c by height; Test 2 with dm's reliability and bootstrap interval (list in §16.7.3 of `n4_continuous_anatomy.md`); anterior–posterior null |
 
 ## Priority order and weekly figure plan
 
@@ -263,10 +274,11 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 ### This week, in order
 
 - [x] Add matched-half main-effect columns to `compute_sensitivities_per_split`, with the synthetic inherited/independent check.
-- [ ] Rerun the proportion-mode score jobs for all lPFC and task-significant with the new columns.
-- [ ] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm coordinate test.
-- [ ] Make the height figure: panels b and c.
-- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; rerun the anatomy jobs so `summary.txt` carries the Pearson-based value; re-annotate `joint_scatter.png`; switch `between_noise_corrected_ci` to a participant bootstrap.
+- [x] Rerun the proportion-mode score job for all lPFC with the new columns.
+- [ ] Rerun it for the task-significant set.
+- [x] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm label and coordinate tests (all lPFC; §16.6 of `n4_continuous_anatomy.md`).
+- [ ] Plot the revised F5 panels a–d (§16.7.3 of `n4_continuous_anatomy.md`).
+- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; re-annotate `joint_scatter.png`; switch `between_noise_corrected_ci` to a participant bootstrap. (The Pearson-based value is in the all-lPFC main-effect run's `summary.txt`.)
 
 ### Next, if time
 
@@ -284,7 +296,7 @@ One row per figure, updated each week: the claim it carries, where it stands, th
 | F2 | Coverage and signal validation | Needs coverage table (S1) | Build per-ROI, per-participant table | – |
 | F3 | lPFC high gamma carries LWPC and LWPS in the expected directions | Traces done | Confirm direction tests match behavior | A direction opposite to behavior |
 | F4 | Both adaptations decodable from distributed lPFC activity | Done; transfer panel dropped | Report trial counts per decoder | – |
-| F5 | One intermixed population; balance tilts dorsoventrally | Overlap and tilt done | Main-effect anatomy (Tests 1 and 2), height figure | Whether the tilt is inherited from the base effects decides the closing sentence |
+| F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Main-effect anatomy done for all lPFC (§16.6) | Plot panels a–d; task-significant main-effect rerun | The task-significant replication. Settling whether the gradient is inherited would need a more reliable measure of the base-effect balance than these trial counts give. |
 
 Keep this table in `docs/figure_plan.md` so the repo stays the source of truth.
 
@@ -295,5 +307,6 @@ Keep this table in `docs/figure_plan.md` so the repo stays the source of truth.
 - [ ] **Pre-commit to the ending:** are we content if the tilt turns out inherited from the base effects ("adaptation scales with its demand")? Agree now to report whichever outcome appears.
 - [ ] **Main-effect electrode definition:** which single method defines congruency, switch and both electrodes (windowed-ANOVA clusters recommended)?
 - [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results?
+- [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline?
 - [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear?
 - [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop?

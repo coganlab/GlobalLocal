@@ -1005,6 +1005,11 @@ Single electrodes are mostly noise: full-data split-half reliability is
 0.26–0.39, and an electrode's sign agrees between its two trial halves only
 51–59 % of the time. Interpret population summaries only.
 
+⚠️ **Update to item 2 (§16.6.4).** Height and distance from the midline
+correlate r = −0.58 in lPFC, and with |x| in the model the gradient follows
+distance from the midline (p = 0.019), not height (p = 0.53). Describe it as
+dorsomedial versus ventrolateral, and see §16.6 for the main-effect reference.
+
 ### 15.2 Corrections to the previous revision
 
 The previous version of this section made five claims that do not hold.
@@ -1246,6 +1251,10 @@ electrodes of each kind sit in the same place" (this section) and "the balance
 shifts with height" (§15.7) are both true.
 
 ### 15.7 The balance tilts along the dorsoventral axis
+
+⚠️ The axis is revisited in §16.6.4: height and distance from the midline cannot
+be separated here, and distance fits better. The numbers below stand; the
+"dorsoventral" label does not.
 
 `relative_score_coordinate_test(value_col='delta')`:
 `delta ~ mni_y + mni_z + mni_x + responsiveness + participant`, with the swap
@@ -1530,7 +1539,8 @@ Whichever is primary, report the other in full.
 
 **Draft Results paragraph** (task-significant electrodes as primary; for all lPFC
 as primary, swap the order of the two paragraphs and drop "Because this subset
-was small"):
+was small"). The all-lPFC version with the main effects and the revised axis
+wording is in §16.7.2.
 
 > To test whether LWPC and LWPS adaptation are carried by separate lPFC
 > populations, we scored each task-responsive lPFC electrode (171 electrodes, 21
@@ -1695,18 +1705,28 @@ swap null:
 | `delta + dm` | The tilt with dm as a covariate, on full-data scores. dm and delta share trials here, with a noise correlation of about +0.05. |
 | `delta, split halves` / `delta + dm from the opposite half` | Each half of every split refitted with dm from the other half, then averaged. This is the clean version. No p-value; read the full-data rows for it. |
 
-`shrinkage = 1 − with/without`. Near 1, the tilt is carried by the main effects.
-Near 0, it survives them. It is only meaningful when the `delta` row itself is
-significant. The swap null flips only the adaptation labels, which also breaks
-delta's link with dm, so the null is conservative.
+`shrinkage = 1 − with/without`. It is only meaningful when the `delta` row
+itself is significant. The swap null flips only the adaptation labels, which
+also breaks delta's link with dm, so the null is conservative.
+
+⚠️ **The shrinkage is not on a 0-to-1 scale.** A covariate measured with error
+removes only the reliable part of what it explains. A tilt carried entirely by
+dm therefore shrinks by about dm's split-half reliability, not by 1. In lPFC
+that reliability is about 0.08 (§16.6.6), so the shrinkage cannot tell an
+inherited tilt from one that is not. The "near 1 = inherited" hint printed in
+`summary.txt` came from the synthetic check, where dm's reliability is 0.85.
+Read the shrinkage next to dm's reliability and the bootstrap interval from
+`n4_section16_followups.py` (section 5).
 
 ### 16.5 Reading the outcome
 
 | Result | Ending (from the plan) |
 |---|---|
-| Test 1 positive, dm tilts the same way, shrinkage near 1 | Each adaptation scales with the local strength of the demand it regulates. |
-| dm has no matching tilt, or shrinkage near 0 with `delta + dm` still significant | Adaptation has spatial structure of its own. |
+| Test 1 positive, dm tilts the same way, shrinkage near dm's reliability | Each adaptation scales with the local strength of the demand it regulates. |
+| dm has no matching tilt, or shrinkage near 0 with a reliable dm | Adaptation has spatial structure of its own. |
 | dm organized (parcel or coordinate test) but Test 1 null | The demands are organized; their adaptation is shared. |
+
+The all-lPFC outcome fits none of these rows cleanly; see §16.6.
 
 The main-effect maps will be far more reliable than the adaptation maps. Put the
 two levels' correlations next to their reliabilities, never as "the main effects
@@ -1717,3 +1737,353 @@ It uses `_synthetic_scores(main_effects='inherited' | 'independent')`: the
 inherited world must shrink the tilt and show tracking, and the independent
 world must do neither. `DATA_SOURCE=synthetic` runs the inherited world through
 the job; its planted layout is anterior–posterior, so its z rows are nulls.
+
+### 16.6 Findings from the all-lPFC run
+
+**The run.** Segregation run
+`window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects` (1,000
+splits), then the anatomy job on it (`ROI_FILTER=lpfc`, `ANAT_LEVEL=destrieux`,
+`N_PERM=10000`): 398 electrodes, 22 participants. The anatomy output folder is
+`anatomy_a1_lpfc_window_0.0to1.5s_sig/`. The `_sig` suffix comes from the
+submitter's `ELECTRODES` default (§13), but the folder holds all lPFC
+electrodes. The task-significant set has not been rerun with main effects yet.
+
+**Where the numbers come from.** Each table names its source:
+
+- the anatomy job's outputs (`summary.txt`, `dm_coordinates.csv`,
+  `delta_tracking.csv`, `tilt_with_dm.csv`);
+- the segregation run's `correlation_main_effects.json`;
+- `dcc_scripts/stats/n4_section16_followups.py` for everything the job does not
+  compute ("script §k" below). It takes about four minutes:
+
+```bash
+python dcc_scripts/stats/n4_section16_followups.py \
+    --scores    <anatomy run>/continuous/scores_with_anatomy.csv \
+    --main-json <segregation run>/correlation_main_effects.json \
+    --tilt      <anatomy run>/continuous/tilt_with_dm.csv \
+    --out-dir   <anatomy run>/continuous/section16
+```
+
+#### 16.6.1 Takeaway
+
+Every test below is about the **balance** between two effects, within each
+electrode: dm = congruency − switch, delta = LWPC − LWPS. None is about one
+effect on its own, except where marked as a follow-up.
+
+| | Base effects: congruency, switch | Adaptation: LWPC, LWPS |
+|---|---|---|
+| The two effects share electrodes (separate halves, within participant) | r = 0.23, p = 0.0001 | r = 0.10, p = 0.0005 |
+| The balance differs across Destrieux labels | F = 1.70, p = 0.017 | F = 1.91, p = 0.010 |
+| … with any one participant left out | p ≤ 0.058 | p ≤ 0.057 |
+| The balance changes along MNI axes (pipeline model, y + z + x) | block p = 0.13 | block p = 0.031 (z slope p = 0.008) |
+| … with distance from the midline instead of x (script §1) | \|x\| slope p = 0.16 | \|x\| slope p = 0.019 |
+
+1. **At both levels, the two effects share electrodes.** Congruency and switch
+   effects sit on largely the same electrodes, and so do LWPC and LWPS.
+2. **At both levels, the balance differs across labels, and the two balances
+   line up.** Labels that lean congruency in their base effects lean LWPC in
+   their adaptation (label r = 0.73). The same holds electrode by electrode on
+   separate trial halves (Test 1, r = 0.09), and it is process-specific.
+3. **The adaptation balance also changes along a spatial gradient; the
+   base-effect balance shows none that is significant.** dm's point estimate
+   runs the same way at about half the slope. These are two separate
+   statements; no test compares the two gradients.
+4. **The adaptation gradient runs from the midline outward as much as from top
+   to bottom, and it is carried by LWPC.** Height and distance from the midline
+   cannot be separated in lPFC; distance from the midline fits better. LWPC is
+   absent near the midline and present laterally, while LWPS and both base
+   effects do not vary detectably.
+5. **Whether the adaptation gradient comes from the base effects is
+   unresolved.** Test 2 cannot tell, because dm is too noisy to work as a
+   covariate.
+
+#### 16.6.2 The base effects share electrodes
+
+`correlation_main_effects.json` is the pre-specified co-localization test
+(`split_resolved_corr`, §15.5) run on congruency and switch instead of LWPC
+and LWPS: one effect from each disjoint half, responsiveness removed, centred
+within participant, Spearman, participants with at least three electrodes.
+
+| | congruency vs switch | LWPC vs LWPS |
+|---|---|---|
+| r, separate halves | 0.226 | 0.096 |
+| p | 0.0001 (10,000 permutations) | 0.0005 (2,000; `min_elec_sweep.csv`, `min_elec = 3`) |
+| split-half reliabilities, within participant | 0.345 / 0.234 | 0.072 / −0.098 |
+| r as a share of √(rel · rel) | 0.79 | not estimable |
+| electrodes / participants | 397 / 21 | 397 / 21 |
+
+- Congruency and switch effects mostly land on the same electrodes. The 0.79
+  leans high, because within-participant reliabilities are biased low (§15.4).
+- Do not compare the levels on raw r ("the base effects overlap more than the
+  adaptation effects"). The adaptation maps' within-participant ceiling cannot
+  be estimated, and pooled, they sit at their ceiling (§15.4).
+- This overlap is why dm is noisy. dm's split-half reliability works out to
+  (0.345 + 0.234 − 2 × 0.226) / (2 − 2 × 0.226) = 0.08 (script §5), matching
+  Test 1's own 0.09. That number sets the scale for Test 2 (§16.6.6).
+
+#### 16.6.3 Both balances differ across labels, in step
+
+From `summary.txt` (the label tests, 19 labels, 396 electrodes, 22
+participants) and script §4 (the label means side by side):
+
+| | dm (congruency − switch) | delta (LWPC − LWPS) |
+|---|---|---|
+| omnibus | F = 1.70, p = 0.017 | F = 1.91, p = 0.010 |
+| leave one participant out | F 1.47–2.20; p 0.001–0.058 (worst: drop D0103) | F 1.60–2.39; p 0.003–0.057 (worst: drop D0144) |
+| labels with q < 0.05 | none | none |
+| most extreme labels | lh S_circular_insula_sup +0.53 (q = 0.07); lh G_front_sup −0.24 (q = 0.12) | lh S_front_sup −0.54, lh G_front_sup −0.30, rh G_front_middle +0.41 (all q = 0.13) |
+
+- The adjusted label means of dm and delta correlate r = 0.73 (Spearman 0.65),
+  with the same sign in 13 of 19 labels. All four superior frontal labels lean
+  switch and LWPS, or sit near zero; rh MFG and IFS, rh IFG (orbital,
+  triangular) and the lh superior insular sulcus lean congruency and LWPC. The
+  clear exceptions are lh IFG orbital and triangular and lh MFG.
+- This correspondence is descriptive. Full-data dm and delta share trials (noise
+  correlation about +0.05). Test 1 (§16.6.5) is the separate-half version.
+- The omnibus is the claim at both levels. Do not name a single label as the
+  driver.
+
+#### 16.6.4 The adaptation gradient: which axis, and which effect
+
+**Height and distance from the midline are tangled.** Within participant,
+MNI z and |x| correlate r = −0.58: the superior frontal gyrus and sulcus are
+both dorsal and medial. The pooled pipeline model uses signed x, which cancels
+between hemispheres (§5), so z absorbed the lateral part. Script §1, swap null:
+
+| value | model | block F, p | z slope (p) | \|x\| slope (p) |
+|---|---|---|---|---|
+| delta | y + z + x (pipeline) | 2.85, 0.031 | −0.0077 (0.008) | |
+| delta | y + z + \|x\| | 5.24, 0.001 | −0.0023 (0.53) | +0.0139 (0.019) |
+| delta | z alone | 7.90, 0.003 | −0.0077 (0.007) | |
+| delta | \|x\| alone | 13.9, 0.0002 | | +0.0154 (0.0007) |
+| dm | y + z + x (pipeline) | 1.81, 0.13 | −0.0037 (0.15) | |
+| dm | y + z + \|x\| | 1.84, 0.09 | −0.0009 (0.79) | +0.0071 (0.16) |
+| dm | \|x\| alone | 4.54, 0.018 | | +0.0084 (0.033) |
+
+- With |x| in the model, distance from the midline carries delta's gradient and
+  height drops out. The pipeline's per-hemisphere fits already showed this.
+  Within one hemisphere, x is distance from the midline, and it beats z in both
+  (lh: x p = 0.068, z p = 0.21; rh: x p = 0.17, z p = 0.97).
+- The data cannot fully separate the two axes. Describe the gradient as
+  **dorsomedial versus ventrolateral**, which is true of both.
+- dm leans the same way at about half the slope. Its |x| slope is significant
+  only when fitted alone (p = 0.033).
+
+**The gradient is carried by LWPC.** Script §2: single scores on y + z + |x|,
+within-participant coordinate shuffle, because a single score has no partner
+to swap with (§15.9):
+
+| score | \|x\| slope (SD/mm) | p | z slope | p |
+|---|---|---|---|---|
+| LWPC | +0.0126 | 0.006 | +0.0011 | 0.71 |
+| LWPS | −0.0013 | 0.75 | +0.0034 | 0.17 |
+| congruency | +0.0032 | 0.45 | +0.0023 | 0.40 |
+| switch | −0.0039 | 0.34 | +0.0032 | 0.25 |
+
+Adjusted Cohen's d by tertile of distance from the midline (script §3;
+participant and responsiveness removed; descriptive):
+
+| band | \|x\| (mm) | n | congruency | switch | LWPC | LWPS |
+|---|---|---|---|---|---|---|
+| medial | 0–27 | 133 | 0.03 | 0.05 | −0.07 | 0.07 |
+| middle | 28–40 | 132 | 0.12 | 0.08 | 0.06 | 0.05 |
+| lateral | 40–71 | 133 | 0.06 | 0.03 | 0.04 | 0.03 |
+
+- LWPC is absent, slightly reversed, within about 27 mm of the midline and
+  present laterally. LWPS is flat.
+- Neither base effect varies detectably. Congruency is lowest near the midline
+  in the band means but stays positive there while LWPC turns negative.
+- In the pipeline model, switch's z slope reaches p = 0.04 (script §2). It drops
+  to p = 0.25 once |x| is in the model; do not report it.
+- The axis was chosen after looking. Report it as a description of the
+  pre-specified coordinate result (block p = 0.031), not as a separate finding.
+
+This updates §15.1 (item 2) and §15.7, which describe the tilt as dorsoventral.
+
+#### 16.6.5 The two balances track each other (Test 1)
+
+From `delta_tracking.csv`: one map from each disjoint half, responsiveness
+removed, within participant, Spearman, 397 electrodes, 21 participants.
+
+| comparison | r | p |
+|---|---|---|
+| dm vs delta | 0.092 | 0.0003 |
+| dm vs delta, + MNI covariates | 0.087 | 0.0007 |
+| congruency vs LWPC (matched) | 0.217 | 0.0001 |
+| switch vs LWPS (matched) | 0.169 | 0.0001 |
+| congruency vs LWPS (crossed) | 0.133 | 0.0001 |
+| switch vs LWPC (crossed) | 0.121 | 0.0002 |
+
+- **The balances are linked electrode by electrode.** Electrodes that lean
+  congruency lean LWPC. Partialling out coordinates barely changes it, so the
+  link is local, not a gradient the two maps share.
+- **It is process-specific.** The dm–delta covariance equals the two matched
+  covariances minus the two crossed ones, so anything common to all four scores
+  cancels. For LWPS the matched map (switch) is the less reliable one (0.23 vs
+  0.35) and still wins, so reliability does not explain the gap.
+- **There is also a shared component.** The crossed pairings are positive too,
+  after the responsiveness covariate: electrodes with larger base effects of
+  either kind adapt more on both.
+- **Why a matched correlation means scaling.**
+  cov(congruency, LWPC) = ½[var((i − c)₂₅) − var((i − c)₇₅)] across electrodes.
+  It is positive when each electrode's congruency effect is scaled down in
+  75 %-incongruent blocks. So an electrode with i < c that adapts gets a
+  negative LWPC; §2.1's "negative means the effect grew" holds only where the
+  base effect is positive.
+- The reliability columns are within participant and biased low (§15.4); the
+  negative ones cannot be real. Compare them; never divide by them.
+
+#### 16.6.6 Is the gradient inherited? (Test 2)
+
+From `tilt_with_dm.csv` (height) and script §5 (both axes, with a 2,000-resample
+participant bootstrap of the shrinkage):
+
+| axis | dm slope (p) | delta slope (p) | delta + dm slope (p) | shrinkage | bootstrap 95 % |
+|---|---|---|---|---|---|
+| height (pipeline model) | −0.0037 (0.15) | −0.0077 (0.008) | −0.0069 (0.015) | 0.10 | −0.20 to 0.40 |
+| distance from the midline | +0.0071 (0.16) | +0.0139 (0.019) | +0.0125 (0.030) | 0.10 | −0.15 to 0.46 |
+
+With dm from the opposite trial half (height only, `tilt_with_dm.csv`), the
+shrinkage is 0.05.
+
+**The scale.** A covariate measured with reliability λ removes about λ of the
+slope it carries. dm's split-half reliability is 0.08, or 0.15 on full data
+(§16.6.2). A gradient carried entirely by dm would therefore shrink by about
+0.08 (opposite half) to 0.15 (same trials).
+
+| shrinkage | observed | expected if fully inherited | implied share |
+|---|---|---|---|
+| same trials, height | 0.095 | 0.15 | 0.63 |
+| same trials, midline | 0.097 | 0.15 | 0.64 |
+| opposite half, height | 0.050 | 0.08 | 0.61 |
+
+- At face value, about 60 % of the gradient could run through the base effects.
+  That leans high: the reliabilities are biased low, and the same-trial rows
+  also carry shared-trial noise.
+- The bootstrap intervals include both 0 and the ~0.15 that full inheritance
+  would give. The data allow anything from none of the gradient to all of it.
+- The only other evidence is the single-score pattern (§16.6.4). The gradient
+  sits in LWPC, and congruency shows no matching gradient. That argues against
+  LWPC's gradient being a scaled copy of congruency's, but those slopes are
+  noisy too.
+
+**Conclusion.** Each adaptation tracks the local strength of the demand it
+regulates. Whether the spatial gradient in their balance is inherited from the
+base effects cannot be determined from these data.
+
+#### 16.6.7 What not to write
+
+| Tempting sentence | Why not | Write instead |
+|---|---|---|
+| "Only the adaptation balance is spatially organized" | No test compares the two gradients; dm points the same way at half the slope | Two separate statements (16.6.1, item 3) |
+| "The base effects overlap more than the adaptation effects" | The adaptation ceiling cannot be estimated | "At both levels the two effects share electrodes" |
+| "The tilt survives the main effects, so it is adaptation-specific" | dm is too noisy for the shrinkage to show that | "Whether the gradient is inherited could not be determined" |
+| "The balance tilts dorsoventrally" | Height and distance from the midline are tangled; distance fits better | "dorsomedial versus ventrolateral" |
+| "Label X drives the effect" | No label survives FDR at either level | Report the omnibus |
+| "Negative LWPC means no adaptation" | Adapting a negative congruency effect gives negative LWPC | Describe the sign relative to the base effect |
+
+### 16.7 Putting it into the paper
+
+#### 16.7.1 Where each number comes from
+
+All files are in the anatomy run's `continuous/` folder unless marked
+"segregation".
+
+| Claim | File | Number |
+|---|---|---|
+| LWPC and LWPS share electrodes | segregation `summary.txt`; `min_elec_sweep.csv` (`min_elec = 3`) | r = 0.096, p = 0.0005 |
+| Congruency and switch share electrodes | segregation `correlation_main_effects.json` | r = 0.226, p = 0.0001 |
+| The adaptation balance differs across labels | `summary.txt` (§5.2 primary), `delta_per_roi.csv`, `delta_roi_loso.csv` | F = 1.91, p = 0.010 |
+| The base-effect balance differs across labels | `summary.txt` (MAIN EFFECTS), `dm_per_roi.csv`, `dm_roi_loso.csv` | F = 1.70, p = 0.017 |
+| The two label patterns line up | script §4, `panel_b_label_means.csv` | r = 0.73, 13 of 19 same sign |
+| The adaptation balance has a spatial gradient | `summary.txt` (§5.2 secondary), `score_anatomy.json` → `coordinates` | block F = 2.85, p = 0.031 |
+| The base-effect balance has no significant gradient | `dm_coordinates.csv` | block F = 1.81, p = 0.13 |
+| The gradient is dorsomedial vs ventrolateral | script §1 | r(z, \|x\|) = −0.58; \|x\| p = 0.019, z p = 0.53 |
+| It is carried by LWPC | script §2 and §3, `panel_c_midline.csv` | LWPC \|x\| slope p = 0.006; others p ≥ 0.34 |
+| The balances track each other | `delta_tracking.csv` | r = 0.092, p = 0.0003 |
+| … process-specifically | `delta_tracking.csv`, rows 3–6 | 0.22 and 0.17 vs 0.13 and 0.12 |
+| Inheritance is unresolved | `tilt_with_dm.csv`; script §5 | shrinkage 0.10 (0.05 opposite half); dm reliability 0.08; bootstrap −0.20 to 0.40 |
+
+#### 16.7.2 Draft Results paragraphs
+
+All lPFC as the primary set (see `closing_figure_plan.md`, "Which electrode set
+to report"). This replaces the §15.12 draft for the all-lPFC version.
+
+> We scored each lPFC electrode (398 electrodes, 22 participants) for LWPC and
+> LWPS as signed, standardized differences of differences in high-gamma power,
+> measured on separate halves of the trials. The two effects shared electrodes:
+> LWPC and LWPS scores from separate halves were positively correlated
+> (Spearman r = 0.10, p < 0.001). The balance between them (LWPC − LWPS)
+> differed across Destrieux labels (F = 1.91, permutation p = 0.010; p ≤ 0.057
+> with any one participant left out) and varied with position (MNI coordinates,
+> F = 2.85, p = 0.031). LWPC was weaker relative to LWPS in dorsomedial lPFC,
+> the superior frontal gyrus and sulcus. Because height and distance from the
+> midline are correlated across lPFC electrodes (r = −0.58), the two cannot be
+> fully separated; distance from the midline described the gradient better
+> (joint model: distance p = 0.019, height p = 0.53). In a follow-up breakdown,
+> the gradient was carried by LWPC, which was absent within about 27 mm of the
+> midline and present laterally (p = 0.006), while LWPS did not vary (p = 0.75).
+>
+> To ask whether this organization follows the demands being regulated, we
+> scored the congruency and switch-type main effects from the same trials and
+> halves, weighting the proportion blocks equally. These effects also shared
+> electrodes (r = 0.23, p < 0.001), and their balance (congruency − switch) also
+> differed across labels (F = 1.70, p = 0.017), in step with the adaptation
+> balance (r = 0.73 across 19 labels). The base-effect balance showed no
+> significant spatial gradient (F = 1.81, p = 0.13); its slope along the
+> adaptation gradient pointed the same way at about half the size. Neither
+> congruency nor switch effects varied detectably with distance from the
+> midline (p ≥ 0.34). Electrode by electrode, the two balances were linked: on
+> separate trial halves, electrodes where congruency dominated were those where
+> LWPC dominated (r = 0.09, p < 0.001; r = 0.09 with coordinates partialled out),
+> and each adaptation effect tracked its own main effect more closely than the
+> other (congruency–LWPC r = 0.22 vs switch–LWPC 0.12; switch–LWPS 0.17 vs
+> congruency–LWPS 0.13). Adding the base-effect balance as a covariate reduced
+> the adaptation gradient by 10 % (p = 0.015 with the covariate). Because the
+> base-effect balance was measured with low reliability (split-half r = 0.08),
+> the participant-bootstrap interval for that reduction (−20 % to 40 %) includes
+> both no reduction and the ~15 % that full inheritance would produce. Each
+> adaptation thus tracks the local strength of the demand it regulates, but
+> whether the spatial gradient in their balance is inherited from the base
+> effects could not be determined.
+
+Methods needs one sentence each on: the main effects' equal weighting over
+proportion blocks (§16.1), the swap null for both balances (§4.3), the
+coordinate-shuffle null for single scores (§15.9), and the bootstrap (script §5).
+
+#### 16.7.3 Figure (F5, revised)
+
+Four panels. Plot participant means ± SEM across participants wherever a
+panel summarizes electrodes; single electrodes are not interpretable (§15.4).
+
+| Panel | Shows | Data | Status |
+|---|---|---|---|
+| a | Shared electrodes at both levels: congruency vs switch beside LWPC vs LWPS, each annotated with its separate-half r and split-half reliabilities | `scores_with_anatomy.csv`; r from `correlation_main_effects.json` and `min_elec_sweep.csv` | `joint_scatter.png` is the adaptation half (re-annotate, §15.12). The base-effect half needs `plot_joint_scatter(value_cols=('cong_s', 'switch_s'))`. |
+| b | The two balances by label: adjusted dm (x) against adjusted delta (y), one dot per label, sized by electrodes, coloured by distance from the midline; each omnibus F and p, and r = 0.73 | `panel_b_label_means.csv` (script §4), or `dm_per_roi.csv` + `delta_per_roi.csv` | Data ready; not plotted |
+| c | The four scores by distance from the midline: base effects and adaptation as matched small multiples, participant mean ± SEM per tertile | `panel_c_midline.csv` (script §3) | Data ready; not plotted. Replaces the planned "by height" panels. |
+| d | The link: r for dm vs delta, the two matched and the two crossed pairings, with p | `delta_tracking.csv` | Data ready; not plotted |
+
+**Supplement:**
+
+- per-label bars (`delta_by_roi.png`, `dm_by_roi.png`), coverage
+  (`coverage_matrix.csv`) and leave-one-out tables (`delta_roi_loso.csv`,
+  `dm_roi_loso.csv`);
+- both coordinate tables (`score_anatomy.json` → `coordinates`,
+  `dm_coordinates.csv`), the height-vs-midline models (script §1), and panel c
+  by height (`panel_c_height.csv`);
+- Test 2 (`tilt_with_dm.csv`, script §5) with dm's reliability and the
+  bootstrap interval;
+- the task-significant replication, once run.
+
+#### 16.7.4 Still open
+
+- [ ] Rerun the task-significant set with main effects (segregation with
+      `ELECTRODES=sig`, then the anatomy job), and run the script on it.
+- [ ] Decide how to name the axis: the pre-specified model reports height, the
+      follow-up favours distance from the midline (advisor question in
+      `closing_figure_plan.md`).
+- [ ] Plot panels b–d from the script's tables, and add the base-effect half of
+      panel a.
+- [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
+      have Test 2 print dm's reliability, the implied share and the bootstrap
+      interval next to the shrinkage.
