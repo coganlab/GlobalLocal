@@ -232,7 +232,7 @@ One anatomy figure (F5) with four panels: the overlap, the tilt, the base effect
 
 | Panel | Content | Status |
 | --- | --- | --- |
-| a | LWPC against LWPS across electrodes (`joint_scatter.png`), annotated with the pre-specified separate-half r and the centroid test. Remove the noise-corrected value it currently prints. | Re-annotate |
+| a | LWPC against LWPS across electrodes, on the scores the pre-specified test correlates (`x_resid`/`y_resid` in the segregation run's `continuous.csv`), annotated with the pre-specified separate-half r and the centroid test. Not `joint_scatter.png`; see "Panel a" below. | Not yet made; needs no rerun |
 | b | LWPC and LWPS against height: band or binned means ± SEM across participants, one line per effect. This is the figure for the tilt. | Not yet made by the pipeline |
 | c | Congruency and switch main effects against height, same bands and axes as b. If the tilt is inherited, it shows here. | Needs the new main-effect columns |
 | d | Main-effect delta against adaptation delta across electrodes (separate halves, within participant), with the z slope of the adaptation delta before and after the covariate. | Needs Tests 1 and 2 |
@@ -240,9 +240,32 @@ One anatomy figure (F5) with four panels: the overlap, the tilt, the base effect
 **Design notes.**
 
 - Show b and c as matched small multiples with shared axes and one legend, so they read as one comparison.
-- Plot participant-level means with SEM across participants, not electrode-level scatter. Single electrodes are not interpretable.
+- For b and c, plot participant-level means with SEM across participants, not electrode-level scatter. Single electrodes are not interpretable.
 - If the tilt turns out inherited, panel d carries the ending. If not, panel c becomes the "base effects differ" contrast and d the null.
 - Per-electrode dot maps appear only as coverage or illustration, with a legend line saying single electrodes are not interpretable.
+
+### Panel a
+
+Plot the scores the pre-specified test correlates, not `joint_scatter.png`.
+
+| | `joint_scatter.png` | Panel a | Pre-specified test |
+| --- | --- | --- | --- |
+| Trials behind each score | all (split-averaged) | all (split-averaged) | LWPC and LWPS from opposite halves of each split |
+| Responsiveness removed | no | yes | yes |
+| Centred within participant | no | yes | yes |
+| Participants with < 3 electrodes | kept | dropped | dropped |
+
+- **Points:** `x_resid` and `y_resid` from the segregation run's `continuous.csv`. They are the points in `segregation_summary.png`'s residualized panel, so no rerun is needed. Check the count against the test's (all lPFC: 397 electrodes, 21 participants).
+- **Annotation:** the pre-specified r, p and n, and the centroid test. No fit line, second r or noise-corrected value.
+- **Caption:** the points correlate about twice as strongly as r, mostly because half-trial scores are noisier (§15.5), so the caption has to say what r is. Draft: "Each point is one electrode's LWPC and LWPS score from all trials, after regressing out overall responsiveness and subtracting each participant's mean. r is the pre-specified test: LWPC from one half of the trials against LWPS from the other, averaged over 200 random splits. Because each half has half the trials, r is smaller than the correlation among the plotted points."
+- **Leverage:** if a reviewer asks whether one participant drives r, answer with the pre-specified test rerun leaving out each participant (§15.13). The leave-one-out range on `joint_scatter.png` is for its own, uncorrected correlation.
+
+Why not the existing figures:
+
+- **`joint_scatter.png`:** no number on it is the pre-specified test. The r values, the leave-one-out range and the fit line's slope describe the plotted points (both axes are scaled to SD 1, so the slope is essentially their pooled Pearson r). The ceiling line's r uses separate halves, but it is pooled across participants and not residualised. Its axis labels say "disjoint half", but the points are split-averaged, which rebuilds the full-data scores (§15.2). Keep it as a pipeline diagnostic, in neither the main text nor the supplement.
+- **`segregation_summary.png`:** its residualized panel has the right points, but the r in its title is the separate-half test, not those points' own correlation. Its null panel permutes the plotted points, not the statistic whose p it prints. Its categorical panels need FDR labels, and no electrode passes FDR for LWPC.
+
+No scatter can show the separate-half r itself. The r averages 400 correlations (half A against half B and the reverse, over 200 splits), and a plot with one point per electrode shows either one of them or, averaged over splits, the full-data scores. To draw the separate-half relationship directly, bin instead: within each split, residualise and centre the half scores as the test does, bin electrodes by half-A LWPC and average half-B LWPS in each bin, then average over splits and both directions, with participant-bootstrap error bars. That matches the means ± SEM style of b and c but needs new code.
 
 ### Supplement placement
 
@@ -266,7 +289,8 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 - [ ] Rerun the proportion-mode score jobs for all lPFC and task-significant with the new columns.
 - [ ] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm coordinate test.
 - [ ] Make the height figure: panels b and c.
-- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; rerun the anatomy jobs so `summary.txt` carries the Pearson-based value; re-annotate `joint_scatter.png`; switch `between_noise_corrected_ci` to a participant bootstrap.
+- [ ] Make panel a from `continuous.csv` (see "Panel a"), and run the leave-one-participant-out check on its r.
+- [ ] Carry over the §15.13 open items: rerun segregation with `N_PERM_CORR=10000`; rerun the anatomy jobs so `summary.txt` carries the Pearson-based value; fix `joint_scatter.png`'s axis labels and drop its noise-corrected value (it stays a pipeline diagnostic); switch `between_noise_corrected_ci` to a participant bootstrap.
 
 ### Next, if time
 
@@ -284,7 +308,7 @@ One row per figure, updated each week: the claim it carries, where it stands, th
 | F2 | Coverage and signal validation | Needs coverage table (S1) | Build per-ROI, per-participant table | – |
 | F3 | lPFC high gamma carries LWPC and LWPS in the expected directions | Traces done | Confirm direction tests match behavior | A direction opposite to behavior |
 | F4 | Both adaptations decodable from distributed lPFC activity | Done; transfer panel dropped | Report trial counts per decoder | – |
-| F5 | One intermixed population; balance tilts dorsoventrally | Overlap and tilt done | Main-effect anatomy (Tests 1 and 2), height figure | Whether the tilt is inherited from the base effects decides the closing sentence |
+| F5 | One intermixed population; balance tilts dorsoventrally | Overlap and tilt done | Main-effect anatomy (Tests 1 and 2), height figure, panel a from `continuous.csv` | Whether the tilt is inherited from the base effects decides the closing sentence |
 
 Keep this table in `docs/figure_plan.md` so the repo stays the source of truth.
 
