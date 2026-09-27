@@ -132,7 +132,7 @@ Signs: LWPC and LWPS are scored LOW-proportion minus HIGH-proportion, so a posit
 - `delta_roi_loso.csv`: the same statistic with each subject dropped. Read leverage off `observed_stat`, not `p` — p saturates at the permutation floor.
 - `min_elec_sweep.csv`: the LWPC-LWPS correlation at `min_elec` 1/2/3. That filter drops **whole subjects**, so it moves the effective N more than any scaling choice.
 - `delta_by_roi.png`: mean +/- SEM of `delta` per ROI with every electrode drawn on. Also the fallback figure when the surface stack is missing.
-- `joint_scatter.png`: the per-electrode LWPC-vs-LWPS scatter on the pooled-scaled scores, with the split-half ceiling annotated.
+- `joint_scatter.png`: the per-electrode LWPC-vs-LWPS scatter on the pooled-scaled scores, with the split-half ceiling annotated. A descriptive diagnostic, not a paper figure: the points are split-averaged scores (not disjoint halves, despite the axis labels), with no responsiveness residualisation or within-subject centring. To plot what the pre-specified test correlates, use `x_resid`/`y_resid` from the segregation run's `continuous.csv` ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §15.12).
 - `score_map_{lwpc_s,lwps_s,abs_lwpc,abs_lwps,delta}.png` (+ `_colorbar.png`): the five §6 surfaces. `delta` carries the argument; the other four are what a reader needs to check it is not driven by one effect's magnitude alone. The renderer takes one colour per call, so the scalar is drawn as nine colour bins — hence the separate colourbar.
 - `score_centers.csv`: per subject x hemisphere weighted medoid displacement (LWPC minus LWPS). Descriptive only.
 - `score_anatomy.json`: machine-readable version of the summary.
@@ -158,6 +158,7 @@ It is descriptive only. There is no permutation, no responsiveness residualisati
 Purpose: compares stability and flexibility sensitivity as continuous electrode scores and categorical thresholded labels.
 
 - Continuous panels ask whether stability and flexibility effect sizes are correlated across electrodes after controls. Positive correlation suggests shared/core sensitivity; zero or negative correlation suggests segregation.
+- The residualized panel plots `continuous.csv`'s `x_resid`/`y_resid`: split-averaged scores, residualised on responsiveness and centred within subject. The corr and p in its title are the split-resolved test (`correlation.json`), which correlates separate trial halves, so they are not the plotted points' own correlation (that one is in `correlation_split_averaged.json`). The null panel permutes the plotted points, so it is the null for the split-averaged correlation, not for the corr and p it is labelled with.
 - Categorical panels ask whether thresholded S and F labels overlap within subjects. Odds ratio > 1 suggests shared overlap; odds ratio < 1 suggests segregation; `nan` means the strata are too sparse.
 
 ### `segregation_diagnostics.png`
