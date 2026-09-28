@@ -552,6 +552,9 @@ sh submit_specific_conditions_decoding_dcc.sh
 # (edit conditions in submit_*.sh and parameters in run_decoding_dcc.py)
 ```
 
+The run-and-read walkthrough — electrode options, every knob, every output, and
+how to read the figures — is [`decoding.md`](decoding.md).
+
 > **Unit of analysis** matters here (`folds_as_samples` vs `repeats_as_samples`
 > vs bootstrap): it determines how accuracies are summed/averaged and how error
 > bars and stats are computed. See the "Decoding" section of the repo-root
@@ -2153,6 +2156,14 @@ left out of the output folder name. `REFERENCE_GROUP` must be non-empty.
 
 ### 17.4 Scripts — how to run it
 
+> **Current defaults.** The submit script's defaults changed on 2026-09-28: it now
+> runs the in-job `anova` route on `stimulus_main_effect_conditions`, with
+> main-effect (`condition`) groups, raw p, a 0–1.5 s definition window and
+> 64/16-sample decoding windows. A saved table is read only with
+> `ELECTRODE_DEFINITION=csv`. Where this section disagrees,
+> [`a4_cross_decoding.md`](a4_cross_decoding.md) — the run-and-read walkthrough —
+> describes the scripts as they are.
+
 `dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. Every knob
 below is settable from the environment, so no run needs a file edited; each is
 also commented where it is defined in
@@ -2369,8 +2380,12 @@ windows. Results go under `results/synthetic_<code>/`.
 
 ```bash
 cd $REPO/dcc_scripts/decoding
-ANOVA_LABELS_CSV=$COND_CSV bash submit_stability_flexibility_cross_decoding_dcc.sh
+ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=$COND_CSV bash submit_stability_flexibility_cross_decoding_dcc.sh
 ```
+
+`ELECTRODE_DEFINITION=csv` is required: the submit script's default route is now
+`anova`, which drops the table silently
+([`a4_cross_decoding.md`](a4_cross_decoding.md) §4.2).
 
 One job. It decodes `both` (congruency ∩ switch), `congruency_only`,
 `switch_type_only` and the reference `all` (every lPFC electrode, §17.1). Each gets
@@ -2378,12 +2393,12 @@ the two transfers and the two within decodes, and `summary.txt` compares every
 transfer with its ceiling. Output:
 
 ```
-results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to0.5s_sig_csv_condition_flags/
-    stimulus_experiment_conditions/anova_label_selections/
+results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_csv_condition_flags/
+    stimulus_main_effect_conditions/anova_label_selections/
     anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none__effect-union__.../
 ```
 
-(the `window_0.0to0.5s` and `sig` in that path are unused on the csv route).
+(the `window_0.0to1.5s` and `sig` in that path are unused on the csv route).
 
 **Clean-ceiling version (one more job).** The table was fit on the trials step 3
 decodes, so each group's within decode of its *own* effect is inflated
@@ -2396,12 +2411,15 @@ ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=tru
     bash submit_stability_flexibility_cross_decoding_dcc.sh
 ```
 
-Output: `results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/stimulus_experiment_conditions/`.
-It uses the task-significant electrodes (`ELECTRODES=sig`) and raw p.
+Output: `results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/stimulus_main_effect_conditions/`.
+It uses the task-significant electrodes (`ELECTRODES=sig`) and raw p. The split is
+not in that folder name, so an unsplit `anova` run with the same settings writes
+to the same place; add `SAVE_DIR=<a folder of its own>` to keep both.
 
-Options for either version: `CONDITIONS=stimulus_main_effect_conditions` pools the
-proportions into a 2×2 (~4× the trials per cell for the transfer; the block
-designs are skipped). With the default 16-cell set, the per-group block 2×2 names
+Options for either version: the submit script defaults to
+`CONDITIONS=stimulus_main_effect_conditions`, which pools the proportions into a
+2×2 (~4× the trials per cell for the transfer; the block designs are skipped).
+`CONDITIONS=stimulus_experiment_conditions` adds them. With the 16-cell set, the per-group block 2×2 names
 the groups `congruency` and `switch_type` and, without the trial split, skips every
 decode of a group's own contrast. `TEMPGEN_GROUPS=both,all` adds the temporal
 generalization matrix for the unselected group.
@@ -2417,9 +2435,11 @@ mkdir -p out/aligned_svm_ncv          # where the power-trace jobs write their l
 ANOVA_LABELS_CSV=$COND_CSV bash submit_specific_conditions_power_traces_dcc.sh
 ```
 
-Ten jobs each: five populations (`both`, `congruency`, `switch_type`,
-`congruency_only`, `switch_type_only`) × the two condition sets. Unlike A4, these
-jobs use each population whole. Outputs:
+Ten power-trace jobs: five populations (`both`, `congruency`, `switch_type`,
+`congruency_only`, `switch_type_only`) × the two condition sets. Six decoding jobs:
+the decoding script lists only `both`, `congruency_only` and `switch_type_only`
+(edit its `ANOVA_LABEL_EFFECTS` array for more; see [`decoding.md`](decoding.md)
+§3.2). Unlike A4, these jobs use each population whole. Outputs:
 
 ```
 dcc_scripts/decoding/figs/$EPOCHS_ROOT_FILE/anova_label_selections/<table>__effect-<population>__.../<condition set>/
