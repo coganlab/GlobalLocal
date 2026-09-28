@@ -1,11 +1,17 @@
 #!/bin/bash
 # Submit decoding jobs for multiple conditions
 
+# CONDITIONS=(
+#     stimulus_lwpc_block_balanced_conditions
+#     stimulus_lwps_block_balanced_conditions
+#     stimulus_congruency_by_switch_prop_block_balanced_conditions
+#     stimulus_switch_type_by_inc_prop_block_balanced_conditions
+# )
+
+
 CONDITIONS=(
-    stimulus_lwpc_block_balanced_conditions
-    stimulus_lwps_block_balanced_conditions
-    stimulus_congruency_by_switch_prop_block_balanced_conditions
-    stimulus_switch_type_by_inc_prop_block_balanced_conditions
+    stimulus_congruency_conditions
+    stimulus_switch_type_conditions
 )
 
 # Override this in the environment when decoding a different epochs dataset.
@@ -45,7 +51,7 @@ ANOVA_LABELS_CSVS=(
 #     # "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_1.0to1.5s_sig_lpfc_proportion_none/anova_labels.csv"
 #     "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none/anova_labels.csv"
 
-    #   "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
+      "/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none/anova_labels.csv"
 
 )
 ANOVA_LABELS_CSVS=("")
@@ -59,9 +65,9 @@ fi
 #     lwpc_only lwps_only congruency_only switch_type_only
 # )
 
-# ANOVA_LABEL_EFFECTS=(
-#     both congruency_only switch_type_only
-# )
+ANOVA_LABEL_EFFECTS=(
+    both congruency_only switch_type_only
+)
 
 if [[ -z "${ANOVA_LABELS_CSVS[0]:-}" ]]; then
     # Dummy value: ignored when no saved ANOVA-label CSV is supplied.
