@@ -2,13 +2,21 @@
 
 Tie the neural selectivity (A1's LWPC / LWPS electrode groups) to the ACTUAL
 behavioral control adjustment, so the substrates are shown to be *functional*,
-not incidental. Two levels with very different power:
+not incidental. Three levels with very different power:
 
-- **Across subjects** (n = subjects, low power): does a subject with more (or
-  stronger) LWPC electrodes show a larger behavioral LWPC effect? And likewise
-  LWPS? This is honest but underpowered at n = subjects.
-- **Within subject, single-trial** (preferred, far more power): does trial-by-
-  trial high-gamma in the LWPC electrode group predict the trial-by-trial
+- **Across subjects, continuous scores** (the across-participant test to report;
+  ``participant_scores`` + ``participant_brain_behavior``): each participant's
+  MEAN signed per-electrode LWPC / LWPS d against its behavioral LWPC / LWPS,
+  both scored on the same trials. Reported with and without the RT-linked part
+  of HG (``rt_adjust_hg``), with split-half reliabilities from ONE trial split
+  per participant, and with the ceiling those reliabilities put on the
+  correlation. n = participants, so a null is uninformative.
+- **Across subjects, label-based** (n = subjects, low power): does a subject with
+  more (or stronger) LWPC electrodes show a larger behavioral LWPC effect? And
+  likewise LWPS? Kept for comparison; the counts need thresholded labels and the
+  'effect' summary averages an unsigned F, so prefer the continuous level.
+- **Within subject, single-trial** (far more power): does trial-by-trial
+  high-gamma in the LWPC electrode group predict the trial-by-trial
   congruency-sequence RT adjustment (and the LWPS group ↔ the switch
   adjustment)? A mixed model with a subject random effect.
 
@@ -45,36 +53,57 @@ contrast.)
 **Specificity control (the whole point of A6).** The matched pairing
 (LWPC group ↔ congruency-sequence adjustment; LWPS group ↔ switch adjustment)
 should be stronger than the CROSS pairing (LWPC group ↔ switch adjustment). Both
-functions report the cross pairing alongside the matched one.
+functions report the cross pairing alongside the matched one. "Matched beats
+cross" is also what RT coupling alone produces (see ``rt_adjust_hg``), and
+behavioral LWPC and LWPS correlate across participants, so the continuous level
+tests specificity with a joint regression on both neural scores instead.
 
 ``_synthetic_brain_behavior`` plants a matched across-subject correlation and a
 matched within-subject single-trial coupling (both stronger than their cross
 controls) so the whole path and the tutorial run with no data on disk.
+``_synthetic_long_df`` plants a single-trial long table (real block design, a
+brain-behavior link, common-mode noise, optional RT coupling) for the continuous
+level.
 """
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from scipy.stats import pearsonr
+from scipy.stats import norm, pearsonr, spearmanr
+from scipy.stats import t as t_dist
 
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
+
+from src.analysis.stats import stability_flexibility_segregation as sfs
 
 
 # ----------------------------------------------------------------------------
 # behavioral LWPC / LWPS magnitudes (per subject) from raw behavior
 # ----------------------------------------------------------------------------
-# The default block -> proportion map matches erin_linear_mixed_effects_model.py:
-#   A,C -> 75% congruent (25% incongruent), 25% switch
-#   B,D -> 25% congruent (75% incongruent), 75% switch
-# (Note: in THIS design incongruent-proportion and switch-proportion are
-# collinear across blocks — a real limitation of the block structure, worth
-# flagging when interpreting which interaction a per-subject effect reflects.)
+# blockType -> block proportions, as the task builds them (src/task/mainTask.m:
+# `createCongruencyArr` makes A and B 75% incongruent, `createTaskArr` makes A
+# and C 25% switch). The two proportions are FULLY CROSSED over the four blocks:
+#
+#   A -> 75% incongruent, 25% switch        B -> 75% incongruent, 75% switch
+#   C -> 25% incongruent, 25% switch        D -> 25% incongruent, 75% switch
+#
+# `general_utils.map_block_type` and combinedData.csv itself agree; the tests pin
+# the map against the task code and the data.
+#
+# This map previously swapped A's and D's incongruent proportions (copied from
+# erin_linear_mixed_effects_model.py). That made the two proportions look
+# collinear and turned the behavioral "LWPC" into a congruency x SWITCH-proportion
+# contrast mixed with block-level RT differences (on combinedData.csv: mean 46 ms,
+# r = 0.02 with LWPS, instead of 123 ms and r = 0.44). Behavioral magnitudes
+# computed from blockType before the fix -- the archived A6 across-subject
+# numbers among them -- must be rerun.
 _BLOCK_PROPORTION_MAP = {
-    'A': dict(incongruent_proportion=25.0, switch_proportion=25.0),
+    'A': dict(incongruent_proportion=75.0, switch_proportion=25.0),
     'B': dict(incongruent_proportion=75.0, switch_proportion=75.0),
     'C': dict(incongruent_proportion=25.0, switch_proportion=25.0),
-    'D': dict(incongruent_proportion=75.0, switch_proportion=75.0),
+    'D': dict(incongruent_proportion=25.0, switch_proportion=75.0),
 }
 
 
@@ -291,6 +320,491 @@ def trialwise_brain_behavior(trial_df, group='LWPC', hg_col='hg_group',
 
 
 # ----------------------------------------------------------------------------
+# (3) across participants, continuous scores (the version to report)
+# ----------------------------------------------------------------------------
+# One neural LWPC and LWPS per participant: the MEAN of its electrodes' signed
+# scores, each the equal-cell-weight difference-of-differences over the pooled
+# within-cell SD that the segregation / anatomy scores use
+# (`sfs._interaction_cohens_d`). Behavior is scored on the SAME trials, from the
+# long table's `rt`, with the same four cells and the same LOW-minus-HIGH sign.
+# Equal weights within a participant are fine: its electrodes share its trials,
+# so their sampling errors are nearly equal.
+#
+# Three things decide whether the correlation means anything:
+#
+#   1. RT coupling. If single-trial HG tracks RT inside a cell (slope b), every
+#      electrode's d-o-d contains b x the participant's own behavioral d-o-d.
+#      That builds a matched brain-behavior correlation, and a cross one in
+#      proportion to how correlated behavioral LWPC and LWPS are, so "matched
+#      beats cross" is exactly what RT coupling alone predicts. `rt_adjust_hg`
+#      removes the RT-linked part of HG; the scores come with and without it.
+#   2. Reliability. It must be measured with ONE split of each participant's
+#      trials, shared by all its electrodes. Splitting each electrode separately
+#      (as `compute_sensitivities_per_split` does) lets one electrode's half A
+#      share trials with another's half B, and noise common to a participant's
+#      electrodes then makes the two half-means agree: with a common-mode noise
+#      correlation of 0.3 and 10 electrodes, a participant mean with NO real
+#      between-participant differences shows a split-half reliability of ~0.57.
+#   3. Shared trials. Brain and behavior come from the same trials, so the same
+#      split also gives a disjoint-half brain-behavior correlation (neural from
+#      half A against behavior from half B), which shared trial noise cannot
+#      inflate.
+_DESIGN_CELLS = ('congruency', 'switchType', 'incongruent_proportion',
+                 'switch_proportion')
+# 2x2 cell code = 2*cond + mod (cond 1 = incongruent / switch, mod 1 = the LOW-
+# proportion block); the weights are the segregation module's own W_INTERACTION,
+# so the sign convention stays in one place.
+_W_CODE = np.array([sfs.W_INTERACTION[(c, m)]
+                    for c in (0.0, 1.0) for m in (0.0, 1.0)])
+_EFFECT_LABELS = (('lwpc', '_scond', '_smod'), ('lwps', '_fcond', '_fmod'))
+
+
+def _codes(values):
+    """Integer codes 0..k-1 (sorted) and the k unique values."""
+    codes, uniques = pd.factorize(pd.Series(values), sort=True)
+    return codes.astype(np.int64), np.asarray(uniques)
+
+
+def _cell_codes(df):
+    """Per-row 2x2 cell codes (0..3; -1 outside the 2x2) for LWPC and LWPS, from
+    the segregation module's proportion-mode labels, so the cells and the sign are
+    exactly those of the neural scores."""
+    cols = list(_DESIGN_CELLS)
+    contrasts = sfs.finalize_contrasts(df[cols], sfs.resolve_contrasts('proportion'))
+    lab = sfs._canonical_labels(df[cols], contrasts)
+    codes = {}
+    for name, condcol, modcol in _EFFECT_LABELS:
+        cond, mod = lab[condcol].to_numpy(), lab[modcol].to_numpy()
+        ok = np.isfinite(cond) & np.isfinite(mod)
+        code = np.full(len(df), -1, dtype=np.int64)
+        code[ok] = (2 * cond[ok] + mod[ok]).astype(np.int64)
+        codes[name] = code
+    return codes
+
+
+def _dod_scores(values, unit, code, n_units, standardize=True, min_n=2):
+    """Equal-cell-weight difference-of-differences per unit, vectorized.
+
+    `unit` (0..n_units-1) and `code` (2x2 cell, -1 = outside) are per row. With
+    `standardize` the contrast is divided by the pooled within-cell SD and every
+    cell needs >= `min_n` rows: `sfs._interaction_cohens_d`, electrode by
+    electrode. Without it, the raw contrast of the four cell means, as `_dod_rt`
+    scores behavior. NaN where a cell is short. Centre `values` per unit first
+    when standardizing; the sums of squares are then exact."""
+    ok = (code >= 0) & np.isfinite(values)
+    g = unit[ok] * 4 + code[ok]
+    v = values[ok]
+    size = n_units * 4
+    n = np.bincount(g, minlength=size).reshape(n_units, 4).astype(float)
+    s1 = np.bincount(g, weights=v, minlength=size).reshape(n_units, 4)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        mean = s1 / n
+        out = (mean * _W_CODE).sum(1)
+        if standardize:
+            s2 = np.bincount(g, weights=v * v, minlength=size).reshape(n_units, 4)
+            ss = np.clip(s2 - s1 * mean, 0.0, None)      # within-cell sums of squares
+            sp = np.sqrt(ss.sum(1) / (n - 1).sum(1))
+            out = out / sp
+            out[~(sp > 0)] = np.nan
+    out[(n < min_n).any(1)] = np.nan
+    return out
+
+
+def rt_adjust_hg(df, rt_col='rt', hg_col='hg', cell_cols=_DESIGN_CELLS,
+                 electrode_col='electrode'):
+    """Remove the RT-linked part of single-trial HG, electrode by electrode.
+
+    hg_adj = hg - b_e * (rt - mean rt_e), with b_e the electrode's POOLED
+    WITHIN-CELL slope of HG on RT, the cells being every congruency x switch type
+    x incongruent proportion x switch proportion combination (the ANCOVA slope).
+    A plain regression of HG on RT would also absorb the condition effects, which
+    move both; deviations from the cell means carry none of them. Any contrast of
+    cell means then moves by exactly -b_e x the same contrast of cell-mean RT, so
+    the adjusted LWPC d-o-d is the raw one minus b_e x the behavioral one.
+
+    This is conservative on purpose. If adaptation in HG reaches RT through the
+    same trial-by-trial coupling, the adjustment removes that part too: the
+    adjusted score is the neural adaptation not carried by RT, the unadjusted one
+    an upper bound. Report both.
+
+    Rows without a finite `rt` get NaN `hg`. Needs window-mean (scalar) HG.
+
+    Returns
+    -------
+    (adjusted copy of df, per-electrode table with `electrode`, `rt_slope` (HG
+    units per RT unit), `rt_r` (the pooled within-cell HG-RT correlation) and
+    `n_rt` (trials used)).
+    """
+    if df[hg_col].dtype == object:
+        raise ValueError("rt_adjust_hg needs window-mean (scalar) HG; build the long "
+                         "table with effect_measure='cohens_d'")
+    hg = pd.to_numeric(df[hg_col], errors='coerce').to_numpy(float)
+    rt = pd.to_numeric(df[rt_col], errors='coerce').to_numpy(float)
+    ok = np.isfinite(hg) & np.isfinite(rt)
+    e_code, e_names = _codes(df[electrode_col].to_numpy())
+    cell = df.groupby(list(cell_cols), sort=False, dropna=False).ngroup().to_numpy()
+    n_e, n_c = len(e_names), int(cell.max()) + 1
+    g = e_code * n_c + cell
+    cnt = np.bincount(g[ok], minlength=n_e * n_c)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        hg_bar = np.bincount(g[ok], weights=hg[ok], minlength=n_e * n_c) / cnt
+        rt_bar = np.bincount(g[ok], weights=rt[ok], minlength=n_e * n_c) / cnt
+        dh = np.where(ok, hg - hg_bar[g], 0.0)
+        dr = np.where(ok, rt - rt_bar[g], 0.0)
+    sxy = np.bincount(e_code, weights=dh * dr, minlength=n_e)
+    sxx = np.bincount(e_code, weights=dr * dr, minlength=n_e)
+    syy = np.bincount(e_code, weights=dh * dh, minlength=n_e)
+    n_rt = np.bincount(e_code[ok], minlength=n_e)
+    with np.errstate(divide='ignore', invalid='ignore'):
+        slope = np.where(sxx > 0, sxy / sxx, 0.0)
+        r = sxy / np.sqrt(sxx * syy)
+        rt_mean = np.bincount(e_code[ok], weights=rt[ok], minlength=n_e) / n_rt
+        adj = np.where(ok, hg - slope[e_code] * (rt - rt_mean[e_code]), np.nan)
+    out = df.copy()
+    out[hg_col] = adj
+    return out, pd.DataFrame(dict(electrode=e_names, rt_slope=slope, rt_r=r,
+                                  n_rt=n_rt))
+
+
+def _shared_half(strata, sizes, rng):
+    """0 (half A) / 1 (half B) per trial. Within each participant x design-cell
+    stratum a random floor(n/2) of the trials go to A, as in
+    `sfs._stratified_half_split`, but drawn once per participant: every one of its
+    electrodes, and its behavior, use the same split."""
+    u = rng.random(len(strata))
+    order = np.lexsort((u, strata))
+    first = np.r_[0, np.flatnonzero(np.diff(strata[order])) + 1]
+    run = np.diff(np.r_[first, len(order)])
+    rank = np.empty(len(strata), dtype=np.int64)
+    rank[order] = np.arange(len(order)) - np.repeat(first, run)
+    return (rank >= sizes[strata] // 2).astype(np.int64)
+
+
+def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
+                       correct_only=True):
+    """One neural and one behavioral LWPC / LWPS per participant, with reliabilities.
+
+    Parameters
+    ----------
+    df : the long table from `assemble_long_df` (effect_measure='cohens_d'), one
+        row per (electrode, trial): `subject`, `electrode`, `trial`, `hg` (window
+        mean), `congruency`, `switchType`, `incongruent_proportion`,
+        `switch_proportion`, plus `rt` / `acc` for behavior and the RT adjustment.
+        Restrict it to the electrode set you mean (e.g. task-significant lPFC)
+        BEFORE calling: every electrode given is averaged.
+    n_splits : random half-splits for the reliabilities. Each divides each
+        participant's trials once, stratified on the 16 design cells, and applies
+        that split to all of its electrodes and to its behavior.
+    min_elec : participants with fewer usable electrodes get NaN neural scores
+        (they stay in the table for their behavior).
+    rt_adjust : also score HG with its RT-linked part removed (`rt_adjust_hg`).
+        The slope is fitted once on all trials; within a split it is shared by both
+        halves, a leak of one parameter per electrode.
+    correct_only : drop trials with `acc` != 1 when accuracy is present, for brain
+        and behavior alike. Trials without an RT are dropped too when the table has
+        RTs, so brain and behavior always use the same trials.
+
+    Returns
+    -------
+    dict with
+      scores       one row per participant: `n_elec` (usable electrodes),
+                   `n_trials`, the neural means `lwpc_neural` / `lwps_neural`
+                   (mean per-electrode d, LOW minus HIGH) and their `_rtadj`
+                   versions, behavioral `lwpc_behav` / `lwps_behav` (RT d-o-d, ms),
+                   `mean_rt`, `resp` (mean |HG|, the gain proxy) and `rt_hg_r` (the
+                   median within-cell HG-RT correlation of its electrodes).
+      electrodes   one row per electrode: its full-data scores, `usable`, `resp`,
+                   and `rt_slope` / `rt_r` when adjusted.
+      reliability  one row per score: `r_half`, the mean over splits of the
+                   across-participant correlation between half-A and half-B values
+                   (`sd_half` its spread), and `reliability`, its Spearman-Brown
+                   full-length value (NaN when r_half <= 0: no measurable signal).
+      halves       {score: array (n_splits, n_participants, 2)}: half-A / half-B
+                   participant values per split, for disjoint-half checks.
+      subjects     participant order of `halves`.
+      notes        what was dropped or skipped, in words.
+    """
+    need = ['subject', 'electrode', 'hg', *_DESIGN_CELLS]
+    missing = [c for c in need if c not in df.columns]
+    if missing:
+        raise KeyError(f"participant_scores needs columns {missing}; the long table "
+                       f"has {list(df.columns)}")
+    if df['hg'].dtype == object:
+        raise ValueError("participant_scores needs window-mean (scalar) HG; build the "
+                         "long table with effect_measure='cohens_d'")
+    notes = []
+    d = df[need + [c for c in ('trial', 'rt', 'acc') if c in df.columns]].copy()
+    d['hg'] = pd.to_numeric(d['hg'], errors='coerce')
+    d = d[np.isfinite(d['hg'].to_numpy(float))]
+
+    if 'trial' not in d.columns:
+        per_elec = d.groupby(['subject', 'electrode']).size()
+        if (per_elec.groupby(level='subject').nunique() > 1).any():
+            raise ValueError(
+                "the long table has no `trial` column and a participant's electrodes "
+                "list different numbers of trials, so their trials cannot be "
+                "aligned. Rebuild it with the current `assemble_long_df`, which "
+                "writes `trial`.")
+        d['trial'] = d.groupby('electrode').cumcount()
+        notes.append("no `trial` column: assumed each participant's electrodes list "
+                     "the same trials in the same order")
+
+    def _n_trials(mask):
+        return int(d.loc[mask, ['subject', 'trial']].drop_duplicates().shape[0])
+
+    if correct_only and 'acc' in d.columns and d['acc'].notna().any():
+        bad = (d['acc'] != 1).to_numpy()
+        if bad.any():
+            notes.append(f"dropped {_n_trials(bad)} trials with acc != 1")
+            d = d[~bad]
+
+    has_rt = 'rt' in d.columns and bool(
+        np.isfinite(pd.to_numeric(d['rt'], errors='coerce')).any())
+    if has_rt:
+        d['rt'] = pd.to_numeric(d['rt'], errors='coerce')
+        no_rt = ~np.isfinite(d['rt'].to_numpy(float))
+        if no_rt.any():
+            notes.append(f"dropped {_n_trials(no_rt)} trials without an RT, so brain "
+                         "and behavior use the same trials")
+            d = d[~no_rt]
+    else:
+        notes.append("no reaction times in the long table: behavioral scores and the "
+                     "RT adjustment were skipped (rebuild it with the current "
+                     "`assemble_long_df`)")
+        rt_adjust = False
+    d = d.reset_index(drop=True)
+
+    codes = _cell_codes(d)
+    subj_code, subjects = _codes(d['subject'].to_numpy())
+    elec_code, electrodes = _codes(d['electrode'].to_numpy())
+    n_p, n_e = len(subjects), len(electrodes)
+    subj_of_elec = np.zeros(n_e, dtype=np.int64)
+    subj_of_elec[elec_code] = subj_code
+    per_elec_n = np.bincount(elec_code, minlength=n_e)
+
+    raw = d['hg'].to_numpy(float)
+    values = {'neural': raw}
+    slopes = None
+    if rt_adjust:
+        adj, slopes = rt_adjust_hg(d)
+        values['neural_rtadj'] = adj['hg'].to_numpy(float)
+    for k, v in values.items():                 # centre per electrode (see _dod_scores)
+        fin = np.isfinite(v)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            centre = (np.bincount(elec_code[fin], weights=v[fin], minlength=n_e)
+                      / np.bincount(elec_code[fin], minlength=n_e))
+        values[k] = v - centre[elec_code]
+
+    # one row per (participant, trial): behavior and the shared split live here
+    trials = d.drop_duplicates(['subject', 'trial']).reset_index(drop=True)
+    t_subj = pd.Index(subjects).get_indexer(trials['subject'])
+    row_trial = pd.MultiIndex.from_frame(trials[['subject', 'trial']]).get_indexer(
+        pd.MultiIndex.from_frame(d[['subject', 'trial']]))
+    t_codes = _cell_codes(trials)
+    strata = trials.groupby(['subject', *_DESIGN_CELLS], sort=False,
+                            dropna=False).ngroup().to_numpy()
+    sizes = np.bincount(strata)
+
+    def pmean(x, mask):
+        cnt = np.bincount(subj_of_elec[mask], minlength=n_p)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            m = np.bincount(subj_of_elec[mask], weights=x[mask], minlength=n_p) / cnt
+        m[cnt < min_elec] = np.nan
+        return m
+
+    effects = ('lwpc', 'lwps')
+    elec_scores = {f'{eff}_{k}': _dod_scores(v, elec_code, codes[eff], n_e)
+                   for k, v in values.items() for eff in effects}
+    usable = np.all([np.isfinite(s) for s in elec_scores.values()], axis=0)
+    behav = {}
+    if has_rt:
+        t_rt = trials['rt'].to_numpy(float)
+        behav = {f'{eff}_behav': _dod_scores(t_rt, t_subj, t_codes[eff], n_p,
+                                             standardize=False, min_n=1)
+                 for eff in effects}
+
+    rng = np.random.default_rng(seed)
+    halves = {k: np.full((n_splits, n_p, 2), np.nan) for k in [*elec_scores, *behav]}
+    for s in range(n_splits):
+        h_trial = _shared_half(strata, sizes, rng)
+        unit = elec_code * 2 + h_trial[row_trial]
+        for k, v in values.items():
+            for eff in effects:
+                ab = _dod_scores(v, unit, codes[eff], n_e * 2).reshape(n_e, 2)
+                ok = usable & np.isfinite(ab).all(1)
+                halves[f'{eff}_{k}'][s] = np.column_stack(
+                    [pmean(ab[:, 0], ok), pmean(ab[:, 1], ok)])
+        if has_rt:
+            t_unit = t_subj * 2 + h_trial
+            for eff in effects:
+                halves[f'{eff}_behav'][s] = _dod_scores(
+                    t_rt, t_unit, t_codes[eff], n_p * 2, standardize=False,
+                    min_n=1).reshape(n_p, 2)
+
+    rel_rows = []
+    for name, arr in halves.items():
+        rs, ns = [], []
+        for s in range(n_splits):
+            a, b = arr[s, :, 0], arr[s, :, 1]
+            ok = np.isfinite(a) & np.isfinite(b)
+            if ok.sum() >= 3 and np.std(a[ok]) > 0 and np.std(b[ok]) > 0:
+                rs.append(float(np.corrcoef(a[ok], b[ok])[0, 1]))
+                ns.append(int(ok.sum()))
+        r_half = float(np.mean(rs)) if rs else np.nan
+        rel_rows.append(dict(
+            score=name, r_half=r_half, sd_half=float(np.std(rs)) if rs else np.nan,
+            reliability=2 * r_half / (1 + r_half) if r_half > 0 else np.nan,
+            n_participants=int(np.median(ns)) if ns else 0, n_splits=len(rs)))
+
+    resp_e = np.bincount(elec_code, weights=np.abs(raw), minlength=n_e) / per_elec_n
+    elec_df = pd.DataFrame(dict(subject=subjects[subj_of_elec], electrode=electrodes,
+                                n_trials=per_elec_n, usable=usable, resp=resp_e,
+                                **elec_scores))
+    if slopes is not None:
+        elec_df = elec_df.merge(slopes[['electrode', 'rt_slope', 'rt_r']],
+                                on='electrode', how='left')
+
+    scores = pd.DataFrame(dict(subject=subjects,
+                               n_elec=np.bincount(subj_of_elec[usable], minlength=n_p),
+                               n_trials=np.bincount(t_subj, minlength=n_p)))
+    for name, x in elec_scores.items():
+        scores[name] = pmean(x, usable)
+    for name, x in behav.items():
+        scores[name] = x
+    if has_rt:
+        scores['mean_rt'] = pd.Series(trials['rt'].to_numpy(float)).groupby(
+            t_subj).mean().reindex(range(n_p)).to_numpy()
+    scores['resp'] = pmean(resp_e, usable)
+    if slopes is not None:
+        scores['rt_hg_r'] = (elec_df[elec_df['usable']].groupby('subject')['rt_r']
+                             .median().reindex(subjects).to_numpy())
+    return dict(scores=scores, electrodes=elec_df,
+                reliability=pd.DataFrame(rel_rows), halves=halves,
+                subjects=list(subjects), notes=notes, n_splits=n_splits,
+                min_elec=min_elec)
+
+
+def _fisher_ci(r, n, level=0.95):
+    if not np.isfinite(r) or n <= 3 or abs(r) >= 1:
+        return (np.nan, np.nan)
+    z, se = np.arctanh(r), 1.0 / np.sqrt(n - 3)
+    q = norm.ppf(0.5 + level / 2)
+    return (float(np.tanh(z - q * se)), float(np.tanh(z + q * se)))
+
+
+def _mean_split_corr(x, y):
+    """Mean over splits of the across-participant correlation of two (splits,
+    participants) arrays, each split on the participants finite in both."""
+    rs = []
+    for a, b in zip(x, y):
+        ok = np.isfinite(a) & np.isfinite(b)
+        if ok.sum() >= 3 and np.std(a[ok]) > 0 and np.std(b[ok]) > 0:
+            rs.append(np.corrcoef(a[ok], b[ok])[0, 1])
+    return float(np.mean(rs)) if rs else np.nan
+
+
+def participant_brain_behavior(ps, variant='rtadj', alpha=0.05):
+    """Across-participant brain-behavior correlations on `participant_scores` output.
+
+    variant : 'rtadj' (neural scores with the RT-linked part of HG removed: the
+        claim) or 'raw' (unadjusted: an upper bound that RT coupling inflates).
+
+    Returns
+    -------
+    dict with, for LWPC and LWPS:
+      corr_* / p_* / ci_* / rho_*    matched Pearson r, p, 95% CI, Spearman rho
+      corr_cross_*                   the cross pairings (neural LWPC vs behavioral
+                                     LWPS and the reverse)
+      joint_*                        behavioral score ~ BOTH neural scores, all
+                                     z-scored: `beta_matched` / `beta_cross` and
+                                     their p. The specificity test: cross r's are
+                                     not near zero when behavioral LWPC and LWPS
+                                     correlate, a matched-vs-cross comparison is not
+      reliability_neural_* / reliability_behav_* / ceiling_*
+                                     full-length reliabilities and
+                                     sqrt(rel_neural x rel_behav), the largest
+                                     observable r even for a perfect true link
+      corr_*_same_half / corr_*_disjoint_half
+                                     half-length r with neural and behavior from
+                                     the same trial half, and from opposite halves
+                                     (immune to shared trial noise)
+    plus `n_participants`, `r_crit` (the |r| needed for p < alpha at this n), the
+    merged `table` and a `caveat`.
+    """
+    suffix = {'raw': '', 'rtadj': '_rtadj'}
+    if variant not in suffix:
+        raise ValueError(f"variant must be 'raw' or 'rtadj'; got {variant!r}")
+    ncol = {eff: f'{eff}_neural{suffix[variant]}' for eff in ('lwpc', 'lwps')}
+    bcol = {eff: f'{eff}_behav' for eff in ('lwpc', 'lwps')}
+    s = ps['scores']
+    missing = [c for c in (*ncol.values(), *bcol.values()) if c not in s.columns]
+    if missing:
+        raise KeyError(f"participant scores lack {missing}: variant={variant!r} needs "
+                       "the behavioral scores (and the RT adjustment for 'rtadj'), "
+                       "which need `rt` in the long table")
+    t = s.dropna(subset=[*ncol.values(), *bcol.values()]).reset_index(drop=True)
+    n = len(t)
+    out = dict(variant=variant, n_participants=n,
+               neural_columns=dict(ncol), behavior_columns=dict(bcol))
+    out['r_crit'] = (float(t_dist.ppf(1 - alpha / 2, n - 2)
+                           / np.sqrt(t_dist.ppf(1 - alpha / 2, n - 2) ** 2 + n - 2))
+                     if n > 2 else np.nan)
+
+    def corr(a, b):
+        if n < 3 or t[a].std() == 0 or t[b].std() == 0:
+            return np.nan, np.nan
+        r, p = pearsonr(t[a], t[b])
+        return float(r), float(p)
+
+    for eff in ('lwpc', 'lwps'):
+        r, p = corr(ncol[eff], bcol[eff])
+        out[f'corr_{eff}'], out[f'p_{eff}'] = r, p
+        out[f'ci_{eff}'] = _fisher_ci(r, n)
+        if n >= 3:
+            rho, prho = spearmanr(t[ncol[eff]], t[bcol[eff]])
+            out[f'rho_{eff}'], out[f'p_rho_{eff}'] = float(rho), float(prho)
+        else:
+            out[f'rho_{eff}'] = out[f'p_rho_{eff}'] = np.nan
+    out['corr_cross_stab_lwps'], out['p_cross_stab_lwps'] = corr(ncol['lwpc'], bcol['lwps'])
+    out['corr_cross_flex_lwpc'], out['p_cross_flex_lwpc'] = corr(ncol['lwps'], bcol['lwpc'])
+
+    z = (t[[*ncol.values(), *bcol.values()]] - t[[*ncol.values(), *bcol.values()]].mean()) \
+        / t[[*ncol.values(), *bcol.values()]].std()
+    for eff, other in (('lwpc', 'lwps'), ('lwps', 'lwpc')):
+        res = dict(beta_matched=np.nan, p_matched=np.nan, beta_cross=np.nan,
+                   p_cross=np.nan)
+        if n >= 5 and np.isfinite(z.to_numpy()).all():
+            fit = sm.OLS(z[bcol[eff]].to_numpy(),
+                         sm.add_constant(z[[ncol[eff], ncol[other]]].to_numpy())).fit()
+            res = dict(beta_matched=float(fit.params[1]), p_matched=float(fit.pvalues[1]),
+                       beta_cross=float(fit.params[2]), p_cross=float(fit.pvalues[2]))
+        out[f'joint_{eff}'] = res
+
+    rel = ps['reliability'].set_index('score')['reliability']
+    idx = pd.Index(ps['subjects']).get_indexer(t['subject'])
+    for eff in ('lwpc', 'lwps'):
+        rn, rb = float(rel.get(ncol[eff], np.nan)), float(rel.get(bcol[eff], np.nan))
+        out[f'reliability_neural_{eff}'], out[f'reliability_behav_{eff}'] = rn, rb
+        out[f'ceiling_{eff}'] = (float(np.sqrt(rn * rb))
+                                 if np.isfinite(rn) and np.isfinite(rb) else np.nan)
+        hn, hb = ps['halves'][ncol[eff]][:, idx, :], ps['halves'][bcol[eff]][:, idx, :]
+        out[f'corr_{eff}_same_half'] = 0.5 * (_mean_split_corr(hn[..., 0], hb[..., 0])
+                                             + _mean_split_corr(hn[..., 1], hb[..., 1]))
+        out[f'corr_{eff}_disjoint_half'] = 0.5 * (
+            _mean_split_corr(hn[..., 0], hb[..., 1])
+            + _mean_split_corr(hn[..., 1], hb[..., 0]))
+
+    out['table'] = t[['subject', 'n_elec', 'n_trials', *ncol.values(),
+                      *bcol.values()]].copy()
+    out['caveat'] = (
+        f"n = {n} participants: |r| must reach {out['r_crit']:.2f} for p < {alpha}, "
+        "and no observed r can exceed the reliability ceiling. A null is "
+        "uninformative. The RT-adjusted variant is the claim; the raw one is an "
+        "upper bound that RT coupling inflates.")
+    return out
+
+
+# ----------------------------------------------------------------------------
 # synthetic ground truth — planted matched links stronger than cross
 # ----------------------------------------------------------------------------
 def _synthetic_brain_behavior(n_subj=16, seed=0, across_beta=1.2,
@@ -344,6 +858,72 @@ def _synthetic_brain_behavior(n_subj=16, seed=0, across_beta=1.2,
     return elec_labels, behavior, trial_df
 
 
+def _synthetic_long_df(n_subj=24, n_elec=(4, 12), trials_per_block=112, seed=0,
+                       link=0.6, rt_coupling=0.0, common_noise=0.3,
+                       neural_mean=0.15, neural_sd=0.15, elec_sd=0.1):
+    """Planted single-trial long table for `participant_scores`; returns (df, truth).
+
+    Blocks follow the real design (`_BLOCK_PROPORTION_MAP`, exact 75/25 counts in
+    each block). Each participant has a behavioral LWPC and LWPS (RT d-o-d, ms) and
+    a neural LWPC and LWPS (d units; mean `neural_mean`, SD `neural_sd` across
+    participants) that correlate with its OWN behavioral effect at `link`, and not
+    with the other one. Each electrode carries its participant's neural effects
+    plus jitter (`elec_sd`) and a random gain; `common_noise` is the share of trial
+    noise variance shared by all of a participant's electrodes. `rt_coupling` adds
+    that many noise SDs of HG per SD of RT: the RT confound, which puts
+    rt_coupling x (behavioral d-o-d / RT SD) into every electrode's score.
+
+    `truth` holds each participant's planted `lwpc_behav_true` / `lwps_behav_true`
+    (ms) and `lwpc_neural_true` / `lwps_neural_true` (d).
+    """
+    rng = np.random.default_rng(seed)
+    frames, truth = [], []
+    for s in range(n_subj):
+        subject = f"S{s:02d}"
+        zb = rng.standard_normal(2)
+        beh = np.array([120.0, 100.0]) + np.array([60.0, 50.0]) * zb
+        neu = neural_mean + neural_sd * (link * zb
+                                         + np.sqrt(1 - link ** 2) * rng.standard_normal(2))
+        truth.append(dict(subject=subject, lwpc_behav_true=beh[0],
+                          lwps_behav_true=beh[1], lwpc_neural_true=neu[0],
+                          lwps_neural_true=neu[1]))
+
+        cols = dict(congruency=[], switchType=[], incongruent_proportion=[],
+                    switch_proportion=[])
+        for props in _BLOCK_PROPORTION_MAP.values():
+            n_inc = int(round(trials_per_block * props['incongruent_proportion'] / 100))
+            n_sw = int(round(trials_per_block * props['switch_proportion'] / 100))
+            cols['congruency'] += list(rng.permutation(
+                ['i'] * n_inc + ['c'] * (trials_per_block - n_inc)))
+            cols['switchType'] += list(rng.permutation(
+                ['s'] * n_sw + ['r'] * (trials_per_block - n_sw)))
+            cols['incongruent_proportion'] += [props['incongruent_proportion']] * trials_per_block
+            cols['switch_proportion'] += [props['switch_proportion']] * trials_per_block
+        inc = np.array(cols['congruency']) == 'i'
+        sw = np.array(cols['switchType']) == 's'
+        # each condition effect is half its d-o-d larger in the LOW block and half
+        # smaller in the HIGH block, so LOW minus HIGH recovers the planted value
+        half_c = np.where(np.array(cols['incongruent_proportion']) == 25.0, 0.5, -0.5)
+        half_s = np.where(np.array(cols['switch_proportion']) == 25.0, 0.5, -0.5)
+        n_tr = len(inc)
+        rt = (1100.0 + inc * (120.0 + half_c * beh[0]) + sw * (100.0 + half_s * beh[1])
+              + rng.normal(0, 250.0, n_tr))
+        z_rt = (rt - rt.mean()) / rt.std()
+
+        common = rng.standard_normal(n_tr)
+        for e in range(int(rng.integers(n_elec[0], n_elec[1] + 1))):
+            lwpc_e = neu[0] + elec_sd * rng.standard_normal()
+            lwps_e = neu[1] + elec_sd * rng.standard_normal()
+            hg = rng.uniform(0.5, 1.5) * (
+                0.5 + inc * (0.3 + half_c * lwpc_e) + sw * (0.3 + half_s * lwps_e)
+                + rt_coupling * z_rt + np.sqrt(common_noise) * common
+                + np.sqrt(1 - common_noise) * rng.standard_normal(n_tr))
+            frames.append(pd.DataFrame(dict(
+                subject=subject, electrode=f"{subject}-e{e}", trial=np.arange(n_tr),
+                hg=hg, rt=rt, acc=1.0, **cols)))
+    return pd.concat(frames, ignore_index=True), pd.DataFrame(truth)
+
+
 if __name__ == '__main__':
     elec_labels, behavior, trial_df = _synthetic_brain_behavior(seed=1)
 
@@ -363,3 +943,20 @@ if __name__ == '__main__':
               f"vs cross slope={r['slope_cross']:.3f} (p={r['p_cross']:.3g})  "
               f"specificity_ok={r['specificity_ok']}  "
               f"[n_trials={r['n_trials']}, n_subj={r['n_subjects']}]")
+
+    # (3) continuous per-participant scores: NO planted brain-behavior link in the
+    # population, only RT coupling. The raw scores correlate with behavior anyway;
+    # the adjusted ones should track the planted correlation, which in a sample of
+    # 24 is not exactly zero.
+    long_df, truth = _synthetic_long_df(seed=1, link=0.0, rt_coupling=0.4)
+    ps = participant_scores(long_df, n_splits=50)
+    planted = ps['scores'].merge(truth, on='subject')
+    print("[participants] planted neural-behavior r in this sample: "
+          + "  ".join(f"{eff.upper()} {np.corrcoef(planted[f'{eff}_neural_true'], planted[f'{eff}_behav_true'])[0, 1]:+.2f}"
+                      for eff in ('lwpc', 'lwps')))
+    for variant in ('raw', 'rtadj'):
+        r = participant_brain_behavior(ps, variant=variant)
+        print(f"[participants, {variant}] LWPC r={r['corr_lwpc']:+.2f} "
+              f"(ceiling {r['ceiling_lwpc']:.2f})  LWPS r={r['corr_lwps']:+.2f} "
+              f"(ceiling {r['ceiling_lwps']:.2f})  [n={r['n_participants']}, "
+              f"r_crit={r['r_crit']:.2f}]")

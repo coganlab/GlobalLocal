@@ -477,13 +477,23 @@ That is the base effect and it should be there.
 
 ### Step 3 — the kill switch
 
-> Compare against the **behavioral** LWPC/LWPS directions from
-> `stats/erin_linear_mixed_effects_model.py` / `combinedData.csv`. Both are on the
-> same low-minus-high convention (pinned by the sign-convention test), so they are
-> directly comparable.
+> Compare against the **behavioral** LWPC/LWPS directions: the per-participant
+> `lwpc` / `lwps` from `behavioral_lwpc_lwps_magnitudes` (A6's
+> `behavioral_magnitudes.csv`, or `combinedData.csv` through the corrected
+> `blockType` map). Both are on the same low-minus-high convention (pinned by the
+> sign-convention test), so they are directly comparable. On `combinedData.csv`
+> both are positive: LWPC +123 ms, LWPS +97 ms, 20 of 23 participants each.
+> `erin_linear_mixed_effects_model.py` is a post-error model with no congruency ×
+> proportion term, and until 2026-09-27 its `blockType` map, like the A6 module's,
+> swapped blocks A and D ([`a6_brain_behavior.md`](a6_brain_behavior.md) §1.1).
 >
 > **If the neural directions disagree with the behavioral ones, stop.** Re-read the
 > epoch metadata before running anything in N3–N4.
+>
+> A match is not independent evidence of adaptation on its own: if HG tracks RT
+> within cells, the neural d-o-d inherits behavior's sign
+> ([`a6_brain_behavior.md`](a6_brain_behavior.md) §4.1). The RT-adjusted
+> per-electrode scores in A6's `participant_electrode_scores.csv` are the check.
 
 ### Step 4 — report `n_electrodes` and `n_subjects` together
 
