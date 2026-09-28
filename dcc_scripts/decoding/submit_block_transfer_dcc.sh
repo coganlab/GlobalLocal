@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md).
+# Submit N3b: block-transfer cross-decoding (docs/decoding.md#n3b-block-transfer).
 #
 # Trains congruency / switch type in one block level and tests it in the other
 # (four designs, uncentered and centered) on EVERY electrode of one ROI. There are no

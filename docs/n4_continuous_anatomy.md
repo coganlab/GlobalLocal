@@ -1,7 +1,7 @@
 # N4 — continuous electrode scores → anatomy, brain maps, and descriptive centres
 
 **What this document is.** A standalone, end-to-end walkthrough of beats **5–7**
-in [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md):
+in [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan):
 
 1. the primary coverage-conditioned anatomical test of continuous LWPC and LWPS
    scores;
@@ -56,7 +56,7 @@ are descriptive and must not replace either anatomical test.
 
 | Role | File / function |
 |---|---|
-| Analysis specification | `docs/analysis_plan_concurrent_regulation.md`, §§5–7 |
+| Analysis specification | `analysis_plans.md` › Concurrent-regulation plan, §§5–7 |
 | Score estimation | `src/analysis/stats/stability_flexibility_segregation.py`: `compute_sensitivities_per_split`, `average_over_splits`, `add_responsiveness` |
 | Core N4 statistics | `src/analysis/stats/stability_flexibility_anatomy.py`: `attach_scores`, `relative_score_roi_test`, `relative_score_coordinate_test`, `map_reliability`, `leave_one_subject_out` |
 | Brain maps | same file: `SCORE_MAPS`, `plot_score_by_roi`, `plot_scores_on_brain`, `plot_score_maps` |
@@ -942,11 +942,11 @@ Related reading:
 
 - [`n2_direction_tests.md`](n2_direction_tests.md) — the direction test that
   should be settled before N4;
-- [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
+- [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan)
   §§5–7 — the statistical rationale and reporting hierarchy;
-- [`stability_flexibility_data_flow.md`](stability_flexibility_data_flow.md) —
+- [`stability_flexibility_battery.md` › Data flow walk-through](stability_flexibility_battery.md#data-flow-walk-through) —
   broader A1–A6 data flow; and
-- [`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md)
+- [`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide)
   — the wider segregation/anatomy output family.
 
 ---
@@ -1225,7 +1225,7 @@ electrode is individually significant for LWPC in either run (all lPFC: 0 LWPC,
 0 LWPS; task-significant: 0 LWPC, 8 LWPS), so there are no groups to compare and
 the odds ratio is `nan`. The segregation summary's "segregated (n.s.)" label
 comes from the missing odds ratio, not from evidence of segregation. Report the
-test as not computable (see `stability_flexibility_outputs_guide.md`).
+test as not computable (see `stability_flexibility_battery.md` › Outputs guide).
 
 **Thresholded maps look disjoint whatever the truth.** With 49 % of all-lPFC
 electrodes LWPC-positive and 56 % LWPS-positive, independence alone would leave
@@ -1509,7 +1509,7 @@ The choice of primary population is open. The facts that bear on it:
 
 - **Consistency.** The power-trace and decoding analyses use the
   task-significant electrodes.
-- **The plan.** §5.1 of `analysis_plan_concurrent_regulation.md` and §2.3 of
+- **The plan.** §5.1 of `analysis_plans.md` › Concurrent-regulation plan and §2.3 of
   this document specify an anatomical electrode set, "not effect-selected". The
   task-significant selection is not made on LWPC or LWPS, so it does not create
   the circularity those sections warn about, but "anatomical" most naturally
@@ -1557,7 +1557,7 @@ Whichever is primary, report the other in full.
   correlate more strongly than r (§15.5), so the caption must say that r compares
   separate trial halves. Not `joint_scatter.png`: neither its points nor its
   numbers are the pre-specified test (§6). Specification and caption: "Panel a"
-  in [`closing_figure_plan.md`](closing_figure_plan.md#panel-a). The pipeline
+  in [`analysis_plans.md` › Closing figure plan](analysis_plans.md#panel-a). The pipeline
   does not make it yet.
 - `delta_by_roi.png`: adjusted mean delta per parcel, reordered by mean z.
 - Per-electrode dot maps only as coverage or illustration, with a legend line
@@ -1632,7 +1632,7 @@ wording is in §16.7.2.
 
 ## 16. Main effects as the reference for the tilt
 
-The question from [`closing_figure_plan.md`](closing_figure_plan.md): is the
+The question from [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan): is the
 dorsoventral tilt in delta (LWPC − LWPS) inherited from how the base effects,
 congruency and switch type, are organized?
 
@@ -2039,7 +2039,7 @@ All files are in the anatomy run's `continuous/` folder unless marked
 
 #### 16.7.2 Draft Results paragraphs
 
-All lPFC as the primary set (see `closing_figure_plan.md`, "Which electrode set
+All lPFC as the primary set (see `analysis_plans.md` › Closing figure plan, "Which electrode set
 to report"). This replaces the §15.12 draft for the all-lPFC version.
 
 > We scored each lPFC electrode (398 electrodes, 22 participants) for LWPC and
@@ -2091,7 +2091,7 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 
 | Panel | Shows | Data | Status |
 |---|---|---|---|
-| a | Shared electrodes at both levels: congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualised, participant-centred scores each pre-specified test correlates, annotated with its separate-half r, p and n | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`; congruency/switch: the same transform of `mx`/`my` in its `electrodes.csv`; r from the segregation `summary.txt` and `correlation_main_effects.json` | Not plotted; no rerun needed. Not `joint_scatter.png` (§6); specification and caption in `closing_figure_plan.md`, "Panel a". |
+| a | Shared electrodes at both levels: congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualised, participant-centred scores each pre-specified test correlates, annotated with its separate-half r, p and n | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`; congruency/switch: the same transform of `mx`/`my` in its `electrodes.csv`; r from the segregation `summary.txt` and `correlation_main_effects.json` | Not plotted; no rerun needed. Not `joint_scatter.png` (§6); specification and caption in `analysis_plans.md` › Closing figure plan, "Panel a". |
 | b | The two balances by label: adjusted dm (x) against adjusted delta (y), one dot per label, sized by electrodes, coloured by distance from the midline; each omnibus F and p, and r = 0.73 | `panel_b_label_means.csv` (script §4), or `dm_per_roi.csv` + `delta_per_roi.csv` | Data ready; not plotted |
 | c | The four scores by distance from the midline: base effects and adaptation as matched small multiples, participant mean ± SEM per tertile | `panel_c_midline.csv` (script §3) | Data ready; not plotted. Replaces the planned "by height" panels. |
 | d | The link: r for dm vs delta, the two matched and the two crossed pairings, with p | `delta_tracking.csv` | Data ready; not plotted |
@@ -2114,8 +2114,8 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
       `ELECTRODES=sig`, then the anatomy job), and run the script on it.
 - [ ] Decide how to name the axis: the pre-specified model reports height, the
       follow-up favours distance from the midline (advisor question in
-      `closing_figure_plan.md`).
-- [ ] Make panel a, both halves, as specified in `closing_figure_plan.md`
+      `analysis_plans.md` › Closing figure plan).
+- [ ] Make panel a, both halves, as specified in `analysis_plans.md` › Closing figure plan
       ("Panel a"), and plot panels b–d from the script's tables.
 - [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
       have Test 2 print dm's reliability, the implied share and the bootstrap

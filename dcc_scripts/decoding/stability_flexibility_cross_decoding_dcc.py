@@ -64,10 +64,10 @@ shared-vs-orthogonal code (`cd.synthetic_roi_labeled_arrays`), which validates t
 whole path and that the analysis discriminates the two codes.
 
 With `args.analysis == 'block_transfer'` the job runs N3b instead
-(`run_block_transfer_job`, docs/n3b_block_transfer.md): each contrast is trained
+(`run_block_transfer_job`, docs/decoding.md#n3b-block-transfer): each contrast is trained
 in one block level and tested in the other, on every electrode of the ROI, with
 no electrode groups. `args.analysis == 'task_transfer'` runs the task-transfer
-positive controls through the same function (docs/cross_decoding_controls.md
+positive controls through the same function (docs/decoding.md#cross-decoding-controls
 §3.5): task trained on congruent (repeat) trials and tested on incongruent
 (switch) ones, and congruency / switch type trained in one task, tested in the
 other.
@@ -717,8 +717,8 @@ def _roi_channel_names(arrays, roi):
 
 
 # ---------------------------------------------------------------------------
-# N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md), and the
-# task-transfer positive controls (docs/cross_decoding_controls.md §3.5)
+# N3b: block-transfer cross-decoding (docs/decoding.md#n3b-block-transfer), and the
+# task-transfer positive controls (docs/decoding.md#cross-decoding-controls §3.5)
 # ---------------------------------------------------------------------------
 BLOCK_TRANSFER_DESIGNS = {
     # name: (decoded contrast, transfer factor, pooled condition-set name)
@@ -769,7 +769,7 @@ def _retained(transfer, ceiling, chance=0.5):
 
     Both are summaries from `_summarise`, scored on the same test trials, so this
     is the "transfer as a fraction of within-condition accuracy" of
-    docs/cross_decoding_controls.md §2: 1 = full transfer, 0 = none.
+    docs/decoding.md#cross-decoding-controls §2: 1 = full transfer, 0 = none.
     """
     sig = np.asarray(ceiling['significant_windows'], bool)
     if not sig.any():
@@ -847,7 +847,7 @@ def _plot_block_transfer(results, args, roi):
 
 def _task_effect_size_lines(results):
     """Within-level task accuracy (T1) next to within-level congruency accuracy
-    (T3): the effect-size regime docs/closing_figure_plan.md asks the task
+    (T3): the effect-size regime docs/analysis_plans.md#closing-figure-plan asks the task
     control to be read against."""
     def within(key):
         res = results.get(key)
@@ -923,7 +923,7 @@ def _write_block_transfer_summary(results, meta, save_dir):
     if task_controls:
         lines += _task_effect_size_lines(results)
         lines += ["=" * 72,
-                  "Reading (docs/cross_decoding_controls.md §3.5): compare each transfer with",
+                  "Reading (docs/decoding.md#cross-decoding-controls §3.5): compare each transfer with",
                   "the within accuracy of the level it is TESTED on ('keeps X of it').",
                   "  T1 task across congruency   -> the clean positive control: transfer ~",
                   "                                 within means the pipeline carries a code",
@@ -940,7 +940,7 @@ def _write_block_transfer_summary(results, meta, save_dir):
                   "=" * 72]
     else:
         lines += ["=" * 72,
-                  "Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the",
+                  "Reading (docs/decoding.md#n3b-block-transfer §1.6): compare each transfer with the",
                   "within accuracy of the level it is TESTED on.",
                   "  transfer ~ within, centered and uncentered  -> the same code in both levels",
                   "  below within uncentered only                -> same axis, a tonic block shift",
@@ -1192,7 +1192,7 @@ def main(args):
     else:
         # The two within-contrast decodes are each transfer's ceiling: same trials,
         # same folds, scored on the labelling the transfer is scored on
-        # (docs/cross_decoding_controls.md §2). A null transfer means nothing
+        # (docs/decoding.md#cross-decoding-controls §2). A null transfer means nothing
         # unless its ceiling beats chance.
         transfer_pairs = [
             ('stab_to_stab', (stab_strings, stab_strings)),

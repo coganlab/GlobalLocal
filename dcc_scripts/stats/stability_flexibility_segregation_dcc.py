@@ -276,7 +276,7 @@ def save_results(out, save_dir):
     # The old split-averaged estimator, kept as a diagnostic only: it averages
     # the sensitivities over splits before correlating, which forfeits the
     # disjoint-half correction. Written out so the two can be compared, NOT for
-    # inference. See docs/analysis_simplification_plan.md 2.2.
+    # inference. See docs/analysis_plans.md#simplification-plan 2.2.
     if 'correlation_split_averaged' in out:
         with open(os.path.join(save_dir, 'correlation_split_averaged.json'), 'w') as f:
             json.dump(_json_safe(out['correlation_split_averaged']), f, indent=2)
@@ -362,7 +362,7 @@ def write_summary(out, save_dir, meta):
 
 
 # ---------------------------------------------------------------------------
-# the joint scatter (docs/analysis_simplification_plan.md 2.5)
+# the joint scatter (docs/analysis_plans.md#simplification-plan 2.5)
 # ---------------------------------------------------------------------------
 def make_joint_scatter(elec, save_dir, contrast_mode='proportion',
                        effect_measure=None, correlation=None,

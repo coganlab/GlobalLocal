@@ -56,7 +56,7 @@ Two arms (`ARM`)
 `categorical` (default)
     Everything above: binary S/F labels -> 4-way group -> group×ROI enrichment.
 `continuous`
-    Plan §5–§7 (`docs/analysis_plan_concurrent_regulation.md`): the per-electrode
+    Plan §5–§7 (`docs/analysis_plans.md#concurrent-regulation-plan`): the per-electrode
     LWPC and LWPS *scores* on disjoint trial halves instead of flags, on an
     anatomically- (not effect-) defined electrode set. Tests
     `delta = lwpc_s - lwps_s` against ROI and against MNI coordinates with a
@@ -777,7 +777,7 @@ def run_score_anatomy(args):
 def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
                             save_dir, min_subjects=3, n_perm=10000, seed=0):
     """The anatomy on dm = congruency - switch, and Tests 1 and 2 linking it to
-    delta (docs/closing_figure_plan.md). Runs when the scores come from a
+    delta (docs/analysis_plans.md#closing-figure-plan). Runs when the scores come from a
     MAIN_EFFECTS=1 segregation run. Returns (summary lines, JSON-able dict).
 
     dm gets the same three tests as delta, with the same swap null (valid

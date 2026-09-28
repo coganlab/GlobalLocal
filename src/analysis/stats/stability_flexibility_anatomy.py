@@ -1482,7 +1482,7 @@ def leave_one_subject_out(test_fn, table, subject_col='subject',
 
 
 # ---------------------------------------------------------------------------
-# main effects as the reference for the delta tilt (docs/closing_figure_plan.md)
+# main effects as the reference for the delta tilt (docs/analysis_plans.md#closing-figure-plan)
 # ---------------------------------------------------------------------------
 def _delta_halves(scores, per_split):
     """Per-split table with dm in the x slots and delta in the y slots, each

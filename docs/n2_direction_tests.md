@@ -1,7 +1,7 @@
 # N2 — direction tests on the adaptation effects
 
 **What this document is.** A standalone walkthrough of the analysis that answers
-beat **N2** in [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
+beat **N2** in [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan)
 §2: *which way do the LWPC and LWPS effects go in lPFC high gamma?* It covers the
 data flow end to end, every parameter that changes the answer, the exact commands
 to run it, and how to read what comes back.
@@ -35,7 +35,7 @@ N2 lives here:
 The confusion is understandable: the segregation module computes per-electrode
 LWPC/LWPS scores on **the same sign convention**, so it is a second read on the
 same direction question. That relationship is spelled out in
-[§8](#8-the-second-read-the-two-files-you-thought-this-was-in).
+[§9](#9-the-second-read--the-two-files-you-thought-this-was-in).
 
 ---
 
@@ -251,7 +251,7 @@ resolving the registry directly:
 > because no one added `subtraction_pairs` for them. So the direction test runs on
 > the 4-cell sets, which split by the **tested** proportion factor but leave the
 > **other** proportion factor uncontrolled. Worth a per-cell count check; see
-> [§7](#7-known-gaps-against-the-plan).
+> [§8](#8-known-gaps-against-the-plan).
 
 ### 4.3 The statistical knobs
 
@@ -593,7 +593,7 @@ windows actually tiled, so the two analyses cover the same window.
 | `stability_flexibility_anatomy_dcc.py` | N4 | are those scores organized differently across cortex? ROI/Destrieux enrichment, coverage-conditioned, with a within-electrode effect-label-swap null |
 
 Their outputs are documented separately in
-[`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md)
+[`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide)
 (§"Segregation output directory" and §"A3 anatomy output directory").
 
 ---
@@ -620,9 +620,9 @@ Their outputs are documented separately in
 
 ## Related documents
 
-- [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md) §2 — the N2 spec this implements; §9.2 and §9.4 for the leverage and pairing arguments
-- [`stability_flexibility_data_flow.md`](stability_flexibility_data_flow.md) — the A1–A7 walkthrough
+- [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan) §2 — the N2 spec this implements; §9.2 and §9.4 for the leverage and pairing arguments
+- [`stability_flexibility_battery.md` › Data flow walk-through](stability_flexibility_battery.md#data-flow-walk-through) — the A1–A7 walkthrough
 - [`analysis_guide.md`](analysis_guide.md) — the pipelines as built
-- [`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md) — how to read the N4 segregation/anatomy outputs
+- [`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide) — how to read the N4 segregation/anatomy outputs
 - [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) — how to run and interpret the N4 continuous-score anatomy tests, maps, and descriptive medoids
-- [`analysis_simplification_plan.md`](analysis_simplification_plan.md) §2.2b — why the contrasts are cell-balanced
+- [`analysis_plans.md` › Simplification plan](analysis_plans.md#simplification-plan) §2.2b — why the contrasts are cell-balanced

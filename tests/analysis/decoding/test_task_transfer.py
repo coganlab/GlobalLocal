@@ -1,4 +1,4 @@
-"""Tests for the task-transfer positive controls (docs/cross_decoding_controls.md §3.5).
+"""Tests for the task-transfer positive controls (docs/decoding.md#cross-decoding-controls §3.5).
 
 The controls are N3b's train-in-one-level / test-in-the-other 2x2
 (`block_transfer`) with a trial-level factor in place of the block:
