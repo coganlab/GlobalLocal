@@ -2024,6 +2024,12 @@ So "the `all` group" means *all the electrodes this run loaded* — with
 `ELECTRODES=sig` that is all baseline-significant electrodes in the ROI, with
 `ELECTRODES=all` it is every electrode in the ROI.
 
+To decode **only** that set, with no selected groups, use
+`ELECTRODE_DEFINITION=none` (§17.3): no ANOVA or table is read, the reference
+group is the only group, and temporal generalization runs on it by default.
+`ELECTRODE_DEFINITION=none bash submit_stability_flexibility_cross_decoding_dcc.sh`
+is the transfer on every baseline-significant electrode of the ROI.
+
 The reference group matters because `both`, `S_only` and `F_only` were each
 *chosen* for carrying an interaction, so none of them is a baseline for "does
 this ROI cross-decode at all" — the selection is exactly what inflates
@@ -2139,6 +2145,12 @@ or one directory per interaction (`POWER_TRACES_CPC`, `POWER_TRACES_SPS`,
 needs), `cluster` (raw cluster p, matching the existing lab convention), or
 `none`.
 
+`ELECTRODE_DEFINITION=none` is the fourth route: it defines no groups at all.
+Only the reference group is decoded (every electrode `ELECTRODES` loads), so the
+per-group within-block 2×2 has nothing to run on, and the definition window,
+`CONTRAST_MODE`, `FDR_CORRECTION`/`ALPHA` and the table settings are unused and
+left out of the output folder name. `REFERENCE_GROUP` must be non-empty.
+
 ### 17.4 Scripts — how to run it
 
 `dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. Every knob
@@ -2189,6 +2201,7 @@ table (`effect_measure='cluster'`), so a real run assembles both; the
 | decode a different region | `ROI=acc` (keys of `src/analysis/config/rois.py`) |
 | run the pooled transfer with 4× the trials per cell (drops the within-block designs) | `CONDITIONS=stimulus_main_effect_conditions` (§17.2) |
 | use every electrode, not just baseline-significant ones | `ELECTRODES=all` |
+| decode only the loaded electrodes as one set, with no selected groups | `ELECTRODE_DEFINITION=none` (§17.3) |
 | move the definition window | `WINDOW_TMIN=0.2 WINDOW_TMAX=0.7` |
 | define electrodes from the power-trace runs instead | `ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=...` (§17.3) |
 | get the unselected temporal-generalization matrix too | `TEMPGEN_GROUPS=both,all` |
@@ -2226,7 +2239,7 @@ any interaction-based selection (§17.1).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `ELECTRODE_DEFINITION` | `anova` (`csv` in the submit script) | `anova` (in-job window-mean ANOVA), `power_traces` (finished cluster-corrected runs) or `csv` (a saved A1 `anova_labels.csv`). |
+| `ELECTRODE_DEFINITION` | `anova` (`csv` in the submit script) | `anova` (in-job window-mean ANOVA), `power_traces` (finished cluster-corrected runs), `csv` (a saved A1 `anova_labels.csv`) or `none` (no groups; only the reference group is decoded). |
 | `ANOVA_LABELS_CSV` | the submit script's list | `csv` only: the A1 table, or its result folder. |
 | `ANOVA_LABEL_EFFECT` / `ANOVA_LABEL_EFFECTS` | `union` | `csv` only: which population of the table each job starts from; the job then decodes the disjoint groups left in it. `union` (either effect) keeps all of them in one job. The names must match the table's mode (`lwpc`… for proportion, `congruency`… for condition); the submit script skips, and the runner refuses, the other mode's names. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | `anova` only: definition window, in seconds from stimulus onset. |
@@ -2249,7 +2262,7 @@ any interaction-based selection (§17.1).
 | `FRAC_TRAIN` | unset | **proportion of trials used for training.** Unset keeps `StratifiedKFold` at `(N_SPLITS-1)/N_SPLITS`; setting it switches to `StratifiedShuffleSplit` at exactly this fraction. |
 | `EXPLAINED_VARIANCE` | `0.8` | PCA variance retained. |
 | `N_PERM` | `500` | permutations for the cluster test over windows. |
-| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. The submit script exports it rather than passing it through `sbatch --export`, which would cut it at the comma. |
+| `TEMPGEN_GROUPS` | `both` (`REFERENCE_GROUP` under `ELECTRODE_DEFINITION=none`) | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. The submit script exports it rather than passing it through `sbatch --export`, which would cut it at the comma. |
 | `TRAIN_LABEL` / `TEST_LABEL` | unset | one requested decode instead of the battery (`stability`/`congruency`, `flexibility`/`switchType`); written to its own `train_<x>_test_<y>/` subfolder. |
 | `SEED` | `0` | random seed. |
 | `SAVE_DIR` | derived | override the output directory. |
@@ -2257,7 +2270,9 @@ any interaction-based selection (§17.1).
 **Outputs** →
 `results/<epochs_or_synthetic_tag>/cross_decoding_<roi>_window_<tmin>to<tmax>s_<electrodes>_<definition>/`
 — the ROI, electrode set and definition route are all in the path, so runs that
-differ in any of them don't overwrite each other:
+differ in any of them don't overwrite each other. `ELECTRODE_DEFINITION=none`
+uses no window, so its runs go to `cross_decoding_<roi>_<electrodes>_none/<conditions>/`
+instead:
 
 - `cross_decoding.json` — per design/group: mean and peak accuracy, shuffle mean,
   number of cluster-significant windows (bulky arrays stripped).

@@ -27,6 +27,9 @@
 #   ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=true \
 #       WINDOW_TMAX=1.5 bash submit_..._dcc.sh                                 # main-effect groups on 30%
 #                                                                              # of trials, decode the rest
+#   ELECTRODE_DEFINITION=none bash submit_..._dcc.sh                           # no groups: every loaded
+#                                                                              # (with ELECTRODES=sig, every
+#                                                                              # significant) electrode only
 #
 # The task x congruency / task x switch type positive controls for the transfer
 # are a separate job: submit_task_transfer_dcc.sh.
@@ -77,6 +80,8 @@ MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than th
 #   power_traces  read the finished within-electrode windowed-ANOVA runs and
 #                 their cluster correction (needs the run directories)
 #   csv           reuse S/F flags from an existing A1 anova_labels.csv
+#   none          no groups: decode only REFERENCE_GROUP, i.e. every electrode
+#                 ELECTRODES loads (the window/contrast/table settings are unused)
 # ---------------------------------------------------------------------------
 if [[ -z "${ELECTRODE_DEFINITION:-}" ]]; then
     # Real submissions mirror the normal decoder's saved-label selection. The
@@ -99,8 +104,8 @@ ANOVA_LABELS_CSVS=(
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
-# Only the csv route reads a saved A1 table. The anova and power_traces routes
-# define their own electrodes, so they are submitted once, with no table: looping
+# Only the csv route reads a saved A1 table. The anova, power_traces and none
+# routes define their own electrodes, so they are submitted once, with no table: looping
 # them over the table x effect list would submit identical jobs into folders named
 # after tables they never read.
 if [[ "$ELECTRODE_DEFINITION" != csv ]]; then
@@ -176,10 +181,12 @@ SEED=${SEED:-0}
 
 # Temporal generalization costs n_windows^2 decodes per matrix, so it runs only
 # on these groups. 'both,all' adds the unselected reference matrix; '' skips it.
-# Use `-` rather than `:-`: unset -> default "both", explicitly empty -> disable.
+# Use `-` rather than `:-`: unset -> default "both" (the reference group under
+# ELECTRODE_DEFINITION=none, which has no "both"), explicitly empty -> disable.
 # sbatch --export splits its list on commas, so 'both,all' would reach the job
 # as 'both'; export it here and let --export=ALL carry it instead.
-export TEMPGEN_GROUPS=${TEMPGEN_GROUPS-both}
+[[ "$ELECTRODE_DEFINITION" == none ]] && TEMPGEN_DEFAULT=$REFERENCE_GROUP || TEMPGEN_DEFAULT=both
+export TEMPGEN_GROUPS=${TEMPGEN_GROUPS-$TEMPGEN_DEFAULT}
 # Optional single requested transfer. Same labels = ordinary within-contrast
 # decoding; different labels = cross-decoding. Leave both blank for the full
 # battery: both transfers plus the two within-contrast decodes they are read

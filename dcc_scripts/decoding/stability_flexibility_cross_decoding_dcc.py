@@ -41,6 +41,8 @@ Designs:
 The S/F electrode groups come from either route — see `ELECTRODE_DEFINITIONS`:
 `args.electrode_definition='anova'` fits one window-mean ANOVA per electrode in
 this job, 'power_traces' reads the finished cluster-corrected windowed-ANOVA runs.
+'none' defines no groups: every loaded electrode is decoded as the reference
+group alone, and the per-group designs have nothing to run on.
 
 Contrast and block definitions are read off each condition's declared factor
 levels (`cd.condition_cells`), not parsed out of condition names — the real and
@@ -398,7 +400,11 @@ def write_summary(results, save_dir, meta):
 #                     the ones the power-trace figures call significant -- but it
 #                     needs finished run directories, which is the only reason it
 #                     is not the default.
-ELECTRODE_DEFINITIONS = ('anova', 'power_traces', 'csv')
+#
+# 'none' skips the definition altogether: no labels table, no both / S_only /
+# F_only groups, and only the reference group (every loaded electrode, so
+# `args.electrodes` decides 'all' vs baseline-significant) is decoded.
+ELECTRODE_DEFINITIONS = ('anova', 'power_traces', 'csv', 'none')
 
 
 def _channel_keys(labels):
@@ -1064,6 +1070,13 @@ def main(args):
                       seed=getattr(args, 'seed', 42))
 
     # 1. assemble the ROI LabeledArrays + electrode groups -----------------------
+    definition = getattr(args, 'electrode_definition', 'anova')
+    if definition not in ELECTRODE_DEFINITIONS:
+        raise ValueError(f"electrode_definition must be one of {ELECTRODE_DEFINITIONS}; "
+                         f"got {definition!r}")
+    if definition == 'none' and not getattr(args, 'reference_group', 'all'):
+        raise ValueError("electrode_definition='none' decodes only the reference group, "
+                         "so reference_group must name it (e.g. 'all'), not be empty.")
     trial_partitions = None
     if getattr(args, 'electrode_selection_split', False):
         if args.data_source != 'real' or getattr(args, 'electrode_definition', 'anova') != 'anova':
@@ -1084,23 +1097,26 @@ def main(args):
         n_ch = next(iter(arrays[roi].values())).shape[1]
         channel_names = [f'ch{i}' for i in range(n_ch)]
         half = n_ch // 2
-        a1_groups = {'both': channel_names,
-                     'S_only': channel_names[:half],
-                     'F_only': channel_names[half:]}
+        a1_groups = ({} if definition == 'none' else
+                     {'both': channel_names,
+                      'S_only': channel_names[:half],
+                      'F_only': channel_names[half:]})
         interaction_groups, labels = {}, None
     else:
         print("DATA SOURCE: real epoched data")
         from src.analysis.utils.general_utils import (
             resolve_lab_root, resolve_electrodes_to_keep, load_HG_ev1_rescaled_per_subject)
 
-        definition = getattr(args, 'electrode_definition', 'anova')
         print(f"ELECTRODE DEFINITION: {definition}")
         LAB_root = resolve_lab_root(args.LAB_root)
 
         # (i) the electrode definition. The power-traces route reads finished
         #     windowed-ANOVA runs, so it needs neither the epochs nor the long
-        #     single-trial table; the in-job ANOVA route builds both.
-        if definition == 'power_traces':
+        #     single-trial table; the in-job ANOVA route builds both. 'none'
+        #     defines no groups, so it loads nothing here either.
+        if definition == 'none':
+            labels = None
+        elif definition == 'power_traces':
             labels = _resolve_labels(args)
         else:
             from dcc_scripts.stats.stability_flexibility_segregation_dcc import assemble_long_df
@@ -1122,12 +1138,16 @@ def main(args):
                   f"{df.electrode.nunique()} electrodes")
             labels = _resolve_labels(args, df)
 
-        contrast_mode = getattr(args, 'contrast_mode', CONTRAST_MODE)
-        a1_groups = _electrode_groups(labels, contrast_mode)
-        labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
-        interaction_groups = _interaction_groups(labels, contrast_mode)
-        print("A1 electrode groups: "
-              + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
+        if labels is None:
+            a1_groups, interaction_groups = {}, {}
+            print("A1 electrode groups: none -- only the reference group is decoded")
+        else:
+            contrast_mode = getattr(args, 'contrast_mode', CONTRAST_MODE)
+            a1_groups = _electrode_groups(labels, contrast_mode)
+            labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
+            interaction_groups = _interaction_groups(labels, contrast_mode)
+            print("A1 electrode groups: "
+                  + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
 
         # (ii) the decode runs on the ordinary ROI LabeledArray pseudopopulation
         roi, arrays, channel_names, cells = _build_roi_arrays(
@@ -1349,7 +1369,8 @@ def main(args):
                                  == 'power_traces' else None),
         reference_group=getattr(args, 'reference_group', 'all'),
         electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
-        window=f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s",
+        window=("unused (no electrode definition)" if definition == 'none' else
+                f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s"),
         window_size=args.window_size, step_size=args.step_size,
         n_splits=args.n_splits, n_repeats=args.n_repeats,
         frac_train=getattr(args, 'frac_train', None),
