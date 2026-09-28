@@ -36,7 +36,7 @@
 # ---------------------------------------------------------------------------
 # Data in: epochs file (high-gamma, rescaled) and the condition set.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_stat_func_ttest_ind_equal_var_False_nan_policy_omit"}
+EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"}
 
 # Default to the full crossed condition set. Keep this non-empty because the
 # Python entrypoint treats a blank CONDITIONS as the default, but exporting an
@@ -49,7 +49,7 @@ EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.
 if [[ -n "${CONDITIONS:-}" ]]; then
     read -r -a CONDITION_LIST <<< "$CONDITIONS"
 else
-    CONDITION_LIST=(stimulus_experiment_conditions)
+    CONDITION_LIST=(stimulus_main_effect_conditions)
 fi
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the whole path
@@ -81,7 +81,8 @@ MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than th
 if [[ -z "${ELECTRODE_DEFINITION:-}" ]]; then
     # Real submissions mirror the normal decoder's saved-label selection. The
     # synthetic validation has planted labels and must remain self-contained.
-    [[ "$DATA_SOURCE" == synthetic ]] && ELECTRODE_DEFINITION=anova || ELECTRODE_DEFINITION=csv
+    # [[ "$DATA_SOURCE" == synthetic ]] && ELECTRODE_DEFINITION=anova || ELECTRODE_DEFINITION=csv
+    ELECTRODE_DEFINITION=anova
 fi
 
 # Keep this list in step with submit_specific_conditions_decoding_dcc.sh. Paths
@@ -90,10 +91,11 @@ fi
 ANOVA_LABELS_CSVS=(
     # Add additional saved A1 runs here to submit the same condition battery for
     # each definition window/correction.
-    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none
-    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
-
+    # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none
+    # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
+    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
 )
+
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
 fi
@@ -142,7 +144,7 @@ if [[ -z "${FDR_CORRECTION:-}" ]]; then
     [[ "$ELECTRODE_DEFINITION" == csv ]] && FDR_CORRECTION=$ANOVA_LABEL_CORRECTION || FDR_CORRECTION=none
 fi
 WINDOW_TMIN=${WINDOW_TMIN:-0.0}          # seconds relative to stimulus onset
-WINDOW_TMAX=${WINDOW_TMAX:-0.5}
+WINDOW_TMAX=${WINDOW_TMAX:-1.5}
 ALPHA=${ALPHA:-$ANOVA_LABEL_ALPHA}
 # Optional circularity guard for ELECTRODE_DEFINITION=anova. The ANOVA is fit
 # over WINDOW_TMIN..WINDOW_TMAX on this fraction of physical trials; decoding
