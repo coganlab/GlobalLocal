@@ -342,6 +342,40 @@ def test_pooled_branch_transfers_over_all_trials(tmp_path, monkeypatch):
     assert 'its ceiling' in (tmp_path / 'summary.txt').read_text()
 
 
+def test_the_none_route_decodes_only_the_loaded_electrodes(tmp_path, monkeypatch):
+    """electrode_definition='none': no labels are resolved and no groups are
+    built, so the reference group (every loaded channel) is the only one decoded,
+    including by temporal generalization."""
+    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+
+    def _no_labels(args, df=None):
+        raise AssertionError("the 'none' route must not resolve electrode labels")
+    monkeypatch.setattr(xd, '_resolve_labels', _no_labels)
+    args = _stub_args(tmp_path, ec.stimulus_main_effect_conditions)
+    args.electrode_definition = 'none'
+    args.tempgen_groups = ('all',)
+
+    results = xd.main(args)
+
+    lt = results['label_transfer']
+    assert set(lt) == {'all'}
+    assert set(lt['all']) == {'stab_to_stab', 'flex_to_flex', 'stab_to_flex', 'flex_to_stab'}
+    assert lt['all']['stab_to_flex']['n_channels'] == len(CHANNEL_NAMES)
+    assert results.get('within_block_by_group') is None
+    assert results['temporal'] and all(k.endswith('[all]') for k in results['temporal'])
+    assert not (tmp_path / 'anova_labels.csv').exists()
+    assert 'unused (no electrode definition)' in (tmp_path / 'summary.txt').read_text()
+
+
+def test_the_none_route_refuses_to_drop_its_only_group(tmp_path):
+    args = _stub_args(tmp_path, ec.stimulus_main_effect_conditions)
+    args.electrode_definition = 'none'
+    args.reference_group = ''
+    with pytest.raises(ValueError, match='decodes only the reference group'):
+        xd.main(args)
+
+
 def test_main_effect_labels_name_their_groups(tmp_path, monkeypatch):
     """contrast_mode='condition': the S/F flags are the congruency and switch-type
     MAIN effects, so the groups are named for them, and a main-effect group skips
