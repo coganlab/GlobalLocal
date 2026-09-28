@@ -33,6 +33,8 @@ only remember one thing about the layout, remember this:
 | **How to run an analysis** (motivation, method, knobs, outputs) | [`docs/analysis_guide.md`](docs/analysis_guide.md) — the single guide to every analysis path, including the stability-vs-flexibility A1–A7 battery |
 | **How to run and interpret N4 continuous-score anatomy** | [`docs/n4_continuous_anatomy.md`](docs/n4_continuous_anatomy.md) — primary ROI/Destrieux test, continuous brain maps, reliability, and descriptive medoids |
 | **How to run and interpret A6 brain–behavior** | [`docs/a6_brain_behavior.md`](docs/a6_brain_behavior.md) — one neural and one behavioral LWPC/LWPS score per participant, the RT confound, reliabilities, and how to read each output |
+| **How to run and interpret A4 cross-decoding** | [`docs/a4_cross_decoding.md`](docs/a4_cross_decoding.md) — the `anova` / `csv` / `power_traces` / `none` electrode definitions, every knob, the outputs, reading each transfer against its ceiling, and the task-transfer controls |
+| **How to run and interpret the ordinary decoding job** | [`docs/decoding.md`](docs/decoding.md) — choosing the electrodes (no table, a saved A1 table, held-out selection), what is decoded per condition set, every output, and how to read the true-vs-shuffle and block-comparison figures |
 | **What shape the data is at each step** of A1–A7 | [`docs/stability_flexibility_data_flow.md`](docs/stability_flexibility_data_flow.md) |
 | **What each output file means** | [`docs/stability_flexibility_outputs_guide.md`](docs/stability_flexibility_outputs_guide.md) |
 | **How to break up a file that got too big** | [`docs/refactoring_guide.md`](docs/refactoring_guide.md) |
