@@ -29,11 +29,15 @@ raw_data['PreviousErrorType'] = np.select(conditions, choices, default='None')
 model_df = raw_data[raw_data['PreviousErrorType'].isin(['ir', 'cs']) & (raw_data['acc'] == 1)].copy()
 
 ##fix blockType stuff to make new IncongruentProp and SwitchProp columns
+# As the task builds the blocks (src/task/mainTask.m): A and B are 75% incongruent
+# (25% congruent), A and C are 25% switch -- the two proportions are fully crossed.
+# A and D used to be swapped here, which made CongruentProp collinear with
+# SwitchProp and left the model singular.
 block_map = {
-    'A': {'CongruentProp': 0.75, 'SwitchProp': 0.25},
+    'A': {'CongruentProp': 0.25, 'SwitchProp': 0.25},
     'B': {'CongruentProp': 0.25, 'SwitchProp': 0.75},
     'C': {'CongruentProp': 0.75, 'SwitchProp': 0.25},
-    'D': {'CongruentProp': 0.25, 'SwitchProp': 0.75}
+    'D': {'CongruentProp': 0.75, 'SwitchProp': 0.75}
 }
 model_df['CongruentProp'] = model_df['blockType'].map(lambda x: block_map[x]['CongruentProp'])
 model_df['SwitchProp'] = model_df['blockType'].map(lambda x: block_map[x]['SwitchProp'])
