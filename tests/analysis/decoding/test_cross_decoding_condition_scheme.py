@@ -331,9 +331,32 @@ def test_pooled_branch_transfers_over_all_trials(tmp_path, monkeypatch):
     lt = results['label_transfer']
     assert set(lt) >= {'both', 'all'}
     for group, res in lt.items():
-        assert set(res) == {'stab_to_flex', 'flex_to_stab'}
+        # each transfer is read against the within decode of what it is scored on
+        assert set(res) == {'stab_to_stab', 'flex_to_flex', 'stab_to_flex', 'flex_to_stab'}
         for direction, r in res.items():
             assert set(r['conditions']) == set(ec.stimulus_main_effect_conditions)
+        for direction in ('stab_to_flex', 'flex_to_stab'):
+            assert {'n_below_ceiling', 'retained'} <= set(res[direction])
 
     assert (tmp_path / 'cross_decoding.json').exists()
-    assert (tmp_path / 'summary.txt').exists()
+    assert 'its ceiling' in (tmp_path / 'summary.txt').read_text()
+
+
+def test_main_effect_labels_name_their_groups(tmp_path, monkeypatch):
+    """contrast_mode='condition': the S/F flags are the congruency and switch-type
+    MAIN effects, so the groups are named for them, and a main-effect group skips
+    every decode of its own contrast in the per-group 2x2, not one cell."""
+    cells = cd.condition_cells(ec.stimulus_experiment_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+    args = _stub_args(tmp_path, ec.stimulus_experiment_conditions)
+    args.contrast_mode = 'condition'
+
+    results = xd.main(args)
+
+    assert set(results['label_transfer']) == {'both', 'congruency_only',
+                                              'switch_type_only', 'all'}
+    by_group = results['within_block_by_group']
+    assert set(by_group) == {'congruency', 'switch_type'}
+    assert by_group['congruency']['cells']
+    assert all(cell.startswith('switchType') for cell in by_group['congruency']['cells'])
+    assert all(cell.startswith('congruency') for cell in by_group['switch_type']['cells'])

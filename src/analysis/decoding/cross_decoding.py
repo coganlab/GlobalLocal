@@ -95,11 +95,16 @@ CROSS_DECODE_FIELDS = ("congruency", "switchType")
 # The config spells the proportions in camelCase; the long-table / stats side of
 # the project uses snake_case. Accept either so a condition dict from either
 # convention drops in.
+#
+# `task` (global 'g' vs local 'l') is not part of the four-factor cell: only the
+# task-by-* condition sets declare it, for the task-transfer positive controls
+# (`block_transfer`, docs/cross_decoding_controls.md §3.5).
 _FIELD_ALIASES = {
     "congruency": ("congruency",),
     "switchType": ("switchType", "switch_type", "task_sequence"),
     "incongruent_proportion": ("incongruentProportion", "incongruent_proportion"),
     "switch_proportion": ("switchProportion", "switch_proportion"),
+    "task": ("task",),
 }
 
 
@@ -134,12 +139,13 @@ def condition_cells(conditions, required=CROSS_DECODE_FIELDS):
       switch type" with ~4x the trials per cell. `has_block_factor` reports
       False for both proportions there, and the block-split designs are skipped.
 
-    Pass `required=CELL_FIELDS` to demand the full four-factor cell.
+    Pass `required=CELL_FIELDS` to demand the full four-factor cell, or e.g.
+    `required=('task', 'congruency')` for a task-by-congruency set.
     """
-    unknown = set(required) - set(CELL_FIELDS)
+    unknown = set(required) - set(_FIELD_ALIASES)
     if unknown:
         raise ValueError(f"unknown required field(s) {sorted(unknown)}; "
-                         f"condition cells carry {CELL_FIELDS}")
+                         f"condition cells carry {tuple(_FIELD_ALIASES)}")
     cells = {}
     for name, meta in conditions.items():
         if not isinstance(meta, dict):
@@ -153,6 +159,8 @@ def condition_cells(conditions, required=CROSS_DECODE_FIELDS):
         if any(cell[f] is None for f in required):
             continue                       # missing a factor the decode needs
         cells[name] = cell
+    if not cells and tuple(required) != CROSS_DECODE_FIELDS:
+        raise ValueError(f"no condition declares all of {tuple(required)}")
     if not cells:
         raise ValueError(
             f"no condition declares all of {tuple(required)}; a cross-decode "
@@ -254,6 +262,14 @@ def synthetic_condition_cells(**kwargs):
     return cells
 
 
+def synthetic_task_condition_cells():
+    """The `condition_cells` table for `synthetic_task_labeled_arrays`' conditions:
+    task x congruency x switchType, pooled over both proportions."""
+    return {f"Stimulus_{cong}_{sw}_task{task.upper()}":
+            dict(congruency=cong, switchType=sw, task=task)
+            for cong in ("c", "i") for sw in ("r", "s") for task in ("g", "l")}
+
+
 # ---------------------------------------------------------------------------
 # Double-dipping guard for the electrode-definition <-> decode diagonal
 # ---------------------------------------------------------------------------
@@ -284,21 +300,33 @@ DEFINITION_DECODE_DIAGONAL = {
     "SPC": ("switchType", "incongruent_proportion"),    # switchType x proportion-congruent (cross)
 }
 
+# Main-effect groups (an A1 table built with contrast_mode='condition', named by
+# the A4 job): an electrode chosen for a congruency (switch-type) MAIN effect was
+# chosen on every cell that decodes congruency (switch type), whichever block
+# factor splits it -- so both of those cells double-dip, not one diagonal cell.
+MAIN_EFFECT_DECODE_CONTRAST = {"congruency": "congruency", "switch_type": "switchType"}
+ANY_BLOCK = "any block"
+
 
 def circular_decode_for_group(definition_group):
     """The (contrast, block_col) within-block decode cell that would double-dip on
     electrodes selected by `definition_group` ('CPC'|'SPS'|'CPS'|'SPC'), or None if
-    the group name is unknown (e.g. 'both', 'all' -- not a single interaction)."""
+    the group name is unknown (e.g. 'both', 'all' -- not a single interaction).
+    A main-effect group ('congruency'|'switch_type') double-dips on its contrast
+    in every block, so its block_col is `ANY_BLOCK`."""
+    if definition_group in MAIN_EFFECT_DECODE_CONTRAST:
+        return (MAIN_EFFECT_DECODE_CONTRAST[definition_group], ANY_BLOCK)
     return DEFINITION_DECODE_DIAGONAL.get(definition_group)
 
 
 def is_circular_decode(definition_group, contrast, block_col):
     """True when decoding `contrast` split by `block_col` on the `definition_group`
-    electrode set is on the *defining* interaction (double-dipping) and its result
+    electrode set is on the *defining* effect (double-dipping) and its result
     must be ignored. Off-diagonal (cross) cells return False -- those are the
     non-circular tests to keep."""
     diag = circular_decode_for_group(definition_group)
-    return diag is not None and diag == (contrast, block_col)
+    return (diag is not None and diag[0] == contrast
+            and diag[1] in (block_col, ANY_BLOCK))
 
 
 # ---------------------------------------------------------------------------
@@ -629,6 +657,61 @@ def synthetic_roi_labeled_arrays(code="shared", n_channels=40, n_trials_per_cell
                     if inc_prop == 75 and block_offset:
                         x += block_offset * cong_axis[None, :, None]
                     conditions[name] = x
+    return {roi: conditions}
+
+
+def synthetic_task_labeled_arrays(task_code="shared", n_channels=40, n_trials_per_cell=40,
+                                  n_time=32, seed=0, amp=1.2, noise=1.0, carryover=0.0,
+                                  roi="synthetic"):
+    """`{roi: {condition_name: ndarray(trials, channels, time)}}` over task x
+    congruency x switchType, with a known answer for the task-transfer controls.
+
+    Congruency, switch type and task (global vs local) each load on their own
+    axis, orthogonal to the others, in every cell.
+
+    task_code='shared'              : one task axis everywhere, so task transfers
+                                      across congruency (T1) and across switch
+                                      type (T2), and congruency / switch type
+                                      transfer across task (T3 / T4).
+    task_code='congruency_specific' : incongruent trials carry task on a second
+                                      axis, so task learned on congruent trials
+                                      must NOT transfer to incongruent ones (T1
+                                      fails) while T2 still transfers.
+    carryover                       : leftover previous-task activity, on its own
+                                      axis with the sign of the PREVIOUS task, at
+                                      every time point. The previous task is the
+                                      current one on a repeat and the other one on
+                                      a switch, so the carryover flips between the
+                                      two levels of T2 and T4 -- the task x switch
+                                      type confound. Within a congruency level it
+                                      is unrelated to task, so T1 is unaffected.
+
+    Condition names (`Stimulus_<c|i>_<r|s>_task<G|L>`) come from
+    `synthetic_task_condition_cells`. As in `synthetic_roi_labeled_arrays`, the
+    effects occupy the middle half of the window.
+    """
+    if task_code not in ("shared", "congruency_specific"):
+        raise ValueError(f"task_code must be 'shared' or 'congruency_specific'; "
+                         f"got {task_code!r}")
+    rng = np.random.default_rng(seed)
+    # orthonormal axes: congruency, switch type, task, the incongruent trials'
+    # task axis under 'congruency_specific', and the previous-task carryover
+    cong_axis, switch_axis, task_axis, task_axis_inc, carry_axis = (
+        np.linalg.qr(rng.normal(size=(n_channels, 5)))[0].T)
+    win = slice(n_time // 4, 3 * n_time // 4)
+
+    conditions = {}
+    for name, cell in synthetic_task_condition_cells().items():
+        x = rng.normal(0, noise, (n_trials_per_cell, n_channels, n_time))
+        axis = (task_axis_inc if task_code == "congruency_specific"
+                and cell["congruency"] == "i" else task_axis)
+        pattern = (amp * (cell["congruency"] == "i") * cong_axis
+                   + amp * (cell["switchType"] == "s") * switch_axis
+                   + amp * (cell["task"] == "g") * axis)
+        x[:, :, win] += pattern[None, :, None]
+        previous_global = (cell["task"] == "g") != (cell["switchType"] == "s")
+        x += carryover * (1 if previous_global else -1) * carry_axis[None, :, None]
+        conditions[name] = x
     return {roi: conditions}
 
 

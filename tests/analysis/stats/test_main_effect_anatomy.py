@@ -148,6 +148,27 @@ def test_continuous_arm_runs_the_label_and_coordinate_tests_on_dm(tmp_path):
     assert len(main['per_roi']) == len(per_roi)
 
 
+def test_section16_followups_script_writes_the_panel_tables(tmp_path, worlds):
+    """The §16.6 follow-up script runs end to end on the job's score table."""
+    import json
+    from dcc_scripts.stats import n4_section16_followups as s16
+    tab, _ = worlds['inherited']
+    scores = tmp_path / 'scores_with_anatomy.csv'
+    tab.to_csv(scores, index=False)
+    main_json = tmp_path / 'correlation_main_effects.json'
+    main_json.write_text(json.dumps(dict(corr=0.2, reliability_x=0.4, reliability_y=0.3)))
+    out = tmp_path / 'section16'
+    s16.main(['--scores', str(scores), '--main-json', str(main_json), '--out-dir', str(out),
+              '--n-perm', '50', '--n-perm-shuffle', '10', '--n-boot', '10'])
+
+    labels = pd.read_csv(out / 'panel_b_label_means.csv')
+    assert {'delta_adj', 'dm_adj', 'abs_x'} <= set(labels.columns) and len(labels) > 2
+    bands = pd.read_csv(out / 'panel_c_midline.csv')
+    assert set(bands['score']) == {'congruency', 'switch', 'LWPC', 'LWPS'}
+    assert set(bands['band']) == {'medial', 'middle', 'lateral'}
+    assert (out / 'panel_c_height.csv').exists()
+
+
 def test_test1_finds_tracking_only_when_inherited(worlds):
     inh = sfa.delta_tracking_test(*worlds['inherited'], n_perm=500).set_index('comparison')
     ind = sfa.delta_tracking_test(*worlds['independent'], n_perm=500).set_index('comparison')

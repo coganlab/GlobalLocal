@@ -79,16 +79,16 @@ def half_matrices(s, ps):
 # ---------------------------------------------------------------------------
 # the linear algebra shared by the follow-ups
 # ---------------------------------------------------------------------------
-def coord_projector(d, covariates=('resp',)):
+def coord_projector(d, covariates=('resp',), coords=COORDS):
     """``(P, R)``: slopes = ``P @ v``; ``R @ v`` residualises v on the nuisance design.
 
     The same Frisch-Waugh fit `sfa._coordinate_fit` uses -- nuisance = intercept
     + subject dummies + centred responsiveness -- so a slope from here equals the
-    pipeline's slope for the same vector.
+    pipeline's slope for the same vector. ``coords`` orders the slopes.
     """
     X, _ = sfa._nuisance_design(d, covariates=covariates)
     R = np.eye(len(d)) - X @ np.linalg.pinv(X)
-    Zr = R @ d[list(COORDS)].to_numpy(float)
+    Zr = R @ d[list(coords)].to_numpy(float)
     return np.linalg.pinv(Zr) @ R, R
 
 
@@ -103,21 +103,22 @@ def within_subject_perms(subjects, n_perm, seed):
         yield idx
 
 
-def coord_perm_p(d, values, n_perm, seed, stat=lambda sl: sl[Z]):
+def coord_perm_p(d, values, n_perm, seed, stat=lambda sl: sl[Z], coords=COORDS):
     """Two-sided p for a single score's z slope under a within-subject coordinate shuffle.
 
     The sign-flip swap null of `sfa._swap_null` is only valid for a PAIRED
     DIFFERENCE, where negating the value is the same as swapping the two effect
     labels. A single score has no partner to swap with, so its null has to move
-    the coordinates instead.
+    the coordinates instead. ``stat`` picks the slope out of ``coords`` order.
     """
-    P, _ = coord_projector(d)
+    P, _ = coord_projector(d, coords=coords)
     obs = stat(P @ values)
     subj = d['subject'].to_numpy()
     null = []
     for idx in within_subject_perms(subj, n_perm, seed):
         P_perm, _ = coord_projector(d.iloc[idx].assign(subject=d['subject'].to_numpy(),
-                                                       resp=d['resp'].to_numpy()))
+                                                       resp=d['resp'].to_numpy()),
+                                    coords=coords)
         null.append(stat(P_perm @ values))
     null = np.asarray(null)
     return obs, (np.sum(np.abs(null) >= abs(obs)) + 1) / (n_perm + 1)
