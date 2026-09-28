@@ -20,11 +20,13 @@ CONDITION_CSV = '/x/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none'
 def _import_runner(**env):
     """(module constants, stderr) of the runner imported under `env`."""
     code = ("import json, runpy; m = runpy.run_path(%r); "
-            "print(json.dumps({k: m[k] for k in ('SAVE_DIR', 'CONTRAST_MODE')}))" % RUNNER)
+            "print(json.dumps({k: m[k] for k in "
+            "('SAVE_DIR', 'CONTRAST_MODE', 'TEMPGEN_GROUPS')}))" % RUNNER)
     full = {k: v for k, v in os.environ.items()
             if k not in ('CONTRAST_MODE', 'ANOVA_LABEL_EFFECT', 'SAVE_DIR', 'TRAIN_LABEL',
                          'TEST_LABEL', 'ELECTRODE_DEFINITION', 'ANOVA_LABELS_CSV',
-                         'FDR_CORRECTION', 'ANALYSIS')}
+                         'FDR_CORRECTION', 'ANALYSIS', 'TEMPGEN_GROUPS',
+                         'REFERENCE_GROUP', 'ELECTRODES')}
     full['DATA_SOURCE'] = 'synthetic'
     full.update(env)
     done = subprocess.run([sys.executable, '-c', code], cwd=ROOT, capture_output=True,
@@ -62,6 +64,34 @@ def test_the_table_is_ignored_off_the_csv_route():
                               CONTRAST_MODE='condition')
     assert got is not None, err
     assert 'anova_label_selections' not in got['SAVE_DIR']
+
+
+def test_the_none_route_names_only_what_it_uses():
+    """No definition runs, so the window / contrast mode / correction are left
+    out of the folder, and temporal generalization defaults to the reference
+    group because there is no 'both'."""
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ELECTRODES='sig')
+    assert got is not None, err
+    assert os.path.join('cross_decoding_lpfc_sig_none', 'stimulus_experiment_conditions') \
+        in got['SAVE_DIR']
+    assert 'window_' not in got['SAVE_DIR']
+    assert got['TEMPGEN_GROUPS'] == ['all']
+
+
+def test_the_none_route_keeps_an_explicit_tempgen_choice():
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', TEMPGEN_GROUPS='')
+    assert got is not None, err
+    assert got['TEMPGEN_GROUPS'] == []
+
+
+def test_the_none_route_needs_a_reference_group():
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', REFERENCE_GROUP='')
+    assert got is None and 'decodes only the reference group' in err
+
+
+def test_an_unknown_definition_is_refused_before_any_work():
+    got, err = _import_runner(ELECTRODE_DEFINITION='sig')
+    assert got is None and 'ELECTRODE_DEFINITION must be one of' in err
 
 
 def test_a_single_pair_gets_its_own_folder():

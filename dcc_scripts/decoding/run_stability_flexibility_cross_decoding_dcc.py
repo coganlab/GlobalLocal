@@ -38,7 +38,8 @@ project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import main
+from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import (
+    ELECTRODE_DEFINITIONS, main)
 from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import rois_dict as ALL_ROIS_DICT
 from src.analysis.utils.anova_label_selection import (
@@ -173,7 +174,14 @@ if not 0 < ELECTRODE_SELECTION_FRAC < 1:
 #                     ANOVA_LABEL_EFFECT first restricts it to one population
 #                     (both, congruency, lwpc_only, ...); the job then decodes the
 #                     disjoint groups left in it. 'union' keeps every group.
+#   'none'         -- no electrode groups: decode only REFERENCE_GROUP, i.e. every
+#                     electrode ELECTRODES loads ('sig' = all baseline-significant
+#                     electrodes of ROI). The window, contrast mode, correction and
+#                     table settings are unused.
 ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
+if ELECTRODE_DEFINITION not in ELECTRODE_DEFINITIONS:
+    raise ValueError(f"ELECTRODE_DEFINITION must be one of {list(ELECTRODE_DEFINITIONS)}; "
+                     f"got {ELECTRODE_DEFINITION!r}")
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'both')
 # Most A1 files are already generated for one ROI and therefore do not carry a
@@ -224,12 +232,19 @@ POWER_TRACES_ROI = os.environ.get('POWER_TRACES_ROI')       # None = don't filte
 # electrode in the decoded ROI array (so ELECTRODES above decides whether that
 # means "all" or "all baseline-significant"). Set REFERENCE_GROUP='' to drop it.
 REFERENCE_GROUP = os.environ.get('REFERENCE_GROUP', 'all')
+if ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'none' and not REFERENCE_GROUP:
+    raise ValueError("ELECTRODE_DEFINITION=none decodes only the reference group; "
+                     "set REFERENCE_GROUP to a name (e.g. 'all'), not ''.")
 
 # Temporal generalization costs n_windows^2 decodes per matrix, so it runs on a
 # chosen subset of the groups. TEMPGEN_GROUPS='both,all' adds the unselected
-# reference matrix; TEMPGEN_GROUPS='' skips the design entirely.
+# reference matrix; TEMPGEN_GROUPS='' skips the design entirely. With
+# ELECTRODE_DEFINITION=none there is no 'both' group, so the default is the
+# reference group.
+_tempgen_default = REFERENCE_GROUP if ELECTRODE_DEFINITION == 'none' else 'both'
 TEMPGEN_GROUPS = tuple(g.strip() for g in
-                       os.environ.get('TEMPGEN_GROUPS', 'both').split(',') if g.strip())
+                       os.environ.get('TEMPGEN_GROUPS', _tempgen_default).split(',')
+                       if g.strip())
 TRAIN_LABEL = os.environ.get('TRAIN_LABEL') or None
 TEST_LABEL = os.environ.get('TEST_LABEL') or None
 if bool(TRAIN_LABEL) != bool(TEST_LABEL):
@@ -261,11 +276,13 @@ FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
 # A synthetic run must never share a folder with the real results, even when
 # the submit script also exports EPOCHS_ROOT_FILE.
 _tag = f'synthetic_{SYNTHETIC_CODE}' if DATA_SOURCE == 'synthetic' else EPOCHS_ROOT_FILE
+# The 'none' route uses no definition window, contrast mode or correction, so
+# they stay out of its folder name.
+_run_name = (f'cross_decoding_{ROI}_{ELECTRODES}_none' if ELECTRODE_DEFINITION == 'none'
+             else f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
+                  f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
-    current_script_dir, 'results', _tag,
-    f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
-    f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}',
-    CONDITIONS_NAME)
+    current_script_dir, 'results', _tag, _run_name, CONDITIONS_NAME)
 if ANOVA_LABELS_CSV and ELECTRODE_DEFINITION == 'csv' and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
@@ -342,7 +359,8 @@ def run_analysis():
     print(f"Subjects:         {SUBJECTS}")
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
-    print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
+    if not (ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'none'):
+        print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     if ANALYSIS == 'block_transfer':
         print("Conditions:       design-specific pooled 2x2 sets (LWPC/LWPS/control)")
     elif ANALYSIS == 'task_transfer':
@@ -353,6 +371,10 @@ def run_analysis():
     print("-" * 72)
     if transfer_job:
         print("Electrode groups: none (every loaded electrode is decoded)")
+    elif ELECTRODE_DEFINITION == 'none':
+        print(f"Elec definition:  none (no groups; every loaded electrode is decoded "
+              f"as '{REFERENCE_GROUP}')")
+        print(f"temporal gen on:  {list(TEMPGEN_GROUPS) or '(none)'}")
     else:
         print(f"Elec definition:  {ELECTRODE_DEFINITION}"
               + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
