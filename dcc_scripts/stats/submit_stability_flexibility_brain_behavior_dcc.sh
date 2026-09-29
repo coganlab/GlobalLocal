@@ -28,11 +28,10 @@
 EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"}
 
 # ---------------------------------------------------------------------------
-# Behavior is scored from the epochs metadata (the same trials as the HG). The
-# raw trial-level CSV is only a cross-check; a missing file skips the check.
+# Behavioral LWPC / LWPS come from the subject-level effects table: the
+# LWPC_effect / LWPS_effect of its key_RT_mean rows.
 # ---------------------------------------------------------------------------
-BEHAVIOR_CSV=${BEHAVIOR_CSV:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/combinedData.csv"}
-BEHAVIOR_RT_COL=${BEHAVIOR_RT_COL:-RT}
+BEHAVIOR_CSV=${BEHAVIOR_CSV:-"$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)/src/config/ieeg_behavioral_subject_level_effects.csv"}
 
 # ---------------------------------------------------------------------------
 # Analysis window (seconds relative to stimulus onset) and electrode set.
@@ -73,5 +72,5 @@ mkdir -p out
 
 echo "Submitting stability/flexibility A6 brain-behavior (source=$DATA_SOURCE, electrodes=$ELECTRODES, rois=$ROIS, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
 sbatch --job-name="sf_brainbehav_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",BEHAVIOR_CSV="$BEHAVIOR_CSV",BEHAVIOR_RT_COL="$BEHAVIOR_RT_COL",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",ROIS="$ROIS",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_N_SUBJ="$SYNTHETIC_N_SUBJ",SYNTHETIC_ACROSS_BETA="$SYNTHETIC_ACROSS_BETA",SYNTHETIC_WITHIN_BETA="$SYNTHETIC_WITHIN_BETA",SYNTHETIC_CROSS_FRAC="$SYNTHETIC_CROSS_FRAC",SYNTHETIC_LINK="$SYNTHETIC_LINK",SYNTHETIC_RT_COUPLING="$SYNTHETIC_RT_COUPLING",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",NEURAL_SUMMARY="$NEURAL_SUMMARY",RUN_TRIALWISE="$RUN_TRIALWISE",MIN_ELEC="$MIN_ELEC",PARTICIPANT_N_SPLITS="$PARTICIPANT_N_SPLITS",SEED="$SEED" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",BEHAVIOR_CSV="$BEHAVIOR_CSV",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",ROIS="$ROIS",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_N_SUBJ="$SYNTHETIC_N_SUBJ",SYNTHETIC_ACROSS_BETA="$SYNTHETIC_ACROSS_BETA",SYNTHETIC_WITHIN_BETA="$SYNTHETIC_WITHIN_BETA",SYNTHETIC_CROSS_FRAC="$SYNTHETIC_CROSS_FRAC",SYNTHETIC_LINK="$SYNTHETIC_LINK",SYNTHETIC_RT_COUPLING="$SYNTHETIC_RT_COUPLING",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",NEURAL_SUMMARY="$NEURAL_SUMMARY",RUN_TRIALWISE="$RUN_TRIALWISE",MIN_ELEC="$MIN_ELEC",PARTICIPANT_N_SPLITS="$PARTICIPANT_N_SPLITS",SEED="$SEED" \
     sbatch_stability_flexibility_brain_behavior_dcc.sh

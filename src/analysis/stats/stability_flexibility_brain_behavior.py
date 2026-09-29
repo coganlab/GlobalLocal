@@ -6,11 +6,11 @@ not incidental. Three levels with very different power:
 
 - **Across subjects, continuous scores** (the across-participant test to report;
   ``participant_scores`` + ``participant_brain_behavior``): each participant's
-  MEAN signed per-electrode LWPC / LWPS d against its behavioral LWPC / LWPS,
-  both scored on the same trials. Reported with and without the RT-linked part
-  of HG (``rt_adjust_hg``), with split-half reliabilities from ONE trial split
-  per participant, and with the ceiling those reliabilities put on the
-  correlation. n = participants, so a null is uninformative.
+  MEAN signed per-electrode LWPC / LWPS d against its behavioral LWPC / LWPS.
+  Reported with and without the RT-linked part of HG (``rt_adjust_hg``), with
+  split-half reliabilities from ONE trial split per participant, and with the
+  ceiling those reliabilities put on the correlation. n = participants, so a
+  null is uninformative.
 - **Across subjects, label-based** (n = subjects, low power): does a subject with
   more (or stronger) LWPC electrodes show a larger behavioral LWPC effect? And
   likewise LWPS? Kept for comparison; the counts need thresholded labels and the
@@ -43,12 +43,14 @@ matters most on the neural side: the direction in which a block proportion
 modulates a condition effect in a given population is not known a priori, so the
 A1 electrode groups these correlate against are themselves direction-agnostic.
 
-Both are scored as the same equal-cell-weight difference-of-differences the
-segregation module uses for the neural interaction, so brain and behavior are
-measured on the identical contrast. (They are the per-subject analogue of the
-fixed-effect interactions in ``erin_linear_mixed_effects_model.py`` /
-``combinedData.csv``; extract per-subject effects rather than inventing a new RT
-contrast.)
+The per-subject behavioral magnitudes come precomputed from the subject-level
+effects table ``src/config/ieeg_behavioral_subject_level_effects.csv``
+(``load_subject_level_behavior``): its ``LWPC_effect`` / ``LWPS_effect`` are the
+same equal-cell-weight difference-of-differences the segregation module uses for
+the neural interaction, LOW minus HIGH, so brain and behavior are measured on the
+identical contrast. ``behavioral_lwpc_lwps_magnitudes`` scores the same contrast
+from raw trials; the job uses it only to cross-check the table against the
+iEEG trials and for the behavioral split-half reliability.
 
 **Specificity control (the whole point of A6).** The matched pairing
 (LWPC group ↔ congruency-sequence adjustment; LWPS group ↔ switch adjustment)
@@ -68,6 +70,9 @@ level.
 
 from __future__ import annotations
 
+import os
+import re
+
 import numpy as np
 import pandas as pd
 from scipy.stats import norm, pearsonr, spearmanr
@@ -77,6 +82,86 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
+
+
+# ----------------------------------------------------------------------------
+# behavioral LWPC / LWPS magnitudes (per subject): the subject-level table
+# ----------------------------------------------------------------------------
+# One row per (subject, measure), measure in {key_RT_mean, acc_mean, error_mean}.
+# `LWPC_effect` = congruency_effect_25_inc - congruency_effect_75_inc and
+# `LWPS_effect` = switch_cost_25_switch - switch_cost_75_switch: LOW minus HIGH,
+# the orientation of `_dod_rt` and the neural scores (a test pins this against the
+# file). The subject IDs are stems ('D0107'); the epochs may add a suffix
+# ('D0107A'), so match with `subject_stem`.
+SUBJECT_LEVEL_BEHAVIOR_CSV = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', '..', 'config',
+    'ieeg_behavioral_subject_level_effects.csv'))
+_BEHAVIOR_EFFECT_COLS = {'lwpc': 'LWPC_effect', 'lwps': 'LWPS_effect'}
+
+
+def subject_stem(s):
+    """'D0107A' -> 'D0107': the epochs and the behavioral tables spell some IDs
+    differently."""
+    m = re.match(r'(D\d+)', str(s))
+    return m.group(1) if m else str(s)
+
+
+def load_subject_level_behavior(csv_path=SUBJECT_LEVEL_BEHAVIOR_CSV,
+                                measure='key_RT_mean'):
+    """Per-subject behavioral LWPC and LWPS from the subject-level effects table.
+
+    Parameters
+    ----------
+    csv_path : the table, one row per (subject, measure); defaults to
+        ``SUBJECT_LEVEL_BEHAVIOR_CSV``.
+    measure : which row to take per subject: 'key_RT_mean' (RT, ms), 'error_mean'
+        or 'acc_mean' (percent). RT and error rate share the neural orientation
+        (positive = the condition effect SHRINKS in the high-proportion block);
+        accuracy is error rate negated, so there positive means it GROWS.
+
+    Returns
+    -------
+    DataFrame: one row per subject with ``subject``, ``lwpc`` (the table's
+    ``LWPC_effect``), ``lwps`` (``LWPS_effect``), then the table's other effect
+    columns unchanged.
+    """
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"subject-level behavior table not found at {csv_path}")
+    t = pd.read_csv(csv_path)
+    missing = [c for c in ('subject', 'measure', *_BEHAVIOR_EFFECT_COLS.values())
+               if c not in t.columns]
+    if missing:
+        raise KeyError(f"{csv_path} is missing columns {missing}; it has "
+                       f"{list(t.columns)}")
+    if measure not in set(t['measure']):
+        raise ValueError(f"measure {measure!r} is not in {csv_path}; available: "
+                         f"{sorted(t['measure'].unique())}")
+    t = t[t['measure'] == measure].drop(columns='measure')
+    dup = sorted(set(t.loc[t['subject'].duplicated(), 'subject']))
+    if dup:
+        raise ValueError(f"{csv_path} lists {dup} more than once for measure "
+                         f"{measure!r}")
+    t = t.rename(columns={v: k for k, v in _BEHAVIOR_EFFECT_COLS.items()})
+    rest = [c for c in t.columns if c not in ('subject', *_BEHAVIOR_EFFECT_COLS)]
+    return t[['subject', *_BEHAVIOR_EFFECT_COLS, *rest]].reset_index(drop=True)
+
+
+def match_behavior_to_subjects(behavior, subjects):
+    """``behavior`` relabelled to the given subject IDs, matched on ``subject_stem``.
+
+    Returns ``(matched, missing)``: one row per subject in ``subjects`` that has
+    behavior, in the order given and under its own ID, and the subjects without."""
+    stems = behavior['subject'].map(subject_stem)
+    if stems.duplicated().any():
+        raise ValueError(f"behavior lists subjects {sorted(set(stems[stems.duplicated()]))} "
+                         "under more than one ID")
+    by_stem = behavior.drop(columns='subject').set_index(stems.to_numpy())
+    subjects = list(dict.fromkeys(subjects))
+    found = [s for s in subjects if subject_stem(s) in by_stem.index]
+    missing = [s for s in subjects if subject_stem(s) not in by_stem.index]
+    matched = by_stem.loc[[subject_stem(s) for s in found]].reset_index(drop=True)
+    matched.insert(0, 'subject', found)
+    return matched, missing
 
 
 # ----------------------------------------------------------------------------
@@ -221,7 +306,8 @@ def subject_level_brain_behavior(elec_labels, behavior, neural='count',
     ----------
     elec_labels : per-electrode A1 labels (subject, S, F [, effect columns]).
     behavior : per-subject behavioral magnitudes with columns ``subject``,
-        ``lwpc``, ``lwps`` (from ``behavioral_lwpc_lwps_magnitudes``).
+        ``lwpc``, ``lwps`` (from ``load_subject_level_behavior``, relabelled to
+        the labels' subject IDs with ``match_behavior_to_subjects``).
     neural : 'count' -> use n_S / n_F; 'frac' -> frac_S / frac_F; 'effect' -> the
         per-subject mean effect (requires ``stab_effect``/``flex_effect``).
 
@@ -703,11 +789,35 @@ def _mean_split_corr(x, y):
     return float(np.mean(rs)) if rs else np.nan
 
 
-def participant_brain_behavior(ps, variant='rtadj', alpha=0.05):
+def attach_behavior(scores, behavior):
+    """`participant_scores(...)['scores']` with `lwpc_behav` / `lwps_behav` taken
+    from a per-subject table (`subject`, `lwpc`, `lwps`; e.g.
+    `load_subject_level_behavior`), matched on `subject_stem`. The long table's own
+    trial-scored values, when present, move to `lwpc_behav_trials` /
+    `lwps_behav_trials`. A participant the table lacks gets NaN."""
+    s = scores.rename(columns={f'{eff}_behav': f'{eff}_behav_trials'
+                               for eff in ('lwpc', 'lwps')})
+    matched, _ = match_behavior_to_subjects(behavior[['subject', 'lwpc', 'lwps']],
+                                            s['subject'])
+    return s.merge(matched.rename(columns={'lwpc': 'lwpc_behav', 'lwps': 'lwps_behav'}),
+                   on='subject', how='left')
+
+
+def participant_brain_behavior(ps, variant='rtadj', alpha=0.05, behavior=None,
+                               reliability_from_trials=True):
     """Across-participant brain-behavior correlations on `participant_scores` output.
 
     variant : 'rtadj' (neural scores with the RT-linked part of HG removed: the
         claim) or 'raw' (unadjusted: an upper bound that RT coupling inflates).
+    behavior : optional per-subject table (`subject`, `lwpc`, `lwps`), e.g.
+        `load_subject_level_behavior`. When given, every correlation uses it in
+        place of the behavior `participant_scores` scored from the long table
+        (`attach_behavior`). It has no trials, so the same- and disjoint-half
+        correlations are NaN.
+    reliability_from_trials : with `behavior`, take the behavioral reliability
+        behind the ceiling from the long table's trial-scored RT d-o-d, as an
+        estimate for the table's scores (right when the table holds RT effects;
+        conservative if it used more trials). False leaves it and the ceiling NaN.
 
     Returns
     -------
@@ -729,23 +839,26 @@ def participant_brain_behavior(ps, variant='rtadj', alpha=0.05):
                                      the same trial half, and from opposite halves
                                      (immune to shared trial noise)
     plus `n_participants`, `r_crit` (the |r| needed for p < alpha at this n), the
-    merged `table` and a `caveat`.
+    merged `table`, `behavior_from` ('table' or 'trials') and a `caveat`.
     """
     suffix = {'raw': '', 'rtadj': '_rtadj'}
     if variant not in suffix:
         raise ValueError(f"variant must be 'raw' or 'rtadj'; got {variant!r}")
     ncol = {eff: f'{eff}_neural{suffix[variant]}' for eff in ('lwpc', 'lwps')}
     bcol = {eff: f'{eff}_behav' for eff in ('lwpc', 'lwps')}
-    s = ps['scores']
+    external = behavior is not None
+    s = attach_behavior(ps['scores'], behavior) if external else ps['scores']
     missing = [c for c in (*ncol.values(), *bcol.values()) if c not in s.columns]
     if missing:
         raise KeyError(f"participant scores lack {missing}: variant={variant!r} needs "
-                       "the behavioral scores (and the RT adjustment for 'rtadj'), "
-                       "which need `rt` in the long table")
+                       "the behavioral scores (pass `behavior`, or put `rt` in the "
+                       "long table) and, for 'rtadj', the RT adjustment, which needs "
+                       "`rt` in the long table")
     t = s.dropna(subset=[*ncol.values(), *bcol.values()]).reset_index(drop=True)
     n = len(t)
-    out = dict(variant=variant, n_participants=n,
-               neural_columns=dict(ncol), behavior_columns=dict(bcol))
+    out = dict(variant=variant, n_participants=n, neural_columns=dict(ncol),
+               behavior_columns=dict(bcol),
+               behavior_from='table' if external else 'trials')
     out['r_crit'] = (float(t_dist.ppf(1 - alpha / 2, n - 2)
                            / np.sqrt(t_dist.ppf(1 - alpha / 2, n - 2) ** 2 + n - 2))
                      if n > 2 else np.nan)
@@ -783,10 +896,17 @@ def participant_brain_behavior(ps, variant='rtadj', alpha=0.05):
     rel = ps['reliability'].set_index('score')['reliability']
     idx = pd.Index(ps['subjects']).get_indexer(t['subject'])
     for eff in ('lwpc', 'lwps'):
-        rn, rb = float(rel.get(ncol[eff], np.nan)), float(rel.get(bcol[eff], np.nan))
+        rn = float(rel.get(ncol[eff], np.nan))
+        # with a table, the long table's trial-scored behavior (still keyed
+        # `*_behav` in `ps`) only stands in for the reliability, if allowed
+        rb = (float(rel.get(bcol[eff], np.nan))
+              if not external or reliability_from_trials else np.nan)
         out[f'reliability_neural_{eff}'], out[f'reliability_behav_{eff}'] = rn, rb
         out[f'ceiling_{eff}'] = (float(np.sqrt(rn * rb))
                                  if np.isfinite(rn) and np.isfinite(rb) else np.nan)
+        if external:                       # the table's scores have no trial halves
+            out[f'corr_{eff}_same_half'] = out[f'corr_{eff}_disjoint_half'] = np.nan
+            continue
         hn, hb = ps['halves'][ncol[eff]][:, idx, :], ps['halves'][bcol[eff]][:, idx, :]
         out[f'corr_{eff}_same_half'] = 0.5 * (_mean_split_corr(hn[..., 0], hb[..., 0])
                                              + _mean_split_corr(hn[..., 1], hb[..., 1]))
