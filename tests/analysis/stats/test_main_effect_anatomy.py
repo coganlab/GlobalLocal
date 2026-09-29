@@ -1,4 +1,4 @@
-"""Main effects as the reference for the delta tilt (docs/closing_figure_plan.md).
+"""Main effects as the reference for the delta tilt (docs/analysis_plans.md#closing-figure-plan).
 
 Scoring: congruency/switch main effects come from the proportion run's own
 cells, equal weight over the proportion levels, on the same halves as

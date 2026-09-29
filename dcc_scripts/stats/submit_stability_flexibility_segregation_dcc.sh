@@ -47,7 +47,7 @@ N_SPLITS=${N_SPLITS:-200}
 N_PERM_CORR=${N_PERM_CORR:-10000}
 N_PERM_LABEL=${N_PERM_LABEL:-10000}
 
-# Scatter-only (docs/analysis_simplification_plan.md 2.5): assemble the trial
+# Scatter-only (docs/analysis_plans.md#simplification-plan 2.5): assemble the trial
 # table, score both contrasts per electrode, draw the subject-coloured joint
 # scatter, stop. No splits, no permutations -- minutes instead of hours, and it
 # is step 1 of the plan's order of operations. SCATTER_N_SPLITS>0 scores the

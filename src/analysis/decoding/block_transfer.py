@@ -1,9 +1,9 @@
-"""N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md).
+"""N3b: block-transfer cross-decoding (docs/decoding.md#n3b-block-transfer).
 
 Train a contrast in one level of a block factor and score it in the other. For
 example, X1 learns congruency in 25%-incongruent blocks and tests it in
 75%-incongruent blocks. The task-transfer positive controls
-(docs/cross_decoding_controls.md §3.5) are the same 2x2 with a trial-level
+(docs/decoding.md#cross-decoding-controls §3.5) are the same 2x2 with a trial-level
 factor in place of the block: T1 learns task (global vs local) on congruent
 trials and tests it on incongruent ones. The only new idea is WHICH trials train
 and which test; everything else is the ordinary cross-decoding pipeline:

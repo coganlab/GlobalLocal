@@ -91,7 +91,7 @@ CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
 
 # MAIN_EFFECTS=1 (proportion mode): also score congruency and switch type on the
-# same halves (mx/my columns) for the main-effect anatomy, docs/closing_figure_plan.md
+# same halves (mx/my columns) for the main-effect anatomy, docs/analysis_plans.md#closing-figure-plan
 MAIN_EFFECTS = (os.environ.get('MAIN_EFFECTS', '0') not in ('0', '', 'false', 'False')
                 and CONTRAST_MODE == 'proportion')
 
@@ -107,7 +107,7 @@ ROIS_DICT = select_rois(ROIS)
 # Prefer passing a {electrode: baseline-vs-signal cluster stat} dict here.
 RESPONSIVENESS = None
 
-# --- scatter-only fast path (docs/analysis_simplification_plan.md 2.5) -------
+# --- scatter-only fast path (docs/analysis_plans.md#simplification-plan 2.5) -------
 # SCATTER_ONLY=1 assembles the trial table, scores both contrasts per electrode,
 # writes the joint scatter (coloured by subject, marginal histograms, leverage
 # diagnostics) and stops -- no splits, no permutations, no categorical arm. This

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Submit the task-transfer positive controls (docs/cross_decoding_controls.md §3.5).
+# Submit the task-transfer positive controls (docs/decoding.md#cross-decoding-controls §3.5).
 #
 # Same job as N3b (submit_block_transfer_dcc.sh) with a trial-level factor in place
 # of the block: a contrast is trained in one level and tested in the other, uncentered

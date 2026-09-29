@@ -4,7 +4,7 @@
 2026-09-27. It covers how each participant gets one neural and one behavioral
 LWPC / LWPS score, what was wrong before, how to run the job (synthetic and
 real), what every output file holds, and how to interpret the numbers. The
-brain–behavior row of [`closing_figure_plan.md`](closing_figure_plan.md) and §19
+brain–behavior row of [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan) and §19
 of [`analysis_guide.md`](analysis_guide.md) point here.
 
 | Role | File |
@@ -88,7 +88,7 @@ proportions from the event names (`Stimulus/i25.0/r75.0/...`), and
 `power/power_traces.ipynb`) assign `map_block_type`'s output to swapped column
 names; neither uses the columns afterwards.
 
-> **N1 check.** `analysis_plan_concurrent_regulation.md` lists the behavioral
+> **N1 check.** `analysis_plans.md` › Concurrent-regulation plan lists the behavioral
 > LWPC/LWPS as coming from `erin_linear_mixed_effects_model.py`. That script is a
 > post-error model with no congruency × proportion term, and it carried the swapped
 > map. Confirm which script produced the reported N1 numbers. The corrected values

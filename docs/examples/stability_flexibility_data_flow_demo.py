@@ -1,4 +1,4 @@
-"""Runnable companion to `docs/stability_flexibility_data_flow.md`.
+"""Runnable companion to `docs/stability_flexibility_battery.md#data-flow-walk-through`.
 
 Every table and number printed in that document comes from this script. It uses
 only synthetic data with **planted ground truth**, so it runs anywhere — no

@@ -22,17 +22,20 @@ in a collapsed **▸ Line-by-line** block — click to expand. Everything you ne
 
 ### The other docs
 
-This guide is the only place that documents how to run an analysis. Five
-companion docs remain, each with a job this one doesn't do:
+This guide covers every analysis path. The other docs each do a job this one
+doesn't:
 
 | Doc | Read it when you want |
 |---|---|
-| `analysis_simplification_plan.md` | **Which analysis should be primary**, and why the decoding battery should not be. Diagnostic findings on the decoding pipeline, the baseline, and two defects in the segregation estimator |
-| `stability_flexibility_data_flow.md` | The **shape of the data at every step** of A1–A7 — one fake dataset followed end to end with the actual intermediate tables printed. Backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py` |
-| `stability_flexibility_segregation_methods.md` | Manuscript-ready **Methods** text for the segregation analysis, in a `cluster` and a `cohens_d` version |
-| `n4_anatomy_segregation_methods.md` | Manuscript-ready **combined N4 Methods** for continuous segregation, coverage-conditioned anatomy, coordinate follow-ups, maps, and descriptive medoids |
-| `refactoring_guide.md` | How the big modules were split (and how to split the next one). Records what has already been done to `decoding/` and `power/` |
-| `learning_assignments/segregation_bootstrap/README.md` | **A7** — a build-a-feature self-check with a pytest grader (§20) |
+| [`analysis_plans.md`](analysis_plans.md) | **What to do next and why each analysis is designed the way it is.** Every analysis plan, newest first. The closing figure plan is current; the concurrent-regulation plan holds the N1–N4 framework; the simplification plan holds the estimator diagnoses and bias fixes |
+| [`n2_direction_tests.md`](n2_direction_tests.md) | **Runbook for N2**: which way the LWPC and LWPS effects go in lPFC high gamma |
+| [`decoding.md`](decoding.md) | **Runbooks for decoding**: the ordinary decoding job, A4 cross-decoding with the task-transfer controls (§17), N3b block transfer, and what to do when a transfer comes back uninformative |
+| [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) | **Runbook for N4**: continuous per-electrode scores, the anatomical tests, the brain maps, and the main-effect reference |
+| [`a6_brain_behavior.md`](a6_brain_behavior.md) | **Runbook for A6** (§19): the per-participant brain–behavior scores and the RT confound |
+| [`stability_flexibility_battery.md`](stability_flexibility_battery.md) | The **shape of the data at every step** of A1–A7, one fake dataset followed end to end with the actual intermediate tables printed (backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py`), and **what each output file means** |
+| [`methods.md`](methods.md) | Manuscript-ready **Methods** text: the combined N4 Methods, and the segregation analysis in a `cluster` and a `cohens_d` version |
+| [`code_maintenance.md`](code_maintenance.md) | How the big modules were split (and how to split the next one), and the duplicated code that could be consolidated |
+| [`learning_assignments/segregation_bootstrap/README.md`](learning_assignments/segregation_bootstrap/README.md) | **A7**, a build-a-feature self-check with a pytest grader (§20) |
 
 The repo-root `README.md` covers environment setup, BIDS conversion, cluster
 access, and the experiment itself. Runnable assignment stubs are in
@@ -117,7 +120,7 @@ battery (Part III) flattens the saved HG epochs into a **long single-trial
 table**, one row per (electrode, trial), where `hg` is either the window mean or
 the window's time course. Every module in that battery consumes only that table —
 which is why each one can be run end to end on synthetic ground truth with no
-data on disk. See `docs/stability_flexibility_data_flow.md`.
+data on disk. See `stability_flexibility_battery.md` › Data flow walk-through.
 
 ---
 
@@ -214,7 +217,7 @@ docs/examples/    # Runnable doc companions
 > ~4.7k- and ~2.4k-line monoliths. They are now thin re-export shims, so every
 > existing `from src.analysis.decoding.decoding import ...` still resolves — but
 > **new code should import from the specific submodule** (`decoding.decoder`,
-> `power.windowed_anova`, …). See `docs/refactoring_guide.md` for the full map
+> `power.windowed_anova`, …). See `code_maintenance.md` › Refactoring guide for the full map
 > and for two pre-existing bugs the split surfaced.
 
 ---
@@ -462,7 +465,7 @@ being compared).
 > therefore not present in the decoder's input, which bounds what these accuracies
 > can mean, and the per-condition minimum makes the effective n differ between
 > conditions you might want to compare. Both are worked through in
-> `analysis_simplification_plan.md` §1.1–1.2, which argues against using this
+> `analysis_plans.md` › Simplification plan §1.1–1.2, which argues against using this
 > battery as the primary test of shared vs. independent mechanisms.
 
 **Key files:** `decoding/decoding.py` used to hold the whole pipeline in one
@@ -864,7 +867,7 @@ always use this mode.
 
 Because that table is the only input, **every module runs end to end on synthetic
 ground truth with no data on disk** — which is what makes the dry runs below
-possible. See `docs/stability_flexibility_data_flow.md` for the table printed at
+possible. See `stability_flexibility_battery.md` › Data flow walk-through for the table printed at
 every hand-off.
 
 ### 13.2 The two knobs shared across the segregation module
@@ -1361,7 +1364,7 @@ single set of `(x, y)`; `split_resolved_corr` does them per split and averages,
 which is the part that actually preserves the disjoint-half correction. Doing it
 the other way round — averaging `x` and `y` over splits and correlating once —
 reinstates essentially all of the same-trial bias, which is what the code did
-originally (`analysis_simplification_plan.md` §2.2).
+originally (`analysis_plans.md` › Simplification plan §2.2).
 
 So the aggregation is *pooling after within-subject centering* — a fixed-effects
 / "within" estimator. Between-subject differences in mean sensitivity cannot
@@ -1569,7 +1572,7 @@ overwrites a full run's):
   across the whole sweep — the built-in check that the test isn't manufacturing a
   result.
 
-See `stability_flexibility_data_flow.md` §2–§3 for a worked example on planted
+See `stability_flexibility_battery.md` › Data flow walk-through §2–§3 for a worked example on planted
 ground truth, including the near-miss electrode that raw *p* selects and FDR
 correctly rejects.
 
@@ -1617,7 +1620,7 @@ bound, and note that the figure annotates the pipeline's corrected estimate
 beside it when a full run produced one. `SCATTER_N_SPLITS=200` scores the
 sensitivities on disjoint halves instead, at the full estimator's cost.
 
-Rationale and the full reading key: `analysis_simplification_plan.md` §2.5.
+Rationale and the full reading key: `analysis_plans.md` › Simplification plan §2.5.
 
 ---
 
@@ -1967,7 +1970,7 @@ the contrast you *score*.
   (`stab_to_stab`, `flex_to_flex`) on the same trials and folds, and each
   transfer is reported against the within decode of the labelling it is scored
   on: how many windows it falls below that ceiling, and the share of the
-  ceiling's above-chance accuracy it keeps ([`cross_decoding_controls.md`](cross_decoding_controls.md) §2).
+  ceiling's above-chance accuracy it keeps ([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §2).
 - **(c) Temporal generalization (Fig 10).** Train at *t*, test at *t′* →
   off-diagonal generalization = sustained/stable code, narrow diagonal =
   moving/phasic code. `cv_cm_jim_window_shuffle(..., temporal_generalization=True)`.
@@ -2001,11 +2004,11 @@ covers per group, so it has no separate code path.
 > a fold-leakage artifact rather than signal. The full diagnostic protocol —
 > failure signatures, the mandatory within-condition ceiling, the positive-control
 > ladder, and the report block to print with every transfer — is in
-> [`cross_decoding_controls.md`](cross_decoding_controls.md). The implemented
+> [`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls). The implemented
 > N3b *block-transfer* analysis trains congruency or switch type in one block
 > level and tests it in the other. It uses pooled design-specific 2×2 condition
 > sets and the decoder's `test_only` path; see
-> [`n3b_block_transfer.md`](n3b_block_transfer.md) for the designs, run command,
+> [`decoding.md` › N3b block transfer](decoding.md#n3b-block-transfer) for the designs, run command,
 > outputs, and interpretation.
 
 ### 17.1 Which electrodes are decoded
@@ -2161,7 +2164,7 @@ left out of the output folder name. `REFERENCE_GROUP` must be non-empty.
 > main-effect (`condition`) groups, raw p, a 0–1.5 s definition window and
 > 64/16-sample decoding windows. A saved table is read only with
 > `ELECTRODE_DEFINITION=csv`. Where this section disagrees,
-> [`a4_cross_decoding.md`](a4_cross_decoding.md) — the run-and-read walkthrough —
+> [`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) — the run-and-read walkthrough —
 > describes the scripts as they are.
 
 `dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. Every knob
@@ -2311,7 +2314,7 @@ instead:
 
 ### 17.5 Runbook: main-effect populations and the task positive controls
 
-Every job behind two items of [`closing_figure_plan.md`](closing_figure_plan.md),
+Every job behind two items of [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan),
 in the order to submit them: "Cross-decoding within main-effect groups" (with
 main-effect decoding and power traces in the same groups) and "Congruency ↔ switch
 cross-decoding with task positive controls". Run the commands on a DCC login node;
@@ -2385,7 +2388,7 @@ ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=$COND_CSV bash submit_stability_flexib
 
 `ELECTRODE_DEFINITION=csv` is required: the submit script's default route is now
 `anova`, which drops the table silently
-([`a4_cross_decoding.md`](a4_cross_decoding.md) §4.2).
+([`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §4.2).
 
 One job. It decodes `both` (congruency ∩ switch), `congruency_only`,
 `switch_type_only` and the reference `all` (every lPFC electrode, §17.1). Each gets
@@ -2468,7 +2471,7 @@ ELECTRODES=all bash submit_task_transfer_dcc.sh
 
 One job: the N3b 2×2 (train in one level, test in the other, uncentered and
 centered) with a trial-level factor in place of the block
-([`cross_decoding_controls.md`](cross_decoding_controls.md) §3.5).
+([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §3.5).
 
 | Design | Decoded | Train → test | Condition set |
 |---|---|---|---|

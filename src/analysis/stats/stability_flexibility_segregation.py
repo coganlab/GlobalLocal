@@ -659,7 +659,7 @@ def _effect_for(frame, key, labcol, contrasts, effect_measure, alpha, w=None):
 
 # Main effects (congruency, switch type) scored in the proportion run on the
 # same cells and halves as LWPC/LWPS (`main_effects=True`). See
-# docs/closing_figure_plan.md for why not a separate condition-mode run: its
+# docs/analysis_plans.md#closing-figure-plan for why not a separate condition-mode run: its
 # halves do not line up, and block effects leak into its congruency score.
 MAIN_EFFECT_COLS = ('mxA', 'mxB', 'myA', 'myB')
 

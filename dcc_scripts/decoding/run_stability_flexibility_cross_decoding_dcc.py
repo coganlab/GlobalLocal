@@ -50,14 +50,14 @@ from src.analysis.utils.anova_label_selection import (
 # ---------------------------------------------------------------------------
 # Which analysis this job runs:
 #   'a4'             the stability/flexibility cross-decoding battery (default)
-#   'block_transfer' N3b (docs/n3b_block_transfer.md): each contrast trained in
+#   'block_transfer' N3b (docs/decoding.md#n3b-block-transfer): each contrast trained in
 #                    one block level and tested in the other, on EVERY electrode
 #                    of ROI. ELECTRODES alone picks 'sig' or 'all'; the electrode
 #                    group settings below (ELECTRODE_DEFINITION, the ANOVA CSV,
 #                    power traces, REFERENCE_GROUP, TEMPGEN_GROUPS) are unused,
 #                    and N_REPEATS counts balanced resamples.
 #   'task_transfer'  the task x congruency / task x switch type positive controls
-#                    (docs/cross_decoding_controls.md §3.5): the same job as
+#                    (docs/decoding.md#cross-decoding-controls §3.5): the same job as
 #                    'block_transfer' with task, congruency and switch type as
 #                    the transfer factors. SYNTHETIC_CODE: shared |
 #                    congruency_specific | carryover.

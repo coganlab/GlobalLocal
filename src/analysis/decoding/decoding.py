@@ -1,7 +1,7 @@
 """Facade for the decoding package.
 
 Historically this module held the entire decoding pipeline. It has been split
-into focused submodules (see docs/refactoring_guide.md). This file now just
+into focused submodules (see docs/code_maintenance.md#refactoring-guide). This file now just
 re-exports the public names so existing
 `from src.analysis.decoding.decoding import ...` imports keep working.
 """

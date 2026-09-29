@@ -98,7 +98,7 @@ CROSS_DECODE_FIELDS = ("congruency", "switchType")
 #
 # `task` (global 'g' vs local 'l') is not part of the four-factor cell: only the
 # task-by-* condition sets declare it, for the task-transfer positive controls
-# (`block_transfer`, docs/cross_decoding_controls.md §3.5).
+# (`block_transfer`, docs/decoding.md#cross-decoding-controls §3.5).
 _FIELD_ALIASES = {
     "congruency": ("congruency",),
     "switchType": ("switchType", "switch_type", "task_sequence"),
