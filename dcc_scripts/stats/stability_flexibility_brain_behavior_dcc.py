@@ -114,7 +114,9 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
+from scipy.stats import linregress
 
+from src.analysis.decoding.plots.style import nature_style
 from src.analysis.stats import stability_flexibility_segregation as sfs
 from src.analysis.stats import stability_flexibility_brain_behavior as sbb
 
@@ -128,6 +130,8 @@ CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = 'cohens_d'
 
 STAB, FLEX = "#2c7fb8", "#d95f0e"
+# the decoding figures' LWPC / LWPS hues (condition_registry, the 75% shade)
+SCATTER_COLORS = {'lwpc': '#A32319', 'lwps': '#0B4F8A'}
 
 # the neural summaries correlated against behavior, and the label columns each needs
 _NEURAL_MODES = (('count', 'n_S / n_F  (# selective electrodes)'),
@@ -442,6 +446,69 @@ def make_participant_plots(participant, save_dir):
     fig.savefig(os.path.join(save_dir, 'participant_brain_behavior.png'), dpi=140,
                 bbox_inches='tight')
     plt.close(fig)
+
+
+def make_participant_scatter(table, save_dir, variant='rtadj', base_fontsize=9.0,
+                             formats=('png', 'pdf', 'eps')):
+    """Level (1) in the decoding figures' Nature style: one dot per participant,
+    behavioral score on x and neural score on y, LWPC and LWPS side by side, each
+    with its least-squares line and R^2 / p in the top-right corner.
+
+    `table` is `participant_brain_behavior(...)['table']` or a participant_scores.csv.
+    Rows missing any of the four scores are dropped, as `participant_brain_behavior`
+    drops them, so R^2 is its r squared and p its p. Saves
+    participant_brain_behavior_scatter_<variant>.<fmt> and returns
+    {'lwpc' / 'lwps': dict(r2, p, n)}."""
+    suffix = {'raw': '', 'rtadj': '_rtadj'}[variant]
+    cols = {eff: (f'{eff}_behav', f'{eff}_neural{suffix}') for eff in ('lwpc', 'lwps')}
+    t = table.dropna(subset=[c for pair in cols.values() for c in pair])
+    neural_unit = 'mean d, RT-adjusted' if variant == 'rtadj' else 'mean d'
+    stats = {}
+    width = 183 / 25.4                                   # double column
+    with plt.rc_context(nature_style(base_fontsize)):
+        fig, axes = plt.subplots(1, 2, figsize=(width, width * 0.45))
+        for ax, (eff, name) in zip(axes, (('lwpc', 'LWPC'), ('lwps', 'LWPS'))):
+            x = t[cols[eff][0]].to_numpy(float)
+            y = t[cols[eff][1]].to_numpy(float)
+            color = SCATTER_COLORS[eff]
+            ax.axhline(0, color='#BFBFBF', linewidth=0.8, zorder=0)
+            ax.axvline(0, color='#BFBFBF', linewidth=0.8, zorder=0)
+            ax.scatter(x, y, s=30, color=color, edgecolor='white', linewidth=0.6,
+                       zorder=3)
+            y_span = list(y)
+            text = f"n = {len(x)}: too few to fit"
+            stats[eff] = dict(r2=np.nan, p=np.nan, n=len(x))
+            if len(x) >= 3 and np.std(x) > 0 and np.std(y) > 0:
+                fit = linregress(x, y)
+                xs = np.array([x.min(), x.max()])
+                ys = fit.intercept + fit.slope * xs
+                ax.plot(xs, ys, color=color, linewidth=1.8, solid_capstyle='round',
+                        zorder=2)
+                y_span += list(ys)
+                stats[eff] = dict(r2=fit.rvalue ** 2, p=fit.pvalue, n=len(x))
+                p_text = ('$p$ < 0.001' if fit.pvalue < 0.001
+                          else f'$p$ = {fit.pvalue:.3f}')
+                text = f"$R^2$ = {fit.rvalue ** 2:.2f}\n{p_text}"
+            if len(x):
+                # empty headroom on top, so the stats never cover a participant
+                x_pad = 0.06 * (np.ptp(x) or 1.0)
+                y_lo, y_hi = min(y_span), max(y_span)
+                y_rng = (y_hi - y_lo) or 1.0
+                ax.set_xlim(x.min() - x_pad, x.max() + x_pad)
+                ax.set_ylim(y_lo - 0.06 * y_rng, y_hi + 0.3 * y_rng)
+            ax.text(0.97, 0.97, text, transform=ax.transAxes, ha='right', va='top',
+                    linespacing=1.3)
+            ax.set_xlabel(f"Behavioral {name} (ms)")
+            ax.set_ylabel(f"Neural {name} ({neural_unit})")
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+        fig.tight_layout(pad=0.4, w_pad=2.0)
+        stem = os.path.join(save_dir, f'participant_brain_behavior_scatter_{variant}')
+        for fmt in formats:
+            fig.savefig(f'{stem}.{fmt}', format=fmt, bbox_inches='tight',
+                        pad_inches=0.05)
+    plt.close(fig)
+    return stats
 
 
 def _slope_ci(slope, z):
@@ -886,6 +953,8 @@ def main(args):
                     else sbb.attach_behavior(ps['scores'], participant_behavior)))
     make_plots(across, trialwise, args.save_dir, primary=primary)
     make_participant_plots(participant, args.save_dir)
+    for variant, res in participant.items():
+        make_participant_scatter(res['table'], args.save_dir, variant=variant)
     rois = getattr(args, 'rois_dict', None)
     write_summary(labels, behavior, across, trialwise, args.save_dir, notes=notes,
                   primary=primary, alpha=alpha, ps=ps, participant=participant,

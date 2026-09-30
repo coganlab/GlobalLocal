@@ -404,6 +404,17 @@ res = sbb.participant_brain_behavior(ps, variant='rtadj')   # or 'raw'
 print(ps['reliability'], res['corr_lwpc'], res['ceiling_lwpc'], res['caveat'])
 ```
 
+To redraw only the Nature-style scatter from a finished run, without rerunning
+anything:
+
+```python
+import pandas as pd
+from dcc_scripts.stats.stability_flexibility_brain_behavior_dcc import make_participant_scatter
+
+scores = pd.read_csv('<save_dir>/participant_scores.csv')
+make_participant_scatter(scores, '<save_dir>', variant='rtadj')   # or 'raw'
+```
+
 A long table from before this change has no `rt` and no `trial`. Level (1) then
 returns the neural scores only and says so in `ps['notes']`. It refuses a
 participant whose electrodes list different numbers of trials, because without
@@ -433,6 +444,7 @@ pytest tests/analysis/stats/test_participant_brain_behavior.py \
 | `participant_reliability.csv` | one row per score: `r_half`, `sd_half`, `reliability` (full length), `n_participants`, `n_splits` |
 | `participant_brain_behavior.json` | for `rtadj` and `raw`: every number in §10; plus the settings, notes and the CSV cross-check |
 | `participant_brain_behavior.png` | LWPC and LWPS (rows) × RT-adjusted and raw (columns); one dot per participant, fitted line, r with CI, ceiling, disjoint-half r |
+| `participant_brain_behavior_scatter_<rtadj\|raw>.{png,pdf,eps}` | the figure version, in the decoding figures' Nature style: LWPC and LWPS side by side, behavioral score (ms) on x, neural score on y, one dot per participant, least-squares line, R² and p top right. R² and p are that variant's r² and p |
 | `behavioral_magnitudes.csv` | per-participant behavioral `lwpc` / `lwps` (and the table's other effect columns) from the subject-level table, under the epochs' subject IDs (levels 1 and 2 use these) |
 | `long_df.csv` | the single-trial long table (real runs), including `trial`, `rt`, `acc` |
 | `electrode_labels.csv`, `subject_table_<mode>.csv`, `across_subject.json` | level (2) |

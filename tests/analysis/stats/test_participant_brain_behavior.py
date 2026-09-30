@@ -311,6 +311,22 @@ def test_given_behavior_replaces_the_trial_scored_one(planted, tmp_path):
     assert (tmp_path / 'participant_brain_behavior.png').exists()
 
 
+def test_scatter_reports_the_correlation_it_plots(planted, tmp_path):
+    """The R^2 / p printed on the scatter are the r^2 / p of
+    `participant_brain_behavior`, from the result's table or participant_scores.csv."""
+    _, _, ps = planted
+    for variant in ('rtadj', 'raw'):
+        res = sbb.participant_brain_behavior(ps, variant=variant)
+        for table in (res['table'], ps['scores']):
+            stats = dcc.make_participant_scatter(table, str(tmp_path), variant=variant,
+                                                 formats=('png',))
+            for eff in ('lwpc', 'lwps'):
+                assert stats[eff]['r2'] == pytest.approx(res[f'corr_{eff}'] ** 2)
+                assert stats[eff]['p'] == pytest.approx(res[f'p_{eff}'])
+                assert stats[eff]['n'] == res['n_participants']
+        assert (tmp_path / f'participant_brain_behavior_scatter_{variant}.png').exists()
+
+
 # ---------------------------------------------------------------------------
 # the DCC job end to end (synthetic)
 # ---------------------------------------------------------------------------
@@ -328,7 +344,9 @@ def test_dcc_synthetic_run_writes_the_participant_outputs(tmp_path):
     out = dcc.main(args)
     for name in ('participant_scores.csv', 'participant_electrode_scores.csv',
                  'participant_reliability.csv', 'participant_brain_behavior.json',
-                 'participant_brain_behavior.png', 'summary.txt'):
+                 'participant_brain_behavior.png', 'summary.txt',
+                 'participant_brain_behavior_scatter_rtadj.png',
+                 'participant_brain_behavior_scatter_raw.pdf'):
         assert (tmp_path / name).exists(), name
     assert set(out['participant']) == {'raw', 'rtadj'}
     summary = (tmp_path / 'summary.txt').read_text()
