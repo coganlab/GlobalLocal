@@ -10,7 +10,7 @@ How to run it and read the outputs: docs/a6_brain_behavior.md.
 
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOW_TMIN, WINDOW_TMAX, ELECTRODES, ROIS, ALPHA,
-BEHAVIOR_CSV, BEHAVIOR_RT_COL, NEURAL_SUMMARY, RUN_TRIALWISE, MIN_ELEC,
+BEHAVIOR_CSV, NEURAL_SUMMARY, RUN_TRIALWISE, MIN_ELEC,
 PARTICIPANT_N_SPLITS, SEED, SYNTHETIC_N_SUBJ, SYNTHETIC_ACROSS_BETA,
 SYNTHETIC_WITHIN_BETA, SYNTHETIC_CROSS_FRAC, SYNTHETIC_LINK,
 SYNTHETIC_RT_COUPLING) so you can rerun without editing Python.
@@ -93,12 +93,11 @@ FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 
 # --- A6 hyperparameters ---
-# Behavior is scored from the epochs metadata (the same trials as the HG). The
-# raw trial-level CSV is only a cross-check now; it defaults to the repo-root
-# combinedData.csv, and a missing file just skips the check.
+# Behavioral LWPC / LWPS come from the subject-level effects table: the
+# LWPC_effect / LWPS_effect of its key_RT_mean rows, one per subject.
 BEHAVIOR_CSV = os.environ.get(
-    'BEHAVIOR_CSV', os.path.join(project_root, 'combinedData.csv'))
-BEHAVIOR_RT_COL = os.environ.get('BEHAVIOR_RT_COL', 'RT')
+    'BEHAVIOR_CSV', os.path.join(project_root, 'src', 'config',
+                                 'ieeg_behavioral_subject_level_effects.csv'))
 # which label-based neural summary is starred at level (2):
 # 'count' (n_S / n_F), 'frac' (proportion of the subject's electrodes), or
 # 'effect' (mean interaction F). All three are computed.
@@ -145,7 +144,6 @@ def run_analysis():
         contrast_mode=CONTRAST_MODE,
         fdr_correction=FDR_CORRECTION,
         behavior_csv=BEHAVIOR_CSV,
-        behavior_rt_col=BEHAVIOR_RT_COL,
         neural_summary=NEURAL_SUMMARY,
         run_trialwise=RUN_TRIALWISE,
         min_elec=MIN_ELEC,
@@ -166,7 +164,7 @@ def run_analysis():
     print(f"Subjects:         {SUBJECTS}")
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
-    print(f"Behavior CSV:     {BEHAVIOR_CSV} (cross-check only)")
+    print(f"Behavior CSV:     {BEHAVIOR_CSV} (subject-level LWPC_effect / LWPS_effect, RT)")
     print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     print(f"Electrodes:       {ELECTRODES} | ROIs: "
           f"{list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")

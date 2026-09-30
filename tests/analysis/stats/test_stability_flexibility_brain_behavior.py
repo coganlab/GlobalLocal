@@ -1,7 +1,8 @@
 """Tests for A6 — stability/flexibility brain–behavior correlation (plan §6).
 
 Covers the blockType -> proportion map (pinned against the task code and the
-behavioral data), the behavioral difference-of-differences extraction, the
+behavioral data), the subject-level behavior table (its sign convention pinned
+against the file), the behavioral difference-of-differences extraction, the
 across-subject correlation with its cross-pairing specificity control, and the
 within-subject single-trial mixed model (matched slope must beat the cross slope).
 """
@@ -19,7 +20,8 @@ sys.path.insert(0, ROOT)
 from src.analysis.stats.stability_flexibility_brain_behavior import (
     behavioral_lwpc_lwps_magnitudes, neural_summary_by_subject,
     subject_level_brain_behavior, trialwise_brain_behavior,
-    _synthetic_brain_behavior, _BLOCK_PROPORTION_MAP,
+    load_subject_level_behavior, _synthetic_brain_behavior, _BLOCK_PROPORTION_MAP,
+    SUBJECT_LEVEL_BEHAVIOR_CSV,
 )
 
 TASK_CODE = os.path.join(ROOT, 'src', 'task', 'mainTask.m')
@@ -79,7 +81,40 @@ def test_block_map_fully_crosses_the_two_proportions():
 
 
 # ---------------------------------------------------------------------------
-# behavioral magnitude extraction
+# the subject-level behavior table (what the job correlates against)
+# ---------------------------------------------------------------------------
+@pytest.mark.skipif(not os.path.exists(SUBJECT_LEVEL_BEHAVIOR_CSV),
+                    reason="subject-level behavior table not present")
+def test_subject_level_table_is_low_minus_high():
+    """LWPC_effect / LWPS_effect are LOW minus HIGH proportion for every measure:
+    the orientation of `_dod_rt` and the neural scores. Were either flipped, every
+    brain-behavior correlation would change sign."""
+    raw = pd.read_csv(SUBJECT_LEVEL_BEHAVIOR_CSV)
+    np.testing.assert_allclose(
+        raw['LWPC_effect'],
+        raw['congruency_effect_25_inc'] - raw['congruency_effect_75_inc'], atol=1e-9)
+    np.testing.assert_allclose(
+        raw['LWPS_effect'],
+        raw['switch_cost_25_switch'] - raw['switch_cost_75_switch'], atol=1e-9)
+
+
+@pytest.mark.skipif(not os.path.exists(SUBJECT_LEVEL_BEHAVIOR_CSV),
+                    reason="subject-level behavior table not present")
+def test_load_subject_level_behavior():
+    b = load_subject_level_behavior()
+    assert list(b.columns[:3]) == ['subject', 'lwpc', 'lwps']
+    assert b['subject'].is_unique and len(b) == 25
+    # RT: both condition effects shrink in the high-proportion block on average
+    assert b['lwpc'].mean() > 0 and b['lwps'].mean() > 0
+    err = load_subject_level_behavior(measure='error_mean').set_index('subject')
+    acc = load_subject_level_behavior(measure='acc_mean').set_index('subject')
+    np.testing.assert_allclose(acc['lwpc'], -err['lwpc'])
+    with pytest.raises(ValueError, match='available'):
+        load_subject_level_behavior(measure='nonsense')
+
+
+# ---------------------------------------------------------------------------
+# behavioral magnitude extraction from raw trials
 # ---------------------------------------------------------------------------
 def test_behavioral_magnitudes_recover_planted_dod():
     """A planted congruency×proportion RT interaction is recovered as `lwpc`."""

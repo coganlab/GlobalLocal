@@ -223,13 +223,19 @@ def test_planted_link_and_its_ceiling_are_recovered():
 # inputs that lack columns
 # ---------------------------------------------------------------------------
 def test_without_rt_the_neural_scores_survive_and_behavior_is_skipped():
-    df, _ = sbb._synthetic_long_df(n_subj=6, seed=0)
+    df, truth = sbb._synthetic_long_df(n_subj=6, seed=0)
     ps = sbb.participant_scores(df.drop(columns='rt'), n_splits=2)
     assert 'lwpc_neural' in ps['scores'] and 'lwpc_behav' not in ps['scores']
     assert 'lwpc_neural_rtadj' not in ps['scores']
     assert any('reaction times' in n for n in ps['notes'])
     with pytest.raises(KeyError):
         sbb.participant_brain_behavior(ps, variant='raw')
+    # a behavior table stands in for the missing trial behavior; the ceiling cannot
+    table = truth.rename(columns={'lwpc_behav_true': 'lwpc', 'lwps_behav_true': 'lwps'})
+    res = sbb.participant_brain_behavior(ps, variant='raw', behavior=table)
+    assert res['n_participants'] == 6 and np.isnan(res['ceiling_lwpc'])
+    with pytest.raises(KeyError):
+        sbb.participant_brain_behavior(ps, variant='rtadj', behavior=table)
 
 
 def test_without_trial_ids_aligned_tables_work_and_ragged_ones_refuse():
@@ -253,10 +259,61 @@ def test_error_trials_are_dropped_for_brain_and_behavior_alike():
 
 
 # ---------------------------------------------------------------------------
-# the DCC job end to end (synthetic)
+# behavior from a per-subject table (the subject-level effects CSV)
 # ---------------------------------------------------------------------------
 def test_subject_stem_matches_epoch_and_csv_ids():
-    assert dcc._subject_stem('D0107A') == dcc._subject_stem('D0107') == 'D0107'
+    assert sbb.subject_stem('D0107A') == sbb.subject_stem('D0107') == 'D0107'
+
+
+def test_match_behavior_to_subjects_uses_the_stem():
+    table = pd.DataFrame(dict(subject=['D0107', 'D0057', 'D0071'],
+                              lwpc=[1.0, 2.0, 3.0], lwps=[4.0, 5.0, 6.0]))
+    matched, missing = sbb.match_behavior_to_subjects(table, ['D0057', 'D0107A', 'D0144'])
+    assert list(matched['subject']) == ['D0057', 'D0107A']
+    assert list(matched['lwpc']) == [2.0, 1.0]
+    assert missing == ['D0144']
+
+
+def test_given_behavior_replaces_the_trial_scored_one(planted, tmp_path):
+    """With `behavior`, every correlation uses the table. It has no trials, so the
+    half-split checks are NaN, and the ceiling borrows the trial-scored behavioral
+    reliability only when allowed to."""
+    _, truth, ps = planted
+    table = truth.rename(columns={'lwpc_behav_true': 'lwpc',
+                                  'lwps_behav_true': 'lwps'}).iloc[1:]
+    res = sbb.participant_brain_behavior(ps, variant='rtadj', behavior=table)
+    trial = sbb.participant_brain_behavior(ps, variant='rtadj')
+    assert res['behavior_from'] == 'table' and trial['behavior_from'] == 'trials'
+
+    t = res['table'].merge(table, on='subject')
+    assert len(t) == len(res['table']) == len(table)       # the missing one dropped
+    np.testing.assert_allclose(t['lwpc_behav'], t['lwpc'])
+    assert res['corr_lwpc'] == pytest.approx(
+        np.corrcoef(t['lwpc_neural_rtadj'], t['lwpc'])[0, 1])
+    assert res['corr_lwpc'] != pytest.approx(trial['corr_lwpc'])
+    for eff in ('lwpc', 'lwps'):
+        assert np.isnan(res[f'corr_{eff}_same_half'])
+        assert np.isnan(res[f'corr_{eff}_disjoint_half'])
+        np.testing.assert_equal(res[f'reliability_behav_{eff}'],
+                                trial[f'reliability_behav_{eff}'])
+    no_rel = sbb.participant_brain_behavior(ps, variant='rtadj', behavior=table,
+                                            reliability_from_trials=False)
+    assert np.isnan(no_rel['reliability_behav_lwpc']) and np.isnan(no_rel['ceiling_lwpc'])
+
+    s = sbb.attach_behavior(ps['scores'], table)
+    np.testing.assert_allclose(s['lwpc_behav_trials'], ps['scores']['lwpc_behav'])
+    assert s['lwpc_behav'].isna().sum() == 1
+
+    # the job's summary and figure take the table's NaN half-split values
+    lines = "\n".join(dcc._participant_lines(ps, {'rtadj': res}))
+    assert 'no trial halves' in lines and '(iEEG trials)' in lines
+    dcc.make_participant_plots({'rtadj': res}, str(tmp_path))
+    assert (tmp_path / 'participant_brain_behavior.png').exists()
+
+
+# ---------------------------------------------------------------------------
+# the DCC job end to end (synthetic)
+# ---------------------------------------------------------------------------
 
 
 def test_dcc_synthetic_run_writes_the_participant_outputs(tmp_path):
