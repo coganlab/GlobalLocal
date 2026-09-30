@@ -87,7 +87,9 @@ if [[ -z "${ELECTRODE_DEFINITION:-}" ]]; then
     # Real submissions mirror the normal decoder's saved-label selection. The
     # synthetic validation has planted labels and must remain self-contained.
     # [[ "$DATA_SOURCE" == synthetic ]] && ELECTRODE_DEFINITION=anova || ELECTRODE_DEFINITION=csv
-    ELECTRODE_DEFINITION=anova
+    # ELECTRODE_DEFINITION=anova
+    ELECTRODE_DEFINITION=csv
+    # ELECTRODE_DEFINITION=none
 fi
 
 # Keep this list in step with submit_specific_conditions_decoding_dcc.sh. Paths
@@ -100,6 +102,7 @@ ANOVA_LABELS_CSVS=(
     # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
     /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
 )
+
 
 if [[ -n "${ANOVA_LABELS_CSV:-}" ]]; then
     ANOVA_LABELS_CSVS=("$ANOVA_LABELS_CSV")
