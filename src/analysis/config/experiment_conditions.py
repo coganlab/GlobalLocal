@@ -964,6 +964,32 @@ response_experiment_conditions = {
     }
 }
 
+# The response-locked twin of stimulus_main_effect_conditions: congruency x switch
+# type, each cell pooled over all four block types. Pair it with a Response_...
+# EPOCHS_ROOT_FILE.
+response_main_effect_conditions = {
+    "Response_ir": {
+        "BIDS_events": ["Response/i25.0/r25.0", "Response/i25.0/r75.0", "Response/i75.0/r25.0", "Response/i75.0/r75.0"],
+        "congruency": "i",
+        "switchType": "r"
+    },
+    "Response_is": {
+        "BIDS_events": ["Response/i25.0/s25.0", "Response/i25.0/s75.0", "Response/i75.0/s25.0", "Response/i75.0/s75.0"],
+        "congruency": "i",
+        "switchType": "s"
+    },
+    "Response_cr": {
+        "BIDS_events": ["Response/c25.0/r25.0", "Response/c25.0/r75.0", "Response/c75.0/r25.0", "Response/c75.0/r75.0"],
+        "congruency": "c",
+        "switchType": "r"
+    },
+    "Response_cs": {
+        "BIDS_events": ["Response/c25.0/s25.0", "Response/c25.0/s75.0", "Response/c75.0/s25.0", "Response/c75.0/s75.0"],
+        "congruency": "c",
+        "switchType": "s"
+    }
+}
+
 response_conditions = {
     "Response_bigSsmallHtaskG": {
         "BIDS_events": ["Response/BigLetters/SmallLetterh/Taskg"],

@@ -72,6 +72,12 @@ positive controls through the same function (docs/decoding.md#cross-decoding-con
 (switch) ones, and congruency / switch type trained in one task, tested in the
 other.
 
+`args.rt_match` ('rt' | 'random') subsamples the decode trials before the
+pseudopopulation is built, so the decoded factors' cells have the same
+per-subject RT distribution, or, for 'random', the same trial counts without
+regard to RT (`_apply_rt_match`, docs/decoding.md#rt-matching). It runs after the
+held-out selection split, in every analysis mode.
+
 Driven by `run_stability_flexibility_cross_decoding_dcc.py` (wrapped by
 `sbatch_stability_flexibility_cross_decoding_dcc.sh`). Not run directly on the
 cluster; call `main(args)` with a populated argument namespace.
@@ -311,6 +317,10 @@ def write_summary(results, save_dir, meta):
              "=" * 72]
     for k, v in meta.items():
         lines.append(f"{k:>22}: {v}")
+
+    if results.get('rt_match'):
+        lines += ["-" * 72, "RT matching of the decode trials:"]
+        lines += [f"   {line}" for text in results['rt_match'] for line in text.splitlines()]
 
     if results.get('within_block'):
         lines += ["-" * 72, "A4(0) within-block decoding baseline (Fig 9):"]
@@ -639,6 +649,9 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         from src.analysis.decoding.anova_electrode_selection import apply_trial_partition
         subjects_mne_objects = apply_trial_partition(
             subjects_mne_objects, trial_partitions, which='decode')
+    # After the selection split, so only decode trials are matched.
+    subjects_mne_objects = _apply_rt_match(
+        args, subjects_mne_objects, required_fields or cd.CROSS_DECODE_FIELDS)
 
     # An electrode in the ROI dict may have been dropped during epoching; asking
     # for it would index past the epochs object.
@@ -654,6 +667,87 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
     print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
           f"({args.electrodes} electrodes)")
     return roi, arrays, channel_names, cells
+
+
+RT_MATCH_MODES = ('none', 'rt', 'random')
+
+
+def _rt_match_description(args):
+    """One line for summary.txt: which RT matching, if any, the decode trials had."""
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode == 'none':
+        return 'off'
+    what = {'rt': 'RT-matched', 'random': 'count-matched random control (not RT-matched)'}
+    groups = getattr(args, 'rt_match_groups', None) or 'the decoded factors'
+    within = ['subject'] + list(getattr(args, 'rt_match_within', None) or ())
+    return (f"{what.get(mode, mode)}; groups={groups}, within={within}, "
+            f"bins={getattr(args, 'rt_match_bins', None)}, "
+            f"balance={getattr(args, 'rt_match_balance', 'equal')}, "
+            f"seed={getattr(args, 'rt_match_seed', getattr(args, 'seed', 0))}")
+
+
+def _split_description(args):
+    """One line for summary.txt: whether electrodes were selected on held-out trials."""
+    if not getattr(args, 'electrode_selection_split', False):
+        return 'off (electrodes selected on the same trials that are decoded)'
+    return (f"{getattr(args, 'electrode_selection_frac', 0.3):.0%} of trials select "
+            f"electrodes, the other {1 - getattr(args, 'electrode_selection_frac', 0.3):.0%} "
+            f"are decoded (seed {getattr(args, 'electrode_selection_seed', 0)})")
+
+
+def _check_rt_match_args(args):
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode not in RT_MATCH_MODES:
+        raise ValueError(f"rt_match must be one of {RT_MATCH_MODES}; got {mode!r}")
+    if mode != 'none' and args.data_source != 'real':
+        raise ValueError("RT matching needs real epochs (their metadata carries each "
+                         "trial's RT); the synthetic data have no RTs.")
+
+
+def _apply_rt_match(args, subjects_mne_objects, decoded_factors):
+    """RT-match the decode trials (`args.rt_match`), or return them unchanged.
+
+    'rt' keeps a subset in which every combination of the decoded factors has the
+    same per-subject RT distribution (`src/analysis/utils/rt_matching.py`); for
+    A4 that is the four congruency x switch-type cells, so neither labelling
+    carries an RT difference. 'random' is its control: the same number of trials
+    per subject and cell, drawn without regard to RT. `args.rt_match_groups`
+    overrides which factors are matched.
+
+    The before/after tables are written to `args.save_dir` as
+    rt_match_<factors>_{balance,contrasts,summary}.csv, and the printed summary is
+    appended to `args.rt_match_log` (read by the summary writers).
+    """
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode == 'none':
+        return subjects_mne_objects
+    if mode not in RT_MATCH_MODES:
+        raise ValueError(f"rt_match must be one of {RT_MATCH_MODES}; got {mode!r}")
+    from src.analysis.utils import rt_matching as rtm
+
+    groups = tuple(getattr(args, 'rt_match_groups', None) or decoded_factors)
+    within = tuple(getattr(args, 'rt_match_within', None) or ())
+    n_bins = getattr(args, 'rt_match_bins', rtm.DEFAULT_N_BINS)
+    balance = getattr(args, 'rt_match_balance', 'equal')
+    matched, report = rtm.rt_match_subjects_mne_objects(
+        subjects_mne_objects, groups=groups, within=within, n_bins=n_bins,
+        balance=balance, seed=getattr(args, 'rt_match_seed', getattr(args, 'seed', 0)),
+        mode=mode, verbose=False)
+    text = rtm.format_rt_match_summary(report, groups=rtm.metadata_columns(groups),
+                                       n_bins=n_bins, balance=balance, mode=mode)
+    print(text)
+    lost = sorted(set(subjects_mne_objects) - set(matched))
+    if lost:
+        raise ValueError(
+            f"RT matching left no trials for subjects {lost}. Each subject's channels "
+            "are part of every pseudo-trial, so a subject cannot drop out; lower "
+            "RT_MATCH_BINS or check that every subject has every cell.")
+    tag = '_'.join(rtm.metadata_columns(groups))
+    rtm.save_rt_match_report(report, args.save_dir, prefix=f'rt_match_{tag}')
+    log = getattr(args, 'rt_match_log', None)
+    if log is not None:
+        log.append(text)
+    return matched
 
 
 def _split_subject_epochs(subjects_epochs, frac_select, seed):
@@ -970,6 +1064,10 @@ def run_block_transfer_job(args):
     analysis = getattr(args, 'analysis', 'block_transfer')
     designs = TRANSFER_ANALYSES[analysis]
     cluster_kw = dict(n_perm=getattr(args, 'n_perm', 200), seed=getattr(args, 'seed', 42))
+    _check_rt_match_args(args)
+    # shared by the per-design SimpleNamespace copies below (a shallow copy keeps
+    # the same list), so every condition set's matching summary lands here
+    args.rt_match_log = []
     if args.data_source == 'synthetic':
         # Synthetic epochs have no pre-stimulus period, so every window counts as post.
         args = SimpleNamespace(**{**vars(args), 'first_time_point': 0.0})
@@ -1043,7 +1141,10 @@ def run_block_transfer_job(args):
                 window_size=args.window_size, step_size=args.step_size,
                 n_splits=args.n_splits, n_resamples=args.n_repeats,
                 n_perm=cluster_kw['n_perm'], seed=cluster_kw['seed'],
+                rt_match=_rt_match_description(args),
                 save_dir=args.save_dir)
+    if args.rt_match_log:
+        meta['rt_match_result'] = '\n' + '\n'.join(args.rt_match_log)
     with open(os.path.join(args.save_dir, f'{analysis}.json'), 'w') as f:
         json.dump(_json_safe(_strip_arrays(dict(meta, designs=results))), f, indent=2)
     np.savez(os.path.join(args.save_dir, f'{analysis}_traces.npz'), **traces)
@@ -1077,6 +1178,8 @@ def main(args):
     if definition == 'none' and not getattr(args, 'reference_group', 'all'):
         raise ValueError("electrode_definition='none' decodes only the reference group, "
                          "so reference_group must name it (e.g. 'all'), not be empty.")
+    _check_rt_match_args(args)
+    args.rt_match_log = []
     trial_partitions = None
     if getattr(args, 'electrode_selection_split', False):
         if args.data_source != 'real' or getattr(args, 'electrode_definition', 'anova') != 'anova':
@@ -1216,6 +1319,8 @@ def main(args):
               "pooled label transfer / temporal generalization run")
 
     results = {}
+    if args.rt_match_log:
+        results['rt_match'] = list(args.rt_match_log)
 
     # 2. (0) within-block decoding baseline (Fig 9) ------------------------------
     # "Decode a contrast within one block level" is an ordinary decode over that
@@ -1369,6 +1474,8 @@ def main(args):
                                  == 'power_traces' else None),
         reference_group=getattr(args, 'reference_group', 'all'),
         electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
+        electrode_selection_split=_split_description(args),
+        rt_match=_rt_match_description(args),
         window=("unused (no electrode definition)" if definition == 'none' else
                 f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s"),
         window_size=args.window_size, step_size=args.step_size,

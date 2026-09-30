@@ -1,6 +1,6 @@
 # Decoding and cross-decoding: how to run them and how to read them
 
-The run-and-read guides for every decoding job, in four self-contained parts.
+The run-and-read guides for every decoding job, in five self-contained parts.
 
 | Part | What it covers | Was |
 |---|---|---|
@@ -8,6 +8,7 @@ The run-and-read guides for every decoding job, in four self-contained parts.
 | [A4 cross-decoding](#a4-cross-decoding) | Train on congruency, test on switch type (and the reverse): the `anova` / `csv` / `power_traces` / `none` electrode definitions, every knob, the outputs, and the task-transfer positive controls | `a4_cross_decoding.md` |
 | [N3b block transfer](#n3b-block-transfer) | Train in one kind of block, test in another: the design choices, what was built, and how to run it | `n3b_block_transfer.md` |
 | [Cross-decoding controls](#cross-decoding-controls) | What to run, in what order, when a transfer comes back uninformative, and what each outcome lets you say | `cross_decoding_controls.md` |
+| [RT matching](#rt-matching) | The standalone util that subsamples trials to equal RT distributions, its random-subset control, and how to plug it into any analysis | new |
 
 A4 and N3b are two modes of the same job
 (`dcc_scripts/decoding/stability_flexibility_cross_decoding_dcc.py`). The
@@ -882,11 +883,13 @@ WINDOW_TMIN=0.2 WINDOW_TMAX=0.7 FDR_CORRECTION=fdr_bh bash submit_stability_flex
   `results/<EPOCHS_ROOT_FILE>/cross_decoding_<roi>_window_<tmin>to<tmax>s_<electrodes>_anova_<mode>_<correction>/<CONDITIONS>/`,
   e.g. `cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/stimulus_main_effect_conditions/`.
 
-> **Gotcha: the split is not in the folder name.** A split run and an unsplit
-> run with the same settings write to the same directory, and the second one to
-> finish overwrites the first. `summary.txt` does not record the split either
-> (the slurm log does: look for `[trial-split]` lines). Give the split run its own
-> `SAVE_DIR=...`.
+> **The split names its folder.** A split run writes to
+> `..._anova_<mode>_<correction>_split<frac>s<seed>/` (e.g. `_split0.3s0`), so it
+> no longer overwrites the unsplit run of the same settings, and `summary.txt`
+> records it on its `electrode_selection_split` line. (Before 2026-09-30 neither
+> was true; a split run from then shares the unsplit folder, and only the slurm
+> log's `[trial-split]` lines tell them apart.) `SAVE_DIR=...` still overrides
+> the whole path.
 
 #### 4.2 `csv` — reuse a saved A1 table
 
@@ -1008,10 +1011,17 @@ two to cross (all four combinations present). Two sets qualify:
 |---|---|---|---|
 | `stimulus_main_effect_conditions` (**submit default**) | 4: `Stimulus_{i,c}{r,s}`, both proportions pooled | A4(a), A4(c) | about 4× the trials per cell, so fewer incomplete rows; folds stratified on congruency × switch type |
 | `stimulus_experiment_conditions` (runner default) | 16: the full 2×2×2×2 | all four | the only set with block factors; folds stratified on all four factors |
+| `response_main_effect_conditions` | 4: `Response_{i,c}{r,s}`, both proportions pooled | A4(a), A4(c) | the response-locked twin of the submit default; needs a `Response_...` epochs file |
 
-`response_experiment_conditions` is the response-locked 16-cell set (pair it with
-a response-locked `EPOCHS_ROOT_FILE` and set `FIRST_TIME_POINT` to that file's
-first sample). Single-factor sets (`stimulus_congruency_conditions`, …) are
+`response_main_effect_conditions` and `response_experiment_conditions` are the
+response-locked 4- and 16-cell sets. Pair them with a response-locked
+`EPOCHS_ROOT_FILE` (`make_epoched_data.py` writes a `Response_...` file next to
+each `Stimulus_...` one, with the same settings) and set `FIRST_TIME_POINT` to
+that file's first sample (−1.0 for a −1.0 to 1.5 s epoch). With
+`ELECTRODES=sig` the electrodes come from the response file's own significance
+list, so they are not exactly the stimulus run's; the log prints the count.
+
+Single-factor sets (`stimulus_congruency_conditions`, …) are
 refused: they are separate epoch sets over the same trials, so the transfer would
 be scored on trials it trained on. Confounded sets (`stimulus_iS_cR_err_conditions`
 and siblings) are refused: congruency and switch type split their trials
@@ -1071,6 +1081,49 @@ the submit script's (§3).
 | `SAMPLING_RATE` / `FIRST_TIME_POINT` | `256` / `-1.0` | Only label the figure time axes. Change `FIRST_TIME_POINT` for an epoch that does not start at −1.0 s. |
 | `SEED` | `0` | Seeds the folds, the ROI-array padding and the cluster tests. |
 | `SAVE_DIR` | derived | Overrides the whole output path. |
+
+#### 6.4 RT matching
+
+Incongruent and switch trials are slower (in `combinedData.csv`, correct trials:
++153 ms and +197 ms per subject on average). In stimulus-locked data, activity
+that tracks time-to-response then differs between the levels of both factors, and
+a transfer can come from that shared latency rather than a shared code.
+`RT_MATCH` subsamples the decode trials, per subject, so every combination of the
+decoded factors has the same RT distribution
+([RT matching](#rt-matching) has the method).
+
+| Variable | Default | Notes |
+|---|---|---|
+| `RT_MATCH` | `none` | `rt`: the RT-matched subset. `random`: its control, the same number of trials per subject and cell drawn without regard to RT. Compare `rt` with `random`, not with `none`: matching keeps about half the trials, and `random` pays the same cost. |
+| `RT_MATCH_BINS` | `10` | Quantile RT bins per subject. 10 leaves ~+2 / +1 ms (i − c / s − r, n.s.) on the behavioural data; 5 leaves i − c at +8 ms (p = 0.03). |
+| `RT_MATCH_BALANCE` | `equal` | `equal`: the same count per cell and bin. `proportional`: keep the cells' size ratios. |
+| `RT_MATCH_WITHIN` | unset | Extra strata, comma-separated, e.g. `incongruent_proportion,switch_proportion` to match within each block type as well. |
+| `RT_MATCH_GROUPS` | the decoded factors | Override which factors are matched (A4: `congruency`, `switchType`; N3b / task transfer: the design's contrast and transfer factor). |
+| `RT_MATCH_SEED` | `SEED` | Seeds the draw. Use the same seed for the `rt` and `random` runs. |
+
+- Matching runs on the decode trials only, after `ELECTRODE_SELECTION_SPLIT`; the
+  `anova` route's electrode definition still uses its own (unmatched) trials.
+- The default matches the four congruency × switch-type cells pooled over blocks,
+  which is what A4(a) decodes. The within-block designs A4(0)/A4(0b) (16-cell set)
+  compare classes inside one block, so for them add
+  `RT_MATCH_WITHIN=incongruent_proportion,switch_proportion`.
+- Each mode gets its own folder: `..._rtmatch10/`, `..._rtrandom10/` (plus
+  `_proportional`, `_within-...`, `_groups-...`, `_seed<n>` when those are
+  non-default).
+- It writes `rt_match_<factors>_balance.csv` (per subject × cell: counts and RTs
+  before/after), `_contrasts.csv` (per-subject RT difference per factor) and
+  `_summary.csv` (across subjects: mean and one-sample t, before/after), and adds
+  an `RT matching of the decode trials` block to `summary.txt`. The `after` row
+  of `_summary.csv` is the "residual RT difference" to report.
+- A subject left with no trials stops the job: its channels are in every
+  pseudo-trial, so it cannot drop out. Lower `RT_MATCH_BINS` if that happens.
+- Synthetic data have no RTs, so `RT_MATCH` is refused there.
+- It works for `ANALYSIS=block_transfer` and `task_transfer` too (same knobs).
+
+```bash
+ELECTRODE_DEFINITION=none RT_MATCH=rt     bash submit_stability_flexibility_cross_decoding_dcc.sh
+ELECTRODE_DEFINITION=none RT_MATCH=random bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
 
 ---
 
@@ -1175,6 +1228,7 @@ Everything goes to the save directory of §4.
 | `accuracy_traces.npz` | Label-transfer accuracy per window × repeat. Keys `labeltransfer_<group>_<direction>_true` / `_shuffle` | Re-plotting, your own statistics |
 | `tempgen_<name>.npy` | Temporal-generalization matrix, train window × test window, e.g. `tempgen_stability_flexibility_cross_both.npy` | A4(c) |
 | `anova_labels.csv` | The per-electrode definition table the groups came from (`anova`, `csv`, `power_traces`) | Which electrodes are in which group |
+| `rt_match_<factors>_{balance,contrasts,summary}.csv` | With `RT_MATCH` set: per subject × cell counts and RTs, per-subject RT differences, and their across-subject test, before/after (§6.4) | The residual RT difference to report |
 | `cross_decoding_summary.png` | Overview: A4(0) bar charts (top left, empty without block factors), the `stab_to_flex` trace per group (top right), up to three temporal-generalization matrices (bottom) | A first look |
 | `<direction>_<group>__cross_decoding.{png,pdf,eps}` | One figure per group × direction: true accuracy against shuffle, ±1 SD over repeats, bars where the cluster test is significant | The figures to show |
 
@@ -1371,8 +1425,8 @@ counterpart (X1–X3, X2b) is [N3b block transfer](#n3b-block-transfer).
 1. **`ANOVA_LABELS_CSV` is silently ignored unless `ELECTRODE_DEFINITION=csv`**
    (§4.2). The §17.5 runbook command in `analysis_guide.md` predates the default
    change and now runs the `anova` route.
-2. **`ELECTRODE_SELECTION_SPLIT` is not in the folder name or `summary.txt`**
-   (§4.1). Split and unsplit runs overwrite each other.
+2. ~~`ELECTRODE_SELECTION_SPLIT` is not in the folder name or `summary.txt`~~
+   Fixed 2026-09-30 (§4.1); earlier split runs still share the unsplit folder.
 3. **On the csv route, `ELECTRODES` and the window are ignored but still name the
    folder** (§4.2).
 4. **`power_traces` needs `CONTRAST_MODE=proportion`** by hand (§4.4).
@@ -1383,6 +1437,11 @@ counterpart (X1–X3, X2b) is [N3b block transfer](#n3b-block-transfer).
    onset** ([`analysis_guide.md`](analysis_guide.md) §17, caveat). Until that is
    explained, any transfer needs its pre-stimulus windows reported next to it.
 8. **Resamples are not subjects** (§8.3); there is no leave-one-subject-out for A4.
+9. **The transfer sits where RT differs.** In the 2026-09-29 `none` run (171
+   task-significant lPFC electrodes) both transfers are significant only from the
+   window centred at +0.62 s (median correct RT ~1.17 s), and incongruent and
+   switch trials are both slower. Report the RT-matched run (§6.4) against its
+   `random` control, and the response-locked run (§5), next to it.
 
 ---
 
@@ -1393,7 +1452,9 @@ counterpart (X1–X3, X2b) is [N3b block transfer](#n3b-block-transfer).
 [ ] synthetic dry runs: shared transfers, orthogonal does not
 [ ] ELECTRODE_DEFINITION=none                     (the ungrouped reference run)
 [ ] ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=...  (or the anova route; check the echo lines)
-[ ] ELECTRODE_SELECTION_SPLIT=true with its own SAVE_DIR   (clean ceilings)
+[ ] ELECTRODE_SELECTION_SPLIT=true                         (clean ceilings; own folder)
+[ ] RT_MATCH=rt and RT_MATCH=random, same SEED              (RT control and its trial-count control)
+[ ] CONDITIONS=response_main_effect_conditions + a Response_ epochs file   (response-locked)
 [ ] ELECTRODES=all bash submit_task_transfer_dcc.sh        (controls, matching electrodes)
 [ ] log: group sizes, skipped groups, cells, block levels
 [ ] every ceiling (stab_to_stab, flex_to_flex) beats shuffle   <- else stop
@@ -1417,7 +1478,9 @@ Run outside the cluster with `pip install -e . pytest` then
 | `test_cross_decoding_condition_scheme.py` | class definitions read from declared levels, crossed vs confounded sets, 4- vs 16-cell sets, the `none` route decoding only the loaded electrodes |
 | `test_cross_decoding_electrode_groups.py` | channel keys, disjoint groups, the reference group, the csv `union` and raw-correction behaviour |
 | `test_cross_decoding_circularity.py` | which within-block cell each group double-dips on |
-| `test_cross_decoding_runner.py` | contrast mode read from the folder, mode/effect mismatches refused, csv ignored off its route, folder names |
+| `test_cross_decoding_runner.py` | contrast mode read from the folder, mode/effect mismatches refused, csv ignored off its route, folder names (incl. the split and RT-matching tags) |
+| `test_cross_decoding_rt_match.py` | RT matching in the job: runs after the split, writes its report, keeps the same counts for `rt` and `random`, refuses a subject left empty and synthetic data, lands in `summary.txt` |
+| `../utils/test_rt_matching.py` | the RT-matching util itself: planted RT costs removed, equal/proportional balance, unusable rows, reproducibility, the random control, the epochs adapter |
 | `test_task_transfer.py` | T1–T4 on real condition sets, planted synthetic answers, end to end |
 
 ---
@@ -2106,3 +2169,142 @@ For the primary question, the reportable pattern is:
 
 X1-fails-while-X3-transfers is the load-bearing contrast. Either one alone is not
 a result.
+
+---
+
+## RT matching
+
+*A standalone util: subsample trials so the groups being compared have the same
+RT distribution, in any analysis.*
+
+**Code:** `src/analysis/utils/rt_matching.py`. **Tests:**
+`tests/analysis/utils/test_rt_matching.py`. Wired into A4 / N3b / task transfer
+through `RT_MATCH` ([A4 §6.4](#64-rt-matching)); any other analysis can call it
+in one line.
+
+### Why
+
+Incongruent and switch trials are slower than congruent and repeat trials. On the
+behavioural data (`combinedData.csv`, correct trials, 26 subjects) the mean
+per-subject costs are +153 ms (i − c) and +197 ms (s − r). In stimulus-locked
+data, anything that tracks time-to-response then differs between the levels of
+both factors: response preparation arrives later on the slow trials, and activity
+that lasts until the response lasts longer. A decoder or a power contrast can
+read that latency as a condition effect, and a cross-decode can read it as a
+shared code. Matching asks whether the effect survives when the compared trials
+were, on average, equally fast. Reviewers commonly ask for it on any
+conflict/switch-cost effect.
+
+### How
+
+Separately for each subject (and any extra `within` strata):
+
+1. Pool the subject's RTs over every group being matched and cut them into
+   `n_bins` quantile bins (equal trial counts per bin; invariant to RT vs log RT).
+2. Count each group's trials per bin, choose how many to keep per group and bin,
+   and draw that many at random without replacement.
+   - `balance='equal'` (default): the minimum across groups, so every group ends
+     up the same size with the same bin profile. Decoders balance classes anyway.
+   - `balance='proportional'`: every group gets the same bin profile but keeps its
+     size relative to the others (rounding spread across bins, so it stays
+     unbiased). Use it when unequal group sizes should survive, e.g. a power
+     contrast inside a 75/25 block.
+
+Rows with no RT, or a missing value in a matched factor, are dropped. A stratum
+with fewer than two groups is dropped. Each stratum's draw depends only on the
+seed and that stratum, so adding a subject never changes another's trials.
+
+**The control.** Matching keeps about half the trials, so a weaker effect after
+matching could just be the smaller sample. `count_matched_random` (or
+`mode='random'`) keeps exactly as many trials per subject and group as the
+RT-matched set, drawn with no regard to RT. Compare the RT-matched result with the
+random one: the difference between them is the RT-driven part.
+
+**On the behavioural data** (the four congruency × switch-type cells matched to
+each other, `balance='equal'`):
+
+| `n_bins` | kept | i − c after | s − r after |
+|---|---|---|---|
+| 3 | 56% | +14 ms (p = .06) | +22 ms (p = .001) |
+| 5 | 54% | +8 ms (p = .03) | +4 ms (p = .16) |
+| 10 (default) | 48% | +2 ms (p = .26) | +1 ms (p = .59) |
+| 10, `mode='random'` | 48% | +142 ms (p < .001) | +208 ms (p < .001) |
+
+Kept per subject × cell at the default: median 47 trials, minimum 20. The epoched
+data can hold fewer trials than the behaviour file, so read the job's own
+`rt_match_*_balance.csv`.
+
+### Which factors to match
+
+Match every factor whose levels the analysis compares, together, so none of them
+keeps an RT difference:
+
+| Analysis | `groups` | Notes |
+|---|---|---|
+| A4 congruency ↔ switch-type transfer | `('congruency', 'switchType')` | the job's default |
+| Congruency decoded within each incongruent-proportion block (LWPC) | `('congruency', 'incongruentProportion')` | matches i vs c *and* the two blocks to one another |
+| Same, but leave block RT differences alone | `('congruency',)`, `within=('incongruentProportion',)` | only i vs c inside each block |
+| Switch type within switch-proportion blocks (LWPS) | `('switchType', 'switchProportion')` | |
+| A power trace of i vs c | `('congruency',)`, `balance='proportional'` | keeps more trials when the cells differ in size |
+
+Factor names can use any project spelling (`switchType`, `switch_type`,
+`task_sequence`; `incongruentProportion`, `incongruent_proportion`); metadata
+columns can be named directly too (e.g. `prev_congruency`).
+
+### Plugging it into another analysis
+
+Every loader returns the `{subject: {condition: {key: Epochs}}}` structure, and
+the epochs' metadata already carries `reaction_time` and `trial_count` (parsed
+from the event names by `make_metadata_from_event_names`). So right after
+loading:
+
+```python
+from src.analysis.utils.rt_matching import (
+    rt_match_subjects_mne_objects, save_rt_match_report)
+
+subjects_mne_objects = create_subjects_mne_objects_dict(...)          # as now
+subjects_mne_objects, rt_report = rt_match_subjects_mne_objects(
+    subjects_mne_objects, groups=('congruency', 'incongruentProportion'),
+    mode='rt')                                   # 'random' for the control run
+save_rt_match_report(rt_report, save_dir)        # rt_match_{balance,contrasts,summary}.csv
+```
+
+In the ordinary decoding job that is after `create_subjects_mne_objects_dict` in
+`dcc_scripts/decoding/decoding_dcc.py` (~line 388); in the power traces, after
+the same call in `dcc_scripts/power/power_traces_dcc.py` (~line 124). Neither is
+wired yet. Give the matched run its own save directory.
+
+The loader also stores a trial-averaged `<key>_avg` and `<key>_std_err` Evoked
+next to every Epochs, and the power-trace plots read the `_avg` ones
+(`src/analysis/power/evoked_builders.py`). The adapter rebuilds both from the
+kept trials (`refresh_evoked`, the loader's own formulas), so a matched power
+trace plots the matched average, not the full one.
+
+For anything that is not an epochs structure (a behavioural table, a long
+per-trial DataFrame), call the core directly:
+
+```python
+from src.analysis.utils.rt_matching import rt_match, count_matched_random
+keep = rt_match(trials, ['congruency', 'task_sequence'], within=['subject'])
+control = count_matched_random(trials, keep, ['congruency', 'task_sequence'])
+```
+
+### Reporting it
+
+- The method: "Within each participant, trials were subsampled so that
+  [the four congruency × switch-type cells] had matched RT distributions (10
+  quantile bins of the participant's pooled RTs; equal trials per cell per bin).
+  A control analysis used an equal number of randomly chosen trials per cell."
+- The residual: the `after` row of `rt_match_*_summary.csv`, e.g. "residual RT
+  difference i − c = +2 ms, t(25) = 1.2, p = .26".
+- The result against the random control, not against the full data.
+
+### What it does not do
+
+- It equates mean timing, not trial-by-trial processing: within a bin a slow
+  group can still sit slightly later (the residual line says how much).
+- It does not remove effects that scale with difficulty rather than with time
+  (e.g. more activity on hard trials at every RT). If an effect survives matching,
+  "shared difficulty signal" is still open; RT matching only rules out
+  "shared latency".
+- Error trials and trials with no response have no usable RT and are never kept.

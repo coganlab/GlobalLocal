@@ -14,7 +14,8 @@ splits, repeats), not a separate pseudo-trial scheme.
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, SYNTHETIC_CODE, WINDOW_TMIN, WINDOW_TMAX,
 ELECTRODES, ALPHA, WINDOW_SIZE, STEP_SIZE, N_SPLITS, N_REPEATS, FRAC_TRAIN,
-N_PERM, MIN_GROUP_SIZE, ROI) so you can rerun without editing Python.
+N_PERM, MIN_GROUP_SIZE, ROI, RT_MATCH and its RT_MATCH_* knobs) so you can rerun
+without editing Python.
 """
 import sys
 import os
@@ -108,8 +109,9 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 # every 'i' cell vs every 'c' cell. The 16-cell set does not restrict the
 # transfer to within a block — only designs (0)/(0b) split by block.
 #
-# `response_experiment_conditions` is the response-locked 16-cell equivalent and
-# works the same way (pair it with a response-locked EPOCHS_ROOT_FILE).
+# `response_experiment_conditions` / `response_main_effect_conditions` are the
+# response-locked 16- and 4-cell equivalents and work the same way (pair them with
+# a Response_... EPOCHS_ROOT_FILE).
 #
 # What CANNOT be used, and why:
 #   - sets carrying just one factor (stimulus_congruency_conditions,
@@ -262,6 +264,37 @@ N_PERM = int(os.environ.get('N_PERM', '500'))               # cluster-test permu
 MIN_GROUP_SIZE = int(os.environ.get('MIN_GROUP_SIZE', '5'))  # min electrodes per group
 SEED = int(os.environ.get('SEED', '0'))
 
+# --- RT matching of the decode trials (src/analysis/utils/rt_matching.py) ---
+# Incongruent and switch trials are slower, so late stimulus-locked windows can
+# separate the classes by time-to-response alone. RT_MATCH subsamples the decode
+# trials, per subject, so every combination of the decoded factors has the same
+# RT distribution (A4: the four congruency x switch-type cells), and keeps about
+# half the trials:
+#   none    no matching (default)
+#   rt      RT-matched subset
+#   random  the control: the same number of trials per subject and cell as 'rt',
+#           drawn without regard to RT. Compare 'rt' with 'random', not with
+#           'none', so the trial loss is the same on both sides.
+# RT_MATCH_BINS (quantile bins per subject), RT_MATCH_BALANCE (equal |
+# proportional), RT_MATCH_WITHIN (extra strata, comma-separated, e.g.
+# incongruent_proportion,switch_proportion), RT_MATCH_GROUPS (override the
+# matched factors, comma-separated) and RT_MATCH_SEED tune it.
+RT_MATCH = (os.environ.get('RT_MATCH') or 'none').strip().lower()
+RT_MATCH = {'false': 'none', '0': 'none', 'off': 'none', 'no': 'none',
+            'true': 'rt', '1': 'rt', 'on': 'rt', 'yes': 'rt'}.get(RT_MATCH, RT_MATCH)
+if RT_MATCH not in ('none', 'rt', 'random'):
+    raise ValueError(f"RT_MATCH must be none, rt or random; got {RT_MATCH!r}")
+if RT_MATCH != 'none' and DATA_SOURCE != 'real':
+    raise ValueError("RT_MATCH needs real epochs; the synthetic data have no RTs.")
+RT_MATCH_BINS = int(os.environ.get('RT_MATCH_BINS') or '10')
+RT_MATCH_BALANCE = os.environ.get('RT_MATCH_BALANCE') or 'equal'
+if RT_MATCH_BALANCE not in ('equal', 'proportional'):
+    raise ValueError(f"RT_MATCH_BALANCE must be equal or proportional; got {RT_MATCH_BALANCE!r}")
+RT_MATCH_WITHIN = tuple(f.strip() for f in os.environ.get('RT_MATCH_WITHIN', '').split(',')
+                        if f.strip())
+RT_MATCH_GROUPS = tuple(f.strip() for f in os.environ.get('RT_MATCH_GROUPS', '').split(',')
+                        if f.strip()) or None
+
 # Proportion of trials used for TRAINING in each split. Unset (the default) keeps
 # StratifiedKFold, i.e. (N_SPLITS-1)/N_SPLITS. Set it to sweep the train/test
 # proportion directly — StratifiedShuffleSplit is used instead and N_SPLITS then
@@ -269,6 +302,7 @@ SEED = int(os.environ.get('SEED', '0'))
 #   FRAC_TRAIN=0.5 bash submit_stability_flexibility_cross_decoding_dcc.sh
 FRAC_TRAIN = os.environ.get('FRAC_TRAIN')
 FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
+RT_MATCH_SEED = int(os.environ.get('RT_MATCH_SEED') or SEED)
 
 # --- output ---
 # The ROI, electrode set and definition route all change what was decoded, so
@@ -281,6 +315,17 @@ _tag = f'synthetic_{SYNTHETIC_CODE}' if DATA_SOURCE == 'synthetic' else EPOCHS_R
 _run_name = (f'cross_decoding_{ROI}_{ELECTRODES}_none' if ELECTRODE_DEFINITION == 'none'
              else f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
                   f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
+# The held-out selection split and RT matching change which trials are decoded,
+# so they name the folder too; with both off the name is unchanged.
+_split_tag = (f'_split{ELECTRODE_SELECTION_FRAC:g}s{ELECTRODE_SELECTION_SEED}'
+              if ELECTRODE_SELECTION_SPLIT and ELECTRODE_DEFINITION == 'anova' else '')
+_rt_tag = '' if RT_MATCH == 'none' else (
+    f"_rt{'match' if RT_MATCH == 'rt' else 'random'}{RT_MATCH_BINS}"
+    + ('' if RT_MATCH_BALANCE == 'equal' else f'_{RT_MATCH_BALANCE}')
+    + (f"_within-{'-'.join(RT_MATCH_WITHIN)}" if RT_MATCH_WITHIN else '')
+    + (f"_groups-{'-'.join(RT_MATCH_GROUPS)}" if RT_MATCH_GROUPS else '')
+    + (f'_seed{RT_MATCH_SEED}' if RT_MATCH_SEED != SEED else ''))
+_run_name += _split_tag + _rt_tag
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     current_script_dir, 'results', _tag, _run_name, CONDITIONS_NAME)
 if ANOVA_LABELS_CSV and ELECTRODE_DEFINITION == 'csv' and not os.environ.get('SAVE_DIR'):
@@ -295,7 +340,7 @@ if TRAIN_LABEL and not os.environ.get('SAVE_DIR'):
 if ANALYSIS in ('block_transfer', 'task_transfer') and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         current_script_dir, 'results', _tag,
-        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}',
+        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}{_rt_tag}',
         'pooled_design_conditions')
 
 
@@ -345,6 +390,12 @@ def run_analysis():
         n_perm=N_PERM,
         min_group_size=MIN_GROUP_SIZE,
         seed=SEED,
+        rt_match=RT_MATCH,
+        rt_match_bins=RT_MATCH_BINS,
+        rt_match_balance=RT_MATCH_BALANCE,
+        rt_match_within=RT_MATCH_WITHIN,
+        rt_match_groups=RT_MATCH_GROUPS,
+        rt_match_seed=RT_MATCH_SEED,
         save_dir=SAVE_DIR,
     )
 
@@ -388,6 +439,17 @@ def run_analysis():
           + (f"{FRAC_TRAIN} (StratifiedShuffleSplit)" if FRAC_TRAIN
              else f"{(N_SPLITS - 1) / N_SPLITS:.2f} (StratifiedKFold default)"))
     print(f"n_perm:           {N_PERM} | min_group_size: {MIN_GROUP_SIZE} | seed: {SEED}")
+    if ELECTRODE_SELECTION_SPLIT:
+        print(f"selection split:  {ELECTRODE_SELECTION_FRAC:.0%} select / "
+              f"{1 - ELECTRODE_SELECTION_FRAC:.0%} decode (seed {ELECTRODE_SELECTION_SEED})"
+              + ("" if ELECTRODE_DEFINITION == 'anova' else
+                 "  [only the anova route supports it; the job will refuse]"))
+    print(f"RT matching:      {RT_MATCH}"
+          + ("" if RT_MATCH == 'none' else
+             f" (bins={RT_MATCH_BINS}, balance={RT_MATCH_BALANCE}, "
+             f"within=subject{''.join(',' + w for w in RT_MATCH_WITHIN)}, "
+             f"groups={list(RT_MATCH_GROUPS) if RT_MATCH_GROUPS else 'decoded factors'}, "
+             f"seed={RT_MATCH_SEED})"))
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 72)
 

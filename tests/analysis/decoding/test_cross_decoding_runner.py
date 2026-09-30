@@ -26,7 +26,10 @@ def _import_runner(**env):
             if k not in ('CONTRAST_MODE', 'ANOVA_LABEL_EFFECT', 'SAVE_DIR', 'TRAIN_LABEL',
                          'TEST_LABEL', 'ELECTRODE_DEFINITION', 'ANOVA_LABELS_CSV',
                          'FDR_CORRECTION', 'ANALYSIS', 'TEMPGEN_GROUPS',
-                         'REFERENCE_GROUP', 'ELECTRODES')}
+                         'REFERENCE_GROUP', 'ELECTRODES', 'ELECTRODE_SELECTION_SPLIT',
+                         'ELECTRODE_SELECTION_FRAC', 'ELECTRODE_SELECTION_SEED',
+                         'RT_MATCH', 'RT_MATCH_BINS', 'RT_MATCH_BALANCE',
+                         'RT_MATCH_WITHIN', 'RT_MATCH_GROUPS', 'RT_MATCH_SEED')}
     full['DATA_SOURCE'] = 'synthetic'
     full.update(env)
     done = subprocess.run([sys.executable, '-c', code], cwd=ROOT, capture_output=True,
@@ -111,3 +114,52 @@ def test_the_task_transfer_analysis_has_its_own_folder():
     assert got is not None, err
     assert os.path.join('task_transfer_lpfc_sig_w20s10', 'pooled_design_conditions') \
         in got['SAVE_DIR']
+
+
+def test_the_selection_split_gets_its_own_folder():
+    """A split run decodes a different set of trials, so it must not overwrite
+    the unsplit run of the same settings."""
+    plain, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition')
+    assert plain is not None, err
+    split, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                                ELECTRODE_SELECTION_SPLIT='true')
+    assert split is not None, err
+    assert '_split' not in plain['SAVE_DIR']
+    assert '_anova_condition_fdr_bh_split0.3s0' in split['SAVE_DIR']
+    other, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                                ELECTRODE_SELECTION_SPLIT='true',
+                                ELECTRODE_SELECTION_FRAC='0.5', ELECTRODE_SELECTION_SEED='2')
+    assert other is not None, err
+    assert '_split0.5s2' in other['SAVE_DIR']
+
+
+def test_rt_matching_and_its_control_get_their_own_folders():
+    real = dict(DATA_SOURCE='real', EPOCHS_ROOT_FILE='epochs', ELECTRODE_DEFINITION='none')
+    folders = {}
+    for mode in ('none', 'rt', 'true', 'random'):
+        got, err = _import_runner(RT_MATCH=mode, **real)
+        assert got is not None, err
+        folders[mode] = got['SAVE_DIR']
+    assert '_rt' not in folders['none']
+    assert 'cross_decoding_lpfc_sig_none_rtmatch10' in folders['rt']
+    assert folders['true'] == folders['rt']
+    assert 'cross_decoding_lpfc_sig_none_rtrandom10' in folders['random']
+    got, err = _import_runner(RT_MATCH='rt', RT_MATCH_BINS='5', RT_MATCH_BALANCE='proportional',
+                              RT_MATCH_WITHIN='incongruent_proportion', **real)
+    assert got is not None, err
+    assert '_rtmatch5_proportional_within-incongruent_proportion' in got['SAVE_DIR']
+
+
+def test_rt_matching_tags_the_transfer_analyses_too():
+    got, err = _import_runner(ANALYSIS='task_transfer', DATA_SOURCE='real',
+                              EPOCHS_ROOT_FILE='epochs', RT_MATCH='rt')
+    assert got is not None, err
+    assert 'task_transfer_lpfc_sig_w20s10_rtmatch10' in got['SAVE_DIR']
+
+
+def test_rt_matching_is_refused_where_it_cannot_run():
+    got, err = _import_runner(RT_MATCH='rt')                  # synthetic: no RTs
+    assert got is None and 'needs real epochs' in err
+    got, err = _import_runner(RT_MATCH='median_split', DATA_SOURCE='real',
+                              EPOCHS_ROOT_FILE='epochs')
+    assert got is None and 'RT_MATCH must be' in err

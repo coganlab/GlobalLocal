@@ -97,6 +97,23 @@ def test_pooled_conditions_still_define_both_contrasts(pooled_cells):
         assert cd._class_of(name, flex) == (0 if cell['switchType'] == 's' else 1)
 
 
+def test_response_main_effect_set_mirrors_the_stimulus_one(pooled_cells):
+    """The response-locked pooled 2x2 is the stimulus one with the event swapped:
+    same cells, same factor levels, same pooled block events."""
+    stim, resp = ec.stimulus_main_effect_conditions, ec.response_main_effect_conditions
+    assert {n.replace('Stimulus_', 'Response_') for n in stim} == set(resp)
+    for name, meta in stim.items():
+        twin = resp[name.replace('Stimulus_', 'Response_')]
+        assert twin['BIDS_events'] == [e.replace('Stimulus/', 'Response/')
+                                       for e in meta['BIDS_events']]
+        assert (twin['congruency'], twin['switchType']) == (meta['congruency'],
+                                                            meta['switchType'])
+    resp_cells = cd.condition_cells(resp)
+    assert cd.factors_are_crossed(resp_cells)
+    assert sorted(tuple(c[f] for f in cd.CROSS_DECODE_FIELDS) for c in resp_cells.values()) \
+        == sorted(tuple(c[f] for f in cd.CROSS_DECODE_FIELDS) for c in pooled_cells.values())
+
+
 def test_has_block_factor_separates_the_two_condition_sets(real_cells, pooled_cells):
     for field in ('incongruent_proportion', 'switch_proportion'):
         assert cd.has_block_factor(real_cells, field)

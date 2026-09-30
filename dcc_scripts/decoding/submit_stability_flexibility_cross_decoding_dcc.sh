@@ -30,6 +30,10 @@
 #   ELECTRODE_DEFINITION=none bash submit_..._dcc.sh                           # no groups: every loaded
 #                                                                              # (with ELECTRODES=sig, every
 #                                                                              # significant) electrode only
+#   ELECTRODE_DEFINITION=none RT_MATCH=rt bash submit_..._dcc.sh               # RT-matched decode trials
+#   ELECTRODE_DEFINITION=none RT_MATCH=random bash submit_..._dcc.sh           # ...and its trial-count control
+#   CONDITIONS=response_main_effect_conditions EPOCHS_ROOT_FILE=Response_... \
+#       ELECTRODE_DEFINITION=none bash submit_..._dcc.sh                       # response-locked
 #
 # The task x congruency / task x switch type positive controls for the transfer
 # are a separate job: submit_task_transfer_dcc.sh.
@@ -199,6 +203,22 @@ TEST_LABEL=${TEST_LABEL:-}
 # directly (StratifiedShuffleSplit), e.g. FRAC_TRAIN=0.5.
 FRAC_TRAIN=${FRAC_TRAIN:-}
 
+# RT matching of the decode trials (src/analysis/utils/rt_matching.py):
+#   none    off (default)
+#   rt      per subject, keep a subset in which the four congruency x switch-type
+#           cells have the same RT distribution (about half the trials)
+#   random  the control for 'rt': the same number of trials per subject and cell,
+#           drawn without regard to RT. Compare 'rt' with 'random'.
+# Each gets its own folder (..._rtmatch10 / ..._rtrandom10). The comma-separated
+# ones (RT_MATCH_WITHIN, RT_MATCH_GROUPS) are exported rather than put in the
+# sbatch --export list, which splits on commas.
+export RT_MATCH=${RT_MATCH:-none}
+export RT_MATCH_BINS=${RT_MATCH_BINS:-10}             # quantile RT bins per subject
+export RT_MATCH_BALANCE=${RT_MATCH_BALANCE:-equal}    # equal | proportional
+export RT_MATCH_WITHIN=${RT_MATCH_WITHIN:-}           # extra strata, e.g. incongruent_proportion,switch_proportion
+export RT_MATCH_GROUPS=${RT_MATCH_GROUPS:-}           # override the matched factors
+export RT_MATCH_SEED=${RT_MATCH_SEED:-}               # default: SEED
+
 mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
@@ -223,6 +243,7 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
             echo "Submitting stability/flexibility A4 cross-decoding"
             echo "  condition=$COND  anova_labels=${ANOVA_LABELS_CSV:-none}  effect=$ANOVA_LABEL_EFFECT"
             echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$JOB_CONTRAST_MODE  correction=$FDR_CORRECTION"
+            echo "  selection_split=$ELECTRODE_SELECTION_SPLIT  rt_match=$RT_MATCH"
             sbatch --job-name="sf_xdec_a${CSV_INDEX}e${EFFECT_INDEX}_${DATA_SOURCE}_${ROI}" \
                 --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$COND",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$JOB_CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
                 sbatch_stability_flexibility_cross_decoding_dcc.sh
