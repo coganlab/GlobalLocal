@@ -63,6 +63,30 @@ def test_participant_score_is_the_mean_of_its_electrodes(planted):
     np.testing.assert_allclose(got.loc[expected.index], expected, rtol=0, atol=1e-12)
 
 
+def test_abs_and_positive_only_summaries(planted):
+    """`_abs` is the mean |d| of the usable electrodes, `_pos` the mean d over the
+    usable ones with d > 0 (NaN below `min_elec` of them), `_pos_n` their count."""
+    _, _, ps = planted
+    e = ps['electrodes'][ps['electrodes']['usable']]
+    s = ps['scores'].set_index('subject')
+    for col in ('lwpc_neural', 'lwps_neural_rtadj'):
+        np.testing.assert_allclose(
+            s[f'{col}_abs'], e[col].abs().groupby(e['subject']).mean().loc[s.index],
+            rtol=0, atol=1e-12)
+        pos = e[e[col] > 0].groupby('subject')[col]
+        n_pos = pos.size().reindex(s.index, fill_value=0)
+        expected = pos.mean().reindex(s.index).where(n_pos >= ps['min_elec'])
+        np.testing.assert_allclose(s[f'{col}_pos'], expected, rtol=0, atol=1e-12)
+        assert (s[f'{col}_pos_n'] == n_pos).all()
+    for variant in sbb.NEURAL_VARIANTS:
+        res = sbb.participant_brain_behavior(ps, variant=variant)
+        col = res['neural_columns']['lwpc']
+        assert col == f"lwpc_neural{sbb.NEURAL_VARIANTS[variant]}"
+        assert np.isfinite(res['reliability_neural_lwpc'])
+    with pytest.raises(ValueError, match='variant'):
+        sbb.participant_brain_behavior(ps, variant='nonsense')
+
+
 def test_participants_below_min_elec_keep_behavior_but_lose_the_neural_score():
     df, _ = sbb._synthetic_long_df(n_subj=6, n_elec=(2, 6), seed=3)
     ps = sbb.participant_scores(df, n_splits=2, min_elec=4)
@@ -346,9 +370,11 @@ def test_dcc_synthetic_run_writes_the_participant_outputs(tmp_path):
                  'participant_reliability.csv', 'participant_brain_behavior.json',
                  'participant_brain_behavior.png', 'summary.txt',
                  'participant_brain_behavior_scatter_rtadj.png',
-                 'participant_brain_behavior_scatter_raw.pdf'):
+                 'participant_brain_behavior_scatter_raw.pdf',
+                 'participant_brain_behavior_scatter_abs_rtadj.png',
+                 'participant_brain_behavior_scatter_pos_rtadj.png'):
         assert (tmp_path / name).exists(), name
-    assert set(out['participant']) == {'raw', 'rtadj'}
+    assert set(out['participant']) == set(sbb.NEURAL_VARIANTS)
     summary = (tmp_path / 'summary.txt').read_text()
     assert '(1) ACROSS PARTICIPANTS, CONTINUOUS SCORES' in summary
     assert 'RT-ADJUSTED' in summary and 'ceiling' in summary

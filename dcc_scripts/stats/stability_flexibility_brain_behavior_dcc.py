@@ -448,6 +448,13 @@ def make_participant_plots(participant, save_dir):
     plt.close(fig)
 
 
+# y-axis unit of each level-(1) variant's neural score
+_NEURAL_UNITS = {'raw': 'mean d', 'rtadj': 'mean d, RT-adjusted',
+                 'abs': 'mean |d|', 'abs_rtadj': 'mean |d|, RT-adjusted',
+                 'pos': 'mean d, d > 0 electrodes',
+                 'pos_rtadj': 'mean d, d > 0 elec., RT-adj.'}
+
+
 def make_participant_scatter(table, save_dir, variant='rtadj', base_fontsize=9.0,
                              formats=('png', 'pdf', 'eps')):
     """Level (1) in the decoding figures' Nature style: one dot per participant,
@@ -459,10 +466,10 @@ def make_participant_scatter(table, save_dir, variant='rtadj', base_fontsize=9.0
     drops them, so R^2 is its r squared and p its p. Saves
     participant_brain_behavior_scatter_<variant>.<fmt> and returns
     {'lwpc' / 'lwps': dict(r2, p, n)}."""
-    suffix = {'raw': '', 'rtadj': '_rtadj'}[variant]
+    suffix = sbb.NEURAL_VARIANTS[variant]
     cols = {eff: (f'{eff}_behav', f'{eff}_neural{suffix}') for eff in ('lwpc', 'lwps')}
     t = table.dropna(subset=[c for pair in cols.values() for c in pair])
-    neural_unit = 'mean d, RT-adjusted' if variant == 'rtadj' else 'mean d'
+    neural_unit = _NEURAL_UNITS[variant]
     stats = {}
     width = 183 / 25.4                                   # double column
     with plt.rc_context(nature_style(base_fontsize)):
@@ -586,12 +593,23 @@ def make_plots(across, trialwise, save_dir, primary='count'):
 # ---------------------------------------------------------------------------
 # text summary
 # ---------------------------------------------------------------------------
-_SCORE_LABELS = (('lwpc_neural', 'neural LWPC, raw'),
-                 ('lwpc_neural_rtadj', 'neural LWPC, RT-adjusted'),
-                 ('lwps_neural', 'neural LWPS, raw'),
-                 ('lwps_neural_rtadj', 'neural LWPS, RT-adjusted'),
-                 ('lwpc_behav', 'behavioral LWPC'),
-                 ('lwps_behav', 'behavioral LWPS'))
+_SCORE_LABELS = tuple(
+    (f'{eff}_neural{rt}{m}', f'neural {eff.upper()}{m_label}, {rt_label}')
+    for eff in ('lwpc', 'lwps')
+    for m, m_label in (('', ''), ('_abs', ' |d|'), ('_pos', ' d>0 elec.'))
+    for rt, rt_label in (('', 'raw'), ('_rtadj', 'RT-adjusted'))) + (
+    ('lwpc_behav', 'behavioral LWPC'),
+    ('lwps_behav', 'behavioral LWPS'))
+
+# level-(1) variants in summary order: the signed mean is the claim, the rest
+# are exploratory (see `sbb._SUMMARIES`)
+_VARIANT_TITLES = (
+    ('rtadj', 'RT-ADJUSTED — the claim'),
+    ('raw', 'RAW — upper bound; RT coupling inflates it'),
+    ('abs_rtadj', 'MEAN |d|, RT-ADJUSTED — exploratory'),
+    ('abs', 'MEAN |d|, RAW — exploratory'),
+    ('pos_rtadj', 'd > 0 ELECTRODES ONLY, RT-ADJUSTED — exploratory'),
+    ('pos', 'd > 0 ELECTRODES ONLY, RAW — exploratory'))
 
 
 def _participant_lines(ps, participant):
@@ -614,7 +632,7 @@ def _participant_lines(ps, participant):
         if name in rel.index:
             if name.endswith('_behav'):
                 label += trial_tag
-            lines.append(f"          {label:<30} {rel.loc[name, 'reliability']:5.2f}  "
+            lines.append(f"          {label:<38} {rel.loc[name, 'reliability']:5.2f}  "
                          f"[{rel.loc[name, 'r_half']:+.2f} ± {rel.loc[name, 'sd_half']:.2f}]")
     if from_table:
         lines.append("      the behavior table has no trials: the ceiling estimates its "
@@ -623,13 +641,21 @@ def _participant_lines(ps, participant):
         lines.append(f"      within-cell HG-RT correlation, median electrode per "
                      f"participant, median over participants: "
                      f"{np.nanmedian(s['rt_hg_r']):+.3f}")
-    for variant, title in (('rtadj', 'RT-ADJUSTED — the claim'),
-                           ('raw', 'RAW — upper bound; RT coupling inflates it')):
+    for variant, title in _VARIANT_TITLES:
         res = participant.get(variant)
         if res is None:
             continue
         lines.append(f"      [{title}]  n = {res['n_participants']} participants; "
                      f"|r| needed for p < .05: {res['r_crit']:.2f}")
+        if variant not in ('rtadj', 'raw'):
+            # noise raises |d| and the d > 0 mean more where trials are fewer
+            t = res['table']
+            r_n = [f"{np.corrcoef(t[res['neural_columns'][eff]], t['n_trials'])[0, 1]:+.2f}"
+                   if len(t) >= 3 and t['n_trials'].std() > 0 else 'n/a'
+                   for eff in ('lwpc', 'lwps')]
+            lines.append(f"          noise check, r(neural score, trials per "
+                         f"participant): LWPC {r_n[0]}, LWPS {r_n[1]} "
+                         "(clearly negative = noise-driven)")
         for eff, name in (('lwpc', 'LWPC'), ('lwps', 'LWPS')):
             lo, hi = res[f'ci_{eff}']
             lines.append(
@@ -695,7 +721,8 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
     lines += [
         "-" * 78,
         "(1) ACROSS PARTICIPANTS, CONTINUOUS SCORES — the across-participant result",
-        f"      neural = mean signed per-electrode d; behavior = {behav_desc};",
+        f"      neural = mean signed per-electrode d (exploratory: mean |d|, and the",
+        f"      mean over d > 0 electrodes); behavior = {behav_desc};",
         "      both LOW minus HIGH (positive = the effect shrinks in the",
         "      high-proportion block).",
         *_participant_lines(ps, participant),
@@ -892,7 +919,7 @@ def main(args):
         notes.append(f"per-participant scores skipped: {e}")
         print(f"WARNING: per-participant scores skipped: {e}")
     if ps is not None:
-        for variant in ('rtadj', 'raw'):
+        for variant, _ in _VARIANT_TITLES:
             try:
                 res = sbb.participant_brain_behavior(
                     ps, variant=variant, alpha=alpha, behavior=participant_behavior)
