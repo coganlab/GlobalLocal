@@ -1,6 +1,6 @@
 # Decoding and cross-decoding: how to run them and how to read them
 
-The run-and-read guides for every decoding job, in five self-contained parts.
+The run-and-read guides for every decoding job, in six self-contained parts.
 
 | Part | What it covers | Was |
 |---|---|---|
@@ -9,6 +9,7 @@ The run-and-read guides for every decoding job, in five self-contained parts.
 | [N3b block transfer](#n3b-block-transfer) | Train in one kind of block, test in another: the design choices, what was built, and how to run it | `n3b_block_transfer.md` |
 | [Cross-decoding controls](#cross-decoding-controls) | What to run, in what order, when a transfer comes back uninformative, and what each outcome lets you say | `cross_decoding_controls.md` |
 | [RT matching](#rt-matching) | The standalone util that subsamples trials to equal RT distributions, its random-subset control, and how to plug it into any analysis | new |
+| [Overall-activity control](#overall-activity-control) | Is a decode or transfer carried by a uniform rise in activity or by the pattern across electrodes: `remove_mean` / `mean_only`, how to read them, and their limits | new |
 
 A4 and N3b are two modes of the same job
 (`dcc_scripts/decoding/stability_flexibility_cross_decoding_dcc.py`). The
@@ -1125,6 +1126,27 @@ ELECTRODE_DEFINITION=none RT_MATCH=rt     bash submit_stability_flexibility_cros
 ELECTRODE_DEFINITION=none RT_MATCH=random bash submit_stability_flexibility_cross_decoding_dcc.sh
 ```
 
+#### 6.5 Overall-activity control
+
+| Variable | Default | Notes |
+|---|---|---|
+| `ACTIVITY_CONTROL` | `none` | `remove_mean`: subtract each subject's mean across the decoded electrodes, per pseudo-trial and time point, so only the pattern across electrodes is decoded. `mean_only`: decode each subject's mean alone, the uniform part only. |
+
+- Applied to every decode in the job (A4(0), A4(0b), A4(a), A4(c); N3b and task
+  transfer too), per electrode group after restriction, so a subject's mean is over
+  the electrodes that group decodes.
+- Each mode gets its own folder (`..._remove_mean/`, `..._mean_only/`); the tags
+  stack with the split and RT-matching ones.
+- `summary.txt` gets an `activity_control` line and, per group, what it did
+  (subjects, features, and the single-electrode subjects `remove_mean` empties).
+- How to read it, and what it cannot rule out:
+  [Overall-activity control](#overall-activity-control).
+
+```bash
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean bash submit_stability_flexibility_cross_decoding_dcc.sh
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only   bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
 ---
 
 ### 7. How to run it
@@ -1455,6 +1477,7 @@ counterpart (X1–X3, X2b) is [N3b block transfer](#n3b-block-transfer).
 [ ] ELECTRODE_SELECTION_SPLIT=true                         (clean ceilings; own folder)
 [ ] RT_MATCH=rt and RT_MATCH=random, same SEED              (RT control and its trial-count control)
 [ ] CONDITIONS=response_main_effect_conditions + a Response_ epochs file   (response-locked)
+[ ] ACTIVITY_CONTROL=remove_mean and =mean_only             (pattern vs overall activity)
 [ ] ELECTRODES=all bash submit_task_transfer_dcc.sh        (controls, matching electrodes)
 [ ] log: group sizes, skipped groups, cells, block levels
 [ ] every ceiling (stab_to_stab, flex_to_flex) beats shuffle   <- else stop
@@ -1481,6 +1504,8 @@ Run outside the cluster with `pip install -e . pytest` then
 | `test_cross_decoding_runner.py` | contrast mode read from the folder, mode/effect mismatches refused, csv ignored off its route, folder names (incl. the split and RT-matching tags) |
 | `test_cross_decoding_rt_match.py` | RT matching in the job: runs after the split, writes its report, keeps the same counts for `rt` and `random`, refuses a subject left empty and synthetic data, lands in `summary.txt` |
 | `../utils/test_rt_matching.py` | the RT-matching util itself: planted RT costs removed, equal/proportional balance, unusable rows, reproducibility, the random control, the epochs adapter |
+| `test_activity_control.py` | the two transforms (per-subject, NaN-safe, single-electrode subjects), and the planted answers: a shared gain dies under `remove_mean` and survives `mean_only`; a shared pattern does the reverse |
+| `test_cross_decoding_activity_control.py` | the job feeds every design the transformed arrays, per group, in A4 and the transfer analyses, and reports it in `summary.txt` |
 | `test_task_transfer.py` | T1–T4 on real condition sets, planted synthetic answers, end to end |
 
 ---
@@ -2308,3 +2333,94 @@ control = count_matched_random(trials, keep, ['congruency', 'task_sequence'])
   "shared difficulty signal" is still open; RT matching only rules out
   "shared latency".
 - Error trials and trials with no response have no usable RT and are never kept.
+
+---
+
+## Overall-activity control
+
+*Is a decode, or a transfer, carried by a uniform rise in activity on hard trials,
+or by the pattern across electrodes?*
+
+**Code:** `src/analysis/decoding/activity_control.py`. **Tests:**
+`tests/analysis/decoding/test_activity_control.py`,
+`test_cross_decoding_activity_control.py`. Wired into A4 / N3b / task transfer
+through `ACTIVITY_CONTROL` ([A4 §6.5](#65-overall-activity-control)).
+
+### Why
+
+Incongruent and switch trials are both harder. If being on a hard trial simply
+raises high gamma on most electrodes, a decoder trained on congruency learns
+"activity is up", and that axis separates switch from repeat too. The transfer is
+then real but says "both effects raise overall activity", not "the two effects
+share a representational code". A4's transfer cannot tell these apart on its
+own.
+
+### What the two modes do
+
+Both are per subject: a pseudo-trial row holds a *different* physical trial from
+each subject, so a mean across all of a row's channels would mix trials. The
+subject comes from the channel name (`<subject>-<electrode>`).
+
+- **`remove_mean`** — for each subject, subtract the mean across that subject's
+  decoded electrodes, per pseudo-trial and time point. Anything that moves all of
+  a subject's electrodes together is gone; the pattern across electrodes is left.
+- **`mean_only`** — replace each subject's electrodes by their mean: one feature
+  per subject, the uniform part alone.
+
+NaNs stay where they are (a subject absent from a row stays absent). A subject
+with a single decoded electrode has nothing left after `remove_mean`; the summary
+lists them.
+
+### How to read them
+
+Compare the three runs (`none`, `remove_mean`, `mean_only`) by each transfer's
+**share of its own ceiling** (`keeps X%`), since the ceilings change with the
+transform too:
+
+| `remove_mean` | `mean_only` | Reading |
+|---|---|---|
+| transfer survives, similar share | transfers little or not at all | **A shared pattern.** Not explained by a uniform rise in activity. |
+| transfer gone, ceilings still above chance | transfers | **A shared gain.** The two effects share "more activity on hard trials", while their specific patterns differ. |
+| transfer reduced but present | transfers | **Both.** Report the share under each. |
+| ceilings gone too | — | The contrasts are themselves mostly overall activity; `remove_mean` cannot speak to the transfer. |
+
+**Planted answers** (the test): two subjects × 8 electrodes; congruency and switch
+type each have their own zero-mean pattern plus a shared component. Congruency's
+ceiling / congruency→switch transfer:
+
+| Shared component | full | `remove_mean` | `mean_only` |
+|---|---|---|---|
+| uniform gain | 0.81 / 0.66 | 0.60 / **0.52** | 0.74 / **0.76** |
+| zero-mean pattern | 0.77 / 0.68 | 0.78 / **0.65** | 0.48 / **0.51** |
+
+Keep the planted effects weak when extending these tests: with large effects LDA
+treats the other factor's effect as within-class variance and projects the shared
+direction out, and nothing transfers in either world.
+
+### What it cannot rule out
+
+- `remove_mean` removes only a shift shared by **all** of a subject's decoded
+  electrodes. A rise on a subset of them (say, the most task-responsive third)
+  survives and reads as "pattern". Restricting to more homogeneous groups, or
+  adding `mean_only` on subgroups, narrows this but does not close it.
+- It is additive. The HG is z-scored per channel against baseline, so a
+  proportional gain mostly looks additive, but not exactly.
+- It says nothing about RT: combine with `RT_MATCH=rt` (and its `random`
+  control) for the strongest version. The folder tags stack
+  (`..._rtmatch10_remove_mean/`).
+
+### Using it elsewhere
+
+```python
+from src.analysis.decoding.activity_control import apply_activity_control
+arrays, channel_names, info = apply_activity_control(
+    roi_labeled_arrays, roi, channel_names, 'remove_mean')   # or 'mean_only'
+```
+
+`roi_labeled_arrays` is the `{roi: {condition: (trials, channels, time)}}` dict
+the decoders use; `channel_names` its channel labels in order (for a LabeledArray,
+`roi_labeled_arrays[roi].labels[2]`). It returns plain arrays. The ordinary
+decoding job reads only the condition keys and arrays
+(`gather_class_data_by_stratum`), so they should drop in, but it is neither wired
+nor tested there. Apply it after restricting to the electrodes you decode, so each
+subject's mean is over those electrodes.

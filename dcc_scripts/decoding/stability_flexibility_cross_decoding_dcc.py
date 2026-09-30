@@ -78,6 +78,12 @@ per-subject RT distribution, or, for 'random', the same trial counts without
 regard to RT (`_apply_rt_match`, docs/decoding.md#rt-matching). It runs after the
 held-out selection split, in every analysis mode.
 
+`args.activity_control` ('remove_mean' | 'mean_only') transforms every decode's
+input, per electrode group, to ask whether a decode or transfer is carried by a
+uniform rise in activity or by the pattern across electrodes
+(`_activity_controlled`, `src/analysis/decoding/activity_control.py`,
+docs/decoding.md#overall-activity-control).
+
 Driven by `run_stability_flexibility_cross_decoding_dcc.py` (wrapped by
 `sbatch_stability_flexibility_cross_decoding_dcc.sh`). Not run directly on the
 cluster; call `main(args)` with a populated argument namespace.
@@ -115,6 +121,7 @@ import matplotlib
 matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
+from src.analysis.decoding import activity_control
 from src.analysis.decoding import block_transfer as bt
 from src.analysis.decoding import cross_decoding as cd
 from src.analysis.decoding.accuracy_stats import (
@@ -355,6 +362,9 @@ def write_summary(results, save_dir, meta):
               "      no interaction defined it, so it is the honest baseline for "
               "the selected groups."]
     for g, res in results.get('label_transfer', {}).items():
+        info = next(iter(res.values()), {}).get('activity_control')
+        if info and info.get('mode') != 'none':
+            lines.append(f"   [{g}] activity control: {activity_control.describe(info)}")
         for direction, r in res.items():
             lines.append(
                 f"   [{g}] {direction}: mean acc={r['mean_accuracy']:.3f} "
@@ -585,6 +595,31 @@ def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
     return {roi: out}, len(idx)
 
 
+def _activity_controlled(args, roi_arrays, roi, channel_names):
+    """`args.activity_control` applied to decoded arrays whose channels are
+    `channel_names`: 'none' (unchanged), 'remove_mean' (each subject's mean across
+    these electrodes subtracted, per pseudo-trial and time point) or 'mean_only'
+    (one feature per subject, its mean). Applied per electrode GROUP, after
+    restriction, so a subject's mean is over the electrodes that group decodes.
+    Returns (arrays, info) — see `activity_control.apply_activity_control`."""
+    arrays, _, info = activity_control.apply_activity_control(
+        roi_arrays, roi, channel_names, getattr(args, 'activity_control', 'none') or 'none')
+    return arrays, info
+
+
+def _decoded_group(args, arrays, roi, channel_names, keep):
+    """One electrode group's decode input: `arrays` restricted to `keep`, then the
+    activity control. Returns (arrays, n_electrodes, info); arrays is None when
+    the group has no electrode in the ROI."""
+    restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, keep)
+    if restricted is None:
+        return None, 0, None
+    keep = set(keep)
+    kept_names = [ch for ch in channel_names if ch in keep]
+    restricted, info = _activity_controlled(args, restricted, roi, kept_names)
+    return restricted, n_kept, info
+
+
 # ---------------------------------------------------------------------------
 # the decoded ROI pseudopopulation (real data)
 # ---------------------------------------------------------------------------
@@ -693,6 +728,24 @@ def _split_description(args):
     return (f"{getattr(args, 'electrode_selection_frac', 0.3):.0%} of trials select "
             f"electrodes, the other {1 - getattr(args, 'electrode_selection_frac', 0.3):.0%} "
             f"are decoded (seed {getattr(args, 'electrode_selection_seed', 0)})")
+
+
+def _activity_control_description(args):
+    """One line for summary.txt: the overall-activity control of every decode."""
+    return {'none': 'none',
+            'remove_mean': "remove_mean (each subject's mean across the decoded "
+                           "electrodes subtracted, per pseudo-trial and time point)",
+            'mean_only': "mean_only (one feature per subject: its mean across the "
+                         "decoded electrodes)"}.get(
+        getattr(args, 'activity_control', 'none') or 'none',
+        getattr(args, 'activity_control', None))
+
+
+def _check_activity_control_args(args):
+    control = getattr(args, 'activity_control', 'none') or 'none'
+    if control not in activity_control.ACTIVITY_CONTROLS:
+        raise ValueError(f"activity_control must be one of "
+                         f"{activity_control.ACTIVITY_CONTROLS}; got {control!r}")
 
 
 def _check_rt_match_args(args):
@@ -1065,9 +1118,11 @@ def run_block_transfer_job(args):
     designs = TRANSFER_ANALYSES[analysis]
     cluster_kw = dict(n_perm=getattr(args, 'n_perm', 200), seed=getattr(args, 'seed', 42))
     _check_rt_match_args(args)
+    _check_activity_control_args(args)
     # shared by the per-design SimpleNamespace copies below (a shallow copy keeps
     # the same list), so every condition set's matching summary lands here
     args.rt_match_log = []
+    act_info = None                 # what the activity control did, for the summary
     if args.data_source == 'synthetic':
         # Synthetic epochs have no pre-stimulus period, so every window counts as post.
         args = SimpleNamespace(**{**vars(args), 'first_time_point': 0.0})
@@ -1089,6 +1144,8 @@ def run_block_transfer_job(args):
                 code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
                 block_code='specific' if code == 'block_specific' else 'same')
         n_channels = next(iter(arrays[roi].values())).shape[1]
+        arrays, act_info = _activity_controlled(args, arrays, roi,
+                                                [f'ch{i}' for i in range(n_channels)])
     else:
         from src.analysis.utils.general_utils import resolve_lab_root
         # no electrode definition here: ELECTRODES alone picks 'sig' or 'all'
@@ -1104,8 +1161,10 @@ def run_block_transfer_job(args):
                 design_args = SimpleNamespace(
                     **{**vars(args),
                        'conditions': getattr(experiment_conditions, conditions_name)})
-                loaded[conditions_name] = _build_roi_arrays(
+                roi, arrays, channel_names, cells = _build_roi_arrays(
                     design_args, LAB_root, required_fields=(contrast, block_col))
+                arrays, act_info = _activity_controlled(args, arrays, roi, channel_names)
+                loaded[conditions_name] = (roi, arrays, channel_names, cells)
             roi, arrays, channel_names, cells = loaded[conditions_name]
             if n_channels is None:
                 n_channels = len(channel_names)
@@ -1142,6 +1201,9 @@ def run_block_transfer_job(args):
                 n_splits=args.n_splits, n_resamples=args.n_repeats,
                 n_perm=cluster_kw['n_perm'], seed=cluster_kw['seed'],
                 rt_match=_rt_match_description(args),
+                activity_control=(_activity_control_description(args)
+                                  if act_info is None or act_info['mode'] == 'none'
+                                  else activity_control.describe(act_info)),
                 save_dir=args.save_dir)
     if args.rt_match_log:
         meta['rt_match_result'] = '\n' + '\n'.join(args.rt_match_log)
@@ -1179,6 +1241,7 @@ def main(args):
         raise ValueError("electrode_definition='none' decodes only the reference group, "
                          "so reference_group must name it (e.g. 'all'), not be empty.")
     _check_rt_match_args(args)
+    _check_activity_control_args(args)
     args.rt_match_log = []
     trial_partitions = None
     if getattr(args, 'electrode_selection_split', False):
@@ -1327,6 +1390,8 @@ def main(args):
     # block's conditions — restrict the conditions, then train == test contrast.
     print("A4(0): within-block decoding baseline (Fig 9)")
     within_block = {}
+    # every loaded electrode, with the overall-activity control, if any
+    wb_arrays, _ = _activity_controlled(args, arrays, roi, channel_names)
     for cname, strings, block_col in (
             ('congruency (LWPC)', stab_strings, 'incongruent_proportion'),
             ('switchType (LWPS)', flex_strings, 'switch_proportion')):
@@ -1337,7 +1402,7 @@ def main(args):
         for level, conds in blocks[block_col].items():
             tag = f'{level}% {_BLOCK_TAG[block_col]}'
             try:
-                sub_arrays = cd.filter_conditions(arrays, roi, conds)
+                sub_arrays = cd.filter_conditions(wb_arrays, roi, conds)
             except ValueError as e:
                 print(f"     skipping block {tag}: {e}")
                 continue
@@ -1374,7 +1439,7 @@ def main(args):
                         if block_col in blocks]
         per_group = {}
         for gflag, elset in interaction_groups.items():
-            restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
+            restricted, n_kept, _ = _decoded_group(args, arrays, roi, channel_names, elset)
             if n_kept < args.min_group_size:
                 print(f"     group '{gflag}' has {n_kept} electrodes in ROI "
                       f"(< {args.min_group_size}); skipping")
@@ -1401,16 +1466,19 @@ def main(args):
     print("A4(a): label transfer (stability<->flexibility) per electrode group")
     lt = {}
     for g, elset in a1_groups.items():
-        restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
+        restricted, n_kept, act_info = _decoded_group(args, arrays, roi, channel_names, elset)
         if n_kept < args.min_group_size:
             print(f"     group '{g}' has {n_kept} electrodes in ROI "
                   f"(< {args.min_group_size}); skipping")
             continue
+        if act_info['mode'] != 'none':
+            print(f"     [{g}] activity control: {activity_control.describe(act_info)}")
         entry = {}
         for direction, (tr, te) in transfer_pairs:
             out = cd.run_cross_decoding(restricted, roi, tr, te, **dec_kw)
             entry[direction] = _summarise(out, **cluster_kw)
             entry[direction]['n_channels'] = n_kept
+            entry[direction]['activity_control'] = act_info
         for direction, ceiling in _TRANSFER_CEILINGS.items():
             if direction in entry and ceiling in entry:
                 below, _ = perform_time_perm_cluster_test_for_accuracies(
@@ -1435,8 +1503,8 @@ def main(args):
             print(f"     no electrode group named '{g}' "
                   f"(have {sorted(a1_groups)}); skipping")
             continue
-        restricted, n_kept = _restrict_to_electrodes(
-            arrays, roi, channel_names, a1_groups[g])
+        restricted, n_kept, _ = _decoded_group(args, arrays, roi, channel_names,
+                                               a1_groups[g])
         if n_kept < args.min_group_size:
             print(f"     group '{g}' has {n_kept} electrodes in ROI "
                   f"(< {args.min_group_size}); skipping")
@@ -1476,6 +1544,7 @@ def main(args):
         electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
         electrode_selection_split=_split_description(args),
         rt_match=_rt_match_description(args),
+        activity_control=_activity_control_description(args),
         window=("unused (no electrode definition)" if definition == 'none' else
                 f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s"),
         window_size=args.window_size, step_size=args.step_size,

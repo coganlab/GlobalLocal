@@ -14,8 +14,8 @@ splits, repeats), not a separate pseudo-trial scheme.
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, SYNTHETIC_CODE, WINDOW_TMIN, WINDOW_TMAX,
 ELECTRODES, ALPHA, WINDOW_SIZE, STEP_SIZE, N_SPLITS, N_REPEATS, FRAC_TRAIN,
-N_PERM, MIN_GROUP_SIZE, ROI, RT_MATCH and its RT_MATCH_* knobs) so you can rerun
-without editing Python.
+N_PERM, MIN_GROUP_SIZE, ROI, RT_MATCH and its RT_MATCH_* knobs, ACTIVITY_CONTROL)
+so you can rerun without editing Python.
 """
 import sys
 import os
@@ -295,6 +295,20 @@ RT_MATCH_WITHIN = tuple(f.strip() for f in os.environ.get('RT_MATCH_WITHIN', '')
 RT_MATCH_GROUPS = tuple(f.strip() for f in os.environ.get('RT_MATCH_GROUPS', '').split(',')
                         if f.strip()) or None
 
+# --- overall-activity control (src/analysis/decoding/activity_control.py) ---
+# Is a decode / transfer carried by a uniform rise in HG on hard trials rather
+# than by a pattern across electrodes? Applied to every decode of the job, per
+# electrode group, after the pseudopopulation is built:
+#   none         no change (default)
+#   remove_mean  subtract each subject's mean across the decoded electrodes, per
+#                pseudo-trial and time point: only the pattern is left
+#   mean_only    decode from each subject's mean alone: only the uniform part
+# Read each against its own ceilings (the `retained` shares), not raw accuracy.
+ACTIVITY_CONTROL = (os.environ.get('ACTIVITY_CONTROL') or 'none').strip().lower()
+if ACTIVITY_CONTROL not in ('none', 'remove_mean', 'mean_only'):
+    raise ValueError("ACTIVITY_CONTROL must be none, remove_mean or mean_only; "
+                     f"got {ACTIVITY_CONTROL!r}")
+
 # Proportion of trials used for TRAINING in each split. Unset (the default) keeps
 # StratifiedKFold, i.e. (N_SPLITS-1)/N_SPLITS. Set it to sweep the train/test
 # proportion directly — StratifiedShuffleSplit is used instead and N_SPLITS then
@@ -325,7 +339,8 @@ _rt_tag = '' if RT_MATCH == 'none' else (
     + (f"_within-{'-'.join(RT_MATCH_WITHIN)}" if RT_MATCH_WITHIN else '')
     + (f"_groups-{'-'.join(RT_MATCH_GROUPS)}" if RT_MATCH_GROUPS else '')
     + (f'_seed{RT_MATCH_SEED}' if RT_MATCH_SEED != SEED else ''))
-_run_name += _split_tag + _rt_tag
+_act_tag = '' if ACTIVITY_CONTROL == 'none' else f'_{ACTIVITY_CONTROL}'
+_run_name += _split_tag + _rt_tag + _act_tag
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
     current_script_dir, 'results', _tag, _run_name, CONDITIONS_NAME)
 if ANOVA_LABELS_CSV and ELECTRODE_DEFINITION == 'csv' and not os.environ.get('SAVE_DIR'):
@@ -340,7 +355,7 @@ if TRAIN_LABEL and not os.environ.get('SAVE_DIR'):
 if ANALYSIS in ('block_transfer', 'task_transfer') and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         current_script_dir, 'results', _tag,
-        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}{_rt_tag}',
+        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}{_rt_tag}{_act_tag}',
         'pooled_design_conditions')
 
 
@@ -396,6 +411,7 @@ def run_analysis():
         rt_match_within=RT_MATCH_WITHIN,
         rt_match_groups=RT_MATCH_GROUPS,
         rt_match_seed=RT_MATCH_SEED,
+        activity_control=ACTIVITY_CONTROL,
         save_dir=SAVE_DIR,
     )
 
@@ -450,6 +466,7 @@ def run_analysis():
              f"within=subject{''.join(',' + w for w in RT_MATCH_WITHIN)}, "
              f"groups={list(RT_MATCH_GROUPS) if RT_MATCH_GROUPS else 'decoded factors'}, "
              f"seed={RT_MATCH_SEED})"))
+    print(f"Activity control: {ACTIVITY_CONTROL}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 72)
 

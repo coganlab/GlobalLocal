@@ -29,7 +29,8 @@ def _import_runner(**env):
                          'REFERENCE_GROUP', 'ELECTRODES', 'ELECTRODE_SELECTION_SPLIT',
                          'ELECTRODE_SELECTION_FRAC', 'ELECTRODE_SELECTION_SEED',
                          'RT_MATCH', 'RT_MATCH_BINS', 'RT_MATCH_BALANCE',
-                         'RT_MATCH_WITHIN', 'RT_MATCH_GROUPS', 'RT_MATCH_SEED')}
+                         'RT_MATCH_WITHIN', 'RT_MATCH_GROUPS', 'RT_MATCH_SEED',
+                         'ACTIVITY_CONTROL')}
     full['DATA_SOURCE'] = 'synthetic'
     full.update(env)
     done = subprocess.run([sys.executable, '-c', code], cwd=ROOT, capture_output=True,
@@ -163,3 +164,27 @@ def test_rt_matching_is_refused_where_it_cannot_run():
     got, err = _import_runner(RT_MATCH='median_split', DATA_SOURCE='real',
                               EPOCHS_ROOT_FILE='epochs')
     assert got is None and 'RT_MATCH must be' in err
+
+
+def test_the_activity_control_gets_its_own_folder():
+    folders = {}
+    for mode in ('none', 'remove_mean', 'mean_only'):
+        got, err = _import_runner(ELECTRODE_DEFINITION='none', ACTIVITY_CONTROL=mode)
+        assert got is not None, err
+        folders[mode] = got['SAVE_DIR']
+    assert 'remove_mean' not in folders['none'] and 'mean_only' not in folders['none']
+    assert 'cross_decoding_lpfc_sig_none_remove_mean' in folders['remove_mean']
+    assert 'cross_decoding_lpfc_sig_none_mean_only' in folders['mean_only']
+    # stacked with RT matching, both tags appear
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ACTIVITY_CONTROL='remove_mean',
+                              DATA_SOURCE='real', EPOCHS_ROOT_FILE='epochs', RT_MATCH='rt')
+    assert got is not None, err
+    assert 'cross_decoding_lpfc_sig_none_rtmatch10_remove_mean' in got['SAVE_DIR']
+    got, err = _import_runner(ANALYSIS='task_transfer', ACTIVITY_CONTROL='mean_only')
+    assert got is not None, err
+    assert 'task_transfer_lpfc_sig_w20s10_mean_only' in got['SAVE_DIR']
+
+
+def test_an_unknown_activity_control_is_refused():
+    got, err = _import_runner(ACTIVITY_CONTROL='zscore')
+    assert got is None and 'ACTIVITY_CONTROL must be' in err

@@ -32,6 +32,8 @@
 #                                                                              # significant) electrode only
 #   ELECTRODE_DEFINITION=none RT_MATCH=rt bash submit_..._dcc.sh               # RT-matched decode trials
 #   ELECTRODE_DEFINITION=none RT_MATCH=random bash submit_..._dcc.sh           # ...and its trial-count control
+#   ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean bash submit_..._dcc.sh  # pattern only
+#   ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only bash submit_..._dcc.sh    # overall activity only
 #   CONDITIONS=response_main_effect_conditions EPOCHS_ROOT_FILE=Response_... \
 #       ELECTRODE_DEFINITION=none bash submit_..._dcc.sh                       # response-locked
 #
@@ -219,6 +221,15 @@ export RT_MATCH_WITHIN=${RT_MATCH_WITHIN:-}           # extra strata, e.g. incon
 export RT_MATCH_GROUPS=${RT_MATCH_GROUPS:-}           # override the matched factors
 export RT_MATCH_SEED=${RT_MATCH_SEED:-}               # default: SEED
 
+# Overall-activity control (src/analysis/decoding/activity_control.py), applied
+# to every decode, per electrode group:
+#   none         off (default)
+#   remove_mean  subtract each subject's mean across its decoded electrodes, per
+#                pseudo-trial and time point (a transfer that survives is a pattern)
+#   mean_only    decode each subject's mean alone (the uniform part only)
+# Each gets its own folder (..._remove_mean / ..._mean_only).
+export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-none}
+
 mkdir -p out
 
 for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
@@ -243,7 +254,7 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
             echo "Submitting stability/flexibility A4 cross-decoding"
             echo "  condition=$COND  anova_labels=${ANOVA_LABELS_CSV:-none}  effect=$ANOVA_LABEL_EFFECT"
             echo "  source=$DATA_SOURCE  roi=$ROI  electrodes=$ELECTRODES  definition=$ELECTRODE_DEFINITION  contrast=$JOB_CONTRAST_MODE  correction=$FDR_CORRECTION"
-            echo "  selection_split=$ELECTRODE_SELECTION_SPLIT  rt_match=$RT_MATCH"
+            echo "  selection_split=$ELECTRODE_SELECTION_SPLIT  rt_match=$RT_MATCH  activity_control=$ACTIVITY_CONTROL"
             sbatch --job-name="sf_xdec_a${CSV_INDEX}e${EFFECT_INDEX}_${DATA_SOURCE}_${ROI}" \
                 --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",CONDITIONS="$COND",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_CODE="$SYNTHETIC_CODE",ALPHA="$ALPHA",CONTRAST_MODE="$JOB_CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",ELECTRODE_SELECTION_SPLIT="$ELECTRODE_SELECTION_SPLIT",ELECTRODE_SELECTION_FRAC="$ELECTRODE_SELECTION_FRAC",ELECTRODE_SELECTION_SEED="$ELECTRODE_SELECTION_SEED",ROI="$ROI",ELECTRODE_DEFINITION="$ELECTRODE_DEFINITION",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI",POWER_TRACES_RUN_DIR="$POWER_TRACES_RUN_DIR",POWER_TRACES_CPC="$POWER_TRACES_CPC",POWER_TRACES_SPS="$POWER_TRACES_SPS",POWER_TRACES_CPS="$POWER_TRACES_CPS",POWER_TRACES_SPC="$POWER_TRACES_SPC",POWER_TRACES_CORRECTION="$POWER_TRACES_CORRECTION",POWER_TRACES_ROI="$POWER_TRACES_ROI",REFERENCE_GROUP="$REFERENCE_GROUP",TRAIN_LABEL="$TRAIN_LABEL",TEST_LABEL="$TEST_LABEL",WINDOW_SIZE="$WINDOW_SIZE",STEP_SIZE="$STEP_SIZE",SAMPLING_RATE="$SAMPLING_RATE",FIRST_TIME_POINT="$FIRST_TIME_POINT",N_SPLITS="$N_SPLITS",N_REPEATS="$N_REPEATS",EXPLAINED_VARIANCE="$EXPLAINED_VARIANCE",FRAC_TRAIN="$FRAC_TRAIN",N_PERM="$N_PERM",MIN_GROUP_SIZE="$MIN_GROUP_SIZE",SEED="$SEED" \
                 sbatch_stability_flexibility_cross_decoding_dcc.sh
