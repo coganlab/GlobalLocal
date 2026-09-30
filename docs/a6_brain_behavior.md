@@ -94,15 +94,26 @@ names; neither uses the columns afterwards.
 > map. Confirm which script produced the reported N1 numbers. The corrected values
 > are in the table above.
 
-### 1.2 Behavior comes from the same trials as the HG
+### 1.2 Behavior comes from the subject-level effects table
 
-The job scores behavior from the long table: RT, accuracy and the block
-proportions that the epochs metadata parse from the event names. Brain and
-behavior therefore use identical trials, every participant with HG gets a
-behavioral score, and no `blockType` map is involved. The archived run matched
-only 19 of 24 participants: IDs like `D0107A` against `D0107`, and participants
-missing from the CSV. `combinedData.csv` is now only a cross-check (§9, the
-`behavior cross-check` line).
+The behavioral LWPC / LWPS that levels (1) and (2) correlate against are read
+from `src/config/ieeg_behavioral_subject_level_effects.csv`
+(`load_subject_level_behavior`): the `LWPC_effect` / `LWPS_effect` of its
+`key_RT_mean` rows, one per subject. Both are LOW minus HIGH proportion
+(`congruency_effect_25_inc − congruency_effect_75_inc`,
+`switch_cost_25_switch − switch_cost_75_switch`), the orientation of the neural
+scores; a test pins this against the file. The table's IDs are stems (`D0107`),
+so they are matched to the epochs' IDs (`D0107A`) with `subject_stem`; a
+participant missing from the table (e.g. `D0144`) drops out and `summary.txt`
+says so. Point `BEHAVIOR_CSV` elsewhere to use another table with the same
+columns.
+
+The same contrast is still scored on the long table's own trials, but only as a
+cross-check (§9, the `behavior cross-check` line) and as the estimate of the
+behavioral reliability behind the level-(1) ceiling: the table has no trials, so
+it has no split-half reliability of its own, and the same- / disjoint-half
+correlations (§4.3) are n/a. Level (3) is unchanged: its adjustments are built
+from each trial's RT.
 
 ### 1.3 The electrode set now filters
 
@@ -265,7 +276,8 @@ long table: subject, electrode, trial, hg, congruency, switchType,
         |           -> participant_brain_behavior.json / .png, summary.txt (1)
         |
         +--> per_electrode_anova_labels -> S/F flags -> level (2) (label-based)
-        +--> behavior_from_long_df -> behavioral_magnitudes.csv (+ CSV cross-check)
+        +--> load_subject_level_behavior -> behavioral_magnitudes.csv
+        |       (levels 1 and 2; behavior_from_long_df only cross-checks it)
         +--> assemble_trial_table + group HG -> level (3) mixed models
 ```
 
@@ -308,7 +320,7 @@ defaults shown.
 | `MIN_ELEC` | `3` | fewer usable electrodes → no neural score for that participant |
 | `PARTICIPANT_N_SPLITS` | `200` | shared trial splits behind the reliabilities |
 | `SEED` | `0` | split seed |
-| `BEHAVIOR_CSV` | repo-root `combinedData.csv` | cross-check only; a missing file skips it |
+| `BEHAVIOR_CSV` | `src/config/ieeg_behavioral_subject_level_effects.csv` | the subject-level table the behavioral LWPC / LWPS come from (`LWPC_effect` / `LWPS_effect`, `key_RT_mean` rows) |
 | `RUN_TRIALWISE` | `1` | `0` skips level (3) |
 | `CONTRAST_MODE` / `FDR_CORRECTION` / `ALPHA` / `NEURAL_SUMMARY` | `proportion` / `none` / `0.05` / `count` | level (2)'s electrode labels and which summary it stars; they do not touch level (1) |
 | `DATA_SOURCE` | `real` | `synthetic` runs every level on planted data |
@@ -404,7 +416,7 @@ pytest tests/analysis/stats/test_participant_brain_behavior.py \
 | `participant_reliability.csv` | one row per score: `r_half`, `sd_half`, `reliability` (full length), `n_participants`, `n_splits` |
 | `participant_brain_behavior.json` | for `rtadj` and `raw`: every number in §10; plus the settings, notes and the CSV cross-check |
 | `participant_brain_behavior.png` | LWPC and LWPS (rows) × RT-adjusted and raw (columns); one dot per participant, fitted line, r with CI, ceiling, disjoint-half r |
-| `behavioral_magnitudes.csv` | per-participant behavioral `lwpc` / `lwps` from the long table (levels 2 and 3 use these) |
+| `behavioral_magnitudes.csv` | per-participant behavioral `lwpc` / `lwps` (and the table's other effect columns) from the subject-level table, under the epochs' subject IDs (levels 1 and 2 use these) |
 | `long_df.csv` | the single-trial long table (real runs), including `trial`, `rt`, `acc` |
 | `electrode_labels.csv`, `subject_table_<mode>.csv`, `across_subject.json` | level (2) |
 | `trial_df.csv`, `trialwise.json` | level (3) |

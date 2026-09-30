@@ -2636,12 +2636,13 @@ adjustment**, so the substrates are shown to be *functional*. Three levels:
    and `acc` from the epochs metadata), restricted to `ROIS` × `ELECTRODES`, and
    runs the A1 electrode definition (`per_electrode_anova_labels`,
    `contrast_mode='proportion'`) → per-electrode `S`/`F` flags.
-2. **Behavior**: per-participant LWPC/LWPS RT magnitudes from the long table's own
-   trials via `behavioral_lwpc_lwps_magnitudes` — the **same** equal-cell-weight
-   difference-of-differences used for the neural interaction, on the same trials.
-   `combinedData.csv` is only a cross-check. Its `blockType` map was wrong before
-   2026-09-27 (A and D swapped), which made the behavioral "LWPC" a congruency ×
-   switch-proportion contrast.
+2. **Behavior**: per-participant LWPC/LWPS RT magnitudes read from
+   `src/config/ieeg_behavioral_subject_level_effects.csv`
+   (`load_subject_level_behavior`: `LWPC_effect` / `LWPS_effect` of the
+   `key_RT_mean` rows, LOW minus HIGH), matched to the epochs' IDs on their stem.
+   The same contrast scored on the long table's own trials
+   (`behavioral_lwpc_lwps_magnitudes`) is only a cross-check and the estimate of
+   the behavioral reliability behind the level-1 ceiling.
 3. **Per-participant scores** (`participant_scores`, `participant_brain_behavior`,
    `rt_adjust_hg`): the mean of each participant's per-electrode d (raw and
    RT-adjusted), reliabilities from one trial split per participant shared by all
@@ -2714,7 +2715,7 @@ bash submit_stability_flexibility_brain_behavior_dcc.sh
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | analysis window. |
 | `MIN_ELEC` | `3` | participants with fewer usable electrodes get no level-1 neural score. |
 | `PARTICIPANT_N_SPLITS` | `200` | shared trial splits behind the level-1 reliabilities. |
-| `BEHAVIOR_CSV` / `BEHAVIOR_RT_COL` | repo-root `combinedData.csv` / `RT` | cross-check only; a missing file skips it. |
+| `BEHAVIOR_CSV` | `src/config/ieeg_behavioral_subject_level_effects.csv` | the subject-level table the behavioral LWPC / LWPS come from. |
 | `SYNTHETIC_LINK` / `SYNTHETIC_RT_COUPLING` | `0.6` / `0.3` | synthetic only, level 1: the planted brain–behavior r, and HG noise SDs per RT SD. |
 | `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only, levels 2–3: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
 | `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only, levels 2–3: planted coupling strengths. |
