@@ -2011,6 +2011,21 @@ covers per group, so it has no separate code path.
 > [`decoding.md` › N3b block transfer](decoding.md#n3b-block-transfer) for the designs, run command,
 > outputs, and interpretation.
 
+> **Status, 2026-09-30.** On the 171 task-significant lPFC electrodes with no
+> selection (`ELECTRODE_DEFINITION=none`, pooled 2×2), both label transfers are
+> above chance from ~0.5 s after the stimulus (congruency → switch keeps 64% of its
+> ceiling, switch → congruency 39%), with no pre-stimulus windows; before ~0.5 s
+> both contrasts are decodable but do not transfer. The pre-stimulus clusters
+> described above now appear only in the main-effect-*selected* groups and in the
+> all-electrode (398) reference, which points at block leakage through the
+> selection ([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §6).
+> The transfer sits where incongruent and switch trials both differ in RT, so it is
+> not reportable as a shared code until the confound controls are run: RT matching
+> (with its random-subset control), the response-locked run, and the
+> overall-activity control. The runbook, the comparison script and the reading
+> rules for all of them are in
+> [`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13.
+
 ### 17.1 Which electrodes are decoded
 
 Three independent choices, easy to conflate:
@@ -2328,6 +2343,7 @@ each one submits Slurm jobs.
 | 3 | cross-decoding in each main-effect population | `decoding/submit_stability_flexibility_cross_decoding_dcc.sh` | 1 (+1 clean version) |
 | 4 | main-effect decoding and power traces in the same populations | `decoding/submit_specific_conditions_decoding_dcc.sh`, `power/submit_specific_conditions_power_traces_dcc.sh` | 10 + 10 |
 | 5 | the task positive controls | `decoding/submit_task_transfer_dcc.sh` | 1 |
+| 6 | the confound controls: RT matching (+ random control), response-locked, overall activity, seeds | `decoding/submit_stability_flexibility_cross_decoding_dcc.sh` | 5–9 |
 
 Steps 3–5 read the table from step 1, so wait for it; after that they are
 independent and can be submitted together.
@@ -2415,9 +2431,11 @@ ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=tru
 ```
 
 Output: `results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/stimulus_main_effect_conditions/`.
-It uses the task-significant electrodes (`ELECTRODES=sig`) and raw p. The split is
-not in that folder name, so an unsplit `anova` run with the same settings writes
-to the same place; add `SAVE_DIR=<a folder of its own>` to keep both.
+It uses the task-significant electrodes (`ELECTRODES=sig`) and raw p. Since
+2026-09-30 the split names the folder (`..._anova_condition_none_split0.3s0/`), so
+it no longer overwrites an unsplit run with the same settings; a split run from
+before that date shares the unsplit folder (the slurm log's `[trial-split]` lines
+tell them apart).
 
 Options for either version: the submit script defaults to
 `CONDITIONS=stimulus_main_effect_conditions`, which pools the proportions into a
@@ -2487,6 +2505,29 @@ clean-ceiling version, submit it again with `ELECTRODES=sig`). Output:
 (`summary.txt`, `task_transfer.json`, `task_transfer_traces.npz`, one figure per
 transfer).
 
+#### Step 6: the confound controls
+
+A transfer above chance (step 3, or the `ELECTRODE_DEFINITION=none` run) is not
+yet a shared code: incongruent and switch trials are both slower, and both may
+simply raise overall activity. The runs that test this, in order, with their
+folders, the script that compares them side by side, the reading rules and the
+report block, are in
+[`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13. In short:
+
+```bash
+cd $REPO/dcc_scripts/decoding
+A4=submit_stability_flexibility_cross_decoding_dcc.sh
+ELECTRODE_DEFINITION=none RT_MATCH=rt     TEMPGEN_GROUPS= bash $A4   # RT-matched trials
+ELECTRODE_DEFINITION=none RT_MATCH=random TEMPGEN_GROUPS= bash $A4   # same counts, not RT-matched
+ELECTRODE_DEFINITION=none CONDITIONS=response_main_effect_conditions \
+    EPOCHS_ROOT_FILE=Response_${EPOCHS_ROOT_FILE#Stimulus_} bash $A4 # response-locked
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean TEMPGEN_GROUPS= bash $A4   # pattern only
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only   TEMPGEN_GROUPS= bash $A4   # overall activity only
+```
+
+Set these knobs per command, never with `export`: every launcher submits with
+`--export=ALL`, so an exported one would carry into later jobs.
+
 #### Checking on the jobs
 
 - `squeue -u $USER` lists them. Logs go to `out/` in the directory you submitted
@@ -2521,7 +2562,12 @@ transfer).
    even with one task code; report T2 but lean on T1 (the plan's own call).
 6. **The groups (step 3).** Compare each group's transfers and ceilings with
    `all`'s. `both` is where a shared code is predicted; read its within decodes
-   from the clean-ceiling version.
+   from the clean-ceiling version, and discard any group with significant
+   pre-stimulus windows.
+7. **The confound controls (step 6).** Whether the transfer survives RT matching
+   (against its random control) and the overall-activity control decides what it
+   can be called: a shared code, a shared gain, or an RT difference
+   ([`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13.4–13.5).
 
 ---
 
