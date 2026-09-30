@@ -647,7 +647,10 @@ same trials (§2.3); the leave-one-subject-out runs (§5.5) are the protection.
 four ways it can define electrode groups (`anova`, `csv`, `power_traces`, `none`),
 every parameter that changes the answer, the exact commands, every file it writes,
 and how to read them. It also covers the task-transfer positive controls, which
-run through the same job (§9).
+run through the same job (§9), and the confound controls built into it: RT
+matching (§6.4), the overall-activity control (§6.5) and the response-locked
+condition set (§5). **§13 is the runbook for all of them together**: what to run
+in what order, how to compare the runs, and what each outcome lets you say.
 
 It is the run-and-read companion to three other documents, and does not repeat
 them:
@@ -663,7 +666,9 @@ For the ordinary (non-transfer) decoding job, see [Decoding job](#decoding-job).
 
 If you read only one section, read [§3 The defaults you actually get](#3-the-defaults-you-actually-get):
 the submit script and the Python runner disagree on half the knobs, and the
-submit script's defaults changed on 2026-09-28.
+submit script's defaults changed on 2026-09-28. If you have a transfer and want
+to know whether it is reportable, read
+[§13 The control battery](#13-the-control-battery-run-it-read-it-report-it).
 
 ---
 
@@ -683,15 +688,21 @@ ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=<A1 result folder> \
 # groups from an ANOVA fit inside the job (the default route)
 bash submit_stability_flexibility_cross_decoding_dcc.sh
 # the same, with the ANOVA fit on 30% of trials and everything decoded on the other 70%
-ELECTRODE_SELECTION_SPLIT=true SAVE_DIR=<a folder of its own> \
-    bash submit_stability_flexibility_cross_decoding_dcc.sh
+# (writes to its own ..._split0.3s0 folder)
+ELECTRODE_SELECTION_SPLIT=true bash submit_stability_flexibility_cross_decoding_dcc.sh
+
+# the confound controls (§13 has the full battery and how to read it)
+ELECTRODE_DEFINITION=none RT_MATCH=rt     bash submit_stability_flexibility_cross_decoding_dcc.sh  # RT-matched trials
+ELECTRODE_DEFINITION=none RT_MATCH=random bash submit_stability_flexibility_cross_decoding_dcc.sh  # its trial-count control
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean bash submit_stability_flexibility_cross_decoding_dcc.sh  # pattern only
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only   bash submit_stability_flexibility_cross_decoding_dcc.sh  # overall activity only
 ```
 
 Then open `summary.txt` in the save directory printed near the top of
 `out/slurm_<jobid>_<jobname>.out`. For each electrode group, the result is three
 numbers per transfer direction: how many windows beat the shuffle null, how many
 fall below the within-contrast ceiling, and what share of the ceiling it keeps
-(§8).
+(§8). Whether a transfer survives the controls is read by comparing runs (§13.3).
 
 ---
 
@@ -709,6 +720,9 @@ fall below the within-contrast ceiling, and what share of the ceiling it keeps
 | `anova` route: one window-mean ANOVA per electrode | `src/analysis/stats/stability_flexibility_segregation.py` (`per_electrode_anova_labels`) |
 | `power_traces` route: finished windowed-ANOVA runs | `src/analysis/stats/power_traces_conjunction.py` (`electrode_labels`) |
 | `csv` route: a saved A1 `anova_labels.csv` | `src/analysis/utils/anova_label_selection.py` |
+| `RT_MATCH`: RT-matched (or count-matched random) decode trials | `src/analysis/utils/rt_matching.py`, called by `_apply_rt_match` in the job |
+| `ACTIVITY_CONTROL`: remove each subject's mean across electrodes, or keep only it | `src/analysis/decoding/activity_control.py`, called by `_activity_controlled` / `_decoded_group` in the job |
+| The held-out selection split (`ELECTRODE_SELECTION_SPLIT`) | `src/analysis/decoding/anova_electrode_selection.py` (`assign_trial_partitions`, `apply_trial_partition`) |
 | Same job, other analyses | `submit_block_transfer_dcc.sh` (`ANALYSIS=block_transfer`, N3b), `submit_task_transfer_dcc.sh` (`ANALYSIS=task_transfer`, §9) |
 
 #### The call path
@@ -725,13 +739,17 @@ submit_stability_flexibility_cross_decoding_dcc.sh      loops tables x populatio
           │        none          no table
           ├ groups: both / S_only / F_only (disjoint), plus the reference group 'all'
           ├ (ii) _build_roi_arrays: the ROI pseudopopulation, channels named '<subject>-<electrode>'
+          │        load epochs -> selection split (decode side)  [ELECTRODE_SELECTION_SPLIT]
+          │                    -> RT matching of the decode trials [RT_MATCH; writes rt_match_*.csv]
+          │                    -> pseudopopulation
           ├ factors_are_crossed check; class definitions read from the conditions' declared levels
+          ├ per decode: restrict to the group's electrodes -> activity control [ACTIVITY_CONTROL]
           ├ A4(0)   within-block decodes                               [16-cell condition set only]
           ├ A4(0b)  within-block 2x2 per definition group, circular cells skipped   [16-cell + groups]
           ├ A4(a)   per group: stab_to_stab, flex_to_flex, stab_to_flex, flex_to_stab
           ├ A4(c)   temporal generalization on TEMPGEN_GROUPS
           └ cross_decoding.json, accuracy_traces.npz, tempgen_*.npy, anova_labels.csv,
-            figures, summary.txt
+            rt_match_*.csv, figures, summary.txt
 ```
 
 Every decode in the job goes through the same four steps:
@@ -809,13 +827,17 @@ right-hand column**:
 | `EPOCHS_ROOT_FILE` | required for real data | the `..._filterbank_hilbert_stat_func_ttest_zmax_20` file |
 | `ROI`, `ELECTRODES`, `ALPHA` | `lpfc`, `sig`, `0.05` | same |
 | `N_SPLITS`, `N_REPEATS`, `N_PERM`, `EXPLAINED_VARIANCE` | `5`, `10`, `500`, `0.8` | same |
+| `ELECTRODE_SELECTION_SPLIT` | `false` | same |
+| `RT_MATCH` (+ `RT_MATCH_BINS`, `_BALANCE`) | `none` (`10`, `equal`) | same |
+| `ACTIVITY_CONTROL` | `none` | same |
 
 So `bash submit_stability_flexibility_cross_decoding_dcc.sh` with nothing set is:
 **main-effect groups** (congruency and switch-type main effects, raw p < 0.05,
 window-mean HG over 0–1.5 s), fit in the job on the task-significant lPFC
 electrodes, with the transfer pooled over both proportions. The within-block
 designs A4(0)/A4(0b) do **not** run, because the 4-cell condition set has no block
-factor.
+factor. No selection split, no RT matching and no activity control run unless you
+ask for them; each one, when set, adds a tag to the output folder (§13.1).
 
 > **Stale defaults elsewhere.** [`analysis_guide.md`](analysis_guide.md) §17.4
 > still describes the older submit defaults (csv route, 16-cell set, 0–0.5 s,
@@ -1204,14 +1226,18 @@ Then, depending on the question:
 | Does lPFC's code transfer at all? | `ELECTRODE_DEFINITION=none bash submit_stability_flexibility_cross_decoding_dcc.sh` |
 | … on every lPFC electrode? | `ELECTRODE_DEFINITION=none ELECTRODES=all bash submit_...` |
 | Does it transfer in each main-effect population (saved table)? | `ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=$COND_CSV bash submit_...` |
-| The same, with no selection/decode trial overlap | `ELECTRODE_SELECTION_SPLIT=true SAVE_DIR=$PWD/results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_split_anova_condition/stimulus_main_effect_conditions bash submit_...` |
+| The same, with no selection/decode trial overlap | `ELECTRODE_SELECTION_SPLIT=true bash submit_...` (own `..._split0.3s0` folder) |
 | In the LWPC/LWPS populations | `CONTRAST_MODE=proportion bash submit_...` (in-job) or `ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=<a ..._proportion_... table> bash submit_...` |
 | With the within-block designs too | add `CONDITIONS=stimulus_experiment_conditions` |
 | With the unselected temporal-generalization matrix | add `TEMPGEN_GROUPS=both,all` |
 | The task-transfer positive controls | `bash submit_task_transfer_dcc.sh` (§9) |
+| Is the transfer a response-time difference? | `ELECTRODE_DEFINITION=none RT_MATCH=rt bash submit_...` **and** `... RT_MATCH=random ...` (§6.4) |
+| … seen from the response? | `ELECTRODE_DEFINITION=none CONDITIONS=response_main_effect_conditions EPOCHS_ROOT_FILE=Response_... bash submit_...` (§5) |
+| Is it a uniform rise in activity? | `ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean bash submit_...` **and** `... ACTIVITY_CONTROL=mean_only ...` (§6.5) |
 
 Run the `none` job first. It is the cheapest (one group) and is the reference
-every grouped run is compared with.
+every grouped run is compared with. §13.2 has the confound controls as one
+ordered script, with the flags that keep them cheap.
 
 #### 7.3 Before you submit
 
@@ -1246,11 +1272,11 @@ Everything goes to the save directory of §4.
 | File | Contents | Read it for |
 |---|---|---|
 | `summary.txt` | Settings, then every design's numbers and the reading guide | **Start here** |
-| `cross_decoding.json` | The same numbers per design and group, with per-window `significant_windows`, `cluster_p`, `n_below_ceiling`, `retained`; arrays longer than 64 values are dropped | Tables and scripts |
+| `cross_decoding.json` | The same numbers per design and group: per-window `significant_windows` (cluster-corrected), `cluster_p` (despite the name, the **uncorrected per-window** permutation p; its floor is 1/(N_PERM+1), and an isolated window with a small p is not significant), `n_below_ceiling`, `retained`, and `activity_control` (what the control did to that group); also `rt_match` (the matching summary). Arrays longer than 64 values are dropped | Tables and scripts; §13.3 compares runs from it |
 | `accuracy_traces.npz` | Label-transfer accuracy per window × repeat. Keys `labeltransfer_<group>_<direction>_true` / `_shuffle` | Re-plotting, your own statistics |
 | `tempgen_<name>.npy` | Temporal-generalization matrix, train window × test window, e.g. `tempgen_stability_flexibility_cross_both.npy` | A4(c) |
 | `anova_labels.csv` | The per-electrode definition table the groups came from (`anova`, `csv`, `power_traces`) | Which electrodes are in which group |
-| `rt_match_<factors>_{balance,contrasts,summary}.csv` | With `RT_MATCH` set: per subject × cell counts and RTs, per-subject RT differences, and their across-subject test, before/after (§6.4) | The residual RT difference to report |
+| `rt_match_<factors>_{balance,contrasts,summary}.csv` | With `RT_MATCH` set: per subject × cell counts and RTs, per-subject RT differences, and their across-subject test, before/after (§6.4). In a `random` run they show the RT costs left in place | The residual RT difference to report (§13.4) |
 | `cross_decoding_summary.png` | Overview: A4(0) bar charts (top left, empty without block factors), the `stab_to_flex` trace per group (top right), up to three temporal-generalization matrices (bottom) | A first look |
 | `<direction>_<group>__cross_decoding.{png,pdf,eps}` | One figure per group × direction: true accuracy against shuffle, ±1 SD over repeats, bars where the cluster test is significant | The figures to show |
 
@@ -1271,8 +1297,16 @@ STABILITY vs FLEXIBILITY — A4 CROSS-DECODING
   electrode_definition: csv
        reference_group: all
  electrode_group_sizes: {'both': …, 'congruency_only': …, 'switch_type_only': …, 'all': …}
+electrode_selection_split: off (electrodes selected on the same trials that are decoded)
+              rt_match: off | RT-matched; groups=…, within=['subject'], bins=10, … | count-matched random control …
+      activity_control: none | remove_mean (…) | mean_only (…)
                 window: [0.0, 1.5]s
                …        (every other setting of the run)
+------------------------------------------------------------------------
+RT matching of the decode trials:                        <- RT_MATCH runs only
+   [rt-match] RT-matched, groups=['congruency', 'task_sequence'] n_bins=10 …: kept … of … trials (…%)
+   [rt-match]   congruency (i - c): mean per-subject RT difference +… ms before -> +… ms after (t=…, p=…)
+   [rt-match]   task_sequence (s - r): …
 ------------------------------------------------------------------------
 A4(0) within-block decoding baseline (Fig 9):            <- 16-cell runs only
    congruency (LWPC) | block 25% incongruent: mean acc=… peak=… sig windows=k/n
@@ -1285,6 +1319,7 @@ A4(0b) per-group within-block 2x2 (…diagonal cell is omitted by design):
        switchType by switch_proportion [25%]: mean acc=… sig=k/nw
 ------------------------------------------------------------------------
 A4(a) label transfer by group. …
+   [both] activity control: remove_mean over … subjects (…)   <- ACTIVITY_CONTROL runs only
    [both] stab_to_stab: mean acc=… peak=… (shuffle …) sig windows=k/n
    [both] flex_to_flex: …
    [both] stab_to_flex: mean acc=… peak=… (shuffle …) sig windows=k/n
@@ -1362,7 +1397,13 @@ at another. The summary's `sustained/stable` vs `diagonal/phasic` label is a
 threshold (mean off-diagonal > 0.55) over the whole matrix, baseline included, and
 the matrices have no shuffle null or statistic, so treat them as descriptive.
 
-**Step 8 — within-block (16-cell runs only).** A4(0) lists each block's mean
+**Step 8 — the controls.** A single run cannot rule out that the transfer is a
+response-time difference or a uniform rise in activity; that takes comparing runs
+(§13.3) and the reading rules of §13.4–13.5. In each control run, first check the
+`rt_match` / `activity_control` lines say what you intended, and for `RT_MATCH=rt`
+that the residual RT difference in the `RT matching` block is near 0.
+
+**Step 9 — within-block (16-cell runs only).** A4(0) lists each block's mean
 accuracy and `Δ(block) = high − low`. A negative Δ for congruency means congruency
 is less decodable in 75%-incongruent blocks, the direction LWPC predicts. Δ is a
 difference of means over **all** windows, baseline included, with no test of its
@@ -1455,37 +1496,58 @@ counterpart (X1–X3, X2b) is [N3b block transfer](#n3b-block-transfer).
 5. **A4(a) `mean acc` includes the baseline** (§8.3). There is no post-stimulus
    summary for label transfer, unlike N3b's table.
 6. **Temporal generalization has no null** (§8.2 step 7).
-7. **The earlier real A4 runs showed cross-decode clusters before stimulus
-   onset** ([`analysis_guide.md`](analysis_guide.md) §17, caveat). Until that is
-   explained, any transfer needs its pre-stimulus windows reported next to it.
+7. **Pre-stimulus significance in selected groups.** The earlier real A4 runs
+   showed cross-decode clusters before stimulus onset
+   ([`analysis_guide.md`](analysis_guide.md) §17, caveat). In the 2026-09-29 runs
+   they appear in the main-effect-selected `both` group (anova and csv routes) and
+   in the csv run's 398-electrode `all`, but not in the 171 task-significant
+   electrodes of the `none` run. The likeliest route is block structure (pooled
+   cells are confounded with block type, and the one-way main-effect ANOVA has no
+   block term); [Cross-decoding controls](#cross-decoding-controls) §6 has the
+   diagnosis. Any transfer needs its pre-stimulus windows reported next to it.
 8. **Resamples are not subjects** (§8.3); there is no leave-one-subject-out for A4.
 9. **The transfer sits where RT differs.** In the 2026-09-29 `none` run (171
    task-significant lPFC electrodes) both transfers are significant only from the
    window centred at +0.62 s (median correct RT ~1.17 s), and incongruent and
    switch trials are both slower. Report the RT-matched run (§6.4) against its
-   `random` control, and the response-locked run (§5), next to it.
+   `random` control, and the response-locked run (§5), next to it (§13).
+10. **No formal test between runs.** Whether a control "keeps a similar share" is
+    judged against the spread across seeds (§13.4), not tested; there is no
+    permutation test of one run's transfer against another's.
+11. **`ACTIVITY_CONTROL` and `RT_MATCH` are wired into this job only.** The
+    functions work on any epochs structure or ROI arrays, but the ordinary decoding
+    and power-trace jobs do not call them yet ([RT matching](#rt-matching),
+    [Overall-activity control](#overall-activity-control)).
 
 ---
 
 ### 11. Checklist
 
 ```
-[ ] export EPOCHS_ROOT_FILE once; every job below uses it
+Running (§13.2 has the commands)
+[ ] export EPOCHS_ROOT_FILE once; set every other knob per command, not with export
 [ ] synthetic dry runs: shared transfers, orthogonal does not
-[ ] ELECTRODE_DEFINITION=none                     (the ungrouped reference run)
-[ ] ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=...  (or the anova route; check the echo lines)
-[ ] ELECTRODE_SELECTION_SPLIT=true                         (clean ceilings; own folder)
-[ ] RT_MATCH=rt and RT_MATCH=random, same SEED              (RT control and its trial-count control)
+[ ] ELECTRODE_DEFINITION=none                               (the ungrouped reference run)
+[ ] RT_MATCH=rt and RT_MATCH=random, same SEED               (RT control and its trial-count control)
 [ ] CONDITIONS=response_main_effect_conditions + a Response_ epochs file   (response-locked)
-[ ] ACTIVITY_CONTROL=remove_mean and =mean_only             (pattern vs overall activity)
-[ ] ELECTRODES=all bash submit_task_transfer_dcc.sh        (controls, matching electrodes)
-[ ] log: group sizes, skipped groups, cells, block levels
+[ ] ACTIVITY_CONTROL=remove_mean and =mean_only              (pattern vs overall activity)
+[ ] RT_MATCH=rt/random + ACTIVITY_CONTROL=remove_mean        (both controls at once)
+[ ] bash submit_task_transfer_dcc.sh                         (positive controls, same electrodes)
+[ ] SEED=1, SEED=2 with their own SAVE_DIR                   (noise floor)
+[ ] groups only if claimed: ELECTRODE_SELECTION_SPLIT=true   (clean ceilings; own folder)
+    (or ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=... for the saved table; check the echo lines)
+
+Reading (§8.2, §13.3-13.5)
+[ ] log: group sizes, skipped groups, cells, block levels, rt-match / activity-control lines
 [ ] every ceiling (stab_to_stab, flex_to_flex) beats shuffle   <- else stop
+[ ] no significant windows centred before -0.125 s             <- else stop
 [ ] per group and direction: sig windows, windows below ceiling, share kept
-[ ] both directions agree
-[ ] groups compared by share kept, against 'all'
-[ ] no significant windows centred before -0.125 s
+[ ] both directions agree (or the asymmetry is reported)
+[ ] RT-matched: residual RT ~0; rt vs random share kept, against the seed spread
+[ ] remove_mean / mean_only share kept vs baseline
 [ ] T1 transfers; T3 share set beside A4's share
+[ ] groups compared by share kept, against 'all', split run only
+[ ] fill in the report block (§13.7)
 ```
 
 ---
@@ -1510,10 +1572,283 @@ Run outside the cluster with `pip install -e . pytest` then
 
 ---
 
+### 13. The control battery: run it, read it, report it
+
+A transfer above chance says that congruency and switch type share *something*.
+Before it can be reported as a shared code, the obvious cheaper explanations have
+to be ruled out. Each has a control built into this job. This section is the one
+place that says what to run, in what order, what to compare with what, and what
+each outcome lets you say. The single controls are documented in §6.4
+(RT matching), §6.5 (overall activity), §5 (response-locked) and §9 (task
+transfer); the methods are in [RT matching](#rt-matching) and
+[Overall-activity control](#overall-activity-control).
+
+Run everything on the ungrouped `none` route first: it is cheap, and no
+selection on either effect can inflate it. Do the groups (`both` vs `*_only`)
+only if they go in the paper (§13.6).
+
+#### 13.1 What each control asks
+
+| Run | The alternative it tests | Knob | Read it against | Folder (under `results/<EPOCHS_ROOT_FILE>/`) |
+|---|---|---|---|---|
+| **Baseline** | – (this is the result) | `ELECTRODE_DEFINITION=none` | its own ceilings | `cross_decoding_lpfc_sig_none/` |
+| **RT-matched** | *Shared latency.* Incongruent and switch trials are both ~200 ms slower, so late stimulus-locked windows can separate them by time-to-response alone. | `RT_MATCH=rt` | the `random` run, **not** the baseline | `…_none_rtmatch10/` |
+| **RT control** | Matching keeps about half the trials; a weaker transfer could just be less data. | `RT_MATCH=random` | the `rt` run | `…_none_rtrandom10/` |
+| **Response-locked** | The same question from the other side: align every trial to its response. | `CONDITIONS=response_main_effect_conditions` + a `Response_…` epochs file | where in the epoch the transfer sits | `cross_decoding_lpfc_sig_none/`, under the Response file's folder instead |
+| **Pattern only** | *Shared gain.* Hard trials raise HG on most electrodes at once; a decoder can learn "activity is up". | `ACTIVITY_CONTROL=remove_mean` | the baseline, by share kept | `…_none_remove_mean/` |
+| **Mean only** | The uniform part alone. | `ACTIVITY_CONTROL=mean_only` | the baseline, by share kept | `…_none_mean_only/` |
+| **Both controls** | Latency and gain together (after the two above are read). | `RT_MATCH=rt ACTIVITY_CONTROL=remove_mean` (and `random`) | each other | `…_none_rtmatch10_remove_mean/` |
+| **Positive controls** | *A broken pipeline.* If a control kills the transfer, that only means something if the pipeline can carry a code across trial populations at all. | `bash submit_task_transfer_dcc.sh` | T1/T3 share kept beside A4's | `task_transfer_lpfc_sig_w64s16/` |
+| **Seeds** | Differences between runs are only the random trial pairing of the pseudopopulation. | `SEED=1`, `SEED=2` (+ `SAVE_DIR`) | the spread of share kept | `…_none_seed<n>/` (set by you) |
+
+Each A4 folder has a `<CONDITIONS>/` subfolder (`stimulus_main_effect_conditions/`,
+or `response_main_effect_conditions/` for the response-locked run); the task
+transfer's is `pooled_design_conditions/`. `SEED` is not in the folder name, so
+seed runs need their own `SAVE_DIR` (§13.2). Every other row gets its own folder
+automatically.
+
+#### 13.2 Running it
+
+```bash
+REPO=/hpc/home/$USER/coganlab/$USER/GlobalLocal
+cd $REPO && git pull                    # RT matching / ACTIVITY_CONTROL are from 2026-09-30
+cd dcc_scripts/decoding
+export EPOCHS_ROOT_FILE=Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+RESP_FILE=Response_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+A4=submit_stability_flexibility_cross_decoding_dcc.sh
+
+# 1. baseline (the 2026-09-29 run; rerun it if the decoding code changed since)
+ELECTRODE_DEFINITION=none bash $A4
+
+# 2. RT: the matched run and its trial-count control, same SEED
+ELECTRODE_DEFINITION=none RT_MATCH=rt     TEMPGEN_GROUPS= bash $A4
+ELECTRODE_DEFINITION=none RT_MATCH=random TEMPGEN_GROUPS= bash $A4
+
+# 3. response-locked (check that $RESP_FILE exists first)
+ELECTRODE_DEFINITION=none CONDITIONS=response_main_effect_conditions \
+    EPOCHS_ROOT_FILE=$RESP_FILE bash $A4
+
+# 4. overall activity
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean TEMPGEN_GROUPS= bash $A4
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only   TEMPGEN_GROUPS= bash $A4
+
+# 5. both controls together (worth it once 2 and 4 are read)
+ELECTRODE_DEFINITION=none RT_MATCH=rt     ACTIVITY_CONTROL=remove_mean TEMPGEN_GROUPS= bash $A4
+ELECTRODE_DEFINITION=none RT_MATCH=random ACTIVITY_CONTROL=remove_mean TEMPGEN_GROUPS= bash $A4
+
+# 6. positive controls, same electrodes and epochs file as the A4 runs
+bash submit_task_transfer_dcc.sh
+
+# 7. seeds: SEED is not in the folder name, so give each its own SAVE_DIR
+for s in 1 2; do
+  ELECTRODE_DEFINITION=none SEED=$s TEMPGEN_GROUPS= \
+  SAVE_DIR=$PWD/results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_sig_none_seed$s/stimulus_main_effect_conditions \
+      bash $A4
+done
+```
+
+- **Set control knobs per command, never with `export`.** Both launchers submit
+  with `--export=ALL`, so an exported `RT_MATCH` or `ACTIVITY_CONTROL` would ride
+  along into every later job in that shell, including the task-transfer
+  controls. `EPOCHS_ROOT_FILE` is the one variable meant to be exported.
+- **`TEMPGEN_GROUPS=` (empty)** skips temporal generalization, which on the `none`
+  route otherwise runs on `all` and costs 3 × 37² decodes. The controls do not
+  need it; the baseline and response-locked runs keep it.
+- **Check the echo lines** before walking away: `definition=none`, and
+  `rt_match=` / `activity_control=` as intended.
+- **Cost:** one group, so each job is the cheapest A4 run (§7.4). RT-matched runs
+  decode about half the trials and are faster still.
+- **RT matching is refused** on synthetic data and stops the job if a subject would
+  lose every trial (lower `RT_MATCH_BINS`, §6.4).
+
+#### 13.3 Comparing the runs
+
+`summary.txt` in each folder has the numbers for that run. To see the runs side by
+side, point this at the save directories (it reads `cross_decoding.json` and, if
+present, `accuracy_traces.npz`):
+
+```python
+import json, os
+import numpy as np
+
+RUNS = {  # label -> save directory (the folder holding cross_decoding.json)
+    'baseline':    'results/<EPOCHS_ROOT_FILE>/cross_decoding_lpfc_sig_none/stimulus_main_effect_conditions',
+    'rt':          'results/<EPOCHS_ROOT_FILE>/cross_decoding_lpfc_sig_none_rtmatch10/stimulus_main_effect_conditions',
+    'random':      'results/<EPOCHS_ROOT_FILE>/cross_decoding_lpfc_sig_none_rtrandom10/stimulus_main_effect_conditions',
+    'remove_mean': 'results/<EPOCHS_ROOT_FILE>/cross_decoding_lpfc_sig_none_remove_mean/stimulus_main_effect_conditions',
+    'mean_only':   'results/<EPOCHS_ROOT_FILE>/cross_decoding_lpfc_sig_none_mean_only/stimulus_main_effect_conditions',
+}
+WINDOW, STEP, SRATE, FIRST = 64, 16, 256, -1.0      # WINDOW_SIZE, STEP_SIZE, SAMPLING_RATE, FIRST_TIME_POINT
+
+print(f"{'run':10} {'group':17} {'direction':13} {'n':>4} {'sig':>3} {'from':>6} "
+      f"{'pre':>3} {'peak':>5} {'post':>5} {'kept':>5} {'below':>5}")
+for label, folder in RUNS.items():
+    runs = json.load(open(os.path.join(folder, 'cross_decoding.json')))['label_transfer']
+    npz = os.path.join(folder, 'accuracy_traces.npz')
+    traces = np.load(npz) if os.path.exists(npz) else None
+    for group, directions in runs.items():
+        for direction, r in directions.items():
+            sig = np.asarray(r['significant_windows'], bool)
+            t = FIRST + (np.arange(sig.size) * STEP + WINDOW / 2) / SRATE   # window centres
+            post = ''
+            if traces is not None:                      # mean over windows fully after 0 s
+                acc = traces[f'labeltransfer_{group}_{direction}_true'].mean(axis=1)
+                post = f"{acc[t >= WINDOW / 2 / SRATE].mean():.3f}"
+            kept = r.get('retained')
+            print(f"{label:10} {group:17} {direction:13} {r['n_channels']:4d} {sig.sum():3d} "
+                  f"{(f'{t[sig][0]:+.2f}' if sig.any() else '-'):>6} "
+                  f"{int(sig[t <= -WINDOW / 2 / SRATE].sum()):3d} {r['peak_accuracy']:5.3f} "
+                  f"{post:>5} {('' if kept is None else f'{kept:.0%}'):>5} "
+                  f"{r.get('n_below_ceiling', ''):>5}")
+```
+
+| Column | Meaning |
+|---|---|
+| `n` | electrodes decoded (for `mean_only`, the features are one per subject; the summary says how many) |
+| `sig`, `from` | significant windows (cluster-corrected against the refit shuffle) and the centre of the first one |
+| `pre` | significant windows centred at or before −0.125 s, i.e. entirely before the stimulus: the artifact meter. On the response-locked run these are pre-*response* windows and are not artifacts. |
+| `peak` | best window's accuracy |
+| `post` | mean accuracy over the windows entirely after 0 s. Use this, not `mean_accuracy` (which averages in the baseline second). |
+| `kept` | share of the ceiling's above-chance accuracy the transfer keeps (transfers only) |
+| `below` | windows where the ceiling beats the transfer |
+
+The response-locked run has its own time axis (0 = response); keep it in a
+separate `RUNS` dict or read its column `from` as time-to-response.
+
+#### 13.4 Reading each control
+
+**First, the prerequisites, in every run:** both ceilings (`stab_to_stab`,
+`flex_to_flex`) have significant windows, and `pre` is 0. A run that fails either
+cannot say anything about transfer (§8.2 steps 2 and 6).
+
+**RT matching.** Check the matching worked, then compare `rt` with `random`.
+
+1. `rt_match_congruency_task_sequence_summary.csv` in the `rt` folder: the
+   `mean_after` column should be near 0 with `p_after` > .05 for both factors (the
+   behavioural data give +2 ms and +1 ms at 10 bins). If not, rerun with more bins
+   (`RT_MATCH_BINS=15`). The `random` folder's CSV should still show the full RT
+   costs; that is what makes it the control.
+2. Compare the two runs' transfers:
+
+| `rt` vs `random` | Reading |
+|---|---|
+| similar share kept and similar `sig` | **Not a shared latency.** The transfer survives when the compared trials are equally fast. |
+| `rt` clearly lower, still above chance | **Partly latency.** Report the share that survives. |
+| `rt` at chance, `random` transfers | **The late transfer was the RT difference.** The codes are separable once RT is equated. |
+| `random` loses the transfer too | **Inconclusive:** halving the trials cost the power. Try `RT_MATCH_BINS=5` (keeps more, matches less tightly) or more electrodes. |
+
+"Similar" has no formal test: judge it against the seed spread (§13.1, the
+**Seeds** row). A difference between `rt` and `random` smaller than the difference
+between two seeds of the same run is not a difference.
+
+**Response-locked.** Descriptive; read it together with the RT result.
+
+| Where the response-locked transfer sits | Reading |
+|---|---|
+| only early in the epoch (far before the response), fading towards it | the latency signature: at a fixed time before the response, slow trials are further past their stimulus |
+| around the response itself, with both ceilings there | something shared in the response period that is not a timing shift, e.g. effort or response caution |
+| nowhere | the shared component is locked to the stimulus, not to the response |
+
+The electrodes come from the response file's own significance list, so they are
+not exactly the baseline's 171 (the log prints the count). Windows after the
+response include feedback and the next trial's preparation.
+
+**Overall activity.** Compare each run's `kept` with the baseline's, per
+direction (the ceilings change too, so do not compare raw accuracy):
+
+| `remove_mean` | `mean_only` | Reading |
+|---|---|---|
+| keeps a similar share | little or no transfer | **A shared pattern**, not a uniform rise in activity |
+| transfer gone, ceilings still above chance | transfers | **A shared gain**: both effects raise overall HG; their specific patterns differ |
+| reduced but present | transfers | **Both.** Report the share under each. |
+| ceilings gone too | – | the contrasts themselves are mostly overall activity; this control cannot speak to the transfer |
+
+`remove_mean` removes only a shift shared by *all* of a subject's decoded
+electrodes; a rise on a subset of them still reads as "pattern"
+([Overall-activity control](#overall-activity-control)).
+
+**Positive controls.** T1 (task learned on congruent trials, tested on
+incongruent ones) should keep most of its ceiling; if it does, a transfer that a
+control kills was killed by the control, not by the pipeline. Put T3's share
+(congruency across task, at congruency's own effect size) next to A4's (§9).
+
+**Seeds.** The spread of `kept` across `SEED=0,1,2` is the noise floor for every
+comparison above. The grouped runs of 2026-09-29 suggest it is not small: `both`
+switch → congruency kept 55% in the `anova` run and 34% in the `csv` run, with the
+same group sizes and probably the same electrodes (the csv route loads all 398
+electrodes, which changes how trials are paired into pseudo-trials).
+
+#### 13.5 Putting it together: what you can say
+
+| RT (`rt` vs `random`) | Activity (`remove_mean`) | What the transfer supports |
+|---|---|---|
+| survives | survives | **Congruency and switch type share part of their lPFC code**, not explained by response time or by a uniform rise in activity. The strongest claim. Confirm with run 5 (both controls at once). |
+| survives | gone, `mean_only` transfers | They share a **uniform activity increase** (a common difficulty/effort signal) that is not a timing artifact; their specific patterns are separable. |
+| gone | – | The late transfer is the **RT difference**; once trials are equally fast the codes are separable. |
+| partial | partial | Report the share kept under each control; do not round it to yes or no. |
+
+Whatever the row, also report: the early separability (in the baseline, switch
+type is decodable from ~0 s and congruency from ~0.3 s, but nothing transfers
+until the window covering 0.5–0.75 s), the direction asymmetry (congruency →
+switch keeps more than switch → congruency), and the pre-stimulus windows.
+
+#### 13.6 The groups (`both` vs `*_only`)
+
+Only if the paper makes a claim about the groups. Two extra requirements on top of
+§13.4:
+
+- **Held-out selection.** On the csv and unsplit `anova` routes the groups were
+  selected on the trials they are decoded on, which inflates each group's own
+  ceilings and can inflate the transfer too (electrodes picked because both
+  effects push HG the same way favour a shared axis). Run
+  `ELECTRODE_SELECTION_SPLIT=true bash $A4` (folder `…_anova_condition_none_split0.3s0/`;
+  add `RT_MATCH` / `ACTIVITY_CONTROL` as above). Split and RT matching together
+  leave about a third of the trials.
+- **The pre-stimulus meter.** In the 2026-09-29 runs, `both` and the csv run's
+  398-electrode `all` had significant pre-stimulus windows; the 171-electrode `all`
+  had none. [Cross-decoding controls](#cross-decoding-controls) §6 has the
+  diagnosis. A group with `pre` > 0 cannot be reported.
+
+Compare groups by `kept`, never by raw accuracy, and against the seed spread.
+
+#### 13.7 What to report, and where things stand
+
+The block to fill in per transfer direction (numbers so far: the 2026-09-29
+`none` run, 171 task-significant lPFC electrodes, pooled 2×2, 250 ms windows):
+
+```
+electrodes          lpfc, task-significant (ELECTRODES=sig), 171 electrodes / __ subjects
+condition set       stimulus_main_effect_conditions (congruency x switch type, blocks pooled)
+decoding            PCA(80%) -> LDA, 5-fold x 10 repeats; 250 ms windows, 62.5 ms steps;
+                    cluster-corrected against a refit label-shuffle null (500 permutations)
+ceilings            stab_to_stab: sig from +0.31 s, peak 0.618 @ 1.31 s
+                    flex_to_flex: sig from  0.00 s, peak 0.662 @ 1.12 s
+transfer            stab_to_flex: sig from +0.62 s, peak 0.640 @ 1.12 s, keeps 64%, below ceiling 12 windows
+                    flex_to_stab: sig from +0.62 s, peak 0.576 @ 0.94 s, keeps 39%, below ceiling 18 windows
+pre-stimulus        none
+RT matching         residual RT i-c __ ms (p __), s-r __ ms (p __); keeps __% (rt) vs __% (random)
+response-locked     __
+activity control    keeps __% (remove_mean), __% (mean_only)
+both controls       keeps __% (rt + remove_mean) vs __% (random + remove_mean)
+positive controls   T1 keeps __%; T3 keeps __%
+seeds               keeps __ +/- __ over __ seeds
+```
+
+**Done:** the baseline (`none`), and the in-job `anova` and `csv` group runs
+(2026-09-29; §13.6 for their caveats).
+**To run:** everything else in §13.2.
+
+Two things the controls do not fix, to state in the methods: the cluster tests'
+samples are CV repeats of one pseudopopulation, not subjects (§8.3), and there is
+no leave-one-subject-out for A4 (§10).
+
+---
+
 ### Related documents
 
 - [`analysis_guide.md`](analysis_guide.md) §17 — A4's design and the reasons behind it; §17.5 — the runbook for the main-effect populations and task controls
 - [Cross-decoding controls](#cross-decoding-controls) — diagnosing a transfer that did not work, and the report block to print with every transfer
+- [RT matching](#rt-matching) and [Overall-activity control](#overall-activity-control) — the methods behind §6.4, §6.5 and §13
 - [N3b block transfer](#n3b-block-transfer) — block transfer, the third mode of this job
 - [Decoding job](#decoding-job) — the ordinary decoding job, run in the same populations
 - [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan) — where the cross-decoding results sit in the paper
@@ -1976,6 +2311,32 @@ What each can and cannot license:
   exist before the cue. `summary.txt` flags them separately from congruency /
   switch-type pre-stimulus windows, which remain artifacts (§6).
 
+#### 3.6 RT matching (the control for a POSITIVE label transfer)
+
+The rungs above guard a null. A transfer that comes back *above* chance needs the
+opposite kind of control: a cheaper reason both labellings could be decoded along
+one axis. The first is response time. Incongruent and switch trials are both
+slower, so in stimulus-locked windows near the response anything that tracks
+time-to-response separates both contrasts the same way.
+
+`RT_MATCH=rt` keeps, per subject, a subset in which the congruency × switch-type
+cells have the same RT distribution; `RT_MATCH=random` keeps the same counts
+without regard to RT. The transfer survives RT if the `rt` run keeps about the
+share the `random` run keeps. Method: [RT matching](#rt-matching); run and read:
+[A4 §13](#13-the-control-battery-run-it-read-it-report-it). The response-locked
+run (`response_main_effect_conditions`) looks at the same question from the
+response side.
+
+#### 3.7 Overall activity (the second control for a positive transfer)
+
+If hard trials raise HG on most electrodes at once, a decoder trained on one
+contrast learns "activity is up" and scores the other contrast above chance: a
+shared gain rather than a shared pattern. `ACTIVITY_CONTROL=remove_mean` removes
+each subject's mean across its decoded electrodes (only the pattern is left);
+`ACTIVITY_CONTROL=mean_only` keeps only that mean. A shared pattern survives the
+first and fails the second; a shared gain does the reverse. Method:
+[Overall-activity control](#overall-activity-control).
+
 ---
 
 ### 4. F1 — transfer sits at chance
@@ -2122,6 +2483,33 @@ Suspects, in the order worth testing:
 **Quick probe:** sweep `frac_train`. If the pre-stimulus cluster shrinks as the
 training set shrinks, it is fold leakage rather than signal.
 
+**Where it shows up now (A4, 2026-09-29).** Pre-stimulus windows appear in the
+electrodes *selected* for the congruency and switch-type main effects (`both`, on
+both the in-job `anova` and the `csv` route) and in the csv run's `all` (every
+lPFC electrode, 398, including non-responsive ones), but not in the 171
+task-significant electrodes decoded without selection (`none`). That pattern
+points at suspect 2 through the selection:
+
+- In the pooled 2×2 (`stimulus_main_effect_conditions`), 75% of incongruent
+  trials come from 75%-incongruent blocks and 75% of switch trials from
+  75%-switch blocks, so any tonic block difference separates the classes before
+  the stimulus.
+- The main-effect selection is a one-way ANOVA on congruency (or switch type)
+  alone (`per_electrode_anova_labels`), with no block term, over the window mean.
+  An electrode with a tonic block offset shows a "congruency effect", so the
+  selection can enrich for exactly these electrodes.
+- Non-responsive electrodes (in the 398) carry slow drift and tonic offsets with
+  no stimulus response to dilute them.
+
+Checks, cheapest first: decode block type with the ordinary decoding job on the
+same electrodes (`CONDITIONS=stimulus_block_multiclass_conditions`, blocks A–D as
+four classes, or `stimulus_block_pairwise_conditions`; with no table, as in
+[Decoding job](#decoding-job) §3.1) and look at its pre-stimulus windows. If block
+type is decodable before the stimulus, the leak is confirmed. Then the
+selection split (`ELECTRODE_SELECTION_SPLIT=true`), and, if the groups are to be
+reported, tonic block centering (§4.2) — which is not built for A4 and which
+removes any genuine proactive (block-level) signal along with the artifact.
+
 Also treat **transfer > within-condition accuracy** as an F3: a transferred axis
 cannot beat an axis trained on the labelling it is scored against. That
 combination means the two labellings are not actually crossed, or the test
@@ -2148,7 +2536,14 @@ pre-stimulus cluster       none / [t0, t1]             <- artifact meter
 reverse direction          75%inc -> 25%inc: ___
 positive control X3        congruency across switch proportion: ___
 positive control T1 / T3   task across congruency: ___ ; congruency across task: ___
+RT matching (positives)    residual RT ___ ms; transfer ___ (rt) vs ___ (random)
+activity (positives)       transfer ___ (remove_mean) vs ___ (mean_only) vs ___ (none)
+response-locked            transfer windows ___ relative to the response
+seeds                      share kept ___ +/- ___
 ```
+
+The last four lines apply to a transfer that came back above chance; A4 §13.7 has
+the same block filled in for the label transfer.
 
 The two lines that carry all the interpretive weight are **within-condition acc**
 and **pre-stimulus cluster**. A reader who sees the first can tell whether a null
@@ -2174,7 +2569,12 @@ transfer below chance? .......................... check class ordering first (§
 transfer above chance?
 ├── pre-stimulus cluster present → artifact; fix folds/baseline .. (§6)
 ├── transfer > within-condition → labellings not crossed ......... (§6)
-└── clean → report with its ceiling and its reverse direction
+└── clean → rule out the cheaper shared axes (A4 §13)
+    ├── RT_MATCH=rt keeps ≈ the share RT_MATCH=random keeps? ..... (§3.6)
+    │   └── no → the transfer is (partly) a response-time difference
+    ├── ACTIVITY_CONTROL=remove_mean keeps the share? ............ (§3.7)
+    │   └── no, and mean_only transfers → a shared gain, not a pattern
+    └── both yes → report with its ceiling, reverse direction, and the controls
 ```
 
 ---
