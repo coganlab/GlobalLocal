@@ -14,6 +14,8 @@ of [`analysis_guide.md`](analysis_guide.md) point here.
 | Knobs | `dcc_scripts/stats/run_stability_flexibility_brain_behavior_dcc.py` |
 | Submitter | `dcc_scripts/stats/submit_stability_flexibility_brain_behavior_dcc.sh` |
 | Long table (now with `trial`, `rt`, `acc`) | `assemble_long_df` in `dcc_scripts/stats/stability_flexibility_segregation_dcc.py` |
+| Behavioral LWPC, LWPS and the other per-subject effects | `src/config/ieeg_behavioral_subject_level_effects.csv` |
+| Where that CSV comes from | [`analysis/iEEGBehavioralAnalysis.ipynb`](https://github.com/jimzhang629/TSF-fMRI-python_Jim/blob/HEAD/analysis/iEEGBehavioralAnalysis.ipynb) in `jimzhang629/TSF-fMRI-python_Jim` |
 
 ---
 
@@ -96,10 +98,21 @@ names; neither uses the columns afterwards.
 
 ### 1.2 Behavior comes from the subject-level effects table
 
-The behavioral LWPC / LWPS that levels (1) and (2) correlate against are read
-from `src/config/ieeg_behavioral_subject_level_effects.csv`
-(`load_subject_level_behavior`): the `LWPC_effect` / `LWPS_effect` of its
-`key_RT_mean` rows, one per subject. Both are LOW minus HIGH proportion
+**Where the table comes from.** `src/config/ieeg_behavioral_subject_level_effects.csv`
+was generated with
+[`analysis/iEEGBehavioralAnalysis.ipynb`](https://github.com/jimzhang629/TSF-fMRI-python_Jim/blob/HEAD/analysis/iEEGBehavioralAnalysis.ipynb)
+in the `jimzhang629/TSF-fMRI-python_Jim` repository. It is not built by
+anything in this repository: to change the behavioral scores, rerun that
+notebook and replace the CSV. It holds one row per subject and measure
+(`key_RT_mean`, `acc_mean`, `error_mean`) with the overall mean, the congruency
+effect, the switch cost, each split by block proportion, `LWPC_effect`,
+`LWPS_effect`, and the other interaction terms.
+
+**The behavioral LWPC, LWPS and related scores all come from this CSV.** A6 does
+not compute them itself. The behavioral LWPC / LWPS that levels (1) and (2)
+correlate against are read with `load_subject_level_behavior`: the
+`LWPC_effect` / `LWPS_effect` of its `key_RT_mean` rows, one per subject.
+`behavioral_magnitudes.csv` carries the table's other columns alongside them. Both are LOW minus HIGH proportion
 (`congruency_effect_25_inc − congruency_effect_75_inc`,
 `switch_cost_25_switch − switch_cost_75_switch`), the orientation of the neural
 scores; a test pins this against the file. The table's IDs are stems (`D0107`),
@@ -152,8 +165,11 @@ right because a participant's electrodes share its trials, so their sampling
 errors are nearly equal. Participants with fewer than `MIN_ELEC` usable
 electrodes (default 3) get no neural score.
 
-**Behavioral.** The same four cells on RT (ms), correct trials, the same trials
-as the HG.
+**Behavioral.** The `LWPC_effect` / `LWPS_effect` (RT, ms) of the participant's
+`key_RT_mean` row in `ieeg_behavioral_subject_level_effects.csv` (§1.2). They
+are the same four-cell difference-of-differences. The job does not score them
+from the HG trials; it scores those only to cross-check the table and to
+estimate its reliability.
 
 **Sign.** Both are LOW minus HIGH proportion. Positive means the condition effect
 shrinks in the high-proportion block, the direction behavior shows.
@@ -267,10 +283,11 @@ long table: subject, electrode, trial, hg, congruency, switchType,
         |       correct trials with an RT only (brain and behavior alike)
         |       rt_adjust_hg: per-electrode within-cell HG~RT slope -> hg_adj
         |       per electrode: d-o-d / pooled SD on hg and hg_adj    -> participant_electrode_scores.csv
-        |       per participant: mean over usable electrodes; RT d-o-d on the same trials
+        |       per participant: mean over usable electrodes; RT d-o-d on the same
+        |         trials (cross-check and reliability estimate only)
         |       PARTICIPANT_N_SPLITS shared splits -> half values -> reliabilities
         |           -> participant_scores.csv, participant_reliability.csv
-        |     participant_brain_behavior(ps, 'rtadj' | 'raw')
+        |     participant_brain_behavior(ps, 'rtadj' | 'raw', behavior=<the CSV>)
         |       matched / cross r, Spearman, CI, joint regression, ceiling,
         |       |r| needed, same- vs disjoint-half r
         |           -> participant_brain_behavior.json / .png, summary.txt (1)
@@ -411,7 +428,7 @@ pytest tests/analysis/stats/test_participant_brain_behavior.py \
 | File | Contents |
 |---|---|
 | `summary.txt` | everything below in words; **read this first** |
-| `participant_scores.csv` | one row per participant: `n_elec`, `n_trials`, `lwpc_neural`, `lwps_neural`, `lwpc_neural_rtadj`, `lwps_neural_rtadj`, `lwpc_behav`, `lwps_behav` (ms), `mean_rt`, `resp` (mean \|HG\|), `rt_hg_r` (median within-cell HG–RT correlation of its electrodes) |
+| `participant_scores.csv` | one row per participant: `n_elec`, `n_trials`, `lwpc_neural`, `lwps_neural`, `lwpc_neural_rtadj`, `lwps_neural_rtadj`, `lwpc_behav`, `lwps_behav` (ms, from `ieeg_behavioral_subject_level_effects.csv`), `lwpc_behav_trials`, `lwps_behav_trials` (ms, scored on the HG trials, for the cross-check), `mean_rt`, `resp` (mean \|HG\|), `rt_hg_r` (median within-cell HG–RT correlation of its electrodes) |
 | `participant_electrode_scores.csv` | one row per electrode: the four neural d's, `usable`, `resp`, `rt_slope`, `rt_r` |
 | `participant_reliability.csv` | one row per score: `r_half`, `sd_half`, `reliability` (full length), `n_participants`, `n_splits` |
 | `participant_brain_behavior.json` | for `rtadj` and `raw`: every number in §10; plus the settings, notes and the CSV cross-check |
@@ -430,17 +447,20 @@ Work down `summary.txt` in this order.
 
 1. **Behavior sanity.** The `behavioral magnitudes` line should show positive
    group means, near +120 ms (LWPC) and +100 ms (LWPS). Individual participants
-   scatter widely. The `behavior cross-check` line compares the long-table
-   behavior with the CSV for the same participants. Expect a high r: both score
-   the same sessions and share most trials (the long table holds only correct
-   trials that survived preprocessing). An LWPC agreement clearly below the LWPS
-   one is what a wrong block map produces.
+   scatter widely. The `behavior cross-check` line compares
+   `ieeg_behavioral_subject_level_effects.csv` with the same contrast scored on
+   the long table's trials, for the same participants. Expect a high r: both
+   score the same sessions and share most trials (the long table holds only
+   correct trials that survived preprocessing). A low or negative r means the
+   notebook and this job are not scoring the same contrast.
 2. **Coverage.** How many participants have ≥ `MIN_ELEC` usable electrodes, and
    the median electrode and trial counts. Those dropped still have behavior in
    `participant_scores.csv`.
-3. **Reliability and ceiling.** Behavior should come out near 0.69 (LWPC) and
-   0.37 (LWPS), the values on `combinedData.csv`, or somewhat lower if
-   preprocessing dropped many trials. A neural reliability near zero means participants do not differ
+3. **Reliability and ceiling.** The CSV has no trials, so the behavioral
+   reliability (tagged `(iEEG trials)`) is measured on the long table's trials
+   and stands in for the CSV's. It should come out near 0.69 (LWPC) and 0.37
+   (LWPS), the values on `combinedData.csv`, or somewhat lower if preprocessing
+   dropped many trials. A neural reliability near zero means participants do not differ
    measurably in that score; no correlation with anything is then possible. If
    the ceiling is below the |r| needed, even a perfect true link could not reach
    significance, and the text should say so rather than report a null.
