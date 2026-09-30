@@ -187,6 +187,23 @@ toward zero. In task-significant lPFC both simple effects are positive (N2), so
 the signed mean is appropriate there. To check, compare the main-effect signs
 (`MAIN_EFFECTS=1` segregation run).
 
+**Exploratory alternatives to the signed mean.** Level (1) also scores each
+participant two other ways, each raw and RT-adjusted, with its own reliability,
+correlations and scatter figure:
+
+| Variant | Participant's neural score | Columns |
+|---|---|---|
+| `abs`, `abs_rtadj` | mean \|d\| over its usable electrodes, so electrodes adapting in opposite directions no longer cancel | `*_neural_abs`, `*_neural_rtadj_abs` |
+| `pos`, `pos_rtadj` | mean d over only the electrodes whose own score is positive, chosen per effect (LWPC and LWPS separately); needs `MIN_ELEC` such electrodes, else NaN | `*_neural_pos`, `*_neural_rtadj_pos`; `*_pos_n` counts them |
+
+Treat both as exploratory. Each folds or selects on the same noisy d it
+averages, so noise alone makes them positive even with no true effect, and more
+so for a participant with fewer trials: a participant's score partly measures
+its noise level. `summary.txt` prints `r(neural score, trials per participant)`
+for each of these variants; a clearly negative value means that noise, not
+adaptation, is driving the score. `pos` also loses participants: a participant
+counts only if both its LWPC and its LWPS have `MIN_ELEC` positive electrodes.
+
 ---
 
 ## 4. The three traps, and what the code does about each
@@ -444,7 +461,7 @@ pytest tests/analysis/stats/test_participant_brain_behavior.py \
 | `participant_reliability.csv` | one row per score: `r_half`, `sd_half`, `reliability` (full length), `n_participants`, `n_splits` |
 | `participant_brain_behavior.json` | for `rtadj` and `raw`: every number in §10; plus the settings, notes and the CSV cross-check |
 | `participant_brain_behavior.png` | LWPC and LWPS (rows) × RT-adjusted and raw (columns); one dot per participant, fitted line, r with CI, ceiling, disjoint-half r |
-| `participant_brain_behavior_scatter_<rtadj\|raw>.{png,pdf,eps}` | the figure version, in the decoding figures' Nature style: LWPC and LWPS side by side, behavioral score (ms) on x, neural score on y, one dot per participant, least-squares line, R² and p top right. R² and p are that variant's r² and p |
+| `participant_brain_behavior_scatter_<rtadj\|raw\|abs_rtadj\|abs\|pos_rtadj\|pos>.{png,pdf,eps}` | the figure version, in the decoding figures' Nature style: LWPC and LWPS side by side, behavioral score (ms) on x, neural score on y, one dot per participant, least-squares line, R² and p top right. R² and p are that variant's r² and p |
 | `behavioral_magnitudes.csv` | per-participant behavioral `lwpc` / `lwps` (and the table's other effect columns) from the subject-level table, under the epochs' subject IDs (levels 1 and 2 use these) |
 | `long_df.csv` | the single-trial long table (real runs), including `trial`, `rt`, `acc` |
 | `electrode_labels.csv`, `subject_table_<mode>.csv`, `across_subject.json` | level (2) |

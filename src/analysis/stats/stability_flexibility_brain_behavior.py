@@ -566,6 +566,19 @@ def _shared_half(strata, sizes, rng):
     return (rank >= sizes[strata] // 2).astype(np.int64)
 
 
+# How a participant's electrode scores become its one neural score, by column
+# suffix: '' the signed mean (the claim); '_abs' the mean |d|, so electrodes whose
+# adaptation runs in opposite directions no longer cancel; '_pos' the mean over the
+# electrodes whose own score is positive (it needs `min_elec` of them). The last
+# two fold or select on the same noisy d they average, so noise alone raises
+# them, and more for a participant with fewer trials: exploratory.
+_SUMMARIES = ('', '_abs', '_pos')
+# `participant_brain_behavior` variant -> neural score column suffix
+NEURAL_VARIANTS = {'raw': '', 'rtadj': '_rtadj',
+                   'abs': '_abs', 'abs_rtadj': '_rtadj_abs',
+                   'pos': '_pos', 'pos_rtadj': '_rtadj_pos'}
+
+
 def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
                        correct_only=True):
     """One neural and one behavioral LWPC / LWPS per participant, with reliabilities.
@@ -596,7 +609,9 @@ def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
       scores       one row per participant: `n_elec` (usable electrodes),
                    `n_trials`, the neural means `lwpc_neural` / `lwps_neural`
                    (mean per-electrode d, LOW minus HIGH) and their `_rtadj`
-                   versions, behavioral `lwpc_behav` / `lwps_behav` (RT d-o-d, ms),
+                   versions, each also as `_abs` (mean |d|) and `_pos` (mean over
+                   its d > 0 electrodes, counted in `_pos_n`; see `_SUMMARIES`),
+                   behavioral `lwpc_behav` / `lwps_behav` (RT d-o-d, ms),
                    `mean_rt`, `resp` (mean |HG|, the gain proxy) and `rt_hg_r` (the
                    median within-cell HG-RT correlation of its electrodes).
       electrodes   one row per electrode: its full-data scores, `usable`, `resp`,
@@ -698,6 +713,11 @@ def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
         m[cnt < min_elec] = np.nan
         return m
 
+    def summarize(x, mask):
+        """{suffix: participant values} of one electrode score, per `_SUMMARIES`."""
+        return {'': pmean(x, mask), '_abs': pmean(np.abs(x), mask),
+                '_pos': pmean(x, mask & (x > 0))}
+
     effects = ('lwpc', 'lwps')
     elec_scores = {f'{eff}_{k}': _dod_scores(v, elec_code, codes[eff], n_e)
                    for k, v in values.items() for eff in effects}
@@ -710,7 +730,8 @@ def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
                  for eff in effects}
 
     rng = np.random.default_rng(seed)
-    halves = {k: np.full((n_splits, n_p, 2), np.nan) for k in [*elec_scores, *behav]}
+    halves = {k: np.full((n_splits, n_p, 2), np.nan)
+              for k in [*(f'{e}{m}' for e in elec_scores for m in _SUMMARIES), *behav]}
     for s in range(n_splits):
         h_trial = _shared_half(strata, sizes, rng)
         unit = elec_code * 2 + h_trial[row_trial]
@@ -718,8 +739,9 @@ def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
             for eff in effects:
                 ab = _dod_scores(v, unit, codes[eff], n_e * 2).reshape(n_e, 2)
                 ok = usable & np.isfinite(ab).all(1)
-                halves[f'{eff}_{k}'][s] = np.column_stack(
-                    [pmean(ab[:, 0], ok), pmean(ab[:, 1], ok)])
+                half_a, half_b = summarize(ab[:, 0], ok), summarize(ab[:, 1], ok)
+                for m in _SUMMARIES:
+                    halves[f'{eff}_{k}{m}'][s] = np.column_stack([half_a[m], half_b[m]])
         if has_rt:
             t_unit = t_subj * 2 + h_trial
             for eff in effects:
@@ -754,7 +776,10 @@ def participant_scores(df, n_splits=200, seed=0, min_elec=3, rt_adjust=True,
                                n_elec=np.bincount(subj_of_elec[usable], minlength=n_p),
                                n_trials=np.bincount(t_subj, minlength=n_p)))
     for name, x in elec_scores.items():
-        scores[name] = pmean(x, usable)
+        for m, val in summarize(x, usable).items():
+            scores[f'{name}{m}'] = val
+        scores[f'{name}_pos_n'] = np.bincount(subj_of_elec[usable & (x > 0)],
+                                              minlength=n_p)
     for name, x in behav.items():
         scores[name] = x
     if has_rt:
@@ -808,7 +833,9 @@ def participant_brain_behavior(ps, variant='rtadj', alpha=0.05, behavior=None,
     """Across-participant brain-behavior correlations on `participant_scores` output.
 
     variant : 'rtadj' (neural scores with the RT-linked part of HG removed: the
-        claim) or 'raw' (unadjusted: an upper bound that RT coupling inflates).
+        claim) or 'raw' (unadjusted: an upper bound that RT coupling inflates);
+        'abs' / 'abs_rtadj' (mean |d|) and 'pos' / 'pos_rtadj' (mean over the
+        d > 0 electrodes) are exploratory summaries (`NEURAL_VARIANTS`).
     behavior : optional per-subject table (`subject`, `lwpc`, `lwps`), e.g.
         `load_subject_level_behavior`. When given, every correlation uses it in
         place of the behavior `participant_scores` scored from the long table
@@ -841,10 +868,10 @@ def participant_brain_behavior(ps, variant='rtadj', alpha=0.05, behavior=None,
     plus `n_participants`, `r_crit` (the |r| needed for p < alpha at this n), the
     merged `table`, `behavior_from` ('table' or 'trials') and a `caveat`.
     """
-    suffix = {'raw': '', 'rtadj': '_rtadj'}
-    if variant not in suffix:
-        raise ValueError(f"variant must be 'raw' or 'rtadj'; got {variant!r}")
-    ncol = {eff: f'{eff}_neural{suffix[variant]}' for eff in ('lwpc', 'lwps')}
+    if variant not in NEURAL_VARIANTS:
+        raise ValueError(f"variant must be one of {list(NEURAL_VARIANTS)}; "
+                         f"got {variant!r}")
+    ncol = {eff: f'{eff}_neural{NEURAL_VARIANTS[variant]}' for eff in ('lwpc', 'lwps')}
     bcol = {eff: f'{eff}_behav' for eff in ('lwpc', 'lwps')}
     external = behavior is not None
     s = attach_behavior(ps['scores'], behavior) if external else ps['scores']
