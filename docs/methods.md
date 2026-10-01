@@ -7,10 +7,13 @@ quantities are run-dependent: fill them in from the archived run.
 |---|---|---|
 | [N4: segregation and continuous anatomy](#n4-segregation-and-continuous-anatomy) | The combined N4 Methods, written for the primary configuration of the continuous anatomy pipeline: per-electrode LWPC/LWPS scores on disjoint halves, the coverage-conditioned anatomical test, the coordinate follow-ups, the maps, and the descriptive medoids | `n4_anatomy_segregation_methods.md` |
 | [Segregation: cluster and Cohen's d versions](#segregation-cluster-and-cohens-d-versions) | Two interchangeable write-ups of the segregation analysis on its own, one per effect measure (`cluster`, `cohens_d`), with the implementation-status notes and a parameter appendix | `stability_flexibility_segregation_methods.md` |
+| [A6: brain–behavior (supplement S-BB)](#a6-brainbehavior-supplement-s-bb) | The across-participant correlation of neural with behavioral LWPC/LWPS: participant scores, the RT adjustment, the reliability ceiling and the power it implies. Filled in from the 2026-09-30 run | new (2026-10-01) |
 
 The N4 text is the newer one (2026-09-17) and matches the current primary
 configuration. The segregation versions date from 2026-08 (last edited
-2026-09-17).
+2026-09-17). The A6 text (2026-10-01) is for the supplement only; the Results
+paragraph, figure caption and placement verdict that go with it are in §14 of
+[`a6_brain_behavior.md`](a6_brain_behavior.md).
 
 ---
 
@@ -275,6 +278,126 @@ command, input score and split-resolved tables, time window, electrode and ROI
 scope, anatomical level, coverage threshold, permutation counts, random seed,
 coverage matrix, result tables, figures, and warnings concerning missing atlas
 labels, coordinates, or surface rendering.
+
+---
+
+## A6: brain–behavior (supplement S-BB)
+
+*Methods: across-participant brain–behavior correlation*
+
+Manuscript-ready text for the supplement. It describes the primary configuration
+(task-significant lPFC, 0–1.5 s, `MIN_ELEC=3`, 200 shared splits, `SEED=0`) and
+is filled in from the 2026-09-30 run
+(`brain_behavior_window_0.0to1.5s_sig_lpfc_count/`). Bracketed text has to come
+from elsewhere in the paper. Levels (2) and (3) of the job, the label-based and
+single-trial versions, are left out on purpose: [`a6_brain_behavior.md`](a6_brain_behavior.md)
+§13.3 explains why neither measures what it is named for. The two exploratory
+summaries are in an optional last paragraph.
+
+### Participants and electrodes
+
+We asked whether participants whose lateral prefrontal high-gamma activity
+adapted more to the proportion manipulations also adapted more in their
+behavior. The analysis used the task-significant electrodes in lateral
+prefrontal cortex (171 electrodes from 21 participants; task significance as
+defined in **[main Methods section]**). These electrodes were selected for
+overall task responsiveness, not for an LWPC or LWPS effect. The high-gamma
+epochs and preprocessing were those of the anatomical analyses. Only correct
+trials with a recorded response time (RT) were used. A participant entered the
+analysis if it had at least three usable electrodes (18 participants; median 7
+electrodes and 397 trials each) and a behavioral score; one of the 18 was absent
+from the behavioral summary table **[reason]**, leaving 17 participants.
+
+### Neural and behavioral scores
+
+For each electrode, single-trial high gamma was averaged over 0–1.5 s after
+stimulus onset. LWPC and LWPS were scored as in the anatomical analyses: the
+equal-cell-weighted difference of differences (the condition effect in the
+low-proportion blocks minus that in the high-proportion blocks), divided by the
+pooled within-cell standard deviation. Here each score was computed once from
+all of the electrode's trials rather than on split halves. An electrode was
+usable if all four of its scores (LWPC and LWPS, unadjusted and RT-adjusted,
+below) were defined. A participant's neural LWPC and LWPS were the unweighted
+means of its usable electrodes' scores. Equal weights are appropriate because a
+participant's electrodes share its trials and so have similar sampling error.
+
+The behavioral LWPC and LWPS were the same differences of differences computed
+on mean RT, in milliseconds, from the behavioral analysis **[section reference;
+trial inclusion as described there]**. Both scores were oriented so that positive
+values indicate the predicted adaptation: a smaller congruency effect or switch
+cost in the high-proportion blocks.
+
+### Removing the RT-linked component of high gamma
+
+The analysis window covers most responses (median RT 1.19 s), so single-trial
+high gamma may track RT. If it does, every cell mean of high gamma carries the
+same multiple of that cell's mean RT. Each electrode's neural
+difference-of-differences then contains its slope on RT times the participant's
+own behavioral difference of differences. That term would correlate neural with
+behavioral adaptation across participants with no link between them beyond the
+trial-by-trial coupling, and it would also pass the specificity checks below.
+
+We therefore removed the RT-linked component of high gamma separately for each
+electrode. The slope of high gamma on RT was estimated from deviations around
+each of the 16 cell means of the design (congruency × task sequence ×
+incongruent proportion × switch proportion), pooled across cells, so that
+condition effects, which move both high gamma and RT, did not enter it. Each
+trial's high gamma was replaced by its value minus the slope times the trial's
+deviation from the electrode's mean RT, and the scores were recomputed. This
+removes exactly the slope times the behavioral difference of differences from
+each electrode's score. The adjustment is conservative: if neural adaptation
+reaches behavior through the same trial-by-trial coupling, that part is removed
+too. We therefore treat the RT-adjusted correlation as the primary test and
+report the unadjusted correlation as an upper bound.
+
+### Statistical analysis
+
+For each effect, the neural and behavioral scores were related across
+participants by Pearson correlation (two-sided, α = .05; |r| ≥ 0.48 needed at
+n = 17), with a 95% confidence interval from Fisher's *z* and Spearman's ρ as a
+rank-based check. Behavioral LWPC and LWPS are correlated across participants,
+so a neural score could relate to both. To test specificity, each behavioral
+score was regressed (ordinary least squares, all variables *z*-scored) on both
+neural scores together, and the coefficient of the matched neural score was
+compared with that of the other. The two RT-adjusted matched correlations were
+the primary tests. **[If the cross pairings are reported, state that p-values
+are uncorrected across the eight correlations: matched and cross, adjusted and
+unadjusted.]**
+
+### Reliability and the correlation ceiling
+
+An observed correlation cannot exceed the square root of the product of the two
+scores' reliabilities. We estimated each score's reliability by splitting every
+participant's trials into random halves, stratified on the 16 design cells, 200
+times. Each split was drawn once per participant and applied to all of its
+electrodes. Drawing it separately per electrode would let noise common to a
+participant's electrodes masquerade as reliability. All scores were recomputed
+in each half. The half-length reliability was the across-participant correlation
+of half-A with half-B values, averaged over splits, and was stepped up to full
+length with the Spearman–Brown formula. It was treated as unmeasurable when the
+half-length correlation was zero or negative. The behavioral summary table has
+no trial-level data, so its reliability was estimated from the same contrasts
+computed on the RTs of the recorded trials. These agreed closely with the table
+across participants (r = 0.90 for LWPC and 0.76 for LWPS, 20 participants).
+
+The ceiling on each brain–behavior correlation was the square root of the
+product of the neural and behavioral reliabilities. To express what the ceiling
+means for detection, we simulated 40,000 samples of 17 participants from a
+bivariate normal distribution whose correlation was the ceiling times an assumed
+true correlation, and counted the samples reaching |r| ≥ 0.48. The sample size
+needed for 80% power was obtained from Fisher's *z*. Both treat the estimated
+reliabilities as known, so they are approximate.
+
+### Exploratory participant summaries (optional)
+
+The signed mean lets electrodes whose adaptation runs in opposite directions
+cancel. As an exploratory check we also summarized each participant by the mean
+absolute score over its electrodes and by the mean over only its electrodes with
+a positive score (chosen separately for LWPC and LWPS; at least three such
+electrodes required). Both summaries fold or select on the same noisy score they
+average, so noise alone raises them, and more so in participants with fewer
+trials. We therefore correlated each with the participant's trial count as a
+check on whether noise drove it.
 
 ---
 
