@@ -2,7 +2,8 @@
 
 *Assembled 2026-10-01 from the results written up so far. Revised the same day:
 F3 is described as made, and F5 is cut to two panels with the gradient moved to
-the supplement (§1.2).*
+the supplement (§1.2). Later that day the task-significant N4 rerun with main
+effects came in; it is in §3.4's last sentence and §3.5's first paragraph.*
 
 This document has three parts:
 
@@ -88,7 +89,8 @@ Framing rules that still apply (concurrent-regulation plan §0):
 
 | Result | Effect on the figures |
 |---|---|
-| **N4 all-lPFC main-effect run written up and checked** ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §17) | The numbers are checked against the run's outputs. Still needed: the task-significant rerun with main effects, and the plots. |
+| **N4 all-lPFC main-effect run written up and checked** ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §17) | The numbers are checked against the run's outputs. Still needed: the plots. |
+| **N4 task-significant main-effect rerun** (2026-10-01; [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §18) | F5 is unchanged, and all lPFC stays primary. The subset agrees in sign and size with both F5 panels: overlap at both levels (LWPC–LWPS *r* = 0.08, *p* = 0.055; congruency–switch 0.17, *p* = 0.001), and matched above crossed by the same margins (test *r* = 0.08, *p* = 0.049). Neither balance is spatially organized there, and the all-lPFC midline description does not repeat. One sentence in the main text (§3.4); the full subset paragraph is in S-N4 (§3.5). |
 | **F5 cut to two panels** (2026-10-01, later) | a: the overlap at both levels. b: each adaptation against its own and the other base effect (matched vs crossed). The parcel scatter (old b) and the gradient by score (old c) move to S-N4. The pre-specified parcel and coordinate tests keep one short paragraph in the main text. The balance-vs-balance correlation stays as the test behind b, but the main text no longer talks in balances. |
 | **A4 congruency ↔ switch cross-decoding run** ([`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)) | Supplement S5, not the closing figure. The transfer is partial and late, and not yet shown to be specific to lPFC or free of RT. It earns one Discussion sentence. The main-effect group decoding is dropped. |
 | **A6 brain–behavior run** ([`a6_brain_behavior.md`](a6_brain_behavior.md) §13–§14) | Supplement S-BB only, framed as "could not be tested at this n", plus one Discussion sentence. |
@@ -104,7 +106,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | F2 | Coverage and signal validation | Needs the coverage table (S1) | Build the per-ROI, per-participant table |
 | F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs | Unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
 | F4 | Both adaptations are decodable from distributed lPFC activity | ⬜ Done; results not in the docs | Report trial counts per decoder; write up |
-| F5 | One intermixed population; each adaptation tracks its own base effect more closely than the other | Results final for all lPFC (N4 §17); text restructured for two panels (§3.4); panels not plotted | Plot a–b; task-significant main-effect rerun |
+| F5 | One intermixed population; each adaptation tracks its own base effect more closely than the other | Results final for all lPFC (N4 §17) and for the task-significant subset (N4 §18); text restructured for two panels (§3.4); panels not plotted | Check that the all-lPFC anatomy folder survived the rerun (§1.7); plot a–b |
 
 ### 1.4 Main-text figures
 
@@ -276,8 +278,8 @@ per participant per block, and a drop in transfer is confounded with LWPC itself
 #### F5 — How the two adaptations are organized across lPFC (N4)
 
 All lPFC (398 electrodes, 22 participants) is the primary set, as specified
-before analysis. The task-significant set is reported in full in S-N4. Data and
-status per panel: §16.7.3 and §17.4 of
+before analysis. The task-significant set is reported in full in S-N4 (N4 §18).
+Data and status per panel: §16.7.3 and §17.4 of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
 *Cut from four panels to two on 2026-10-01.* The parcel scatter (old b) and the
@@ -326,10 +328,15 @@ panel a.
 | Base-effect balance differs across parcels, in step (label r = 0.73) | S-N4 (old F5b); the label correlation is descriptive |
 | Dorsomedial vs ventrolateral; carried by LWPC | S-N4, labelled exploratory (old F5c) |
 | Inheritance (Test 2) | S-N4 only |
+| Task-responsive subset, with main effects (N4 §18) | One sentence at the end of §3.4; in full in S-N4 (§3.5). Its matched-vs-crossed bars can sit beside F5b's in S-N4 (its own `delta_tracking.csv`). |
 
-**What would change it:** the task-significant rerun with main effects. If the
-advisor wants the gradient in the main text, old b and c are specified in
-§16.7.3 of the N4 doc and can move back as F5c–d.
+**What would change it:** nothing pending in the analyses. The task-significant
+rerun (2026-10-01, N4 §18) agrees in sign and size with both panels, though at
+lower power (overlap *r* = 0.08, *p* = 0.055; matched − crossed *r* = 0.08,
+*p* = 0.049). If the advisor wants the gradient in the main text, old b and c
+are specified in §16.7.3 of the N4 doc and can move back as F5c–d. The subset
+does not support the gradient's midline description (N4 §18.6), which is a
+further reason to keep it in S-N4.
 
 **Open for the advisor** (closing figure plan, "Open questions"): all lPFC as
 the primary set; lPFC-only scope; the gradient's weight. Recommendation: one
@@ -361,7 +368,7 @@ work. Renumber at submission.
 | S7 | Per-participant high-gamma traces; demographics, electrode counts, exclusions | To build | – |
 | S8 | Cross-decoding control table for every transfer reported | The A4 block is filled in ([`decoding.md` › A4 §13.7](decoding.md#137-what-to-report-and-where-things-stand)); pseudo-trial counts missing | – |
 | S10 | Per-trial-baseline robustness rerun of the power traces; direct block comparisons | Not run | – |
-| S-N4 | Anatomy in full: the task-significant set; the two balances by parcel (old F5b); the four scores by distance from the midline (old F5c) and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity | All-lPFC parts ready; old F5b and F5c have data, not plots. The task-significant set has LWPC/LWPS only; its main-effect rerun is pending. | §3.5 |
+| S-N4 | Anatomy in full: the task-significant set; the two balances by parcel (old F5b); the four scores by distance from the midline (old F5c) and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity | All-lPFC parts ready; old F5b and F5c have data, not plots. The task-significant set is complete with main effects (2026-10-01, N4 §18). | §3.5 |
 | S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.7, §3.7, §5.3 |
 
 ### 1.6 Left out of the paper
@@ -382,9 +389,18 @@ work. Renumber at submission.
 
 **F5 and S-N4** (N4 §17.4):
 
-- [ ] Copy the all-lPFC anatomy folder before the task-significant rerun; the
-      rerun writes to the same path (§17.1 of the N4 doc).
-- [ ] Rerun the task-significant set with main effects; report it in full.
+- [ ] **Check that the all-lPFC anatomy folder survived.** The task-significant
+      rerun wrote to `anatomy_a1_lpfc_window_0.0to1.5s_sig/`, the all-lPFC
+      folder (its `score_anatomy.json` → `maps`). If no copy was made first,
+      F5b's `delta_tracking.csv` and the S-N4 tables are gone; rerun the
+      anatomy job on the all-lPFC `_main_effects` segregation run to get them
+      back (N4 §18.1). Then copy both folders to names that say which set
+      they hold.
+- [x] Rerun the task-significant set with main effects; report it in full
+      (2026-10-01; N4 §18, text in §3.4 and §3.5).
+- [ ] Confirm the subset's segregation run name, and that its
+      `correlation_main_effects.json` gives congruency–switch *r* = 0.167 (N4
+      §18.3 recomputed it from `per_split.csv`).
 - [ ] Plot F5 panels a–b, and the two S-N4 panels that were F5b–c.
 - [ ] Leave-one-participant-out on the pre-specified LWPC–LWPS correlation, and
       its p from 10,000 permutations.
@@ -644,6 +660,10 @@ manuscript:
 - The coordinate test, the exploratory follow-ups and Test 2 now report
   results that sit mainly in S-N4. Keep them here or move them to the
   supplementary methods, to match where the journal puts S-N4.
+- The task-responsive subset was scored on 200 splits, not 1,000, and its
+  label tests used the 15 parcels sampled in at least three of its
+  participants (N4 §18.1). Add to the supplementary methods: "In the
+  task-responsive subset, trials were split 200 times rather than 1,000."
 
 ### 2.6 Congruency ↔ switch-type cross-decoding (S5)
 
@@ -857,7 +877,8 @@ block types differ, trial counts per class, and any pre-stimulus windows.
 two-panel F5 (§1.4). It no longer copies §17.3: the order and emphasis differ.
 The numbers are §17.3's and the new ones are from §16.6.2 and §16.6.5 of that
 doc. All were checked against the run's outputs on 2026-10-01; §17.5 there
-gives each number's source file. The parcel and gradient detail that left the
+gives each number's source file. The closing subset sentence is from §18 of
+that doc (sources in §18.9). The parcel and gradient detail that left the
 main text is in §3.5 below.*
 
 > **LWPC and LWPS share electrodes.** We scored every lPFC electrode (398
@@ -905,34 +926,58 @@ main text is in §3.5 below.*
 >
 > Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
 > population, and each tracks the local strength of the effect it regulates.
-> In the task-responsive subset (171 electrodes, 21 participants) the
-> estimates were similar but not significant (Supplementary **[S-N4]**).
-> **[Revise this sentence once the subset's main-effect rerun is done.]**
+> The task-responsive subset (171 electrodes, 21 participants) gave the same
+> picture at lower power: both pairs of effects shared electrodes (LWPC–LWPS
+> *r* = 0.08, *p* = 0.055; congruency–switch *r* = 0.17, *p* = 0.001), and
+> each adaptation effect tracked its own base effect more closely than the
+> other by the same margins as in all lPFC (*r* = 0.08, *p* = 0.049). The
+> balance between LWPC and LWPS did not vary detectably across parcels or with
+> position there, as expected at that set's power (Supplementary **[S-N4]**).
 
 ### 3.5 Anatomy supplement (S-N4)
 
-*The first paragraph is adapted from the task-significant draft in §15.12 of
-[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#1512-reporting),
-recast as the consistency check now that all lPFC is primary. The next two
-paragraphs ("The adaptation gradient", "The base-effect balance") are the §17.3
-text that left the main text on 2026-10-01 (§3.4 above). The others are
-written here from the numbers in §16.6.6 and the §17.3 supplement additions of
-that doc. Add the task-significant main-effect results once the rerun is done.*
+*The first paragraph is copied from §18.8 of
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#188-results-text-supplement-s-n4),
+the task-significant run with main effects (2026-10-01); §18.9 there gives
+each number's source. The next two paragraphs ("The adaptation gradient", "The
+base-effect balance") are the §17.3 text that left the main text on 2026-10-01
+(§3.4 above). The others are written here from the numbers in §16.6.6 and the
+§17.3 supplement additions of that doc.*
 
 > **Task-responsive subset.** We repeated the anatomical analyses on the
-> task-responsive lPFC electrodes (171 electrodes, 21 participants). Both
-> effects were positive on average (mean Cohen's *d* = 0.14 for LWPC and 0.18
-> for LWPS), and single-electrode estimates were again noisy (split-half
-> reliability 0.26–0.39). LWPC and LWPS scores measured on separate halves of
-> the trials were weakly correlated (Spearman *r* = 0.08, *p* = 0.057; 167
-> electrodes from 18 participants with at least three electrodes), electrodes
-> positive for each effect did not differ in location (centroid distance
-> 3.3 mm, *p* = 0.44), and the balance between the two effects did not differ
-> across Destrieux parcels (*F* = 0.91, *p* = 0.29). The height slope of the
-> balance matched that in all lPFC (−0.0075 SD/mm, *p* = 0.24; difference from
-> the remaining electrodes, *p* = 0.67). With the observed slope planted, this
-> electrode layout reaches *p* < 0.05 in 26 % of simulations, against 66 % for
-> all lPFC electrodes. **[Main-effect results for this subset, once run.]**
+> task-responsive lPFC electrodes (171 electrodes, 21 participants), with the
+> trials split 200 times. All four effects were positive on average (mean
+> Cohen's *d* = 0.17 for congruency, 0.12 for switch type, 0.14 for LWPC and
+> 0.18 for LWPS), and single-electrode adaptation estimates were again noisy
+> (full-data split-half reliability 0.26–0.39). At both levels the two effects
+> shared electrodes: congruency and switch-type scores from separate halves of
+> the trials were correlated (Spearman *r* = 0.17, *p* = 0.001), and LWPC and
+> LWPS scores weakly so (*r* = 0.08, *p* = 0.055; 167 electrodes from the 18
+> participants with at least three). Electrodes positive for each adaptation
+> effect did not differ in location (centroid distance 3.3 mm, *p* = 0.44).
+> Each adaptation effect again correlated more with its own base effect than
+> with the other one (congruency–LWPC *r* = 0.13 vs switch–LWPC 0.04;
+> switch–LWPS 0.15 vs congruency–LWPS 0.12). The differences were the size
+> they were in all lPFC electrodes (0.09 and 0.03, against 0.10 and 0.04), and
+> the test of them was at the threshold of significance (*r* = 0.08,
+> *p* = 0.049; with MNI coordinates partialled out, *r* = 0.08, *p* = 0.052).
+> In this subset the congruency and switch-type maps were equally reliable
+> (within-participant split-half reliability 0.25 and 0.26), so the larger
+> difference for LWPC does not reflect a more reliable congruency map. Neither
+> balance differed across Destrieux parcels (15 parcels; LWPC − LWPS:
+> *F* = 0.91, *p* = 0.29; congruency − switch: *F* = 1.15, *p* = 0.12; with
+> each participant left out, *p* = 0.10–0.45 and 0.03–0.30) or varied with
+> position (MNI coordinates: *F* = 1.44, *p* = 0.28, and *F* = 0.88,
+> *p* = 0.48). Their height slopes matched those in all lPFC (LWPC − LWPS:
+> −0.0075 SD/mm, *p* = 0.23; congruency − switch: −0.0035 SD/mm, *p* = 0.53;
+> all lPFC −0.0077 and −0.0037). The adaptation slope did not differ from that
+> of the remaining electrodes (*p* = 0.67), and with the all-lPFC slope
+> planted, this electrode layout reaches *p* < 0.05 in 26 % of simulations,
+> against 66 % for all lPFC electrodes. In this subset, distance from the
+> midline did not describe the gradient better than height (both *p* ≥ 0.44),
+> and LWPC did not vary with distance from the midline (*p* = 0.82). Because
+> the adaptation balance had no detectable gradient here, we did not test
+> whether it is inherited from the base effects.
 >
 > **The adaptation gradient.** In all lPFC, the dorsal weakening of LWPC
 > relative to LWPS had a *z* slope of −0.0077 SD/mm, and it replicated across
@@ -988,7 +1033,9 @@ midline (old F5c; `panel_c_midline.csv`, script §3) and by height
 coverage (`coverage_matrix.csv`), leave-one-out tables (`delta_roi_loso.csv`,
 `dm_roi_loso.csv`), both coordinate tables (`score_anatomy.json` →
 `coordinates`, `dm_coordinates.csv`), the height vs midline models (script §1),
-and Test 2 (`tilt_with_dm.csv`, script §5). The design notes for the two old F5
+and Test 2 (`tilt_with_dm.csv`, script §5). For the task-responsive subset, the
+same tables from its own anatomy folder, and its matched-vs-crossed bars beside
+F5b's (its `delta_tracking.csv`; N4 §18.4). The design notes for the two old F5
 panels still apply: participant means ± SEM, no electrode scatter, and the
 scores as matched small multiples with shared axes and one legend
 (§16.7.3 of the N4 doc).
@@ -1107,9 +1154,16 @@ overlap result.*
 
 - The effects are small: single-electrode reliability is ~0.3, LWPC averages
   *d* ≈ 0.01 across all lPFC, and the matched–crossed gaps are 0.04–0.10 in r.
-- For LWPC the matched base effect (congruency) is also the more reliable map,
-  so reliability could contribute to that pair's gap; the LWPS pair rules
-  reliability out only for LWPS.
+- For LWPC the matched base effect (congruency) is also the more reliable map
+  in all lPFC, so reliability could contribute to that pair's gap there; the
+  LWPS pair rules reliability out only for LWPS. In the task-responsive subset
+  the two base-effect maps are equally reliable (0.25 and 0.26 within
+  participant) and LWPC's gap is the same size (0.09 against 0.10), which
+  argues against reliability for LWPC too (N4 §18.2). That is descriptive: no
+  test compares the two pairs' gaps, and the subset's overall test is at the
+  threshold (*p* = 0.049).
+- The task-responsive subset reproduces F5 at lower power, but not the
+  gradient's midline description (N4 §18.6), which stays exploratory.
 - The gradient (main text one paragraph, detail in S-N4): no parcel survives
   FDR, height explains ~2 % of the balance's variance, the axis was not
   predicted and the predicted anterior–posterior axis is null. Inheritance
