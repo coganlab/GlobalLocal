@@ -33,6 +33,10 @@ of [`analysis_guide.md`](analysis_guide.md) point here.
 - **First real run: null and uninformative** (§13). Neural LWPC has no
   measurable reliability, and the LWPS ceiling (0.46) is below the 0.48 needed
   at n = 17.
+- **Paper: supplement S-BB only**, framed as "could not be tested at this n".
+  The Results paragraph, Discussion sentence, figure caption and what not to
+  report are in §14; the Methods are in
+  [`methods.md` › A6](methods.md#a6-brainbehavior-supplement-s-bb).
 
 ```bash
 cd dcc_scripts/stats
@@ -767,4 +771,134 @@ an electrode in the group enter the fit.
 participant-level neural scores (LWPC: none measurable; LWPS: 0.38) capped any
 observable brain–behavior correlation below the |r| = 0.48 needed for
 significance; the across-participant test could not detect a link of plausible
-size."
+size." The full manuscript text is in §14.
+
+### 13.4 Power at the observed ceiling
+
+Simulated from the LWPS ceiling of the RT-adjusted run (0.46). 40,000 draws of
+n = 17 from a bivariate normal with correlation = ceiling × true r; "n for 80 %"
+is from Fisher's z. Both treat the estimated reliabilities as known.
+
+| True r | Expected observed r | Power at n = 17 | n for 80 % power |
+|---|---|---|---|
+| 0.3 | 0.14 | 0.08 | 407 |
+| 0.5 | 0.23 | 0.14 | 146 |
+| 0.7 | 0.32 | 0.25 | 73 |
+| 1.0 | 0.46 | 0.49 | 35 |
+
+For LWPC no table is possible: the neural score has no measurable reliability.
+More participants would not fix that; only more trials per participant (or a
+more reliable neural score) would.
+
+---
+
+## 14. Manuscript text and placement (2026-10-01)
+
+### 14.1 Placement
+
+**Not in the main text. Keep a short supplementary note (S-BB) and one
+Discussion sentence. Do not omit it entirely.**
+
+- **Why not the main text.** The test was uninformative before it ran: the LWPS
+  ceiling is below the |r| needed, and neural LWPC has no measurable
+  between-participant reliability. A null that could not have been otherwise
+  carries no evidence either way.
+- **Why not drop it.** Reviewers will ask whether neural adaptation tracks
+  behavioral adaptation (the closing figure plan expected this). The reliability
+  analysis already answers that it cannot be tested at this n, with numbers. One
+  paragraph and one figure pre-empt the question, and leaving the analysis out
+  after running it is harder to defend than reporting it.
+- **What the null is not.** It is not evidence of no link: the CIs run to
+  +0.55 (LWPC) and +0.44 (LWPS). "Underpowered" is also only half the story.
+  For LWPS, more participants would help but would take about 146 for a true
+  r = 0.5 (§13.4). For LWPC, no number of participants would help at these trial
+  counts. Write "could not be tested", not "no relationship" and not "a trend".
+- **Report:** the RT-adjusted matched correlations (primary), the unadjusted ones
+  as an upper bound, the reliabilities, the ceiling, and the power figure.
+  Methods: [`methods.md` › A6](methods.md#a6-brainbehavior-supplement-s-bb).
+- **Do not report as results:**
+
+  | Result | Why not |
+  |---|---|
+  | Positive-electrode summary, r ≈ 0.53–0.56, p ≈ 0.07 | Post hoc, after the primary test was null. Only 11–12 participants remain. r is at or above its own ceiling in 3 of 4 cases, so it is inflated. It selects on the sign of the same d it averages (§13.3). |
+  | Mean \|d\| joint regression, p = .02–.04 | A suppression pattern from a shared noise component, not specificity. The LWPS score falls with trial count, r = −0.61 (§13.3). |
+  | Level 2 `count`, LWPC r = 0.47, p = .035 | Uncorrected across six tests. It drops to 0.29 as a fraction of electrodes, which points to coverage. |
+  | Level 3 slopes | They measure the high gamma–RT link: matched and cross slopes are equal (§11). |
+
+  If you want the exploratory summaries on record, use the optional last
+  paragraph of the Methods and one sentence of Results saying they were not
+  interpretable and why. Do not use them as a figure. The positive-only trend
+  can only be tested out of sample: select each participant's positive
+  electrodes on half of the trials and score them on the other half.
+- **Remaining checks.** All lPFC and the 0–0.5 s window (§8.2) are not needed for
+  the supplement. All lPFC dilutes the participant mean with unresponsive
+  electrodes (§3), and the RT-confound question is moot when the adjusted and
+  unadjusted results are both null. Run them only if a reviewer asks. The one
+  version with the power to say something is the within-participant three-way
+  model (RT ~ congruency × incongruent proportion × HG, participant random
+  effect; §11), which is not built.
+
+### 14.2 Results (supplement S-BB)
+
+> **Brain–behavior.** We asked whether participants whose lateral prefrontal
+> high gamma adapted more also adapted more in behavior. Of the 21 participants
+> with task-significant lPFC electrodes, 17 had at least three usable
+> electrodes and behavioral scores (median 7 electrodes and 397 trials per
+> participant). Behavioral adaptation was reliable across participants
+> (split-half reliability, estimated on the recorded trials: 0.72 for LWPC,
+> 0.56 for LWPS). Participant-level neural adaptation was not: neural LWPC had
+> no measurable between-participant reliability, and neural LWPS had a
+> reliability of 0.38. These reliabilities cap the observable LWPS correlation
+> at 0.46, below the |r| = 0.48 needed for significance at n = 17. Even a perfect
+> underlying relationship would have reached significance in fewer than half of
+> samples of this size (simulated power 0.49), and a moderate one (r = 0.5) in
+> 14 %. For LWPC, no correlation was detectable at all. Neither correlation
+> differed from zero after removing the RT-linked component of high gamma (LWPC:
+> r = 0.10, 95 % CI [−0.40, 0.55], p = 0.70; LWPS: r = −0.06 [−0.52, 0.44],
+> p = 0.83; Supplementary Fig. S-BB) or without that adjustment (LWPC: r = 0.24
+> [−0.27, 0.65], p = 0.35; LWPS: r = 0.19 [−0.32, 0.61], p = 0.47). The
+> unadjusted correlations were somewhat larger, as expected if part of each
+> neural score reflects trial-by-trial coupling between high gamma and RT
+> (median within-cell r = 0.13). With these intervals, the data neither support
+> nor rule out a relationship between individual differences in neural and
+> behavioral adaptation.
+
+Optional sentence, if the exploratory summaries are in the Methods:
+
+> Two alternative participant summaries, the mean absolute score and the mean
+> over positively scoring electrodes, gave no interpretable result: the first
+> tracked participants' trial counts (LWPS: r = −0.61), as expected of a score
+> driven by noise, and the second retained only 11 participants.
+
+### 14.3 Discussion sentence
+
+> We could not test whether individual differences in lPFC adaptation track
+> individual differences in behavioral adaptation. With 17 participants, the
+> split-half reliability of participant-level difference-of-differences scores
+> left any across-participant correlation undetectable, even for a strong
+> underlying relationship (Supplementary Note S-BB). Difference scores are
+> characteristically unreliable across individuals (Hedge et al., 2018), so such
+> a test needs many more participants, many more trials per participant, or
+> both.
+
+### 14.4 Figure caption (Supplementary Fig. S-BB)
+
+Use `participant_brain_behavior_scatter_rtadj` (or the 2 × 2
+`participant_brain_behavior.png` if the unadjusted panels go in too), with one
+change. The scatter prints R², which drops the sign: LWPS is r = −0.06. Annotate
+each panel with r, its 95 % CI and the ceiling instead. `make_participant_scatter`
+(§8.3) redraws it from `participant_scores.csv` without a rerun.
+
+> **Supplementary Fig. S-BB | Neural against behavioral adaptation across
+> participants.** Each point is one participant (n = 17). *x*: behavioral LWPC
+> (left) and LWPS (right), the difference of differences in mean RT (ms), low-
+> minus high-proportion blocks. *y*: the same contrast in high gamma (0–1.5 s
+> after stimulus onset), as Cohen's *d* averaged over the participant's
+> task-significant lPFC electrodes, after removing the component of high gamma
+> linearly related to RT within condition cells. Positive values on both axes
+> indicate the predicted adaptation. Lines are least-squares fits. Each panel
+> gives Pearson's r with its 95 % CI and p. The ceiling (LWPS: 0.46) is the
+> largest correlation expected for a perfect underlying relationship, given the
+> split-half reliabilities of the two scores. Neural LWPC had no measurable
+> reliability, so no ceiling is given. Significance at α = .05 required
+> |r| ≥ 0.48.

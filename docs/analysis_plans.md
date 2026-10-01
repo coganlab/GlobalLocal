@@ -117,7 +117,7 @@ Only the main-effect anatomy rerun belongs in the main text as a test. The rest 
 | Anatomy on congruency − switch delta | Is the adaptation tilt inherited from the base effects? | Main text, closing figure | 1 |
 | Main-effect electrodes on the brain | Where are congruency, switch and both electrodes? | Supplement; defines groups for the next row | 3 |
 | Adaptation traces and decoding within main-effect groups | Is each adaptation expressed where its demand is processed? | Supplement, as the picture of the continuous test | 2 |
-| Brain–behavior | Does neural adaptation track behavioral adaptation? | Supplement unless striking | 4 |
+| Brain–behavior | Does neural adaptation track behavioral adaptation? | Supplement unless striking. Run 2026-09-30: not striking, so supplement (S-BB) | 4 |
 | Cross-decoding within main-effect groups | Do congruency and switch share a coding axis inside each group? | Dropped (2026-10-01) | – |
 | Congruency ↔ switch cross-decoding with task controls | Are the base-effect codes separable? | Supplement (S5); largely separable, partial late transfer (2026-10-01) | 5 |
 | Cross-proportion (block) transfer | Does block context reconfigure the code? | Shelved | – |
@@ -161,6 +161,7 @@ Reviewers will ask for it, but it is the least likely to give a clean result. Ho
 - **Trial-wise version, a trap in the current code:** the adjustment is w(t) · RT with w = +1 on the rare cells, so w averages about −0.5. Any plain HG–RT correlation leaks into the "matched" slope. The cross-pairing control cancels it only if both electrode groups are equally tied to RT.
 - **Safer model:** RT ~ congruency × incongruent proportion × HG, with a participant random effect; test the three-way term. Same for switch type × switch proportion.
 - **Verdict:** supplement unless striking. The direction tests, where the neural sign matches the behavioral sign, link brain and behavior at the group level, but RT coupling predicts that sign too; recheck them on the RT-adjusted electrode scores (`participant_electrode_scores.csv`).
+- **Outcome, task-significant lPFC (2026-09-30; §13 of `a6_brain_behavior.md`):** null and uninformative. At n = 17, RT-adjusted LWPC r = 0.10 [−0.40, 0.55] and LWPS r = −0.06 [−0.52, 0.44]. Neural LWPC has no measurable between-participant reliability. The LWPS ceiling (0.46) is below the 0.48 needed, so even a perfect link has about 49 % power. **Supplement S-BB only**, framed as "could not be tested at this n". Manuscript text: §14 of `a6_brain_behavior.md` and [`methods.md` › A6](methods.md#a6-brainbehavior-supplement-s-bb).
 
 #### Cross-decoding within main-effect groups
 
@@ -355,7 +356,7 @@ No scatter can show the separate-half r itself. The r averages two correlations 
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test |
 | S5 | Congruency ↔ switch cross-decoding, labelled as base-effect geometry: the unselected lPFC transfer with its ceilings, the `remove_mean` and RT-matched / random runs, the occipital comparison, and the accuracy-matched task × congruency control once run (methods and draft text: [`methods.md` › A4](methods.md#a4-congruency--switch-type-cross-decoding)) |
 | S8 | Cross-decoding control table for every transfer reported |
-| S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities and ceiling; and the three-way mixed model |
+| S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities, ceiling and the power they imply (text drafted: `a6_brain_behavior.md` §14); the three-way mixed model if it is built |
 | S-N4 | Task-significant anatomy in full; parcel test (`delta_by_roi.png`, reordered by mean z); anterior–posterior null |
 
 ### Priority order and weekly figure plan
@@ -376,7 +377,8 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 
 - [ ] Main-effect electrodes on the brain, and adaptation traces within groups on disjoint halves (supplement).
 - [x] Per-participant brain–behavior scores (raw and RT-adjusted, shared-split reliability) and the behavioral block-map fix (`a6_brain_behavior.md`).
-- [ ] Run A6 on task-significant lPFC, then all lPFC and the 0–0.5 s window as checks.
+- [x] Run A6 on task-significant lPFC (2026-09-30; null and uninformative, `a6_brain_behavior.md` §13). Supplement text written (§14 there; `methods.md` › A6).
+- [ ] All lPFC and the 0–0.5 s window as checks: only if a reviewer asks (`a6_brain_behavior.md` §14.1).
 - [ ] Brain–behavior with the three-way mixed model.
 - [x] Congruency ↔ switch cross-decoding on unselected lPFC, with RT matching, `remove_mean` and occipital (2026-10-01; supplement S5, see the outcome above).
 - [ ] Its remaining controls: seeds for the baseline, `rt` and `random`; lPFC subsampled to 54 electrodes against occipital; the task positive controls; `mean_only`; response-locked ([`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)).
@@ -403,7 +405,7 @@ Keep this table here, updated each week, so the repo stays the source of truth. 
 - [ ] **Main-effect electrode definition:** which single method defines congruency, switch and both electrodes (windowed-ANOVA clusters recommended)?
 - [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results?
 - [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline?
-- [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear?
+- [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear? The across-participant test came out null and uninformative (2026-09-30). Recommendation: one supplementary note plus one Discussion sentence (`a6_brain_behavior.md` §14). Build the three-way model only if a main-text brain–behavior claim is wanted; it is the only version with plausible power.
 - [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop? *Recommendation (2026-10-01): supplement S5, not the closing figure, plus one Discussion sentence. The groups are dropped. See the outcome under "Congruency ↔ switch cross-decoding with task positive controls".*
 
 ---
