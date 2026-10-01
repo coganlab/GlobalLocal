@@ -31,6 +31,10 @@ included as an explicitly exploratory companion analysis because its current
 trial-wise interaction null does not preserve the block structure of the
 proportion manipulation.
 
+For the all-lPFC main-effect run (1,000 splits, with congruency and switch as
+the reference), the filled-in Methods are §17.2 of
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#172-methods).
+
 ### Participants, recordings, and electrode population
 
 Intracranial EEG was recorded from **[N participants]** while they performed the
