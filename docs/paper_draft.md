@@ -71,7 +71,9 @@ follows the local balance of the demands each regulates.
 Framing rules that still apply (concurrent-regulation plan §0):
 
 - The absent cross-effects (congruency × switch proportion, switch type ×
-  incongruent proportion) are a scoping sentence, not a figure.
+  incongruent proportion) are scope, not a dissociation claim. The neural ones
+  are shown as F3b's off-diagonal subplots, labelled neutrally; the behavioral
+  ones are a sentence in the text and S4.
 - Decoding is not a multivariate-superiority claim. The claim is that adding
   electrodes yields information no single electrode supplies.
 - Organize figures by claim, not by measure. Power and decoding for the same
@@ -85,6 +87,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | **A4 congruency ↔ switch cross-decoding run** ([`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)) | Supplement S5, not the closing figure. The transfer is partial and late, and not yet shown to be specific to lPFC or free of RT. It earns one Discussion sentence. The main-effect group decoding is dropped. |
 | **A6 brain–behavior run** ([`a6_brain_behavior.md`](a6_brain_behavior.md) §13–§14) | Supplement S-BB only, framed as "could not be tested at this n", plus one Discussion sentence. |
 | **Weighted medoids** (§17.4 of the N4 doc) | Dropped from the supplement (old S9). They are null on every axis, and the two centre definitions disagree in sign. |
+| **F3 made** (2026-10-01) | Panel a plus one 2 × 2 grid of traces (b) that includes the two cross-effects as scope. Its bars are the windowed ANOVA's sign-split interaction clusters, so they give the direction themselves; the old direction-test panel moves to S2d. |
 | **Power traces and LWPC/LWPS decoding** | Unchanged. F3 and F4 stay in the main text; their results are not yet written up in the docs. |
 
 ### 1.3 Status at a glance
@@ -93,7 +96,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 |---|---|---|---|
 | F1 | Both adaptations are present concurrently in behavior | ⬜ Figure done; numbers not in the docs. Confirm it was not made with the swapped block map (§1.4, F1). | Confirm the source script; write the Results paragraph |
 | F2 | Coverage and signal validation | Needs the coverage table (S1) | Build the per-ROI, per-participant table |
-| F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Traces done; direction tests implemented; results not in the docs | Run or collect the direction tests; write up |
+| F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs | Unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
 | F4 | Both adaptations are decodable from distributed lPFC activity | ⬜ Done; results not in the docs | Report trial counts per decoder; write up |
 | F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Results and text final for all lPFC (N4 §17); panels not plotted | Plot a–d; task-significant main-effect rerun |
 
@@ -139,26 +142,94 @@ stale.
 
 #### F3 — Adaptation effects in lPFC high gamma (N2) ⬜
 
+*Layout as made on 2026-10-01: a brain and one 2 × 2 grid of traces.*
+
 | Panel | Content | Data |
 |---|---|---|
 | a | Task-responsive lPFC electrodes on the surface, with electrode and participant counts | `sig` electrodes, lPFC |
-| b | High-gamma traces for LWPC: the congruency effect in 25 % vs 75 % incongruent blocks | power traces |
-| c | High-gamma traces for LWPS: the switch cost in 25 % vs 75 % switch blocks | power traces |
-| d | Direction tests: both simple effects and their difference (low − high proportion), each with its own cluster bar | `n2_direction_tests/<roi>/` figures and npz ([`n2_direction_tests.md`](n2_direction_tests.md) §6) |
+| b | High-gamma traces in a 2 × 2 grid. Rows: the condition effect (switch cost; congruency effect). Columns: the proportion manipulation (switch proportion; incongruent proportion). Each subplot shows its four cell means. The diagonal holds the two adaptation effects (LWPS top left, LWPC bottom right), each with its interaction cluster. The off-diagonal holds the two cross-effects, as scope. | The windowed-ANOVA run on the block-balanced sets: `stimulus_lwps_block_balanced_conditions` (top row) and `stimulus_lwpc_block_balanced_conditions` (bottom row); the `_2way_` figures and `anova_F_traces/*.npz`. **[Confirm the figure came from these two sets.]** |
 
-**Panel d makes this figure a claim.** It reports the sign of each adaptation
-against the behavioral sign. Positive = the condition effect shrinks in
-high-proportion blocks, the behavioral direction.
+**One letter for the grid, not four.** The four subplots are one 2 × 2 design,
+and the grid is read as a whole: a cluster on each diagonal subplot, none off
+it. Lettering them b–e reads as four separate results. In the text,
+name a subplot by its row and column ("Fig. 3b, switch cost by switch
+proportion"). If the journal wants a letter on every axis, use b–e in reading
+order.
+
+**What the old panels became.** Old b and c are the diagonal of b. Old d (the
+N2 difference waves) moves to the supplement as S2d: the bars in b are split by
+sign, so they already give each interaction's direction. The simple effects go
+in the Results text.
+
+**What the bars are.** They are not the N2 direction tests. They are the
+significant clusters of the windowed ANOVA's two-way interaction term
+(`run_windowed_anova_cluster_correction`, drawn by
+`plot_2way_interaction_for_roi`), split wherever the interaction's signed
+contrast changes sign. Blue marks a negative contrast.
+`_signed_contrast_per_window` orders factor levels alphabetically, so its
+contrast is high − low proportion. A negative value means the condition effect
+is smaller in high-proportion blocks, which is the behavioral direction. Both
+bars are blue, so both adaptation effects point the predicted way. Confirm with
+`neg_window_mask` in the `anova_F_traces` npz. The traces agree by eye: in both
+diagonal subplots, the gap between the two conditions is wider in the
+low-proportion blocks.
+
+**Before the figure is final:**
+
+1. **One encoding in all four subplots.** At present the diagonal colours by
+   proportion and dashes the harder condition. The off-diagonal colours by
+   condition and dashes the 75 % blocks, and its blue means switch in one
+   subplot and congruent in the other. Use colour for the proportion block
+   (light 25 %, dark 75 %) and line style for the condition (solid repeat or
+   congruent, dashed switch or incongruent) everywhere. Then in every subplot
+   the effect is the gap between a colour's two lines, and adaptation is that
+   gap narrowing from light to dark. The off-diagonal style comes from the
+   fallback branch at `src/analysis/power/plots.py:902-904`.
+2. **Row titles that do not claim a null.** "Modulated by demands on
+   flexibility but not stability" asserts that the cross-effects are absent.
+   A missing cluster does not show that, and the framing rule (§1.1) keeps the
+   cross-effects as scope. Label the rows "Switch cost" and "Congruency effect"
+   and the columns "Switch proportion" and "Incongruent proportion"; the claim
+   goes in the caption title. A "but not" claim would need a direct test of
+   each matched effect against its crossed one. In the block-balanced design
+   both reduce to block A against block D: LWPS − cross-effect = switch cost
+   in A − switch cost in D, and LWPC − cross-effect = congruency effect in D −
+   congruency effect in A.
+3. **Shared axes and aligned subplots.** The top-right axis now sits lower than
+   the top-left one. Use one legend per column instead of four.
+4. **The bar colour** encodes sign, and the same blue is a trace colour. Draw
+   the bars black and give the sign in the caption, or keep blue and say what
+   it means.
+5. **Panel a:** say whether right-hemisphere electrodes are mirrored onto the
+   left hemisphere.
 
 **To report with it** ([`n2_direction_tests.md`](n2_direction_tests.md) §7–§8):
 
-- `n_electrodes` and `n_subjects` together.
-- Each simple effect's sign and significance, not only the interaction.
+- `n_electrodes` and `n_subjects` together, from the run's `ch_names`. If this
+  is the same task-responsive set as S5 and S-BB, expect 171 electrodes from
+  21 participants.
+- Each cluster's window and p. The ANOVA computes a p per cluster
+  (`sig_clusters_with_sign`) but does not save it: `power_traces_dcc.py`
+  writes only the masks to `anova_F_traces/*.npz`, and the interaction npz gets
+  an empty `cluster_p_values`. Save it, and raise `N_PERM` above the default
+  500 (which floors p at ~0.002) for a reported p.
+- Each simple effect's sign and significance (the N2 tests). By eye, in both
+  diagonal subplots the easier condition in the low-proportion blocks (repeat
+  in 25 %-switch blocks, congruent in 25 %-incongruent blocks) sits lowest late
+  in the trial, and the two high-proportion traces nearly meet. If the
+  simple-effect tests agree, say so: the effect is present in low-proportion
+  blocks and smaller in high-proportion blocks.
+- The N2 tests run on the 4-cell sets, the figure's ANOVA on the 8-cell
+  block-balanced sets. Say so, or recompute the simple effects from the
+  block-balanced `_evoked.npz` files so that both come from the same cells.
 - The per-participant direction tally and a leave-one-participant-out sweep.
-  Neither is implemented on the N2 path; both can be rebuilt from the saved
+  Neither is implemented on either path; both can be rebuilt from the saved
   `_evoked.npz` files.
-- `N_PERM` above the default 500 (which floors p at ~0.002) for a reported p.
-- A matching sign is not independent evidence on its own: if high gamma tracks
+- Bar starts are not onset estimates: a cluster test does not localize in time
+  (Sassenhagen & Draschkow, 2019). Do not write that LWPC began at 0.25 s and
+  LWPS at 0.45 s; an ordering claim belongs to A5 (Timing, below).
+- Both clusters run to the end of the epoch, past the median RT (1.19 s). A
+  matching sign is not independent evidence on its own: if high gamma tracks
   RT within cells, the neural difference of differences inherits behavior's
   sign. The RT-adjusted electrode scores in A6's
   `participant_electrode_scores.csv` are the check.
@@ -247,7 +318,7 @@ the abstract (recommendation: at most one clause).
 
 #### Timing (A5): fold in or drop
 
-A row in F3 only if the LWPC/LWPS onset ordering is significant, with the
+A panel (F3c) only if the LWPC/LWPS onset ordering is significant, with the
 latency–amplitude guard. No timing result is written up in the docs; a null
 folds it away.
 
@@ -262,6 +333,7 @@ work. Renumber at submission.
 | S2 | Main effects (congruency, switch type) in lPFC high gamma: traces and decoding | ⬜ Not in the docs | – |
 | S2b | Main-effect electrodes on the brain (one pre-specified method), other methods as robustness | Not run | – |
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test | Not run | – |
+| S2d | N2 direction tests (old F3d): for LWPC and LWPS, each simple effect and the difference waves, each with its own cluster bar | Implemented; results not collected | §2.3 |
 | S3 | Low-frequency bands, rerun with a ≥ 1 s baseline that predates the block context | Not run. Do not use the current low-band results: the 0.5 s pre-stimulus baseline is 2–4 cycles at theta and may contain the block-level effect. | – |
 | S4 | Absent cross-effects, as scope | – | One sentence in Results |
 | S5 | Congruency ↔ switch cross-decoding, labelled as base-effect geometry: the unselected lPFC transfer with its ceilings, `remove_mean`, RT-matched vs random, occipital | Run 2026-10-01. Seeds, the electrode-matched region comparison, the positive controls, `mean_only` and response-locked runs still to do. | §2.6, §3.6 |
@@ -270,7 +342,7 @@ work. Renumber at submission.
 | S8 | Cross-decoding control table for every transfer reported | The A4 block is filled in ([`decoding.md` › A4 §13.7](decoding.md#137-what-to-report-and-where-things-stand)); pseudo-trial counts missing | – |
 | S10 | Per-trial-baseline robustness rerun of the power traces; direct block comparisons | Not run | – |
 | S-N4 | Anatomy in full: the task-significant set; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models and panel c by height; Test 2 with the reliability and bootstrap; map similarity | All-lPFC parts ready. The task-significant set has LWPC/LWPS only; its main-effect rerun is pending. | §3.5 |
-| S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.7, §3.7, §5.2 |
+| S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.7, §3.7, §5.3 |
 
 ### 1.6 Left out of the paper
 
@@ -302,8 +374,10 @@ work. Renumber at submission.
 
 - [ ] F1: confirm the behavioral source script uses the corrected block map.
 - [ ] F2: build the coverage table (S1).
-- [ ] F3: collect the direction-test results; add the per-participant tally and
-      leave-one-participant-out; raise `N_PERM`.
+- [ ] F3: one trace encoding in all four subplots and neutral row labels
+      (§1.4, F3); save the ANOVA cluster p-values and raise `N_PERM`; collect
+      the simple effects; add the per-participant tally and
+      leave-one-participant-out.
 - [ ] F4: trial counts per class for each decoder; check pre-stimulus windows.
 
 **S5** ([`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)):
@@ -357,28 +431,51 @@ pre-stimulus baseline), used by F3, F4, S5 and S-BB.]**
   use the same orientation.
 - Trial inclusion and the model or test behind the reported numbers.
 
-### 2.3 Power traces and direction tests (F3) ✏️
+### 2.3 Power traces and adaptation tests (F3) ✏️
 
-*Skeleton, drafted from [`n2_direction_tests.md`](n2_direction_tests.md) §1–§4.
-Check every parameter against the reported run.*
+*Skeleton, drafted from `run_power_traces_dcc.py`,
+`windowed_anova.run_windowed_anova_cluster_correction` and
+[`n2_direction_tests.md`](n2_direction_tests.md) §1–§4. Check every parameter
+against the reported run.*
 
-> **[Describe the trace analysis behind F3b–c: electrode set, conditions, and
-> the test between traces.]** To establish the direction of each adaptation
-> effect, we compared the congruency effect (incongruent − congruent) between
-> 25 %- and 75 %-incongruent blocks, and the switch cost (switch − repeat)
-> between 25 %- and 75 %-switch blocks, in **[n]** task-responsive lPFC
-> electrodes from **[N]** participants. For each effect we ran three tests on
-> the trial-averaged high-gamma time courses: the condition effect in the
-> low-proportion blocks, the condition effect in the high-proportion blocks,
-> and their difference (low minus high proportion; positive values indicate a
-> smaller condition effect in high-proportion blocks, the direction of
-> behavioral adaptation). Each test was a two-sided, paired cluster-based
-> permutation test over time, with electrodes pooled across participants as
-> the unit of observation (cluster-forming threshold p = 0.05, cluster
-> threshold p = 0.05, **[N_PERM]** permutations). Because electrodes within a
-> participant are correlated, these p-values are optimistic. We therefore also
-> report the number of participants whose electrode-averaged effect points in
-> each direction, and the test repeated with each participant left out.
+> We analysed **[n]** task-responsive lPFC electrodes from **[N]**
+> participants. For each electrode, high gamma on correct trials was averaged
+> within each cell of a block-balanced design: congruency × incongruent
+> proportion × switch proportion for the congruency effect, and switch type ×
+> incongruent proportion × switch proportion for the switch cost. Each
+> combination of the two proportions is one block type, so every cell came from
+> a single block type. The traces show the mean across electrodes of each
+> condition × proportion cell, weighting the two levels of the other proportion
+> equally, ± 1 SEM across electrodes.
+>
+> Each condition effect was tested against each proportion manipulation with a
+> full-factorial ANOVA fitted across electrodes (ordinary least squares) in
+> sliding 250-ms windows (64 samples at 256 Hz, stepped by 62.5 ms). Because
+> every cell is one block type and every factor is in the model, each two-way
+> term is an equal-weight contrast, so a sustained difference between blocks
+> cannot enter it. The null distribution permuted cell labels within each
+> electrode, with the same permutation in every window (**[N_PERM]**
+> permutations). Windows whose *F* exceeded the 95th percentile of their null
+> formed candidate clusters. Candidates were split wherever the interaction's
+> signed contrast changed sign, and a cluster was kept when its extent in
+> windows **[or summed excess *F*, if the run set `CLUSTER_STAT=mass`]**
+> exceeded the 95th percentile of the largest null cluster, with null clusters
+> split the same way. The sign of a kept cluster gives the direction of the
+> interaction: whether the condition effect was smaller in the high-proportion
+> blocks, the direction of behavioral adaptation, or larger. The adaptation
+> effects were congruency × incongruent proportion (LWPC) and switch type ×
+> switch proportion (LWPS). The cross-effects, congruency × switch proportion
+> and switch type × incongruent proportion, were tested in the same models.
+>
+> To read each adaptation effect, we also tested the condition effect within
+> the low-proportion and within the high-proportion blocks (two-sided, paired
+> cluster-based permutation tests over time; cluster-forming and cluster
+> thresholds p = 0.05; **[N_PERM]** permutations). In all of these tests the
+> unit of observation was the electrode, pooled across participants. Because
+> electrodes within a participant are correlated, the p-values are optimistic.
+> We therefore also report the number of participants whose electrode-averaged
+> effect points in each direction, and the tests repeated with each participant
+> left out.
 
 ### 2.4 Decoding the adaptation effects (F4) ✏️
 
@@ -701,10 +798,19 @@ within-process adaptation effects." Check the source script first (§1.4, F1).
 
 ### 3.2 Adaptation effects in lPFC high gamma (F3) ⬜
 
-**[To write from the power traces and the direction tests.]** For each effect:
-the two simple effects' signs and clusters, the difference of differences and
-its cluster, the direction against behavior, `n_electrodes` and `n_subjects`,
-the per-participant tally and the leave-one-out range.
+**[To write from the ANOVA clusters and the direction tests.]** In this order:
+
+1. The electrode set: `n_electrodes` and `n_subjects`.
+2. LWPS, then LWPC: the interaction cluster's window, sign and p; each simple
+   effect's sign and cluster; the per-participant tally and the leave-one-out
+   range; the direction against behavior.
+3. One sentence for the off-diagonal that states what was tested and no more,
+   e.g. "No cluster survived for congruency × switch proportion or for switch
+   type × incongruent proportion (Fig. 3b, off-diagonal)." Not "was not
+   modulated by" (§1.4, F3).
+4. The RT check, if run.
+
+Do not read onset times off the bars (§1.4, F3).
 
 ### 3.3 Decoding the adaptation effects (F4) ⬜
 
@@ -944,7 +1050,31 @@ anterior–posterior axis is null; and inheritance could not be resolved.
 
 ## 5. Figure captions
 
-### 5.1 Fig. 5 (draft)
+### 5.1 Fig. 3 (draft)
+
+*Drafted here from the F3 specification in §1.4. It describes the single trace
+encoding of fix 1 there, not the current figure.*
+
+> **Fig. 3 | lPFC high gamma carries both adaptation effects in the behavioral
+> direction.** **a**, Task-responsive lPFC electrodes (**[n]** electrodes from
+> **[N]** participants) on the MNI template **[; right-hemisphere electrodes
+> mirrored onto the left]**. **b**, High gamma (z) relative to stimulus onset,
+> mean across electrodes ± SEM. Rows: switch cost (switch vs repeat, top) and
+> congruency effect (incongruent vs congruent, bottom). Columns: switch
+> proportion (left) and incongruent proportion (right). Colour: proportion in
+> the block (light, 25 %; dark, 75 %). Line style: condition (dashed, switch or
+> incongruent; solid, repeat or congruent). Each trace weights the two levels
+> of the other proportion equally. The diagonal shows the two adaptation
+> effects, LWPS (top left) and LWPC (bottom right); the off-diagonal shows the
+> cross-effects. Bars mark clusters in which the condition × proportion
+> interaction was significant (ANOVA in 250-ms windows, permutation null
+> within electrodes, cluster-corrected). Both have the sign of behavioral
+> adaptation: a smaller condition effect in high-proportion blocks. No cluster
+> survived off the diagonal. Electrodes are pooled across participants, so the
+> cluster p-values are optimistic; per-participant tallies are given in the
+> text.
+
+### 5.2 Fig. 5 (draft)
 
 *Drafted here from the panel specifications in §1.4 and the numbers in §3.4.
 Panel a's caption text follows the
@@ -974,7 +1104,7 @@ Panel a's caption text follows the
 > switch–LWPS) and crossed (congruency–LWPS, switch–LWPC) pairings. Spearman
 > *r*, within-participant permutation *p*.
 
-### 5.2 Supplementary Fig. S-BB
+### 5.3 Supplementary Fig. S-BB
 
 *Copied from §14.4 of [`a6_brain_behavior.md`](a6_brain_behavior.md#144-figure-caption-supplementary-fig-s-bb).
 Use `participant_brain_behavior_scatter_rtadj`, annotated with r, its 95 % CI
@@ -994,7 +1124,7 @@ and the ceiling instead of R² (R² drops the sign; LWPS is r = −0.06).*
 > reliability, so no ceiling is given. Significance at α = .05 required
 > |r| ≥ 0.48.
 
-### 5.3 Still to write
+### 5.4 Still to write
 
-F1–F4 captions, Supplementary S5 (cross-decoding traces with ceilings, transfer
+F1, F2 and F4 captions, Supplementary S5 (cross-decoding traces with ceilings, transfer
 and control runs), and S-N4.
