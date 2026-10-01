@@ -89,6 +89,11 @@ if ALIGN_TO_POWER_TRACES_RUN:
 #                 'cluster'     -> aggregate cluster-mass statistic on windowed HG time courses
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
+# RT_ADJUST_HG=1 removes each electrode's pooled within-design-cell HG~RT
+# component before sensitivity scoring. It requires scalar window-mean HG.
+RT_ADJUST_HG = os.environ.get('RT_ADJUST_HG', '0') not in ('0', '', 'false', 'False')
+if RT_ADJUST_HG and EFFECT_MEASURE != 'cohens_d':
+    raise ValueError("RT_ADJUST_HG=1 requires EFFECT_MEASURE=cohens_d")
 
 # MAIN_EFFECTS=1 (proportion mode): also score congruency and switch type on the
 # same halves (mx/my columns) for the main-effect anatomy, docs/analysis_plans.md#closing-figure-plan
@@ -135,6 +140,8 @@ SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'segregation_result
                         f'_{_roi_tag}_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
 if MAIN_EFFECTS and not SCATTER_ONLY:   # never overwrite an archived LWPC/LWPS-only run
     SAVE_DIR += '_main_effects'
+if RT_ADJUST_HG:
+    SAVE_DIR += '_rt_adjusted'
 # Keep the scatter-only run in its own directory: its sensitivities are scored
 # differently (all trials, by default) from the ones a full run plots, so writing
 # both scatters to the same path would silently overwrite one with the other.
@@ -159,6 +166,7 @@ def run_analysis():
         responsiveness=RESPONSIVENESS,
         contrast_mode=CONTRAST_MODE,
         effect_measure=EFFECT_MEASURE,
+        rt_adjust_hg=RT_ADJUST_HG,
         main_effects=MAIN_EFFECTS,
         n_splits=N_SPLITS,
         n_perm_corr=N_PERM_CORR,
@@ -189,6 +197,7 @@ def run_analysis():
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"Contrast mode:    {CONTRAST_MODE}")
     print(f"Effect measure:   {EFFECT_MEASURE}")
+    print(f"RT-adjust HG:     {RT_ADJUST_HG}")
     print("-" * 70)
     if SCATTER_ONLY:
         print("MODE:             SCATTER ONLY (plan 2.5) - no inference is run")

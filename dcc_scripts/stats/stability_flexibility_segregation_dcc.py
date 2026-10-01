@@ -56,6 +56,31 @@ from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrode
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
 
+def apply_rt_adjustment(df, enabled=False, effect_measure='cohens_d'):
+    """Return the analysis table and, when requested, its HG-on-RT slopes.
+
+    The adjustment deliberately happens here, before either scatter scoring or
+    ``run_joint_distribution_analysis`` calls ``compute_sensitivities_per_split``.
+    Keeping it at the orchestration boundary also makes every downstream N4/F5
+    score (LWPC/LWPS and the optional main effects) use the same adjusted HG.
+    """
+    if not enabled:
+        return df, None
+    if effect_measure != 'cohens_d' or df['hg'].dtype == object:
+        raise ValueError("RT_ADJUST_HG requires EFFECT_MEASURE=cohens_d (scalar, "
+                         "window-mean HG)")
+    if 'rt' not in df.columns or not np.isfinite(
+            pd.to_numeric(df['rt'], errors='coerce')).any():
+        raise ValueError("RT_ADJUST_HG requires finite reaction times in the long "
+                         "table; check the epochs metadata")
+
+    # Import locally: the brain-behavior module imports the core segregation
+    # statistics, while this DCC wrapper is also used by that analysis.
+    from src.analysis.stats.stability_flexibility_brain_behavior import rt_adjust_hg
+    adjusted, slopes = rt_adjust_hg(df)
+    return adjusted, slopes
+
+
 
 # ---------------------------------------------------------------------------
 # long-format assembly from epoched data
@@ -630,6 +655,9 @@ def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
     split-averaged disjoint-half ones (slower, but shared trial noise removed).
     """
     df = build_long_df(args, LAB_root, effect_measure=effect_measure)
+    df, rt_slopes = apply_rt_adjustment(
+        df, enabled=getattr(args, 'rt_adjust_hg', False),
+        effect_measure=effect_measure)
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
 
@@ -641,6 +669,9 @@ def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
         alpha=args.alpha, n_splits=n_splits)
 
     os.makedirs(args.save_dir, exist_ok=True)
+    if rt_slopes is not None:
+        rt_slopes.to_csv(os.path.join(args.save_dir, 'rt_adjustment_slopes.csv'),
+                         index=False)
     elec.to_csv(os.path.join(args.save_dir, 'scatter_sensitivities.csv'), index=False)
     diag = make_joint_scatter(elec, args.save_dir, contrast_mode=contrast_mode,
                               effect_measure=effect_measure)
@@ -669,12 +700,22 @@ def main(args):
     # 1. build the long-format df -------------------------------------------------
     df = build_long_df(args, LAB_root, effect_measure=effect_measure)
 
+    # Remove the within-design-cell RT-linked component before any split is
+    # drawn. Thus both halves, all four F5 maps, and every downstream anatomy
+    # test are based on adjusted HG rather than adjusting already-made scores.
+    df, rt_slopes = apply_rt_adjustment(
+        df, enabled=getattr(args, 'rt_adjust_hg', False),
+        effect_measure=effect_measure)
+
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
     # cluster mode stores per-trial time courses in `hg`; keep the CSV readable
     # by dropping that (array) column, the metadata columns are what matters here
     long_csv = df.drop(columns=['hg']) if df['hg'].dtype == object else df
     long_csv.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
+    if rt_slopes is not None:
+        rt_slopes.to_csv(os.path.join(args.save_dir, 'rt_adjustment_slopes.csv'),
+                         index=False)
 
     # 2. run the analysis ---------------------------------------------------------
     out = sfs.run_joint_distribution_analysis(
@@ -701,6 +742,7 @@ def main(args):
         electrodes=args.electrodes,
         rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
         contrast_mode=contrast_mode, effect_measure=effect_measure,
+        rt_adjust_hg=getattr(args, 'rt_adjust_hg', False),
         main_effects=main_effects,
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label,

@@ -2857,3 +2857,37 @@ Left out, as in all lPFC: the medoids (`summary.txt` §7: 20 groups, *p* ≥ 0.4
 on every axis), the noise-corrected ratio (0.684 electrode level, undefined at
 parcel level; §15.4), and the full-data `joint_scatter.png` correlations
 (pooled 0.20, within participant 0.18).
+
+### 18.10 RT-adjusted F5 sensitivity run
+
+The segregation job can remove the RT-linked component of high gamma **before**
+`compute_sensitivities_per_split` makes any maps. Run the score-producing job
+with scalar window-mean HG and the adjustment enabled:
+
+```bash
+cd dcc_scripts/stats
+RT_ADJUST_HG=1 EFFECT_MEASURE=cohens_d MAIN_EFFECTS=1 \
+  bash submit_stability_flexibility_segregation_dcc.sh
+```
+
+Keep `CONTRAST_MODE=proportion` (the submitter default) for LWPC/LWPS. The run is
+written to a distinct `_rt_adjusted` directory and includes
+`rt_adjustment_slopes.csv` (one within-cell HG-on-RT slope and correlation per
+electrode). `long_df.csv`, `per_split.csv`, and the other segregation outputs in
+that directory are RT-adjusted. The job stops with an explicit error if the
+epochs metadata have no finite reaction times or if a time-resolved effect
+measure (`cluster` or `peak_t`) is requested.
+
+Then point the continuous anatomy job at that run's `per_split.csv` exactly as
+for the unadjusted analysis (set `SEG_RUN` in
+`submit_stability_flexibility_anatomy_dcc.sh`) and submit it:
+
+```bash
+cd dcc_scripts/stats
+ARM=continuous bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
+Compare the resulting F5/Test 1 outputs against the raw run; do not overwrite or
+silently replace the raw estimate. The adjustment is conservative: it removes
+neural adaptation carried through the same trial-level HG–RT relationship as
+well as nuisance RT-linked HG.
