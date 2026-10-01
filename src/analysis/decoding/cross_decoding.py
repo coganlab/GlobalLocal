@@ -11,11 +11,10 @@ This module is deliberately thin. The decoding pipeline it needs already exists:
 
 - **Pseudopopulation** — `put_data_in_labeled_array_per_roi_subject` pads each
   subject's trials with NaN before concatenating subjects along the channel
-  axis. `align_complete_pseudotrials` re-pairs each subject's trials so its
-  NaN-free trials fill the top rows, and `build_cross_decoding_arrays` removes
-  only pure-padding rows. Within each fold, incomplete training rows are
-  subsampled out and the surviving classes are balanced; incomplete test rows
-  retain the pipeline's non-informative noise fill.
+  axis. `build_cross_decoding_arrays` removes only pure-padding rows. Within
+  each fold, incomplete training rows are subsampled out and the surviving
+  classes are balanced; incomplete test rows retain the pipeline's
+  non-informative noise fill.
 - **Classifier** — PCA -> LDA with EQUAL class priors (`make_decoder`), so a
   within-block decode whose classes run 3:1 is not pulled toward the majority
   class.
@@ -358,91 +357,6 @@ def _drop_padding_rows(arr, obs_axs=0):
     """Remove pure-padding rows while retaining partial rows for fold handling."""
     other = tuple(ax for ax in range(arr.ndim) if ax != obs_axs % arr.ndim)
     return np.compress(~np.isnan(arr).all(axis=other), arr, axis=obs_axs)
-
-
-def _n_complete_rows(arr):
-    """Rows (axis 0) with no NaN anywhere: what a fold can train on."""
-    return int((~np.isnan(arr).reshape(len(arr), -1).any(axis=1)).sum())
-
-
-def align_complete_pseudotrials(roi_labeled_arrays, roi, channel_names):
-    """Re-pair each subject's trials so as many pseudo-trials as possible are complete.
-
-    A pseudo-trial (one row of the pseudopopulation) holds one trial from every
-    subject, and which trials share a row is arbitrary: each subject's trials are
-    shuffled into the top rows independently
-    (`put_data_in_labeled_array_per_roi_subject`). Cross-decoding trains only on
-    COMPLETE rows (`sample_fold` with `oversample=False`), and a row is complete
-    only if every subject's trial in it has no NaN on any decoded electrode.
-    Outlier trials are NaN per electrode (`make_epoched_data`), so with random
-    pairing the complete rows are the INTERSECTION of the subjects' clean trials,
-    which shrinks geometrically with the number of subjects. Two dozen subjects
-    can leave one or two complete rows per condition; RT matching then halves
-    each subject's trials, and LDA is left with fewer training rows than classes.
-
-    Moving each subject's clean trials to the top (in their existing random
-    order, then its partial trials, then its padding) makes the number of
-    complete rows the MINIMUM of the subjects' clean-trial counts instead. Only
-    the cross-subject pairing changes, which was arbitrary to begin with. No trial
-    is added, dropped or altered, and a subject's channels stay together in every
-    row. Arrays without NaN inside any subject's real trials come back unchanged.
-
-    The overall-activity control works per subject and pseudo-trial, so it
-    commutes with this re-pairing; 'remove_mean' also leaves every NaN where it
-    was, so re-pairing before it is exact.
-
-    Parameters
-    ----------
-    roi_labeled_arrays : {roi: {condition: (trials, channels, ...) array}}
-    channel_names : the arrays' channels, in order, named `<subject>-<electrode>`
-        (`activity_control.channel_subjects`).
-
-    Returns
-    -------
-    ({roi: {condition: ndarray}}, report) where `report[condition]` holds
-    `n_complete_before`, `n_complete_after` and `clean` ({subject: number of its
-    trials with no NaN on these electrodes}).
-    """
-    from .activity_control import channel_subjects
-
-    subjects = np.asarray(channel_subjects(channel_names), dtype=object)
-    blocks = {s: np.flatnonzero(subjects == s) for s in dict.fromkeys(subjects)}
-    out, report = {}, {}
-    for condition, arr in roi_labeled_arrays[roi].items():
-        x = np.asarray(arr)
-        if x.shape[1] != len(subjects):
-            raise ValueError(f"condition {condition!r} has {x.shape[1]} channels but "
-                             f"{len(subjects)} channel names were given")
-        aligned, clean = x.copy(), {}
-        for sub, idx in blocks.items():
-            nan = np.isnan(x[:, idx]).reshape(len(x), -1)
-            # 0 = clean, 1 = partly NaN, 2 = no data (padding); stable keeps the
-            # subject's own random order within each
-            state = nan.any(axis=1).astype(int) + nan.all(axis=1)
-            aligned[:, idx] = x[:, idx][np.argsort(state, kind='stable')]
-            clean[sub] = int((state == 0).sum())
-        out[condition] = aligned
-        report[condition] = dict(n_complete_before=_n_complete_rows(x),
-                                 n_complete_after=_n_complete_rows(aligned),
-                                 clean=clean)
-    return {roi: out}, report
-
-
-def describe_pseudotrial_alignment(report):
-    """One line for the log: complete pseudo-trials per condition, before -> after
-    `align_complete_pseudotrials`, and the subject with the fewest clean trials
-    (the one that caps them)."""
-    if not report:
-        return "no conditions"
-    counts = ", ".join(f"{c} {r['n_complete_before']}->{r['n_complete_after']}"
-                       for c, r in report.items())
-    fewest = min(((n, sub, c) for c, r in report.items() for sub, n in r['clean'].items()),
-                 default=None)
-    if fewest is None:
-        return f"complete pseudo-trials per condition: {counts}"
-    n, sub, c = fewest
-    return (f"complete pseudo-trials per condition: {counts}; fewest clean trials: "
-            f"{sub or '(unnamed)'} ({n} in {c})")
 
 
 def _same_partition(a, b):

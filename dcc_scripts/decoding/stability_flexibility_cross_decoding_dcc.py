@@ -608,9 +608,7 @@ def _activity_controlled(args, roi_arrays, roi, channel_names):
 
 
 def _decoded_group(args, arrays, roi, channel_names, keep):
-    """One electrode group's decode input: `arrays` restricted to `keep`, its
-    pseudo-trials re-paired so each subject's trials that are clean on THESE
-    electrodes fill the complete rows (`cd.align_complete_pseudotrials`), then the
+    """One electrode group's decode input: `arrays` restricted to `keep`, then the
     activity control. Returns (arrays, n_electrodes, info); arrays is None when
     the group has no electrode in the ROI."""
     restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, keep)
@@ -618,9 +616,6 @@ def _decoded_group(args, arrays, roi, channel_names, keep):
         return None, 0, None
     keep = set(keep)
     kept_names = [ch for ch in channel_names if ch in keep]
-    restricted, pairing = cd.align_complete_pseudotrials(restricted, roi, kept_names)
-    print(f"     {n_kept} electrodes, "
-          f"{cd.describe_pseudotrial_alignment(pairing)}")
     restricted, info = _activity_controlled(args, restricted, roi, kept_names)
     return restricted, n_kept, info
 
@@ -706,11 +701,6 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
     channel_names = _roi_channel_names(arrays, roi)
     print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
           f"({args.electrodes} electrodes)")
-    # Outlier trials are NaN per electrode, and the decoder trains only on
-    # pseudo-trials complete across every subject; pair the clean trials up.
-    # Electrode groups re-pair again over their own electrodes (`_decoded_group`).
-    arrays, pairing = cd.align_complete_pseudotrials(arrays, roi, channel_names)
-    print(f"ROI {roi!r} {cd.describe_pseudotrial_alignment(pairing)}")
     return roi, arrays, channel_names, cells
 
 

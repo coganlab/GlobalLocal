@@ -275,21 +275,12 @@ def sample_fold(train_idx: np.ndarray, test_idx: np.ndarray,
         # number from each class so missingness cannot change the class prior.
         other = tuple(i for i in range(x_train.ndim) if i != axis)
         complete = ~np.isnan(x_train).any(axis=other)
-        n_rows = len(y_train)
         x_train = np.compress(complete, x_train, axis=axis)
         y_train = y_train[complete]
         classes, counts = np.unique(y_train, return_counts=True)
-        # A classifier needs more training rows than classes (LDA refuses
-        # otherwise), so at least two per class.
-        if len(classes) < 2 or counts.min() < 2:
-            raise ValueError(
-                f"training fold has {dict(zip(classes.tolist(), counts.tolist()))} "
-                f"complete pseudo-trials per class (of {n_rows} training rows); at "
-                "least two per class are needed. A pseudo-trial is complete only if "
-                "every subject's trial in it has no NaN on any decoded electrode, so "
-                "the subject with the fewest clean trials caps the count (see "
-                "cross_decoding.align_complete_pseudotrials): drop that subject, "
-                "decode more trials per condition, or fewer electrodes.")
+        if len(classes) < 2 or counts.min() == 0:
+            raise ValueError("training fold has fewer than two complete classes after "
+                             "subsampling incomplete pseudo-trials")
         n_per_class = counts.min()
         # Deterministic selection preserves the guarantee that within-level and
         # transfer calls made with the same folds train identical classifiers.

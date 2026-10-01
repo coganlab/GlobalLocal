@@ -149,66 +149,6 @@ def test_build_roi_arrays_matches_the_decode_trials(tmp_path, monkeypatch):
     assert args.rt_match_log
 
 
-def test_groups_pair_up_trials_that_are_clean_on_their_own_electrodes():
-    """An outlier on an electrode the group does not decode must not cost the
-    group a complete pseudo-trial."""
-    rng = np.random.default_rng(0)
-    channels = ['D0-E0', 'D0-E1', 'D1-E0']
-    x = rng.normal(size=(10, 3, 4))
-    x[:7, 1] = np.nan                     # D0's outliers sit on E1 only
-    arrays = {'lpfc': {'a': x}}
-    args = SimpleNamespace(activity_control='none')
-
-    every, n_every, _ = xd._decoded_group(args, arrays, 'lpfc', channels, channels)
-    group, n_group, _ = xd._decoded_group(args, arrays, 'lpfc', channels,
-                                          ['D0-E0', 'D1-E0'])
-
-    def complete(a):
-        return int((~np.isnan(a['lpfc']['a']).any(axis=(1, 2))).sum())
-
-    assert (n_every, complete(every)) == (3, 3)
-    assert (n_group, complete(group)) == (2, 10)
-
-
-def test_rt_matched_trials_with_outliers_still_decode(tmp_path, monkeypatch):
-    """The reported failure: RT matching halves each subject's trials, outlier
-    electrodes are NaN, and with two dozen subjects randomly paired almost no
-    pseudo-trial is complete, so LDA got fewer training rows than classes. The
-    job pairs each subject's clean trials up before decoding."""
-    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
-    rng = np.random.default_rng(0)
-    n_sub, n_ch = 16, 2
-    channels = [f'D{i // n_ch}-E{i % n_ch}' for i in range(n_sub * n_ch)]
-    arrays = {'lpfc': {}}
-    for name in cells:
-        x = rng.normal(size=(20, n_sub * n_ch, 16))
-        x[rng.random((20, n_sub * n_ch)) < 0.1] = np.nan
-        arrays['lpfc'][name] = x
-    random_pairing = min(int((~np.isnan(x).any(axis=(1, 2))).sum())
-                         for x in arrays['lpfc'].values())
-    assert random_pairing <= 3
-
-    monkeypatch.setattr(xd, '_build_roi_arrays',
-                        lambda args, lab_root, trial_partitions=None:
-                        ('lpfc', arrays, channels, cells))
-    monkeypatch.setattr('src.analysis.utils.general_utils.resolve_lab_root',
-                        lambda explicit=None: '/nonexistent')
-    args = SimpleNamespace(
-        data_source='real', synthetic_code=None, LAB_root=None, subjects=[],
-        task='GlobalLocal', acc_trials_only=True, epochs_root_file='epochs',
-        window_tmin=0.0, window_tmax=0.5, conditions=ec.stimulus_main_effect_conditions,
-        electrodes='sig', rois_dict={'lpfc': []}, alpha=0.05, roi='lpfc',
-        electrode_definition='none', reference_group='all', tempgen_groups=(),
-        window_size=8, step_size=8, n_splits=3, n_repeats=2,
-        explained_variance=0.8, frac_train=None, n_perm=10, min_group_size=2,
-        seed=0, save_dir=str(tmp_path), rt_match='none')
-
-    results = xd.main(args)
-
-    assert set(results['label_transfer']['all']) == {
-        'stab_to_stab', 'flex_to_flex', 'stab_to_flex', 'flex_to_stab'}
-
-
 def test_summary_records_the_split_and_rt_matching(tmp_path, monkeypatch):
     """summary.txt says whether the decode trials were split off and RT-matched,
     and carries the matching's own before/after line."""

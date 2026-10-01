@@ -1140,14 +1140,6 @@ decoded factors has the same RT distribution
   of `_summary.csv` is the "residual RT difference" to report.
 - A subject left with no trials stops the job: its channels are in every
   pseudo-trial, so it cannot drop out. Lower `RT_MATCH_BINS` if that happens.
-- The decoder trains only on pseudo-trials that are NaN-free on every decoded
-  electrode of every subject (§4.4 under [Cross-decoding controls](#cross-decoding-controls)),
-  and matching halves each subject's trials. Each subject's clean trials are
-  therefore paired up into the top rows before decoding. The log line
-  `complete pseudo-trials per condition: ... fewest clean trials: <subject>` names
-  the subject that caps the count. If a fold still has fewer than two complete
-  rows per class, the job stops and says so: drop that subject or lower
-  `RT_MATCH_BINS`.
 - Synthetic data have no RTs, so `RT_MATCH` is refused there.
 - It works for `ANALYSIS=block_transfer` and `task_transfer` too (same knobs).
 
@@ -2415,21 +2407,6 @@ are filled with i.i.d. Gaussian noise, deliberately non-informative so test
 imputation cannot leak class information. A transfer whose test population draws
 more heavily on sparsely-covered subjects can nevertheless be depressed because
 more of its test features are noise.
-
-A pseudo-trial is complete only if every subject's trial in it is NaN-free, and
-`make_epoched_data` marks outlier trials NaN per electrode. Under the random
-pairing the pseudopopulation builder uses, the complete rows are the
-*intersection* of the subjects' clean trials, which shrinks geometrically with the
-number of subjects. With 24 subjects that can be one to five rows per condition,
-and after RT matching LDA was left with fewer training rows than classes ("The
-number of samples must be more than the number of classes"). The job therefore
-re-pairs every decode input with `cd.align_complete_pseudotrials`. Each subject's
-clean trials move to the top rows, in their existing random order, so the complete
-rows become the *minimum* of the subjects' clean-trial counts. This happens once
-over all ROI electrodes and again over each electrode group's own electrodes. No
-trial is added, dropped or changed; only the arbitrary cross-subject pairing
-moves. Runs from before this change trained on far fewer rows, so their
-accuracies aren't comparable with new runs.
 
 **Check:** per-subject channel coverage in the train population vs the test
 population, and the fraction of test features that were NaN-filled. If the test
