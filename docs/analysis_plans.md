@@ -16,7 +16,7 @@ way it is.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-09-27 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the closing figure (F5), supplement placement, the weekly figure table, open questions for the advisor | `closing_figure_plan.md` |
+| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the closing figure (F5), supplement placement, the weekly figure table, open questions for the advisor | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
 | [Nested electrode selection plan](#nested-electrode-selection-plan) | 2026-08-19 | 2026-08-19 | Never built as designed; it served the subpopulation drill-down that the figure plan retired. A single held-out split was built instead ([`decoding.md`](decoding.md) §3.3–§3.4, [`analysis_guide.md`](analysis_guide.md) §21). Still the reference if a select-then-test figure returns (closing figure plan, S2c) | `nested_electrode_selection.md` |
@@ -117,7 +117,7 @@ Only the main-effect anatomy rerun belongs in the main text as a test. The rest 
 | Anatomy on congruency − switch delta | Is the adaptation tilt inherited from the base effects? | Main text, closing figure | 1 |
 | Main-effect electrodes on the brain | Where are congruency, switch and both electrodes? | Supplement; defines groups for the next row | 3 |
 | Adaptation traces and decoding within main-effect groups | Is each adaptation expressed where its demand is processed? | Supplement, as the picture of the continuous test | 2 |
-| Brain–behavior | Does neural adaptation track behavioral adaptation? | Supplement unless striking | 4 |
+| Brain–behavior | Does neural adaptation track behavioral adaptation? | Supplement unless striking. Run 2026-09-30: not striking, so supplement (S-BB) | 4 |
 | Cross-decoding within main-effect groups | Do congruency and switch share a coding axis inside each group? | Drop unless the next row works | 6 |
 | Congruency ↔ switch cross-decoding with task controls | Are the base-effect codes separable? | Supplement (S5) | 5 |
 | Cross-proportion (block) transfer | Does block context reconfigure the code? | Shelved | – |
@@ -161,6 +161,7 @@ Reviewers will ask for it, but it is the least likely to give a clean result. Ho
 - **Trial-wise version, a trap in the current code:** the adjustment is w(t) · RT with w = +1 on the rare cells, so w averages about −0.5. Any plain HG–RT correlation leaks into the "matched" slope. The cross-pairing control cancels it only if both electrode groups are equally tied to RT.
 - **Safer model:** RT ~ congruency × incongruent proportion × HG, with a participant random effect; test the three-way term. Same for switch type × switch proportion.
 - **Verdict:** supplement unless striking. The direction tests, where the neural sign matches the behavioral sign, link brain and behavior at the group level, but RT coupling predicts that sign too; recheck them on the RT-adjusted electrode scores (`participant_electrode_scores.csv`).
+- **Outcome, task-significant lPFC (2026-09-30; §13 of `a6_brain_behavior.md`):** null and uninformative. At n = 17, RT-adjusted LWPC r = 0.10 [−0.40, 0.55] and LWPS r = −0.06 [−0.52, 0.44]. Neural LWPC has no measurable between-participant reliability. The LWPS ceiling (0.46) is below the 0.48 needed, so even a perfect link has about 49 % power. **Supplement S-BB only**, framed as "could not be tested at this n". Manuscript text: §14 of `a6_brain_behavior.md` and [`methods.md` › A6](methods.md#a6-brainbehavior-supplement-s-bb).
 
 #### Cross-decoding within main-effect groups
 
@@ -329,7 +330,7 @@ No scatter can show the separate-half r itself. The r averages two correlations 
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test |
 | S5 | Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control, labelled as base-effect geometry |
 | S8 | Cross-decoding control table for every transfer reported |
-| S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities and ceiling; and the three-way mixed model |
+| S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities, ceiling and the power they imply (text drafted: `a6_brain_behavior.md` §14); the three-way mixed model if it is built |
 | S-N4 | Task-significant anatomy in full; parcel test (`delta_by_roi.png`, reordered by mean z); anterior–posterior null |
 
 ### Priority order and weekly figure plan
@@ -350,7 +351,8 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 
 - [ ] Main-effect electrodes on the brain, and adaptation traces within groups on disjoint halves (supplement).
 - [x] Per-participant brain–behavior scores (raw and RT-adjusted, shared-split reliability) and the behavioral block-map fix (`a6_brain_behavior.md`).
-- [ ] Run A6 on task-significant lPFC, then all lPFC and the 0–0.5 s window as checks.
+- [x] Run A6 on task-significant lPFC (2026-09-30; null and uninformative, `a6_brain_behavior.md` §13). Supplement text written (§14 there; `methods.md` › A6).
+- [ ] All lPFC and the 0–0.5 s window as checks: only if a reviewer asks (`a6_brain_behavior.md` §14.1).
 - [ ] Brain–behavior with the three-way mixed model.
 - [ ] Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control.
 
@@ -376,7 +378,7 @@ Keep this table here, updated each week, so the repo stays the source of truth. 
 - [ ] **Main-effect electrode definition:** which single method defines congruency, switch and both electrodes (windowed-ANOVA clusters recommended)?
 - [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results?
 - [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline?
-- [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear?
+- [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear? The across-participant test came out null and uninformative (2026-09-30). Recommendation: one supplementary note plus one Discussion sentence (`a6_brain_behavior.md` §14). Build the three-way model only if a main-text brain–behavior claim is wanted; it is the only version with plausible power.
 - [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop?
 
 ---
