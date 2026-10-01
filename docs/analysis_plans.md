@@ -68,6 +68,14 @@ The closing question becomes: **is the dorsoventral tilt in LWPC − LWPS inheri
 
 Ending sentence: *each adaptation tracks the local strength of the demand it regulates; whether the spatial gradient in their balance is inherited from the base effects could not be determined.*
 
+**Outcome, task-significant lPFC (2026-10-01; §18 of `n4_continuous_anatomy.md`).** The same picture at lower power, on 171 electrodes from 21 participants.
+- **Overlap at both levels:** congruency–switch r = 0.17, p = 0.001; LWPC–LWPS r = 0.08, p = 0.055.
+- **Electrode level:** Test 1 r = 0.08, p = 0.049 (0.052 with coordinates). The matched − crossed gaps are the size they are in all lPFC (0.09 and 0.03 against 0.10 and 0.04). Here the congruency and switch maps are equally reliable, so reliability does not explain the LWPC gap.
+- **Labels and gradient:** neither balance differs across labels (p = 0.29, 0.12) or with position (p = 0.28, 0.48). Both z slopes match all lPFC's in size. The midline description and "carried by LWPC" do not repeat.
+- **Inheritance:** not testable, because delta's own slope is not significant here.
+
+It changes nothing in F5 and supports the ending sentence.
+
 Keep the overlap result (one intermixed population) as the anatomy headline. The tilt is modest and was not predicted, so the closing figure explains it rather than carrying the paper.
 
 **Update 2026-10-01: the closing figure is cut to two panels, and the tilt goes to the supplement.** F5 is now the overlap at both levels (a) and Test 1 drawn as matched vs crossed correlations (b). The dm–delta correlation is kept as the test behind b, because its covariance is the two matched covariances minus the two crossed ones. The main text drops "balance" language and Test 2. Reasons: the tilt explains about 2 % of delta's variance, lies on an unpredicted axis, and its inheritance cannot be resolved, so it cannot carry a figure panel. Score maps cannot replace the correlations either (single-electrode reliability ~0.3). New ending sentence: *LWPC and LWPS are carried by one intermixed lPFC population, and each tracks the local strength of the demand it regulates.* Layout, placement and text: [`paper_draft.md`](paper_draft.md) §1.4 (F5), §3.4 and §3.5.
@@ -85,7 +93,7 @@ The paper now characterizes concurrent regulation rather than arguing that stabi
 | N1 | Both adaptations are present in the same subjects and sessions | Behavioral LWPC and LWPS (RT, errors) | Done |
 | N2 | lPFC high gamma carries both adaptation effects | LWPC and LWPS power traces in task-significant lPFC electrodes; direction tests | Traces done; direction tests implemented (`docs/n2_direction_tests.md`) |
 | N3 | Both adaptations are decodable from distributed lPFC activity | LWPC and LWPS decoding from task-significant lPFC electrodes | Done; block-transfer cross-decoding shelved |
-| N4 | How the two effects are organized across lPFC | Continuous per-electrode scores, anatomy (§15 and §16 of `docs/n4_continuous_anatomy.md`) | Done for all lPFC: overlap at both levels, a dorsomedial gradient in the adaptation balance, main effects as the reference (§16.6) |
+| N4 | How the two effects are organized across lPFC | Continuous per-electrode scores, anatomy (§15 and §16 of `docs/n4_continuous_anatomy.md`) | Done for all lPFC: overlap at both levels, a dorsomedial gradient in the adaptation balance, main effects as the reference (§16.6). Task-significant rerun with main effects done 2026-10-01 (§18): same estimates, lower power |
 
 The gap is a closing figure that ties N2–N4 together. The candidates are the ideas assessed below.
 
@@ -260,7 +268,7 @@ With the per-participant counts (42, 152, 137, 50), the noise correlation is abo
 - [x] Extend `compute_sensitivities_per_split` (`stability_flexibility_segregation.py:707`) to also return main-effect columns on the same `g1`/`g2` halves: congruency on halves A and B, and switch type on halves A and B. Score them with `W_MAIN` over the proportion cells, in the proportion-mode run, so the splits are shared.
 - [x] Add a synthetic check with two planted worlds: an adaptation tilt inherited from a main-effect tilt, and an adaptation tilt with no main-effect tilt. Test 2 below must shrink the slope in the first world and leave it in the second.
 - [x] Rerun all lPFC with the new columns (2026-09-26; results in §16.6 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)).
-- [ ] Rerun the task-significant set with the new columns.
+- [x] Rerun the task-significant set with the new columns (2026-10-01; §18 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)).
 
 Implemented; how to run it and read the outputs is §16 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
@@ -303,6 +311,7 @@ Recommendation: make all lPFC primary for the anatomy, and report the task-signi
 - The two groups' slopes do not differ (p = 0.67).
 - Task significance is unrelated to height (within-participant r = +0.005, p = 0.93), so restricting to it changes the electrode count, not the spatial sampling.
 - With the observed slope planted, p < 0.05 is reached 26 % of the time on the task-significant layout versus 66 % on all lPFC. The task-significant null is what that power predicts.
+- With main effects (2026-10-01, §18 of `n4_continuous_anatomy.md`): congruency–switch r = 0.17 versus 0.23; Test 1 r = 0.08 versus 0.09, with the same matched − crossed gaps; dm's z slope −0.0035 versus −0.0037 SD/mm.
 
 **Consequences.**
 
@@ -378,7 +387,7 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 
 - [x] Add matched-half main-effect columns to `compute_sensitivities_per_split`, with the synthetic inherited/independent check.
 - [x] Rerun the proportion-mode score job for all lPFC with the new columns.
-- [ ] Rerun it for the task-significant set.
+- [x] Rerun it for the task-significant set (2026-10-01; §18 of `n4_continuous_anatomy.md`).
 - [x] Run Test 1 (delta–delta correlation) and Test 2 (tilt with and without dm), plus the dm label and coordinate tests (all lPFC; §16.6 of `n4_continuous_anatomy.md`).
 - [ ] Make panel a from `continuous.csv` (see "Panel a"), and run the leave-one-participant-out check on its r.
 - [ ] Plot the revised F5 panels b–d (§16.7.3 of `n4_continuous_anatomy.md`).
