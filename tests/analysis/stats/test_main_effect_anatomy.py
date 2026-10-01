@@ -146,6 +146,10 @@ def test_continuous_arm_runs_the_label_and_coordinate_tests_on_dm(tmp_path):
     main = json.loads((out / 'score_anatomy.json').read_text())['main_effects']
     assert set(main['coordinates']) == {'all', 'lh', 'rh'}
     assert len(main['per_roi']) == len(per_roi)
+    # Figure 5 comes with the run; the synthetic route has no segregation JSONs
+    assert 'FIGURE 5 — fig5.png' in summary and 'FIGURE 5: failed' not in summary
+    assert (out / 'fig5.png').exists() and (out / 'fig5.pdf').exists()
+    assert len(pd.read_csv(out / 'fig5b_bars.csv')) == 4
 
 
 def test_section16_followups_script_writes_the_panel_tables(tmp_path, worlds):
@@ -167,6 +171,86 @@ def test_section16_followups_script_writes_the_panel_tables(tmp_path, worlds):
     assert set(bands['score']) == {'congruency', 'switch', 'LWPC', 'LWPS'}
     assert set(bands['band']) == {'medial', 'middle', 'lateral'}
     assert (out / 'panel_c_height.csv').exists()
+
+
+def test_figure5_draws_the_job_tables(tmp_path, worlds):
+    """F5 from the anatomy tables alone: panel b is Test 1's rows in plot order,
+    and panel a's test is recomputed on exactly the plotted electrodes."""
+    tab, per_split = worlds['inherited']
+    track = sfa.delta_tracking_test(tab, per_split, n_perm=100)
+    fig = sfa.figure5(tab, track, str(tmp_path), per_split=per_split, n_perm=100,
+                      centroid=dict(distance=1.4, p=0.95))
+
+    for name in ('fig5.png', 'fig5.pdf', 'fig5a_points.csv', 'fig5b_bars.csv'):
+        assert (tmp_path / name).exists()
+    bars = pd.read_csv(tmp_path / 'fig5b_bars.csv')
+    assert list(bars['comparison']) == [row for *_, row in sfa.FIG5_BARS]
+    assert list(bars['matched']) == [True, False, True, False]
+    assert np.allclose(bars['corr'], track.set_index('comparison').loc[bars['comparison'], 'corr'])
+
+    resp = tab.set_index('electrode')['resp']
+    expected = (sfs.split_resolved_corr(sfs.main_effect_view(per_split), resp, n_perm=100)['corr'],
+                sfs.split_resolved_corr(per_split, resp, n_perm=100)['corr'])
+    for pts, stat, r in zip((fig['base'], fig['adapt']), fig['tests'], expected):
+        assert stat['source'].startswith('recomputed')
+        assert (stat['n_electrodes'], stat['n_subjects']) == (len(pts), pts['subject'].nunique())
+        assert np.isclose(stat['corr'], r)
+        assert np.allclose(pts.groupby('subject')[['x_resid', 'y_resid']].mean(), 0)
+
+
+def test_figure5_quotes_the_segregation_run_that_tested_these_electrodes(tmp_path):
+    """On a real segregation run's outputs, panel a's LWPC/LWPS points are its
+    continuous.csv and its r, p and n are its own JSONs; a JSON from a different
+    electrode set is recomputed from per_split.csv instead."""
+    import json
+    out = sfs.run_joint_distribution_analysis(
+        sfs._synthetic_df(), n_splits=4, n_perm_corr=50, n_perm_label=20,
+        contrast_mode='proportion', main_effects=True)
+    seg = tmp_path / 'seg'
+    seg.mkdir()
+    out['electrodes'].to_csv(seg / 'electrodes.csv', index=False)
+    out['continuous'].to_csv(seg / 'continuous.csv', index=False)
+    out['per_split'].to_csv(seg / 'per_split.csv', index=False)
+    for key, name in (('correlation', 'correlation.json'),
+                      ('main_effect_correlation', 'correlation_main_effects.json')):
+        (seg / name).write_text(json.dumps(out[key], default=float))
+    tab = sfa.attach_scores(pd.read_csv(seg / 'electrodes.csv'), {})
+    track = sfa.delta_tracking_test(tab, out['per_split'], n_perm=50)
+
+    fig = sfa.figure5(tab, track, str(tmp_path / 'fig'), seg_dir=str(seg))
+    assert [t['source'] for t in fig['tests']] == [
+        str(seg / 'correlation_main_effects.json'), str(seg / 'correlation.json')]
+    assert fig['tests'][1]['p'] == out['correlation']['p']
+    cont = out['continuous'].set_index('electrode')
+    adapt = fig['adapt'].set_index('electrode')
+    assert adapt.index.equals(cont.index)
+    assert np.allclose(adapt[['x_resid', 'y_resid']], cont[['x_resid', 'y_resid']])
+
+    other = dict(out['correlation'], n_electrodes=out['correlation']['n_electrodes'] + 50)
+    (seg / 'correlation.json').write_text(json.dumps(other, default=float))
+    fig = sfa.figure5(tab, track, str(tmp_path / 'fig'), seg_dir=str(seg), n_perm=50)
+    assert fig['tests'][1]['source'].startswith('recomputed')
+    assert np.isclose(fig['tests'][1]['corr'], out['correlation']['corr'])
+
+
+def test_section16_followups_section6_redraws_figure5(tmp_path, worlds):
+    """Section 6 redraws F5 from the anatomy run's files and the segregation dir."""
+    from dcc_scripts.stats import n4_section16_followups as s16
+    tab, per_split = worlds['inherited']
+    run = tmp_path / 'continuous'
+    run.mkdir()
+    tab.to_csv(run / 'scores_with_anatomy.csv', index=False)
+    sfa.delta_tracking_test(tab, per_split, n_perm=50).to_csv(run / 'delta_tracking.csv',
+                                                              index=False)
+    seg = tmp_path / 'seg'
+    seg.mkdir()
+    per_split.to_csv(seg / 'per_split.csv', index=False)    # no JSONs: recomputed
+    out = tmp_path / 'section16'
+    s16.main(['--scores', str(run / 'scores_with_anatomy.csv'), '--seg-dir', str(seg),
+              '--out-dir', str(out), '--sections', '6', '--n-perm', '50'])
+
+    assert (out / 'fig5.png').exists() and (out / 'fig5.pdf').exists()
+    assert len(pd.read_csv(out / 'fig5b_bars.csv')) == 4
 
 
 def test_test1_finds_tracking_only_when_inherited(worlds):

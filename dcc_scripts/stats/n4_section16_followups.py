@@ -15,13 +15,25 @@ not compute, from the same run's ``scores_with_anatomy.csv``:
 4. the Destrieux-label means of dm against those of delta (figure panel b);
 5. Test 2 on both axes, a participant bootstrap of its shrinkage, and the scale
    the shrinkage is read on: dm's split-half reliability, from the segregation
-   run's ``correlation_main_effects.json``.
+   run's ``correlation_main_effects.json``;
+6. Figure 5 (``paper_draft.md`` §1.4): a, the overlap at both levels; b, each
+   adaptation against its own and the other base effect. The anatomy job
+   already draws it (``fig5.png``); this redraws it from the job's outputs,
+   e.g. after a style change in ``sfa.plot_figure5``. Needs ``--seg-dir`` and
+   ``--out-dir``.
 
     python dcc_scripts/stats/n4_section16_followups.py \\
         --scores     <anatomy run>/continuous/scores_with_anatomy.csv \\
+        [--seg-dir   <segregation run>] \\
         [--main-json <segregation run>/correlation_main_effects.json] \\
         [--tilt      <anatomy run>/continuous/tilt_with_dm.csv] \\
         [--out-dir   <where to write the figure-panel tables>]
+
+``--seg-dir`` is the ``_main_effects`` segregation run the anatomy job read.
+Section 6 takes panel a's r, p and n from its ``correlation.json`` and
+``correlation_main_effects.json`` (the latter is also section 5's default
+``--main-json``), and ``delta_tracking.csv`` from beside ``--scores``
+(``--tracking`` to override).
 
 It only reads those files; nothing touches epochs, atlases or recon files.
 """
@@ -264,16 +276,38 @@ def section_5(s, args):
           "high; the same-trials rows also carry shared-trial noise (~+0.05)")
 
 
-SECTIONS = {1: section_1, 2: section_2, 3: section_3, 4: section_4, 5: section_5}
+# ---------------------------------------------------------------------------
+# 6. Figure 5 (the anatomy job draws it too; this redraws it from the outputs)
+# ---------------------------------------------------------------------------
+def section_6(s, args):
+    fu.banner('6. Figure 5: the overlap at both levels (a), matched vs crossed (b)')
+    if not (args.seg_dir and args.out_dir):
+        print("(section 6 skipped: pass --seg-dir <segregation run> and --out-dir)")
+        return
+    tracking = args.tracking or os.path.join(os.path.dirname(os.path.abspath(args.scores)),
+                                             'delta_tracking.csv')
+    centroid = fu.centroid_shuffle_test(s, ('subject',), n_perm=args.n_perm, seed=args.seed)
+    fig = sfa.figure5(pd.read_csv(args.scores), pd.read_csv(tracking), args.out_dir,
+                      seg_dir=args.seg_dir, centroid=centroid, n_perm=args.n_perm)
+    print('\n'.join(fig['lines']))
+    print(f"written to {args.out_dir}")
+
+
+SECTIONS = {1: section_1, 2: section_2, 3: section_3, 4: section_4, 5: section_5, 6: section_6}
 
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--scores', required=True, help='scores_with_anatomy.csv from the N4 job')
+    ap.add_argument('--seg-dir', default=None,
+                    help="the _main_effects segregation run the anatomy job read (section 6)")
     ap.add_argument('--main-json', default=None,
-                    help="the segregation run's correlation_main_effects.json (section 5)")
+                    help="the segregation run's correlation_main_effects.json (section 5; "
+                         "default: the one in --seg-dir)")
     ap.add_argument('--tilt', default=None, help="the anatomy run's tilt_with_dm.csv (section 5)")
+    ap.add_argument('--tracking', default=None,
+                    help="the anatomy run's delta_tracking.csv (section 6; default: beside --scores)")
     ap.add_argument('--out-dir', default=None, help='write the figure-panel tables here')
     ap.add_argument('--roi-col', default='anat', help="label column the job tested ('anat')")
     ap.add_argument('--min-subjects', type=int, default=3)
@@ -281,9 +315,12 @@ def main(argv=None):
     ap.add_argument('--n-perm-shuffle', type=int, default=2000, help='coordinate shuffles')
     ap.add_argument('--n-boot', type=int, default=2000, help='participant bootstrap resamples')
     ap.add_argument('--seed', type=int, default=0)
-    ap.add_argument('--sections', default='1,2,3,4,5')
+    ap.add_argument('--sections', default='1,2,3,4,5,6')
     args = ap.parse_args(argv)
 
+    seg_json = os.path.join(args.seg_dir or '', 'correlation_main_effects.json')
+    if args.seg_dir and not args.main_json and os.path.exists(seg_json):
+        args.main_json = seg_json
     if args.out_dir:
         os.makedirs(args.out_dir, exist_ok=True)
     s = load(args.scores)
