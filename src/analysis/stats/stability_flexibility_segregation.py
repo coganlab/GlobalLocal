@@ -1200,6 +1200,31 @@ def _anova_interaction_stats(elec_df, cond_col, mod_col, hg_col='hg'):
         return {'F': np.nan, 'p': np.nan}                  # singular / missing cell
 
 
+def _anova_two_factor_stats(elec_df, a_col, b_col, hg_col='hg'):
+    """One electrode's sum-coded Type III fit of ``hg ~ a * b``; {'F', 'p'} for
+    each main effect and the interaction, keyed 'a', 'b' and 'ab' (all NaN on an
+    empty cell or a singular fit).
+
+    Type III on sum codes tests each main effect as the equal-weight average of
+    its two simple effects, so it is orthogonal to the other factor however
+    unequal the four cell counts are, and the other factor's variance is taken
+    out of the error term."""
+    d = elec_df
+    if d[hg_col].dtype == object:            # cluster-mode time courses -> window mean
+        d = d.assign(**{hg_col: _scalar_hg(d[hg_col])})
+    d = d.dropna(subset=[a_col, b_col, hg_col])
+    nan = {'F': np.nan, 'p': np.nan}
+    if d.groupby([a_col, b_col]).size().size < 4:
+        return {'a': nan, 'b': nan, 'ab': nan}
+    a, b = f"C({a_col}, Sum)", f"C({b_col}, Sum)"
+    try:
+        aov = anova_lm(smf.ols(f"{hg_col} ~ {a} * {b}", data=d).fit(), typ=3)
+        return {key: {'F': float(aov.loc[row, 'F']), 'p': float(aov.loc[row, 'PR(>F)'])}
+                for key, row in (('a', a), ('b', b), ('ab', f"{a}:{b}"))}
+    except Exception:
+        return {'a': nan, 'b': nan, 'ab': nan}
+
+
 def _anova_simple_stats(elec_df, lab_col, hg_col='hg'):
     """One electrode's one-factor ANOVA for a simple two-level contrast."""
     d = elec_df
@@ -1221,7 +1246,7 @@ def _anova_simple_stats(elec_df, lab_col, hg_col='hg'):
 
 def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
                                contrasts=None, include_cross_controls=True,
-                               fdr_correction='fdr_bh'):
+                               fdr_correction='fdr_bh', anova_model='oneway'):
     """Parametric per-electrode selectivity labels from the two-way interaction
     ANOVA -- ALL FOUR interactions, not just the two constructs of interest.
     Drop-in `labels` for `cmh_conjunction`.
@@ -1276,10 +1301,24 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     FDR (Benjamini-Hochberg) is applied across electrodes per interaction by
     default; each flag is set at `alpha`. Set `fdr_correction='none'` to copy
     raw p-values into the q-value columns and flag on raw p < alpha for
-    exploratory threshold-sensitivity runs."""
+    exploratory threshold-sensitivity runs.
+
+    `anova_model` applies to main-effect labels (contrast_mode='condition') only:
+    'oneway' (default) tests congruency and switch type in two separate one-way
+    ANOVAs, each pooled over the other factor; 'twoway' fits one sum-coded
+    Type III ``congruency * switchType`` ANOVA per electrode, so each main effect
+    is balanced over the other factor, and adds its interaction as the `CXS` flag
+    (`p_cxs`/`F_cxs`/`q_cxs`/`cxs_sign`; sign + = the congruency effect is
+    larger on switch than on repeat trials). S/F stay the two main effects."""
+    if anova_model not in ('oneway', 'twoway'):
+        raise ValueError(f"anova_model must be 'oneway' or 'twoway'; got {anova_model!r}")
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     work = _canonical_labels(df, contrasts)               # attaches _scond/_smod/_fcond/_fmod
     if _is_interaction(contrasts['stability']) or _is_interaction(contrasts['flexibility']):
+        if anova_model == 'twoway':
+            raise ValueError("anova_model='twoway' applies to main-effect labels "
+                             "(contrast_mode='condition'); the proportion interactions "
+                             "are already two-way fits.")
         # The FOUR interactions as (flag, condition_col, modulator_col, cond_sublabel,
         # mod_sublabel). The sub-label columns were attached by _canonical_labels:
         # _scond=congruency, _smod=incongruent_proportion, _fcond=switchType,
@@ -1295,6 +1334,7 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
         # by `contrast_mode='condition'` (congruency and switchType by default).
         specs = [('cpc', 'simple', None, None, '_slab', None),
                  ('sps', 'simple', None, None, '_flab', None)]
+    names = [spec[0] for spec in specs] + (['cxs'] if anova_model == 'twoway' else [])
     recs = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
         # Window means, matching the ANOVA fit below: a cluster-mode table holds
@@ -1302,6 +1342,21 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
         # same statistic its F/p does (see `_scalar_hg`).
         hg = _scalar_hg(g['hg'])
         rec = dict(subject=subj, electrode=elec)
+        if anova_model == 'twoway':
+            # One fit gives all three rows. The signs use the same equal-cell
+            # weights as the Type III F: each main effect averaged over the other
+            # factor, and the difference-of-differences for the interaction.
+            slab, flab = g['_slab'].to_numpy(), g['_flab'].to_numpy()
+            fit = _anova_two_factor_stats(g, '_slab', '_flab')
+            for name, key, effect in (
+                    ('cpc', 'a', _interaction_effect(hg, slab, flab, 'cohens_d', alpha, w=W_MAIN)),
+                    ('sps', 'b', _interaction_effect(hg, flab, slab, 'cohens_d', alpha, w=W_MAIN)),
+                    ('cxs', 'ab', _interaction_effect(hg, slab, flab, 'cohens_d', alpha))):
+                rec[f'p_{name}'] = fit[key]['p']
+                rec[f'F_{name}'] = fit[key]['F']
+                rec[f'{name}_sign'] = np.sign(effect)
+            recs.append(rec)
+            continue
         for name, kind, cond_col, mod_col, cond_sub, mod_sub in specs:
             stats = (_anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
                      if kind == 'interaction' else _anova_simple_stats(g, cond_sub))
@@ -1317,7 +1372,7 @@ def per_electrode_anova_labels(df, alpha=0.05, contrast_mode='proportion',
     out = pd.DataFrame(recs)
     if fdr_correction not in ('fdr_bh', 'none'):
         raise ValueError("fdr_correction must be 'fdr_bh' or 'none'")
-    for name, *_ in specs:
+    for name in names:
         if fdr_correction == 'fdr_bh':
             out[f'q_{name}'] = multipletests(out[f'p_{name}'].fillna(1), method='fdr_bh')[1]
         else:

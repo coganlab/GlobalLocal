@@ -507,7 +507,8 @@ def _resolve_labels(args, df=None):
     from src.analysis.stats import stability_flexibility_segregation as sfs
     return sfs.per_electrode_anova_labels(
         df, alpha=args.alpha, contrast_mode=getattr(args, 'contrast_mode', CONTRAST_MODE),
-        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
+        anova_model=getattr(args, 'anova_model', 'oneway'))
 
 
 # The A1 table keeps one schema in both contrast modes (S = CPC, F = SPS), but
@@ -529,6 +530,23 @@ def _electrode_groups(labels, contrast_mode='proportion'):
         s_only: chan[S & ~F].tolist(),
         f_only: chan[~S & F].tolist(),
     }
+
+
+def _interaction_overlap(labels, contrast_mode='condition'):
+    """Where the congruency x switch-type interaction electrodes (`CXS`, two-way
+    main-effect ANOVA only) fall among the three groups, i.e. what folding them
+    into 'both' would add. None when the labels carry no `CXS` flag."""
+    if 'CXS' not in labels.columns:
+        return None
+    X = (labels['CXS'] == 1).to_numpy()
+    S = (labels['S'] == 1).to_numpy()
+    F = (labels['F'] == 1).to_numpy()
+    both, s_only, f_only = _GROUP_NAMES[contrast_mode]
+    return {'total': int(X.sum()),
+            both: int((X & S & F).sum()),
+            s_only: int((X & S & ~F).sum()),
+            f_only: int((X & ~S & F).sum()),
+            'neither': int((X & ~S & ~F).sum())}
 
 
 def _interaction_groups(labels, contrast_mode='proportion'):
@@ -734,6 +752,18 @@ def _rt_match_description(args):
             f"bins={getattr(args, 'rt_match_bins', None)}, "
             f"balance={getattr(args, 'rt_match_balance', 'equal')}, "
             f"seed={getattr(args, 'rt_match_seed', getattr(args, 'seed', 0))}")
+
+
+def _anova_model_description(args):
+    """One line for summary.txt: how the in-job ANOVA defined the main-effect groups."""
+    if (getattr(args, 'data_source', 'real') != 'real'
+            or getattr(args, 'electrode_definition', 'anova') != 'anova'
+            or getattr(args, 'contrast_mode', CONTRAST_MODE) != 'condition'):
+        return None
+    if getattr(args, 'anova_model', 'oneway') == 'twoway':
+        return ('twoway (one Type III congruency x switch type ANOVA per electrode; '
+                'main effects balanced over the other factor)')
+    return 'oneway (separate congruency and switch-type ANOVAs, each pooled over the other)'
 
 
 def _split_description(args):
@@ -1267,6 +1297,12 @@ def main(args):
                 "record, so this job cannot prove that its defining trials are "
                 "disjoint; generate the CSV on a saved selection partition or "
                 "use the in-job ANOVA split.")
+    if getattr(args, 'anova_model', 'oneway') == 'twoway' and (
+            definition != 'anova'
+            or getattr(args, 'contrast_mode', CONTRAST_MODE) != 'condition'):
+        raise ValueError("ANOVA_MODEL=twoway fits congruency x switch type in this job, "
+                         "so it needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition.")
+    interaction_overlap = None
 
     if args.data_source == 'synthetic':
         print(f"DATA SOURCE: synthetic ({args.synthetic_code} code) — validates the path "
@@ -1329,6 +1365,10 @@ def main(args):
             interaction_groups = _interaction_groups(labels, contrast_mode)
             print("A1 electrode groups: "
                   + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
+            interaction_overlap = _interaction_overlap(labels, contrast_mode)
+            if interaction_overlap is not None:
+                print("congruency x switch_type interaction electrodes, by group: "
+                      + "  ".join(f"{g}={n}" for g, n in interaction_overlap.items()))
 
         # (ii) the decode runs on the ordinary ROI LabeledArray pseudopopulation
         roi, arrays, channel_names, cells = _build_roi_arrays(
@@ -1557,6 +1597,8 @@ def main(args):
                                  == 'power_traces' else None),
         reference_group=getattr(args, 'reference_group', 'all'),
         electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
+        anova_model=_anova_model_description(args),
+        interaction_electrodes=interaction_overlap,
         electrode_selection_split=_split_description(args),
         rt_match=_rt_match_description(args),
         activity_control=_activity_control_description(args),

@@ -215,6 +215,19 @@ if (ANALYSIS == 'a4' and DATA_SOURCE == 'real' and ELECTRODE_DEFINITION == 'anov
         and FDR_CORRECTION not in ('fdr_bh', 'none')):
     raise ValueError("ELECTRODE_DEFINITION=anova fits the ANOVA in this job, so "
                      f"FDR_CORRECTION must be 'fdr_bh' or 'none'; got {FDR_CORRECTION!r}.")
+# How the in-job ANOVA tests the condition-mode main effects:
+#   oneway  separate congruency and switch-type ANOVAs, each pooled over the other
+#           factor (default)
+#   twoway  one Type III congruency x switch type ANOVA per electrode: each main
+#           effect balanced over the other factor, plus the interaction, which is
+#           written to anova_labels.csv (CXS) and counted against the groups
+#           (summary.txt `interaction_electrodes`) but does not change them
+ANOVA_MODEL = (os.environ.get('ANOVA_MODEL') or 'oneway').strip().lower()
+if ANOVA_MODEL not in ('oneway', 'twoway'):
+    raise ValueError(f"ANOVA_MODEL must be oneway or twoway; got {ANOVA_MODEL!r}")
+if ANOVA_MODEL == 'twoway' and (ELECTRODE_DEFINITION != 'anova' or CONTRAST_MODE != 'condition'):
+    raise ValueError("ANOVA_MODEL=twoway fits congruency x switch type in this job, so it "
+                     "needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition.")
 
 # power_traces route: either ONE run whose ANOVA carried all four interactions,
 #   POWER_TRACES_RUN_DIR=/path/to/run
@@ -329,6 +342,8 @@ _tag = f'synthetic_{SYNTHETIC_CODE}' if DATA_SOURCE == 'synthetic' else EPOCHS_R
 _run_name = (f'cross_decoding_{ROI}_{ELECTRODES}_none' if ELECTRODE_DEFINITION == 'none'
              else f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
                   f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
+# The two-way model selects different electrodes; the one-way name is unchanged.
+_run_name += '_twoway' if ANOVA_MODEL == 'twoway' else ''
 # The held-out selection split and RT matching change which trials are decoded,
 # so they name the folder too; with both off the name is unchanged.
 _split_tag = (f'_split{ELECTRODE_SELECTION_FRAC:g}s{ELECTRODE_SELECTION_SEED}'
@@ -382,6 +397,7 @@ def run_analysis():
         electrode_selection_seed=ELECTRODE_SELECTION_SEED,
         contrast_mode=CONTRAST_MODE,
         fdr_correction=FDR_CORRECTION,
+        anova_model=ANOVA_MODEL,
         electrode_definition=ELECTRODE_DEFINITION,
         anova_labels_csv=ANOVA_LABELS_CSV,
         anova_label_effect=ANOVA_LABEL_EFFECT,
@@ -449,6 +465,8 @@ def run_analysis():
         print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
               f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
         print(f"alpha (A1):       {ALPHA}")
+        if ELECTRODE_DEFINITION == 'anova' and CONTRAST_MODE == 'condition':
+            print(f"ANOVA model:      {ANOVA_MODEL}")
     print(f"window/step:      {WINDOW_SIZE}/{STEP_SIZE} samples "
           f"| n_splits: {N_SPLITS} | n_repeats: {N_REPEATS}")
     print("train fraction:   "
