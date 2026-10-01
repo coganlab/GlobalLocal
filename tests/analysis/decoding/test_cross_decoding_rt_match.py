@@ -117,7 +117,7 @@ def test_build_roi_arrays_matches_the_decode_trials(tmp_path, monkeypatch):
     class _Stop(Exception):
         pass
 
-    def fake_put(subjects_mne_objects, condition_names, rois, subjects, electrodes, **kw):
+    def fake_build(roi, subjects_mne_objects, condition_names, subjects, electrodes, **kw):
         seen['structure'] = subjects_mne_objects
         raise _Stop
 
@@ -129,7 +129,9 @@ def test_build_roi_arrays_matches_the_decode_trials(tmp_path, monkeypatch):
     monkeypatch.setattr(gu, 'filter_electrode_lists_against_subjects_mne_objects',
                         lambda rois, raw, objs: raw)
     monkeypatch.setattr(gu, 'print_summary_of_dropped_electrodes', lambda *a: None)
-    monkeypatch.setattr(lau, 'put_data_in_labeled_array_per_roi_subject', fake_put)
+    monkeypatch.setattr(
+        lau, 'make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel',
+        fake_build)
 
     args = _args(tmp_path, roi='lpfc', rois_dict={'lpfc': []}, subjects=list(s),
                  epochs_root_file='epochs', task='GlobalLocal', electrodes='sig',
@@ -147,6 +149,78 @@ def test_build_roi_arrays_matches_the_decode_trials(tmp_path, monkeypatch):
         for cond in s[sub]:
             assert 0 < _n(built, sub, cond) < _n(s, sub, cond)
     assert args.rt_match_log
+
+
+def test_rt_matched_trials_with_outlier_electrodes_still_decode(tmp_path, monkeypatch):
+    """The reported failure. Outlier trials are NaN per electrode, and with the
+    subjects NaN-padded side by side almost no pseudo-trial was complete, so after
+    RT matching LDA got one training row per class. `_build_roi_arrays` now drops
+    each electrode's NaN trials first and subsamples every electrode to the
+    fewest clean trials, as the ordinary decoder does."""
+    pytest.importorskip('ieeg')
+    from src.analysis.utils import general_utils as gu
+    from src.analysis.utils import labeled_array_utils as lau
+
+    s = _structure(subjects=tuple(f'D{i}' for i in range(12)), n_per_cell=40,
+                   n_ch=2, n_times=16)
+    rng = np.random.default_rng(1)
+    for conds in s.values():
+        for cond, objs in conds.items():
+            ep = objs.pop('HG_ev1_rescaled')
+            outlier = rng.random((len(ep), len(ep.ch_names))) < 0.1
+            ep._data[outlier] = np.nan
+            objs['HG_ev1_power_rescaled'] = ep
+    elecs = {'lpfc': {sub: ['E0', 'E1'] for sub in s}}
+
+    monkeypatch.setattr(gu, 'load_subjects_electrodes_to_ROIs_dict', lambda **kw: {})
+    monkeypatch.setattr(gu, 'get_sig_chans_per_subject', lambda *a, **kw: {})
+    monkeypatch.setattr(gu, 'make_sig_electrodes_per_subject_and_roi_dict',
+                        lambda *a, **kw: (elecs, elecs))
+    monkeypatch.setattr(gu, 'create_subjects_mne_objects_dict', lambda **kw: s)
+    monkeypatch.setattr(gu, 'filter_electrode_lists_against_subjects_mne_objects',
+                        lambda rois, raw, objs: raw)
+    monkeypatch.setattr(gu, 'print_summary_of_dropped_electrodes', lambda *a: None)
+    real_build = lau.make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel
+    seen = {}
+
+    def spy(roi, structure, *a, **kw):
+        seen['matched'] = structure
+        return real_build(roi, structure, *a, **kw)
+    monkeypatch.setattr(
+        lau, 'make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel',
+        spy)
+
+    args = _args(tmp_path, roi='lpfc', rois_dict={'lpfc': []}, subjects=list(s),
+                 epochs_root_file='epochs', task='GlobalLocal', electrodes='sig',
+                 acc_trials_only=True, conditions=ec.stimulus_main_effect_conditions,
+                 LAB_root=None)
+    roi, arrays, channels, cells = xd._build_roi_arrays(args, '/nonexistent')
+    matched = seen['matched']
+
+    assert channels == [f'{sub}-E{e}' for sub in s for e in range(2)]
+    for cond in cells:
+        x = np.asarray(arrays[roi][cond])
+        # conditions are padded to a common length with whole NaN rows (dropped by
+        # build_cross_decoding_arrays); every real row is NaN-free
+        real = ~np.isnan(x).all(axis=(1, 2))
+        assert not np.isnan(x[real]).any()
+        clean = [int((~np.isnan(matched[sub][cond]['HG_ev1_power_rescaled']
+                                .get_data()[:, e]).any(axis=1)).sum())
+                 for sub in s for e in range(2)]
+        assert (real.sum(), x.shape[1]) == (min(clean), len(channels))
+
+    stab, flex = cd.stability_flexibility_strings(cells)
+    kw = dict(n_splits=3, n_repeats=2, window=8, step_size=8)
+    out = cd.run_cross_decoding(arrays, roi, stab, flex, **kw)
+    assert np.isfinite(out['cm_true']).all()
+
+    # the NaN-padded pseudopopulation the job used to build fails on the same
+    # trials: too few complete training rows (none, or fewer than LDA needs)
+    padded = lau.put_data_in_labeled_array_per_roi_subject(
+        matched, list(cells), [roi], list(s), elecs, random_state=0)
+    with pytest.raises(ValueError, match='number of samples must be more than the '
+                                         'number of classes|fewer than two complete'):
+        cd.run_cross_decoding(padded, roi, stab, flex, **kw)
 
 
 def test_summary_records_the_split_and_rt_matching(tmp_path, monkeypatch):
