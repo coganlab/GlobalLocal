@@ -176,3 +176,113 @@ def test_time_course_matches_window_mean_table():
         np.testing.assert_allclose(from_courses[col], from_means[col], rtol=1e-9)
     for flag in ("CPC", "SPS", "CPS", "SPC"):
         assert (from_courses[flag] == from_means[flag]).all()
+
+
+# ---------------------------------------------------------------------------
+# two-way main-effect model (contrast_mode='condition', anova_model='twoway')
+# ---------------------------------------------------------------------------
+# The cells are deliberately unequal so that congruency and switch type are
+# correlated (80% of incongruent trials are switch trials). A one-way congruency
+# ANOVA then picks up a pure switch effect; the two-way main effect does not.
+_CELLS = {('i', 's'): 120, ('i', 'r'): 30, ('c', 's'): 30, ('c', 'r'): 120}
+_PATTERNS = {   # electrode kind -> mean hg per (congruency, switchType) cell
+    'switch_only': {('i', 's'): 1.0, ('i', 'r'): 0.0, ('c', 's'): 1.0, ('c', 'r'): 0.0},
+    'congruency_only': {('i', 's'): 1.0, ('i', 'r'): 1.0, ('c', 's'): 0.0, ('c', 'r'): 0.0},
+    'crossover': {('i', 's'): 0.8, ('i', 'r'): -0.8, ('c', 's'): -0.8, ('c', 'r'): 0.8},
+    'null': {cell: 0.0 for cell in _CELLS},
+}
+
+
+def _main_effect_df(seed=0, n_per_kind=6):
+    import pandas as pd
+    rng = np.random.default_rng(seed)
+    frames = []
+    for kind, means in _PATTERNS.items():
+        for e in range(n_per_kind):
+            for (cong, sw), n in _CELLS.items():
+                frames.append(pd.DataFrame(dict(
+                    subject=f"D{e % 2}", electrode=f"D{e % 2}-{kind}{e}",
+                    congruency=cong, switchType=sw,
+                    hg=means[(cong, sw)] + rng.standard_normal(n))))
+    return pd.concat(frames, ignore_index=True)
+
+
+@pytest.fixture(scope="module")
+def main_effect_labels():
+    df = _main_effect_df()
+    return {model: sfs.per_electrode_anova_labels(
+                df, alpha=0.05, contrast_mode="condition", anova_model=model
+            ).assign(kind=lambda t: t["electrode"].str.split("-").str[1].str.rstrip("0123456789"))
+            for model in ("oneway", "twoway")}
+
+
+def test_oneway_stays_the_default_with_no_interaction_flag():
+    df = _main_effect_df(seed=1, n_per_kind=2)
+    default = sfs.per_electrode_anova_labels(df, contrast_mode="condition")
+    oneway = sfs.per_electrode_anova_labels(df, contrast_mode="condition", anova_model="oneway")
+    assert "CXS" not in default.columns
+    for col in ("q_cpc", "q_sps", "cpc_sign", "sps_sign"):
+        np.testing.assert_allclose(default[col], oneway[col])
+
+
+def test_twoway_adds_the_interaction_columns(main_effect_labels):
+    lab = main_effect_labels["twoway"]
+    for col in ("CXS", "p_cxs", "F_cxs", "q_cxs", "cxs_sign"):
+        assert col in lab.columns, f"missing two-way column {col!r}"
+    assert set(lab["CXS"].unique()) <= {0, 1}
+    # S/F stay the two main effects
+    assert (lab["S"] == lab["CPC"]).all() and (lab["F"] == lab["SPS"]).all()
+
+
+def test_twoway_congruency_does_not_absorb_a_switch_effect(main_effect_labels):
+    """The one-way leak this model exists to remove."""
+    oneway = main_effect_labels["oneway"].query("kind == 'switch_only'")
+    twoway = main_effect_labels["twoway"].query("kind == 'switch_only'")
+    assert oneway["S"].all(), "fixture no longer makes the one-way congruency test leak"
+    assert twoway["S"].sum() <= 1          # BH at 0.05: at most the odd false positive
+    assert twoway["F"].all()
+
+
+def test_twoway_recovers_each_planted_effect(main_effect_labels):
+    lab = main_effect_labels["twoway"].set_index("kind")
+    assert lab.loc["congruency_only", "S"].all()
+    assert lab.loc["switch_only", "F"].all()
+    assert lab.loc["crossover", "CXS"].all()
+    # every effect the generator did NOT plant stays near-null
+    absent = {"congruency_only": ["F", "CXS"], "switch_only": ["S", "CXS"],
+              "crossover": ["S", "F"], "null": ["S", "F", "CXS"]}
+    flags = np.concatenate([lab.loc[kind, cols].to_numpy().ravel()
+                            for kind, cols in absent.items()])
+    assert flags.mean() < 0.1, f"{flags.sum()}/{flags.size} absent effects flagged"
+
+
+def test_twoway_signs_follow_the_cell_contrasts(main_effect_labels):
+    lab = main_effect_labels["twoway"].set_index("kind")
+    assert (lab.loc["congruency_only", "cpc_sign"] > 0).all()      # i > c
+    assert (lab.loc["switch_only", "sps_sign"] > 0).all()          # s > r
+    # (i - c | s) - (i - c | r) > 0: the congruency effect is larger on switch trials
+    assert (lab.loc["crossover", "cxs_sign"] > 0).all()
+
+
+def test_twoway_reduces_time_courses_to_window_means():
+    df = _main_effect_df(seed=2, n_per_kind=2)
+    courses = df.assign(hg=[np.full(4, v) + 0.01 * np.arange(4) for v in df["hg"]])
+    from_courses = sfs.per_electrode_anova_labels(courses, contrast_mode="condition",
+                                                  anova_model="twoway")
+    from_means = sfs.per_electrode_anova_labels(
+        courses.assign(hg=courses["hg"].apply(np.mean)), contrast_mode="condition",
+        anova_model="twoway")
+    for col in ("q_cpc", "q_sps", "q_cxs", "cpc_sign", "sps_sign", "cxs_sign"):
+        np.testing.assert_allclose(from_courses[col], from_means[col], rtol=1e-9)
+
+
+def test_twoway_is_refused_for_the_proportion_interactions():
+    with pytest.raises(ValueError, match="applies to main-effect labels"):
+        sfs.per_electrode_anova_labels(sfs._synthetic_df(seed=1), contrast_mode="proportion",
+                                       anova_model="twoway")
+
+
+def test_unknown_anova_model_is_refused():
+    with pytest.raises(ValueError, match="anova_model must be"):
+        sfs.per_electrode_anova_labels(_main_effect_df(n_per_kind=1),
+                                       contrast_mode="condition", anova_model="threeway")
