@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__),
 from src.analysis.stats import stability_flexibility_segregation as sfs
 from src.analysis.stats import stability_flexibility_brain_behavior as sbb
 from dcc_scripts.stats import stability_flexibility_brain_behavior_dcc as dcc
+from dcc_scripts.stats import stability_flexibility_segregation_dcc as segregation_dcc
 
 
 @pytest.fixture(scope='module')
@@ -185,6 +186,27 @@ def test_rt_adjust_hg_rejects_time_courses():
                            incongruent_proportion=[25.0], switch_proportion=[25.0]))
     with pytest.raises(ValueError, match='scalar'):
         sbb.rt_adjust_hg(df)
+
+
+def test_n4_orchestrator_applies_rt_adjustment_before_scoring():
+    """The F5/N4 entry point exposes the same adjustment, not just A6."""
+    df, _ = sbb._synthetic_long_df(n_subj=2, n_elec=(2, 2), seed=14,
+                                   rt_coupling=0.5)
+    got, slopes = segregation_dcc.apply_rt_adjustment(
+        df, enabled=True, effect_measure='cohens_d')
+    expected, expected_slopes = sbb.rt_adjust_hg(df)
+    np.testing.assert_allclose(got['hg'], expected['hg'], rtol=0, atol=1e-12)
+    pd.testing.assert_frame_equal(slopes, expected_slopes)
+    assert not np.shares_memory(got['hg'].to_numpy(), df['hg'].to_numpy())
+
+
+def test_n4_rt_adjustment_fails_loudly_for_unsupported_inputs():
+    scalar = pd.DataFrame(dict(electrode=['e'], hg=[1.0], rt=[np.nan]))
+    with pytest.raises(ValueError, match='finite reaction times'):
+        segregation_dcc.apply_rt_adjustment(scalar, True, 'cohens_d')
+    time_course = scalar.assign(hg=[np.zeros(3)], rt=[800.0])
+    with pytest.raises(ValueError, match='EFFECT_MEASURE=cohens_d'):
+        segregation_dcc.apply_rt_adjustment(time_course, True, 'cluster')
 
 
 # ---------------------------------------------------------------------------
