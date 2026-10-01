@@ -893,6 +893,8 @@ Written 2026-10-01 from the runs in
 S5 with the control table S8
 ([`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan)).
 Bracketed quantities come from the slurm log or from runs not yet done. The
+pseudo-trial count is the `Decoded pseudo-trials` block of `summary.txt` (or, for
+runs made before that block existed, the `subsampling to N trials` log lines). The
 results paragraph states only what the full-trial runs support. Revise it once
 the seeds, the electrode-matched region comparison and the positive controls are
 in (§13.8.4 of that section).

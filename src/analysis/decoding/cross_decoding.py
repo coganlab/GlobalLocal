@@ -359,6 +359,43 @@ def _drop_padding_rows(arr, obs_axs=0):
     return np.compress(~np.isnan(arr).all(axis=other), arr, axis=obs_axs)
 
 
+def pseudo_trial_counts(roi_labeled_arrays, roi, cells=None, obs_axs=0):
+    """How many pseudo-trials each condition of `roi` gives the decoder.
+
+    Counts the rows `build_cross_decoding_arrays` keeps, i.e. without the
+    all-NaN padding rows. On real data that is the fewest clean trials of any
+    electrode in the condition, after the selection split and RT matching, so
+    one subject with few trials sets it for every electrode. `incomplete` counts
+    the kept rows that still hold a NaN; the real-data builder leaves none, and
+    the folds subsample such rows out of training when there are any.
+
+    With `cells` (from `condition_cells`), `per_level` also sums the rows over
+    each level of congruency and switchType: the class sizes of the two
+    contrasts.
+
+    Returns `{'per_condition': {name: n}, 'incomplete': {name: n}[, 'per_level':
+    {field: {level: n}}]}`.
+    """
+    per_condition, incomplete = {}, {}
+    for name in roi_labeled_arrays[roi].keys():
+        arr = _drop_padding_rows(np.asarray(roi_labeled_arrays[roi][name]), obs_axs)
+        other = tuple(ax for ax in range(arr.ndim) if ax != obs_axs % arr.ndim)
+        per_condition[name] = int(arr.shape[obs_axs])
+        incomplete[name] = int(np.isnan(arr).any(axis=other).sum())
+    counts = dict(per_condition=per_condition, incomplete=incomplete)
+    if cells is not None:
+        per_level = {}
+        for field in CROSS_DECODE_FIELDS:
+            levels = {}
+            for name, n in per_condition.items():
+                level = cells.get(name, {}).get(field)
+                if level is not None:
+                    levels[str(level)] = levels.get(str(level), 0) + n
+            per_level[field] = levels
+        counts['per_level'] = per_level
+    return counts
+
+
 def _same_partition(a, b):
     """True when two labellings of the same trials split them the SAME way —
     identical, or a pure renaming of the classes (e.g. 0/1 flipped).

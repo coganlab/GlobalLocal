@@ -320,6 +320,29 @@ def make_plots(results, save_dir, *, first_time_point=-1.0,
 # ---------------------------------------------------------------------------
 # text summary
 # ---------------------------------------------------------------------------
+def _pseudo_trial_lines(counts, meta):
+    """summary.txt lines: how many pseudo-trials the decodes had (`cd.pseudo_trial_counts`)."""
+    per_condition = counts['per_condition']
+    total = sum(per_condition.values())
+    lines = ["Decoded pseudo-trials. Every electrode is subsampled to the fewest clean",
+             "trials of any electrode in a condition, so the subject with the fewest",
+             "trials sets the count; every electrode group decodes these same rows:"]
+    items = [f"{name}={n}" for name, n in per_condition.items()]
+    lines += ["   " + "  ".join(items[i:i + 4]) for i in range(0, len(items), 4)]
+    for field, levels in (counts.get('per_level') or {}).items():
+        lines.append(f"   {field}: " + "  ".join(f"{level}={n}"
+                                                 for level, n in sorted(levels.items())))
+    n_splits = meta.get('n_splits')
+    frac = meta.get('frac_train') or ((n_splits - 1) / n_splits if n_splits else None)
+    lines.append(f"   total={total}" + (f"; the label transfer trains on ~{round(total * frac)} "
+                                        "of them per fold" if frac else ""))
+    n_incomplete = sum(counts.get('incomplete', {}).values())
+    if n_incomplete:
+        lines.append(f"   WARNING: {n_incomplete} of them still hold a NaN; the folds "
+                     "subsample those out of training")
+    return lines
+
+
 def write_summary(results, save_dir, meta):
     lines = ["=" * 72,
              "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING",
@@ -330,6 +353,9 @@ def write_summary(results, save_dir, meta):
     if results.get('rt_match'):
         lines += ["-" * 72, "RT matching of the decode trials:"]
         lines += [f"   {line}" for text in results['rt_match'] for line in text.splitlines()]
+
+    if results.get('pseudo_trials'):
+        lines += ["-" * 72] + _pseudo_trial_lines(results['pseudo_trials'], meta)
 
     if results.get('within_block'):
         lines += ["-" * 72, "A4(0) within-block decoding baseline (Fig 9):"]
@@ -1439,6 +1465,11 @@ def main(args):
     results = {}
     if args.rt_match_log:
         results['rt_match'] = list(args.rt_match_log)
+    # Every group decodes these same rows (a group only drops channels), so one
+    # count per run says how much data each decode had.
+    results['pseudo_trials'] = cd.pseudo_trial_counts(arrays, roi, cells)
+    print("decoded pseudo-trials per condition: "
+          + "  ".join(f"{n}={k}" for n, k in results['pseudo_trials']['per_condition'].items()))
 
     # 2. (0) within-block decoding baseline (Fig 9) ------------------------------
     # "Decode a contrast within one block level" is an ordinary decode over that

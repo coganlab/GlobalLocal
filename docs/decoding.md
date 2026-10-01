@@ -1154,8 +1154,11 @@ decoded factors has the same RT distribution
   pseudo-trial, so it cannot drop out. Lower `RT_MATCH_BINS` if that happens.
 - After matching, each electrode's NaN trials are dropped and every electrode is
   subsampled to the fewest clean trials per condition (the ordinary decoder's
-  builder). The log line `condition '<name>': subsampling to N trials` is how
-  many each condition keeps. The subset is random, so the matched RT
+  builder). How many each condition keeps is the `Decoded pseudo-trials` block of
+  `summary.txt` (`pseudo_trials` in `cross_decoding.json`; older runs have it
+  only as the log line `condition '<name>': subsampling to N trials`, see
+  [Changes to A4](#changes-to-a4)). It is set by the subject with the fewest matched trials, not by the
+  "kept … of … trials" total. The subset is random, so the matched RT
   distributions carry over.
 - Synthetic data have no RTs, so `RT_MATCH` is refused there.
 - It works for `ANALYSIS=block_transfer` and `task_transfer` too (same knobs).
@@ -1289,7 +1292,7 @@ Everything goes to the save directory of §4.
 | File | Contents | Read it for |
 |---|---|---|
 | `summary.txt` | Settings, then every design's numbers and the reading guide | **Start here** |
-| `cross_decoding.json` | The same numbers per design and group: per-window `significant_windows` (cluster-corrected), `cluster_p` (despite the name, the **uncorrected per-window** permutation p; its floor is 1/(N_PERM+1), and an isolated window with a small p is not significant), `n_below_ceiling`, `retained`, and `activity_control` (what the control did to that group); also `rt_match` (the matching summary). Arrays longer than 64 values are dropped | Tables and scripts; §13.3 compares runs from it |
+| `cross_decoding.json` | The same numbers per design and group: per-window `significant_windows` (cluster-corrected), `cluster_p` (despite the name, the **uncorrected per-window** permutation p; its floor is 1/(N_PERM+1), and an isolated window with a small p is not significant), `n_below_ceiling`, `retained`, and `activity_control` (what the control did to that group); also `rt_match` (the matching summary) and `pseudo_trials` (the decoded pseudo-trials per condition and per class, `cd.pseudo_trial_counts`). Arrays longer than 64 values are dropped | Tables and scripts; §13.3 compares runs from it |
 | `accuracy_traces.npz` | Label-transfer accuracy per window × repeat. Keys `labeltransfer_<group>_<direction>_true` / `_shuffle` | Re-plotting, your own statistics |
 | `tempgen_<name>.npy` | Temporal-generalization matrix, train window × test window, e.g. `tempgen_stability_flexibility_cross_both.npy` | A4(c) |
 | `anova_labels.csv` | The per-electrode definition table the groups came from (`anova`, `csv`, `power_traces`) | Which electrodes are in which group |
@@ -1324,6 +1327,14 @@ RT matching of the decode trials:                        <- RT_MATCH runs only
    [rt-match] RT-matched, groups=['congruency', 'task_sequence'] n_bins=10 …: kept … of … trials (…%)
    [rt-match]   congruency (i - c): mean per-subject RT difference +… ms before -> +… ms after (t=…, p=…)
    [rt-match]   task_sequence (s - r): …
+------------------------------------------------------------------------
+Decoded pseudo-trials. Every electrode is subsampled to the fewest clean
+trials of any electrode in a condition, so the subject with the fewest
+trials sets the count; every electrode group decodes these same rows:
+   Stimulus_ir=…  Stimulus_is=…  Stimulus_cr=…  Stimulus_cs=…
+   congruency: c=…  i=…
+   switchType: r=…  s=…
+   total=…; the label transfer trains on ~… of them per fold
 ------------------------------------------------------------------------
 A4(0) within-block decoding baseline (Fig 9):            <- 16-cell runs only
    congruency (LWPC) | block 25% incongruent: mean acc=… peak=… sig windows=k/n
@@ -1697,10 +1708,13 @@ RUNS = {  # label -> save directory (the folder holding cross_decoding.json)
 }
 WINDOW, STEP, SRATE, FIRST = 64, 16, 256, -1.0      # WINDOW_SIZE, STEP_SIZE, SAMPLING_RATE, FIRST_TIME_POINT
 
-print(f"{'run':10} {'group':17} {'direction':13} {'n':>4} {'sig':>3} {'from':>6} "
+print(f"{'run':10} {'group':17} {'direction':13} {'n':>4} {'trials':>6} {'sig':>3} {'from':>6} "
       f"{'pre':>3} {'peak':>5} {'post':>5} {'kept':>5} {'below':>5}")
 for label, folder in RUNS.items():
-    runs = json.load(open(os.path.join(folder, 'cross_decoding.json')))['label_transfer']
+    saved = json.load(open(os.path.join(folder, 'cross_decoding.json')))
+    runs = saved['label_transfer']
+    counts = saved.get('pseudo_trials')                 # absent in older runs
+    trials = sum(counts['per_condition'].values()) if counts else ''
     npz = os.path.join(folder, 'accuracy_traces.npz')
     traces = np.load(npz) if os.path.exists(npz) else None
     for group, directions in runs.items():
@@ -1712,7 +1726,7 @@ for label, folder in RUNS.items():
                 acc = traces[f'labeltransfer_{group}_{direction}_true'].mean(axis=1)
                 post = f"{acc[t >= WINDOW / 2 / SRATE].mean():.3f}"
             kept = r.get('retained')
-            print(f"{label:10} {group:17} {direction:13} {r['n_channels']:4d} {sig.sum():3d} "
+            print(f"{label:10} {group:17} {direction:13} {r['n_channels']:4d} {trials:>6} {sig.sum():3d} "
                   f"{(f'{t[sig][0]:+.2f}' if sig.any() else '-'):>6} "
                   f"{int(sig[t <= -WINDOW / 2 / SRATE].sum()):3d} {r['peak_accuracy']:5.3f} "
                   f"{post:>5} {('' if kept is None else f'{kept:.0%}'):>5} "
@@ -1722,6 +1736,7 @@ for label, folder in RUNS.items():
 | Column | Meaning |
 |---|---|
 | `n` | electrodes decoded (for `mean_only`, the features are one per subject; the summary says how many) |
+| `trials` | pseudo-trials decoded, summed over the conditions (blank for runs from before the count was recorded, [Changes to A4](#changes-to-a4); read their slurm log) |
 | `sig`, `from` | significant windows (cluster-corrected against the refit shuffle) and the centre of the first one |
 | `pre` | significant windows centred at or before −0.125 s, i.e. entirely before the stimulus: the artifact meter. On the response-locked run these are pre-*response* windows and are not artifacts. |
 | `peak` | best window's accuracy |
@@ -1846,6 +1861,8 @@ ceilings            stab_to_stab: sig from +0.12 s, peak 0.757 @ 0.88 s
 transfer            stab_to_flex: sig from +0.62 s, peak 0.670 @ 1.00 s, keeps 47%, below ceiling 19 windows
                     flex_to_stab: sig from +0.62 s, peak 0.608 @ 1.06 s, keeps 26%, below ceiling 28 windows
 pre-stimulus        none
+pseudo-trials       per cell: __ (baseline), __ (rt and random), from each run's slurm log
+                    (`subsampling to N trials`); estimated from combinedData.csv at ~45 and ~20
 RT matching         residual RT i-c +2 ms (p .45), s-r +2 ms (p .39); 4408 of 9181 trials kept (48%)
                     stab_to_flex keeps 43% (rt) vs 70% (random); flex_to_stab 12% (rt) vs 39% (random)
                     rt transfer only at +0.62..+1.00 s; both half-trial runs have pre-stimulus windows
@@ -1998,7 +2015,14 @@ congruency ceiling has no significant window, so `flex_to_stab` cannot be read.
 `stab_to_flex` (7 windows, again at +0.62..+1.00 s, 18%) is measured against a
 6-window ceiling. The `random + remove_mean` control loses its ceilings too (5
 and 4 windows). That is the §13.4 row "`random` loses the transfer too": halving
-the trials and removing the mean together cost the power. Several within-contrast
+the trials and removing the mean together cost the power. The power that is left
+is set by one subject. The decoder gets as many pseudo-trials per cell as the
+subject with the fewest trials. Re-running the matching on `combinedData.csv`
+puts that at ~20 per cell in the half-trial runs (D0116, whose large RT costs
+leave it 20 of ~83 trials per cell; the next lowest is 31), against ~45 at full
+trials. That is about 32 training pseudo-trials per class per fold. The job's
+own numbers are in each run's slurm log, and in `summary.txt` once rerun
+([Changes to A4](#changes-to-a4)). Several within-contrast
 decodes in these runs also average well below 0.5 over the epoch (`mean acc`
 0.47–0.48 in `summary.txt`), the sign of a single small pseudopopulation's
 accuracy wandering for long stretches. Read nothing from them except "no
@@ -2365,6 +2389,7 @@ The padding fix (1.1) changes every A4 design, so A4 numbers from before this ch
 - `build_cross_decoding_arrays` drops all-NaN padding rows. In each fold, cross-decoding subsamples incomplete training rows and equalizes the surviving class counts instead of applying mixup. Incomplete test rows remain and are filled with independent noise.
 - `run_cross_decoding` now uses equal LDA priors (`make_decoder`). Without the padding, the within-block decodes (A4(0)) have their real 3:1 class ratio, and training-frequency priors would lean toward the majority class.
 - **NaN trials are dropped when the pseudopopulation is built** (`_build_roi_arrays`). The job now uses the ordinary decoder's builder: each electrode's NaN (outlier) trials are dropped, then every electrode is subsampled to the fewest clean trials of any electrode in that condition, so every pseudo-trial is complete. The only NaN left are whole padding rows where conditions differ in trial count, and `build_cross_decoding_arrays` drops those. Before, subjects were NaN-padded and outlier trials stayed NaN. A training pseudo-trial was only usable if every subject's electrodes were clean in it, which with ~24 subjects left a handful of rows per condition. After RT matching that fell to one per class, and LDA failed ("The number of samples must be more than the number of classes"). A4 numbers from before this change aren't comparable with new runs.
+- **The decoded pseudo-trials are recorded** (`cd.pseudo_trial_counts`). `summary.txt` gets a `Decoded pseudo-trials` block (per condition, per class, the total and the training rows per fold) and `cross_decoding.json` a `pseudo_trials` entry. Before this, the count was only in the slurm log (`condition '<name>': subsampling to N trials`). The decoding itself is unchanged.
 
 ---
 
