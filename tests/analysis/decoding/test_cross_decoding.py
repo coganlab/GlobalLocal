@@ -23,7 +23,10 @@ import pytest
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
 from src.analysis.decoding.cross_decoding import (  # noqa: E402
+    align_complete_pseudotrials,
     build_cross_decoding_arrays,
+    describe_pseudotrial_alignment,
+    run_cross_decoding,
     synthetic_roi_labeled_arrays,
 )
 
@@ -144,6 +147,111 @@ def test_fold_subsamples_incomplete_training_rows_but_noise_fills_test_rows():
     assert np.array_equal(y_test, [0, 1])
     assert out.shape[0] == 6                       # four train + both test rows
     assert not np.isnan(out).any()
+
+
+@ieeg_required
+def test_a_fold_with_one_complete_row_in_a_class_says_why():
+    """LDA needs more training rows than classes; one complete row per class used
+    to reach it and fail with sklearn's 'number of samples must be more than the
+    number of classes'."""
+    from src.analysis.decoding.data_prep import sample_fold
+
+    X = np.ones((7, 2, 3))
+    y = np.array([0, 0, 0, 1, 1, 1, 0])
+    X[1, 0, 0] = X[2, 1, 0] = np.nan              # class 0 keeps one complete row
+    with pytest.raises(ValueError, match=r"\{0: 1, 1: 3\} complete pseudo-trials per "
+                                         r"class \(of 6 training rows\)"):
+        sample_fold(np.arange(6), np.arange(6, 7), X, y, axis=0, oversample=False)
+
+
+# ---------------------------------------------------------------------------
+# 1b. align_complete_pseudotrials
+# ---------------------------------------------------------------------------
+def _pseudopopulation(n_trials=(30, 20, 25), n_ch=2, p_nan=0.15, n_time=4, seed=0,
+                      conditions=('cond',)):
+    """Conditions laid out as `put_data_in_labeled_array_per_roi_subject` lays them
+    out: each subject's trials in its top rows, NaN padding below, and outlier
+    trial x electrode entries NaN (as `make_epoched_data` marks them)."""
+    rng = np.random.default_rng(seed)
+    n_max = max(n_trials)
+    names = [f'D{s}-E{e}' for s in range(len(n_trials)) for e in range(n_ch)]
+    out = {}
+    for condition in conditions:
+        blocks = []
+        for n in n_trials:
+            x = np.full((n_max, n_ch, n_time), np.nan)
+            x[:n] = rng.normal(size=(n, n_ch, n_time))
+            outlier = np.zeros((n_max, n_ch), dtype=bool)
+            outlier[:n] = rng.random((n, n_ch)) < p_nan
+            x[outlier] = np.nan
+            blocks.append(x)
+        out[condition] = np.concatenate(blocks, axis=1)
+    return {'roi': out}, names
+
+
+def _rows(x):
+    """A block's rows as a sorted list, NaN made comparable."""
+    return sorted(tuple(np.nan_to_num(row, nan=1e9).ravel()) for row in x)
+
+
+def test_alignment_pairs_every_subjects_clean_trials_into_complete_rows():
+    arrays, names = _pseudopopulation()
+    x = arrays['roi']['cond']
+    out, report = align_complete_pseudotrials(arrays, 'roi', names)
+    y = out['roi']['cond']
+    r = report['cond']
+
+    # complete rows = the fewest clean trials of any subject, all at the top
+    assert r['n_complete_after'] == min(r['clean'].values())
+    assert r['n_complete_after'] > r['n_complete_before']
+    complete = ~np.isnan(y).any(axis=(1, 2))
+    assert complete[:r['n_complete_after']].all()
+    assert not complete[r['n_complete_after']:].any()
+
+    for sub in r['clean']:
+        cols = [i for i, n in enumerate(names) if n.startswith(f'{sub}-')]
+        # a subject's trials are only reordered, its electrodes kept together
+        assert _rows(y[:, cols]) == _rows(x[:, cols])
+        # its clean trials come first, in their existing (random) order
+        clean = ~np.isnan(x[:, cols]).any(axis=(1, 2))
+        np.testing.assert_array_equal(y[:clean.sum(), cols], x[clean][:, cols])
+
+
+def test_alignment_leaves_trials_without_outliers_alone():
+    arrays, names = _pseudopopulation(p_nan=0.0)
+    out, report = align_complete_pseudotrials(arrays, 'roi', names)
+    np.testing.assert_array_equal(out['roi']['cond'], arrays['roi']['cond'])
+    assert report['cond']['n_complete_before'] == report['cond']['n_complete_after'] == 20
+    assert describe_pseudotrial_alignment(report) == (
+        "complete pseudo-trials per condition: cond 20->20; "
+        "fewest clean trials: D1 (20 in cond)")
+
+
+def test_alignment_needs_one_name_per_channel():
+    arrays, names = _pseudopopulation()
+    with pytest.raises(ValueError, match='6 channels but 5 channel names'):
+        align_complete_pseudotrials(arrays, 'roi', names[:-1])
+
+
+@ieeg_required
+def test_many_subjects_with_outliers_decode_once_their_clean_trials_are_paired():
+    """The reported failure: with outlier electrodes NaN and many subjects, random
+    pairing leaves about one complete pseudo-trial per condition and the fit
+    fails; pairing the clean trials leaves enough to decode."""
+    conds = ('Stimulus_ir', 'Stimulus_is', 'Stimulus_cr', 'Stimulus_cs')
+    arrays, names = _pseudopopulation(n_trials=(20,) * 16, p_nan=0.1, n_time=16,
+                                      conditions=conds)
+    stab = [['Stimulus_ir', 'Stimulus_is'], ['Stimulus_cr', 'Stimulus_cs']]
+    flex = [['Stimulus_is', 'Stimulus_cs'], ['Stimulus_ir', 'Stimulus_cr']]
+    kw = dict(n_splits=3, n_repeats=2, window=8, step_size=8)
+
+    with pytest.raises(ValueError, match='complete pseudo-trials per class'):
+        run_cross_decoding(arrays, 'roi', stab, flex, **kw)
+
+    aligned, report = align_complete_pseudotrials(arrays, 'roi', names)
+    assert all(r['n_complete_after'] >= 8 for r in report.values())
+    out = run_cross_decoding(aligned, 'roi', stab, flex, **kw)
+    assert np.isfinite(out['cm_true']).all()
 
 
 def test_a_condition_that_is_only_padding_is_skipped():
