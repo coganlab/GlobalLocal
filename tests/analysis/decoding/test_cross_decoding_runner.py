@@ -30,7 +30,7 @@ def _import_runner(**env):
                          'ELECTRODE_SELECTION_FRAC', 'ELECTRODE_SELECTION_SEED',
                          'RT_MATCH', 'RT_MATCH_BINS', 'RT_MATCH_BALANCE',
                          'RT_MATCH_WITHIN', 'RT_MATCH_GROUPS', 'RT_MATCH_SEED',
-                         'ACTIVITY_CONTROL')}
+                         'ACTIVITY_CONTROL', 'ANOVA_MODEL')}
     full['DATA_SOURCE'] = 'synthetic'
     full.update(env)
     done = subprocess.run([sys.executable, '-c', code], cwd=ROOT, capture_output=True,
@@ -132,6 +132,28 @@ def test_the_selection_split_gets_its_own_folder():
                                 ELECTRODE_SELECTION_FRAC='0.5', ELECTRODE_SELECTION_SEED='2')
     assert other is not None, err
     assert '_split0.5s2' in other['SAVE_DIR']
+
+
+def test_the_two_way_anova_gets_its_own_folder():
+    """It selects different electrodes, so it must not overwrite the one-way run."""
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                              ANOVA_MODEL='twoway', ELECTRODE_SELECTION_SPLIT='true')
+    assert got is not None, err
+    assert '_anova_condition_fdr_bh_twoway_split0.3s0' in got['SAVE_DIR']
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                              ANOVA_MODEL='oneway')
+    assert got is not None, err
+    assert 'twoway' not in got['SAVE_DIR'] and 'oneway' not in got['SAVE_DIR']
+
+
+def test_the_two_way_anova_is_refused_where_it_cannot_run():
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='proportion',
+                              ANOVA_MODEL='twoway')
+    assert got is None and 'needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition' in err
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ANOVA_MODEL='twoway')
+    assert got is None and 'needs ELECTRODE_DEFINITION=anova' in err
+    got, err = _import_runner(ANOVA_MODEL='threeway')
+    assert got is None and 'ANOVA_MODEL must be' in err
 
 
 def test_rt_matching_and_its_control_get_their_own_folders():
