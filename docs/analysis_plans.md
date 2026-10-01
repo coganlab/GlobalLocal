@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01 | `closing_figure_plan.md` |
+| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
 | [Nested electrode selection plan](#nested-electrode-selection-plan) | 2026-08-19 | 2026-08-19 | Never built as designed; it served the subpopulation drill-down that the figure plan retired. A single held-out split was built instead ([`decoding.md`](decoding.md) §3.3–§3.4, [`analysis_guide.md`](analysis_guide.md) §21). Still the reference if a select-then-test figure returns (closing figure plan, S2c) | `nested_electrode_selection.md` |
@@ -70,11 +70,15 @@ Ending sentence: *each adaptation tracks the local strength of the demand it reg
 
 Keep the overlap result (one intermixed population) as the anatomy headline. The tilt is modest and was not predicted, so the closing figure explains it rather than carrying the paper.
 
+**Update 2026-10-01: the closing figure is cut to two panels, and the tilt goes to the supplement.** F5 is now the overlap at both levels (a) and Test 1 drawn as matched vs crossed correlations (b). The dm–delta correlation is kept as the test behind b, because its covariance is the two matched covariances minus the two crossed ones. The main text drops "balance" language and Test 2. Reasons: the tilt explains about 2 % of delta's variance, lies on an unpredicted axis, and its inheritance cannot be resolved, so it cannot carry a figure panel. Score maps cannot replace the correlations either (single-electrode reliability ~0.3). New ending sentence: *LWPC and LWPS are carried by one intermixed lPFC population, and each tracks the local strength of the demand it regulates.* Layout, placement and text: [`paper_draft.md`](paper_draft.md) §1.4 (F5), §3.4 and §3.5.
+
 The other ideas are worth running but belong in the supplement unless they come out strong: main-effect electrode maps, adaptation within main-effect groups, brain–behavior, and congruency ↔ switch cross-decoding with task controls. The cross-proportion transfer stays shelved. The cross-decoding came back partial on 2026-10-01 and stays in the supplement (see its outcome below).
 
 ### Where the paper stands
 
 The paper now characterizes concurrent regulation rather than arguing that stability and flexibility use independent substrates. The absent cross-effects (congruency × switch proportion, switch type × incongruent proportion) are a scoping statement, not a figure. This follows the [concurrent-regulation plan](#concurrent-regulation-plan).
+
+*Update 2026-10-01:* the neural cross-effects now appear in F3, as the off-diagonal of a 2 × 2 grid of traces whose diagonal is LWPS and LWPC. They are still scope, not a dissociation claim. They are labelled neutrally and reported as "no cluster survived", not "not modulated" ([`paper_draft.md`](paper_draft.md) §1.4, F3).
 
 | Beat | Claim | Evidence | Status |
 | --- | --- | --- | --- |
@@ -310,6 +314,8 @@ Without that justification in Methods, switching populations for one section rea
 
 ### Proposed closing figure
 
+*Superseded 2026-10-01 by the two-panel F5 in [`paper_draft.md`](paper_draft.md) §1.4 (see the update under "Summary"). Kept as written below; panels b and c here are now S-N4 panels, and d is the new F5b.*
+
 One anatomy figure (F5) with four panels: the overlap at both levels, the two balances by label, the gradient, and the link between the levels. It ends the paper on the arc: both adaptations in behavior, both in lPFC high gamma, decodable, one shared population, and a balance that tracks the base demands electrode by electrode.
 
 Revised 2026-09-27 after the all-lPFC main-effect run. The data behind each panel, and which parts still need plotting code, are in §16.7.3 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
@@ -410,8 +416,8 @@ Keep this table here, updated each week, so the repo stays the source of truth. 
 - [ ] **Scope of N4:** the N4 guide (§2.3) names whole-brain N4 as primary and lPFC as a separate, legitimate analysis. Is lPFC-only the paper's scope, given coverage outside lPFC?
 - [ ] **Pre-commit to the ending:** are we content if the tilt turns out inherited from the base effects ("adaptation scales with its demand")? Agree now to report whichever outcome appears.
 - [ ] **Main-effect electrode definition:** which single method defines congruency, switch and both electrodes (windowed-ANOVA clusters recommended)?
-- [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results?
-- [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline?
+- [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results? *Recommendation (2026-10-01): neither the abstract nor a figure panel. One Results paragraph with the pre-specified parcel and coordinate tests, and the rest in S-N4 ([`paper_draft.md`](paper_draft.md) §1.4, F5).*
+- [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline? *If the tilt recommendation is taken, this only affects S-N4.*
 - [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear? The across-participant test came out null and uninformative (2026-09-30). Recommendation: one supplementary note plus one Discussion sentence (`a6_brain_behavior.md` §14). Build the three-way model only if a main-text brain–behavior claim is wanted; it is the only version with plausible power.
 - [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop? *Recommendation (2026-10-01): supplement S5, not the closing figure, plus one Discussion sentence. The groups are dropped. See the outcome under "Congruency ↔ switch cross-decoding with task positive controls".*
 
