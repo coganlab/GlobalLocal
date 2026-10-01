@@ -1703,6 +1703,7 @@ it is a paired difference, so every test in this document takes
 | `score_map_cong_s.png`, `score_map_switch_s.png`, `score_map_dm.png` | main-effect maps (with `MAKE_BRAIN=1`) |
 | `delta_tracking.csv` | Test 1 |
 | `tilt_with_dm.csv` | Test 2 |
+| `fig5.png`, `fig5.pdf`, `fig5a_points.csv`, `fig5b_bars.csv` | Figure 5 (§16.7.3), drawn by `sfa.figure5` after Test 1; its numbers are the `FIGURE 5` block of `summary.txt` |
 
 Read dm's anatomy like delta's (§4, §5), with congruency in place of LWPC:
 a positive adjusted mean or slope means relatively congruency-dominant there, or
@@ -1796,10 +1797,14 @@ electrodes. The task-significant set has not been rerun with main effects yet.
 ```bash
 python dcc_scripts/stats/n4_section16_followups.py \
     --scores    <anatomy run>/continuous/scores_with_anatomy.csv \
-    --main-json <segregation run>/correlation_main_effects.json \
+    --seg-dir   <segregation run> \
     --tilt      <anatomy run>/continuous/tilt_with_dm.csv \
     --out-dir   <anatomy run>/continuous/section16
 ```
+
+`--seg-dir` supplies `correlation_main_effects.json` (section 5) and panel a's
+r and p (section 6, which redraws Figure 5). `--main-json` still overrides the
+JSON. `--sections 1,2` runs a subset.
 
 #### 16.6.1 Takeaway
 
@@ -2100,6 +2105,19 @@ compares them (§16.6.5: its covariance is the matched covariances minus the
 crossed ones). b and c move to the supplement (S-N4) with the specifications
 below. Current layout and reasons: [`paper_draft.md`](paper_draft.md) §1.4, F5.
 
+*Code (2026-10-01):* the anatomy job now draws the two-panel F5 itself
+(`continuous/fig5.png` and `.pdf`, §16.3), from `sfa.figure5` in
+`stability_flexibility_anatomy.py`. Panel a's points are `prepare_continuous` on
+the run's scores, which reproduces the segregation run's `continuous.csv`. Its r,
+p and n are read from the segregation run's `correlation.json` and
+`correlation_main_effects.json` (beside `SCORES_CSV`) when that run tested the
+same electrodes, and recomputed otherwise; `summary.txt` says which. The
+centroid annotation is `centroid_shuffle_test` (within participant) rerun on
+this run's scores, so it may differ slightly from §15.6's 1.4 mm, which came
+from the 200-split scores. Panel b reads Test 1's rows. To restyle the figure
+without rerunning the job, edit `sfa.plot_figure5`, then run section 6 of
+`n4_section16_followups.py` (§16.6).
+
 Four panels, as specified on 2026-09-27. Plot participant means ± SEM across participants wherever a
 panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 
@@ -2132,7 +2150,9 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
       S-N4 detail only.
 - [ ] Make panel a, both halves, as specified in `analysis_plans.md` › Closing figure plan
       ("Panel a"), and plot panel d as the new F5b and panels b–c as S-N4
-      panels from the script's tables.
+      panels from the script's tables. *F5a–b: code done (the anatomy job's
+      `fig5.png`, §16.7.3); not yet run on the real scores. The S-N4 panels
+      are still to plot.*
 - [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
       have Test 2 print dm's reliability, the implied share and the bootstrap
       interval next to the shrinkage.

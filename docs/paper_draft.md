@@ -285,8 +285,8 @@ gradient by score (old c) moved to S-N4; old d is the new b.
 
 | Panel | Shows | Key numbers | Data | Status |
 |---|---|---|---|---|
-| a | **Shared electrodes at both levels:** congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualized, participant-centred scores each pre-specified test correlates | r = 0.23, p = 0.0001; r = 0.10, p = 0.0005 (397 electrodes, 21 participants); centroid distance 1.4 mm, p = 0.95 | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`. Congruency/switch: `prepare_continuous` on its `electrodes.csv` with `mx`/`my`. r from the segregation `summary.txt` and `correlation_main_effects.json`. | Not plotted; no rerun needed |
-| b | **Each adaptation tracks its own base effect:** separate-half r for each adaptation effect against its own base effect (matched) and against the other one (crossed), as two pairs of bars, LWPC and LWPS. The matched-minus-crossed test is annotated across both pairs. | matched 0.22 (congruency–LWPC) / 0.17 (switch–LWPS); crossed 0.12 (switch–LWPC) / 0.13 (congruency–LWPS); all p ≤ 0.0002. Matched − crossed: r = 0.092, p = 0.0003; with MNI coordinates 0.087, p = 0.0007 | `delta_tracking.csv` | Data ready; not plotted |
+| a | **Shared electrodes at both levels:** congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualized, participant-centred scores each pre-specified test correlates | r = 0.23, p = 0.0001; r = 0.10, p = 0.0005 (397 electrodes, 21 participants); centroid distance 1.4 mm, p = 0.95 | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`. Congruency/switch: `prepare_continuous` on its `electrodes.csv` with `mx`/`my`. r from the segregation `summary.txt` and `correlation_main_effects.json`. | Code ready: the anatomy job writes `continuous/fig5.png` (N4 §16.7.3); not yet run on the real scores |
+| b | **Each adaptation tracks its own base effect:** separate-half r for each adaptation effect against its own base effect (matched) and against the other one (crossed), as two pairs of bars, LWPC and LWPS. The matched-minus-crossed test is annotated across both pairs. | matched 0.22 (congruency–LWPC) / 0.17 (switch–LWPS); crossed 0.12 (switch–LWPC) / 0.13 (congruency–LWPS); all p ≤ 0.0002. Matched − crossed: r = 0.092, p = 0.0003; with MNI coordinates 0.087, p = 0.0007 | `delta_tracking.csv` | Code ready, same figure as a |
 
 **Why panel b, and why it replaces the balance panels.** Panel b answers the
 first question a reader will ask of panel a: is LWPC simply large wherever
@@ -385,7 +385,8 @@ work. Renumber at submission.
 - [ ] Copy the all-lPFC anatomy folder before the task-significant rerun; the
       rerun writes to the same path (§17.1 of the N4 doc).
 - [ ] Rerun the task-significant set with main effects; report it in full.
-- [ ] Plot F5 panels a–b, and the two S-N4 panels that were F5b–c.
+- [ ] Plot F5 panels a–b, and the two S-N4 panels that were F5b–c. *F5a–b:
+      code done (the anatomy job's `fig5.png`; N4 §16.7.3), not yet run.*
 - [ ] Leave-one-participant-out on the pre-specified LWPC–LWPS correlation, and
       its p from 10,000 permutations.
 - [ ] Advisor decisions: primary set, scope, and the gradient's weight (the

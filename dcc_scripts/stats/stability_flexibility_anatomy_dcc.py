@@ -830,6 +830,8 @@ def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
         out['tracking'] = track.to_dict(orient='records')
         lines += ["  TEST 1 — does dm track delta? (separate halves, split_resolved_corr)",
                   track.to_string(index=False)]
+        lines += make_figure5(args, tab, per_split, track, save_dir, has_coords,
+                              n_perm=n_perm, seed=seed)
     else:
         lines.append("  no main-effect halves in PER_SPLIT_CSV: reliabilities, Test 1 "
                      "and the opposite-half rows of Test 2 skipped")
@@ -857,6 +859,27 @@ def run_main_effect_anatomy(args, tab, per_split, coverage, roi_col, has_coords,
                             coverage=coverage, zoom=getattr(args, 'brain_zoom', None))
     plt.close('all')
     return lines, out
+
+
+def make_figure5(args, tab, per_split, track, save_dir, has_coords, n_perm=10000, seed=0):
+    """Figure 5 (docs/paper_draft.md §1.4) into ``save_dir``: a, the overlap at
+    both levels; b, Test 1's matched and crossed rows. Panel a's r, p and n come
+    from the segregation run beside SCORES_CSV when it tested these electrodes,
+    else they are recomputed here. Returns summary lines; a failure costs only
+    the figure."""
+    print("Figure 5: overlap at both levels, matched vs crossed")
+    try:
+        from dcc_scripts.stats.n4_section15_followups import centroid_shuffle_test
+        scores_csv = getattr(args, 'scores_csv', None)
+        centroid = (centroid_shuffle_test(tab.dropna(subset=['mni_x', 'mni_y', 'mni_z']),
+                                          ('subject',), n_perm=n_perm, seed=seed)
+                    if has_coords else None)
+        fig = sfa.figure5(tab, track, save_dir, per_split=per_split,
+                          seg_dir=os.path.dirname(os.path.abspath(scores_csv)) if scores_csv
+                          else None, centroid=centroid, n_perm=n_perm)
+        return fig['lines']
+    except Exception as exc:
+        return [f"  FIGURE 5: failed ({type(exc).__name__}: {exc})"]
 
 
 # ---------------------------------------------------------------------------

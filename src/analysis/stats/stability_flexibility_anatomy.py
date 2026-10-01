@@ -111,6 +111,7 @@ runs without any data on disk.
 
 from __future__ import annotations
 
+import json
 import os
 
 import numpy as np
@@ -1575,6 +1576,226 @@ def tilt_with_main_effect_covariate(scores, per_split=None, axis='mni_z',
         shrinkage['opposite half'] = 1 - np.mean(with_) / np.mean(without)
     return dict(axis=axis, table=pd.DataFrame(rows, columns=['fit', 'slope_per_mm', 'p']),
                 shrinkage=shrinkage)
+
+
+# ---------------------------------------------------------------------------
+# Figure 5 (docs/paper_draft.md §1.4): a, the overlap at both levels;
+# b, each adaptation against its own and the other base effect
+# ---------------------------------------------------------------------------
+# F5b's bars in plot order: (adaptation, base effect, matched?, delta_tracking row)
+FIG5_BARS = (('LWPC', 'congruency', True, 'congruency vs LWPC'),
+             ('LWPC', 'switch', False, 'switch vs LWPC (crossed)'),
+             ('LWPS', 'switch', True, 'switch vs LWPS'),
+             ('LWPS', 'congruency', False, 'congruency vs LWPS (crossed)'))
+# congruency is the stability effect and switch the flexibility one: the
+# S_only / F_only blue and orange of the other N4 and segregation figures
+FIG5_COLORS = {'congruency': GROUP_COLORS['S_only'], 'switch': GROUP_COLORS['F_only']}
+_INK, _MUTED, _RULE = '#262626', '#737373', '#cfcfcf'
+
+
+def _fmt_p(p):
+    return f'{p:.2g}'
+
+
+def _fmt_r(r, digits=2):
+    return f'{r:.{digits}f}'.replace('-', '−')    # the axes' minus sign
+
+
+def figure5_points(scores, min_elec=3):
+    """F5a's points, ``(base, adapt)``: congruency vs switch and LWPC vs LWPS as
+    ``x_resid``/``y_resid``, the responsiveness-residualised, participant-centred
+    scores each pre-specified test correlates. ``prepare_continuous`` on the raw
+    scores, the transform behind the segregation run's ``continuous.csv``."""
+    from .stability_flexibility_segregation import prepare_continuous
+    cols = ['subject', 'electrode', 'x_resid', 'y_resid']
+    return tuple(prepare_continuous(scores[['subject', 'electrode', x, y, 'resp']]
+                                    .rename(columns={x: 'x', y: 'y'}), min_elec=min_elec)[cols]
+                 .reset_index(drop=True)
+                 for x, y in (('cong_score', 'switch_score'), ('lwpc_score', 'lwps_score')))
+
+
+def _figure5_test(points, scores, json_path, view, per_split, seg_dir, min_elec, n_perm, seed):
+    """The pre-specified test behind one half of F5a, from the segregation run
+    when it tested these electrodes, else recomputed (see :func:`figure5`)."""
+    from .stability_flexibility_segregation import split_resolved_corr
+    if json_path and os.path.exists(json_path):
+        with open(json_path) as f:
+            r = json.load(f)
+        if (r['n_electrodes'], r['n_subjects']) == (len(points), points['subject'].nunique()):
+            return dict(r, source=json_path)
+    ps_csv = os.path.join(seg_dir, 'per_split.csv') if seg_dir else None
+    if per_split is None and ps_csv and os.path.exists(ps_csv):
+        per_split = pd.read_csv(ps_csv)
+    if per_split is None:
+        raise ValueError(f"{json_path} is missing or tested other electrodes, and there "
+                         "is no per-split table to recompute it from")
+    ps = view(per_split[per_split['electrode'].isin(scores['electrode'])])
+    resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+    r = split_resolved_corr(ps, resp, min_elec=min_elec, n_perm=n_perm, seed=seed)
+    return dict(r, source=f'recomputed on these electrodes ({n_perm} permutations)')
+
+
+def figure5_bars(tracking):
+    """F5b's four rows of ``delta_tracking.csv`` (:func:`delta_tracking_test`) in
+    plot order, and its dm-vs-delta rows, the matched-minus-crossed test."""
+    t = tracking.set_index('comparison')
+    missing = [row for *_, row in FIG5_BARS if row not in t.index]
+    if missing or 'dm vs delta' not in t.index:
+        raise ValueError(f"delta_tracking lacks rows {missing or ['dm vs delta']}")
+    bars = pd.DataFrame([dict(adaptation=a, base_effect=b, matched=m, comparison=row,
+                              **t.loc[row, ['corr', 'p', 'n_electrodes', 'n_subjects']])
+                         for a, b, m, row in FIG5_BARS])
+    links = t.loc[[r for r in ('dm vs delta', 'dm vs delta, + MNI covariates') if r in t.index],
+                  ['corr', 'p', 'n_electrodes', 'n_subjects']]
+    return bars, links
+
+
+def _figure5_overlap(ax, d, stat, xlabel, ylabel, title, extra=()):
+    """One half of F5a: the points, annotated with the pre-specified test's r,
+    p and n. No fit line: the points' own correlation is not the test."""
+    ax.axhline(0, color=_RULE, lw=0.6, zorder=0)
+    ax.axvline(0, color=_RULE, lw=0.6, zorder=0)
+    ax.scatter(d['x_resid'], d['y_resid'], s=5, color=_INK, alpha=0.4, linewidths=0,
+               rasterized=True)
+    lim = 1.08 * np.nanmax(np.abs(d[['x_resid', 'y_resid']].to_numpy(float)))
+    ax.set(xlim=(-lim, lim), ylim=(-lim, lim), aspect='equal', xlabel=xlabel, ylabel=ylabel)
+    ax.set_title(title, loc='left', fontsize=7, color=_INK)
+    text = [f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}",
+            f"{stat['n_electrodes']} electrodes, {stat['n_subjects']} participants", *extra]
+    ax.text(0.03, 0.97, '\n'.join(text), transform=ax.transAxes, va='top', ha='left',
+            fontsize=5.5, color=_INK, linespacing=1.3,
+            bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
+
+
+def _figure5_tracking(ax, bars, links):
+    """F5b: matched bars filled, crossed open, grouped by adaptation effect, one
+    y axis from 0. The dm-vs-delta correlation's covariance is the matched
+    covariances minus the crossed ones (§16.6.5 of n4_continuous_anatomy.md), so
+    it annotates both pairs. No error bars: delta_tracking has no interval, and
+    the permutation null is not one."""
+    from matplotlib.patches import Patch
+    xs = np.array([0.0, 1.0, 2.5, 3.5])
+    width = 0.6
+    for x, b in zip(xs, bars.itertuples()):
+        c = FIG5_COLORS[b.base_effect]
+        ax.bar(x, b.corr, width=width, color=c if b.matched else 'white', edgecolor=c,
+               linewidth=1.0)
+    top = max(float(bars['corr'].max()), 0.0) or 0.1
+    for x, r in zip(xs, bars['corr']):
+        ax.text(x, r + (0.03 if r >= 0 else -0.03) * top, _fmt_r(r), ha='center',
+                va='bottom' if r >= 0 else 'top', fontsize=5.5, color=_INK)
+    ax.axhline(0, color=_INK, lw=0.6)
+    ax.set_xticks(xs)
+    ax.set_xticklabels(bars['base_effect'], fontsize=5.5)
+    ax.tick_params(axis='x', length=0)
+    for name in ('LWPC', 'LWPS'):
+        ax.text(xs[(bars['adaptation'] == name).to_numpy()].mean(), -0.13, name,
+                transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=7,
+                fontweight='bold', color=_INK)
+    ax.set_ylabel('r, separate halves')
+
+    y, lo, hi = 1.25 * top, xs[0] - width / 2, xs[-1] + width / 2
+    ax.plot([lo, lo, hi, hi], [y - 0.05 * top, y, y, y - 0.05 * top], color=_INK, lw=0.7)
+    names = {'dm vs delta': 'matched − crossed',
+             'dm vs delta, + MNI covariates': 'with MNI coordinates'}
+    ax.text(xs.mean(), y + 0.04 * top,
+            '\n'.join(f"{names[k]}: r = {_fmt_r(row['corr'], 3)}, p = {_fmt_p(row['p'])}"
+                      for k, row in links.iterrows()),
+            ha='center', va='bottom', fontsize=5.5, color=_INK, linespacing=1.3)
+    ax.set_ylim(min(0.0, 1.3 * float(bars['corr'].min())), 1.75 * top)
+    ax.set_xlim(lo - 0.3, hi + 0.3)
+    ax.legend(handles=[Patch(facecolor=_MUTED, edgecolor=_MUTED, label='own base effect (matched)'),
+                       Patch(facecolor='white', edgecolor=_MUTED,
+                             label='other base effect (crossed)')],
+              loc='upper center', bbox_to_anchor=(0.5, -0.22), frameon=False, fontsize=5.5,
+              ncol=2, handlelength=1.2, columnspacing=1.0, borderaxespad=0,
+              title=f"each bar: p ≤ {_fmt_p(bars['p'].max())}", title_fontsize=5.5)
+
+
+def plot_figure5(base, adapt, stat_base, stat_adapt, bars, links, out_stem, centroid=None):
+    """Draw F5 and write ``<out_stem>.png`` and ``<out_stem>.pdf`` (text stays
+    text in the PDF). Inputs as :func:`figure5` builds them."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    rc = {'font.size': 6.5, 'axes.labelsize': 6.5, 'axes.labelcolor': _INK,
+          'xtick.labelsize': 6, 'ytick.labelsize': 6, 'xtick.color': _INK, 'ytick.color': _INK,
+          'axes.edgecolor': _INK, 'axes.linewidth': 0.6, 'xtick.major.width': 0.6,
+          'ytick.major.width': 0.6, 'axes.spines.top': False, 'axes.spines.right': False,
+          'pdf.fonttype': 42, 'ps.fonttype': 42}
+    with plt.rc_context(rc):
+        fig = plt.figure(figsize=(7.2, 2.6))
+        gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.3], wspace=0.4,
+                              left=0.07, right=0.98, top=0.86, bottom=0.3)
+        ax_base, ax_adapt, ax_b = (fig.add_subplot(gs[0, i]) for i in range(3))
+        _figure5_overlap(ax_base, base, stat_base, 'congruency (d)', 'switch (d)',
+                         'Base effects')
+        extra = () if centroid is None else (
+            f"centroids {centroid['distance']:.1f} mm apart, p = {_fmt_p(centroid['p'])}",)
+        _figure5_overlap(ax_adapt, adapt, stat_adapt, 'LWPC (d)', 'LWPS (d)', 'Adaptation',
+                         extra)
+        _figure5_tracking(ax_b, bars, links)
+        for ax, letter in ((ax_base, 'a'), (ax_b, 'b')):
+            ax.text(-0.3, 1.13, letter, transform=ax.transAxes, fontsize=9,
+                    fontweight='bold', va='bottom', ha='left', color=_INK)
+        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
+        for p in paths:
+            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return paths
+
+
+def figure5(scores, tracking, out_dir, per_split=None, seg_dir=None, centroid=None,
+            min_elec=3, n_perm=10000, seed=1):
+    """Figure 5 from one anatomy run: ``fig5.png``/``.pdf``, ``fig5a_points.csv``
+    and ``fig5b_bars.csv`` in ``out_dir``. Returns the tables and summary lines.
+
+    ``scores``: :func:`attach_scores`'s table from a MAIN_EFFECTS=1 run;
+    ``tracking``: :func:`delta_tracking_test`'s table. Panel a's r, p and n are
+    the segregation run's own (``seg_dir``: ``correlation_main_effects.json``,
+    ``correlation.json``) when that run tested as many electrodes and
+    participants as there are points; otherwise, e.g. after an ROI filter, they
+    are recomputed on these electrodes with ``split_resolved_corr`` from
+    ``per_split`` (or ``seg_dir/per_split.csv``). ``centroid``: the
+    ``centroid_shuffle_test`` result for panel a's LWPC/LWPS half, if any.
+    """
+    from .stability_flexibility_segregation import main_effect_view
+    base, adapt = figure5_points(scores, min_elec)
+    stats = [_figure5_test(pts, scores, os.path.join(seg_dir, name) if seg_dir else None,
+                           view, per_split, seg_dir, min_elec, n_perm, seed)
+             for pts, name, view in ((base, 'correlation_main_effects.json', main_effect_view),
+                                     (adapt, 'correlation.json', lambda ps: ps))]
+    bars, links = figure5_bars(tracking)
+
+    os.makedirs(out_dir, exist_ok=True)
+    pd.concat([base.assign(panel='congruency vs switch'),
+               adapt.assign(panel='LWPC vs LWPS')]).to_csv(
+        os.path.join(out_dir, 'fig5a_points.csv'), index=False)
+    bars.to_csv(os.path.join(out_dir, 'fig5b_bars.csv'), index=False)
+    paths = plot_figure5(base, adapt, *stats, bars, links, os.path.join(out_dir, 'fig5'),
+                         centroid=centroid)
+
+    lines = [f"  FIGURE 5 — {', '.join(os.path.basename(p) for p in paths)}, "
+             "fig5a_points.csv, fig5b_bars.csv"]
+    for name, pts, st in (('congruency vs switch', base, stats[0]),
+                          ('LWPC vs LWPS', adapt, stats[1])):
+        check = ('' if (len(pts), pts['subject'].nunique())
+                 == (st['n_electrodes'], st['n_subjects'])
+                 else '   <- points and test differ: check min_elec and dropped electrodes')
+        lines.append(f"  a  {name:20s} r = {st['corr']:+.3f}  p = {_fmt_p(st['p'])}  "
+                     f"test {st['n_electrodes']} / {st['n_subjects']}, points {len(pts)} / "
+                     f"{pts['subject'].nunique()}  [{st['source']}]{check}")
+    if centroid is not None:
+        lines.append(f"  a  centroid distance {centroid['distance']:.2f} mm, "
+                     f"p = {_fmt_p(centroid['p'])} (types shuffled within participant)")
+    for b in bars.itertuples():
+        lines.append(f"  b  {b.comparison:30s} r = {b.corr:+.3f}  p = {_fmt_p(b.p)}")
+    for k, row in links.iterrows():
+        lines.append(f"  b  {k:30s} r = {row['corr']:+.3f}  p = {_fmt_p(row['p'])}"
+                     "   (matched − crossed)")
+    return dict(base=base, adapt=adapt, tests=stats, bars=bars, links=links, files=paths,
+                lines=lines)
 
 
 # ---------------------------------------------------------------------------
