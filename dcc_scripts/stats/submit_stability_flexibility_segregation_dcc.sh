@@ -18,7 +18,7 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thr
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
 WINDOW_TMAX=1.5
-ELECTRODES=all          # 'all' or 'sig'
+ELECTRODES=sig          # 'all' or 'sig'
 # NOTE: sbatch --export separates VAR=VALUE pairs with commas, so a
 # comma-containing value cannot be passed in that list -- it would be truncated
 # at the first comma. ROIS is therefore `export`ed here and reaches the job

@@ -76,7 +76,7 @@ SYNTHETIC_CODE=${SYNTHETIC_CODE:-shared}
 #   ELECTRODES       which of that region's electrodes get loaded at all
 #   REFERENCE_GROUP  the unselected group decoded alongside both/S_only/F_only
 # ---------------------------------------------------------------------------
-ROI=${ROI:-lpfc}
+ROI=${ROI:-occ}
 ELECTRODES=${ELECTRODES:-sig}            # 'sig' (baseline task-significant) or 'all'
 REFERENCE_GROUP=${REFERENCE_GROUP:-all}  # '' to drop it
 MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than this
@@ -223,7 +223,7 @@ FRAC_TRAIN=${FRAC_TRAIN:-}
 # Each gets its own folder (..._rtmatch10 / ..._rtrandom10). The comma-separated
 # ones (RT_MATCH_WITHIN, RT_MATCH_GROUPS) are exported rather than put in the
 # sbatch --export list, which splits on commas.
-export RT_MATCH=${RT_MATCH:-none}
+export RT_MATCH=${RT_MATCH:-random}
 export RT_MATCH_BINS=${RT_MATCH_BINS:-10}             # quantile RT bins per subject
 export RT_MATCH_BALANCE=${RT_MATCH_BALANCE:-equal}    # equal | proportional
 export RT_MATCH_WITHIN=${RT_MATCH_WITHIN:-}           # extra strata, e.g. incongruent_proportion,switch_proportion
