@@ -359,6 +359,32 @@ def test_pooled_branch_transfers_over_all_trials(tmp_path, monkeypatch):
     assert 'its ceiling' in (tmp_path / 'summary.txt').read_text()
 
 
+def test_the_pseudo_trial_counts_reach_the_json_and_summary(tmp_path, monkeypatch):
+    """The real builder pads conditions to a common length with all-NaN rows. The
+    count the job reports is what is decoded, padding excluded, per condition and
+    per class, so a run's data size is on record without the slurm log."""
+    import json
+    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+    arrays = xd._build_roi_arrays(None, None)[1]['lpfc']
+    real = {'Stimulus_ir': 24, 'Stimulus_is': 18, 'Stimulus_cr': 24, 'Stimulus_cs': 20}
+    for name, n in real.items():
+        arrays[name][n:] = np.nan                     # padding up to 24 rows
+
+    results = xd.main(_stub_args(tmp_path, ec.stimulus_main_effect_conditions))
+
+    assert results['pseudo_trials']['per_condition'] == real
+    assert results['pseudo_trials']['per_level'] == {
+        'congruency': {'c': 44, 'i': 42}, 'switchType': {'r': 48, 's': 38}}
+    saved = json.loads((tmp_path / 'cross_decoding.json').read_text())
+    assert saved['pseudo_trials']['per_condition'] == real
+    text = (tmp_path / 'summary.txt').read_text()
+    assert 'Stimulus_is=18' in text
+    assert 'congruency: c=44  i=42' in text
+    assert 'total=86; the label transfer trains on ~57 of them per fold' in text
+    assert 'WARNING' not in text
+
+
 def test_the_none_route_decodes_only_the_loaded_electrodes(tmp_path, monkeypatch):
     """electrode_definition='none': no labels are resolved and no groups are
     built, so the reference group (every loaded channel) is the only one decoded,

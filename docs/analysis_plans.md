@@ -65,7 +65,7 @@ Ending sentence: *each adaptation tracks the local strength of the demand it reg
 
 Keep the overlap result (one intermixed population) as the anatomy headline. The tilt is modest and was not predicted, so the closing figure explains it rather than carrying the paper.
 
-The other ideas are worth running but belong in the supplement unless they come out strong: main-effect electrode maps, adaptation within main-effect groups, brain–behavior, and congruency ↔ switch cross-decoding with task controls. The cross-proportion transfer stays shelved.
+The other ideas are worth running but belong in the supplement unless they come out strong: main-effect electrode maps, adaptation within main-effect groups, brain–behavior, and congruency ↔ switch cross-decoding with task controls. The cross-proportion transfer stays shelved. The cross-decoding came back partial on 2026-10-01 and stays in the supplement (see its outcome below).
 
 ### Where the paper stands
 
@@ -118,8 +118,8 @@ Only the main-effect anatomy rerun belongs in the main text as a test. The rest 
 | Main-effect electrodes on the brain | Where are congruency, switch and both electrodes? | Supplement; defines groups for the next row | 3 |
 | Adaptation traces and decoding within main-effect groups | Is each adaptation expressed where its demand is processed? | Supplement, as the picture of the continuous test | 2 |
 | Brain–behavior | Does neural adaptation track behavioral adaptation? | Supplement unless striking. Run 2026-09-30: not striking, so supplement (S-BB) | 4 |
-| Cross-decoding within main-effect groups | Do congruency and switch share a coding axis inside each group? | Drop unless the next row works | 6 |
-| Congruency ↔ switch cross-decoding with task controls | Are the base-effect codes separable? | Supplement (S5) | 5 |
+| Cross-decoding within main-effect groups | Do congruency and switch share a coding axis inside each group? | Dropped (2026-10-01) | – |
+| Congruency ↔ switch cross-decoding with task controls | Are the base-effect codes separable? | Supplement (S5); largely separable, partial late transfer (2026-10-01) | 5 |
 | Cross-proportion (block) transfer | Does block context reconfigure the code? | Shelved | – |
 
 #### Anatomy on the congruency − switch delta
@@ -169,6 +169,8 @@ Training a congruency decoder and testing it on switch-type labels inside each g
 
 How to run it, with the main-effect decoding and power traces in the same groups: §17.5 of [`analysis_guide.md`](analysis_guide.md).
 
+**Outcome (2026-10-01): drop.** With held-out selection, every group transfers, and `congruency_only` keeps more of its ceiling than `both` (108% against 65%). That is the opposite of the shared-code prediction. Several groups have pre-stimulus windows. The `both` group is 5–9 electrodes and changes with each run's selection trials. Under RT matching its congruency ceiling is gone. Details: [`decoding.md` › A4 §13.8.3](decoding.md#138-results-2026-10-01), "Groups".
+
 #### Congruency ↔ switch cross-decoding with task positive controls
 
 - **Upside:** if congruency ↔ switch transfer fails while a real positive control transfers, the paper can say "separable codes". With the anatomy's "overlapping population", that is the plan's pre-committed headline: overlapping tissue, separable codes.
@@ -179,6 +181,30 @@ How to run it, with the main-effect decoding and power traces in the same groups
 - **Prerequisite:** within-condition accuracy for both congruency and switch type must clear chance, or a failed transfer means nothing.
 - **Verdict:** supplement S5.
 - **Implemented** (not yet run on real data): the A4 transfer now reports its within-contrast ceilings, and `submit_task_transfer_dcc.sh` runs task × congruency, task × switch type, and congruency / switch type across task. The accuracy matching is not built; the summary prints task against congruency within-level accuracy instead. Run recipe: §17.5 of [`analysis_guide.md`](analysis_guide.md); rationale: §3.5 of [`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls).
+
+**Outcome (2026-10-01; [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)).** These runs cover the 171 task-significant lPFC electrodes, unselected: the baseline, RT matching with its random control, `remove_mean`, and both together; plus occipital.
+
+| Question | Answer so far |
+| --- | --- |
+| Are both base effects decodable? | Yes. Peaks 0.76 and 0.76; congruency from +0.12 s, switch type from +0.31 s (window centres). |
+| Do they transfer? | Partly, and only late. From +0.62 s (window 0.5–0.75 s) onward; congruency → switch keeps 47% of its ceiling, switch → congruency 26%. Both sit below their ceilings in most windows. No pre-stimulus windows. |
+| Is the transfer a uniform rise in activity? | No. With each subject's mean removed, the transfers barely change while the ceilings fall (81% and 77% kept). `mean_only` not run. |
+| Is it response time? | Partly, probably. RT matching cuts it relative to its random control (43% vs 70%, 12% vs 39%), leaving only 0.5–1.1 s, before most responses (median RT 1.17 s). But the half-trial runs have pre-stimulus clusters as large as the surviving transfer, and `kept` moves ~20 points between runs that should agree. Needs seeds. |
+| Both controls at once? | Uninterpretable: the congruency ceiling is gone, in the random control as well. |
+| Is it specific to lPFC? | Not shown. Occipital keeps a similar share (54%, 23%), though at +1.0 s and later rather than 0.5–1.0 s, and its own ceilings have pre-stimulus windows. Needs lPFC subsampled to occipital's 54 electrodes. |
+| Positive controls, response-locked, seeds | Not run. |
+
+What it supports: *the same lPFC electrodes carry both base effects along largely distinct codes, sharing a component that appears only from ~0.5 s and is not a uniform activity increase.* That fits the pre-committed "overlapping tissue, separable codes" headline in a weaker form: *largely* separable. Nothing yet says the shared part is a control code rather than RT or a signal found outside lPFC too.
+
+**Verdict: supplement S5, not the closing figure.**
+
+- **It answers a different question from the paper's.** N2–N4 are about LWPC and LWPS; this is about the base effects. A closing figure on another level of the question opens a thread instead of closing one. F5 already ties N2–N4 together.
+- **Its own answer needs qualifiers.** Partial, partly RT-linked, and not shown to be specific to lPFC. A closing figure needs a one-sentence claim, and every honest sentence here needs a caveat.
+- **Reviewers will see the statistics.** The inference is across CV repeats of one pseudopopulation, not across subjects. The control runs show artifact clusters at the size of the effect being compared.
+
+The full-trial result supports one sentence in the Discussion, next to the N4 overlap result: same tissue, largely distinct base-effect codes.
+
+**What would move it into the main text:** the RT-matched − random gap larger than the seed spread; lPFC at 54 electrodes still transferring at 0.5–1.0 s where occipital does not; T1 keeping most of its ceiling; and an estimate across subjects. Even then it would be a panel about the base effects, best placed beside the N4 overlap result, not after it.
 
 #### Cross-proportion (block) transfer
 
@@ -328,7 +354,7 @@ No scatter can show the separate-half r itself. The r averages two correlations 
 | S2 | Main effects in lPFC high gamma: traces and decoding |
 | S2b | Main-effect electrodes on the brain (one pre-specified method), plus other selection methods as robustness |
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test |
-| S5 | Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control, labelled as base-effect geometry |
+| S5 | Congruency ↔ switch cross-decoding, labelled as base-effect geometry: the unselected lPFC transfer with its ceilings, the `remove_mean` and RT-matched / random runs, the occipital comparison, and the accuracy-matched task × congruency control once run (methods and draft text: [`methods.md` › A4](methods.md#a4-congruency--switch-type-cross-decoding)) |
 | S8 | Cross-decoding control table for every transfer reported |
 | S-BB | Brain–behavior: per-participant correlation, RT-adjusted and raw, with its n, reliabilities, ceiling and the power they imply (text drafted: `a6_brain_behavior.md` §14); the three-way mixed model if it is built |
 | S-N4 | Task-significant anatomy in full; parcel test (`delta_by_roi.png`, reordered by mean z); anterior–posterior null |
@@ -354,7 +380,8 @@ Do the main-effect anatomy first: it is the only new analysis that can change th
 - [x] Run A6 on task-significant lPFC (2026-09-30; null and uninformative, `a6_brain_behavior.md` §13). Supplement text written (§14 there; `methods.md` › A6).
 - [ ] All lPFC and the 0–0.5 s window as checks: only if a reviewer asks (`a6_brain_behavior.md` §14.1).
 - [ ] Brain–behavior with the three-way mixed model.
-- [ ] Congruency ↔ switch cross-decoding with the accuracy-matched task × congruency control.
+- [x] Congruency ↔ switch cross-decoding on unselected lPFC, with RT matching, `remove_mean` and occipital (2026-10-01; supplement S5, see the outcome above).
+- [ ] Its remaining controls: seeds for the baseline, `rt` and `random`; lPFC subsampled to 54 electrodes against occipital; the task positive controls; `mean_only`; response-locked ([`decoding.md` › A4 §13.8.4](decoding.md#138-results-2026-10-01)).
 
 #### Weekly figure-plan template
 
@@ -379,7 +406,7 @@ Keep this table here, updated each week, so the repo stays the source of truth. 
 - [ ] **Weight of the tilt:** it was not predicted and explains 2 % of delta's variance. Does it appear in the abstract, or only in Results?
 - [ ] **Naming the axis:** the pre-specified coordinate model reports height (z), but height and distance from the midline correlate r = −0.58 in lPFC, and a follow-up favours distance (§16.6.4). Report "dorsomedial versus ventrolateral" with both models, or keep height as the headline?
 - [ ] **Brain–behavior:** supplement, or main text if the three-way mixed model is clear? The across-participant test came out null and uninformative (2026-09-30). Recommendation: one supplementary note plus one Discussion sentence (`a6_brain_behavior.md` §14). Build the three-way model only if a main-text brain–behavior claim is wanted; it is the only version with plausible power.
-- [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop?
+- [ ] **A4 cross-decoding:** keep in the supplement with the accuracy-matched task control, or drop? *Recommendation (2026-10-01): supplement S5, not the closing figure, plus one Discussion sentence. The groups are dropped. See the outcome under "Congruency ↔ switch cross-decoding with task positive controls".*
 
 ---
 

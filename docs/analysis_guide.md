@@ -2026,6 +2026,17 @@ covers per group, so it has no separate code path.
 > rules for all of them are in
 > [`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13.
 
+> **Status, 2026-10-01.** The NaN-trial change raised both ceilings (peaks 0.76),
+> so the 2026-09-30 shares above are superseded. On the same 171 electrodes the
+> transfers keep 47% (congruency → switch) and 26% (switch → congruency) from
+> ~0.5 s, still with no pre-stimulus windows. They survive removing each
+> subject's mean activity, and shrink under RT matching to 0.5–1.1 s, though the
+> half-trial runs are at the noise floor. Occipital cortex keeps similar shares.
+> The main-effect groups do not behave as a shared code predicts and are
+> dropped. Results and reading:
+> [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01); placement
+> (supplement S5): [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan).
+
 ### 17.1 Which electrodes are decoded
 
 Three independent choices, easy to conflate:
