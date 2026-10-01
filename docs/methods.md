@@ -38,7 +38,9 @@ proportion manipulation.
 
 For the all-lPFC main-effect run (1,000 splits, with congruency and switch as
 the reference), the filled-in Methods are §17.2 of
-[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#172-methods).
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#172-methods). The
+task-significant subset was rerun the same way with 200 splits; its results
+and the one Methods sentence it adds are in §18 there.
 
 ### Participants, recordings, and electrode population
 
