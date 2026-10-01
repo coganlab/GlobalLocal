@@ -9,8 +9,10 @@ representation-level question those counting analyses cannot: do the "both"
 electrodes carry ONE shared code or a mix of two orthogonal codes?
 
 It runs on the **ordinary decoding pipeline**. The ROI LabeledArray is already a
-cross-subject pseudopopulation (subjects are NaN-padded to the per-condition max
-and concatenated along the channel axis); `Decoder.cv_cm_jim_window_shuffle`
+cross-subject pseudopopulation, built as the ordinary decoder builds it (each
+electrode's NaN trials dropped, every electrode subsampled to the fewest clean
+trials per condition, electrodes stacked along the channel axis);
+`Decoder.cv_cm_jim_window_shuffle`
 supplies disjoint train/test folds, a refit shuffle null, and time-resolved
 accuracy traces that the usual `time_perm_cluster` machinery corrects across
 windows. All A4 adds is a second label vector (`labels_test`) so the classifier is
@@ -629,7 +631,10 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
     Mirrors `decoding_dcc.main`'s setup so A4 decodes exactly what the ordinary
     decoding job would: the same ROI/significance electrode resolution, the same
     "filter against what actually survived epoching" step, and the same
-    pseudopopulation builder.
+    pseudopopulation builder, which drops each electrode's NaN (outlier) trials
+    and subsamples every electrode to the fewest clean trials per condition, so
+    every pseudo-trial is complete (the only NaN left are whole padding rows where
+    conditions differ in trial count, which `build_cross_decoding_arrays` drops).
 
     Returns `(roi, arrays, channel_names, cells)`, where `channel_names` is the
     array's own channel labelling (`subject-electrode`, in order — the thing
@@ -642,7 +647,7 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         filter_electrode_lists_against_subjects_mne_objects,
         print_summary_of_dropped_electrodes)
     from src.analysis.utils.labeled_array_utils import (
-        put_data_in_labeled_array_per_roi_subject)
+        make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel)
 
     roi = args.roi
     if args.rois_dict is None or roi not in args.rois_dict:
@@ -694,10 +699,20 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         [roi], raw_electrodes, subjects_mne_objects)
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
 
-    arrays = put_data_in_labeled_array_per_roi_subject(
-        subjects_mne_objects, condition_names, [roi], args.subjects,
-        electrodes, obs_axs=0, chans_axs=1, time_axs=2,
+    # Drop the NaN trials before anything else touches the data, as the ordinary
+    # decoder does: each electrode keeps its own clean trials (after the split and
+    # RT matching chose which trials are decoded), then every electrode is
+    # subsampled to the fewest clean trials of any electrode in that condition.
+    # Outlier trials are NaN per electrode, so a pseudo-trial padded across
+    # subjects is almost never complete, and the cross-decoder trains only on
+    # complete ones.
+    built = make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel(
+        roi, subjects_mne_objects, condition_names, args.subjects, electrodes,
+        n_bootstraps=1, obs_axs=0, chans_axs=1, time_axs=2,
         random_state=getattr(args, 'seed', 42))
+    if not built:
+        raise ValueError(f"no electrode of ROI {roi!r} survived for these subjects")
+    arrays = {roi: built[0]}
     channel_names = _roi_channel_names(arrays, roi)
     print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
           f"({args.electrodes} electrodes)")

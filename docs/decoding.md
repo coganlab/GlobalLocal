@@ -1140,6 +1140,11 @@ decoded factors has the same RT distribution
   of `_summary.csv` is the "residual RT difference" to report.
 - A subject left with no trials stops the job: its channels are in every
   pseudo-trial, so it cannot drop out. Lower `RT_MATCH_BINS` if that happens.
+- After matching, each electrode's NaN trials are dropped and every electrode is
+  subsampled to the fewest clean trials per condition (the ordinary decoder's
+  builder). The log line `condition '<name>': subsampling to N trials` is how
+  many each condition keeps. The subset is random, so the matched RT
+  distributions carry over.
 - Synthetic data have no RTs, so `RT_MATCH` is refused there.
 - It works for `ANALYSIS=block_transfer` and `task_transfer` too (same knobs).
 
@@ -2132,6 +2137,7 @@ The padding fix (1.1) changes every A4 design, so A4 numbers from before this ch
 
 - `build_cross_decoding_arrays` drops all-NaN padding rows. In each fold, cross-decoding subsamples incomplete training rows and equalizes the surviving class counts instead of applying mixup. Incomplete test rows remain and are filled with independent noise.
 - `run_cross_decoding` now uses equal LDA priors (`make_decoder`). Without the padding, the within-block decodes (A4(0)) have their real 3:1 class ratio, and training-frequency priors would lean toward the majority class.
+- **NaN trials are dropped when the pseudopopulation is built** (`_build_roi_arrays`). The job now uses the ordinary decoder's builder: each electrode's NaN (outlier) trials are dropped, then every electrode is subsampled to the fewest clean trials of any electrode in that condition, so every pseudo-trial is complete. The only NaN left are whole padding rows where conditions differ in trial count, and `build_cross_decoding_arrays` drops those. Before, subjects were NaN-padded and outlier trials stayed NaN. A training pseudo-trial was only usable if every subject's electrodes were clean in it, which with ~24 subjects left a handful of rows per condition. After RT matching that fell to one per class, and LDA failed ("The number of samples must be more than the number of classes"). A4 numbers from before this change aren't comparable with new runs.
 
 ---
 
@@ -2407,6 +2413,12 @@ are filled with i.i.d. Gaussian noise, deliberately non-informative so test
 imputation cannot leak class information. A transfer whose test population draws
 more heavily on sparsely-covered subjects can nevertheless be depressed because
 more of its test features are noise.
+
+The A4 / transfer job itself no longer feeds incomplete pseudo-trials to the
+decoder: it drops each electrode's NaN trials when it builds the
+pseudopopulation, as the ordinary decoder does (see
+[Changes to A4](#changes-to-a4)). The fold-level handling above applies to
+callers that pass padded arrays.
 
 **Check:** per-subject channel coverage in the train population vs the test
 population, and the fraction of test features that were NaN-filled. If the test
