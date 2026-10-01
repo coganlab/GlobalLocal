@@ -17,6 +17,10 @@ If you read only three things, read [the estimand](#2-the-estimand-and-sign-conv
 [the primary test](#4-the-primary-anatomical-test), and
 [the interpretation checklist](#11-interpretation-checklist).
 
+For the paper, [§17](#17-write-up-for-the-paper-the-all-lpfc-main-effect-run)
+has the all-lPFC run's DCC location, Methods and Results text, and what is
+ready to submit.
+
 ---
 
 ## 0. The short version
@@ -2042,6 +2046,10 @@ All files are in the anatomy run's `continuous/` folder unless marked
 All lPFC as the primary set (see `analysis_plans.md` › Closing figure plan, "Which electrode set
 to report"). This replaces the §15.12 draft for the all-lPFC version.
 
+⚠️ Superseded by §17.3, which adds the effect sizes, the leave-one-out range and
+the hemisphere fits. §17.2 has the matching Methods, and §17.4 says what is
+ready for the paper.
+
 > We scored each lPFC electrode (398 electrodes, 22 participants) for LWPC and
 > LWPS as signed, standardized differences of differences in high-gamma power,
 > measured on separate halves of the trials. The two effects shared electrodes:
@@ -2120,3 +2128,335 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 - [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
       have Test 2 print dm's reliability, the implied share and the bootstrap
       interval next to the shrinkage.
+
+---
+
+## 17. Write-up for the paper: the all-lPFC main-effect run
+
+This section turns the run in §16.6 into manuscript text and says whether it is
+ready for the paper. Every number was checked on 2026-10-01 against the run's
+own outputs (`summary.txt`, `score_anatomy.json`, `scores_with_anatomy.csv`,
+`dm_coordinates.csv`, `score_centers.csv`). The follow-up numbers (script §1–§4)
+were recomputed from that `scores_with_anatomy.csv` with
+`n4_section16_followups.py`, and they match §16.6 exactly. Numbers that come
+from files outside the anatomy folder are marked with their source in §17.5.
+
+### 17.1 Where the run is on the DCC
+
+The anatomy job writes every output into one `continuous/` folder
+(`run_score_anatomy`, `stability_flexibility_anatomy_dcc.py`). The runner names
+the folder `results/<EPOCHS_ROOT_FILE>/anatomy_<LABEL_SOURCE>_<ROI_FILTER>_window_<tmin>to<tmax>s_<ELECTRODES>/`
+(`run_stability_flexibility_anatomy_dcc.py`). `score_anatomy.json` → `maps`
+records the absolute path of the brain maps, which confirms it:
+
+| What | Path on the DCC |
+|---|---|
+| Epochs root (`RUN`) | `/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/` |
+| **Anatomy outputs** (the five files above and everything else in §16.3) | `$RUN/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` |
+| Upstream scores (`electrodes.csv`, `per_split.csv`, `continuous.csv`, `summary.txt`, `correlation_main_effects.json`) | `$RUN/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/` |
+| Follow-up tables (`panel_b_label_means.csv`, `panel_c_*.csv`), if the §16.6 command was run as written | `$RUN/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/section16/` |
+
+The folder ends in `_sig`, but it holds **all 398 lPFC electrodes**. The suffix
+comes from the submitter's `ELECTRODES=sig` default, which does not select
+electrodes (§13).
+
+```bash
+RUN=/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+ls -lt "$RUN/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/"
+head -12 "$RUN/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/summary.txt"   # F = 1.907, p = 0.0102, 398 electrodes
+
+# if the folder has moved, find every continuous-arm run by its JSON
+find /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results \
+     -path '*continuous*' -name score_anatomy.json
+```
+
+⚠️ **Copy this folder before the task-significant rerun.** The folder name does
+not depend on `SCORES_CSV`. Pointing `SEG_RUN` at the task-significant
+`_main_effects` run and submitting with the same defaults writes to the same
+`anatomy_a1_lpfc_window_0.0to1.5s_sig/` path and overwrites these results:
+
+```bash
+cp -rp "$RUN/anatomy_a1_lpfc_window_0.0to1.5s_sig" \
+       "$RUN/anatomy_a1_lpfc_window_0.0to1.5s_ALL_lpfc_main_effects"
+```
+
+### 17.2 Methods
+
+Manuscript-ready text for this run. It replaces the bracketed N4 template in
+[`methods.md`](methods.md#n4-segregation-and-continuous-anatomy) for the
+all-lPFC analysis, which still describes 200 splits and does not cover the main
+effects. Preprocessing is not repeated here. Take it from the general iEEG
+Methods, and check that it describes the epochs file this run used
+(`…_drop_and_nan_thresh_perc_5.0_…_stat_func_ttest_zmax_20`).
+
+> **Electrode population.** Anatomical analyses used every electrode in lateral
+> prefrontal cortex (lPFC; 398 electrodes, 254 left and 144 right, from 22
+> participants, 1–55 per participant). The set was defined by atlas label, not
+> by task responsiveness or by any effect, because these analyses ask how
+> effects are distributed across the region rather than whether they are
+> present. This choice was recorded before analysis. Results in the
+> task-responsive subset are reported in full in the Supplement. Each electrode
+> was assigned a Destrieux parcel and fsaverage (MNI) coordinates from the
+> participant's reconstruction.
+>
+> **Per-electrode scores.** High-gamma power (70–150 Hz) on correct trials was
+> averaged over 0–1.5 s after stimulus onset. Each process was scored from the
+> four cell means of its 2 × 2 design, congruency (incongruent, I; congruent, C)
+> × incongruent proportion (25 %, 75 %) and switch type (switch, S; repeat, R)
+> × switch proportion, with equal weight on every cell. The adaptation effects
+> were differences of differences, LWPC = (I − C)₂₅ − (I − C)₇₅ and
+> LWPS = (S − R)₂₅ − (S − R)₇₅. The main effects were the mean simple effects,
+> congruency = ½[(I − C)₂₅ + (I − C)₇₅] and switch = ½[(S − R)₂₅ + (S − R)₇₅].
+> Each was divided by the pooled within-cell standard deviation (Cohen's *d*).
+> Positive LWPC and LWPS mean the predicted adaptation: a smaller condition
+> effect in high-proportion blocks. Equal cell weights stop the unequal trial
+> counts of the proportion design from leaking the main effect into the
+> interaction, or block-level differences into the main effect.
+>
+> **Disjoint trial halves.** Each electrode's trials were divided into random
+> halves 1,000 times, stratified on congruency, incongruent proportion, switch
+> type and switch proportion. All four scores were computed on each half. An
+> electrode's score was the mean over halves and splits. Every test that relates
+> two scores across electrodes took them from opposite halves within each split
+> and then averaged over splits, so that shared trial noise could not create an
+> association. A map's split-half reliability was the mean correlation between
+> electrodes' two half estimates.
+>
+> **Balances.** Each score was divided by its standard deviation across
+> electrodes, without centring or within-participant standardization. The
+> adaptation balance was Δ_adapt = LWPC − LWPS (positive: relatively
+> LWPC-dominant) and the base-effect balance Δ_main = congruency − switch
+> (positive: relatively congruency-dominant). Because each balance is a
+> difference within an electrode, a test of how it varies with anatomy is an
+> effect-type × anatomy interaction, and anything an electrode contributes
+> equally to both scores (gain, responsiveness, participant) cancels.
+>
+> **Co-localization.** To test whether two effects share electrodes, one score
+> from one half was correlated with the other score from the other half (both
+> directions, every split) after both were regressed on responsiveness (mean
+> absolute high-gamma) and centred within participant. Spearman ρ was averaged
+> over splits. Participants with fewer than three electrodes were excluded
+> (397 electrodes, 21 participants remained). The null permuted electrode
+> correspondence within participant, identically across splits. Electrodes
+> positive for each adaptation effect were compared in location by the distance
+> between their centroids, with electrode labels shuffled within participant.
+>
+> **Anatomical test.** Each balance was modelled as
+> balance = parcel + responsiveness + participant, with participants as fixed
+> effects. The statistic was the partial *F* for the parcel block. Destrieux
+> parcels sampled in at least three participants entered (19 parcels, 396
+> electrodes). The null exchanged the two effect labels independently within
+> every electrode, which flips the sign of the balance while keeping each
+> electrode's participant, location, responsiveness and pair of scores
+> (10,000 permutations; *p* = (*b* + 1)/(*N* + 1)). Adjusted parcel means, with
+> Benjamini–Hochberg correction over the 19 parcels, were used only to describe
+> a significant omnibus result. The test was repeated with each participant
+> left out (1,000 permutations per fold).
+>
+> **Coordinate test.** Each balance was also modelled as
+> balance = MNI *y* + *z* + *x* + responsiveness + participant, across all
+> electrodes and within each hemisphere, with the same null. We report the
+> block *F*, and slopes in standard deviations per millimetre with *p* values
+> Bonferroni-corrected over the three axes.
+>
+> **Main effects as a reference** (specified before this run). Test 1 asked
+> whether the balances track each other: Δ_main from one half against Δ_adapt
+> from the other, by the co-localization procedure above, with and without MNI
+> coordinates partialled out within participant. The matched (congruency–LWPC,
+> switch–LWPS) and crossed (congruency–LWPS, switch–LWPC) pairings were
+> computed the same way. Test 2 asked whether the adaptation gradient is
+> inherited: the coordinate model for Δ_adapt was refitted with Δ_main as a
+> covariate, and the change in slope (shrinkage = 1 − slope with
+> covariate / slope without) was read against Δ_main's split-half reliability,
+> because a covariate measured with reliability λ can remove only about λ of a
+> slope it fully carries. Uncertainty in the shrinkage came from 2,000
+> participant bootstrap resamples.
+>
+> **Exploratory follow-ups** (chosen after the coordinate result). Because
+> height and distance from the midline are correlated across lPFC electrodes,
+> the coordinate model was refitted with |*x*| in place of signed *x*. Each
+> single score was fitted on *y* + *z* + |*x*| + responsiveness + participant.
+> A single score has no partner to exchange labels with, so its null shuffled
+> coordinates among each participant's electrodes (2,000 shuffles). Adjusted
+> Cohen's *d* (participant and responsiveness removed) is shown by tertile of
+> |*x*| for display only.
+>
+> **Reporting.** All tests were two-sided with α = 0.05.
+> Electrode maps and per-participant weighted centres were descriptive and
+> were not used for inference.
+
+### 17.3 Results
+
+This replaces the §16.7.2 draft. It adds the effect sizes, the leave-one-out
+range and the hemisphere fits, and it states that the axis and the per-score
+breakdown were exploratory.
+
+> **LWPC and LWPS share electrodes, and their balance varies across lPFC.** We
+> scored every lPFC electrode (398 electrodes, 22 participants) for LWPC and
+> LWPS. Across this anatomically defined set both adaptation effects were small
+> on average (mean Cohen's *d* = 0.01 for LWPC and 0.05 for LWPS; 49 % and 56 %
+> of electrodes positive), and single-electrode estimates were noisy
+> (full-data split-half reliability 0.27–0.30), so we tested only
+> population-level summaries. The two effects shared electrodes. LWPC and LWPS
+> scores from separate halves of the trials were positively correlated within
+> participants (Spearman *r* = 0.10, *p* < 0.001; 397 electrodes, 21
+> participants), and electrodes positive for each effect did not differ in
+> location (centroid distance 1.4 mm, *p* = 0.95).
+>
+> The balance between the two effects (LWPC − LWPS within each electrode)
+> nevertheless differed across Destrieux parcels (19 parcels sampled in at
+> least three participants; *F* = 1.91, label-exchange permutation
+> *p* = 0.010; *p* = 0.003–0.057 with each participant left out). No single
+> parcel differed from zero after FDR correction (all *q* ≥ 0.13).
+> Descriptively, the superior frontal gyrus and sulcus leaned toward LWPS. The
+> balance also varied with position (MNI coordinates: block *F* = 2.85,
+> *p* = 0.031). Relative to LWPS, LWPC was weaker dorsally (*z* slope −0.0077
+> SD/mm, *p* = 0.008; Bonferroni-corrected over three axes, *p* = 0.023). The
+> predicted anterior–posterior axis showed no effect (*p* = 0.58). Height
+> explained about 2 % of the balance's variance, and the slope replicated
+> across independent halves of the trials (*p* = 0.005). Height and distance
+> from the midline are correlated across lPFC electrodes (within-participant
+> *r* = −0.58), so the two cannot be fully separated. In an exploratory model,
+> distance from the midline described the gradient better than height
+> (distance *p* = 0.019, height *p* = 0.53), so we describe it as dorsomedial
+> versus ventrolateral. In an exploratory breakdown by score, LWPC carried the
+> gradient: it was slightly reversed within about 27 mm of the midline
+> (adjusted *d* = −0.07) and positive farther out (0.04–0.06; slope
+> *p* = 0.006), whereas LWPS did not vary (*p* = 0.75).
+>
+> **The adaptation balance tracks the balance of the demands.** To ask whether
+> this organization follows the demands being regulated, we scored the
+> congruency and switch-type main effects from the same trials and halves,
+> weighting the proportion blocks equally. The base effects also shared
+> electrodes (*r* = 0.23, *p* < 0.001). Their balance (congruency − switch)
+> also differed across parcels (*F* = 1.70, *p* = 0.017; *p* ≤ 0.058 with any
+> one participant left out), in step with the adaptation balance (*r* = 0.73
+> across the 19 parcel means; same sign in 13). Electrode by electrode, on
+> separate trial halves, the two balances were linked: where congruency
+> dominated, LWPC dominated (*r* = 0.09, *p* < 0.001), and the link held with
+> coordinates partialled out (*r* = 0.09, *p* < 0.001). It was process-specific:
+> each adaptation effect tracked its own main effect more closely than the
+> other one (congruency–LWPC *r* = 0.22 vs switch–LWPC 0.12; switch–LWPS 0.17
+> vs congruency–LWPS 0.13). The base-effect balance showed no significant
+> gradient (*F* = 1.81, *p* = 0.13); its slope pointed the same way at about
+> half the size. Neither congruency nor switch varied detectably with distance
+> from the midline (*p* ≥ 0.34). Adding the base-effect balance as a covariate
+> reduced the adaptation gradient by 10 % (*z* slope still *p* = 0.015).
+> Because the base-effect balance was measured with low reliability
+> (split-half *r* = 0.08), full inheritance would produce a reduction of only
+> about 15 %, and the participant-bootstrap interval (−20 % to 40 %) includes
+> both no inheritance and full inheritance.
+>
+> Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
+> population. Electrode by electrode, their balance follows the local balance
+> of the demands each regulates, and it shifts modestly between dorsomedial and
+> ventrolateral lPFC. Whether that shift is inherited from the base effects
+> could not be determined. In the task-responsive subset (171 electrodes, 21
+> participants) the estimates were similar but not significant (Supplementary
+> **[S-N4]**).
+
+Supplement additions from this run, beyond §16.7.3:
+
+- **Hemisphere fits.** Adaptation balance: left *F* = 4.22, *p* = 0.005
+  (254 electrodes), right *F* = 2.33, *p* = 0.12 (144). Base-effect balance:
+  left *F* = 2.45, *p* = 0.039, right *F* = 0.68, *p* = 0.45
+  (`dm_coordinates.csv`). The left-hemisphere base-effect fit is why the paper
+  must not say the base effects are spatially unorganized.
+- **Map similarity.** Report the pooled separate-half LWPC–LWPS correlation
+  and the two half-data reliabilities (Pearson 0.17, against 0.18 for LWPC and
+  0.16 for LWPS), not the noise-corrected ratio. `summary.txt` flags that ratio (1.03 at electrode
+  level, 3.38 at parcel level) as not estimable.
+
+### 17.4 Can it go in the paper?
+
+**Yes. It belongs in the N4 anatomy section and the closing figure (F5), led by
+the overlap result, with the gradient as a modest secondary finding. It is not
+ready to submit until the items at the end of this section are done.**
+
+**Why it can go in.**
+
+- The main tests were specified before the data were seen. The plan's
+  anatomical set and primary test are dated 2026-09-16 and 2026-09-17, and
+  Tests 1 and 2 were written down on 2026-09-25, before the main-effect run on
+  2026-09-26 (`analysis_plans.md` › Closing figure plan).
+- The null respects the design. Exchanging the effect labels within each
+  electrode keeps coverage, participant and responsiveness fixed, and the code
+  recovers planted effects and returns nulls on null data
+  (`tests/analysis/stats/`).
+- Each positive result was checked against trial noise (separate halves),
+  participant leverage (leave-one-out) and coverage (≥ 3 participants per
+  parcel).
+- The numbers are stable. The follow-ups reproduce exactly from this run's
+  scores, and the parcel means match the earlier 200-split run to two decimals.
+
+**What limits it, and how the text handles it.**
+
+| Limit | Consequence for the text |
+|---|---|
+| The effects are small. Height explains ~2 % of the balance's variance, single-electrode reliability is ~0.3, and no parcel survives FDR. | Population-level claims only. Never name a parcel or an electrode as the driver. |
+| LWPC averages *d* ≈ 0.01 across all lPFC (49 % positive). The gradient is LWPC slightly reversed medially and slightly positive laterally. | Say so in Results (the draft does). A reviewer will ask why we map an effect that is near zero on average. The answer is that N2/N3 establish LWPC in task-responsive electrodes, and here the question is how scores are distributed across the region. |
+| The primary parcel test is sensitive to single participants (leave-one-out *p* up to 0.057) and is null in the task-responsive subset (*F* = 0.91, *p* = 0.29). | Report the leave-one-out range. Report the subset in full, with the power argument (a planted slope reaches *p* < 0.05 26 % of the time there, 66 % in all lPFC; §15.7). |
+| The axis was not predicted, the predicted anterior–posterior axis is null, and the midline description came after looking. | Keep the gradient out of the title, and give it at most one clause in the abstract. Label the \|*x*\| model and the per-score breakdown as exploratory. |
+| Inheritance cannot be resolved with a base-effect balance this unreliable. | One sentence: "could not be determined". The details go to the supplement. |
+
+**Where each result goes.**
+
+| Result | Where | Note |
+|---|---|---|
+| LWPC and LWPS share electrodes; no centroid separation | Main text, headline (F5a) | Pre-specified. The task-responsive subset agrees in size (*r* = 0.08, *p* = 0.057). |
+| Congruency and switch share electrodes | Main text, as the reference (F5a) | |
+| Adaptation balance differs across parcels (*F* = 1.91, *p* = 0.010) | Main text | Pre-specified primary test. Omnibus only. |
+| Base-effect balance differs across parcels, in step (label *r* = 0.73) | Main text (F5b) | The label correlation is descriptive (it shares trials). |
+| Electrode-level tracking, process-specific (Test 1) | Main text (F5d) | Pre-specified, survives coordinates. The most defensible link between the levels. |
+| Coordinate gradient (block *p* = 0.031, *z* *p* = 0.008) | Main text, secondary | Unpredicted, small. |
+| Dorsomedial vs ventrolateral; carried by LWPC | Main text as exploratory (F5c) | Needs the advisor's call on naming the axis. |
+| Inheritance (Test 2) | One sentence in text; supplement | Bootstrap interval spans none to all. |
+| Hemisphere fits, base-effect coordinate test, leave-one-out tables, coverage | Supplement | See the 17.3 additions. |
+| Weighted medoids (`score_centers.csv`) | Leave out | Null on every axis. In 6 of 25 groups both medoids land on the same contact, so the displacement is exactly zero, and the two centre definitions disagree in sign on *z* (§15.10). |
+| Noise-corrected ratio (1.03 electrode, 3.38 parcel) | Leave out | Not estimable (§15.4). |
+| Pooled *r* = 0.32 / within-participant *r* = 0.22 (`joint_scatter.png`) | Leave out | Full-data correlations, not the pre-specified test (§6, §15.5). |
+| Brain maps | Illustration only | Caption: single electrodes are not interpretable. |
+
+**Before it goes into a submitted draft.**
+
+- [ ] Copy this run's folder (§17.1), then rerun the task-significant set with
+      main effects. Report it in full whatever it shows.
+- [ ] Get the advisor's answers to the open questions in `analysis_plans.md` ›
+      Closing figure plan: all lPFC as the primary set, lPFC-only scope, how to
+      name the axis, and whether the gradient appears in the abstract.
+- [ ] Make F5 panels a–d (§16.7.3).
+- [ ] Run leave-one-participant-out on the pre-specified LWPC–LWPS
+      correlation. Quote its *p* from 10,000 permutations: check whether the
+      main-effect segregation run's `summary.txt` already has it
+      (`N_PERM_CORR=10000` in §16.2), and rerun if not.
+- [ ] Fill in the preprocessing paragraph, and archive the git commit,
+      submission command and Slurm log with the run (§14).
+
+The other §15.13 items are code clean-up or deferred, and do not block the paper.
+
+### 17.5 Where each number in 17.3 comes from
+
+`continuous/` is the anatomy folder in §17.1. "By hand" means computed on
+2026-10-01 from `scores_with_anatomy.csv` and not printed by any script.
+
+| Number | Source |
+|---|---|
+| 398 electrodes (254 lh / 144 rh), 22 participants, 1–55 per participant | `continuous/scores_with_anatomy.csv` (by hand) |
+| Mean *d* LWPC 0.01 / LWPS 0.05; 49 % / 56 % positive | `continuous/scores_with_anatomy.csv`, `lwpc_score`, `lwps_score` (by hand) |
+| Full-data reliability 0.27–0.30 | Spearman–Brown of the Pearson half-data reliabilities in `continuous/score_anatomy.json` → `ceiling.electrode` (0.179, 0.159) |
+| LWPC–LWPS *r* = 0.10, *p* < 0.001; 397 / 21 | `continuous/summary.txt`, `min_elec` sweep (`min_elec = 3`: 0.096, *p* = 0.0005, 2,000 permutations) |
+| Centroid distance 1.4 mm, *p* = 0.95 | §15.6 (earlier 200-split scores; `n4_section15_followups.py` section 10) |
+| Parcel *F* = 1.91, *p* = 0.010; 19 parcels; leave-one-out *p* 0.003–0.057 | `continuous/summary.txt` (§5.2 primary, §9.2), `score_anatomy.json` |
+| All *q* ≥ 0.13 | `continuous/summary.txt` per-label rows (lowest *q* = 0.126) |
+| Block *F* = 2.85, *p* = 0.031; *z* −0.0077, *p* = 0.008; *y* *p* = 0.58 | `continuous/score_anatomy.json` → `coordinates.all` |
+| ~2 % of variance; replication across halves *p* = 0.005 | §15.7 (`n4_section15_followups.py` sections 5 and 12) |
+| *r*(*z*, \|*x*\|) = −0.58; distance *p* = 0.019, height *p* = 0.53 | `n4_section16_followups.py` §1 |
+| LWPC −0.07 medial, 0.04–0.06 farther out; slope *p* = 0.006; LWPS *p* = 0.75 | `n4_section16_followups.py` §2 and §3 |
+| Congruency–switch *r* = 0.23, *p* < 0.001 | segregation `correlation_main_effects.json` (§16.6.2) |
+| Base-effect parcel *F* = 1.70, *p* = 0.017; leave-one-out *p* ≤ 0.058 | `continuous/summary.txt` (MAIN EFFECTS), `dm_roi_loso.csv` (§16.6.3) |
+| Label *r* = 0.73, 13 of 19 | `n4_section16_followups.py` §4 |
+| Test 1 *r* values | `continuous/score_anatomy.json` → `main_effects.tracking` (`delta_tracking.csv`) |
+| Base-effect gradient *F* = 1.81, *p* = 0.13; \|*x*\| *p* ≥ 0.34 | `continuous/dm_coordinates.csv`; `n4_section16_followups.py` §2 |
+| 10 % reduction, *p* = 0.015 | `continuous/score_anatomy.json` → `main_effects.tilt` (`tilt_with_dm.csv`) |
+| Split-half *r* = 0.08; bootstrap −20 % to 40 % | `n4_section16_followups.py` §5 with the segregation JSON (§16.6.6) |
+| Task-responsive subset | §15 (171 electrodes, 21 participants; LWPC/LWPS only until the main-effect rerun) |
