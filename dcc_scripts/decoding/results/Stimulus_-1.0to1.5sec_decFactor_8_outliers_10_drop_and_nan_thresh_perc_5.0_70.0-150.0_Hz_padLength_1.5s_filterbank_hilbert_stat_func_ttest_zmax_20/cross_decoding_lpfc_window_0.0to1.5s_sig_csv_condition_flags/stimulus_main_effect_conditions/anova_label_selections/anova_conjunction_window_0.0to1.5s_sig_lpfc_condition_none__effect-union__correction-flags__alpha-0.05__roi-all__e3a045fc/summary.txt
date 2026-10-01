@@ -10,6 +10,9 @@ STABILITY vs FLEXIBILITY — A4 CROSS-DECODING
 power_traces_correction: None
        reference_group: all
  electrode_group_sizes: {'both': 31, 'congruency_only': 32, 'switch_type_only': 31, 'all': 398}
+electrode_selection_split: off (electrodes selected on the same trials that are decoded)
+              rt_match: off
+      activity_control: none
                 window: [0.0, 1.5]s
            window_size: 64
              step_size: 16
@@ -26,30 +29,30 @@ A4(a) label transfer by group. stab = congruency (i vs c), flex = switch
       'all' is the UNSELECTED reference set (every electrode in the
       decoded ROI array, i.e. what `electrodes` above already restricted it to) —
       no interaction defined it, so it is the honest baseline for the selected groups.
-   [both] stab_to_stab: mean acc=0.565 peak=0.673 (shuffle 0.497) sig windows=19/37
-   [both] flex_to_flex: mean acc=0.542 peak=0.623 (shuffle 0.499) sig windows=16/37
-   [both] stab_to_flex: mean acc=0.540 peak=0.635 (shuffle 0.502) sig windows=22/37
-         vs flex_to_flex, its ceiling: below it in 6 windows; keeps 83% of it above chance
-   [both] flex_to_stab: mean acc=0.527 peak=0.606 (shuffle 0.495) sig windows=18/37
-         vs stab_to_stab, its ceiling: below it in 19 windows; keeps 34% of it above chance
-   [congruency_only] stab_to_stab: mean acc=0.545 peak=0.671 (shuffle 0.500) sig windows=15/37
-   [congruency_only] flex_to_flex: mean acc=0.504 peak=0.565 (shuffle 0.503) sig windows=6/37
-   [congruency_only] stab_to_flex: mean acc=0.506 peak=0.551 (shuffle 0.499) sig windows=8/37
-         vs flex_to_flex, its ceiling: below it in 11 windows; keeps 12% of it above chance
-   [congruency_only] flex_to_stab: mean acc=0.507 peak=0.562 (shuffle 0.500) sig windows=8/37
-         vs stab_to_stab, its ceiling: below it in 20 windows; keeps 14% of it above chance
-   [switch_type_only] stab_to_stab: mean acc=0.503 peak=0.544 (shuffle 0.501) sig windows=4/37
+   [both] stab_to_stab: mean acc=0.566 peak=0.672 (shuffle 0.497) sig windows=19/37
+   [both] flex_to_flex: mean acc=0.541 peak=0.625 (shuffle 0.499) sig windows=22/37
+   [both] stab_to_flex: mean acc=0.540 peak=0.632 (shuffle 0.503) sig windows=22/37
+         vs flex_to_flex, its ceiling: below it in 6 windows; keeps 88% of it above chance
+   [both] flex_to_stab: mean acc=0.527 peak=0.605 (shuffle 0.496) sig windows=19/37
+         vs stab_to_stab, its ceiling: below it in 19 windows; keeps 35% of it above chance
+   [congruency_only] stab_to_stab: mean acc=0.546 peak=0.670 (shuffle 0.500) sig windows=19/37
+   [congruency_only] flex_to_flex: mean acc=0.504 peak=0.569 (shuffle 0.504) sig windows=4/37
+   [congruency_only] stab_to_flex: mean acc=0.506 peak=0.548 (shuffle 0.499) sig windows=6/37
+         vs flex_to_flex, its ceiling: below it in 8 windows; keeps 6% of it above chance
+   [congruency_only] flex_to_stab: mean acc=0.507 peak=0.562 (shuffle 0.501) sig windows=8/37
+         vs stab_to_stab, its ceiling: below it in 20 windows; keeps 16% of it above chance
+   [switch_type_only] stab_to_stab: mean acc=0.503 peak=0.543 (shuffle 0.501) sig windows=4/37
    [switch_type_only] flex_to_flex: mean acc=0.551 peak=0.653 (shuffle 0.504) sig windows=17/37
-   [switch_type_only] stab_to_flex: mean acc=0.516 peak=0.561 (shuffle 0.500) sig windows=13/37
+   [switch_type_only] stab_to_flex: mean acc=0.514 peak=0.560 (shuffle 0.500) sig windows=13/37
          vs flex_to_flex, its ceiling: below it in 17 windows; keeps 25% of it above chance
-   [switch_type_only] flex_to_stab: mean acc=0.494 peak=0.554 (shuffle 0.498) sig windows=9/37
-         vs stab_to_stab, its ceiling: below it in 14 windows; keeps 58% of it above chance
-   [all] stab_to_stab: mean acc=0.548 peak=0.599 (shuffle 0.502) sig windows=29/37
-   [all] flex_to_flex: mean acc=0.556 peak=0.641 (shuffle 0.502) sig windows=30/37
-   [all] stab_to_flex: mean acc=0.513 peak=0.564 (shuffle 0.498) sig windows=16/37
-         vs flex_to_flex, its ceiling: below it in 26 windows; keeps 23% of it above chance
-   [all] flex_to_stab: mean acc=0.518 peak=0.586 (shuffle 0.501) sig windows=13/37
-         vs stab_to_stab, its ceiling: below it in 16 windows; keeps 41% of it above chance
+   [switch_type_only] flex_to_stab: mean acc=0.494 peak=0.557 (shuffle 0.498) sig windows=9/37
+         vs stab_to_stab, its ceiling: below it in 14 windows; keeps 62% of it above chance
+   [all] stab_to_stab: mean acc=0.547 peak=0.599 (shuffle 0.501) sig windows=28/37
+   [all] flex_to_flex: mean acc=0.556 peak=0.641 (shuffle 0.502) sig windows=27/37
+   [all] stab_to_flex: mean acc=0.513 peak=0.563 (shuffle 0.498) sig windows=16/37
+         vs flex_to_flex, its ceiling: below it in 21 windows; keeps 24% of it above chance
+   [all] flex_to_stab: mean acc=0.518 peak=0.586 (shuffle 0.503) sig windows=10/37
+         vs stab_to_stab, its ceiling: below it in 17 windows; keeps 43% of it above chance
 ------------------------------------------------------------------------
 A4(c) temporal generalization (Fig 10):
    stability (within) [both]: mean diagonal=0.565  mean off-diagonal=0.527  (diagonal/phasic code)

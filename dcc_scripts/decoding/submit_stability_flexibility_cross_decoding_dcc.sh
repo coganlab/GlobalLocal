@@ -94,8 +94,8 @@ if [[ -z "${ELECTRODE_DEFINITION:-}" ]]; then
     # synthetic validation has planted labels and must remain self-contained.
     # [[ "$DATA_SOURCE" == synthetic ]] && ELECTRODE_DEFINITION=anova || ELECTRODE_DEFINITION=csv
     # ELECTRODE_DEFINITION=anova
-    ELECTRODE_DEFINITION=csv
-    # ELECTRODE_DEFINITION=none
+    # ELECTRODE_DEFINITION=csv
+    ELECTRODE_DEFINITION=none
 fi
 
 # Keep this list in step with submit_specific_conditions_decoding_dcc.sh. Paths
@@ -231,7 +231,7 @@ export RT_MATCH_SEED=${RT_MATCH_SEED:-}               # default: SEED
 #                pseudo-trial and time point (a transfer that survives is a pattern)
 #   mean_only    decode each subject's mean alone (the uniform part only)
 # Each gets its own folder (..._remove_mean / ..._mean_only).
-export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-none}
+export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-remove_mean}
 
 mkdir -p out
 

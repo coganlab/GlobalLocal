@@ -1,0 +1,122 @@
+========================================================================
+TASK-TRANSFER POSITIVE CONTROLS
+========================================================================
+              analysis: task_transfer
+           data_source: real
+                   roi: lpfc
+            electrodes: sig
+            n_channels: 171
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+           window_size: 64
+             step_size: 16
+              n_splits: 5
+           n_resamples: 10
+                n_perm: 500
+                  seed: 0
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/task_transfer_lpfc_sig_w64s16/pooled_design_conditions
+------------------------------------------------------------------------
+T1_uncentered: task, trained in one congruency level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'g|congruency=c': 118, 'g|congruency=i': 109, 'l|congruency=c': 118, 'l|congruency=i': 113})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test         congruent       incongruent
+        congruent      0.544 (16/0)      0.519 (18/7)
+      incongruent      0.530 (13/6)      0.540 (13/0)
+   congruent -> incongruent vs within incongruent: below that ceiling in 8 windows; keeps 13% of it above chance
+   incongruent -> congruent vs within congruent: below that ceiling in 11 windows; keeps 51% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   PRE-STIMULUS: 13 significant windows across the 2x2. The previous task predicts the current one on repeat trials, so some task information can precede the cue.
+------------------------------------------------------------------------
+T1_centered: task, trained in one congruency level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'g|congruency=c': 118, 'g|congruency=i': 109, 'l|congruency=c': 118, 'l|congruency=i': 113})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test         congruent       incongruent
+        congruent      0.536 (15/0)      0.524 (18/6)
+      incongruent      0.532 (13/5)      0.546 (14/4)
+   congruent -> incongruent vs within incongruent: below that ceiling in 13 windows; keeps 20% of it above chance
+   incongruent -> congruent vs within congruent: below that ceiling in 10 windows; keeps 86% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   PRE-STIMULUS: 15 significant windows across the 2x2. The previous task predicts the current one on repeat trials, so some task information can precede the cue.
+------------------------------------------------------------------------
+T2_uncentered: task, trained in one switchType level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'g|switchType=r': 110, 'g|switchType=s': 109, 'l|switchType=r': 110, 'l|switchType=s': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            repeat            switch
+           repeat      0.563 (17/0)      0.520 (12/0)
+           switch      0.520 (12/0)       0.510 (0/0)
+   repeat -> switch vs within switch: below that ceiling in 4 windows; keeps n/a (its ceiling never beats shuffle) of it above chance
+   switch -> repeat vs within repeat: below that ceiling in 29 windows; keeps 28% of it above chance
+   CEILING: within switch never beats shuffle after stimulus onset -> nothing to transfer; this design is NOT interpretable
+------------------------------------------------------------------------
+T2_centered: task, trained in one switchType level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'g|switchType=r': 110, 'g|switchType=s': 109, 'l|switchType=r': 110, 'l|switchType=s': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            repeat            switch
+           repeat      0.569 (18/0)      0.519 (14/3)
+           switch      0.517 (12/0)       0.515 (0/0)
+   repeat -> switch vs within switch: below that ceiling in 8 windows; keeps n/a (its ceiling never beats shuffle) of it above chance
+   switch -> repeat vs within repeat: below that ceiling in 30 windows; keeps 21% of it above chance
+   CEILING: within switch never beats shuffle after stimulus onset -> nothing to transfer; this design is NOT interpretable
+   PRE-STIMULUS: 3 significant windows across the 2x2. The previous task predicts the current one on repeat trials, so some task information can precede the cue.
+------------------------------------------------------------------------
+T3_uncentered: congruency, trained in one task level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'c|task=g': 118, 'c|task=l': 118, 'i|task=g': 109, 'i|task=l': 113})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            global             local
+           global      0.636 (18/7)      0.594 (22/6)
+            local      0.610 (20/0)      0.584 (19/6)
+   global -> local vs within local: below that ceiling in 6 windows; keeps 92% of it above chance
+   local -> global vs within global: below that ceiling in 21 windows; keeps 75% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 19 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+T3_centered: congruency, trained in one task level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'c|task=g': 118, 'c|task=l': 118, 'i|task=g': 109, 'i|task=l': 113})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            global             local
+           global      0.644 (19/7)      0.600 (22/3)
+            local      0.621 (21/0)      0.592 (18/0)
+   global -> local vs within local: below that ceiling in 12 windows; keeps 99% of it above chance
+   local -> global vs within global: below that ceiling in 18 windows; keeps 78% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 10 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+T4_uncentered: switchType, trained in one task level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'r|task=g': 110, 'r|task=l': 110, 's|task=g': 109, 's|task=l': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            global             local
+           global      0.630 (20/0)      0.590 (20/0)
+            local      0.604 (19/0)      0.600 (22/0)
+   global -> local vs within local: below that ceiling in 7 windows; keeps 90% of it above chance
+   local -> global vs within global: below that ceiling in 20 windows; keeps 81% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+T4_centered: switchType, trained in one task level and tested in the other
+   balanced to 109 trials per contrast x transfer cell (available: {'r|task=g': 110, 'r|task=l': 110, 's|task=g': 109, 's|task=l': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test            global             local
+           global      0.642 (19/0)      0.597 (18/0)
+            local      0.618 (18/0)      0.611 (22/0)
+   global -> local vs within local: below that ceiling in 14 windows; keeps 87% of it above chance
+   local -> global vs within global: below that ceiling in 19 windows; keeps 86% of it above chance
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+EFFECT SIZE: within-level task accuracy 0.542 (T1) vs congruency 0.610 (T3), post-stimulus, uncentered.
+   The further task sits above congruency, the more T1 shows only that the
+   pipeline can transfer a strong code; T3 is the control at congruency's
+   own effect size.
+========================================================================
+Reading (docs/decoding.md#cross-decoding-controls §3.5): compare each transfer with
+the within accuracy of the level it is TESTED on ('keeps X of it').
+  T1 task across congruency   -> the clean positive control: transfer ~
+                                 within means the pipeline carries a code
+                                 from one trial population to another
+  T2 task across switch type  -> confounded: on a switch trial the previous
+                                 task was the other one, so a drop is
+                                 expected even with a single task code
+  T3 / T4 congruency / switch -> the A4 contrasts, across task, at their
+  type across task               own effect size; set 'keeps X' beside the
+                                 A4 congruency <-> switch transfer's
+The task cue (frame colour) is drawn with the stimulus, so a task decoder is
+partly visual: T1 validates the code path, not congruency's effect size.
+Resamples are not independent subjects, so window-wise p-values are optimistic.
+========================================================================
