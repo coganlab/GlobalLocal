@@ -32,6 +32,11 @@ Limits worth stating when reporting it:
   "pattern".
 - A subject with a single decoded electrode has nothing left after
   `remove_mean` (its channel becomes 0); the info dict counts them.
+- The A4 job builds its pseudopopulation as the ordinary decoder does, drawing
+  each electrode's clean trials independently, so a subject's electrodes in one
+  row come from different trials of the same condition. A subject's mean is
+  then a condition-level estimate: it removes a uniform shift between
+  conditions, not trial-to-trial fluctuations shared across electrodes.
 - Read every result against its own ceiling from the same transformed data (the
   ceilings change too), i.e. compare the `retained` shares, not raw accuracy.
 
