@@ -2094,7 +2094,13 @@ coordinate-shuffle null for single scores (§15.9), and the bootstrap (script §
 
 #### 16.7.3 Figure (F5, revised)
 
-Four panels. Plot participant means ± SEM across participants wherever a
+*Update 2026-10-01: F5 is now two panels.* a stays. d becomes b, drawn as
+matched vs crossed bars with the dm–delta correlation as the test that
+compares them (§16.6.5: its covariance is the matched covariances minus the
+crossed ones). b and c move to the supplement (S-N4) with the specifications
+below. Current layout and reasons: [`paper_draft.md`](paper_draft.md) §1.4, F5.
+
+Four panels, as specified on 2026-09-27. Plot participant means ± SEM across participants wherever a
 panel summarizes electrodes; single electrodes are not interpretable (§15.4).
 
 | Panel | Shows | Data | Status |
@@ -2122,9 +2128,11 @@ panel summarizes electrodes; single electrodes are not interpretable (§15.4).
       `ELECTRODES=sig`, then the anatomy job), and run the script on it.
 - [ ] Decide how to name the axis: the pre-specified model reports height, the
       follow-up favours distance from the midline (advisor question in
-      `analysis_plans.md` › Closing figure plan).
+      `analysis_plans.md` › Closing figure plan). Since 2026-10-01 this is an
+      S-N4 detail only.
 - [ ] Make panel a, both halves, as specified in `analysis_plans.md` › Closing figure plan
-      ("Panel a"), and plot panels b–d from the script's tables.
+      ("Panel a"), and plot panel d as the new F5b and panels b–c as S-N4
+      panels from the script's tables.
 - [ ] Optional pipeline changes: fit |x| in the pooled coordinate model, and
       have Test 2 print dm's reliability, the implied share and the bootstrap
       interval next to the shrinkage.
@@ -2291,6 +2299,15 @@ This replaces the §16.7.2 draft. It adds the effect sizes, the leave-one-out
 range and the hemisphere fits, and it states that the axis and the per-score
 breakdown were exploratory.
 
+*Update 2026-10-01: the paper's version is restructured.* F5 was cut to two
+panels (§16.7.3), so the main-text Results in
+[`paper_draft.md`](paper_draft.md) §3.4 reorder this text. The overlap result
+leads, then Test 1 framed as matched vs crossed, then one paragraph with the
+pre-specified parcel and coordinate tests. The gradient detail, the
+base-effect balance and Test 2 moved to the supplement text
+([`paper_draft.md`](paper_draft.md) §3.5). The numbers below are unchanged and
+stay the source; §17.5 still gives each one's file.
+
 > **LWPC and LWPS share electrodes, and their balance varies across lPFC.** We
 > scored every lPFC electrode (398 electrodes, 22 participants) for LWPC and
 > LWPS. Across this anatomically defined set both adaptation effects were small
@@ -2373,6 +2390,12 @@ Supplement additions from this run, beyond §16.7.3:
 the overlap result, with the gradient as a modest secondary finding. It is not
 ready to submit until the items at the end of this section are done.**
 
+*Update 2026-10-01:* the gradient is now further down. F5 shows the overlap
+(a) and the matched-vs-crossed tracking (b). The pre-specified parcel and
+coordinate tests keep one Results paragraph, and everything else about the
+gradient is in S-N4. The placement table below is updated to match;
+[`paper_draft.md`](paper_draft.md) §1.4, F5 has the reasons.
+
 **Why it can go in.**
 
 - The main tests were specified before the data were seen. The plan's
@@ -2396,8 +2419,8 @@ ready to submit until the items at the end of this section are done.**
 | The effects are small. Height explains ~2 % of the balance's variance, single-electrode reliability is ~0.3, and no parcel survives FDR. | Population-level claims only. Never name a parcel or an electrode as the driver. |
 | LWPC averages *d* ≈ 0.01 across all lPFC (49 % positive). The gradient is LWPC slightly reversed medially and slightly positive laterally. | Say so in Results (the draft does). A reviewer will ask why we map an effect that is near zero on average. The answer is that N2/N3 establish LWPC in task-responsive electrodes, and here the question is how scores are distributed across the region. |
 | The primary parcel test is sensitive to single participants (leave-one-out *p* up to 0.057) and is null in the task-responsive subset (*F* = 0.91, *p* = 0.29). | Report the leave-one-out range. Report the subset in full, with the power argument (a planted slope reaches *p* < 0.05 26 % of the time there, 66 % in all lPFC; §15.7). |
-| The axis was not predicted, the predicted anterior–posterior axis is null, and the midline description came after looking. | Keep the gradient out of the title, and give it at most one clause in the abstract. Label the \|*x*\| model and the per-score breakdown as exploratory. |
-| Inheritance cannot be resolved with a base-effect balance this unreliable. | One sentence: "could not be determined". The details go to the supplement. |
+| The axis was not predicted, the predicted anterior–posterior axis is null, and the midline description came after looking. | Keep the gradient out of the title and the abstract (recommendation of 2026-10-01; was "at most one clause"). Label the \|*x*\| model and the per-score breakdown as exploratory, in S-N4. |
+| Inheritance cannot be resolved with a base-effect balance this unreliable. | Supplement only (was one sentence in the main text). |
 
 **Where each result goes.**
 
@@ -2405,12 +2428,12 @@ ready to submit until the items at the end of this section are done.**
 |---|---|---|
 | LWPC and LWPS share electrodes; no centroid separation | Main text, headline (F5a) | Pre-specified. The task-responsive subset agrees in size (*r* = 0.08, *p* = 0.057). |
 | Congruency and switch share electrodes | Main text, as the reference (F5a) | |
-| Adaptation balance differs across parcels (*F* = 1.91, *p* = 0.010) | Main text | Pre-specified primary test. Omnibus only. |
-| Base-effect balance differs across parcels, in step (label *r* = 0.73) | Main text (F5b) | The label correlation is descriptive (it shares trials). |
-| Electrode-level tracking, process-specific (Test 1) | Main text (F5d) | Pre-specified, survives coordinates. The most defensible link between the levels. |
-| Coordinate gradient (block *p* = 0.031, *z* *p* = 0.008) | Main text, secondary | Unpredicted, small. |
-| Dorsomedial vs ventrolateral; carried by LWPC | Main text as exploratory (F5c) | Needs the advisor's call on naming the axis. |
-| Inheritance (Test 2) | One sentence in text; supplement | Bootstrap interval spans none to all. |
+| Adaptation balance differs across parcels (*F* = 1.91, *p* = 0.010) | Main text, one paragraph with the coordinate test | Pre-specified primary test. Omnibus only. |
+| Base-effect balance differs across parcels, in step (label *r* = 0.73) | S-N4 (was F5b) | The label correlation is descriptive (it shares trials). |
+| Electrode-level tracking, process-specific (Test 1) | Main text (F5b, was F5d), as matched vs crossed | Pre-specified, survives coordinates. The most defensible link between the levels. |
+| Coordinate gradient (block *p* = 0.031, *z* *p* = 0.008) | Main text, in the same paragraph as the parcel test | Unpredicted, small. Slope and replication details in S-N4. |
+| Dorsomedial vs ventrolateral; carried by LWPC | S-N4, exploratory (was F5c) | Naming the axis is now a supplement detail. |
+| Inheritance (Test 2) | S-N4 only | Bootstrap interval spans none to all. |
 | Hemisphere fits, base-effect coordinate test, leave-one-out tables, coverage | Supplement | See the 17.3 additions. |
 | Weighted medoids (`score_centers.csv`) | Leave out | Null on every axis. In 6 of 25 groups both medoids land on the same contact, so the displacement is exactly zero, and the two centre definitions disagree in sign on *z* (§15.10). |
 | Noise-corrected ratio (1.03 electrode, 3.38 parcel) | Leave out | Not estimable (§15.4). |
@@ -2424,7 +2447,7 @@ ready to submit until the items at the end of this section are done.**
 - [ ] Get the advisor's answers to the open questions in `analysis_plans.md` ›
       Closing figure plan: all lPFC as the primary set, lPFC-only scope, how to
       name the axis, and whether the gradient appears in the abstract.
-- [ ] Make F5 panels a–d (§16.7.3).
+- [ ] Make F5 panels a–b, and the two S-N4 panels that were F5b–c (§16.7.3).
 - [ ] Run leave-one-participant-out on the pre-specified LWPC–LWPS
       correlation. Quote its *p* from 10,000 permutations: check whether the
       main-effect segregation run's `summary.txt` already has it

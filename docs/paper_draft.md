@@ -1,6 +1,8 @@
 # Paper draft: figure plan, Methods and Results
 
-*Assembled 2026-10-01 from the results written up so far.*
+*Assembled 2026-10-01 from the results written up so far. Revised the same day:
+F3 is described as made, and F5 is cut to two panels with the gradient moved to
+the supplement (§1.2).*
 
 This document has three parts:
 
@@ -58,15 +60,18 @@ Behavior shows that stability and flexibility are regulated at the same time, in
 the same participants (F1). lPFC high gamma carries both adaptation effects in
 the behavioral direction (F3), and both are decodable from distributed lPFC
 activity (F4). The anatomy then shows how the two are organized (F5). They are
-carried by one intermixed population. Electrode by electrode, their balance
-follows the local balance of the demands each regulates.
+carried by one intermixed population, and electrode by electrode each tracks
+the effect it regulates more closely than the other one.
 
 **The ending sentence** (from the all-lPFC main-effect run, §16.6 of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)):
 
-> Each adaptation tracks the local strength of the demand it regulates; whether
-> the spatial gradient in their balance is inherited from the base effects could
-> not be determined.
+> LWPC and LWPS are carried by one intermixed lPFC population, and each tracks
+> the local strength of the demand it regulates.
+
+The earlier ending had a second clause: whether the spatial gradient is
+inherited from the base effects could not be determined. It went to the
+supplement with the gradient (§1.4, F5).
 
 Framing rules that still apply (concurrent-regulation plan §0):
 
@@ -83,7 +88,8 @@ Framing rules that still apply (concurrent-regulation plan §0):
 
 | Result | Effect on the figures |
 |---|---|
-| **N4 all-lPFC main-effect run written up and checked** ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §17) | F5 is final in design: four panels a–d, led by the overlap result, with the gradient as a modest secondary finding. The numbers are checked against the run's outputs. Still needed: the task-significant rerun with main effects, and the plots. |
+| **N4 all-lPFC main-effect run written up and checked** ([`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) §17) | The numbers are checked against the run's outputs. Still needed: the task-significant rerun with main effects, and the plots. |
+| **F5 cut to two panels** (2026-10-01, later) | a: the overlap at both levels. b: each adaptation against its own and the other base effect (matched vs crossed). The parcel scatter (old b) and the gradient by score (old c) move to S-N4. The pre-specified parcel and coordinate tests keep one short paragraph in the main text. The balance-vs-balance correlation stays as the test behind b, but the main text no longer talks in balances. |
 | **A4 congruency ↔ switch cross-decoding run** ([`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)) | Supplement S5, not the closing figure. The transfer is partial and late, and not yet shown to be specific to lPFC or free of RT. It earns one Discussion sentence. The main-effect group decoding is dropped. |
 | **A6 brain–behavior run** ([`a6_brain_behavior.md`](a6_brain_behavior.md) §13–§14) | Supplement S-BB only, framed as "could not be tested at this n", plus one Discussion sentence. |
 | **Weighted medoids** (§17.4 of the N4 doc) | Dropped from the supplement (old S9). They are null on every axis, and the two centre definitions disagree in sign. |
@@ -98,7 +104,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | F2 | Coverage and signal validation | Needs the coverage table (S1) | Build the per-ROI, per-participant table |
 | F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs | Unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
 | F4 | Both adaptations are decodable from distributed lPFC activity | ⬜ Done; results not in the docs | Report trial counts per decoder; write up |
-| F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Results and text final for all lPFC (N4 §17); panels not plotted | Plot a–d; task-significant main-effect rerun |
+| F5 | One intermixed population; each adaptation tracks its own base effect more closely than the other | Results final for all lPFC (N4 §17); text restructured for two panels (§3.4); panels not plotted | Plot a–b; task-significant main-effect rerun |
 
 ### 1.4 Main-text figures
 
@@ -274,47 +280,61 @@ before analysis. The task-significant set is reported in full in S-N4. Data and
 status per panel: §16.7.3 and §17.4 of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md).
 
+*Cut from four panels to two on 2026-10-01.* The parcel scatter (old b) and the
+gradient by score (old c) moved to S-N4; old d is the new b.
+
 | Panel | Shows | Key numbers | Data | Status |
 |---|---|---|---|---|
 | a | **Shared electrodes at both levels:** congruency vs switch beside LWPC vs LWPS, on the responsiveness-residualized, participant-centred scores each pre-specified test correlates | r = 0.23, p = 0.0001; r = 0.10, p = 0.0005 (397 electrodes, 21 participants); centroid distance 1.4 mm, p = 0.95 | LWPC/LWPS: `x_resid`/`y_resid` in the segregation run's `continuous.csv`. Congruency/switch: `prepare_continuous` on its `electrodes.csv` with `mx`/`my`. r from the segregation `summary.txt` and `correlation_main_effects.json`. | Not plotted; no rerun needed |
-| b | **The two balances by parcel:** adjusted congruency − switch (x) against adjusted LWPC − LWPS (y), one dot per Destrieux parcel, sized by electrodes, coloured by distance from the midline | omnibus F = 1.70, p = 0.017 and F = 1.91, p = 0.010; label r = 0.73, same sign in 13 of 19 | `panel_b_label_means.csv` (`n4_section16_followups.py` §4) | Data ready; not plotted |
-| c | **The gradient, by score:** congruency, switch, LWPC and LWPS by tertile of distance from the midline, participant mean ± SEM, as matched small multiples (base effects, adaptation) | LWPC \|x\| slope p = 0.006; the other three p ≥ 0.34. Exploratory. | `panel_c_midline.csv` (script §3) | Data ready; not plotted |
-| d | **The link between levels (Test 1):** r for congruency − switch vs LWPC − LWPS, with the two matched and the two crossed pairings | 0.092 (p = 0.0003); with coordinates 0.087; matched 0.22 / 0.17; crossed 0.13 / 0.12 | `delta_tracking.csv` | Data ready; not plotted |
+| b | **Each adaptation tracks its own base effect:** separate-half r for each adaptation effect against its own base effect (matched) and against the other one (crossed), as two pairs of bars, LWPC and LWPS. The matched-minus-crossed test is annotated across both pairs. | matched 0.22 (congruency–LWPC) / 0.17 (switch–LWPS); crossed 0.12 (switch–LWPC) / 0.13 (congruency–LWPS); all p ≤ 0.0002. Matched − crossed: r = 0.092, p = 0.0003; with MNI coordinates 0.087, p = 0.0007 | `delta_tracking.csv` | Data ready; not plotted |
+
+**Why panel b, and why it replaces the balance panels.** Panel b answers the
+first question a reader will ask of panel a: is LWPC simply large wherever
+congruency is large? Yes, and more so than wherever the switch cost is large.
+The balance-vs-balance correlation (congruency − switch against LWPC − LWPS) is
+not a separate result. Its covariance equals the two matched covariances minus
+the two crossed ones (N4 §16.6.5), so it is the significance test of "matched
+exceeds crossed". Showing the four correlations, with that test as the
+annotation, says the same thing without asking the reader to think in balances.
+All four bars are positive: electrodes with larger base effects of either kind
+adapt more on both. That is the shared component, and it is consistent with
+panel a.
 
 **Design notes.**
 
 - Panel a plots the scores the test correlates, not `joint_scatter.png`, whose
   numbers are not the pre-specified test. Specification and caption:
   [closing figure plan › Panel a](analysis_plans.md#panel-a).
-- Panel c: matched small multiples with shared axes and one legend, participant
-  means ± SEM, no electrode scatter. It replaces the "by height" panels; the
-  height version goes to S-N4.
-- Test 2 (is the gradient inherited?) has no panel. It cannot say how much of
-  the gradient is inherited. It gets one sentence in the text and goes to S-N4.
+- Panel b: group the bars by adaptation effect (LWPC: congruency, switch;
+  LWPS: switch, congruency), matched bar filled and crossed bar open, shared y
+  axis from 0. `delta_tracking.csv` has r and p but no interval. If an interval
+  is wanted, it needs a participant bootstrap over the split-resolved
+  correlation (new code); do not draw the permutation null as an error bar.
 - Brain maps appear only as coverage or illustration, with a legend line saying
-  single electrodes are not interpretable.
+  single electrodes are not interpretable. Single-electrode reliability is
+  ~0.3, so a map of the scores cannot carry a claim. The correlations in a and
+  b are the statistical version of comparing the maps.
 
-**Placement of each result** (§17.4 of the N4 doc):
+**Placement of each result** (supersedes the table in §17.4 of the N4 doc):
 
 | Result | Where |
 |---|---|
 | LWPC and LWPS share electrodes; no centroid separation | Main text, headline (F5a) |
 | Congruency and switch share electrodes | Main text, as the reference (F5a) |
-| Adaptation balance differs across parcels | Main text; omnibus only, never a named parcel |
-| Base-effect balance differs across parcels, in step | Main text (F5b); the label correlation is descriptive |
-| Electrode-level tracking, process-specific (Test 1) | Main text (F5d); the most defensible link between levels |
-| Coordinate gradient | Main text, secondary |
-| Dorsomedial vs ventrolateral; carried by LWPC | Main text, labelled exploratory (F5c) |
-| Inheritance (Test 2) | One sentence; details in S-N4 |
+| Each adaptation tracks its own base effect more than the other (Test 1, matched vs crossed) | Main text (F5b); pre-specified, survives coordinates |
+| Adaptation balance differs across parcels; coordinate gradient | Main text, one short paragraph with the pre-specified tests only, pointing to S-N4. Omnibus only, never a named parcel. |
+| Base-effect balance differs across parcels, in step (label r = 0.73) | S-N4 (old F5b); the label correlation is descriptive |
+| Dorsomedial vs ventrolateral; carried by LWPC | S-N4, labelled exploratory (old F5c) |
+| Inheritance (Test 2) | S-N4 only |
 
-**What would change it:** the task-significant rerun with main effects. Settling
-whether the gradient is inherited would need a more reliable measure of the
-base-effect balance than these trial counts give (split-half reliability 0.08).
+**What would change it:** the task-significant rerun with main effects. If the
+advisor wants the gradient in the main text, old b and c are specified in
+§16.7.3 of the N4 doc and can move back as F5c–d.
 
 **Open for the advisor** (closing figure plan, "Open questions"): all lPFC as
-the primary set; lPFC-only scope; whether to name the axis "dorsomedial versus
-ventrolateral" or keep height as the headline; whether the gradient appears in
-the abstract (recommendation: at most one clause).
+the primary set; lPFC-only scope; the gradient's weight. Recommendation: one
+paragraph in Results, not in the abstract, with the axis named in S-N4 only.
+That makes the axis-naming question a supplement detail.
 
 #### Timing (A5): fold in or drop
 
@@ -335,13 +355,13 @@ work. Renumber at submission.
 | S2c | LWPC and LWPS traces within congruency, switch and both groups, selected on half A and tested on half B, with the group × effect-type test | Not run | – |
 | S2d | N2 direction tests (old F3d): for LWPC and LWPS, each simple effect and the difference waves, each with its own cluster bar | Implemented; results not collected | §2.3 |
 | S3 | Low-frequency bands, rerun with a ≥ 1 s baseline that predates the block context | Not run. Do not use the current low-band results: the 0.5 s pre-stimulus baseline is 2–4 cycles at theta and may contain the block-level effect. | – |
-| S4 | Absent cross-effects, as scope | – | One sentence in Results |
+| S4 | Absent behavioral cross-effects, as scope (the neural ones are F3b's off-diagonal) | – | One sentence in Results |
 | S5 | Congruency ↔ switch cross-decoding, labelled as base-effect geometry: the unselected lPFC transfer with its ceilings, `remove_mean`, RT-matched vs random, occipital | Run 2026-10-01. Seeds, the electrode-matched region comparison, the positive controls, `mean_only` and response-locked runs still to do. | §2.6, §3.6 |
 | S6 | Haufe-transformed decoder patterns, as convergent evidence | Optional; not run | – |
 | S7 | Per-participant high-gamma traces; demographics, electrode counts, exclusions | To build | – |
 | S8 | Cross-decoding control table for every transfer reported | The A4 block is filled in ([`decoding.md` › A4 §13.7](decoding.md#137-what-to-report-and-where-things-stand)); pseudo-trial counts missing | – |
 | S10 | Per-trial-baseline robustness rerun of the power traces; direct block comparisons | Not run | – |
-| S-N4 | Anatomy in full: the task-significant set; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models and panel c by height; Test 2 with the reliability and bootstrap; map similarity | All-lPFC parts ready. The task-significant set has LWPC/LWPS only; its main-effect rerun is pending. | §3.5 |
+| S-N4 | Anatomy in full: the task-significant set; the two balances by parcel (old F5b); the four scores by distance from the midline (old F5c) and by height; per-parcel bars, coverage, leave-one-out tables; both coordinate tables and the hemisphere fits; the height vs midline models; Test 2 with the reliability and bootstrap; map similarity | All-lPFC parts ready; old F5b and F5c have data, not plots. The task-significant set has LWPC/LWPS only; its main-effect rerun is pending. | §3.5 |
 | S-BB | Brain–behavior across participants: RT-adjusted (primary) and raw correlations, reliabilities, ceiling, power | Run 2026-09-30; text final | §2.7, §3.7, §5.3 |
 
 ### 1.6 Left out of the paper
@@ -365,10 +385,11 @@ work. Renumber at submission.
 - [ ] Copy the all-lPFC anatomy folder before the task-significant rerun; the
       rerun writes to the same path (§17.1 of the N4 doc).
 - [ ] Rerun the task-significant set with main effects; report it in full.
-- [ ] Plot F5 panels a–d.
+- [ ] Plot F5 panels a–b, and the two S-N4 panels that were F5b–c.
 - [ ] Leave-one-participant-out on the pre-specified LWPC–LWPS correlation, and
       its p from 10,000 permutations.
-- [ ] Advisor decisions: primary set, scope, axis name, abstract.
+- [ ] Advisor decisions: primary set, scope, and the gradient's weight (the
+      recommendation is one Results paragraph and S-N4; §1.4, F5).
 
 **F1–F4:**
 
@@ -613,6 +634,17 @@ It replaces the bracketed N4 template in `methods.md` for the all-lPFC analysis.
 ⚠️ The last sentence mentions weighted centres, which §1.6 leaves out of the
 paper. Drop "and per-participant weighted centres" if they are not shown.
 
+With F5 cut to two panels (§1.4), two changes when this goes into the
+manuscript:
+
+- After the Test 1 sentence, add: "Because the covariance of the two balances
+  equals the two matched covariances minus the two crossed ones, Test 1 tests
+  whether each adaptation effect tracks its own base effect more closely than
+  the other." The Results (§3.4) lean on this.
+- The coordinate test, the exploratory follow-ups and Test 2 now report
+  results that sit mainly in S-N4. Keep them here or move them to the
+  supplementary methods, to match where the journal puts S-N4.
+
 ### 2.6 Congruency ↔ switch-type cross-decoding (S5)
 
 *Copied from [`methods.md` › A4](methods.md#a4-congruency--switch-type-cross-decoding), Methods.*
@@ -820,79 +852,70 @@ block types differ, trial counts per class, and any pre-stimulus windows.
 
 ### 3.4 How the two adaptations are organized across lPFC (F5)
 
-*Copied from §17.3 of [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#173-results).
-Every number was checked against the run's outputs on 2026-10-01; §17.5 there
-gives each number's source file.*
+*Restructured on 2026-10-01 from §17.3 of
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#173-results) for the
+two-panel F5 (§1.4). It no longer copies §17.3: the order and emphasis differ.
+The numbers are §17.3's and the new ones are from §16.6.2 and §16.6.5 of that
+doc. All were checked against the run's outputs on 2026-10-01; §17.5 there
+gives each number's source file. The parcel and gradient detail that left the
+main text is in §3.5 below.*
 
-> **LWPC and LWPS share electrodes, and their balance varies across lPFC.** We
-> scored every lPFC electrode (398 electrodes, 22 participants) for LWPC and
-> LWPS. Across this anatomically defined set both adaptation effects were small
-> on average (mean Cohen's *d* = 0.01 for LWPC and 0.05 for LWPS; 49 % and 56 %
-> of electrodes positive), and single-electrode estimates were noisy
-> (full-data split-half reliability 0.27–0.30), so we tested only
-> population-level summaries. The two effects shared electrodes. LWPC and LWPS
-> scores from separate halves of the trials were positively correlated within
-> participants (Spearman *r* = 0.10, *p* < 0.001; 397 electrodes, 21
-> participants), and electrodes positive for each effect did not differ in
-> location (centroid distance 1.4 mm, *p* = 0.95).
+> **LWPC and LWPS share electrodes.** We scored every lPFC electrode (398
+> electrodes, 22 participants) for LWPC and LWPS. Across this anatomically
+> defined set both adaptation effects were small on average (mean Cohen's
+> *d* = 0.01 for LWPC and 0.05 for LWPS; 49 % and 56 % of electrodes positive),
+> and single-electrode estimates were noisy (full-data split-half reliability
+> 0.27–0.30), so we tested only population-level summaries. The two effects
+> shared electrodes. LWPC and LWPS scores from separate halves of the trials
+> were positively correlated within participants (Spearman *r* = 0.10,
+> *p* < 0.001; 397 electrodes, 21 participants; Fig. 5a), and electrodes
+> positive for each effect did not differ in location (centroid distance
+> 1.4 mm, *p* = 0.95). The base effects that the two adaptations act on,
+> congruency and switch type, were scored from the same trials and halves with
+> the proportion blocks weighted equally. They also shared electrodes
+> (*r* = 0.23, *p* < 0.001).
 >
-> The balance between the two effects (LWPC − LWPS within each electrode)
-> nevertheless differed across Destrieux parcels (19 parcels sampled in at
-> least three participants; *F* = 1.91, label-exchange permutation
-> *p* = 0.010; *p* = 0.003–0.057 with each participant left out). No single
-> parcel differed from zero after FDR correction (all *q* ≥ 0.13).
-> Descriptively, the superior frontal gyrus and sulcus leaned toward LWPS. The
-> balance also varied with position (MNI coordinates: block *F* = 2.85,
-> *p* = 0.031). Relative to LWPS, LWPC was weaker dorsally (*z* slope −0.0077
-> SD/mm, *p* = 0.008; Bonferroni-corrected over three axes, *p* = 0.023). The
-> predicted anterior–posterior axis showed no effect (*p* = 0.58). Height
-> explained about 2 % of the balance's variance, and the slope replicated
-> across independent halves of the trials (*p* = 0.005). Height and distance
-> from the midline are correlated across lPFC electrodes (within-participant
-> *r* = −0.58), so the two cannot be fully separated. In an exploratory model,
-> distance from the midline described the gradient better than height
-> (distance *p* = 0.019, height *p* = 0.53), so we describe it as dorsomedial
-> versus ventrolateral. In an exploratory breakdown by score, LWPC carried the
-> gradient: it was slightly reversed within about 27 mm of the midline
-> (adjusted *d* = −0.07) and positive farther out (0.04–0.06; slope
-> *p* = 0.006), whereas LWPS did not vary (*p* = 0.75).
+> **Each adaptation tracks the effect it regulates.** Electrode by electrode,
+> on separate trial halves, each adaptation effect correlated more with its
+> own base effect than with the other one (congruency–LWPC *r* = 0.22 vs
+> switch–LWPC 0.12; switch–LWPS 0.17 vs congruency–LWPS 0.13; Fig. 5b). We
+> tested this difference with the correlation between congruency − switch and
+> LWPC − LWPS, whose covariance equals the two matched covariances minus the
+> two crossed ones, so that anything common to all four scores cancels. It was
+> positive (*r* = 0.09, *p* < 0.001) and held with MNI coordinates partialled
+> out (*r* = 0.09, *p* < 0.001), so the link is local rather than a gradient
+> that the two maps share. For LWPS the matched base effect was the less
+> reliable map (within-participant split-half reliability 0.23 for switch,
+> 0.35 for congruency) and still correlated more, so that difference is not
+> one of reliability. All four correlations were positive: electrodes with
+> larger base effects of either kind adapted more on both.
 >
-> **The adaptation balance tracks the balance of the demands.** To ask whether
-> this organization follows the demands being regulated, we scored the
-> congruency and switch-type main effects from the same trials and halves,
-> weighting the proportion blocks equally. The base effects also shared
-> electrodes (*r* = 0.23, *p* < 0.001). Their balance (congruency − switch)
-> also differed across parcels (*F* = 1.70, *p* = 0.017; *p* ≤ 0.058 with any
-> one participant left out), in step with the adaptation balance (*r* = 0.73
-> across the 19 parcel means; same sign in 13). Electrode by electrode, on
-> separate trial halves, the two balances were linked: where congruency
-> dominated, LWPC dominated (*r* = 0.09, *p* < 0.001), and the link held with
-> coordinates partialled out (*r* = 0.09, *p* < 0.001). It was process-specific:
-> each adaptation effect tracked its own main effect more closely than the
-> other one (congruency–LWPC *r* = 0.22 vs switch–LWPC 0.12; switch–LWPS 0.17
-> vs congruency–LWPS 0.13). The base-effect balance showed no significant
-> gradient (*F* = 1.81, *p* = 0.13); its slope pointed the same way at about
-> half the size. Neither congruency nor switch varied detectably with distance
-> from the midline (*p* ≥ 0.34). Adding the base-effect balance as a covariate
-> reduced the adaptation gradient by 10 % (*z* slope still *p* = 0.015).
-> Because the base-effect balance was measured with low reliability
-> (split-half *r* = 0.08), full inheritance would produce a reduction of only
-> about 15 %, and the participant-bootstrap interval (−20 % to 40 %) includes
-> both no inheritance and full inheritance.
+> **The balance between the two adaptations varies modestly across lPFC.** The
+> balance between the two effects (LWPC − LWPS within each electrode) differed
+> across Destrieux parcels (19 parcels sampled in at least three participants;
+> *F* = 1.91, label-exchange permutation *p* = 0.010; *p* = 0.003–0.057 with
+> each participant left out), although no single parcel differed from zero
+> after FDR correction (all *q* ≥ 0.13). It also varied with position (MNI
+> coordinates: block *F* = 2.85, *p* = 0.031): relative to LWPS, LWPC was
+> weaker dorsally (*z* slope *p* = 0.008; Bonferroni-corrected over three
+> axes, *p* = 0.023). The predicted anterior–posterior axis showed no effect
+> (*p* = 0.58), and height explained about 2 % of the balance's variance. This
+> gradient and its relation to the base effects are described in
+> Supplementary **[S-N4]**.
 >
 > Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
-> population. Electrode by electrode, their balance follows the local balance
-> of the demands each regulates, and it shifts modestly between dorsomedial and
-> ventrolateral lPFC. Whether that shift is inherited from the base effects
-> could not be determined. In the task-responsive subset (171 electrodes, 21
-> participants) the estimates were similar but not significant (Supplementary
-> **[S-N4]**).
+> population, and each tracks the local strength of the effect it regulates.
+> In the task-responsive subset (171 electrodes, 21 participants) the
+> estimates were similar but not significant (Supplementary **[S-N4]**).
+> **[Revise this sentence once the subset's main-effect rerun is done.]**
 
 ### 3.5 Anatomy supplement (S-N4)
 
 *The first paragraph is adapted from the task-significant draft in §15.12 of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#1512-reporting),
-recast as the consistency check now that all lPFC is primary. The others are
+recast as the consistency check now that all lPFC is primary. The next two
+paragraphs ("The adaptation gradient", "The base-effect balance") are the §17.3
+text that left the main text on 2026-10-01 (§3.4 above). The others are
 written here from the numbers in §16.6.6 and the §17.3 supplement additions of
 that doc. Add the task-significant main-effect results once the rerun is done.*
 
@@ -910,6 +933,30 @@ that doc. Add the task-significant main-effect results once the rerun is done.*
 > the remaining electrodes, *p* = 0.67). With the observed slope planted, this
 > electrode layout reaches *p* < 0.05 in 26 % of simulations, against 66 % for
 > all lPFC electrodes. **[Main-effect results for this subset, once run.]**
+>
+> **The adaptation gradient.** In all lPFC, the dorsal weakening of LWPC
+> relative to LWPS had a *z* slope of −0.0077 SD/mm, and it replicated across
+> independent halves of the trials (*p* = 0.005). Descriptively, the superior
+> frontal gyrus and sulcus leaned toward LWPS. Height and distance from the
+> midline are correlated across lPFC electrodes (within-participant
+> *r* = −0.58), so the two cannot be fully separated. In an exploratory model,
+> distance from the midline described the gradient better than height
+> (distance *p* = 0.019, height *p* = 0.53), so we describe it as dorsomedial
+> versus ventrolateral. In an exploratory breakdown by score, LWPC carried the
+> gradient: it was slightly reversed within about 27 mm of the midline
+> (adjusted *d* = −0.07) and positive farther out (0.04–0.06; slope
+> *p* = 0.006), whereas LWPS did not vary (*p* = 0.75; Supplementary Fig.
+> **[S-N4, scores by distance from the midline]**).
+>
+> **The base-effect balance.** The balance between the base effects
+> (congruency − switch) also differed across parcels (*F* = 1.70, *p* = 0.017;
+> *p* ≤ 0.058 with any one participant left out), in step with the adaptation
+> balance (*r* = 0.73 across the 19 parcel means; same sign in 13;
+> Supplementary Fig. **[S-N4, balances by parcel]**). The parcel means share
+> trials, so this correlation is descriptive. The base-effect balance showed no
+> significant gradient (*F* = 1.81, *p* = 0.13); its slope pointed the same way
+> at about half the size. Neither congruency nor switch varied detectably with
+> distance from the midline (*p* ≥ 0.34).
 >
 > **Hemispheres.** Fitted within each hemisphere, the adaptation balance varied
 > with position in the left (*F* = 4.22, *p* = 0.005; 254 electrodes) but not
@@ -934,12 +981,17 @@ that doc. Add the task-significant main-effect results once the rerun is done.*
 > noise-corrected ratio is not estimable, so we report the three values side by
 > side.
 
-Figures and tables for S-N4: per-parcel bars (`delta_by_roi.png`,
-`dm_by_roi.png`), coverage (`coverage_matrix.csv`), leave-one-out tables
-(`delta_roi_loso.csv`, `dm_roi_loso.csv`), both coordinate tables
-(`score_anatomy.json` → `coordinates`, `dm_coordinates.csv`), the height vs
-midline models (script §1), panel c by height (`panel_c_height.csv`), and Test 2
-(`tilt_with_dm.csv`, script §5).
+Figures and tables for S-N4: the two balances by parcel (old F5b;
+`panel_b_label_means.csv`, script §4), the four scores by distance from the
+midline (old F5c; `panel_c_midline.csv`, script §3) and by height
+(`panel_c_height.csv`), per-parcel bars (`delta_by_roi.png`, `dm_by_roi.png`),
+coverage (`coverage_matrix.csv`), leave-one-out tables (`delta_roi_loso.csv`,
+`dm_roi_loso.csv`), both coordinate tables (`score_anatomy.json` →
+`coordinates`, `dm_coordinates.csv`), the height vs midline models (script §1),
+and Test 2 (`tilt_with_dm.csv`, script §5). The design notes for the two old F5
+panels still apply: participant means ± SEM, no electrode scatter, and the
+scores as matched small multiples with shared axes and one legend
+(§16.7.3 of the N4 doc).
 
 ### 3.6 Congruency ↔ switch-type cross-decoding (S5)
 
@@ -1040,11 +1092,28 @@ to the N4 overlap result.*
 > a test needs many more participants, many more trials per participant, or
 > both.
 
-**Anatomy limits to state** (§17.4 of the N4 doc): the effects are small (height
-explains ~2 % of the balance's variance; no parcel survives FDR); LWPC averages
-*d* ≈ 0.01 across all lPFC, so the gradient is LWPC slightly reversed medially
-and slightly positive laterally; the axis was not predicted and the predicted
-anterior–posterior axis is null; and inheritance could not be resolved.
+**What the matched correlations mean (F5b).** *Written here from §16.6.5 of
+[`n4_continuous_anatomy.md`](n4_continuous_anatomy.md). It goes after the
+overlap result.*
+
+> Each adaptation effect was larger at electrodes with a larger base effect of
+> its own kind. A proportional reduction would produce this: if each
+> electrode's congruency effect shrinks by a similar fraction in mostly
+> incongruent blocks, electrodes with larger congruency effects lose more in
+> absolute terms. The result argues against adaptation being expressed mainly
+> by electrodes that do not carry the effect being regulated.
+
+**Anatomy limits to state** (§17.4 of the N4 doc):
+
+- The effects are small: single-electrode reliability is ~0.3, LWPC averages
+  *d* ≈ 0.01 across all lPFC, and the matched–crossed gaps are 0.04–0.10 in r.
+- For LWPC the matched base effect (congruency) is also the more reliable map,
+  so reliability could contribute to that pair's gap; the LWPS pair rules
+  reliability out only for LWPS.
+- The gradient (main text one paragraph, detail in S-N4): no parcel survives
+  FDR, height explains ~2 % of the balance's variance, the axis was not
+  predicted and the predicted anterior–posterior axis is null. Inheritance
+  could not be resolved; it is stated in S-N4 only.
 
 ---
 
@@ -1080,8 +1149,8 @@ encoding of fix 1 there, not the current figure.*
 Panel a's caption text follows the
 [closing figure plan › Panel a](analysis_plans.md#panel-a).*
 
-> **Fig. 5 | LWPC and LWPS adaptation share lPFC electrodes, and their balance
-> follows the balance of the demands they regulate.** All lPFC electrodes (398
+> **Fig. 5 | LWPC and LWPS adaptation share lPFC electrodes, and each tracks
+> the effect it regulates.** All lPFC electrodes (398
 > electrodes, 22 participants). **a**, Each point is one electrode's score from
 > all trials, after regressing out overall responsiveness and subtracting each
 > participant's mean (397 electrodes from the 21 participants with at least
@@ -1090,19 +1159,14 @@ Panel a's caption text follows the
 > against the other score from the other half, averaged over 1,000 random
 > splits (Spearman; within-participant permutation null). Because each half has
 > half the trials, *r* is smaller than the correlation among the plotted
-> points. **b**, The two balances by Destrieux parcel: adjusted mean
-> congruency − switch (*x*) against adjusted mean LWPC − LWPS (*y*), one point
-> per parcel sampled in at least three participants (19 parcels), sized by
-> electrode count and coloured by distance from the midline. *F* and *p* are
-> each balance's parcel test (label-exchange permutation). The parcel means
-> share trials, so their correlation is descriptive. **c**, Congruency, switch,
-> LWPC and LWPS (Cohen's *d*, participant and responsiveness removed) by
-> tertile of distance from the midline; mean ± SEM across participants.
-> Exploratory. **d**, Electrode-level correlations on separate trial halves
-> between congruency − switch and LWPC − LWPS, with and without MNI
-> coordinates partialled out, and for the matched (congruency–LWPC,
-> switch–LWPS) and crossed (congruency–LWPS, switch–LWPC) pairings. Spearman
-> *r*, within-participant permutation *p*.
+> points. **b**, Electrode-level correlations, on separate trial halves,
+> between each adaptation effect and its own base effect (filled;
+> congruency–LWPC, switch–LWPS) or the other base effect (open; switch–LWPC,
+> congruency–LWPS). Scores and test as in **a**. The annotated test is the
+> correlation between congruency − switch and LWPC − LWPS, whose covariance is
+> the two matched covariances minus the two crossed ones; it is given with and
+> without MNI coordinates partialled out. Spearman *r*, within-participant
+> permutation *p*.
 
 ### 5.3 Supplementary Fig. S-BB
 
@@ -1124,7 +1188,22 @@ and the ceiling instead of R² (R² drops the sign; LWPS is r = −0.06).*
 > reliability, so no ceiling is given. Significance at α = .05 required
 > |r| ≥ 0.48.
 
-### 5.4 Still to write
+### 5.4 Supplementary S-N4: the two panels that left F5 (draft)
 
-F1, F2 and F4 captions, Supplementary S5 (cross-decoding traces with ceilings, transfer
-and control runs), and S-N4.
+*The old Fig. 5 caption's panels b and c, kept when they moved to S-N4.*
+
+> **The two balances by Destrieux parcel.** Adjusted mean congruency − switch
+> (*x*) against adjusted mean LWPC − LWPS (*y*), one point per parcel sampled
+> in at least three participants (19 parcels), sized by electrode count and
+> coloured by distance from the midline. *F* and *p* are each balance's parcel
+> test (label-exchange permutation). The parcel means share trials, so their
+> correlation is descriptive.
+>
+> **The four scores by distance from the midline.** Congruency, switch, LWPC
+> and LWPS (Cohen's *d*, participant and responsiveness removed) by tertile of
+> distance from the midline; mean ± SEM across participants. Exploratory.
+
+### 5.5 Still to write
+
+F1, F2 and F4 captions, Supplementary S5 (cross-decoding traces with ceilings,
+transfer and control runs), and the rest of S-N4.

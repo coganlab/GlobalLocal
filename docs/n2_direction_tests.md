@@ -10,6 +10,25 @@ It assumes nothing about what you remember. If you only read one section, read
 [§2 The sign convention](#2-the-sign-convention-read-this-first) — every other
 number in this document is meaningless without it.
 
+> **Where N2 sits in the paper (2026-10-01).** The direction in Fig. 3 does not
+> come from this analysis. F3b's bars are the windowed ANOVA's two-way
+> interaction clusters, run on the block-balanced sets
+> (`stimulus_lwpc_block_balanced_conditions`,
+> `stimulus_lwps_block_balanced_conditions`) and split at sign changes. A blue
+> (negative) bar is the adaptation direction (§2 table). Both adaptation
+> clusters are blue, so the figure carries the direction itself. The three
+> tests here are now supplementary (S2d, the old F3d), and the two simple
+> effects go in the Results text.
+> Layout: [`paper_draft.md`](paper_draft.md) §1.4, F3. Two consequences:
+>
+> - The ANOVA computes each cluster's p (`sig_clusters_with_sign`) but does not
+>   save it. `power_traces_dcc.py` writes only masks and the signed contrast to
+>   `anova_F_traces/*.npz`, and the interaction npz gets an empty
+>   `cluster_p_values`. Save it before reporting a p.
+> - This analysis runs on the 4-cell sets; the figure's ANOVA runs on the
+>   8-cell block-balanced sets (§4.2, §8 item 3). Either say so, or recompute
+>   the simple effects from the block-balanced `_evoked.npz` files.
+
 ---
 
 ## 0. Where the code actually lives
@@ -97,7 +116,7 @@ compare numbers across them without converting, you will read the result backwar
 |---|---|---|
 | `power_traces_dcc.py` interaction follow-up (**this analysis**) | **low − high** | positive = adaptation |
 | `stability_flexibility_segregation.W_INTERACTION` (`:519`) | **low − high** | same convention — agrees with N2 |
-| `windowed_anova._signed_contrast_per_window` (`:37`) | **high − low** | orders factor levels *alphabetically*; only used to split clusters at sign flips and colour pos/neg bars, neither of which depends on absolute orientation |
+| `windowed_anova._signed_contrast_per_window` (`:37`) | **high − low** | orders factor levels *alphabetically* (`c` < `i`, `r` < `s`, `25%` < `75%`), so its 2 × 2 contrast is −(low − high). It splits clusters at sign flips and colours the bars. Splitting does not depend on absolute orientation, but the colour does, and F3 reads the direction off it: in `plot_2way_interaction_for_roi`, a **blue** (negative) bar is the adaptation direction and a red (positive) bar is the opposite |
 | `power_traces_dcc.py:531` `signed_contrast` in the saved ANOVA npz | **high − low** | inherits the above. The inline comment says "Flip it when reading." |
 | cross-decoding `block_difference` | high − low on *accuracy* | not a condition effect; has no adaptation direction |
 
