@@ -1,16 +1,17 @@
 # Methods text
 
-Manuscript-ready Methods for the segregation and anatomy analyses. Bracketed
+Manuscript-ready Methods for the segregation, anatomy and cross-decoding analyses. Bracketed
 quantities are run-dependent: fill them in from the archived run.
 
 | Part | What it covers | Was |
 |---|---|---|
 | [N4: segregation and continuous anatomy](#n4-segregation-and-continuous-anatomy) | The combined N4 Methods, written for the primary configuration of the continuous anatomy pipeline: per-electrode LWPC/LWPS scores on disjoint halves, the coverage-conditioned anatomical test, the coordinate follow-ups, the maps, and the descriptive medoids | `n4_anatomy_segregation_methods.md` |
 | [Segregation: cluster and Cohen's d versions](#segregation-cluster-and-cohens-d-versions) | Two interchangeable write-ups of the segregation analysis on its own, one per effect measure (`cluster`, `cohens_d`), with the implementation-status notes and a parameter appendix | `stability_flexibility_segregation_methods.md` |
+| [A4: congruency ↔ switch-type cross-decoding](#a4-congruency--switch-type-cross-decoding) | Methods, a draft results paragraph and the limitations for supplement S5: the unselected lPFC transfer, its RT and overall-activity controls, the occipital comparison | new |
 
 The N4 text is the newer one (2026-09-17) and matches the current primary
 configuration. The segregation versions date from 2026-08 (last edited
-2026-09-17).
+2026-09-17). The A4 text dates from 2026-10-01.
 
 ---
 
@@ -880,3 +881,144 @@ Software: Python, NumPy, SciPy, pandas, statsmodels
 (`StratifiedTable` for the CMH test, `multipletests` for FDR, `smf.ols` /
 `anova_lm` for the Type III ANOVA cross-check), and `ieeg` for HG extraction and
 the optional permutation cluster mask.
+
+---
+
+## A4: congruency ↔ switch-type cross-decoding
+
+*Methods and results text — supplementary S5*
+
+Written 2026-10-01 from the runs in
+[`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01), for supplement
+S5 with the control table S8
+([`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan)).
+Bracketed quantities come from the slurm log or from runs not yet done. The
+results paragraph states only what the full-trial runs support. Revise it once
+the seeds, the electrode-matched region comparison and the positive controls are
+in (§13.8.4 of that section).
+
+### Methods
+
+**Data and electrodes.** We used the stimulus-locked high-gamma epochs described
+above (70–150 Hz, −1.0 to 1.5 s, decimated to 256 Hz; correct trials only; the
+first trial of each block omitted). We decoded all lateral prefrontal electrodes
+whose high gamma exceeded their pre-stimulus baseline (171 electrodes from 21
+participants). Electrodes were not selected for a congruency or switch-type
+effect. As a regional comparison we repeated every analysis on the task-responsive
+occipital electrodes (54 electrodes from **[N]** participants).
+
+**Conditions and pseudopopulation.** Trials were sorted into the four congruency
+× switch-type cells, each pooled over the four block types. For each cell, each
+electrode's outlier trials were removed and the electrode was randomly subsampled
+to the smallest number of clean trials of any electrode in that cell
+(**[n]** pseudo-trials per cell). Electrodes from all participants were then
+concatenated into one pseudopopulation. Because electrodes were sampled
+independently, a pseudo-trial combines different trials of the same condition
+across electrodes, including electrodes from the same participant.
+
+**Decoding.** Each 250-ms window (64 samples, stepped by 62.5 ms; 37 windows) was
+decoded separately. The features were every electrode's samples in that window.
+The classifier was principal component analysis (components explaining 80% of the
+training variance, refit in each fold) followed by linear discriminant analysis
+with equal class priors. We used stratified five-fold cross-validation, repeated
+ten times. Folds were stratified on the four cells, so every test fold was
+balanced on both labellings. Accuracy was the mean of the two classes' hit rates.
+
+**Cross-decoding.** On each fold we trained one classifier on congruency
+(incongruent vs congruent) and one on switch type (switch vs repeat). Each was
+scored on held-out trials against both labellings. Scoring against the training
+labelling gives the within-contrast accuracy (the *ceiling*). Scoring against the
+other labelling gives the *transfer*. Incongruent was paired with switch and
+congruent with repeat, so a shared axis on which the harder condition of each
+contrast falls on the same side yields above-chance transfer. Each transfer was
+expressed as the share of its ceiling's above-chance accuracy that it retained,
+(transfer − 0.5) / (ceiling − 0.5), averaged over the windows in which the ceiling
+was significant.
+
+**Statistics.** For each decode, the null distribution came from permuting the
+training labels within each fold and refitting. True-label accuracies (ten CV
+repeats) were compared with the null by a one-tailed cluster-based permutation
+test over windows (500 permutations, α = 0.05). The same test compared each
+transfer with its ceiling. Windows centred at or before −0.125 s, which contain no
+post-stimulus sample, served as a check on artifacts. Because the samples entering
+these tests are CV repeats of a single pseudopopulation rather than participants,
+we treat the window-wise results as a within-dataset reliability measure, not as
+population inference.
+
+**Controls.**
+
+- *Response time.* Incongruent and switch trials were slower. In each
+  participant, RTs were pooled across the four cells and cut into ten quantile
+  bins. Within each bin we kept, at random, the same number of trials from each
+  cell. This left 48% of trials and removed the RT costs (incongruent − congruent:
+  +160 → +2 ms, p = 0.45; switch − repeat: +195 → +2 ms, p = 0.39; across 24
+  participants). A control drew the same number of trials per participant and
+  cell without regard to RT, keeping the RT costs (+156 and +208 ms). The
+  RT-matched result is compared with this control, not with the full-trial result.
+- *Overall activity.* To ask whether the transfer reflected a uniform change in
+  activity, we subtracted each participant's mean across its electrodes, per
+  pseudo-trial and time point, before decoding. Participants contributing a single
+  electrode carry no information after this step (2 of 21).
+
+**[Positive controls, the response-locked analysis and the seed repeats go here
+once run.]**
+
+### Results (draft)
+
+Congruency and switch type were each decodable from the task-responsive lPFC
+population. Congruency was decodable from the window centred at +0.12 s, with
+peak accuracy 0.76. Switch type was decodable from +0.31 s, with peak 0.76. A
+congruency decoder also predicted switch type, and a switch-type decoder predicted
+congruency, but only from the window centred at +0.62 s (covering 0.50–0.75 s)
+onward, and well below the within-contrast accuracy. The congruency decoder
+retained 47% of switch type's above-chance accuracy, and was below it in 19 of 37
+windows. The switch-type decoder retained 26% of congruency's, and was below it in
+28 windows. No window before the stimulus was significant in any of the four
+decodes. Removing each participant's mean activity lowered both within-contrast
+accuracies (peaks 0.63 and 0.65) but left the transfers nearly unchanged (15 and
+14 windows; 81% and 77% retained). The shared component is therefore not a uniform
+rise in activity. The two contrasts thus engage the same electrodes along largely
+distinct population codes, sharing a component that appears only late in the
+trial.
+
+**[One of the following, depending on the seeds:]** *(if the RT-matched − random
+gap exceeds the seed spread)* After matching RTs across the four cells, the
+transfer was reduced relative to a trial-count control (congruency → switch: 43%
+vs 70% retained; switch → congruency: 12% vs 39%) and confined to 0.5–1.1 s after
+the stimulus, before most responses (median RT 1.17 s). Part of the shared
+component therefore reflects the RT difference shared by incongruent and switch
+trials. *(otherwise)* RT matching did not change the transfer beyond the
+variability between pseudopopulation draws.
+
+**[Region sentence, once lPFC has been subsampled to 54 electrodes:]** Occipital
+electrodes showed a transfer retaining a similar share of their ceilings (54% and
+23%), but at +1.0 s and later rather than at 0.5–1.0 s.
+
+### Limitations to state
+
+- The samples in every test are CV repeats of one pseudopopulation, and there is
+  no estimate across participants (no leave-one-participant-out).
+- Electrodes from different participants were never recorded together. A
+  pseudopopulation code is an upper bound on what any one participant's lPFC
+  shares.
+- The overall-activity control removes only a shift common to all of a
+  participant's decoded electrodes. A change on a subset of them still counts as
+  pattern.
+- These are the base effects, not their adaptation (LWPC, LWPS). The analysis
+  says nothing about whether the adaptation effects share a code.
+
+### Parameter appendix
+
+| Parameter | Value | Where set |
+|---|---|---|
+| ROI, electrodes | `lpfc` (control: `occ`), task-significant (`sig`), no selection | `ROI`, `ELECTRODES`, `ELECTRODE_DEFINITION=none` |
+| Condition set | 4 cells, congruency × switch type, blocks pooled | `CONDITIONS=stimulus_main_effect_conditions` |
+| Window, step | 64 / 16 samples at 256 Hz (250 / 62.5 ms), 37 windows | `WINDOW_SIZE`, `STEP_SIZE` |
+| Classifier | PCA (80% variance) → LDA, equal priors | `EXPLAINED_VARIANCE`, `make_decoder` |
+| Cross-validation | stratified 5-fold on the four cells, 10 repeats | `N_SPLITS`, `N_REPEATS` |
+| Null | training labels permuted, refit per fold | `cv_cm_jim_window_shuffle(shuffle=True)` |
+| Cluster test | one-tailed, 500 permutations, α = 0.05 | `N_PERM`, `ALPHA` |
+| RT matching | per participant, 10 quantile bins, equal counts per cell | `RT_MATCH=rt`, `RT_MATCH_BINS`, `RT_MATCH_BALANCE` |
+| RT control | same counts, drawn without regard to RT | `RT_MATCH=random` |
+| Activity control | participant mean subtracted per pseudo-trial and time point | `ACTIVITY_CONTROL=remove_mean` |
+| Seed | 0 (folds, pseudo-trial draw, RT draw, cluster tests) | `SEED` |

@@ -5,7 +5,7 @@ The run-and-read guides for every decoding job, in six self-contained parts.
 | Part | What it covers | Was |
 |---|---|---|
 | [Decoding job](#decoding-job) | The ordinary time-resolved decoding job: choosing the electrodes, what is decoded per condition set, every output, and how to read the true-vs-shuffle and block-comparison figures | `decoding.md` |
-| [A4 cross-decoding](#a4-cross-decoding) | Train on congruency, test on switch type (and the reverse): the `anova` / `csv` / `power_traces` / `none` electrode definitions, every knob, the outputs, and the task-transfer positive controls | `a4_cross_decoding.md` |
+| [A4 cross-decoding](#a4-cross-decoding) | Train on congruency, test on switch type (and the reverse): the `anova` / `csv` / `power_traces` / `none` electrode definitions, every knob, the outputs, the task-transfer positive controls, and the control battery with its 2026-10-01 results (§13.8) | `a4_cross_decoding.md` |
 | [N3b block transfer](#n3b-block-transfer) | Train in one kind of block, test in another: the design choices, what was built, and how to run it | `n3b_block_transfer.md` |
 | [Cross-decoding controls](#cross-decoding-controls) | What to run, in what order, when a transfer comes back uninformative, and what each outcome lets you say | `cross_decoding_controls.md` |
 | [RT matching](#rt-matching) | The standalone util that subsamples trials to equal RT distributions, its random-subset control, and how to plug it into any analysis | new |
@@ -669,6 +669,8 @@ the submit script and the Python runner disagree on half the knobs, and the
 submit script's defaults changed on 2026-09-28. If you have a transfer and want
 to know whether it is reportable, read
 [§13 The control battery](#13-the-control-battery-run-it-read-it-report-it).
+The results of the battery so far are in
+[§13.8](#138-results-2026-10-01).
 
 ---
 
@@ -1802,9 +1804,11 @@ electrodes, which changes how trials are paired into pseudo-trials).
 | gone | – | The late transfer is the **RT difference**; once trials are equally fast the codes are separable. |
 | partial | partial | Report the share kept under each control; do not round it to yes or no. |
 
-Whatever the row, also report: the early separability (in the baseline, switch
-type is decodable from ~0 s and congruency from ~0.3 s, but nothing transfers
-until the window covering 0.5–0.75 s), the direction asymmetry (congruency →
+Whatever the row, also report: the early separability (in the 2026-10-01
+baseline, congruency is decodable from the window centred at +0.12 s and switch
+type from +0.31 s, but nothing transfers until the window covering 0.5–0.75 s;
+the 2026-09-29 run had the onset order the other way round, so do not read
+anything into which code appears first), the direction asymmetry (congruency →
 switch keeps more than switch → congruency), and the pre-stimulus windows.
 
 #### 13.6 The groups (`both` vs `*_only`)
@@ -1828,34 +1832,247 @@ Compare groups by `kept`, never by raw accuracy, and against the seed spread.
 
 #### 13.7 What to report, and where things stand
 
-The block to fill in per transfer direction (numbers so far: the 2026-09-29
-`none` run, 171 task-significant lPFC electrodes, pooled 2×2, 250 ms windows):
+The block to fill in per transfer direction (numbers so far: the 2026-10-01
+runs, 171 task-significant lPFC electrodes, pooled 2×2, 250 ms windows; window
+times are centres; §13.8 has every run):
 
 ```
-electrodes          lpfc, task-significant (ELECTRODES=sig), 171 electrodes / __ subjects
-condition set       stimulus_main_effect_conditions (congruency x switch type, blocks pooled)
-decoding            PCA(80%) -> LDA, 5-fold x 10 repeats; 250 ms windows, 62.5 ms steps;
+electrodes          lpfc, task-significant (ELECTRODES=sig), 171 electrodes / 21 subjects
+condition set       stimulus_main_effect_conditions (congruency x switch type, blocks pooled), 9181 trials
+decoding            PCA(80%) -> LDA (equal priors), 5-fold x 10 repeats; 250 ms windows, 62.5 ms steps;
                     cluster-corrected against a refit label-shuffle null (500 permutations)
-ceilings            stab_to_stab: sig from +0.31 s, peak 0.618 @ 1.31 s
-                    flex_to_flex: sig from  0.00 s, peak 0.662 @ 1.12 s
-transfer            stab_to_flex: sig from +0.62 s, peak 0.640 @ 1.12 s, keeps 64%, below ceiling 12 windows
-                    flex_to_stab: sig from +0.62 s, peak 0.576 @ 0.94 s, keeps 39%, below ceiling 18 windows
+ceilings            stab_to_stab: sig from +0.12 s, peak 0.757 @ 0.88 s
+                    flex_to_flex: sig from +0.31 s, peak 0.764 @ 1.19 s
+transfer            stab_to_flex: sig from +0.62 s, peak 0.670 @ 1.00 s, keeps 47%, below ceiling 19 windows
+                    flex_to_stab: sig from +0.62 s, peak 0.608 @ 1.06 s, keeps 26%, below ceiling 28 windows
 pre-stimulus        none
-RT matching         residual RT i-c __ ms (p __), s-r __ ms (p __); keeps __% (rt) vs __% (random)
-response-locked     __
-activity control    keeps __% (remove_mean), __% (mean_only)
-both controls       keeps __% (rt + remove_mean) vs __% (random + remove_mean)
-positive controls   T1 keeps __%; T3 keeps __%
-seeds               keeps __ +/- __ over __ seeds
+RT matching         residual RT i-c +2 ms (p .45), s-r +2 ms (p .39); 4408 of 9181 trials kept (48%)
+                    stab_to_flex keeps 43% (rt) vs 70% (random); flex_to_stab 12% (rt) vs 39% (random)
+                    rt transfer only at +0.62..+1.00 s; both half-trial runs have pre-stimulus windows
+response-locked     not run
+activity control    keeps 81% / 77% (remove_mean); mean_only not run
+both controls       uninterpretable: congruency ceiling 0 windows (rt + remove_mean), 5 (random + remove_mean)
+positive controls   not run
+seeds               not run (baseline vs random, which differ only in trial count, differ by 23 / 13 points)
+region control      occipital, 54 electrodes: keeps 54% / 23%; its ceilings have pre-stimulus windows
 ```
 
-**Done:** the baseline (`none`), and the in-job `anova` and `csv` group runs
-(2026-09-29; §13.6 for their caveats).
-**To run:** everything else in §13.2.
+**Done (2026-10-01):** the baseline, RT matching with its random control,
+`remove_mean`, both controls together, the occipital baseline with its RT pair,
+and the held-out-selection group runs with their RT and activity variants.
+§13.8 has the results.
+**To run:** `mean_only`, the response-locked run, the positive controls, seeds
+(baseline, `rt` and `random` at least), and lPFC subsampled to occipital's
+electrode count (§13.8.4).
+
+The 2026-09-29 numbers that used to fill this block (ceilings peaking at 0.62 and
+0.66, transfers keeping 64% and 39%) came from before the NaN-trial change
+([Changes to A4](#changes-to-a4)) and are not comparable with these.
 
 Two things the controls do not fix, to state in the methods: the cluster tests'
 samples are CV repeats of one pseudopopulation, not subjects (§8.3), and there is
 no leave-one-subject-out for A4 (§10).
+
+#### 13.8 Results, 2026-10-01
+
+Every run here postdates the NaN-trial change ([Changes to A4](#changes-to-a4))
+except the unsplit `anova` group run
+(`cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/`). That one has
+no `rt_match` or `activity_control` line in its `summary.txt`, and its `all`
+group reproduces the 2026-09-29 baseline. Leave it out, or rerun it.
+
+**Short version.** Congruency and switch type are each strongly decodable from
+the 171 task-significant lPFC electrodes, and they share a minority of their
+code. The congruency decoder recovers about half of switch type's decodable
+information and the switch-type decoder about a quarter of congruency's. The
+shared part appears only from ~0.5 s and is not a uniform rise in activity.
+Under RT matching the shared part shrinks and is left only at 0.5–1.1 s. That is
+before most responses (median correct RT 1.17 s), but these half-trial runs sit
+at the noise floor. Occipital cortex shows similar shares at full trials, so
+nothing yet makes the shared part specific to lPFC. The main-effect groups do
+not behave as a shared code predicts, and should not be reported.
+
+##### 13.8.1 Unselected lPFC (171 electrodes, 21 subjects)
+
+`sig` = significant windows of 37. `clusters` = their window centres in s.
+`pre` = windows centred at or before −0.125 s. `kept` and `below` as in §13.3.
+Mean accuracy is left out because it averages in the baseline second (§8.3).
+
+| Run (trials) | Decode | sig | clusters | pre | peak | kept | below |
+|---|---|---|---|---|---|---|---|
+| **baseline** (9181) | stab_to_stab | 21 | +0.12..+1.38 | 0 | 0.757 | | |
+| | flex_to_flex | 18 | +0.31..+1.38 | 0 | 0.764 | | |
+| | stab_to_flex | 13 | +0.62..+1.38 | 0 | 0.670 | 47% | 19 |
+| | flex_to_stab | 13 | +0.62..+1.38 | 0 | 0.608 | 26% | 28 |
+| **remove_mean** (9181) | stab_to_stab | 15 | +0.50..+1.38 | 0 | 0.629 | | |
+| | flex_to_flex | 17 | +0.38..+1.38 | 0 | 0.646 | | |
+| | stab_to_flex | 15 | +0.50..+1.38 | 0 | 0.636 | 81% | 4 |
+| | flex_to_stab | 14 | +0.56..+1.38 | 0 | 0.598 | 77% | 6 |
+| **rt** (4408) | stab_to_stab | 20 | −0.75..−0.44, +0.12..+0.94 | **6** | 0.691 | | |
+| | flex_to_flex | 11 | +0.38..+1.00 | 0 | 0.725 | | |
+| | stab_to_flex | 7 | +0.62..+1.00 | 0 | 0.623 | 43% | 6 |
+| | flex_to_stab | 5 | +0.69..+0.94 | 0 | 0.641 | 12% | 14 |
+| **random** (4408) | stab_to_stab | 18 | +0.31..+1.38 | 0 | 0.761 | | |
+| | flex_to_flex | 12 | +0.69..+1.38 | 0 | 0.718 | | |
+| | stab_to_flex | 17 | −0.56..−0.25, +0.75..+1.38 | **6** | 0.721 | 70% | 14 |
+| | flex_to_stab | 13 | −0.56..−0.38, +0.81..+1.31 | **4** | 0.692 | 39% | 11 |
+| **rt + remove_mean** (4408) | stab_to_stab | **0** | – | 0 | 0.653 | | |
+| | flex_to_flex | 6 | +0.38..+0.69 | 0 | 0.712 | | |
+| | stab_to_flex | 7 | +0.62..+1.00 | 0 | 0.599 | 18% | 6 |
+| | flex_to_stab | 4 | +0.69..+0.88 | 0 | 0.611 | n/a | 8 |
+| **random + remove_mean** (4408) | stab_to_stab | 5 | +0.81..+1.06 | 0 | 0.611 | | |
+| | flex_to_flex | 4 | +0.69..+0.88 | 0 | 0.597 | | |
+| | stab_to_flex | 7 | +0.94..+1.31 | 0 | 0.592 | 23% | 0 |
+| | flex_to_stab | 12 | −0.56..−0.38, +0.94..+1.38 | **4** | 0.641 | 105% | 5 |
+
+RT matching worked: the per-subject RT costs went from +160 ms (i − c) and
++195 ms (s − r) to +2 ms and +2 ms (p = .45 and .39, n = 24). The random control
+kept them (+156 ms and +208 ms).
+
+##### 13.8.2 Occipital (54 electrodes)
+
+| Run (trials) | Decode | sig | clusters | pre | peak | kept | below |
+|---|---|---|---|---|---|---|---|
+| **baseline** (9181) | stab_to_stab | 26 | −0.19..+1.38 | **2** | 0.592 | | |
+| | flex_to_flex | 23 | −0.88..−0.56, −0.12..+0.12, +0.69..+1.38 | **7** | 0.630 | | |
+| | stab_to_flex | 11 | +0.31..+0.50, +1.00..+1.38 | 0 | 0.593 | 54% | 15 |
+| | flex_to_stab | 12 | −0.12..+0.19, +1.06..+1.38 | 1 | 0.550 | 23% | 32 |
+| **rt** (4408) | stab_to_stab | 14 | −0.38..+0.19, +0.31..+0.50 | **5** | 0.593 | | |
+| | flex_to_flex | **0** | – | 0 | 0.581 | | |
+| | stab_to_flex | 9 | −0.38..−0.19, +0.94..+1.19 | **4** | 0.574 | n/a | 0 |
+| | flex_to_stab | 14 | −0.06..+0.25, +0.38..+0.56, +0.94..+1.12 | 0 | 0.571 | 74% | 0 |
+| **random** (4408) | stab_to_stab | 16 | +0.12..+1.06 | 0 | 0.652 | | |
+| | flex_to_flex | 15 | −0.75..−0.50, +0.38..+0.62, +1.12..+1.38 | **5** | 0.633 | | |
+| | stab_to_flex | 8 | +0.44..+0.88 | 0 | 0.575 | 12% | 7 |
+| | flex_to_stab | 6 | +0.88..+1.19 | 0 | 0.591 | 40% | 24 |
+
+##### 13.8.3 Reading each control
+
+**Baseline: partial, asymmetric, late.** Both ceilings are significant with no
+pre-stimulus windows. Both transfers are above chance from the window centred at
++0.62 s (covering 0.5–0.75 s) to the end of the epoch, and both sit below their
+ceilings over most of it (19 and 28 windows). Per §8.2 step 3 this is **partial
+overlap**, not one shared axis. For ~0.3–0.5 s the two codes are both present but
+do not transfer. Do not read the asymmetry (47% against 26%) as geometry (§8.2
+step 4). The two ceilings peak at the same accuracy. Part of the gap is the
+metric: `kept` averages over the ceiling's significant windows, and the
+congruency ceiling starts earlier (+0.12 against +0.31 s). So flex_to_stab's
+share includes more early windows, where nothing transfers in either direction.
+
+**Overall activity: not a uniform gain.** With each subject's mean removed, the
+ceilings fall (peaks 0.76 → 0.63–0.65) but the transfers barely move (13 → 15
+and 13 → 14 windows; peaks 0.67 → 0.64 and 0.61 → 0.60). The share kept rises to
+~80%. So the transfer is not "both effects raise HG on every electrode". The
+part that `remove_mean` took out was mostly specific to each contrast. Two limits
+apply. `mean_only` has not been run, so the second column of the §13.4 table is
+empty. And since the NaN-trial change, a subject's electrodes in one pseudo-trial
+come from different trials, so the removed mean is a condition-level shift, not
+shared trial-to-trial fluctuation.
+
+**RT: smaller and earlier, but at the noise floor.** Against its own random
+control, RT matching cuts the transfer from 17 to 7 windows (70% → 43% kept) and
+from 13 to 5 windows (39% → 12%). What survives is confined to the windows
+centred at +0.62..+1.00 s, in both directions. The part after ~1.0 s goes. With
+correct-trial RTs at a median of 1.17 s (35% of trials answered by 1.0 s,
+`combinedData.csv`), the late part that RT matching removes overlaps the
+response on most trials. The part that survives sits mostly before it. On the
+§13.4 table this is "`rt` clearly lower, still above chance": **partly
+latency**. Three things keep it from being more than that:
+
+- **The half-trial runs produce artifacts the size of the effect.** The `rt`
+  run's congruency ceiling has a 6-window pre-stimulus cluster. Both `random`
+  transfers have one too (6 and 4 windows). The surviving `rt` transfers are 7
+  and 5 windows. The full-trial baseline has none. Neither run passes the §13.4
+  prerequisite (`pre` = 0) cleanly.
+- **`kept` moves ~20 points between runs that should agree.** The baseline and
+  `random` differ only in trial count, yet keep 47% against 70% and 26% against
+  39%. The `rt` − `random` gaps (27 points each) are about that size. Without
+  seeds there is no way to say which gap is real (§13.4, "Seeds").
+- **`rt` flex_to_stab's 12% includes artifact windows.** `kept` averages over
+  the ceiling's significant windows, and 6 of this ceiling's 20 are
+  pre-stimulus. Recompute it over post-stimulus windows from
+  `accuracy_traces.npz` before quoting it.
+
+**Both controls together: uninterpretable.** Under `rt + remove_mean` the
+congruency ceiling has no significant window, so `flex_to_stab` cannot be read.
+`stab_to_flex` (7 windows, again at +0.62..+1.00 s, 18%) is measured against a
+6-window ceiling. The `random + remove_mean` control loses its ceilings too (5
+and 4 windows). That is the §13.4 row "`random` loses the transfer too": halving
+the trials and removing the mean together cost the power. Several within-contrast
+decodes in these runs also average well below 0.5 over the epoch (`mean acc`
+0.47–0.48 in `summary.txt`), the sign of a single small pseudopopulation's
+accuracy wandering for long stretches. Read nothing from them except "no
+power".
+
+**Region: the shares are not specific to lPFC.** At full trials, occipital
+cortex keeps 54% and 23% of its ceilings, against lPFC's 47% and 26%. Two
+differences favour lPFC, though neither is a test:
+
+- **Timing.** At full trials, occipital's transfers sit at +1.00 s and later,
+  plus early windows (+0.31..+0.50 s for congruency → switch, −0.12..+0.19 s for
+  the reverse), with none centred between +0.56 and +0.94 s. The late window is
+  exactly the part of the lPFC transfer that RT matching removes. (Occipital's
+  half-trial `random` run does transfer congruency → switch at +0.44..+0.88 s,
+  keeping 12%.)
+- **Data quality.** Occipital's own ceilings have pre-stimulus windows (2 and
+  7). Under RT matching it loses the switch-type ceiling entirely, and its RT
+  pair is mostly artifact windows.
+
+With 54 electrodes against 171, occipital also has less power to show a
+0.5–1.0 s transfer. Comparing them needs lPFC subsampled to 54 electrodes.
+
+**Groups: drop them** (§13.6). With held-out selection (`_split0.3s0`, no
+controls) every group transfers, and `congruency_only` keeps more of its
+ceiling than `both` (108% against 65% for congruency → switch). That is the
+opposite of the shared-code prediction. Groups with `pre` > 0 cannot be
+reported (§13.6), and that rules out the 70% decode half's unselected `all`
+(ceilings 7 and 5 pre-stimulus windows), `both` (switch ceiling 6) and
+`switch_type_only` (transfers 4 and 5). The groups are also unstable. The ANOVA
+refit on each run's selection trials gives `both` 9, 8, 5 and 7 electrodes in the
+four split runs. With RT matching the groups' ceilings are weak or carry
+pre-stimulus windows (`both` congruency ceiling: 0 windows in both RT-matched
+runs).
+
+##### 13.8.4 What it supports, and what would settle the rest
+
+Supported now, at full trials:
+
+> Congruency and switch type are each decodable from the same task-significant
+> lPFC electrodes. A decoder trained on one predicts the other above chance only
+> from ~0.5 s after the stimulus, and recovers about half (congruency → switch)
+> or a quarter (switch → congruency) of the other's decodable information. The
+> shared part is not a uniform increase in activity across a participant's
+> electrodes.
+
+That is *overlapping population, largely distinct codes*, about the base
+effects (not LWPC/LWPS). Not supported yet:
+
+- that the shared part survives RT matching;
+- that it is specific to lPFC;
+- anything about the main-effect groups.
+
+The runs that would settle these, cheapest first:
+
+1. **Seeds.** `SEED=1,2` (more if affordable) for the baseline, `rt` and
+   `random`, with their own `SAVE_DIR` (§13.2 step 7). The `rt` − `random` gap
+   has to exceed the seed spread. Also recompute `kept` over post-stimulus
+   windows only, and the mean accuracy over 0.5–1.0 s, from
+   `accuracy_traces.npz`.
+2. **lPFC at occipital's size.** Decode 54 randomly drawn lPFC electrodes
+   (several draws), and compare `kept` and the 0.5–1.0 s windows with
+   occipital's. This needs a channel-subsampling option the job does not have
+   yet.
+3. **Positive controls.** `bash submit_task_transfer_dcc.sh`: T1 has to keep
+   most of its ceiling for a transfer that a control removes to mean anything.
+4. **`mean_only`** and the **response-locked** run (§13.2 steps 3–4).
+5. For a main-text claim only: an estimate across subjects, which A4 does not
+   have (§10).
+
+Where this sits in the paper:
+[`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan),
+"Congruency ↔ switch cross-decoding with task positive controls". Manuscript
+methods and a results paragraph:
+[`methods.md` › A4](methods.md#a4-congruency--switch-type-cross-decoding).
 
 ---
 
@@ -2531,6 +2748,21 @@ type is decodable before the stimulus, the leak is confirmed. Then the
 selection split (`ELECTRODE_SELECTION_SPLIT=true`), and, if the groups are to be
 reported, tonic block centering (§4.2) — which is not built for A4 and which
 removes any genuine proactive (block-level) signal along with the artifact.
+
+**2026-10-01: smaller pseudopopulations show them too.** After the NaN-trial
+change, the unselected 171 electrodes have no pre-stimulus window at full
+trials. They do have them once the decoded trials shrink:
+
+- the 70% decode half of the split runs (`all` ceilings: 7 and 5 windows);
+- the RT-matched run (congruency ceiling: 6);
+- its random control (both transfers: 6 and 4).
+
+No selection touches these electrodes. A real block leak would also be at least
+as visible with all the trials as with half. That points at suspect 3: a single
+small pseudopopulation's noise, which a cluster test over CV repeats of that one
+pseudopopulation does not see (A4 §8.3). The practical rule: in a run on half the
+trials, a 4–7-window cluster is within what noise produces. Compare such runs
+across seeds, not by their window counts ([A4 §13.8](#138-results-2026-10-01)).
 
 Also treat **transfer > within-condition accuracy** as an F3: a transferred axis
 cannot beat an axis trained on the labelling it is scored against. That
