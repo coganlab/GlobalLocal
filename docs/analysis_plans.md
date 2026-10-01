@@ -14,9 +14,14 @@ together: the closing figure plan for what to do next and where each result
 goes, and the concurrent-regulation plan for why each analysis is specified the
 way it is.
 
+**The figure-by-figure plan after the 2026-10-01 results, with the Methods and
+Results text assembled in paper order, is [`paper_draft.md`](paper_draft.md).**
+Where it differs from this document's "Proposed closing figure", "Supplement
+placement" or weekly figure table, it wins.
+
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the closing figure (F5), supplement placement, the weekly figure table, open questions for the advisor | `closing_figure_plan.md` |
+| [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01 | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
 | [Nested electrode selection plan](#nested-electrode-selection-plan) | 2026-08-19 | 2026-08-19 | Never built as designed; it served the subpopulation drill-down that the figure plan retired. A single held-out split was built instead ([`decoding.md`](decoding.md) §3.3–§3.4, [`analysis_guide.md`](analysis_guide.md) §21). Still the reference if a select-then-test figure returns (closing figure plan, S2c) | `nested_electrode_selection.md` |
@@ -396,6 +401,8 @@ One row per figure, updated each week: the claim it carries, where it stands, th
 | F5 | One intermixed population at both levels; the adaptation balance tracks the base-effect balance and has a dorsomedial gradient | Main-effect anatomy done for all lPFC (§16.6) | Panel a from `continuous.csv`; plot panels b–d; task-significant main-effect rerun | The task-significant replication. Settling whether the gradient is inherited would need a more reliable measure of the base-effect balance than these trial counts give. |
 
 Keep this table here, updated each week, so the repo stays the source of truth. It is the current F1–F5 status; the [figure plan](#figure-plan) below keeps the original sequence.
+
+*Updated 2026-10-01:* the current version of this table, with the panels and the to-do list for each figure, is §1.3 of [`paper_draft.md`](paper_draft.md).
 
 ### Open questions for the advisor meeting
 

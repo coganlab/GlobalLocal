@@ -10,6 +10,10 @@ quantities are run-dependent: fill them in from the archived run.
 | [A6: brain–behavior (supplement S-BB)](#a6-brainbehavior-supplement-s-bb) | The across-participant correlation of neural with behavioral LWPC/LWPS: participant scores, the RT adjustment, the reliability ceiling and the power it implies. Filled in from the 2026-09-30 run | new (2026-10-01) |
 | [A4: congruency ↔ switch-type cross-decoding](#a4-congruency--switch-type-cross-decoding) | Methods, a draft results paragraph and the limitations for supplement S5: the unselected lPFC transfer, its RT and overall-activity controls, the occipital comparison | new |
 
+All the manuscript Methods and Results text written so far, including the
+all-lPFC N4 Methods from §17.2 of `n4_continuous_anatomy.md`, is collected in
+paper order in [`paper_draft.md`](paper_draft.md) §2–§3.
+
 The N4 text is the newer one (2026-09-17) and matches the current primary
 configuration. The segregation versions date from 2026-08 (last edited
 2026-09-17). The A6 text (2026-10-01) is for the supplement only; the Results
