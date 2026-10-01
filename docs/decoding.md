@@ -893,7 +893,16 @@ WINDOW_TMIN=0.2 WINDOW_TMAX=0.7 FDR_CORRECTION=fdr_bh bash submit_stability_flex
   across electrodes) is below `ALPHA`. The flag ignores direction.
 - **Knobs that matter:** `CONTRAST_MODE`, `WINDOW_TMIN`/`WINDOW_TMAX`,
   `FDR_CORRECTION` (`none` or `fdr_bh`; `flags` is refused because there is no
-  saved table), `ALPHA`, `ELECTRODES`.
+  saved table), `ALPHA`, `ELECTRODES`, `ANOVA_MODEL`.
+- **`ANOVA_MODEL`** (condition mode only). `oneway` (default) tests congruency
+  and switch type in two separate ANOVAs, each pooled over the other factor.
+  `twoway` fits one Type III `congruency * switchType` ANOVA per electrode: each
+  main effect is the equal-weight average of its two simple effects, so a switch
+  effect cannot leak into the congruency test when the cells are unequal, and the
+  other factor is taken out of the error term. The interaction is written to
+  `anova_labels.csv` as `CXS` and counted against the three groups on the
+  `interaction_electrodes` line of `summary.txt`; it does not change the groups.
+  The folder gains `_twoway` after the correction.
 - **`ELECTRODE_SELECTION_SPLIT=true`** fits the ANOVA on
   `ELECTRODE_SELECTION_FRAC` (0.3) of each subject's trials, stratified on
   congruency, task sequence and block, and decodes only the other 70%. The split
@@ -1079,6 +1088,7 @@ the submit script's (§3).
 | `CONTRAST_MODE` | `condition` | anova, power_traces | Read off the folder on csv. Set `proportion` for power_traces. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | anova | The ANOVA window, seconds from stimulus onset. Not the decoding window. |
 | `FDR_CORRECTION` | `none` (`flags` on csv) | anova, csv | `none` = raw p; `fdr_bh` = BH across electrodes. |
+| `ANOVA_MODEL` | `oneway` | anova + condition | `twoway` = one congruency x switch type ANOVA, plus the interaction count (§4.1). |
 | `ALPHA` | `0.05` | anova, csv, power_traces | |
 | `ELECTRODE_SELECTION_SPLIT` | `false` | anova | Fit on 30%, decode 70% (§4.1). |
 | `ELECTRODE_SELECTION_FRAC` / `_SEED` | `0.3` / `0` | anova + split | |

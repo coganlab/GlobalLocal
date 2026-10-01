@@ -80,6 +80,16 @@ def test_main_effect_labels_name_the_groups_after_the_main_effects():
         'congruency': ['D1-A1', 'D1-A2'], 'switch_type': ['D1-A1', 'D2-B1']}
 
 
+def test_interaction_electrodes_are_counted_against_the_groups():
+    """Two-way labels carry CXS; the overlap says what folding it into 'both' adds."""
+    labels = pd.DataFrame(dict(
+        subject=['D1'] * 5, electrode=[f'D1-A{i}' for i in range(5)],
+        S=[1, 1, 0, 0, 1], F=[1, 0, 1, 0, 1], CXS=[1, 1, 1, 1, 0]))
+    assert xd._interaction_overlap(labels, 'condition') == {
+        'total': 4, 'both': 1, 'congruency_only': 1, 'switch_type_only': 1, 'neither': 1}
+    assert xd._interaction_overlap(_anova_style_labels(), 'condition') is None
+
+
 def test_power_traces_keys_actually_slice_the_array():
     """End-to-end on the restriction itself: bare-electrode labels must not
     silently select zero channels."""

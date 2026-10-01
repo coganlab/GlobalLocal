@@ -2275,6 +2275,7 @@ any interaction-based selection (§17.1).
 | `CONTRAST_MODE` | `proportion` (`condition` in the submit script) | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. For a `csv` table it is read off the A1 folder name (`..._<roi>_<mode>_<correction>`), and a contradicting value is an error. |
 | `ALPHA` | `0.05` | FDR threshold for the electrode groups. |
 | `FDR_CORRECTION` | `fdr_bh` (submit script: `flags` for csv, `none` otherwise) | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. `flags` (csv only) keeps the saved table's own flags. |
+| `ANOVA_MODEL` | `oneway` | `anova` + `condition` only: `oneway` tests congruency and switch type in separate ANOVAs; `twoway` fits one Type III `congruency * switchType` ANOVA (main effects balanced over the other factor) and counts the interaction (`CXS`) electrodes per group. Own `_twoway` folder. |
 | `ELECTRODE_SELECTION_SPLIT` | `false` | `anova` only: fit the ANOVA on `ELECTRODE_SELECTION_FRAC` (0.3) of the trials and decode the rest, so no decode is circular. |
 | `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
 | `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
