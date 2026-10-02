@@ -705,6 +705,17 @@ def run_score_anatomy(args):
         except Exception as exc:
             main_lines = ["-" * 70, f"MAIN EFFECTS: failed ({type(exc).__name__}: {exc})"]
 
+    # 4c. §19 (advisor check 2026-10-02): the z slope and the LWPC-LWPS r with
+    # participants as the unit, local similarity, and the combined Figure 5.
+    # Each part fails on its own inside `section19`.
+    print("§19: participants as the unit, local similarity, combined Figure 5")
+    scores_csv = getattr(args, 'scores_csv', None)
+    s19_lines, s19 = sfa.section19(
+        tab, per_split, save_dir, coord_res=coord_res,
+        seg_dir=os.path.dirname(os.path.abspath(scores_csv)) if scores_csv else None,
+        n_perm=n_perm, seed=seed)
+    main_lines = list(main_lines) + s19_lines
+
     # 5. figures ------------------------------------------------------------------
     # The §2.5 joint scatter, on the pooled-scaled scores this arm tests, with
     # the noise ceiling annotated on it — same figure and same diagnostics the
@@ -762,7 +773,8 @@ def run_score_anatomy(args):
                                  corr_within_subject=scatter_diag['corr_within_subject'],
                                  flags=scatter_diag['flags']),
         maps={k: v.get('combined') for k, v in maps.items()},
-        main_effects=main)
+        main_effects=main,
+        section19=s19)
     with open(os.path.join(save_dir, 'score_anatomy.json'), 'w') as f:
         json.dump(summary, f, indent=2, default=str)
 

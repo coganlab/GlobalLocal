@@ -846,71 +846,8 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     centred within subject first, which makes the within-subject residuals
     exactly orthogonal to them.
     """
-    d = per_split.merge(pd.Series(resp, name='resp').rename_axis('electrode').reset_index(),
-                        on='electrode', how='left')
-    cov_cols = [] if covariates is None else list(covariates.columns)
-    if cov_cols:
-        d = d.merge(covariates.rename_axis('electrode').reset_index(),
-                    on='electrode', how='left')
-    n_elec_in = d['electrode'].nunique()
-    d = d.dropna(subset=['xA', 'xB', 'yA', 'yB', 'resp', *cov_cols])
-
-    # Keep only electrodes present in EVERY split, so the per-split vectors are
-    # comparable and the permutation applies to a fixed electrode set. An
-    # electrode whose effect is undefined on even one split (a contrast cell
-    # emptied by that split) is dropped outright; `n_electrodes_dropped` reports
-    # how many, since with few trials per cell this can bite.
-    n_sp = per_split['split'].nunique()
-    complete = d.groupby('electrode')['split'].transform('size') == n_sp
-    d = d[complete]
-    d = d[d.groupby('subject')['electrode'].transform('nunique') >= min_elec]
-    if d.empty:
-        raise ValueError(
-            "no electrode survived the completeness / min_elec filter. With "
-            "BALANCE_MAIN_EFFECTS, an effect needs >= 2 trials in EACH of the "
-            "four 2x2 cells of each half -- i.e. >= 4 trials per cell before "
-            "splitting -- where the old two-group scoring needed only 2 per "
-            "group. Check your smallest cell count per electrode.")
-    n_dropped = int(n_elec_in - d['electrode'].nunique())
-    if n_dropped > 0.1 * n_elec_in:
-        warnings.warn(
-            f"{n_dropped}/{n_elec_in} electrodes dropped from the continuous "
-            "test because their effect was undefined on at least one split. "
-            "That usually means some 2x2 cell is too small to survive halving "
-            "(>= 4 trials per cell needed). Treat `corr` as computed on a "
-            "biased subset until you have checked the cell counts.",
-            RuntimeWarning, stacklevel=2)
-
-    elecs = np.sort(d['electrode'].unique())
-    e_index = {e: i for i, e in enumerate(elecs)}
-    subj_of = d.drop_duplicates('electrode').set_index('electrode')['subject']
-    subj = subj_of.loc[elecs].to_numpy()
-    groups = [np.where(subj == s)[0] for s in np.unique(subj)]
-
-    splits = np.sort(d['split'].unique())
-    mats = {k: np.full((len(splits), len(elecs)), np.nan) for k in ('xA', 'xB', 'yA', 'yB')}
-    for si, s in enumerate(splits):
-        block = d[d['split'] == s]
-        cols = block['electrode'].map(e_index).to_numpy()
-        for k in mats:
-            mats[k][si, cols] = block[k].to_numpy()
-
-    # Residualise on responsiveness, then within-subject centre -- per split,
-    # per quantity, mirroring prepare_continuous.
-    resp_vec = d.drop_duplicates('electrode').set_index('electrode')['resp'].loc[elecs].to_numpy()
-    if cov_cols:
-        C = d.drop_duplicates('electrode').set_index('electrode')[cov_cols].loc[elecs].to_numpy(
-            float, copy=True)
-        for g in groups:
-            C[g] -= C[g].mean(axis=0)
-        design = np.column_stack([np.ones(len(elecs)), resp_vec, C])
-    for k in mats:
-        for si in range(len(splits)):
-            r = (mats[k][si] - design @ np.linalg.lstsq(design, mats[k][si], rcond=None)[0]
-                 if cov_cols else _ols_resid(mats[k][si], resp_vec))
-            for g in groups:
-                r[g] -= r[g].mean()
-            mats[k][si] = r
+    elecs, subj, groups, splits, mats, n_elec_in = _residualised_split_matrices(
+        per_split, resp, min_elec=min_elec, covariates=covariates)
 
     U = {k: np.vstack([_unit_vector(mats[k][si], method) for si in range(len(splits))])
          for k in mats}
@@ -959,6 +896,164 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
                 n_electrodes_dropped=int(n_elec_in - len(elecs)),
                 reliability_x=rel_x, reliability_y=rel_y, reliability_note=note,
                 corr_noise_corrected=(float(obs / denom) if np.isfinite(denom) else np.nan))
+
+
+def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
+                                 keys=('xA', 'xB', 'yA', 'yB')):
+    """The scores `split_resolved_corr` correlates, as (splits x electrodes) arrays.
+
+    Keeps the electrodes defined on every split, drops participants with fewer
+    than `min_elec` of them, then per split and per quantity regresses out
+    responsiveness (and `covariates`, centred within participant) across all
+    electrodes and centres the residuals within participant.
+
+    Returns ``(elecs, subj, groups, splits, mats, n_elec_in)``: electrode ids
+    (sorted), each one's participant, the per-participant column indices into
+    `elecs`, the split ids, ``{key: array (n_splits, n_elec)}`` and the number of
+    electrodes before the filters. Shared by `split_resolved_corr` and
+    `participant_split_corr`, so the pooled test and its participant-level
+    version see exactly the same values.
+    """
+    keys = list(keys)
+    d = per_split.merge(pd.Series(resp, name='resp').rename_axis('electrode').reset_index(),
+                        on='electrode', how='left')
+    cov_cols = [] if covariates is None else list(covariates.columns)
+    if cov_cols:
+        d = d.merge(covariates.rename_axis('electrode').reset_index(),
+                    on='electrode', how='left')
+    n_elec_in = d['electrode'].nunique()
+    d = d.dropna(subset=[*keys, 'resp', *cov_cols])
+
+    # Keep only electrodes present in EVERY split, so the per-split vectors are
+    # comparable and the permutation applies to a fixed electrode set. An
+    # electrode whose effect is undefined on even one split (a contrast cell
+    # emptied by that split) is dropped outright; `n_electrodes_dropped` reports
+    # how many, since with few trials per cell this can bite.
+    n_sp = per_split['split'].nunique()
+    complete = d.groupby('electrode')['split'].transform('size') == n_sp
+    d = d[complete]
+    d = d[d.groupby('subject')['electrode'].transform('nunique') >= min_elec]
+    if d.empty:
+        raise ValueError(
+            "no electrode survived the completeness / min_elec filter. With "
+            "BALANCE_MAIN_EFFECTS, an effect needs >= 2 trials in EACH of the "
+            "four 2x2 cells of each half -- i.e. >= 4 trials per cell before "
+            "splitting -- where the old two-group scoring needed only 2 per "
+            "group. Check your smallest cell count per electrode.")
+    n_dropped = int(n_elec_in - d['electrode'].nunique())
+    if n_dropped > 0.1 * n_elec_in:
+        warnings.warn(
+            f"{n_dropped}/{n_elec_in} electrodes dropped from the continuous "
+            "test because their effect was undefined on at least one split. "
+            "That usually means some 2x2 cell is too small to survive halving "
+            "(>= 4 trials per cell needed). Treat `corr` as computed on a "
+            "biased subset until you have checked the cell counts.",
+            RuntimeWarning, stacklevel=3)
+
+    elecs = np.sort(d['electrode'].unique())
+    e_index = {e: i for i, e in enumerate(elecs)}
+    subj_of = d.drop_duplicates('electrode').set_index('electrode')['subject']
+    subj = subj_of.loc[elecs].to_numpy()
+    groups = [np.where(subj == s)[0] for s in np.unique(subj)]
+
+    splits = np.sort(d['split'].unique())
+    mats = {k: np.full((len(splits), len(elecs)), np.nan) for k in keys}
+    for si, s in enumerate(splits):
+        block = d[d['split'] == s]
+        cols = block['electrode'].map(e_index).to_numpy()
+        for k in mats:
+            mats[k][si, cols] = block[k].to_numpy()
+
+    # Residualise on responsiveness, then within-subject centre -- per split,
+    # per quantity, mirroring prepare_continuous.
+    resp_vec = d.drop_duplicates('electrode').set_index('electrode')['resp'].loc[elecs].to_numpy()
+    if cov_cols:
+        C = d.drop_duplicates('electrode').set_index('electrode')[cov_cols].loc[elecs].to_numpy(
+            float, copy=True)
+        for g in groups:
+            C[g] -= C[g].mean(axis=0)
+        design = np.column_stack([np.ones(len(elecs)), resp_vec, C])
+    for k in mats:
+        for si in range(len(splits)):
+            r = (mats[k][si] - design @ np.linalg.lstsq(design, mats[k][si], rcond=None)[0]
+                 if cov_cols else _ols_resid(mats[k][si], resp_vec))
+            for g in groups:
+                r[g] -= r[g].mean()
+            mats[k][si] = r
+
+    return elecs, subj, groups, splits, mats, n_elec_in
+
+
+def participant_split_corr(per_split, resp, min_elec=4, method='spearman',
+                           n_perm=10000, n_boot=2000, seed=1, covariates=None):
+    """`split_resolved_corr` with PARTICIPANTS, not electrodes, as the unit.
+
+    The pooled test correlates all electrodes at once and permutes electrodes
+    within participant, so its p treats electrodes as the units: a few
+    participants with many electrodes can carry it. Here each participant gets
+    its own split-averaged, separate-half correlation over its own electrodes,
+    on exactly the values the pooled test uses (`_residualised_split_matrices`):
+
+        r_s = mean_k 1/2 [ corr_s(xA_k, yB_k) + corr_s(xB_k, yA_k) ]
+
+    and the r_s are combined in Fisher z and tested ACROSS participants:
+
+    * weighted: mean z with weights n_s - 3 (at least 1), the usual
+      inverse-variance weights for a correlation; p from flipping the sign of
+      whole participants (valid if each participant's z is symmetric about 0
+      under the null), 95 % interval from a participant bootstrap;
+    * unweighted: every participant counts once; one-sample t-test on z.
+
+    Per-participant correlations over a handful of electrodes are noisy, so
+    `min_elec` defaults to 4 (the pooled test uses 3). Spearman ranks within
+    the participant. Returns a dict with the per-participant table and both
+    summaries; ``corr_*`` are back-transformed to r.
+    """
+    from scipy.stats import rankdata, ttest_1samp
+
+    elecs, subj, groups, splits, mats, _ = _residualised_split_matrices(
+        per_split, resp, min_elec=min_elec, covariates=covariates)
+
+    def unit_rows(a):                       # (n_splits, n) -> rows centred, unit norm
+        if method == 'spearman':
+            a = rankdata(a, axis=1)
+        a = a - a.mean(axis=1, keepdims=True)
+        n = np.linalg.norm(a, axis=1, keepdims=True)
+        return np.divide(a, n, out=np.zeros_like(a), where=n > 0)
+
+    rows = []
+    for g in groups:
+        U = {k: unit_rows(mats[k][:, g]) for k in mats}
+        rows.append(dict(
+            subject=subj[g[0]], n_electrodes=len(g),
+            corr=float((0.5 * ((U['xA'] * U['yB']).sum(1)
+                               + (U['xB'] * U['yA']).sum(1))).mean()),
+            reliability_x=float((U['xA'] * U['xB']).sum(1).mean()),
+            reliability_y=float((U['yA'] * U['yB']).sum(1).mean())))
+    per = pd.DataFrame(rows)
+    z = np.arctanh(np.clip(per['corr'].to_numpy(float), -0.999, 0.999))
+    w = np.maximum(per['n_electrodes'].to_numpy(float) - 3, 1.0)
+    per['fisher_z'], per['weight'] = z, w
+
+    def wmean(zz, ww):
+        return float((ww * zz).sum() / ww.sum())
+
+    obs = wmean(z, w)
+    rng = np.random.default_rng(seed)
+    flips = rng.choice((-1.0, 1.0), size=(int(n_perm), len(z)))
+    null = (flips * (w * z)).sum(1) / w.sum()
+    p = float((np.sum(np.abs(null) >= abs(obs)) + 1) / (n_perm + 1))
+    boot = np.array([wmean(z[i], w[i]) for i in
+                     rng.integers(0, len(z), size=(int(n_boot), len(z)))])
+    ci = tuple(float(np.tanh(v)) for v in np.percentile(boot, [2.5, 97.5]))
+    t = ttest_1samp(z, 0.0) if len(z) > 1 else None
+    return dict(per_participant=per, method=method, min_elec=min_elec,
+                n_participants=len(per), n_electrodes=int(per['n_electrodes'].sum()),
+                n_splits=len(splits), n_positive=int((per['corr'] > 0).sum()),
+                corr_weighted=float(np.tanh(obs)), p_signflip=p, ci_weighted=ci,
+                corr_unweighted=float(np.tanh(z.mean())),
+                t=float(t.statistic) if t is not None else np.nan,
+                p_t=float(t.pvalue) if t is not None else np.nan)
 
 
 def naive_sensitivities(df, contrast_mode='condition', contrasts=None,

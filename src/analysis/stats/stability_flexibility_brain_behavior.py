@@ -952,6 +952,112 @@ def participant_brain_behavior(ps, variant='rtadj', alpha=0.05, behavior=None,
 
 
 # ----------------------------------------------------------------------------
+# the group-level adaptation with and without the RT-linked part of HG
+# (Fig. 3's claim; docs/paper_draft.md §1.4, F3)
+# ----------------------------------------------------------------------------
+def group_adaptation_rt_check(electrodes, min_elec=1, n_perm=10000, seed=0,
+                              effects=('lwpc', 'lwps')):
+    """Is the mean LWPC / LWPS in HG still in the behavioral direction once the
+    RT-linked part of HG is removed?
+
+    Fig. 3's adaptation clusters run past the median RT, and RT coupling alone
+    predicts a neural adaptation with behavior's sign: if HG tracks RT within
+    cells (slope b), every electrode's difference of differences contains b
+    times the behavioral one (`rt_adjust_hg`). This compares the window-mean
+    scores before and after removing that part, with PARTICIPANTS as the unit.
+
+    ``electrodes``: `participant_scores(...)['electrodes']`, or the A6 job's
+    ``participant_electrode_scores.csv``, with ``lwpc_neural`` /
+    ``lwps_neural`` and their ``_rtadj`` versions (signed d, LOW minus HIGH, so
+    positive = the behavioral direction). Usable electrodes only. Each
+    participant with at least ``min_elec`` of them contributes the mean of
+    their scores.
+
+    Per effect and variant (``raw``, ``rtadj``): the electrode mean and share
+    positive; the mean over participants with its SEM, one-sample t-test, a
+    sign-flip p over participants and how many are positive; a mixed model on
+    the electrodes (intercept only, participant random intercept). For the
+    adjusted rows, ``retained`` = adjusted / raw participant mean, and
+    ``p_change`` the paired t-test of the difference.
+    """
+    import warnings
+    from scipy.stats import ttest_1samp, ttest_rel
+
+    e = electrodes.copy()
+    if 'usable' in e.columns:
+        e = e[e['usable'].astype(bool)]
+    rows = []
+    rng = np.random.default_rng(seed)
+    for eff in effects:
+        means = {}
+        for variant, col in (('raw', f'{eff}_neural'), ('rtadj', f'{eff}_neural_rtadj')):
+            if col not in e.columns:
+                continue
+            d = e[['subject', col]].dropna()
+            counts = d.groupby('subject')[col].transform('size')
+            d = d[counts >= min_elec]
+            pm = d.groupby('subject')[col].mean()
+            means[variant] = pm
+            x = pm.to_numpy(float)
+            row = dict(effect=eff.upper(), variant=variant, n_electrodes=int(len(d)),
+                       electrode_mean=float(d[col].mean()),
+                       electrode_share_positive=float((d[col] > 0).mean()),
+                       n_participants=int(len(x)), n_positive=int((x > 0).sum()),
+                       participant_mean=float(x.mean()) if len(x) else np.nan)
+            if len(x) > 1:
+                t = ttest_1samp(x, 0.0)
+                flips = rng.choice((-1.0, 1.0), size=(int(n_perm), len(x)))
+                null = (flips * x).mean(1)
+                row.update(sem=float(x.std(ddof=1) / np.sqrt(len(x))),
+                           t=float(t.statistic), p_t=float(t.pvalue),
+                           p_signflip=float((np.sum(np.abs(null) >= abs(x.mean())) + 1)
+                                            / (n_perm + 1)))
+            try:
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore')  # boundary fits; `converged` says so
+                    fit = smf.mixedlm(f'{col} ~ 1', d, groups=d['subject']).fit(reml=True)
+                row.update(mixed_mean=float(fit.params['Intercept']),
+                           mixed_p=float(fit.pvalues['Intercept']),
+                           mixed_converged=bool(fit.converged))
+            except Exception as exc:                 # too few participants, singular
+                row['mixed_note'] = f"{type(exc).__name__}: {exc}"
+            rows.append(row)
+        if {'raw', 'rtadj'} <= set(means):
+            both = pd.concat([means['raw'].rename('raw'), means['rtadj'].rename('rtadj')],
+                             axis=1).dropna()
+            if len(both) > 1:
+                rows[-1].update(
+                    retained=float(both['rtadj'].mean() / both['raw'].mean())
+                    if both['raw'].mean() != 0 else np.nan,
+                    p_change=float(ttest_rel(both['raw'], both['rtadj']).pvalue))
+    return pd.DataFrame(rows)
+
+
+def group_adaptation_rt_lines(table):
+    """Summary lines for :func:`group_adaptation_rt_check`'s table."""
+    if table is None or table.empty:
+        return ["      NOT RUN — see the notes below."]
+    lines = ["      participants are the unit; positive = the behavioral direction "
+             "(LOW minus HIGH)"]
+    for r in table.itertuples():
+        get = r._asdict().get
+        p_mixed = get('mixed_p')
+        lines.append(
+            f"      {r.effect} {r.variant:<5}  mean d = {r.participant_mean:+.3f} "
+            f"± {get('sem', np.nan):.3f} SEM  t-test p = {get('p_t', np.nan):.3g}  "
+            f"sign-flip p = {get('p_signflip', np.nan):.3g}  "
+            f"{r.n_positive}/{r.n_participants} participants > 0  "
+            + (f"mixed p = {p_mixed:.3g}" if p_mixed is not None and np.isfinite(p_mixed)
+               else "mixed n/a"))
+        if r.variant == 'rtadj' and get('retained') is not None and np.isfinite(get('retained')):
+            lines.append(f"            retained after RT adjustment: {get('retained'):.0%} "
+                         f"of the raw mean (paired p = {get('p_change'):.3g})")
+    lines.append("      the adjusted rows are the check on Fig. 3's direction: a raw "
+                 "effect that vanishes here was RT coupling")
+    return lines
+
+
+# ----------------------------------------------------------------------------
 # synthetic ground truth — planted matched links stronger than cross
 # ----------------------------------------------------------------------------
 def _synthetic_brain_behavior(n_subj=16, seed=0, across_beta=1.2,
