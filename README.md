@@ -38,6 +38,7 @@ only remember one thing about the layout, remember this:
 | **Manuscript Methods text** | [`docs/stability_flexibility_segregation_methods.md`](docs/stability_flexibility_segregation_methods.md) |
 | **The figure sequence for the paper** | [`docs/figure_plan.md`](docs/figure_plan.md) |
 | **Duplicated code that could be consolidated** | [`docs/consolidation_candidates.md`](docs/consolidation_candidates.md) |
+| **Using Claude Code / AI agents or VS Code with the DCC** (without breaking login-node policy) | [`docs/dcc_ai_agents.md`](docs/dcc_ai_agents.md); agent rules are in [`CLAUDE.md`](CLAUDE.md) |
 | **Environment setup, BIDS conversion, VPN, cluster access, running the experiment** | Parts 2–6 of this README |
 
 ---
@@ -292,6 +293,7 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `figure_plan.md` (253) | The main-text figure sequence and the claim stack behind it |
 | `nested_electrode_selection.md` (349) | Design plan for making the diagonal (select on congruency → measure congruency) non-circular |
 | `consolidation_candidates.md` | Duplicated/near-duplicated code and what merging each would cost |
+| `dcc_ai_agents.md` | Running Claude Code / AI agents and VS Code against the DCC through the `dcc-ssh-proxy` aliases, so nothing runs on login nodes |
 | `skeletons/a1…a6_*.py` | Runnable assignment stubs for each battery step, with the drop-in target named at the top |
 | `learning_assignments/segregation_bootstrap/` | A7 — a build-a-feature self-check with a pytest grader |
 
@@ -430,7 +432,10 @@ to `src/...` take effect immediately without reinstalling.
 8. To make the EV matrix, run the next cell in makeInputsForFSL.ipynb
 
 ### Duke Compute Cluster
-1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a remote host from VS Code to dcc-login.oit.duke.edu. Click the >< button on the bottom left and then choose "connect to host", entering dcc-login.oit.duke.edu. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal and then after logging in, open your shell's startup file by doing ```nano ~/.bashrc```, then add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file, and save/close it by pressing Ctrl+X.
+
+> **Don't run VS Code servers or AI agents (Claude Code, Codex…) on the login nodes.** DCC policy requires them to run on compute nodes, and Research Computing can block job submission until they're removed. Connect through a `dcc-ssh-proxy` host alias instead. See [`docs/dcc_ai_agents.md`](docs/dcc_ai_agents.md).
+
+1. Download the Remote - SSH Extension on VS Code: https://marketplace.visualstudio.com/items/?itemName=ms-vscode-remote.remote-ssh. Then, set up a `dcc-ssh-proxy` host alias (e.g. `dcc-cpu`) as described in Duke's [Access via VS Code](https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/vscode/) page, click the >< button on the bottom left, choose "connect to host" and pick that alias. **Don't** connect VS Code straight to dcc-login.oit.duke.edu: that leaves a VS Code server running on a shared login node. It'll ask for a password (enter your net id password) and then 2-step authentication. NOTE: To avoid issues with having to log in multiple times when connecting to remote host from VS code, do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal and then after logging in, open your shell's startup file by doing ```nano ~/.bashrc```, then add ```[[ $- != *i* ]] && return``` as the first line of your shell's startup file, and save/close it by pressing Ctrl+X. If you use AI agents over SSH, keep the `# >>> conda initialize >>>` block *above* that line so non-interactive commands can still find conda (see [Troubleshooting](docs/dcc_ai_agents.md#troubleshooting)).
 2. ALTERNATIVELY! Set up an ssh key so that you don't have to manually log in: https://oit-rc.pages.oit.duke.edu/rcsupportdocs/dcc/login/#ssh-keys - note that you need to ssh into dcc from terminal first before connecting to host on vscode. You need to do this before using jianghao's script to open an interactive session.
    
 3. You can do ```ssh -Y netid@dcc-login.oit.duke.edu``` from a terminal to access the DCC.
