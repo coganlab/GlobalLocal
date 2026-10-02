@@ -690,7 +690,7 @@ def _participant_lines(ps, participant):
 
 def write_summary(labels, behavior, across, trialwise, save_dir, meta,
                   primary='count', notes=(), alpha=0.05, ps=None, participant=None,
-                  csv_check=None, behavior_source=None):
+                  csv_check=None, behavior_source=None, rt_check=None):
     participant = participant or {}
     lines = [
         "=" * 78,
@@ -719,6 +719,9 @@ def write_summary(labels, behavior, across, trialwise, save_dir, meta,
                   if any(r['behavior_from'] == 'table' for r in participant.values())
                   else "RT d-o-d on the same trials")
     lines += [
+        "-" * 78,
+        "(0) GROUP-LEVEL ADAPTATION, RAW vs RT-ADJUSTED HG — the check on Fig. 3",
+        *sbb.group_adaptation_rt_lines(rt_check),
         "-" * 78,
         "(1) ACROSS PARTICIPANTS, CONTINUOUS SCORES — the across-participant result",
         f"      neural = mean signed per-electrode d (exploratory: mean |d|, and the",
@@ -918,7 +921,12 @@ def main(args):
     except (KeyError, ValueError) as e:
         notes.append(f"per-participant scores skipped: {e}")
         print(f"WARNING: per-participant scores skipped: {e}")
+    rt_check = None
     if ps is not None:
+        # Fig. 3's direction with the RT-linked part of HG removed (paper_draft §1.4, F3)
+        rt_check = sbb.group_adaptation_rt_check(ps['electrodes'], seed=seed)
+        rt_check.to_csv(os.path.join(args.save_dir, 'group_adaptation_rt_check.csv'),
+                        index=False)
         for variant, _ in _VARIANT_TITLES:
             try:
                 res = sbb.participant_brain_behavior(
@@ -986,6 +994,7 @@ def main(args):
     write_summary(labels, behavior, across, trialwise, args.save_dir, notes=notes,
                   primary=primary, alpha=alpha, ps=ps, participant=participant,
                   csv_check=csv_check, behavior_source=behavior_source,
+                  rt_check=rt_check,
                   meta=dict(
                       data_source=args.data_source, task=args.task,
                       epochs_root_file=getattr(args, 'epochs_root_file', None),
@@ -1001,4 +1010,4 @@ def main(args):
                       save_dir=args.save_dir))
     return dict(labels=labels, behavior=behavior, across=across,
                 trialwise=trialwise, trial_df=trial_df, participant_scores=ps,
-                participant=participant, csv_check=csv_check)
+                participant=participant, csv_check=csv_check, rt_check=rt_check)
