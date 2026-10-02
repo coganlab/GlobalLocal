@@ -21,6 +21,9 @@ For the paper, [§17](#17-write-up-for-the-paper-the-all-lpfc-main-effect-run)
 has the all-lPFC run's DCC location, Methods and Results text, and what is
 ready to submit. [§18](#18-the-task-significant-main-effect-run) has the
 task-significant run with main effects, the paper's consistency check.
+[§19](#19-participants-as-the-unit-local-similarity-and-the-combined-figure-5)
+has the participant-level tests, the local-similarity test of "intermixed" and
+the combined Figure 5 the advisors asked for on 2026-10-02.
 
 ---
 
@@ -2891,3 +2894,194 @@ Compare the resulting F5/Test 1 outputs against the raw run; do not overwrite or
 silently replace the raw estimate. The adjustment is conservative: it removes
 neural adaptation carried through the same trial-level HG–RT relationship as
 well as nuisance RT-linked HG.
+
+## 19. Participants as the unit, local similarity, and the combined Figure 5
+
+*Added 2026-10-02 after the advisor meeting. Code is in place and tested on
+planted data; nothing here has run on the real scores yet.*
+
+The advisors asked three things of the anatomy:
+
+1. **Is participant a random effect?** Not in the pre-specified tests. Both
+   treat participant as a **fixed** effect: `split_resolved_corr` centres within
+   participant and shuffles electrodes within participant; the coordinate test
+   (`relative_score_coordinate_test`) uses participant dummy variables
+   (`_nuisance_design`; its docstring's `(1 | subject)` is notation, chosen
+   deliberately because a random intercept can fail on participants with two
+   or three electrodes) and flips each electrode's sign on its own. Fixed and
+   random intercepts give the same within-participant slope here. What neither
+   test does is treat **participants as the units of inference**: a few
+   participants with many electrodes, or neighbouring contacts that share noise
+   and nearly share coordinates, can carry the p-value. §19.1 and §19.2 add the
+   participant-level versions.
+2. **Combine the two anatomy results** (the overlap scatter and the height
+   gradient) in one figure, without the matched-vs-crossed bars. §19.4.
+3. **A stronger test of "intermixed".** §19.3.
+
+### 19.1 The height slope with participants as the unit
+
+`sfa.coordinate_slope_by_participant(scores, axis='mni_z')`.
+
+**Two-stage.** Residualise the balance (`delta`) and height on the coordinate
+test's nuisance terms (participant dummies, responsiveness) and on the other two
+coordinates. By Frisch–Waugh, the pooled slope of one on the other is the
+coordinate test's z slope. Within participant *s* the same residuals give a
+slope b_s with weight w_s = Σ_s (residual height)², the participant's spread
+along z. The pooled slope is **exactly** Σ w_s b_s / Σ w_s: a weighted average of
+the participants' own slopes. The test checks this identity to machine
+precision. Two tests across participants:
+
+- **weighted** (the pooled slope): p from flipping the sign of whole
+  participants, 95 % interval from a participant bootstrap;
+- **unweighted**: the mean b_s over participants with ≥ 3 electrodes and
+  ≥ 5 mm of spread, one-sample t-test, and how many slopes are negative (sign
+  test).
+
+`top3_weight_share` says how much of the weighted average three participants
+carry.
+
+**Mixed models.** `delta ~ y + z + x + resp`, every predictor centred within
+participant, with (a) a participant random intercept and (b) a random intercept
+and a random slope on z (statsmodels `mixedlm`, REML). With within-centred
+predictors the random-intercept model's slope equals the pooled one; the
+random-slope model is the advisors' "subject as a random effect" in the strong
+sense. Its Wald p runs a little liberal with ~20 participants; read it next to
+the sign-flip p. Convergence warnings are kept in the output.
+
+**Leave one participant out.** `sfa.coordinate_slope_loso`: the z slope and its
+swap-null p with each participant dropped (fewer permutations; a leverage check).
+
+### 19.2 The overlap correlation with participants as the unit
+
+`sfs.participant_split_corr(per_split, resp)`. Each participant's own
+separate-half LWPC–LWPS correlation over its electrodes, on exactly the values
+the pooled test correlates (both now go through
+`_residualised_split_matrices`, so they cannot drift apart; the refactor leaves
+`split_resolved_corr`'s output bit-identical). The per-participant r are
+averaged in Fisher z:
+
+- weighted by n − 3 (the usual inverse-variance weight), sign-flip p over
+  participants and a participant-bootstrap interval;
+- unweighted, one-sample t-test, and how many participants are positive.
+
+Participants need ≥ 4 electrodes (the pooled test uses 3); with one participant
+the two tests agree exactly (tested).
+
+### 19.3 Local similarity: is the balance intermixed at the recorded scale?
+
+`sfa.local_similarity(per_split, scores)`, figure `plot_local_similarity`.
+
+"Intermixed" is a claim about arrangement: no patches of LWPC-leaning electrodes
+next to patches of LWPS-leaning ones. The overlap r does not test that, and the
+height gradient is structure at the scale of the whole region. This asks the
+local question.
+
+1. Per split and half, each score is residualised on responsiveness and on the
+   coordinates (the linear gradient, `remove_gradient=True`), centred within
+   participant, ranked and re-centred within participant (Spearman), and scaled
+   to unit mean square.
+2. For electrodes i and j of one participant, C[i, j] = mean over splits of
+   ½ (A_i B_j + B_i A_j): one electrode's half A against the other's half B and
+   the reverse. Shared trial noise cannot create similarity. C[i, i] is the
+   electrode's split-half reliability: the most any neighbour could share.
+3. Pairs are binned by distance: < 10, 10–20, 20–40, > 40 mm.
+
+The null moves each participant's electrode positions among its own electrodes
+(the values, the participants and the set of distances stay; only the link
+between similarity and distance breaks). Within-participant centring makes pairs
+slightly anti-correlated by construction; the null has the same bias, so read
+the **excess** over the null. **Relative** excess divides by the score's
+reliability: the share of an electrode's reliable signal its neighbours carry.
+
+Scores: the balance (LWPC − LWPS, built as `delta` is), LWPC, LWPS, and from a
+`MAIN_EFFECTS=1` run congruency and switch. **The single scores are the positive
+control.**
+
+| Pattern | Reading |
+|---|---|
+| Single scores rise at short range, balance flat | Intermixed at the recorded scale: neighbours share signal, not the LWPC/LWPS balance. The claim. |
+| Balance rises at short range too | Patches: nearby electrodes lean the same way |
+| Single scores flat as well | No power: the analysis cannot tell intermixed from patchy at these reliabilities. Say so. |
+
+The comparison table gives the balance's relative near-range excess minus each
+single score's, with a paired participant-bootstrap interval. Both planted
+worlds come out right in the tests (intermixed: balance p > 0.05, LWPC p < 0.01;
+patchy: balance p < 0.01).
+
+Bipolar channel pairs that share a contact are dropped
+(`exclude_shared_contacts`). The high-gamma electrodes are named as single
+contacts (`D0057-LTP1`), so nothing should be dropped there; `n_pairs_excluded`
+confirms it. Adjacent contacts on a
+shaft (3.5–5 mm) record overlapping tissue; that is real shared signal, which is
+why the single scores should rise at short range.
+
+### 19.4 The combined Figure 5
+
+`sfa.figure5_height(scores, out_dir, ...)` writes `fig5_height.png`/`.pdf`.
+
+On the LWPC (x) against LWPS (y) scatter the two results lie along perpendicular
+directions: the overlap is spread **along** the identity line, the gradient is a
+shift **across** it (LWPC − LWPS is each point's signed distance from the line).
+Points **above** the line lean LWPS, **below** it LWPC.
+
+| Panel | Content |
+|---|---|
+| a | Height tertiles on a sagittal projection of the electrodes (MNI y against z), with the two cuts drawn. Pass `brain_png` for a rendered brain in the same colours instead. |
+| b | LWPC against LWPS, coloured by tertile, identity line, the pre-specified r. A box marks panel c's region. |
+| c | The three tertile centroids enlarged, each with its 95 % participant-bootstrap ellipse. With a dorsal LWPS lean the dorsal centroid sits above the line and the ventral one near it. |
+| d | The balance by tertile: participant means ± SEM of `delta` with participant and responsiveness removed (the coordinate test's units), annotated with the z slope's electrode-level and participant-level p. |
+
+Choices, and why:
+
+- **Tertiles of z** over every electrode with coordinates: the S-N4 panel c cut,
+  fixed by rule. Three ordered bands get a one-hue violet ramp (validated as
+  ordinal), so they are not read as the blue/orange congruency/switch identity.
+- **The separating line is the identity line**, not a dorsal/ventral boundary.
+  At ~2 % of variance the tertiles overlap almost completely in score space; a
+  classifier line would suggest a separation that is not there. The z cuts are
+  drawn where they mean something: on the anatomy in panel a.
+- **Centroids, not "the electrodes driving z".** At single-electrode reliability
+  ~0.3, the most influential electrodes are partly picked for their noise.
+- **Units.** The points are the pre-specified test's scores (responsiveness out,
+  participant-centred) on delta's pooled scale with each score's mean added
+  back, so the identity line means LWPC = LWPS. The summary prints the z slope
+  of the plotted balance next to the coordinate test's as a check; they agree
+  to rounding on the planted data.
+
+### 19.5 How to run it
+
+**New anatomy runs** compute everything in the `continuous/` folder (block "§19"
+of `summary.txt`, `section19` in `score_anatomy.json`). Nothing to set.
+
+**Existing runs**, from their outputs alone (no epochs, atlases or recon files):
+
+```bash
+python dcc_scripts/stats/n4_section19_followups.py \
+    --anatomy-dir <anatomy run>/continuous \
+    --seg-dir     <the _main_effects segregation run it read>
+```
+
+Run it on the all-lPFC run (primary) and the task-significant run. First check
+that the all-lPFC folder still holds the all-lPFC run (`paper_draft.md` §1.7).
+
+| File | What |
+|---|---|
+| `mni_z_slope_by_participant.csv` | per participant: electrodes, spread (mm), weight, slope, whether it entered the unweighted test |
+| `mni_z_slope_loso.csv` | z slope and p with each participant left out |
+| `participant_corr.csv` | per participant: separate-half LWPC–LWPS r, reliabilities, Fisher z, weight |
+| `local_similarity.csv`, `_contrasts.csv`, `_comparison.csv`, `local_similarity.png` | §19.3 |
+| `fig5_height.png/.pdf`, `fig5_height_points.csv`, `_centroids.csv`, `_balance.csv`, `_balance_by_participant.csv` | §19.4 |
+| `summary_section19.txt`, `section19.json` | everything above in words and numbers |
+
+### 19.6 What to report
+
+- **Main text, one sentence each,** next to the pooled numbers: the z slope's
+  participant-level p (weighted sign-flip) and the random-slope model's p; the
+  overlap r's participant-level r and p.
+- **If the participant-level p for the z slope is not below 0.05:** the
+  gradient is carried by a few participants. Say so, and keep it at the weight
+  the advisors gave it (one Results paragraph, S-N4).
+- **Local similarity:** the main-text sentence is the comparison row (the
+  balance's near-range share against the single scores'), with the curves in
+  S-N4. Report it only with the positive control beside it.
+- **Leave-one-out range** of the z slope in S-N4.
