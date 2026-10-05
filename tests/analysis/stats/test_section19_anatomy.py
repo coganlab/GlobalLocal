@@ -342,6 +342,8 @@ def test_section19_skips_local_similarity_on_a_per_electrode_split(tmp_path):
     lines, out = sfa.section19(tab, ps.drop(columns='split_scheme'), str(tmp_path / 's'),
                                n_perm=50, n_boot=20, sections=(3,), per_split_shared=ps)
     assert 'local_similarity' in out and 'reliability_by_split_scheme' in out
+    assert 'overlap_shared' in out
+    assert any('ON THE RESCORED TABLE' in line for line in lines)
 
 
 def test_local_similarity_does_not_divide_by_an_unreliable_map():
@@ -427,3 +429,26 @@ def test_section19_script_skips_only_local_similarity_without_trial_ids(tmp_path
     assert 'has no `trial` column' in out and 'SCATTER_ONLY=1' in out
     assert 'local similarity: skipped' in out
     assert 'CANDIDATE CONFOUND REMOVED' in out
+
+
+def test_section19_script_labels_an_rt_adjusted_long_table(tmp_path, capsys):
+    from dcc_scripts.stats import n4_section19_followups as script
+    df, coords = _trial_world(n_subj=4, seed=2)
+    ps = sfs.compute_sensitivities_per_split(df, n_splits=4, contrast_mode='proportion',
+                                             main_effects=True)
+    tab = sfa.attach_scores(sfs.add_responsiveness(sfs.average_over_splits(ps), df), {},
+                            electrodes_to_coords=coords)
+    tab.to_csv(tmp_path / 'scores_with_anatomy.csv', index=False)
+    ps.to_csv(tmp_path / 'per_split.csv', index=False)
+    seg = tmp_path / 'seg_rt_adjusted'
+    seg.mkdir()
+    df.to_csv(seg / 'long_df.csv', index=False)
+    pd.DataFrame({'electrode': tab['electrode'], 'rt_slope': 0.0, 'rt_r': 0.1}).to_csv(
+        seg / 'rt_adjustment_slopes.csv', index=False)
+
+    script.main(['--anatomy-dir', str(tmp_path), '--long-df', str(seg / 'long_df.csv'),
+                 '--shared-n-splits', '4', '--sections', '3', '--n-perm', '50',
+                 '--n-boot', '20'])
+    out = capsys.readouterr().out
+    assert 'RT_ADJUST_HG=1 run' in out and 'RT-adjusted HG' in out
+    assert (tmp_path / 'section19_rt_adjusted' / 'summary_section19.txt').exists()

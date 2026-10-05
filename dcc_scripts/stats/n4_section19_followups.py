@@ -59,10 +59,10 @@ by electrode, so electrodes can list different trials. Section 3 (local
 similarity) is skipped; the other sections run. Two ways to get trial ids:
   - task-significant lPFC, no rerun: --long-df <A6 run>/long_df.csv (the A6 job
     wrote it after the column existed; same epochs file, correct trials only)
-  - all lPFC: cd dcc_scripts/stats && SCATTER_ONLY=1 bash
-    submit_stability_flexibility_segregation_dcc.sh  (minutes; writes
-    <segregation_results>/window_..._scatter_only_splits0/long_df.csv), then
-    --long-df that file
+  - all lPFC: cd dcc_scripts/stats && RT_ADJUST_HG=0 SCATTER_N_SPLITS=0
+    SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh
+    (minutes; writes <segregation_results>/window_..._scatter_only_splits0/
+    long_df.csv), then --long-df that file
 '''
 
 
@@ -106,8 +106,20 @@ def main(argv=None):
     print(f"{len(scores)} electrodes, {scores['subject'].nunique()} participants; per-split "
           f"table: {ps_path or 'none (sections 2 and 3 skipped)'}")
 
+    shared, shared_label = None, 'shared by participant'
+    # A long table from an RT_ADJUST_HG=1 run has the RT-linked part of high gamma
+    # removed (rt_adjustment_slopes.csv sits beside it). Label it, and keep its
+    # results apart from the raw ones.
+    src = args.long_df or args.per_split_shared
+    if src and os.path.exists(os.path.join(os.path.dirname(os.path.abspath(src)),
+                                           'rt_adjustment_slopes.csv')):
+        shared_label = 'shared by participant, RT-adjusted HG'
+        if not args.out_dir:
+            out_dir = os.path.join(args.anatomy_dir, 'section19_rt_adjusted')
+        print(f"NOTE: {src} comes from an RT_ADJUST_HG=1 run: its high gamma has the "
+              "RT-linked part removed, so section 3 describes RT-adjusted scores. Output: "
+              f"{out_dir}")
     os.makedirs(out_dir, exist_ok=True)
-    shared = None
     if args.per_split_shared:
         shared = pd.read_csv(args.per_split_shared)
     elif args.long_df:
@@ -134,7 +146,8 @@ def main(argv=None):
     lines, out = sfa.section19(scores, per_split, out_dir, seg_dir=args.seg_dir, axis=args.axis,
                                n_perm=args.n_perm, n_boot=args.n_boot, seed=args.seed,
                                sections=tuple(int(x) for x in args.sections.split(',')),
-                               per_split_shared=shared, rt_coupling=rt)
+                               per_split_shared=shared, rt_coupling=rt,
+                               shared_label=shared_label)
     text = '\n'.join(lines)
     print(text)
     with open(os.path.join(out_dir, 'summary_section19.txt'), 'w') as f:

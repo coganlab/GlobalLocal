@@ -3116,10 +3116,19 @@ sources with trial ids:
 - **Task-significant lPFC, now:** the A6 run's `long_df.csv` (written
   2026-09-30; same epochs file, correct trials only). Give it with the all-lPFC
   anatomy folder; §19.3 runs on the 171 electrodes it covers.
-- **All lPFC:** `cd dcc_scripts/stats && SCATTER_ONLY=1 bash
-  submit_stability_flexibility_segregation_dcc.sh`. The scatter-only job now
-  also writes `long_df.csv`, in `<segregation_results>/window_0.0to1.5s_all_lpfc_
-  proportion_cohens_d_fdr_bh_scatter_only_splits0/`. It runs in minutes. A `SHARED_SPLIT=1` segregation run gives the same table
+- **All lPFC:** `cd dcc_scripts/stats && RT_ADJUST_HG=0 SCATTER_N_SPLITS=0
+  SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh`. The
+  scatter-only job now also writes `long_df.csv`, in `<segregation_results>/
+  window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/`.
+  It runs in minutes. Set both variables: the submit script defaults to 200
+  scatter splits, and an `RT_ADJUST_HG=1` left in the shell makes the table
+  RT-adjusted (folder `..._rt_adjusted_scatter_only_splits200`).
+- **An RT-adjusted table** (from an `RT_ADJUST_HG=1` run) is useful too: the
+  script recognises it by the `rt_adjustment_slopes.csv` beside it, labels its
+  output and writes to `section19_rt_adjusted/`. Section 3 then gives the
+  all-lPFC overlap r and reliabilities on RT-adjusted high gamma (the full RT
+  control), and that run's `rt_adjustment_slopes.csv` is the all-lPFC
+  `--rt-coupling` file for section 5. A `SHARED_SPLIT=1` segregation run gives the same table
 (`--per-split-shared <run>/per_split.csv`). `--rt-coupling` adds the RT row of
 §19.7: the A6 table covers the task-significant electrodes only. For all lPFC,
 use the RT-adjusted segregation run's `rt_adjustment_slopes.csv` (§18.10).
