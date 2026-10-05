@@ -3234,10 +3234,94 @@ little. Per-participant r from a handful of electrodes is very noisy, so the
 unweighted test is weak, but the result should be worded as an overlap across
 the electrode population, not as one every participant shows.
 
-**Local similarity:** not usable from this run (§19.3). Rerun with `--long-df`.
+**Local similarity:** not usable from this run (§19.3). See the second run below.
 
-**Overlap controls (§19.7):** not yet run. Rerun with `--rt-coupling`, and on the
-`RT_ADJUST_HG=1` segregation run.
+**Second run (2026-10-05): local similarity with shared splits, and the overlap
+controls.** `--long-df` from the A6 run (task-significant lPFC: 167 electrodes
+from 18 participants with ≥ 3, 200 shared splits), `--rt-coupling` from the
+same A6 run, sections 3 and 5. The all-lPFC long table has no trial ids yet
+(§19.5).
+
+*Local similarity (task-significant electrodes).* Excess over each
+participant's baseline [95 % participant bootstrap], participant sign-flip p:
+
+| Score | Reliability | < 10 mm | 10–20 mm | Nearest − farthest |
+|---|---|---|---|---|
+| LWPC − LWPS | +0.079 [−0.007, +0.157] | +0.053 [−0.027, +0.114], p 0.15 | +0.024, p 0.22 | +0.085, p 0.16 |
+| LWPC | +0.135 [+0.004, +0.256] | +0.049, p 0.33 | +0.053, p 0.21 | +0.095, p 0.27 |
+| LWPS | +0.037 [−0.096, +0.188] | −0.029, p 0.71 | −0.043, p 0.89 | −0.051, p 0.76 |
+| congruency | +0.356 [+0.132, +0.592] | +0.023, p 0.41 | +0.052, p 0.24 | +0.025, p 0.41 |
+| switch | +0.342 [+0.174, +0.487] | **+0.235 [+0.066, +0.361], p 0.009** | −0.087, p 0.86 | **+0.257, p 0.003** |
+
+Reading: this is the "no power" row of the table in §19.3 for the adaptation
+scores. Their within-participant reliabilities (0.04–0.14) are too low for any
+score built from them to show local structure, and the positive control works
+for only one of the two reliable maps (switch type: neighbours < 10 mm carry
+about two thirds of its reliable signal; congruency: none detectable). So the
+balance's null (p = 0.15, interval up to +0.11) does not show the two
+adaptations are intermixed; it shows no detectable local clustering at low
+sensitivity. Do not use this analysis to support "intermixed". The all-lPFC run,
+with 2.3 times the electrodes, may do better; the reliabilities are the limit.
+
+*Within-participant reliabilities by split scheme (same electrodes;
+`reliability_by_split_scheme.csv`).*
+
+| Split | LWPC | LWPS | congruency | switch | LWPC–LWPS r |
+|---|---|---|---|---|---|
+| per electrode (the pipeline's) | +0.009 | +0.001 | +0.247 | +0.252 | +0.073 |
+| shared by participant | +0.174 | +0.141 | +0.392 | +0.388 | +0.076 |
+
+The per-electrode split biased these reliabilities strongly downward, as §19.3
+predicted, and left the overlap r unchanged, as §19.7 predicted. The §18 subset
+values (0.250 / 0.257 / 0.014 / −0.000) are the biased ones; §15.4 attributed
+their smallness to centring. With honest reliabilities the overlap is no longer
+"unmeasurable" against its ceiling: 0.076 / √(0.174 × 0.141) ≈ 0.49 on the
+subset, i.e. the two adaptation maps share about half of their reliable
+within-participant variance. That ratio needs a participant-bootstrap interval
+before it is quoted, and at these reliabilities the interval will be wide. In
+the subset the congruency and switch maps are equally reliable, so the LWPS
+reliability argument of §17.3 ("switch is the less reliable map, 0.23 vs 0.35")
+must be rechecked on all lPFC with shared splits.
+
+*Overlap controls (all lPFC, except the RT rows: task-significant electrodes with
+an RT coupling value).*
+
+| Control | r | p | Electrodes / participants |
+|---|---|---|---|
+| pre-specified | +0.097 | 0.0002 | 397 / 21 |
+| + responsiveness, nonlinear | +0.094 | 0.0003 | 397 / 21 |
+| + MNI coordinates | +0.100 | 0.0001 | 397 / 21 |
+| **+ base effects, same half** | **+0.028** | **0.23** | 397 / 21 |
+| pre-specified, RT-coupling electrodes | +0.073 | 0.068 | 167 / 18 |
+| + RT coupling | +0.065 | 0.10 | 167 / 18 |
+| all of the above | +0.043 | 0.28 | 167 / 18 |
+| responsiveness tertile low / middle / high | +0.071 / +0.131 / +0.084 | 0.10 / 0.005 / 0.06 | descriptive |
+| leave one participant out | +0.081 to +0.113 | 0.001 to 0.004 | |
+
+Reading:
+
+- **Not** nonlinear responsiveness, a shared gradient, one participant, or (in
+  the subset) RT coupling: each leaves r within ±0.01 (RT: 0.073 → 0.065). The
+  overlap is also present in every responsiveness tertile.
+- **The base effects account for most of it** (0.097 → 0.028). LWPC and LWPS
+  share electrodes largely because each scales with the effect it regulates
+  (congruency, switch type), and those two effects share electrodes
+  (r = 0.23). This fits Test 1: LWPC tracks congruency more than switch type,
+  and LWPS the reverse. It is the proportional reading of §16.6.5: adaptation
+  is expressed where the regulated signal is.
+- **What this row cannot separate:** the base effects are also the best proxy
+  for an electrode's signal-to-noise. "Both adaptations scale with residual
+  signal-to-noise" would also vanish here. Two observations argue against
+  that being all of it. The nonlinear-responsiveness control did not move r.
+  And Test 1 is process-specific (matched > crossed), which pure
+  signal-to-noise would not produce. A sharper test partials each adaptation on
+  its own base effect only (LWPC on congruency, LWPS on switch type): if that
+  removes the overlap, it is inherited from the base effects' overlap through
+  each adaptation's own signal.
+- **For the paper:** "LWPC and LWPS share electrodes" stays true and robust.
+  Its explanation is the base effects: the two adaptations overlap where the
+  signals they regulate overlap. That is a stronger ending than "intermixed",
+  which local similarity could not support.
 
 **Fig. 3, RT-adjusted (`f3_rt_adjusted_check.py`, A6 window 0–1.5 s,
 task-significant lPFC, 21 participants).**
