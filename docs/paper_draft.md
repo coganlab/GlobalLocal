@@ -124,6 +124,8 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | **Advisor meeting: a stronger test of "intermixed"** | Local similarity (§19.3 of the N4 doc): cross-half similarity of electrode pairs by distance, with single scores as the positive control. Coded and validated on planted intermixed and patchy worlds; not run. |
 | **Advisor meeting: brain–behavior** | Not working. Stays a supplementary note (S-BB) with one Discussion sentence. |
 | **RT-adjusted check on F3** (2026-10-02) | Coded: `sbb.group_adaptation_rt_check`; new A6 runs write `group_adaptation_rt_check.csv`, and `dcc_scripts/stats/f3_rt_adjusted_check.py` reads an existing run's `participant_electrode_scores.csv` (§1.4, F3). |
+| **First §19 run and the F3 check** (2026-10-05; N4 §19.8) | F3: both adaptations survive the RT adjustment with participants as the unit (72 % and 77 % retained, p ≈ 0.007). The z gradient holds with participants as the unit at p ≈ 0.04 (weighted sign-flip, random slope) but varies across participants. The overlap r holds when participants are weighted by electrode count (p = 0.03), not unweighted (p = 0.35). The local-similarity numbers are **not usable**: the per-split table splits each electrode on its own, and shared trial noise between neighbours made every score look locally similar (N4 §19.3). Fixed: shared splits plus participant-level inference; needs a rerun with `--long-df`. The within-participant reliabilities quoted in §3.4 share the bias. |
+| **Overlap confound controls** (2026-10-05; N4 §19.7) | Coded, not run: nonlinear responsiveness, coordinates, same-half base effects, RT coupling, leave-one-participant-out. The full RT control is the `RT_ADJUST_HG=1` run (N4 §18.10). |
 
 ### 1.3 Status at a glance
 
@@ -131,7 +133,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 |---|---|---|---|
 | F1 | Both adaptations are present concurrently in behavior | ⬜ Figure done; numbers not in the docs. Confirm it was not made with the swapped block map (§1.4, F1). | Confirm the source script; write the Results paragraph |
 | F2 | Coverage and signal validation | Needs the coverage table (S1) | Build the per-ROI, per-participant table |
-| F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs. RT-adjusted check coded, not run. | Run `f3_rt_adjusted_check.py` on the A6 run; unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
+| F3 | lPFC high gamma carries LWPC and LWPS in the behavioral direction | ⬜ Figure made (a, b); both adaptation clusters have the behavioral sign; numbers not in the docs. RT-adjusted check run 2026-10-05: both survive (§3.2 item 4). | Optional 0–0.5 s A6 rerun; unify the trace encoding; save the cluster p-values; collect the simple effects; write up |
 | F4 | Both adaptations are decodable from distributed lPFC activity | ⬜ Done; results not in the docs. The cross-effect decoders show results too. | Report trial counts per decoder; write up, cross-effects included (supplement) |
 | F5 | One intermixed population with a shallow height bias in the balance; separable base-effect codes over it | Anatomy results final for all lPFC (N4 §17) and the subset (§18). Combined figure, participant-level tests and local similarity coded (N4 §19), not run. Cross-decoding run 2026-10-01; controls pending. | Check the all-lPFC folder survived (§1.7); run `n4_section19_followups.py` on both anatomy runs; finish the A4 controls |
 
@@ -286,7 +288,10 @@ low-proportion blocks.
   adaptation expressed through it (§2.7). On planted data an RT-only
   "adaptation" keeps −5 % to 25 % of its raw size and a real one about 100 %.
   It is a window-mean check on the task-significant set, not a test of the
-  time-resolved clusters.
+  time-resolved clusters. **Result (2026-10-05, N4 §19.8):** LWPC keeps 72 %
+  (adjusted mean d = 0.080, p = 0.007, 16/21 participants positive), LWPS 77 %
+  (0.122, p = 0.007, 15/21). RT coupling carries about a quarter of each; the
+  rest is not RT coupling.
 
 Main-effect traces (incongruent vs congruent, switch vs repeat) go to S2.
 
@@ -487,10 +492,14 @@ work. Renumber at submission.
 - [ ] Confirm the subset's segregation run name, and that its
       `correlation_main_effects.json` gives congruency–switch *r* = 0.167 (N4
       §18.3 recomputed it from `per_split.csv`).
-- [ ] Run `dcc_scripts/stats/n4_section19_followups.py` on the all-lPFC and
-      the task-significant anatomy runs (N4 §19.5): the combined F5a–d
-      (`fig5_height.png`), the participant-level z slope and overlap r, and
-      local similarity. Write the numbers into §3.4.
+- [x] Run `dcc_scripts/stats/n4_section19_followups.py` on the all-lPFC run
+      (2026-10-05; N4 §19.8): participant-level z slope and overlap r in §3.4.
+- [ ] Rerun it with `--long-df <segregation run>/long_df.csv` (shared splits;
+      the first local-similarity numbers are not usable, N4 §19.3) and
+      `--rt-coupling` (§19.7); replace the within-participant reliabilities in
+      §3.4 with the shared-split ones. Then the task-significant run.
+- [ ] Run the segregation job with `RT_ADJUST_HG=1` (N4 §18.10) and the
+      anatomy job on it: the full RT control for the overlap and the gradient.
 - [ ] Decide F5e with the A4 controls below; draw it from the A4 run's traces.
 - [ ] Plot the S-N4 panels (the bars, the balances by parcel, the bands).
       *The bars are `fig5.png` b; the anatomy job already draws them.*
@@ -801,12 +810,23 @@ manuscript:
 > from the other half, averaged over both directions and all splits, after
 > removing responsiveness, the linear coordinate trend and each participant's
 > mean (Spearman, on unit-variance scores). Pairs were binned by distance
-> (< 10, 10–20, 20–40, > 40 mm). The null moved each participant's electrode
-> positions among its own electrodes (**[n]** permutations), and intervals came
-> from a participant bootstrap. The same analysis of LWPC, LWPS, congruency and
-> switch type alone served as the positive control. An electrode's similarity
-> with itself across halves is its split-half reliability, against which the
-> neighbours' similarity is expressed.
+> (< 10, 10–20, 20–40, > 40 mm). For this analysis the trials were split once
+> per participant and repetition, and the same halves were used for all of its
+> electrodes, so that no electrode's half shared trials with another
+> electrode's other half (**[n]** splits). Each participant's baseline for a
+> bin was its mean over shuffles of the participant's electrode positions;
+> we tested the excess over that baseline by flipping the sign of whole
+> participants, with intervals from a participant bootstrap. The same analysis
+> of LWPC, LWPS, congruency and switch type alone served as the positive
+> control. An electrode's similarity with itself across halves is its
+> split-half reliability, against which the neighbours' similarity is
+> expressed where that reliability is clearly positive.
+>
+> **Alternative explanations of the overlap.** We repeated the overlap test
+> with, in turn, log and squared responsiveness, MNI coordinates, each half's
+> congruency and switch-type effects (from the same half as each adaptation
+> score), and each electrode's within-cell correlation between high gamma and
+> RT as additional covariates **[N4 §19.7; report what was run]**.
 
 ### 2.6 Congruency ↔ switch-type cross-decoding (S5)
 
@@ -1003,7 +1023,13 @@ within-process adaptation effects." Check the source script first (§1.4, F1).
    e.g. "No cluster survived for congruency × switch proportion or for switch
    type × incongruent proportion (Fig. 3b, off-diagonal)." Not "was not
    modulated by" (§1.4, F3).
-4. The RT check, if run.
+4. The RT check (run 2026-10-05; N4 §19.8): "After removing the component of
+   high gamma linearly related to RT within condition cells, both adaptation
+   effects remained in the behavioral direction across participants (LWPC:
+   mean *d* = 0.08, *t*-test *p* = 0.007, 16 of 21 participants positive;
+   LWPS: 0.12, *p* = 0.007, 15 of 21), keeping 72 % and 77 % of their
+   unadjusted size." Window-mean (0–1.5 s), task-significant electrodes; add
+   the 0–0.5 s rerun if made.
 
 Do not read onset times off the bars (§1.4, F3).
 
@@ -1040,9 +1066,14 @@ first one, shortened.*
 > were positively correlated within participants (Spearman *r* = 0.10,
 > *p* < 0.001; 397 electrodes, 21 participants; Fig. 5b), and electrodes
 > positive for each effect did not differ in location (centroid distance
-> 1.4 mm, *p* = 0.95). **[With participants as the unit: mean r = …, 95 % CI
-> […, …], sign-flip p = …; … of … participants positive (N4 §19.2).]**
-> **[Local similarity, worded by its outcome (N4 §19.3, table there):
+> 1.4 mm, *p* = 0.95). With participants as the unit, the correlation held
+> when each participant's own correlation was weighted by its electrode count
+> (*r* = 0.10, 95 % CI [0.03, 0.16], sign-flip *p* = 0.031; 20 participants
+> with at least four electrodes) but not when every participant counted
+> equally (*r* = 0.04, *p* = 0.35; 11 of 20 positive), so it describes the
+> electrode population rather than every participant (N4 §19.8).
+> **[Local similarity, worded by its outcome; rerun needed with shared splits,
+> N4 §19.3 (the 2026-10-05 numbers are not usable):
 > neighbouring electrodes (< 10 mm) shared … of their reliable LWPC signal and
 > … of their LWPS signal, and … of the balance between the two (difference
 > 95 % CI […, …]). Only if the balance is flat while the single scores rise:
@@ -1063,7 +1094,9 @@ first one, shortened.*
 > out (*r* = 0.09, *p* < 0.001), so the link is local rather than a gradient
 > that the two maps share. For LWPS the matched base effect was the less
 > reliable map (within-participant split-half reliability 0.23 for switch,
-> 0.35 for congruency) and still correlated more, so that difference is not
+> 0.35 for congruency **[replace with the shared-split values,
+> `reliability_by_split_scheme.csv`; N4 §19.3: the per-electrode split biases
+> these]**) and still correlated more, so that difference is not
 > one of reliability. All four correlations were positive: electrodes with
 > larger base effects of either kind adapted more on both.
 >
@@ -1077,10 +1110,14 @@ first one, shortened.*
 > weaker dorsally (*z* slope *p* = 0.008; Bonferroni-corrected over three
 > axes, *p* = 0.023). The predicted anterior–posterior axis showed no effect
 > (*p* = 0.58), and height explained about 2 % of the balance's variance
-> (Fig. 5a, c, d). **[With participants as the unit: weighted sign-flip
-> p = …; random-slope mixed model, slope …, p = …; with each participant left
-> out, slope … to … (N4 §19.1).]** This gradient and its relation to the base
-> effects are described in Supplementary **[S-N4]**.
+> (Fig. 5a, c, d). With participants as the unit the gradient held, though
+> less strongly and unevenly across participants: the participants' own
+> slopes, weighted by their electrodes' spread in height, averaged −0.0077
+> SD/mm (95 % CI −0.0147 to −0.0013; sign-flip *p* = 0.041), and a mixed model
+> with a random height slope gave −0.0083 SD/mm (*p* = 0.037; between-
+> participant SD of the slope 0.010 SD/mm). With each participant left out,
+> *p* ranged from 0.002 to 0.099 (N4 §19.8). This gradient and its relation to
+> the base effects are described in Supplementary **[S-N4]**.
 >
 > Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
 > population, and each tracks the local strength of the effect it regulates.

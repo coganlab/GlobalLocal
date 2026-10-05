@@ -66,7 +66,9 @@ def _local_world(kind, n_subj=14, seed=0, n_splits=10, noise=0.7, bipolar=False)
                                xA=lwpc[e] + noise * rng.normal(), xB=lwpc[e] + noise * rng.normal(),
                                yA=lwps[e] + noise * rng.normal(), yB=lwps[e] + noise * rng.normal()))
     tab = sfa.attach_scores(pd.DataFrame(rows), {}, electrodes_to_coords=coords)
-    return tab, pd.DataFrame(ps)
+    # each half carries its own independent noise, as disjoint trials shared by
+    # all of a participant's electrodes would: a shared split
+    return tab, pd.DataFrame(ps).assign(split_scheme='participant')
 
 
 # ---------------------------------------------------------------------------
@@ -150,8 +152,11 @@ def test_local_similarity_tells_intermixed_from_patchy():
     for res in (mixed, patchy):
         assert _near(res, 'LWPC')['p_greater'] < 0.01
         assert _near(res, 'LWPC')['excess'] > 0
-    # the balance does only when the two fields differ
-    assert _near(mixed, 'LWPC − LWPS')['p_greater'] > 0.05
+    # the balance does only when the two fields differ. (In the intermixed world
+    # it keeps a sliver, ~10 % of LWPC's: the two pooled scale factors differ by
+    # sampling, so the shared field does not cancel exactly.)
+    assert _near(mixed, 'LWPC − LWPS')['excess'] < 0.25 * _near(mixed, 'LWPC')['excess']
+    assert _near(patchy, 'LWPC − LWPS')['excess'] > 0.5 * _near(patchy, 'LWPC')['excess']
     assert _near(patchy, 'LWPC − LWPS')['p_greater'] < 0.01
     cmp = mixed['comparison'].set_index('score').loc['LWPC']
     assert cmp['difference_hi'] < 0          # balance shares less than LWPC does
@@ -244,3 +249,160 @@ def test_rt_check_keeps_an_adaptation_without_rt_coupling():
         assert chk.loc[(eff, 'rtadj'), 'retained'] == pytest.approx(1.0, abs=0.2)
     lines = sbb.group_adaptation_rt_lines(chk.reset_index())
     assert any('retained after RT adjustment' in line for line in lines)
+
+
+# ---------------------------------------------------------------------------
+# split schemes and the overlap controls (2026-10-05)
+# ---------------------------------------------------------------------------
+def _trial_world(n_subj=4, n_shafts=2, per_shaft=6, tpb=64, noise_len=5.0, seed=0):
+    """Trial-level long table: contacts on shafts, trial noise correlated between
+    neighbouring contacts, each electrode's LWPC and LWPS drawn independently.
+    No score has any local structure."""
+    from src.analysis.stats.stability_flexibility_brain_behavior import _BLOCK_PROPORTION_MAP
+    rng = np.random.default_rng(seed)
+    frames, coords = [], {}
+    for s in range(n_subj):
+        P = []
+        for c in rng.uniform(-25, 25, size=(n_shafts, 3)) + [40, 30, 20]:
+            u = rng.normal(size=3)
+            P += [c + k * 3.5 * u / np.linalg.norm(u) for k in range(per_shaft)]
+        P = np.asarray(P)
+        D = np.linalg.norm(P[:, None] - P[None], axis=-1)
+        L = np.linalg.cholesky(np.exp(-(D / noise_len) ** 2) + 1e-6 * np.eye(len(P)))
+        cols = dict(congruency=[], switchType=[], incongruent_proportion=[],
+                    switch_proportion=[])
+        for props in _BLOCK_PROPORTION_MAP.values():
+            n_i = round(tpb * props['incongruent_proportion'] / 100)
+            n_s = round(tpb * props['switch_proportion'] / 100)
+            cols['congruency'] += list(rng.permutation(['i'] * n_i + ['c'] * (tpb - n_i)))
+            cols['switchType'] += list(rng.permutation(['s'] * n_s + ['r'] * (tpb - n_s)))
+            cols['incongruent_proportion'] += [props['incongruent_proportion']] * tpb
+            cols['switch_proportion'] += [props['switch_proportion']] * tpb
+        n_t = len(cols['congruency'])
+        inc = np.array(cols['congruency']) == 'i'
+        sw = np.array(cols['switchType']) == 's'
+        hc = np.where(np.array(cols['incongruent_proportion']) == 25.0, 0.5, -0.5)
+        hs = np.where(np.array(cols['switch_proportion']) == 25.0, 0.5, -0.5)
+        noise = L @ rng.normal(size=(len(P), n_t))
+        lw = rng.normal(0.1, 0.15, size=(len(P), 2))
+        for e in range(len(P)):
+            el = f'S{s}-L{e}'
+            coords[el] = tuple(P[e])
+            hg = 0.5 + inc * (0.3 + hc * lw[e, 0]) + sw * (0.3 + hs * lw[e, 1]) + noise[e]
+            frames.append(pd.DataFrame(dict(subject=f'S{s}', electrode=el,
+                                            trial=np.arange(n_t), hg=hg, **cols)))
+    return pd.concat(frames, ignore_index=True), coords
+
+
+def test_shared_split_gives_a_participants_electrodes_the_same_balanced_halves():
+    df, _ = _trial_world(n_subj=2)
+    contrasts = sfs.finalize_contrasts(df, sfs.resolve_contrasts('proportion'))
+    work = sfs._canonical_labels(df, contrasts)
+    strata = sfs._strata_columns(contrasts)
+    halves = sfs._shared_trial_halves(work, strata, 4, np.random.default_rng(0))
+
+    assert set(halves) == {'S0', 'S1'}
+    trials = work[work['subject'] == 'S0'].drop_duplicates('trial').set_index('trial')
+    for _, cell in trials.groupby(strata):
+        assert ((halves['S0'].loc[cell.index] == 0).sum(0) == len(cell) // 2).all()
+    shared = sfs.compute_sensitivities_per_split(df, n_splits=2, contrast_mode='proportion',
+                                                 shared_split=True)
+    own = sfs.compute_sensitivities_per_split(df, n_splits=2, contrast_mode='proportion')
+    assert sfa.is_shared_split(shared) and not sfa.is_shared_split(own)
+
+
+def test_per_electrode_splits_turn_shared_trial_noise_into_local_similarity():
+    """The 2026-10-05 finding: with no local structure planted, a split drawn per
+    electrode makes neighbours look similar; a shared split does not."""
+    df, coords = _trial_world(n_subj=5, seed=3)
+    near = {}
+    for shared in (False, True):
+        ps = sfs.compute_sensitivities_per_split(df, n_splits=8, seed=1,
+                                                 contrast_mode='proportion',
+                                                 shared_split=shared)
+        tab = sfa.attach_scores(sfs.add_responsiveness(sfs.average_over_splits(ps), df), {},
+                                electrodes_to_coords=coords)
+        res = sfa.local_similarity(ps, tab, n_perm=200, n_boot=50, require_shared_split=False)
+        near[shared] = _near(res, 'LWPC')['excess']
+    assert near[False] > near[True] + 0.03
+
+
+def test_local_similarity_refuses_a_per_electrode_split():
+    tab, ps = _local_world('intermixed', n_subj=3)
+    with pytest.raises(ValueError, match='one trial split per participant'):
+        sfa.local_similarity(ps.drop(columns='split_scheme'), tab, n_perm=10, n_boot=5)
+
+
+def test_section19_skips_local_similarity_on_a_per_electrode_split(tmp_path):
+    tab, ps = _local_world('intermixed', n_subj=6)
+    lines, out = sfa.section19(tab, ps.drop(columns='split_scheme'), str(tmp_path),
+                               n_perm=50, n_boot=20, sections=(3,))
+    assert 'local_similarity' not in out
+    assert any('local similarity: skipped' in line for line in lines)
+    lines, out = sfa.section19(tab, ps.drop(columns='split_scheme'), str(tmp_path / 's'),
+                               n_perm=50, n_boot=20, sections=(3,), per_split_shared=ps)
+    assert 'local_similarity' in out and 'reliability_by_split_scheme' in out
+
+
+def test_local_similarity_does_not_divide_by_an_unreliable_map():
+    tab, ps = _local_world('intermixed', n_subj=6, noise=25.0)      # halves ~pure noise
+    res = sfa.local_similarity(ps, tab, n_perm=50, n_boot=100)
+    assert res['notes']
+    assert res['comparison'][['balance_relative', 'score_relative']].isna().all().all()
+    near = res['table'][res['table']['bin'] == res['bins'][0]]
+    assert 'relative' not in near or near['relative'].isna().all()
+
+
+def _confound_world(kind, n_subj=14, seed=0, n_splits=10, noise=0.5):
+    """LWPC and LWPS correlate across electrodes ONLY through a confound:
+    'base', both scale with an electrode's base effects, which share a factor;
+    'rt', both carry the electrode's RT coupling times the behavioral effect."""
+    rng = np.random.default_rng(seed)
+    rows, ps, coords, rt = [], [], {}, []
+    for s in range(n_subj):
+        for e in range(int(rng.integers(12, 25))):
+            el = f'S{s}-e{e}'
+            f, c = rng.normal(), rng.normal()
+            cong, switch = f + 0.5 * rng.normal(), f + 0.5 * rng.normal()
+            if kind == 'base':
+                lwpc, lwps = cong + rng.normal(), switch + rng.normal()
+            else:
+                lwpc, lwps = 0.8 * c + rng.normal(), 0.8 * c + rng.normal()
+            coords[el] = tuple(rng.normal(0, 20, 3) + [40, 30, 20])
+            rows.append(dict(subject=f'S{s}', electrode=el, x=lwpc, y=lwps, mx=cong,
+                             my=switch, resp=1.0 + 0.1 * rng.normal()))
+            rt.append(dict(electrode=el, rt_r=c))
+            for k in range(n_splits):
+                ps.append(dict(subject=f'S{s}', electrode=el, split=k,
+                               xA=lwpc + noise * rng.normal(), xB=lwpc + noise * rng.normal(),
+                               yA=lwps + noise * rng.normal(), yB=lwps + noise * rng.normal(),
+                               mxA=cong + 0.1 * rng.normal(), mxB=cong + 0.1 * rng.normal(),
+                               myA=switch + 0.1 * rng.normal(),
+                               myB=switch + 0.1 * rng.normal()))
+    tab = sfa.attach_scores(pd.DataFrame(rows), {}, electrodes_to_coords=coords)
+    return tab, pd.DataFrame(ps), pd.DataFrame(rt)
+
+
+def test_overlap_controls_remove_the_confound_that_made_the_overlap():
+    for kind, row in (('base', '+ base effects, same half'), ('rt', '+ RT coupling')):
+        tab, ps, rt = _confound_world(kind)
+        table, loso = sfa.overlap_controls(tab, ps, rt_coupling=rt, n_perm=300)
+        t = table.set_index('control')
+        assert t.loc['pre-specified', 'corr'] > 0.15
+        assert t.loc['pre-specified', 'p'] < 0.01
+        assert abs(t.loc[row, 'corr']) < 0.08                 # the right control removes it
+        assert t.loc['+ MNI coordinates', 'corr'] > 0.15       # a wrong one does not
+        assert len(loso) == tab['subject'].nunique()
+    lines = sfa.overlap_control_lines(table, loso)
+    assert any('leave one participant out' in line for line in lines)
+
+
+def test_same_half_covariates_keep_the_halves_apart():
+    """Partialling the same half's base effects must not touch an overlap the
+    base effects do not carry."""
+    tab, ps, _ = _confound_world('rt')
+    resp = tab.set_index('electrode')['resp']
+    plain = sfs.split_resolved_corr(ps, resp, n_perm=100)['corr']
+    part = sfs.split_resolved_corr(ps, resp, n_perm=100,
+                                   half_covariates=sfa._SAME_HALF_BASE)['corr']
+    assert part == pytest.approx(plain, abs=0.05)

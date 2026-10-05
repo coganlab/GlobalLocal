@@ -2969,7 +2969,11 @@ the two tests agree exactly (tested).
 
 ### 19.3 Local similarity: is the balance intermixed at the recorded scale?
 
-`sfa.local_similarity(per_split, scores)`, figure `plot_local_similarity`.
+*Rewritten 2026-10-05. The first version (2026-10-02) was wrong in two ways,
+shown by the first real run; the run's local-similarity numbers are not
+usable. Both problems are fixed and tested.*
+
+`sfa.local_similarity(per_split_shared, scores)`, figure `plot_local_similarity`.
 
 "Intermixed" is a claim about arrangement: no patches of LWPC-leaning electrodes
 next to patches of LWPS-leaning ones. The overlap r does not test that, and the
@@ -2982,16 +2986,54 @@ local question.
    to unit mean square.
 2. For electrodes i and j of one participant, C[i, j] = mean over splits of
    ½ (A_i B_j + B_i A_j): one electrode's half A against the other's half B and
-   the reverse. Shared trial noise cannot create similarity. C[i, i] is the
-   electrode's split-half reliability: the most any neighbour could share.
-3. Pairs are binned by distance: < 10, 10–20, 20–40, > 40 mm.
+   the reverse. C[i, i] is the electrode's split-half reliability.
+3. Pairs are binned by distance (< 10, 10–20, 20–40, > 40 mm) and summed per
+   participant. Each participant's baseline is the mean of each bin over
+   shuffles of its electrode positions; its **excess** is observed minus
+   baseline. Within-participant centring makes pairs slightly anti-correlated
+   by construction, and the baseline carries the same bias.
+4. **Inference takes participants as the units:** a sign flip of each
+   participant's excess (one-sided), and participant-bootstrap intervals.
 
-The null moves each participant's electrode positions among its own electrodes
-(the values, the participants and the set of distances stay; only the link
-between similarity and distance breaks). Within-participant centring makes pairs
-slightly anti-correlated by construction; the null has the same bias, so read
-the **excess** over the null. **Relative** excess divides by the score's
-reliability: the share of an electrode's reliable signal its neighbours carry.
+**What went wrong on 2026-10-02, and the fixes.**
+
+- **The halves must be shared by all of a participant's electrodes.** The
+  segregation job splits each electrode's trials on its own
+  (`compute_sensitivities_per_split`), so electrode i's half A shares about half
+  its trials with electrode j's half B. Neighbouring contacts share trial noise,
+  and that noise then reads as near-range "similarity" for every score. The
+  earlier claim that "shared trial noise cannot create it" was false for that
+  table. The real run showed the tell-tale pattern: every score, the balance
+  included, had a near-range excess (+0.16 to +0.29, all p = 0.0002) larger
+  than its own reliability, and the reliabilities came out negative (LWPS
+  −0.15, balance −0.18). A neighbour cannot share more of an electrode's signal
+  than the electrode shares with itself, but shared noise does exactly this.
+  On simulated trial-level data with no local structure, per-electrode splits
+  gave near-range p < 0.02 for all five scores; shared splits removed it.
+  **Fix:** `compute_sensitivities_per_split(shared_split=True)` draws one
+  stratified split per participant and repetition and gives it to every
+  electrode (the table gets `split_scheme = 'participant'`).
+  `local_similarity` now refuses any other table.
+- **Pairs are not exchangeable.** Even with shared splits, one dataset's
+  estimation noise is spatially smooth, so the old position-shuffle p was too
+  liberal: 8 of 60 null tests (13 %) at α = 0.05 on simulated data, with too
+  many p near 1 as well. The participant sign-flip gave 3 of 120 (2.5 %) with
+  six simulated participants. The shuffle survives only as each participant's
+  baseline.
+- **No ratios to an unreliable map.** The "share of reliability" is reported
+  only when the reliability is positive in ≥ 90 % of bootstrap draws. The
+  first run's 34.33 and its degenerate interval came from dividing by
+  reliabilities near or below zero.
+
+**The same bias touches the within-participant reliabilities.** With
+per-electrode splits, the within-participant centring mixes in other
+electrodes' halves, which share trials with this one's other half. That biases
+the within-participant split-half reliabilities, probably downward. These are
+the ones `split_resolved_corr` reports and the paper quotes: "0.23 for switch,
+0.35 for congruency" in the LWPS reliability argument (§17.3, `paper_draft.md`
+§3.4). The overlap r itself is not affected, as §19.7 explains. The §19 script
+prints the reliabilities from both split schemes side by side
+(`reliability_by_split_scheme.csv`); quote the shared-split ones.
 
 Scores: the balance (LWPC − LWPS, built as `delta` is), LWPC, LWPS, and from a
 `MAIN_EFFECTS=1` run congruency and switch. **The single scores are the positive
@@ -2999,21 +3041,18 @@ control.**
 
 | Pattern | Reading |
 |---|---|
-| Single scores rise at short range, balance flat | Intermixed at the recorded scale: neighbours share signal, not the LWPC/LWPS balance. The claim. |
-| Balance rises at short range too | Patches: nearby electrodes lean the same way |
-| Single scores flat as well | No power: the analysis cannot tell intermixed from patchy at these reliabilities. Say so. |
+| Single scores show a near-range excess, the balance does not | Intermixed at the recorded scale. The claim. |
+| The balance shows one too | Patches: nearby electrodes lean the same way |
+| No score shows one | No power: the analysis cannot tell intermixed from patchy at these reliabilities. Say so. |
 
-The comparison table gives the balance's relative near-range excess minus each
-single score's, with a paired participant-bootstrap interval. Both planted
-worlds come out right in the tests (intermixed: balance p > 0.05, LWPC p < 0.01;
-patchy: balance p < 0.01).
+On planted data: an intermixed world keeps ~10 % of LWPC's near-range excess in
+the balance (the two pooled scale factors differ by sampling); a patchy world
+keeps ~90 %.
 
 Bipolar channel pairs that share a contact are dropped
 (`exclude_shared_contacts`). The high-gamma electrodes are named as single
 contacts (`D0057-LTP1`), so nothing should be dropped there; `n_pairs_excluded`
-confirms it. Adjacent contacts on a
-shaft (3.5–5 mm) record overlapping tissue; that is real shared signal, which is
-why the single scores should rise at short range.
+confirms it.
 
 ### 19.4 The combined Figure 5
 
@@ -3058,8 +3097,17 @@ of `summary.txt`, `section19` in `score_anatomy.json`). Nothing to set.
 ```bash
 python dcc_scripts/stats/n4_section19_followups.py \
     --anatomy-dir <anatomy run>/continuous \
-    --seg-dir     <the _main_effects segregation run it read>
+    --seg-dir     <the _main_effects segregation run it read> \
+    --long-df     <the same segregation run>/long_df.csv \
+    --rt-coupling <A6 run>/participant_electrode_scores.csv
 ```
+
+`--long-df` rescores with one trial split per participant for §19.3 (200 splits
+by default, `--shared-n-splits`; roughly 5–10 minutes for all lPFC). Without it
+§19.3 is skipped. A `SHARED_SPLIT=1` segregation run gives the same table
+(`--per-split-shared <run>/per_split.csv`). `--rt-coupling` adds the RT row of
+§19.7: the A6 table covers the task-significant electrodes only. For all lPFC,
+use the RT-adjusted segregation run's `rt_adjustment_slopes.csv` (§18.10).
 
 Run it on the all-lPFC run (primary) and the task-significant run. First check
 that the all-lPFC folder still holds the all-lPFC run (`paper_draft.md` §1.7).
@@ -3069,7 +3117,9 @@ that the all-lPFC folder still holds the all-lPFC run (`paper_draft.md` §1.7).
 | `mni_z_slope_by_participant.csv` | per participant: electrodes, spread (mm), weight, slope, whether it entered the unweighted test |
 | `mni_z_slope_loso.csv` | z slope and p with each participant left out |
 | `participant_corr.csv` | per participant: separate-half LWPC–LWPS r, reliabilities, Fisher z, weight |
-| `local_similarity.csv`, `_contrasts.csv`, `_comparison.csv`, `local_similarity.png` | §19.3 |
+| `local_similarity.csv`, `_contrasts.csv`, `_comparison.csv`, `local_similarity.png` | §19.3 (with `--long-df`) |
+| `per_split_shared.csv`, `reliability_by_split_scheme.csv` | §19.3: the shared-split table, and the reliabilities from both schemes |
+| `overlap_controls.csv`, `overlap_loso.csv` | §19.7 |
 | `fig5_height.png/.pdf`, `fig5_height_points.csv`, `_centroids.csv`, `_balance.csv`, `_balance_by_participant.csv` | §19.4 |
 | `summary_section19.txt`, `section19.json` | everything above in words and numbers |
 
@@ -3081,7 +3131,110 @@ that the all-lPFC folder still holds the all-lPFC run (`paper_draft.md` §1.7).
 - **If the participant-level p for the z slope is not below 0.05:** the
   gradient is carried by a few participants. Say so, and keep it at the weight
   the advisors gave it (one Results paragraph, S-N4).
-- **Local similarity:** the main-text sentence is the comparison row (the
-  balance's near-range share against the single scores'), with the curves in
-  S-N4. Report it only with the positive control beside it.
+- **Local similarity:** only from a shared-split table (§19.3). The main-text
+  sentence is the balance's near-range excess against the single scores',
+  with the curves in S-N4. Report it only with the positive control beside it.
+- **Overlap controls (§19.7):** one Methods sentence listing what was removed,
+  one Results sentence with the rows that change r, the rest in S-N4.
 - **Leave-one-out range** of the z slope in S-N4.
+
+### 19.7 Could something other than co-localised adaptation make LWPC and LWPS correlate?
+
+*Added 2026-10-05.* `sfa.overlap_controls(scores, per_split, rt_coupling)`, section
+5 of the script.
+
+**What the scores are.** Each electrode's LWPC (LWPS) is a Cohen's d: the
+equal-cell-weighted difference of differences of window-mean high gamma
+(0–1.5 s), (incongruent − congruent) in 25 %-incongruent blocks minus the same in
+75 % blocks, divided by that electrode's pooled within-cell SD of single-trial
+high gamma (`_interaction_cohens_d`). So it is in units of the electrode's own
+trial-to-trial variability. For the anatomy, each score is then divided by one
+pooled factor, the SD of that score across all electrodes (`lwpc_s`, the "SD
+units" of the figures). It is not a within-participant z-score. The pre-specified
+test then regresses out responsiveness and subtracts each participant's mean
+before correlating, Spearman.
+
+**Ruled out by design.**
+
+- **Shared trial noise** within an electrode: the two scores come from disjoint
+  halves of its trials.
+- **Gain:** a d is unchanged by multiplying an electrode's high gamma by a
+  constant.
+- **Participant offsets:** centring within participant, and a within-participant
+  null.
+- **Shared trials across electrodes** (the per-electrode split, §19.3): this
+  enters the overlap r only through noise shared by one electrode's LWPC and
+  another electrode's LWPS on common trials. With equal cell weights the two
+  contrasts are orthogonal over trials (the congruency weights sum to zero
+  within each incongruent-proportion level, whatever the switch composition),
+  so that noise cancels in expectation. On simulated data with spatially
+  correlated noise, both split schemes gave the same r (−0.039 and −0.041).
+
+**Candidates the pre-specified test does not rule out, and the controls.**
+
+| Candidate | How it would make r > 0 | Control (row of `overlap_controls.csv`) |
+|---|---|---|
+| Signal-to-noise beyond linear mean \|HG\| | A d is scale-free but not SNR-free. Where both adaptations are positive on average, better-SNR electrodes show more of both. Mean \|HG\| is one proxy, entered linearly. | `+ responsiveness, nonlinear` (log and square); `responsiveness tertile` rows (descriptive) |
+| RT coupling | If high gamma tracks RT within cells, each electrode's LWPC and LWPS contain its coupling times the participant's behavioral LWPC and LWPS, both positive in most participants. More strongly coupled electrodes show more of both. Mean \|HG\| does not remove this. The same mechanism makes all four base-effect × adaptation correlations positive (the "shared component" of §16.6.5). | `+ RT coupling` (each electrode's within-cell HG–RT r, the coupling in d units); in full, the `RT_ADJUST_HG=1` run (§18.10) |
+| Both adaptations scale with the base effects | If adaptation is a proportional shrink, LWPC tracks congruency and LWPS tracks switch, and congruency and switch share electrodes (r = 0.23). That puts the base effects' overlap into the adaptations. | `+ base effects, same half`: each half's adaptation scores with that half's base effects partialled out. A drop means "no overlap beyond the base effects'". It cannot separate this from residual SNR, since the base effects are also the best SNR proxy. |
+| A shared spatial gradient | Both maps follow one smooth trend | `+ MNI coordinates` |
+| A few participants | Electrode-rich participants dominate a pooled r | §19.2 and `overlap_loso.csv` |
+
+On planted data, each control removes the confound it targets and leaves the
+others alone. A base-driven overlap fell from 0.10 to −0.04 under the base-effect
+control and was untouched by the RT row; an RT-driven overlap fell from 0.27 to
+−0.06 under the RT row and was untouched by the base-effect control (tests in
+`test_section19_anatomy.py`).
+
+### 19.8 First real run (all lPFC, 2026-10-05)
+
+From `n4_section19_followups.py` on the all-lPFC main-effect anatomy run (398
+electrodes, 22 participants), and `f3_rt_adjusted_check.py` on the A6 run
+(task-significant lPFC).
+
+**Height slope, participants as the unit (§19.1).**
+
+| Test | Slope (SD/mm) | p |
+|---|---|---|
+| Electrodes (coordinate test, as before) | −0.0077 | 0.0074 |
+| Participants, weighted (sign-flip; 21 participants) | −0.0077, 95 % CI [−0.0147, −0.0013] | 0.041 |
+| Participants, unweighted (20 with ≥ 3 electrodes and ≥ 5 mm spread; t-test) | −0.0110 ± 0.0059 | 0.078; 13/20 negative, sign test 0.26 |
+| Mixed model, random intercept | −0.0077 ± 0.0028 | 0.0052 |
+| Mixed model, random slope | −0.0083 ± 0.0040; random-slope SD 0.0101 | 0.037 |
+| Leave one participant out | −0.0093 to −0.0050 | 0.002 to 0.099 |
+
+Reading: the gradient holds with participants as the unit, at p ≈ 0.04 (weighted
+sign-flip and random slope). It is heterogeneous: the between-participant SD of
+the slope (0.010/mm) is as large as the slope, three participants carry 38 % of
+the weight, and one participant's removal takes p to 0.099. The random-intercept
+model's p = 0.005 is not a participant-level test: with predictors centred
+within participant it reproduces the electrode-level slope and its precision.
+Quote the weighted sign-flip and random-slope p.
+
+**Overlap r, participants as the unit (§19.2).** Weighted r = +0.098, 95 % CI
+[+0.025, +0.157], sign-flip p = 0.031 (20 participants with ≥ 4 electrodes, 394
+electrodes); unweighted r = +0.043, t-test p = 0.35, 11/20 positive. The pooled
+r is carried by electrode-rich participants; the typical participant shows
+little. Per-participant r from a handful of electrodes is very noisy, so the
+unweighted test is weak, but the result should be worded as an overlap across
+the electrode population, not as one every participant shows.
+
+**Local similarity:** not usable from this run (§19.3). Rerun with `--long-df`.
+
+**Overlap controls (§19.7):** not yet run. Rerun with `--rt-coupling`, and on the
+`RT_ADJUST_HG=1` segregation run.
+
+**Fig. 3, RT-adjusted (`f3_rt_adjusted_check.py`, A6 window 0–1.5 s,
+task-significant lPFC, 21 participants).**
+
+| | Raw mean d | p (t; sign-flip; mixed) | RT-adjusted mean d | p (t; sign-flip; mixed) | Retained |
+|---|---|---|---|---|---|
+| LWPC | +0.111 ± 0.029; 17/21 > 0 | 0.0012; 0.001; 0.0002 | +0.080 ± 0.027; 16/21 > 0 | 0.0066; 0.0061; 0.0033 | 72 % (paired p = 0.008) |
+| LWPS | +0.157 ± 0.040; 18/21 > 0 | 0.0009; 0.0008; 0.0001 | +0.122 ± 0.040; 15/21 > 0 | 0.0069; 0.0047; 0.0016 | 77 % (paired p = 0.022) |
+
+Reading: both adaptations stay positive and significant with participants as
+the unit after the RT-linked part of high gamma is removed. RT coupling carries
+about a quarter of each, and the rest is not RT coupling. This is a window-mean
+check on the task-significant electrodes, not a test of the time-resolved
+clusters. A 0–0.5 s rerun of A6 would check a window before most responses.
+
