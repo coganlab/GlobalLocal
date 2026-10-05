@@ -3332,6 +3332,67 @@ Reading:
   signals they regulate overlap. That is a stronger ending than "intermixed",
   which local similarity could not support.
 
+**Third run (2026-10-05): all lPFC, RT-adjusted long table.** `--long-df` and
+`--rt-coupling` from the `RT_ADJUST_HG=1` scatter-only run
+(`..._rt_adjusted_scatter_only_splits200`), sections 3 and 5. Section 3
+rescored all 398 electrodes with 200 shared splits on high gamma with the
+RT-linked part removed. Section 5 used the raw anatomy scores, with RT coupling
+now known for every electrode.
+
+*The full RT control for the overlap.* On RT-adjusted high gamma with shared
+splits, LWPC–LWPS r = **+0.103, p = 0.0004** (397 electrodes, 21 participants),
+against +0.097 on raw high gamma. The RT-coupling covariate, now on all 397
+electrodes, moves r from 0.097 to 0.082 (p = 0.001). **RT coupling does not
+produce the overlap.** With the F3 check (72–77 % of the adaptation means
+survive), RT is ruled out as the explanation of either result.
+
+*Overlap controls (all lPFC).* As before: + nonlinear responsiveness 0.094, + MNI
+coordinates 0.100, + same-half base effects 0.028 (p = 0.23); all of the above
+0.036 (p = 0.12), carried by the base-effect partial.
+
+*Local similarity on RT-adjusted high gamma (397 electrodes, 21 participants).*
+
+| Score | Reliability | < 10 mm | 10–20 mm | Nearest − farthest |
+|---|---|---|---|---|
+| LWPC − LWPS | −0.046 [−0.107, +0.017] | +0.005 [−0.042, +0.064], p 0.46 | −0.105, p 0.98 | −0.000, p 0.50 |
+| LWPC | +0.161 [+0.063, +0.252] | **+0.165 [+0.040, +0.303], p 0.007** | +0.136, p 0.36 | **+0.227, p 0.007** |
+| LWPS | −0.009 [−0.121, +0.114] | −0.005, p 0.53 | −0.004, p 0.59 | −0.004, p 0.52 |
+| congruency | +0.228 [+0.054, +0.410] | +0.140, p 0.09 | +0.041, p 0.03 | +0.178, p 0.075 |
+| switch | +0.195 [+0.107, +0.264] | +0.112, p 0.08 | +0.052, p 0.07 | +0.165, p 0.074 |
+
+Reading:
+
+- The positive control works on all lPFC: electrodes within 10 mm share LWPC's
+  reliable signal (+0.165, about its whole reliability), and the base effects
+  lean the same way.
+- The balance shows no local excess. But the balance also has **no reliable
+  within-participant variation** once the linear gradient is removed
+  (reliability −0.046, interval up to +0.017). With nothing reliable to be
+  patchy, the null is not a positive test of intermixing.
+- The balance's missing reliability is itself informative. A difference score
+  keeps the reliable variance its parts do not share. LWPC has reliable
+  variation (0.16–0.20) and the balance has none, so LWPS's reliable variation
+  must be largely shared with LWPC, the overlap r of 0.10. Within participant,
+  beyond the shallow gradient, there is no reliable electrode-by-electrode
+  LWPC-versus-LWPS difference to map. That is the strongest local statement the
+  data support: "beyond a shallow dorsal–ventral bias, the balance between
+  the two adaptations shows no reliable variation from electrode to electrode".
+  It is not "intermixed, with local patches ruled out".
+- Run on RT-adjusted high gamma. Repeat on raw high gamma (Run 2 in §19.5)
+  before quoting it.
+
+*Reliabilities: two changes at once.* In this run's `reliability_by_split_scheme`
+table the "per electrode" row is raw high gamma with the pipeline's split, and
+the "shared, RT-adjusted" row differs in both split and RT adjustment (LWPC 0.069
+→ 0.202, LWPS −0.094 → 0.006, congruency 0.341 → 0.337, switch 0.235 → 0.294).
+Do not read the difference as the split bias alone. One thing stands out: after
+RT adjustment LWPS has essentially no within-participant reliability, while in
+the task-significant subset on raw high gamma with shared splits it had 0.14.
+That suggests RT coupling supplies much of LWPS's reliable electrode-to-electrode
+variation. The raw shared-split run on all lPFC separates the two. At an LWPS
+reliability near zero, the noise-corrected overlap (0.103 / √(0.202 × 0.006))
+is not estimable.
+
 **Fig. 3, RT-adjusted (`f3_rt_adjusted_check.py`, A6 window 0–1.5 s,
 task-significant lPFC, 21 participants).**
 
