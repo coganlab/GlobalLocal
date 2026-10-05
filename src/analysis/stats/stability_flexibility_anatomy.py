@@ -2837,7 +2837,8 @@ def overlap_control_lines(table, loso=None):
     return lines
 
 
-def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3, seed=1):
+def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3, seed=1,
+                                shared_label='shared by participant'):
     """Within-participant split-half reliabilities from both split schemes, on
     the electrodes both tables have. Per-electrode splits let one electrode's half A share trials with another's
     half B, which biases the within-participant centring; the shared split does
@@ -2847,7 +2848,7 @@ def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3,
     resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
     common = set(resp.index) & set(per_split['electrode']) & set(per_split_shared['electrode'])
     rows = []
-    for scheme, table in (('per electrode', per_split), ('shared by participant', per_split_shared)):
+    for scheme, table in (('per electrode', per_split), (shared_label, per_split_shared)):
         t = table[table['electrode'].isin(common)]
         r = split_resolved_corr(t, resp, min_elec=min_elec, n_perm=1, seed=seed)
         row = dict(split=scheme, LWPC=r['reliability_x'], LWPS=r['reliability_y'],
@@ -2862,7 +2863,8 @@ def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3,
 
 def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mni_z',
               n_perm=10000, n_boot=2000, seed=0, sections=(1, 2, 3, 4, 5),
-              per_split_shared=None, rt_coupling=None):
+              per_split_shared=None, rt_coupling=None,
+              shared_label='shared by participant'):
     """§19 of docs/n4_continuous_anatomy.md from one anatomy run's tables.
 
     1. the ``axis`` slope with participants as the unit
@@ -2873,7 +2875,9 @@ def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mn
        per-split table scored with one trial split per participant
        (``compute_sensitivities_per_split(shared_split=True)``); ``per_split``
        is used only if it is itself shared. Also compares the
-       within-participant reliabilities of the two split schemes;
+       within-participant reliabilities of the two split schemes, and gives
+       the pre-specified LWPC-LWPS r on the shared table (``shared_label``
+       names it, e.g. when its high gamma was RT-adjusted);
     4. the combined anatomy figure (:func:`figure5_height`);
     5. :func:`overlap_controls`, with ``rt_coupling`` (electrode -> ``rt_r``)
        for its RT row.
@@ -2945,9 +2949,24 @@ def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mn
                     notes=loc['notes'])
             except Exception as exc:
                 fail('local similarity', exc)
+            if per_split_shared is not None:
+                try:
+                    from .stability_flexibility_segregation import split_resolved_corr
+                    resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+                    sh = per_split_shared[per_split_shared['electrode'].isin(resp.index)]
+                    r = split_resolved_corr(sh, resp, n_perm=n_perm, seed=seed)
+                    lines.append(f"  LWPC–LWPS SEPARATE-HALF r ON THE RESCORED TABLE ({shared_label}): "
+                                 f"r = {r['corr']:+.3f}  p = {r['p']:.3g}  ({r['n_electrodes']} "
+                                 f"electrodes, {r['n_subjects']} participants)")
+                    out['overlap_shared'] = {k: r[k] for k in ('corr', 'p', 'n_electrodes',
+                                                               'n_subjects', 'reliability_x',
+                                                               'reliability_y')}
+                except Exception as exc:
+                    fail('overlap on the rescored table', exc)
             if per_split_shared is not None and not is_shared_split(ps):
                 try:
-                    rel = _shared_split_reliabilities(ps, per_split_shared, scores)
+                    rel = _shared_split_reliabilities(ps, per_split_shared, scores,
+                                                      shared_label=shared_label)
                     rel.to_csv(os.path.join(out_dir, 'reliability_by_split_scheme.csv'),
                                index=False)
                     lines += ["  WITHIN-PARTICIPANT SPLIT-HALF RELIABILITY BY SPLIT SCHEME "
