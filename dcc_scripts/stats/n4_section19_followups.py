@@ -15,13 +15,25 @@ atlases or recon files:
 3. local similarity: cross-half similarity of electrode pairs within
    participant by distance, for the balance and for each single score;
 4. the combined Figure 5: LWPC against LWPS coloured by height tertile, the
-   tertile centroids, and the balance by height.
+   tertile centroids, and the balance by height;
+5. the LWPC-LWPS overlap r with each candidate confound removed in turn
+   (nonlinear responsiveness, coordinates, same-half base effects, RT
+   coupling) and with each participant left out.
+
+Section 3 needs halves shared by all of a participant's electrodes; the
+segregation job's default per-split table splits each electrode on its own,
+which makes neighbours' halves share trials (§19.3 of the N4 doc). Give it
+``--long-df`` (the segregation run's ``long_df.csv``; this script then rescores
+with shared splits, a few minutes) or ``--per-split-shared`` (the
+``per_split.csv`` of a ``SHARED_SPLIT=1`` segregation run).
 
     python dcc_scripts/stats/n4_section19_followups.py \\
         --anatomy-dir <anatomy run>/continuous \\
         [--seg-dir    <the _main_effects segregation run the anatomy job read>] \\
         [--per-split  <per_split.csv; default: --anatomy-dir, then --seg-dir>] \\
-        [--out-dir    <default: <anatomy-dir>/section19>] [--sections 1,2,3,4]
+        [--long-df    <segregation run>/long_df.csv]        (section 3) \\
+        [--rt-coupling <A6 run>/participant_electrode_scores.csv]   (section 5) \\
+        [--out-dir    <default: <anatomy-dir>/section19>] [--sections 1,2,3,4,5]
 
 ``--seg-dir`` gives panel b of the figure its pre-specified r
 (``correlation.json``); without it the r is recomputed from the per-split table.
@@ -59,7 +71,17 @@ def main(argv=None):
     ap.add_argument('--n-perm', type=int, default=10000)
     ap.add_argument('--n-boot', type=int, default=2000)
     ap.add_argument('--seed', type=int, default=0)
-    ap.add_argument('--sections', default='1,2,3,4')
+    ap.add_argument('--sections', default='1,2,3,4,5')
+    ap.add_argument('--long-df', default=None,
+                    help="the segregation run's long_df.csv: rescore with one trial split per "
+                         "participant for section 3")
+    ap.add_argument('--shared-n-splits', type=int, default=200,
+                    help='splits for the --long-df rescoring (default 200)')
+    ap.add_argument('--per-split-shared', default=None,
+                    help='per_split.csv of a SHARED_SPLIT=1 segregation run (instead of --long-df)')
+    ap.add_argument('--rt-coupling', default=None,
+                    help='CSV with electrode and rt_r (A6 participant_electrode_scores.csv or '
+                         'the RT-adjusted run\'s rt_adjustment_slopes.csv) for section 5')
     args = ap.parse_args(argv)
 
     scores = pd.read_csv(os.path.join(args.anatomy_dir, 'scores_with_anatomy.csv'))
@@ -69,9 +91,28 @@ def main(argv=None):
     print(f"{len(scores)} electrodes, {scores['subject'].nunique()} participants; per-split "
           f"table: {ps_path or 'none (sections 2 and 3 skipped)'}")
 
+    os.makedirs(out_dir, exist_ok=True)
+    shared = None
+    if args.per_split_shared:
+        shared = pd.read_csv(args.per_split_shared)
+    elif args.long_df:
+        from src.analysis.stats import stability_flexibility_segregation as sfs
+        long_df = pd.read_csv(args.long_df)
+        long_df = long_df[long_df['electrode'].isin(scores['electrode'])]
+        print(f"rescoring {long_df['electrode'].nunique()} electrodes with "
+              f"{args.shared_n_splits} participant-shared splits ...")
+        shared = sfs.compute_sensitivities_per_split(
+            long_df, n_splits=args.shared_n_splits, seed=args.seed, contrast_mode='proportion',
+            effect_measure='cohens_d', main_effects=True, shared_split=True)
+        shared.to_csv(os.path.join(out_dir, 'per_split_shared.csv'), index=False)
+    rt = pd.read_csv(args.rt_coupling) if args.rt_coupling else None
+    if rt is not None and 'rt_r' not in rt.columns:
+        raise SystemExit(f"{args.rt_coupling} has no rt_r column")
+
     lines, out = sfa.section19(scores, per_split, out_dir, seg_dir=args.seg_dir, axis=args.axis,
                                n_perm=args.n_perm, n_boot=args.n_boot, seed=args.seed,
-                               sections=tuple(int(x) for x in args.sections.split(',')))
+                               sections=tuple(int(x) for x in args.sections.split(',')),
+                               per_split_shared=shared, rt_coupling=rt)
     text = '\n'.join(lines)
     print(text)
     with open(os.path.join(out_dir, 'summary_section19.txt'), 'w') as f:

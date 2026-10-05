@@ -724,7 +724,7 @@ def main(args):
         n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec,
         contrast_mode=contrast_mode, effect_measure=effect_measure,
         fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
-        main_effects=main_effects)
+        main_effects=main_effects, shared_split=getattr(args, 'shared_split', False))
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
@@ -744,6 +744,7 @@ def main(args):
         contrast_mode=contrast_mode, effect_measure=effect_measure,
         rt_adjust_hg=getattr(args, 'rt_adjust_hg', False),
         main_effects=main_effects,
+        shared_split=getattr(args, 'shared_split', False),
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label,
         fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
