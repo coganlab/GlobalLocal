@@ -719,10 +719,33 @@ def compute_sensitivities(df, n_splits=200, seed=0, contrast_mode='condition',
     return pd.DataFrame(rows)
 
 
+def _shared_trial_halves(work, strata, n_splits, rng):
+    """``{subject: DataFrame(index=trial, columns=split) of 0 (half A) / 1 (B)}``.
+
+    One split per participant and repetition, stratified on the trial-level
+    `strata`, so every electrode of a participant uses the same halves. Needs
+    the long table's ``trial`` column (written by ``assemble_long_df``)."""
+    if 'trial' not in work.columns:
+        raise ValueError("shared_split needs a `trial` column; rebuild the long table "
+                         "with the current assemble_long_df")
+    out = {}
+    for subj, sub in work.groupby('subject'):
+        trials = sub.drop_duplicates('trial')[['trial', *strata]].reset_index(drop=True)
+        cells = trials.groupby(list(strata), dropna=False).indices.values()
+        half = np.ones((len(trials), n_splits), dtype=np.int8)
+        for k in range(n_splits):
+            for idx in cells:
+                idx = np.array(idx)
+                rng.shuffle(idx)
+                half[idx[:len(idx) // 2], k] = 0
+        out[subj] = pd.DataFrame(half, index=trials['trial'].to_numpy())
+    return out
+
+
 def compute_sensitivities_per_split(df, n_splits=200, seed=0,
                                     contrast_mode='condition', contrasts=None,
                                     effect_measure='cohens_d', alpha=0.05,
-                                    main_effects=False):
+                                    main_effects=False, shared_split=False):
     """Per-split, per-electrode effects on BOTH halves: xA, xB, yA, yB.
 
     `compute_sensitivities` averages x and y over splits and hands one (x, y)
@@ -746,6 +769,19 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
     `main_effects=True` (proportion mode only) also scores each process's main
     effect, W_MAIN over the same four cells, on the same halves: `mxA`/`mxB`
     (congruency) and `myA`/`myB` (switch type). `xA`..`yB` are unchanged.
+
+    **Which trials go into a half.** By default each electrode's trials are split
+    on their own. Within an electrode the halves are disjoint, which is all the
+    pre-specified tests need. ACROSS electrodes they are not: electrode i's half
+    A shares about half its trials with electrode j's half B. Wherever two
+    electrodes' trial noise is correlated (neighbouring contacts, a shared
+    reference), anything that compares one electrode's half with ANOTHER
+    electrode's half then picks up shared noise: the local-similarity analysis,
+    and the within-participant centring behind the within-participant
+    reliabilities (it biases them low). `shared_split=True` draws one split per
+    participant and repetition and gives it to all of its electrodes, so every
+    half A is disjoint from every half B; the table then carries
+    ``split_scheme = 'participant'``. Needs the long table's ``trial`` column.
     """
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
     if main_effects and not _is_interaction(contrasts['stability']):
@@ -754,12 +790,18 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
     work = _canonical_labels(df, contrasts)
     strata = _strata_columns(contrasts)
     rng = np.random.default_rng(seed)
+    shared = _shared_trial_halves(work, strata, n_splits, rng) if shared_split else None
     rows = []
     for (subj, elec), sub in work.groupby(['subject', 'electrode']):
         sub = sub.reset_index(drop=True)
+        if shared is not None:
+            halves = shared[subj].loc[sub['trial'].to_numpy()].to_numpy()
         for k in range(n_splits):
-            h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
-            g1, g2 = sub.loc[h1], sub.loc[h2]
+            if shared is not None:
+                g1, g2 = sub[halves[:, k] == 0], sub[halves[:, k] == 1]
+            else:
+                h1, h2 = _stratified_half_split(sub, rng, strata_cols=strata)
+                g1, g2 = sub.loc[h1], sub.loc[h2]
             row = dict(
                 subject=subj, electrode=elec, split=k,
                 xA=_effect_for(g1, 'stability', '_slab', contrasts, effect_measure, alpha),
@@ -775,7 +817,10 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
                     row[col] = _effect_for(g, key, lab, contrasts, effect_measure,
                                            alpha, w=W_MAIN)
             rows.append(row)
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    if shared_split:
+        out['split_scheme'] = 'participant'
+    return out
 
 
 def average_over_splits(per_split):
@@ -805,7 +850,7 @@ def _unit_vector(v, method):
 
 
 def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
-                        n_perm=10000, seed=1, covariates=None):
+                        n_perm=10000, seed=1, covariates=None, half_covariates=None):
     """Correlate within each split, then average -- with a noise ceiling.
 
     Three quantities, all averaged over splits, all on residualised and
@@ -845,9 +890,16 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
     coordinates) are regressed out together with responsiveness. They are
     centred within subject first, which makes the within-subject residuals
     exactly orthogonal to them.
+
+    `half_covariates` (optional) are per-split covariates taken from the SAME
+    half as the score they adjust, e.g. ``{'xA': ('mxA', 'myA'), 'xB': ('mxB',
+    'myB'), 'yA': ('mxA', 'myA'), 'yB': ('mxB', 'myB')}`` partials each half's
+    base effects out of that half's adaptation score, so the two sides of the
+    correlation still share no trials.
     """
     elecs, subj, groups, splits, mats, n_elec_in = _residualised_split_matrices(
-        per_split, resp, min_elec=min_elec, covariates=covariates)
+        per_split, resp, min_elec=min_elec, covariates=covariates,
+        half_covariates=half_covariates)
 
     U = {k: np.vstack([_unit_vector(mats[k][si], method) for si in range(len(splits))])
          for k in mats}
@@ -899,7 +951,7 @@ def split_resolved_corr(per_split, resp, min_elec=3, method='spearman',
 
 
 def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
-                                 keys=('xA', 'xB', 'yA', 'yB')):
+                                 keys=('xA', 'xB', 'yA', 'yB'), half_covariates=None):
     """The scores `split_resolved_corr` correlates, as (splits x electrodes) arrays.
 
     Keeps the electrodes defined on every split, drops participants with fewer
@@ -912,9 +964,12 @@ def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
     `elecs`, the split ids, ``{key: array (n_splits, n_elec)}`` and the number of
     electrodes before the filters. Shared by `split_resolved_corr` and
     `participant_split_corr`, so the pooled test and its participant-level
-    version see exactly the same values.
+    version see exactly the same values. `half_covariates` maps a key to
+    per-split columns regressed out of that key alone (see `split_resolved_corr`).
     """
     keys = list(keys)
+    half_covariates = dict(half_covariates or {})
+    extra = sorted({c for cols in half_covariates.values() for c in cols} - set(keys))
     d = per_split.merge(pd.Series(resp, name='resp').rename_axis('electrode').reset_index(),
                         on='electrode', how='left')
     cov_cols = [] if covariates is None else list(covariates.columns)
@@ -922,7 +977,7 @@ def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
         d = d.merge(covariates.rename_axis('electrode').reset_index(),
                     on='electrode', how='left')
     n_elec_in = d['electrode'].nunique()
-    d = d.dropna(subset=[*keys, 'resp', *cov_cols])
+    d = d.dropna(subset=[*keys, *extra, 'resp', *cov_cols])
 
     # Keep only electrodes present in EVERY split, so the per-split vectors are
     # comparable and the permutation applies to a fixed electrode set. An
@@ -957,7 +1012,7 @@ def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
     groups = [np.where(subj == s)[0] for s in np.unique(subj)]
 
     splits = np.sort(d['split'].unique())
-    mats = {k: np.full((len(splits), len(elecs)), np.nan) for k in keys}
+    mats = {k: np.full((len(splits), len(elecs)), np.nan) for k in (*keys, *extra)}
     for si, s in enumerate(splits):
         block = d[d['split'] == s]
         cols = block['electrode'].map(e_index).to_numpy()
@@ -973,15 +1028,24 @@ def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
         for g in groups:
             C[g] -= C[g].mean(axis=0)
         design = np.column_stack([np.ones(len(elecs)), resp_vec, C])
-    for k in mats:
+    raw = {c: mats[c].copy() for c in {c for cols in half_covariates.values() for c in cols}}
+    for k in keys:
         for si in range(len(splits)):
-            r = (mats[k][si] - design @ np.linalg.lstsq(design, mats[k][si], rcond=None)[0]
-                 if cov_cols else _ols_resid(mats[k][si], resp_vec))
+            if k in half_covariates:
+                H = np.column_stack([raw[c][si] for c in half_covariates[k]])
+                for g in groups:
+                    H[g] -= H[g].mean(axis=0)
+                X = np.column_stack([design if cov_cols else
+                                     np.column_stack([np.ones(len(elecs)), resp_vec]), H])
+                r = mats[k][si] - X @ np.linalg.lstsq(X, mats[k][si], rcond=None)[0]
+            else:
+                r = (mats[k][si] - design @ np.linalg.lstsq(design, mats[k][si], rcond=None)[0]
+                     if cov_cols else _ols_resid(mats[k][si], resp_vec))
             for g in groups:
                 r[g] -= r[g].mean()
             mats[k][si] = r
 
-    return elecs, subj, groups, splits, mats, n_elec_in
+    return elecs, subj, groups, splits, {k: mats[k] for k in keys}, n_elec_in
 
 
 def participant_split_corr(per_split, resp, min_elec=4, method='spearman',
@@ -1654,8 +1718,12 @@ def run_joint_distribution_analysis(df, responsiveness=None,
                                     effect_measure='cohens_d',
                                     fdr_correction='fdr_bh',
                                     corr_method='spearman',
-                                    main_effects=False):
+                                    main_effects=False, shared_split=False):
     """Continuous (A2) + categorical (A3) segregation tests on one trial table.
+
+    `shared_split=True` draws each split once per participant and gives it to
+    all of its electrodes (see `compute_sensitivities_per_split`); needed for
+    any comparison of one electrode's half with another electrode's half.
 
     Returned keys:
       correlation      PRIMARY. Split-resolved co-localization: the correlation
@@ -1682,7 +1750,8 @@ def run_joint_distribution_analysis(df, responsiveness=None,
     """
     per_split = compute_sensitivities_per_split(
         df, n_splits, contrast_mode=contrast_mode, contrasts=contrasts,
-        effect_measure=effect_measure, alpha=alpha, main_effects=main_effects)
+        effect_measure=effect_measure, alpha=alpha, main_effects=main_effects,
+        shared_split=shared_split)
     elec = add_responsiveness(average_over_splits(per_split), df, responsiveness)
     resp = elec.drop_duplicates('electrode').set_index('electrode')['resp']
 

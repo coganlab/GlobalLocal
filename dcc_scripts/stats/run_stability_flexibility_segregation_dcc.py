@@ -100,6 +100,11 @@ if RT_ADJUST_HG and EFFECT_MEASURE != 'cohens_d':
 MAIN_EFFECTS = (os.environ.get('MAIN_EFFECTS', '0') not in ('0', '', 'false', 'False')
                 and CONTRAST_MODE == 'proportion')
 
+# SHARED_SPLIT=1: one trial split per participant, used by all of its electrodes
+# (compute_sensitivities_per_split). Needed by the local-similarity analysis
+# (docs/n4_continuous_anatomy.md §19.3); the pre-specified tests are valid either way.
+SHARED_SPLIT = os.environ.get('SHARED_SPLIT', '0') not in ('0', '', 'false', 'False')
+
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 # Comma-separated names from src.analysis.config.rois, or 'all' to keep every
@@ -142,6 +147,8 @@ if MAIN_EFFECTS and not SCATTER_ONLY:   # never overwrite an archived LWPC/LWPS-
     SAVE_DIR += '_main_effects'
 if RT_ADJUST_HG:
     SAVE_DIR += '_rt_adjusted'
+if SHARED_SPLIT:
+    SAVE_DIR += '_shared_split'
 # Keep the scatter-only run in its own directory: its sensitivities are scored
 # differently (all trials, by default) from the ones a full run plots, so writing
 # both scatters to the same path would silently overwrite one with the other.
@@ -168,6 +175,7 @@ def run_analysis():
         effect_measure=EFFECT_MEASURE,
         rt_adjust_hg=RT_ADJUST_HG,
         main_effects=MAIN_EFFECTS,
+        shared_split=SHARED_SPLIT,
         n_splits=N_SPLITS,
         n_perm_corr=N_PERM_CORR,
         n_perm_label=N_PERM_LABEL,
@@ -198,6 +206,7 @@ def run_analysis():
     print(f"Contrast mode:    {CONTRAST_MODE}")
     print(f"Effect measure:   {EFFECT_MEASURE}")
     print(f"RT-adjust HG:     {RT_ADJUST_HG}")
+    print(f"Shared split:     {SHARED_SPLIT}")
     print("-" * 70)
     if SCATTER_ONLY:
         print("MODE:             SCATTER ONLY (plan 2.5) - no inference is run")
