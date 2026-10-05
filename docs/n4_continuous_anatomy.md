@@ -3104,7 +3104,22 @@ python dcc_scripts/stats/n4_section19_followups.py \
 
 `--long-df` rescores with one trial split per participant for §19.3 (200 splits
 by default, `--shared-n-splits`; roughly 5–10 minutes for all lPFC). Without it
-§19.3 is skipped. A `SHARED_SPLIT=1` segregation run gives the same table
+§19.3 is skipped.
+
+**The long table needs a `trial` column**, added to `assemble_long_df` on
+2026-09-27. Older tables cannot be patched from row order: rows with NaN high
+gamma were dropped electrode by electrode, so two electrodes' k-th rows need
+not be the same trial. Without `trial` the script skips §19.3 and runs the rest.
+The all-lPFC `_main_effects` segregation run (2026-09-26) is such a table. Two
+sources with trial ids:
+
+- **Task-significant lPFC, now:** the A6 run's `long_df.csv` (written
+  2026-09-30; same epochs file, correct trials only). Give it with the all-lPFC
+  anatomy folder; §19.3 runs on the 171 electrodes it covers.
+- **All lPFC:** `cd dcc_scripts/stats && SCATTER_ONLY=1 bash
+  submit_stability_flexibility_segregation_dcc.sh`. The scatter-only job now
+  also writes `long_df.csv`, in `<segregation_results>/window_0.0to1.5s_all_lpfc_
+  proportion_cohens_d_fdr_bh_scatter_only_splits0/`. It runs in minutes. A `SHARED_SPLIT=1` segregation run gives the same table
 (`--per-split-shared <run>/per_split.csv`). `--rt-coupling` adds the RT row of
 §19.7: the A6 table covers the task-significant electrodes only. For all lPFC,
 use the RT-adjusted segregation run's `rt_adjustment_slopes.csv` (§18.10).
