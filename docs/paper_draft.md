@@ -101,6 +101,11 @@ these reliabilities, so "intermixed" has no direct support. Candidate:
 > the signal it regulates is, and congruency and switch type share electrodes;
 > the balance between them shows a shallow dorsal–ventral bias.
 
+*2026-10-05, raw all-lPFC rescoring:* the data also support "one population
+rather than two intermixed ones". Beyond the gradient, electrodes do not
+reliably differ in their LWPC–LWPS balance, though they reliably differ in
+LWPC (N4 §19.8, fourth run).
+
 This brings the matched-vs-crossed result back as the explanation of the
 overlap (one sentence or a small panel), not as a separate claim.
 
@@ -139,6 +144,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | **RT-adjusted check on F3** (2026-10-02) | Coded: `sbb.group_adaptation_rt_check`; new A6 runs write `group_adaptation_rt_check.csv`, and `dcc_scripts/stats/f3_rt_adjusted_check.py` reads an existing run's `participant_electrode_scores.csv` (§1.4, F3). |
 | **First §19 run and the F3 check** (2026-10-05; N4 §19.8) | F3: both adaptations survive the RT adjustment with participants as the unit (72 % and 77 % retained, p ≈ 0.007). The z gradient holds with participants as the unit at p ≈ 0.04 (weighted sign-flip, random slope) but varies across participants. The overlap r holds when participants are weighted by electrode count (p = 0.03), not unweighted (p = 0.35). The local-similarity numbers are **not usable**: the per-split table splits each electrode on its own, and shared trial noise between neighbours made every score look locally similar (N4 §19.3). Fixed: shared splits plus participant-level inference; needs a rerun with `--long-df`. The within-participant reliabilities quoted in §3.4 share the bias. |
 | **Overlap confound controls** (2026-10-05; N4 §19.7–19.8) | Run. The LWPC–LWPS overlap survives nonlinear responsiveness, coordinates, RT coupling (task-significant subset) and leave-one-participant-out, but **mostly vanishes with each half's base effects partialled** (0.097 → 0.028). Reading: the two adaptations overlap because each follows the signal it regulates. Revised ending proposed in §1.1. |
+| **All lPFC, raw rescoring** (2026-10-05; N4 §19.8, fourth run) | Shared-split reliabilities for the paper: LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35 (were 0.07, −0.09, 0.34, 0.24). The LWPS reliability argument survives with these. Overlap r 0.111 (p = 0.0002). Local similarity as on RT-adjusted HG: positive control works, and the balance has no reliable variation beyond the gradient. Supports "one population rather than two intermixed ones" (wording in N4 §19.8). |
 | **All lPFC, RT-adjusted rescoring** (2026-10-05; N4 §19.8, third run) | **The overlap survives the full RT control**: r = 0.103 (p = 0.0004) on RT-adjusted high gamma with shared splits, against 0.097 raw; the RT-coupling covariate on all electrodes gives 0.082 (p = 0.001). Local similarity: the positive control works (LWPC, p = 0.007), but the balance has no reliable within-participant variation beyond the gradient. Supportable wording: "no reliable electrode-by-electrode LWPC-vs-LWPS difference beyond a shallow dorsal–ventral bias". Not a positive test of "intermixed". Repeat on raw high gamma (Run 2). |
 | **Local similarity, shared splits** (2026-10-05; task-significant subset) | No power for the adaptation scores (reliabilities 0.04–0.14); positive control only for switch type. Does not support "intermixed". Within-participant reliabilities were strongly biased by the per-electrode split (LWPC 0.01 → 0.17, LWPS 0.00 → 0.14, congruency 0.25 → 0.39, switch 0.25 → 0.39); the overlap r was not (0.073 vs 0.076). |
 
@@ -1111,10 +1117,9 @@ first one, shortened.*
 > positive (*r* = 0.09, *p* < 0.001) and held with MNI coordinates partialled
 > out (*r* = 0.09, *p* < 0.001), so the link is local rather than a gradient
 > that the two maps share. For LWPS the matched base effect was the less
-> reliable map (within-participant split-half reliability 0.23 for switch,
-> 0.35 for congruency **[biased values. Replace with all-lPFC shared-split
-> values; in the task-significant subset they are equal (0.39 and 0.39), so this
-> argument may not survive. N4 §19.8]**) and still correlated more, so that difference is not
+> reliable map (within-participant split-half reliability 0.35 for switch,
+> 0.46 for congruency, from trial splits shared by all of a participant's
+> electrodes; N4 §19.8) and still correlated more, so that difference is not
 > one of reliability. All four correlations were positive: electrodes with
 > larger base effects of either kind adapted more on both.
 >
@@ -1175,7 +1180,8 @@ base-effect balance") are the §17.3 text that left the main text on 2026-10-01
 > the test of them was at the threshold of significance (*r* = 0.08,
 > *p* = 0.049; with MNI coordinates partialled out, *r* = 0.08, *p* = 0.052).
 > In this subset the congruency and switch-type maps were equally reliable
-> (within-participant split-half reliability 0.25 and 0.26), so the larger
+> (within-participant split-half reliability 0.39 and 0.39, shared trial
+> splits), so the larger
 > difference for LWPC does not reflect a more reliable congruency map. Neither
 > balance differed across Destrieux parcels (15 parcels; LWPC − LWPS:
 > *F* = 0.91, *p* = 0.29; congruency − switch: *F* = 1.15, *p* = 0.12; with
@@ -1370,8 +1376,8 @@ overlap result.*
 - For LWPC the matched base effect (congruency) is also the more reliable map
   in all lPFC, so reliability could contribute to that pair's gap there; the
   LWPS pair rules reliability out only for LWPS. In the task-responsive subset
-  the two base-effect maps are equally reliable (0.25 and 0.26 within
-  participant) and LWPC's gap is the same size (0.09 against 0.10), which
+  the two base-effect maps are equally reliable (0.39 and 0.39 within
+  participant, shared splits) and LWPC's gap is the same size (0.09 against 0.10), which
   argues against reliability for LWPC too (N4 §18.2). That is descriptive: no
   test compares the two pairs' gaps, and the subset's overall test is at the
   threshold (*p* = 0.049).

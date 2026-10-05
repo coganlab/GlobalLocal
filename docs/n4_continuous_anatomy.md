@@ -3385,13 +3385,68 @@ Reading:
 table the "per electrode" row is raw high gamma with the pipeline's split, and
 the "shared, RT-adjusted" row differs in both split and RT adjustment (LWPC 0.069
 → 0.202, LWPS −0.094 → 0.006, congruency 0.341 → 0.337, switch 0.235 → 0.294).
-Do not read the difference as the split bias alone. One thing stands out: after
-RT adjustment LWPS has essentially no within-participant reliability, while in
-the task-significant subset on raw high gamma with shared splits it had 0.14.
-That suggests RT coupling supplies much of LWPS's reliable electrode-to-electrode
-variation. The raw shared-split run on all lPFC separates the two. At an LWPS
-reliability near zero, the noise-corrected overlap (0.103 / √(0.202 × 0.006))
-is not estimable.
+Do not read the difference as the split bias alone. (An earlier version of
+this paragraph guessed that RT coupling supplies much of LWPS's reliable
+variation. The fourth run below shows otherwise: raw LWPS is already near zero
+on all lPFC.)
+
+**Fourth run (2026-10-05): all lPFC, raw long table.** `--long-df` from the
+scatter-only run with `RT_ADJUST_HG=0 SCATTER_N_SPLITS=0`, section 3 only.
+This is the primary set on the primary signal.
+
+*Within-participant reliabilities, raw high gamma, same electrodes:*
+
+| Split | LWPC | LWPS | congruency | switch | LWPC–LWPS r |
+|---|---|---|---|---|---|
+| per electrode (the pipeline's) | +0.069 | −0.094 | +0.341 | +0.235 | +0.097 |
+| **shared by participant** | **+0.207** | **+0.035** | **+0.462** | **+0.351** | **+0.111** (p = 0.0002) |
+| shared, RT-adjusted (third run) | +0.202 | +0.006 | +0.337 | +0.294 | +0.103 (p = 0.0004) |
+
+- The split bias is confirmed on all lPFC: all four reliabilities rise with a
+  shared split, and the overlap r does not move (0.097, 0.111).
+- **The paper's LWPS reliability argument survives**, with new numbers: switch
+  type is still the less reliable base-effect map (0.35 against 0.46 for
+  congruency), and LWPS still tracks it more than congruency.
+- RT adjustment leaves the adaptation reliabilities nearly unchanged (LWPC 0.21
+  → 0.20) and lowers the base effects' (congruency 0.46 → 0.34, switch 0.35 →
+  0.29). RT coupling contributes to how strongly electrodes carry the base
+  effects, not to their adaptation.
+- LWPS has little reliable electrode-to-electrode variation within participant
+  on all lPFC (0.035; 0.14 in the task-significant subset). The overlap
+  (0.111) is larger than √(0.207 × 0.035) = 0.085, which only sampling error in
+  the small LWPS reliability allows, so the noise-corrected ratio is not
+  estimable. What can be said: LWPS's measurable reliable variation is no
+  larger than what it shares with LWPC.
+
+*Local similarity, raw high gamma (397 electrodes, 21 participants):*
+
+| Score | Reliability | < 10 mm | Nearest − farthest |
+|---|---|---|---|
+| LWPC − LWPS | −0.041 [−0.119, +0.027] | +0.009 [−0.051, +0.077], p 0.41 | +0.004, p 0.47 |
+| LWPC | +0.170 [+0.075, +0.246] | **+0.170 [+0.056, +0.289], p 0.004** | **+0.227, p 0.001** |
+| LWPS | −0.007 [−0.120, +0.106] | −0.011, p 0.57 | −0.018, p 0.58 |
+| congruency | +0.269 [+0.058, +0.490] | +0.196, p 0.088 (10–20 mm p 0.017) | +0.237, p 0.062 |
+| switch | +0.195 [+0.127, +0.275] | +0.128, p 0.057 | **+0.173, p 0.015** |
+
+Same picture as on RT-adjusted high gamma. The positive control works:
+neighbours share LWPC's reliable signal, and switch type's. The balance has
+neither a local excess nor reliable variation beyond the linear gradient. The
+numbers hang together: a difference score keeps rel(LWPC) + rel(LWPS) − 2 × the
+overlap = 0.207 + 0.035 − 0.222 ≈ 0.02 of reliable variance, which is what the
+balance shows (−0.04, interval to +0.03).
+
+**What this supports.** Within participant, beyond the shallow dorsal–ventral
+gradient, electrodes do not reliably differ in their LWPC-versus-LWPS balance,
+while they do reliably differ in LWPC (and neighbours share that). There is no
+evidence of two kinds of electrodes, LWPC-leaning and LWPS-leaning, mixed
+together. The data look like one population whose electrodes carry more or less
+adaptation of both kinds, in step with how much they carry the base effects
+(§19.7). Suggested wording: "one population rather than two intermixed ones:
+beyond a shallow dorsal–ventral bias, electrodes did not reliably differ in the
+balance between the two adaptations (within-participant split-half reliability
+of the balance −0.04, 95 % CI −0.12 to 0.03), although they reliably differed in
+LWPC (0.17) and neighbouring electrodes shared it". The interval allows a small
+reliable balance (up to ~0.03), so say "not reliably", not "none".
 
 **Fig. 3, RT-adjusted (`f3_rt_adjusted_check.py`, A6 window 0–1.5 s,
 task-significant lPFC, 21 participants).**
