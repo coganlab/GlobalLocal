@@ -2838,16 +2838,17 @@ def overlap_control_lines(table, loso=None):
 
 
 def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3, seed=1):
-    """Within-participant split-half reliabilities from both split schemes.
-    Per-electrode splits let one electrode's half A share trials with another's
+    """Within-participant split-half reliabilities from both split schemes, on
+    the electrodes both tables have. Per-electrode splits let one electrode's half A share trials with another's
     half B, which biases the within-participant centring; the shared split does
     not."""
     from .stability_flexibility_segregation import (split_resolved_corr, main_effect_view,
                                                     MAIN_EFFECT_COLS)
     resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+    common = set(resp.index) & set(per_split['electrode']) & set(per_split_shared['electrode'])
     rows = []
     for scheme, table in (('per electrode', per_split), ('shared by participant', per_split_shared)):
-        t = table[table['electrode'].isin(resp.index)]
+        t = table[table['electrode'].isin(common)]
         r = split_resolved_corr(t, resp, min_elec=min_elec, n_perm=1, seed=seed)
         row = dict(split=scheme, LWPC=r['reliability_x'], LWPS=r['reliability_y'],
                    overlap_r=r['corr'])

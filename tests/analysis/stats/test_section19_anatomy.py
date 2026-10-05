@@ -406,3 +406,24 @@ def test_same_half_covariates_keep_the_halves_apart():
     part = sfs.split_resolved_corr(ps, resp, n_perm=100,
                                    half_covariates=sfa._SAME_HALF_BASE)['corr']
     assert part == pytest.approx(plain, abs=0.05)
+
+
+def test_section19_script_skips_only_local_similarity_without_trial_ids(tmp_path, capsys):
+    """A long table assembled before `trial` existed: section 3 is skipped with
+    the ways to get trial ids, and section 5 still runs."""
+    from dcc_scripts.stats import n4_section19_followups as script
+    df, coords = _trial_world(n_subj=4, seed=1)
+    ps = sfs.compute_sensitivities_per_split(df, n_splits=4, contrast_mode='proportion',
+                                             main_effects=True)
+    tab = sfa.attach_scores(sfs.add_responsiveness(sfs.average_over_splits(ps), df), {},
+                            electrodes_to_coords=coords)
+    tab.to_csv(tmp_path / 'scores_with_anatomy.csv', index=False)
+    ps.to_csv(tmp_path / 'per_split.csv', index=False)
+    df.drop(columns='trial').to_csv(tmp_path / 'long_df.csv', index=False)
+
+    script.main(['--anatomy-dir', str(tmp_path), '--long-df', str(tmp_path / 'long_df.csv'),
+                 '--sections', '3,5', '--n-perm', '50', '--n-boot', '20'])
+    out = capsys.readouterr().out
+    assert 'has no `trial` column' in out and 'SCATTER_ONLY=1' in out
+    assert 'local similarity: skipped' in out
+    assert 'CANDIDATE CONFOUND REMOVED' in out
