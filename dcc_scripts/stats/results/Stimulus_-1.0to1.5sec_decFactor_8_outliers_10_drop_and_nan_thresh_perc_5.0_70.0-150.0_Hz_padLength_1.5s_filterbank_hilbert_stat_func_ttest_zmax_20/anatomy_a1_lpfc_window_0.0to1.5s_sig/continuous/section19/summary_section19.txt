@@ -1,0 +1,40 @@
+----------------------------------------------------------------------
+§19 — PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, COMBINED FIGURE 5
+  mni_z SLOPE, PARTICIPANTS AS THE UNIT (22 participants, 398 electrodes)
+    pooled slope -0.00770/mm = the coordinate test's; it is the weight-averaged participant slope
+    weighted:   -0.00770/mm  95 % CI [-0.01467, -0.00134]  sign-flip p = 0.041  (21 participants)
+    three participants carry 38% of the weight
+    unweighted: -0.01099/mm ± 0.00589  t-test p = 0.07781  13/20 negative (sign test p = 0.263)  [>= 3 electrodes, >= 5 mm spread]
+    mixed, random intercept: -0.00770/mm ± 0.00276  Wald p = 0.005244
+    mixed, random slope: -0.00831/mm ± 0.00399  Wald p = 0.03745  random-slope SD 0.01007/mm
+    leave one participant out: slope -0.00934 to -0.00496/mm, p 0.002 to 0.0989
+  LWPC–LWPS SEPARATE-HALF r, PARTICIPANTS AS THE UNIT (20 participants with >= 4 electrodes, 394 electrodes)
+    weighted (n - 3): r = +0.098  95 % CI [+0.025, +0.157]  sign-flip p = 0.0305
+    unweighted: r = +0.043  t-test p = 0.3528  11/20 positive
+  LOCAL SIMILARITY (397 electrodes, 21 participants; linear gradient removed; 0 contact-sharing pairs dropped)
+    cross-half similarity by distance; excess over the distance-shuffle null, and as a share of the score's own reliability
+    LWPC − LWPS  reliability -0.179 | < 10: +0.176 (p 0.0002)  10–20: -0.036 (p 0.95)  20–40: +0.014 (p 0.087)  > 40: -0.025 (p 1)
+    LWPC         reliability +0.023 | < 10: +0.274 (p 0.0002)  10–20: +0.154 (p 0.0002)  20–40: -0.007 (p 0.71)  > 40: -0.070 (p 1)
+    LWPS         reliability -0.147 | < 10: +0.155 (p 0.0002)  10–20: +0.036 (p 0.087)  20–40: -0.011 (p 0.82)  > 40: -0.022 (p 0.99)
+    congruency   reliability +0.122 | < 10: +0.293 (p 0.0002)  10–20: +0.087 (p 0.0012)  20–40: -0.008 (p 0.74)  > 40: -0.055 (p 1)
+    switch       reliability +0.071 | < 10: +0.236 (p 0.0002)  10–20: +0.068 (p 0.013)  20–40: +0.017 (p 0.095)  > 40: -0.060 (p 1)
+    LWPC − LWPS  nearest − farthest +0.199  p = 0.0002
+    LWPC         nearest − farthest +0.345  p = 0.0002
+    LWPS         nearest − farthest +0.175  p = 0.0002
+    congruency   nearest − farthest +0.348  p = 0.0002
+    switch       nearest − farthest +0.296  p = 0.0002
+    nearest bin, share of reliability: LWPC − LWPS +34.33 vs LWPC +24.33  difference 95 % CI [+32.95, +32.95]
+    nearest bin, share of reliability: LWPC − LWPS +34.33 vs LWPS +44.52  difference 95 % CI [+28.45, +28.45]
+    nearest bin, share of reliability: LWPC − LWPS +34.33 vs congruency +4.24  difference 95 % CI [+33.33, +33.33]
+    nearest bin, share of reliability: LWPC − LWPS +34.33 vs switch +6.59  difference 95 % CI [+31.96, +31.96]
+    read: intermixed = flat curve for LWPC − LWPS while the single scores rise at short range; if the single scores are flat too, the test has no power
+  FIGURE 5 (height) — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv
+  bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
+  b  LWPC vs LWPS r = +0.097  p = 0.0001  [dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  c  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.193, +0.119]  (132 electrodes, 19 participants)
+  c  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.258, +0.058]  (132 electrodes, 18 participants)
+  c  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.487, -0.201]  (133 electrodes, 19 participants)
+  d  ventral  adjusted LWPC − LWPS -0.151 ± 0.085 SEM (20 participants)
+  d  middle   adjusted LWPC − LWPS -0.141 ± 0.134 SEM (18 participants)
+  d  dorsal   adjusted LWPC − LWPS -0.375 ± 0.121 SEM (19 participants)
+  d  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
