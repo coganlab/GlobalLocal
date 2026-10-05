@@ -51,6 +51,21 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 from src.analysis.stats import stability_flexibility_anatomy as sfa  # noqa: E402
 
 
+NO_TRIAL_IDS = '''
+{path} has no `trial` column: it was assembled before 2026-09-27. A split shared
+by a participant's electrodes needs to know which rows are the same trial, and
+row order cannot stand in for it: rows with NaN high gamma were dropped electrode
+by electrode, so electrodes can list different trials. Section 3 (local
+similarity) is skipped; the other sections run. Two ways to get trial ids:
+  - task-significant lPFC, no rerun: --long-df <A6 run>/long_df.csv (the A6 job
+    wrote it after the column existed; same epochs file, correct trials only)
+  - all lPFC: cd dcc_scripts/stats && SCATTER_ONLY=1 bash
+    submit_stability_flexibility_segregation_dcc.sh  (minutes; writes
+    <segregation_results>/window_..._scatter_only_splits0/long_df.csv), then
+    --long-df that file
+'''
+
+
 def _per_split_path(args):
     for d in (args.anatomy_dir, args.seg_dir):
         p = os.path.join(d, 'per_split.csv') if d else None
@@ -96,15 +111,22 @@ def main(argv=None):
     if args.per_split_shared:
         shared = pd.read_csv(args.per_split_shared)
     elif args.long_df:
-        from src.analysis.stats import stability_flexibility_segregation as sfs
         long_df = pd.read_csv(args.long_df)
-        long_df = long_df[long_df['electrode'].isin(scores['electrode'])]
-        print(f"rescoring {long_df['electrode'].nunique()} electrodes with "
-              f"{args.shared_n_splits} participant-shared splits ...")
-        shared = sfs.compute_sensitivities_per_split(
-            long_df, n_splits=args.shared_n_splits, seed=args.seed, contrast_mode='proportion',
-            effect_measure='cohens_d', main_effects=True, shared_split=True)
-        shared.to_csv(os.path.join(out_dir, 'per_split_shared.csv'), index=False)
+        if 'trial' not in long_df.columns:
+            print(NO_TRIAL_IDS.format(path=args.long_df))
+        else:
+            from src.analysis.stats import stability_flexibility_segregation as sfs
+            long_df = long_df[long_df['electrode'].isin(scores['electrode'])]
+            n_e = long_df['electrode'].nunique()
+            print(f"rescoring {n_e} electrodes with {args.shared_n_splits} participant-shared "
+                  f"splits ..." + (f" (the long table covers {n_e} of the {len(scores)} "
+                                   "electrodes; section 3 runs on those)"
+                                   if n_e < scores['electrode'].nunique() else ''))
+            shared = sfs.compute_sensitivities_per_split(
+                long_df, n_splits=args.shared_n_splits, seed=args.seed,
+                contrast_mode='proportion', effect_measure='cohens_d', main_effects=True,
+                shared_split=True)
+            shared.to_csv(os.path.join(out_dir, 'per_split_shared.csv'), index=False)
     rt = pd.read_csv(args.rt_coupling) if args.rt_coupling else None
     if rt is not None and 'rt_r' not in rt.columns:
         raise SystemExit(f"{args.rt_coupling} has no rt_r column")

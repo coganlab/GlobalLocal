@@ -669,6 +669,10 @@ def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
         alpha=args.alpha, n_splits=n_splits)
 
     os.makedirs(args.save_dir, exist_ok=True)
+    # the long table too: it carries `trial`, so it is the quick way to give an
+    # older run a table that shared splits can use (docs/n4_continuous_anatomy.md §19.5)
+    (df.drop(columns=['hg']) if df['hg'].dtype == object else df).to_csv(
+        os.path.join(args.save_dir, 'long_df.csv'), index=False)
     if rt_slopes is not None:
         rt_slopes.to_csv(os.path.join(args.save_dir, 'rt_adjustment_slopes.csv'),
                          index=False)
