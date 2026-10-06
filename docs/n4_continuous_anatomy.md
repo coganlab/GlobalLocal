@@ -3087,10 +3087,44 @@ Choices, and why:
   of the plotted balance next to the coordinate test's as a check; they agree
   to rounding on the planted data.
 
+**The tertiles on the brain** (`fig5_height_brain.png`, added 2026-10-06;
+`sfa.plot_height_bands_on_brain`). Panel b's electrodes on the fsaverage brain,
+each in its tertile's colour, with each tertile's centroid as a larger sphere in
+a darker shade of that colour (ventral `#635b8b`, middle `#40347c`, dorsal
+`#1f1453`: the band colours × 0.6). The renderer is the one the score maps use,
+so the electrodes sit where they do in those maps. The renderer draws no
+legend; `fig5_height_brain_legend.png` is the legend.
+
+- **A centroid is the mean MNI position of its tertile's electrodes, per
+  hemisphere** (sign of x). A bilateral mean would put x near the midline,
+  outside both hemispheres. Electrode means, like panel c's centroids, so an
+  electrode-rich participant pulls its tertile's centroid. They describe where
+  the sampled electrodes are and test nothing (§8). A tertile with fewer than
+  three electrodes in a hemisphere gets no centroid there.
+  `fig5_height_brain_centroids.csv` has the positions, and the summary prints
+  them (`brain <band> <hemi> centroid MNI (x, y, z)`). Both are written on every
+  run, whether or not the brain is drawn.
+- **Drawn on the lateral surface.** A centroid of electrodes on curved cortex
+  lies under the surface, where the translucent brain washes it out. So each one
+  is drawn at its y and z on its hemisphere's lateral pial surface: the most
+  lateral fsaverage vertex within 4 mm of that y, z. y and z, what a lateral
+  view shows, are exact; only x moves. `centroids_on_surface=False` draws the
+  true mean. The CSV and the summary always give the true mean.
+- **Order of the colours.** A darkened centroid comes close to the next band's
+  electrodes in colour (the middle centroid to dorsal electrodes). Size tells
+  them apart: centroids are 2.5× the electrode diameter.
+- Without the recon files or a display, `fig5_height_brain_sagittal.png` is
+  written instead: one sagittal projection per hemisphere with the same
+  colours, the cuts and the centroids. The summary marks it `FALLBACK` and gives
+  the reason.
+
 ### 19.5 How to run it
 
 **New anatomy runs** compute everything in the `continuous/` folder (block "§19"
-of `summary.txt`, `section19` in `score_anatomy.json`). Nothing to set.
+of `summary.txt`, `section19` in `score_anatomy.json`). Nothing to set. The
+tertile brain follows `MAKE_BRAIN`, `BRAIN_HEMI` and `BRAIN_ZOOM`, as the score
+maps do. `BRAIN_HEMI=split` shows both lateral surfaces, the clearest view of a
+dorsal–ventral layout.
 
 **Existing runs**, from their outputs alone (no epochs, atlases or recon files):
 
@@ -3105,6 +3139,20 @@ python dcc_scripts/stats/n4_section19_followups.py \
 `--long-df` rescores with one trial split per participant for §19.3 (200 splits
 by default, `--shared-n-splits`; roughly 5–10 minutes for all lPFC). Without it
 §19.3 is skipped.
+
+`--brain` adds the tertile brain (§19.4). It is the one step that reads recon
+files (`ECOG_RECON_DIR`, else `/cwork/$USER/ECoG_Recon`), so run it under a
+virtual display, as the Slurm wrapper does:
+
+```bash
+xvfb-run -a python dcc_scripts/stats/n4_section19_followups.py \
+    --anatomy-dir <anatomy run>/continuous --seg-dir <segregation run> \
+    --sections 1,4 --brain --brain-hemi split
+```
+
+Keep section 1 with section 4: it supplies panel d's participant-level p, and
+`fig5_height.png` is redrawn without those lines if it is left out.
+`--brain-zoom` sets the camera zoom (`<1` zooms out).
 
 **The long table needs a `trial` column**, added to `assemble_long_df` on
 2026-09-27. Older tables cannot be patched from row order: rows with NaN high
@@ -3145,6 +3193,8 @@ that the all-lPFC folder still holds the all-lPFC run (`paper_draft.md` §1.7).
 | `per_split_shared.csv`, `reliability_by_split_scheme.csv` | §19.3: the shared-split table, and the reliabilities from both schemes |
 | `overlap_controls.csv`, `overlap_loso.csv` | §19.7 |
 | `fig5_height.png/.pdf`, `fig5_height_points.csv`, `_centroids.csv`, `_balance.csv`, `_balance_by_participant.csv` | §19.4 |
+| `fig5_height_brain_centroids.csv` | §19.4: each tertile's mean MNI position per hemisphere, with electrode and participant counts |
+| `fig5_height_brain.png`, `_legend.png` (or `fig5_height_brain_sagittal.png`) | §19.4: the tertiles and their centroids on the brain (`MAKE_BRAIN` / `--brain`) |
 | `summary_section19.txt`, `section19.json` | everything above in words and numbers |
 
 ### 19.6 What to report

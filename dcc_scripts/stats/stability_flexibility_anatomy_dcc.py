@@ -706,14 +706,19 @@ def run_score_anatomy(args):
             main_lines = ["-" * 70, f"MAIN EFFECTS: failed ({type(exc).__name__}: {exc})"]
 
     # 4c. §19 (advisor check 2026-10-02): the z slope and the LWPC-LWPS r with
-    # participants as the unit, local similarity, and the combined Figure 5.
+    # participants as the unit, local similarity, and the combined Figure 5,
+    # with its height bands and their centroids on the brain when MAKE_BRAIN.
     # Each part fails on its own inside `section19`.
     print("§19: participants as the unit, local similarity, combined Figure 5")
     scores_csv = getattr(args, 'scores_csv', None)
     s19_lines, s19 = sfa.section19(
         tab, per_split, save_dir, coord_res=coord_res,
         seg_dir=os.path.dirname(os.path.abspath(scores_csv)) if scores_csv else None,
-        n_perm=n_perm, seed=seed)
+        n_perm=n_perm, seed=seed, make_brain=getattr(args, 'make_brain', True),
+        brain_kwargs=dict(subjects=(getattr(args, 'brain_subjects', None)
+                                    or getattr(args, 'subjects', None)),
+                          hemi=getattr(args, 'brain_hemi', 'both'),
+                          zoom=getattr(args, 'brain_zoom', None)))
     main_lines = list(main_lines) + s19_lines
 
     # 5. figures ------------------------------------------------------------------
