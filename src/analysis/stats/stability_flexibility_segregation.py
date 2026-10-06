@@ -1048,6 +1048,80 @@ def _residualised_split_matrices(per_split, resp, min_elec=3, covariates=None,
     return elecs, subj, groups, splits, {k: mats[k] for k in keys}, n_elec_in
 
 
+def electrode_split_corr(per_split, resp, min_elec=3, method='spearman', n_perm=10000,
+                         n_boot=2000, seed=1, covariates=None, max_boot_splits=100,
+                         min_positive_share=0.9):
+    """`split_resolved_corr` with electrodes as the unit, plus intervals.
+
+    The correlation, its within-participant permutation p and the two
+    split-half reliabilities are `split_resolved_corr`'s (all splits). The 95 %
+    intervals come from an electrode bootstrap within participant: each
+    participant keeps its electrode count and its electrodes are drawn with
+    replacement; per draw and split, the residualised values are recentred
+    within participant, ranked (Spearman) and correlated exactly as the pooled
+    test does. The bootstrap uses ``max_boot_splits`` evenly spaced splits
+    (the split average converges long before the electrode sampling does).
+
+    ``corr_noise_corrected`` (r / sqrt(rel_x * rel_y)) gets an interval only
+    when both reliabilities are positive in at least ``min_positive_share`` of
+    the draws; otherwise ``noise_corrected_note`` says why not.
+    ``reliability_diff`` (rel_x - rel_y) and its interval compare the two maps'
+    reliabilities on the same draws.
+    """
+    from scipy.stats import rankdata
+
+    r = split_resolved_corr(per_split, resp, min_elec=min_elec, method=method, n_perm=n_perm,
+                            seed=seed, covariates=covariates)
+    elecs, subj, groups, splits, mats, _ = _residualised_split_matrices(
+        per_split, resp, min_elec=min_elec, covariates=covariates)
+    take = np.unique(np.linspace(0, len(splits) - 1, min(len(splits), int(max_boot_splits)))
+                     .round().astype(int))
+    M = {k: mats[k][take] for k in ('xA', 'xB', 'yA', 'yB')}
+
+    def unit(a, grp):                    # (splits, n) -> the pooled test's unit rows
+        a = a.copy()
+        for g in grp:
+            a[:, g] -= a[:, g].mean(axis=1, keepdims=True)
+        if method == 'spearman':
+            a = rankdata(a, axis=1)
+        a = a - a.mean(axis=1, keepdims=True)
+        nrm = np.linalg.norm(a, axis=1, keepdims=True)
+        return np.divide(a, nrm, out=np.zeros_like(a), where=nrm > 0)
+
+    rng = np.random.default_rng(seed)
+    boot = np.empty((int(n_boot), 3))
+    for b in range(int(n_boot)):
+        picks = [g[rng.integers(0, len(g), len(g))] for g in groups]
+        idx = np.concatenate(picks)
+        starts = np.cumsum([0] + [len(p) for p in picks[:-1]])
+        grp = [np.arange(s, s + len(p)) for s, p in zip(starts, picks)]
+        U = {k: unit(M[k][:, idx], grp) for k in M}
+        boot[b] = ((0.5 * ((U['xA'] * U['yB']).sum(1) + (U['xB'] * U['yA']).sum(1))).mean(),
+                   (U['xA'] * U['xB']).sum(1).mean(), (U['yA'] * U['yB']).sum(1).mean())
+
+    def ci(v):
+        return tuple(float(x) for x in np.nanpercentile(v, [2.5, 97.5]))
+
+    both = (boot[:, 1] > 0) & (boot[:, 2] > 0)
+    out = dict(corr=r['corr'], p=r['p'], ci=ci(boot[:, 0]), method=method,
+               n_electrodes=r['n_electrodes'], n_subjects=r['n_subjects'],
+               n_splits=r['n_splits'], n_boot_splits=int(len(take)), n_boot=int(n_boot),
+               reliability_x=r['reliability_x'], reliability_x_ci=ci(boot[:, 1]),
+               reliability_y=r['reliability_y'], reliability_y_ci=ci(boot[:, 2]),
+               reliability_diff=r['reliability_x'] - r['reliability_y'],
+               reliability_diff_ci=ci(boot[:, 1] - boot[:, 2]),
+               corr_noise_corrected=r['corr_noise_corrected'],
+               corr_noise_corrected_ci=(np.nan, np.nan), noise_corrected_note='')
+    if np.isfinite(r['corr_noise_corrected']) and both.mean() >= min_positive_share:
+        out['corr_noise_corrected_ci'] = ci(boot[both, 0] / np.sqrt(boot[both, 1]
+                                                                    * boot[both, 2]))
+    else:
+        out['noise_corrected_note'] = (
+            f"not estimable: both reliabilities positive in {both.mean():.0%} of the "
+            f"electrode-bootstrap draws (needs {min_positive_share:.0%})")
+    return out
+
+
 def participant_split_corr(per_split, resp, min_elec=4, method='spearman',
                            n_perm=10000, n_boot=2000, seed=1, covariates=None):
     """`split_resolved_corr` with PARTICIPANTS, not electrodes, as the unit.

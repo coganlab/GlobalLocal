@@ -3,19 +3,26 @@
 The advisor meeting of 2026-10-02 asked for three things the anatomy job did
 not compute. New runs of the job compute them (``sfa.section19``); this script
 computes them from an existing run's outputs, with nothing touching epochs,
-atlases or recon files:
+atlases or recon files. Each part is reported with electrodes as the unit
+first (the pre-specified tests' level, for the main text) and with
+participants as the unit second (for the supplement):
 
-1. the height (MNI z) slope of LWPC - LWPS with participants as the unit:
-   its decomposition into per-participant slopes (weighted and unweighted
-   tests across participants), mixed models with a participant random
-   intercept and with a random slope, and the slope with each participant
-   left out;
-2. the pre-specified LWPC-LWPS separate-half correlation with participants
-   as the unit (per-participant r, Fisher z, tested across participants);
+1. the height (MNI z) slope of LWPC - LWPS: the coordinate test's slope and p
+   with an electrode-bootstrap interval; then its decomposition into
+   per-participant slopes (weighted and unweighted tests across
+   participants), mixed models with a participant random intercept and with
+   a random slope, and the slope with each participant left out;
+2. the pre-specified LWPC-LWPS separate-half correlation with an
+   electrode-bootstrap interval; then per participant (Fisher z, tested
+   across participants);
 3. local similarity: cross-half similarity of electrode pairs within
-   participant by distance, for the balance and for each single score;
+   participant by distance, for the balance and for each single score, with
+   an electrode-level SE that includes the trial noise neighbours share, and
+   with participant sign flips; plus the overlap r, reliabilities and
+   noise-corrected r on the shared-split table, with electrode-level intervals;
 4. the combined Figure 5: LWPC against LWPS coloured by height tertile, the
-   tertile centroids, and the balance by height;
+   tertile centroids, and the balance by height (fig5_height.* at the
+   electrode level, fig5_height_participants.* at the participant level);
 5. the LWPC-LWPS overlap r with each candidate confound removed in turn
    (nonlinear responsiveness, coordinates, same-half base effects, RT
    coupling) and with each participant left out.

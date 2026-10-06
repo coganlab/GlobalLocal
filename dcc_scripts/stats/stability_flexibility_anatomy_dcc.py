@@ -706,9 +706,9 @@ def run_score_anatomy(args):
             main_lines = ["-" * 70, f"MAIN EFFECTS: failed ({type(exc).__name__}: {exc})"]
 
     # 4c. §19 (advisor check 2026-10-02): the z slope and the LWPC-LWPS r with
-    # participants as the unit, local similarity, and the combined Figure 5.
-    # Each part fails on its own inside `section19`.
-    print("§19: participants as the unit, local similarity, combined Figure 5")
+    # electrodes and with participants as the unit, local similarity, and the
+    # combined Figure 5. Each part fails on its own inside `section19`.
+    print("§19: electrodes and participants as the unit, local similarity, combined Figure 5")
     scores_csv = getattr(args, 'scores_csv', None)
     s19_lines, s19 = sfa.section19(
         tab, per_split, save_dir, coord_res=coord_res,
