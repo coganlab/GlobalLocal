@@ -3110,9 +3110,13 @@ legend; `fig5_height_brain_legend.png` is the legend.
   lateral fsaverage vertex within 4 mm of that y, z. y and z, what a lateral
   view shows, are exact; only x moves. `centroids_on_surface=False` draws the
   true mean. The CSV and the summary always give the true mean.
-- **Order of the colours.** A darkened centroid comes close to the next band's
-  electrodes in colour (the middle centroid to dorsal electrodes). Size tells
-  them apart: centroids are 2.5× the electrode diameter.
+- **What makes a centroid stand out.** Opacity, not size. The electrodes are
+  drawn at 40 % opacity (`electrode_alpha`), the centroids opaque and only 1.5×
+  the electrode diameter (`centroid_size`). Opacity also separates a centroid
+  from the next band's electrodes, which a darkened colour comes close to (the
+  middle centroid and the dorsal electrodes). The electrode opacity comes from
+  `jim_mri.plot_on_average(elec_alpha=...)`, which defaults to 1, so the other
+  brain figures are unchanged.
 - Without the recon files or a display, `fig5_height_brain_sagittal.png` is
   written instead: one sagittal projection per hemisphere with the same
   colours, the cuts and the centroids. The summary marks it `FALLBACK` and gives

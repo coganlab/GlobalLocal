@@ -282,7 +282,8 @@ def _fake_surface_stack(monkeypatch, tmp_path):
             pass
 
     def plot_on_average(subjects, picks, color, fig=None, **kwargs):
-        calls.append(dict(n=len(picks), color=tuple(color), hemi=kwargs['hemi']))
+        calls.append(dict(n=len(picks), color=tuple(color), hemi=kwargs['hemi'],
+                          alpha=kwargs.get('elec_alpha', 1.)))
         return fig or Brain()
 
     def save_brain_image(fig, path):
@@ -322,18 +323,20 @@ def test_brain_figure_draws_the_bands_and_the_centroids_on_one_brain(monkeypatch
     assert [c['color'] for c in calls] == [mcolors.to_rgb(sfa.HEIGHT_COLORS[b])
                                            for b in sfa.HEIGHT_BANDS]
     assert [c['n'] for c in calls] == [n[b] for b in sfa.HEIGHT_BANDS]
+    # translucent, so the opaque centroids stand out
+    assert all(c['alpha'] == 0.4 for c in calls)
     # the centroids keep their true mean ...
     assert cents.equals(sfa.height_band_brain_centroids(pts))
     # ... and go onto the same Brain in its units (metres), in their hemisphere,
-    # darker and larger than the electrodes, at their y and z on the lateral
-    # surface
+    # darker and a little larger than the electrodes, at their y and z on the
+    # lateral surface
     assert len(foci) == len(cents) == 6
     for f, c in zip(foci, cents.itertuples()):
         x = -LATERAL_X if c.hemi == 'lh' else LATERAL_X
         assert f['coords'] == pytest.approx(np.array([[x, c.mni_y, c.mni_z]]) / 1000)
         assert f['hemi'] == c.hemi
         assert f['color'] == mcolors.to_rgb(sfa.HEIGHT_CENTROID_COLORS[c.band])
-        assert f['size'] > 0.45
+        assert f['size'] == pytest.approx(1.5 * 0.45)
 
     # at the true mean when asked; a one-hemisphere figure gets that
     # hemisphere's centroids only

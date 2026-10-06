@@ -352,7 +352,8 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
                     label_every: int = None, background: str = 'white',
                     units: str = 'm', transparency: float = 0.6,
                     average: str = 'fsaverage', show: bool = True,
-                    fig_size: tuple | int = None, zoom: float = None) -> Brain:
+                    fig_size: tuple | int = None, zoom: float = None,
+                    elec_alpha: float = 1.) -> Brain:
     """Plots the signal on the average brain
 
     Takes a signal instance or list of signal instances and plots them on the
@@ -401,6 +402,9 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
         Camera zoom applied to every panel; below 1 zooms out. By default
         ``BRAIN_SPLIT_ZOOM`` when ``hemi='split'`` (which separates the two
         hemispheres) and 1 otherwise. Ignored when ``fig`` is given.
+    elec_alpha: float, optional
+        Opacity of the electrode spheres, by default 1 (opaque). Lower it to
+        let something drawn over the electrodes stand out.
 
     Returns
     -------
@@ -484,7 +488,7 @@ def plot_on_average(sigs: Signal | str | mne.Info | list[Signal | str, ...],
         plot_subj(new, subj_dir, these_picks, False, fig=fig,
                   trans=trans, color=this_color, size=size,
                   labels_every=label_every, hemi=hemi, background=background,
-                  show=show)
+                  show=show, elec_alpha=elec_alpha)
 
     return fig
 
@@ -638,7 +642,8 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
               trans=None, color: matplotlib.colors = None,
               size: float = 0.35, show: bool = True, background: str = 'white',
               title: str = None, units: str = 'm', transparency: float = 0.5,
-              fig_size: tuple | int = None, zoom: float = None) -> Brain:
+              fig_size: tuple | int = None, zoom: float = None,
+              elec_alpha: float = 1.) -> Brain:
     """Plots the electrodes on the subject's brain
 
     Parameters
@@ -679,6 +684,8 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
         Window size in pixels; see :func:`plot_on_average`.
     zoom: float, optional
         Per-panel camera zoom; see :func:`plot_on_average`.
+    elec_alpha: float, optional
+        Opacity of the electrode spheres, by default 1 (opaque).
 
     Returns
     -------
@@ -732,10 +739,10 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
 
     if left and hemi != 'rh':
         _add_electrodes(fig, info, 'lh', np.vstack(list(left.values())),
-                        color, size)
+                        color, size, alpha=elec_alpha)
     if right and hemi != 'lh':
         _add_electrodes(fig, info, 'rh', np.vstack(list(right.values())),
-                        color, size)
+                        color, size, alpha=elec_alpha)
 
     if labels_every is not None:
         settings = dict(shape=None, always_visible=True,
@@ -748,7 +755,7 @@ def plot_subj(inst: Signal | mne.Info | str, subj_dir: PathLike = None,
 
 def _add_electrodes(fig: mne.viz.Brain, info: mne.Info, hemi: str,
                     pos: np.ndarray, colors: matplotlib.colors = None,
-                    size: float = 0.35):
+                    size: float = 0.35, alpha: float = 1.):
     groups = _group_channels(info)
     n_groups = len(set(groups.values()))
     if colors is None:
@@ -765,7 +772,7 @@ def _add_electrodes(fig: mne.viz.Brain, info: mne.Info, hemi: str,
         start, end = vals.index(i), len(vals) - vals[::-1].index(i)
         shank_pos = pos[start:end]
         fig.add_foci(shank_pos, hemi=hemi, color=colors[i],
-                     scale_factor=size)
+                     scale_factor=size, alpha=alpha)
         i += 1
 
 

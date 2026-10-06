@@ -2246,13 +2246,15 @@ _FIG5_RC = {'font.size': 6.5, 'axes.labelsize': 6.5, 'axes.labelcolor': _INK,
             'axes.spines.right': False, 'pdf.fonttype': 42, 'ps.fonttype': 42}
 
 
-def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None):
+def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
+                                electrode_alpha=1.):
     """The electrodes on a sagittal projection (MNI y against ``axis``) in their
     band's colour, with the band cuts drawn. ``centroids`` (rows of
-    :func:`height_band_brain_centroids`) go on top, larger and darker."""
+    :func:`height_band_brain_centroids`) go on top, opaque, darker and a little
+    larger; lower ``electrode_alpha`` to make them stand out."""
     for band in HEIGHT_BANDS:
         g = points[points['band'] == band]
-        ax.scatter(g['mni_y'], g[axis], s=4, color=HEIGHT_COLORS[band],
+        ax.scatter(g['mni_y'], g[axis], s=4, color=HEIGHT_COLORS[band], alpha=electrode_alpha,
                    linewidths=0, rasterized=True)
     for e in edges[1:-1]:
         ax.axhline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)))
@@ -2261,9 +2263,9 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None)
                 bbox=dict(boxstyle='square,pad=0.1', fc='white', ec='none', alpha=0.85))
     if centroids is not None:
         for c in centroids.itertuples():
-            ax.scatter([c.mni_y], [getattr(c, axis)], s=40,
+            ax.scatter([c.mni_y], [getattr(c, axis)], s=12,
                        color=HEIGHT_CENTROID_COLORS[c.band], edgecolor='white',
-                       linewidth=0.8, zorder=5)
+                       linewidth=0.5, zorder=5)
     ax.set(xlabel='MNI y (mm), posterior → anterior', ylabel='MNI z (mm)')
     ax.set_aspect('equal', adjustable='datalim')
 
@@ -2415,16 +2417,17 @@ def height_band_brain_centroids(points, min_elec=3):
                                        'mni_x', 'mni_y', 'mni_z'])
 
 
-def _height_band_legend(ax_or_fig, edges=None, axis='mni_z', **kwargs):
-    """One legend for the band figures: each band's electrodes, and its centroid
-    larger and darker."""
+def _height_band_legend(ax_or_fig, edges=None, axis='mni_z', electrode_alpha=1., **kwargs):
+    """One legend for the band figures: each band's electrodes (at
+    ``electrode_alpha``), and its centroid opaque, darker and a little larger."""
     from matplotlib.lines import Line2D
     handles = []
     for b in HEIGHT_BANDS:
         handles += [Line2D([], [], marker='o', ls='', color=HEIGHT_COLORS[b], markersize=3.5,
-                           label=f'{b} electrode'),
+                           markeredgewidth=0, alpha=electrode_alpha, label=f'{b} electrode'),
                     Line2D([], [], marker='o', ls='', color=HEIGHT_CENTROID_COLORS[b],
-                           markeredgecolor='white', markersize=7, label=f'{b} centroid')]
+                           markeredgecolor='white', markeredgewidth=0.5, markersize=5,
+                           label=f'{b} centroid')]
     title = f'height tertile (MNI {axis[-1]}'
     if edges is not None and len(edges) == 4:
         title += f'; cuts at {edges[1]:.0f} and {edges[2]:.0f} mm'
@@ -2434,11 +2437,12 @@ def _height_band_legend(ax_or_fig, edges=None, axis='mni_z', **kwargs):
                             title_fontsize=5.5, **kwargs)
 
 
-def plot_height_bands_sagittal(points, centroids, out_path, edges=None, axis='mni_z'):
+def plot_height_bands_sagittal(points, centroids, out_path, edges=None, axis='mni_z',
+                               electrode_alpha=0.4):
     """The flat version of :func:`plot_height_bands_on_brain`: a sagittal
-    projection per hemisphere, the electrodes in their band's colour and the
-    band centroids larger and darker. Its fallback when the surface cannot
-    render."""
+    projection per hemisphere, the electrodes in their band's colour at
+    ``electrode_alpha`` and the band centroids opaque and darker. Its fallback
+    when the surface cannot render."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -2452,11 +2456,13 @@ def plot_height_bands_sagittal(points, centroids, out_path, edges=None, axis='mn
         fig, axes = plt.subplots(1, len(shown), figsize=(2.6 * len(shown), 2.6), squeeze=False)
         for ax, h in zip(axes[0], shown):
             _draw_height_bands_sagittal(ax, d[hemi == h], edges if edges is not None else [],
-                                        axis=axis, centroids=centroids[centroids['hemi'] == h])
+                                        axis=axis, centroids=centroids[centroids['hemi'] == h],
+                                        electrode_alpha=electrode_alpha)
             ax.set_title({'lh': 'Left hemisphere', 'rh': 'Right hemisphere'}[h], loc='left',
                          fontsize=7, color=_INK)
         fig.tight_layout()
-        _height_band_legend(fig, edges, axis, loc='upper center', bbox_to_anchor=(0.5, 0.0))
+        _height_band_legend(fig, edges, axis, electrode_alpha=electrode_alpha,
+                            loc='upper center', bbox_to_anchor=(0.5, 0.0))
         fig.savefig(out_path, dpi=300, bbox_inches='tight', pad_inches=0.03)
         plt.close(fig)
     return out_path
@@ -2487,8 +2493,8 @@ def _centroids_on_lateral_surface(centroids, subjects_dir=None, radius=4.0):
 
 def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axis='mni_z',
                                subjects=None, hemi='both', size=0.45, centroid_size=None,
-                               transparency=0.4, rm_wm=False, centroids_on_surface=True,
-                               **vis_kwargs):
+                               electrode_alpha=0.4, transparency=0.4, rm_wm=False,
+                               centroids_on_surface=True, **vis_kwargs):
     """The height bands on the fsaverage brain: each electrode in its band's
     colour (``HEIGHT_COLORS``), and each band's centroid per hemisphere
     (:func:`height_band_brain_centroids`) as a larger sphere in a darker shade
@@ -2499,8 +2505,11 @@ def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axi
     ``points``: :func:`figure5_height_points`'s table or
     ``fig5_height_points.csv``; every electrode with a band is drawn. Same
     renderer as the score maps, so the electrodes sit where they do there, and
-    the centroids go in the same fsaverage/MNI frame. ``centroid_size`` defaults
-    to 2.5 x ``size``. A centroid lies under the cortex, so by default
+    the centroids go in the same fsaverage/MNI frame. The centroids stand out
+    by colour and opacity more than size: they are opaque and ``centroid_size``
+    defaults to 1.5 x ``size``, while the electrodes are drawn at
+    ``electrode_alpha`` (``transparency`` is the brain surface's opacity, as in
+    the other brain figures). A centroid lies under the cortex, so by default
     (``centroids_on_surface``) it is drawn at its y and z on the hemisphere's
     lateral surface (:func:`_centroids_on_lateral_surface`); the returned
     ``centroids`` keep the true mean. The renderer draws no legend, so
@@ -2527,11 +2536,11 @@ def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axi
     if not subjects:
         subjects = sorted(d['subject'].astype(str).unique())
     if centroid_size is None:
-        centroid_size = 2.5 * size
+        centroid_size = 1.5 * size
 
     with plt.rc_context(_FIG5_RC):
         fig = plt.figure(figsize=(4.2, 0.5))
-        _height_band_legend(fig, edges, axis, loc='center')
+        _height_band_legend(fig, edges, axis, electrode_alpha=electrode_alpha, loc='center')
         legend = f'{base}_legend.png'
         fig.savefig(legend, dpi=300, bbox_inches='tight', pad_inches=0.03)
         plt.close(fig)
@@ -2545,14 +2554,15 @@ def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axi
                  HEIGHT_CENTROID_COLORS[c.band], centroid_size) for c in shown.itertuples()]
         rendered = _render_electrode_sets(sets, out_path, subjects=subjects, hemi=hemi,
                                           size=size, transparency=transparency, rm_wm=rm_wm,
-                                          foci=foci, **vis_kwargs)
+                                          foci=foci, elec_alpha=electrode_alpha, **vis_kwargs)
         return dict(combined=rendered['combined'], legend=legend, centroids=centroids,
                     centroids_shown=shown, counts=rendered['counts'], fallback=False)
     except Exception as exc:  # pragma: no cover - depends on cluster-only stack
         print(f"[F5 height] brain-surface render unavailable ({type(exc).__name__}: {exc}); "
               f"falling back to sagittal projections.")
         fallback = plot_height_bands_sagittal(d, centroids, f'{base}_sagittal.png',
-                                              edges=edges, axis=axis)
+                                              edges=edges, axis=axis,
+                                              electrode_alpha=electrode_alpha)
         return dict(combined=fallback, legend=legend, centroids=centroids,
                     centroids_shown=centroids, fallback=True,
                     error=f"{type(exc).__name__}: {exc}")
