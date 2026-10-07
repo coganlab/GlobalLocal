@@ -80,6 +80,16 @@ replication (§0.9). Single electrodes are mostly noise (split-half reliability
 | 5. §19 follow-ups | Shared-split reliabilities and local similarity, the RT-coupling control (and everything else in §19 for runs older than 2026-10-02) | `python dcc_scripts/stats/n4_section19_followups.py --anatomy-dir … --seg-dir … --long-df … [--rt-coupling …]` | `continuous/section19/`, or `section19_rt_adjusted/` | §19.5 |
 | 6. RT sensitivity | Step 1 with the RT-linked part of high gamma removed | step 1 with `RT_ADJUST_HG=1` | `…_main_effects_rt_adjusted/` | §18.10 |
 
+*Since 2026-10-07* step 2 runs steps 3 and 5 itself, and the §15 script too
+(`FOLLOWUPS=15,16,19`, the default). Make step 4's two long tables first; the
+submitter finds them under step 1's `segregation_results/`
+(`LONG_DF_CSV`, `RT_LONG_DF_CSV`, `RT_COUPLING_CSV`). §19 then has local
+similarity and the RT row in `continuous/` with the rest of §19, and the
+RT-adjusted companion in `continuous/section19_rt_adjusted/`; §15 and §16 go
+to `continuous/section15/` and `continuous/section16/`. A missing table skips
+only its part, and `summary.txt` ends with a FOLLOW-UPS block saying what ran
+(§19.5).
+
 The segregation submitter defaults to `RT_ADJUST_HG=1` and 200 splits, so step 1
 sets both. Code: scoring and the overlap tests are in
 `src/analysis/stats/stability_flexibility_segregation.py`; everything after is
@@ -2806,10 +2816,23 @@ legend; `fig5_height_brain_legend.png` is the legend.
 ### 19.5 How to run it
 
 **New anatomy runs** compute everything in the `continuous/` folder (block "§19"
-of `summary.txt`, `section19` in `score_anatomy.json`). Nothing to set. The
-tertile brain follows `MAKE_BRAIN`, `BRAIN_HEMI` and `BRAIN_ZOOM`, as the score
-maps do. `BRAIN_HEMI=split` shows both lateral surfaces, the clearest view of a
+of `summary.txt`, `section19` in `score_anatomy.json`). The tertile brain
+follows `MAKE_BRAIN`, `BRAIN_HEMI` and `BRAIN_ZOOM`, as the score maps do.
+`BRAIN_HEMI=split` shows both lateral surfaces, the clearest view of a
 dorsal–ventral layout.
+
+Since 2026-10-07 that includes the parts that need more than the run's own
+tables, when `FOLLOWUPS` contains 19 (the default). The submitter points them
+at the scatter-only runs below, under `SEG_RUN`'s `segregation_results/`:
+
+| Variable | Default | Gives |
+|---|---|---|
+| `LONG_DF_CSV` | `…_fdr_bh_scatter_only_splits0/long_df.csv` (raw) | section 3: rescored with `SHARED_N_SPLITS` (200) shared splits, `per_split_shared.csv`, local similarity and the reliabilities by split scheme, in `continuous/` |
+| `RT_COUPLING_CSV` | `…_fdr_bh_rt_adjusted_scatter_only_splits200/rt_adjustment_slopes.csv` | section 5's RT row |
+| `RT_LONG_DF_CSV` | `…_fdr_bh_rt_adjusted_scatter_only_splits200/long_df.csv` | section 3 on RT-adjusted high gamma, `continuous/section19_rt_adjusted/` |
+
+A file that is not there skips only its part; `summary.txt` says which and how
+to make it.
 
 **Existing runs**, from their outputs alone (no epochs, atlases or recon files):
 

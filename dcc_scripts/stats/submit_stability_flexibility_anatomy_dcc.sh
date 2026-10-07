@@ -10,6 +10,11 @@
 #     PER_SPLIT_CSV="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<epochs_root>/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh/per_split.csv" \
 #     bash submit_stability_flexibility_anatomy_dcc.sh                 # reuse scores
 #
+#   # the all-lPFC N4 run with every follow-up (§15, §16, §19; inputs below):
+#   ARM=continuous ROI_FILTER=lpfc ANAT_LEVEL=destrieux N_PERM=10000 \
+#     bash submit_stability_flexibility_anatomy_dcc.sh
+#   FOLLOWUPS=none ... skips the follow-ups; FOLLOWUPS=19 runs only §19's.
+#
 #   # power_traces (cluster-corrected) electrodes, lpfc only, counted by raw
 #   # Destrieux label:
 #   LABEL_SOURCE=power_traces ROI_FILTER=lpfc PT_ROI=lpfc \
@@ -67,6 +72,31 @@ N_SPLITS=${N_SPLITS:-200}
 USE_COORDS=${USE_COORDS:-1}
 
 # ---------------------------------------------------------------------------
+# N4 follow-ups (continuous arm), run on this job's own outputs once its
+# summary is written. FOLLOWUPS lists which; 'none' skips them all.
+#   15  n4_section15_followups.py              -> continuous/section15/
+#   16  n4_section16_followups.py sections 1-5 -> continuous/section16/
+#   19  local similarity on shared splits (LONG_DF_CSV) and the RT row of the
+#       overlap controls (RT_COUPLING_CSV), in continuous/ with the rest of §19,
+#       and the RT-adjusted companion (RT_LONG_DF_CSV) -> continuous/section19_rt_adjusted/
+# The two long tables need trial ids. The segregation submitter's scatter-only
+# route writes them in minutes (N4 doc §19.5):
+#   RT_ADJUST_HG=0 SCATTER_N_SPLITS=0 SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh
+#   RT_ADJUST_HG=1 SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh
+# A file that is not there skips only its part. FOLLOWUPS contains commas, so
+# it is exported (it reaches the job through --export=ALL) instead of going in
+# the --export list, which splits on commas.
+# ---------------------------------------------------------------------------
+export FOLLOWUPS=${FOLLOWUPS:-15,16,19}
+SEG_RESULTS=$(dirname "$SEG_RUN")
+LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
+RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
+RT_LONG_DF_CSV=${RT_LONG_DF_CSV:-"$RT_SEG_RUN/long_df.csv"}
+RT_COUPLING_CSV=${RT_COUPLING_CSV:-"$RT_SEG_RUN/rt_adjustment_slopes.csv"}
+SUBSET_SCORES_CSV=${SUBSET_SCORES_CSV:-}   # §15 section 11: a subset run's scores_with_anatomy.csv
+SHARED_N_SPLITS=${SHARED_N_SPLITS:-200}    # splits for the shared-split rescoring
+
+# ---------------------------------------------------------------------------
 # Electrode definition.
 #   a1            : fit the window-mean interaction ANOVA here (needs epochs).
 #   power_traces  : read finished within-electrode windowed-ANOVA runs
@@ -115,7 +145,7 @@ ROI_DICT_DIR=${ROI_DICT_DIR:-"/hpc/home/$USER/coganlab/$USER/GlobalLocal/src/ana
 
 mkdir -p out
 
-echo "Submitting stability/flexibility A3 anatomy (source=$DATA_SOURCE, arm=$ARM, labels=$LABEL_SOURCE, roi=${ROI_FILTER:-wholebrain}, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION)"
+echo "Submitting stability/flexibility A3 anatomy (source=$DATA_SOURCE, arm=$ARM, labels=$LABEL_SOURCE, roi=${ROI_FILTER:-wholebrain}, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION, followups=$FOLLOWUPS)"
 sbatch --job-name="sf_anatomy_${LABEL_SOURCE}_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_ENRICHMENT="$SYNTHETIC_ENRICHMENT",ARM="$ARM",SCORES_CSV="$SCORES_CSV",PER_SPLIT_CSV="$PER_SPLIT_CSV",N_SPLITS="$N_SPLITS",USE_COORDS="$USE_COORDS",LABEL_SOURCE="$LABEL_SOURCE",PT_RUN_DIR="$PT_RUN_DIR",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",PT_CORRECTION="$PT_CORRECTION",PT_ALPHA="$PT_ALPHA",PT_ROI="$PT_ROI",ROI_FILTER="$ROI_FILTER",ANAT_LEVEL="$ANAT_LEVEL",HIST_TOP_N="$HIST_TOP_N",MAKE_BRAIN="$MAKE_BRAIN",BRAIN_HEMI="$BRAIN_HEMI",BRAIN_ZOOM="$BRAIN_ZOOM",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",MIN_SUBJECTS="$MIN_SUBJECTS",N_PERM="$N_PERM",SEED="$SEED",ROI_DICT_DIR="$ROI_DICT_DIR" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",SYNTHETIC_ENRICHMENT="$SYNTHETIC_ENRICHMENT",ARM="$ARM",SCORES_CSV="$SCORES_CSV",PER_SPLIT_CSV="$PER_SPLIT_CSV",N_SPLITS="$N_SPLITS",USE_COORDS="$USE_COORDS",LONG_DF_CSV="$LONG_DF_CSV",RT_LONG_DF_CSV="$RT_LONG_DF_CSV",RT_COUPLING_CSV="$RT_COUPLING_CSV",SUBSET_SCORES_CSV="$SUBSET_SCORES_CSV",SHARED_N_SPLITS="$SHARED_N_SPLITS",LABEL_SOURCE="$LABEL_SOURCE",PT_RUN_DIR="$PT_RUN_DIR",PT_RUN_CPC="$PT_RUN_CPC",PT_RUN_SPS="$PT_RUN_SPS",PT_RUN_CPS="$PT_RUN_CPS",PT_RUN_SPC="$PT_RUN_SPC",PT_CORRECTION="$PT_CORRECTION",PT_ALPHA="$PT_ALPHA",PT_ROI="$PT_ROI",ROI_FILTER="$ROI_FILTER",ANAT_LEVEL="$ANAT_LEVEL",HIST_TOP_N="$HIST_TOP_N",MAKE_BRAIN="$MAKE_BRAIN",BRAIN_HEMI="$BRAIN_HEMI",BRAIN_ZOOM="$BRAIN_ZOOM",ALPHA="$ALPHA",CONTRAST_MODE="$CONTRAST_MODE",FDR_CORRECTION="$FDR_CORRECTION",MIN_SUBJECTS="$MIN_SUBJECTS",N_PERM="$N_PERM",SEED="$SEED",ROI_DICT_DIR="$ROI_DICT_DIR" \
     sbatch_stability_flexibility_anatomy_dcc.sh

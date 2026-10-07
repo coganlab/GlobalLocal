@@ -772,3 +772,73 @@ def test_section19_script_labels_an_rt_adjusted_long_table(tmp_path, capsys):
     assert 'congruency–switch SEPARATE-HALF r, ELECTRODES AS THE UNIT' in out
     assert 'congruency − switch' in out
     assert (tmp_path / 'section19_rt_adjusted' / 'summary_section19.txt').exists()
+
+
+# ---------------------------------------------------------------------------
+# the follow-ups inside the anatomy job (FOLLOWUPS)
+# ---------------------------------------------------------------------------
+def test_anatomy_job_takes_section19s_inputs_and_runs_the_rt_adjusted_companion(tmp_path):
+    """With 19 in FOLLOWUPS: LONG_DF_CSV rescored with shared splits,
+    RT_COUPLING_CSV read, and the RT-adjusted long table's section 3 written
+    beside the run."""
+    from types import SimpleNamespace
+    dcc = pytest.importorskip('dcc_scripts.stats.stability_flexibility_anatomy_dcc')
+    df, coords = _trial_world(n_subj=4, seed=2)
+    ps = sfs.compute_sensitivities_per_split(df, n_splits=4, contrast_mode='proportion',
+                                             main_effects=True)
+    tab = sfa.attach_scores(sfs.add_responsiveness(sfs.average_over_splits(ps), df), {},
+                            electrodes_to_coords=coords)
+    run = tmp_path / 'continuous'
+    run.mkdir()
+    tab.to_csv(run / 'scores_with_anatomy.csv', index=False)
+    ps.to_csv(run / 'per_split.csv', index=False)
+    raw, rt = tmp_path / 'raw', tmp_path / 'rt_adjusted'
+    for d in (raw, rt):
+        d.mkdir()
+        df.to_csv(d / 'long_df.csv', index=False)
+    pd.DataFrame({'electrode': tab['electrode'], 'rt_slope': 0.0, 'rt_r': 0.1}).to_csv(
+        rt / 'rt_adjustment_slopes.csv', index=False)
+    args = SimpleNamespace(long_df_csv=str(raw / 'long_df.csv'),
+                           rt_long_df_csv=str(rt / 'long_df.csv'),
+                           rt_coupling_csv=str(rt / 'rt_adjustment_slopes.csv'),
+                           shared_n_splits=4)
+
+    shared, label, rt_coupling, lines = dcc.section19_inputs(args, tab, str(run))
+    assert sfa.is_shared_split(shared) and label == 'shared by participant'
+    assert set(shared['electrode']) == set(tab['electrode'])
+    assert (run / 'per_split_shared.csv').exists() and 'rt_r' in rt_coupling
+    lines = dcc.run_followups(args, str(run), (19,), n_perm=50)
+    assert any('section19_rt_adjusted/summary_section19.txt' in line for line in lines)
+    assert (run / 'section19_rt_adjusted' / 'local_similarity.csv').exists()
+
+    # a missing file costs only its part, and says how to make it
+    gone = SimpleNamespace(long_df_csv=str(tmp_path / 'none.csv'), rt_coupling_csv=None,
+                           rt_long_df_csv=None)
+    shared, _, rt_coupling, lines = dcc.section19_inputs(gone, tab, str(run))
+    assert shared is None and rt_coupling is None
+    assert any('not found' in line and 'SCATTER_ONLY=1' in line for line in lines)
+    assert any('not set' in line for line in dcc.run_followups(gone, str(run), (19,), n_perm=50))
+
+
+def test_anatomy_job_runs_the_section15_and_16_followups_on_its_outputs(tmp_path):
+    from types import SimpleNamespace
+    dcc = pytest.importorskip('dcc_scripts.stats.stability_flexibility_anatomy_dcc')
+    dcc.run_score_anatomy(SimpleNamespace(
+        data_source='synthetic', save_dir=str(tmp_path), seed=0, n_perm=50,
+        min_subjects=3, roi_filter=None, anat_level='auto', make_brain=False,
+        alpha=0.05, subjects=[], followups=(15, 16, 19)))
+    out = tmp_path / 'continuous'
+
+    s15 = (out / 'section15' / 'summary_section15.txt').read_text()
+    for banner in ('§15.3', '§15.5', 'centroid shuffle test', 'by height band'):
+        assert banner in s15                     # every section, even past a failing one
+    assert '1. height vs distance from the midline' in (
+        out / 'section16' / 'summary_section16.txt').read_text()
+    for name in ('panel_b_label_means.csv', 'panel_c_height.csv', 'panel_c_midline.csv'):
+        assert (out / 'section16' / name).exists()
+    summary = (out / 'summary.txt').read_text()
+    assert 'FOLLOW-UPS' in summary and 'section15/summary_section15.txt' in summary
+    assert 'LONG_DF_CSV not set' in summary and 'RT_LONG_DF_CSV not set' in summary
+    # §19 as the follow-up script writes it, in the run's own folder
+    assert 'LONG_DF_CSV not set' in (out / 'summary_section19.txt').read_text()
+    assert 'slope_by_electrode' in (out / 'section19.json').read_text()
