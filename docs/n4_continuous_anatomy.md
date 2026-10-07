@@ -759,6 +759,7 @@ whole-brain run; §0.2 has the commands as run for lPFC.
 | Slurm submitter / display wrapper | `dcc_scripts/stats/submit_stability_flexibility_anatomy_dcc.sh`, `sbatch_stability_flexibility_anatomy_dcc.sh` |
 | Recommended upstream score-producing run | `dcc_scripts/stats/submit_stability_flexibility_segregation_dcc.sh` |
 | Ground-truth regression tests | `tests/analysis/stats/test_stability_flexibility_anatomy.py` |
+| §19 with electrodes as the unit (2026-10-06; main text, participant level to the supplement) | `coordinate_slope_by_electrode`, `electrode_split_corr`, `local_similarity`'s `*_electrode` columns, `figure5_height(unit=...)`; written up in [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md) |
 
 ### Do not choose the wrong arm
 

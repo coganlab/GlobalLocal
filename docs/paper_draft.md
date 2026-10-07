@@ -146,6 +146,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | **Overlap confound controls** (2026-10-05; N4 §19.7–19.8) | Run. The LWPC–LWPS overlap survives nonlinear responsiveness, coordinates, RT coupling (task-significant subset) and leave-one-participant-out, but **mostly vanishes with each half's base effects partialled** (0.097 → 0.028). Reading: the two adaptations overlap because each follows the signal it regulates. Revised ending proposed in §1.1. |
 | **All lPFC, raw rescoring** (2026-10-05; N4 §19.8, fourth run) | Shared-split reliabilities for the paper: LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35 (were 0.07, −0.09, 0.34, 0.24). The LWPS reliability argument survives with these. Overlap r 0.111 (p = 0.0002). Local similarity as on RT-adjusted HG: positive control works, and the balance has no reliable variation beyond the gradient. Supports "one population rather than two intermixed ones" (wording in N4 §19.8). |
 | **All lPFC, RT-adjusted rescoring** (2026-10-05; N4 §19.8, third run) | **The overlap survives the full RT control**: r = 0.103 (p = 0.0004) on RT-adjusted high gamma with shared splits, against 0.097 raw; the RT-coupling covariate on all electrodes gives 0.082 (p = 0.001). Local similarity: the positive control works (LWPC, p = 0.007), but the balance has no reliable within-participant variation beyond the gradient. Supportable wording: "no reliable electrode-by-electrode LWPC-vs-LWPS difference beyond a shallow dorsal–ventral bias". Not a positive test of "intermixed". Repeat on raw high gamma (Run 2). |
+| **§19 at the electrode level** (2026-10-06; [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)) | Decision: electrodes as the unit in the main text, as in the pre-specified tests; participants as the unit in S-N4. Every §19 part now reports both, electrode level first. New: electrode-bootstrap intervals for the z slope, the overlap r, the shared-split reliabilities and the noise-corrected r; a valid electrode-level test for local similarity (shared trial noise included; 4 % false positives at α = 0.05 on realistic null data, where a position shuffle gives 13 %). `fig5_height.png` is now electrode level; the participant version is `fig5_height_participants.png`. Needs one rerun of `n4_section19_followups.py` for the electrode-level numbers. |
 | **Local similarity, shared splits** (2026-10-05; task-significant subset) | No power for the adaptation scores (reliabilities 0.04–0.14); positive control only for switch type. Does not support "intermixed". Within-participant reliabilities were strongly biased by the per-electrode split (LWPC 0.01 → 0.17, LWPS 0.00 → 0.14, congruency 0.25 → 0.39, switch 0.25 → 0.39); the overlap r was not (0.073 vs 0.076). |
 
 ### 1.3 Status at a glance
@@ -363,9 +364,9 @@ panels: the overlap at both levels, and the bars. Its code still runs:
 | Panel | Shows | Key numbers | Data / code | Status |
 |---|---|---|---|---|
 | a | **Where the height bands are:** the electrodes on a sagittal projection (MNI y against z), coloured by height tertile, with the two cuts drawn; or a rendered brain in the same colours (`brain_png`): `fig5_height_brain.png` has the electrodes by tertile and each tertile's centroid per hemisphere, larger and darker (N4 §19.4) | tertile cuts (mm); centroid positions | `sfa.figure5_height` → `fig5_height.png`; `sfa.plot_height_bands_on_brain` → `fig5_height_brain.png`, `fig5_height_brain_centroids.csv` | Coded, not run |
-| b | **The overlap:** LWPC against LWPS, coloured by tertile, with the identity line and the pre-specified separate-half r. A box marks panel c's region. | r = 0.10, p = 0.0005 (397 electrodes, 21 participants); participant-level r **[N4 §19.2]** | `fig5_height_points.csv`; r from the segregation run's `correlation.json` | Coded, not run |
-| c | **Overlap along the line, gradient across it:** the three tertile centroids enlarged, each with its 95 % participant-bootstrap ellipse. Dorsal should sit above the identity line (leaning LWPS), ventral near it. | centroids and balance CIs **[run]** | `fig5_height_centroids.csv` | Coded, not run |
-| d | **The gradient in the test's units:** LWPC − LWPS by tertile, participant means ± SEM, with the z slope's electrode-level p and participant-level p | z slope −0.0077 SD/mm, p = 0.008; participant-level p and random-slope p **[N4 §19.1]** | `fig5_height_balance.csv`, `mni_z_slope_by_participant.csv` | Coded, not run |
+| b | **The overlap:** LWPC against LWPS, coloured by tertile, with the identity line and the pre-specified separate-half r. A box marks panel c's region. | r = 0.10, p = 0.0005 (397 electrodes, 21 participants); electrode-bootstrap CI **[run]**; participant-level r in S-N4 | `fig5_height_points.csv`; r from the segregation run's `correlation.json` | Coded, not run |
+| c | **Overlap along the line, gradient across it:** the three tertile centroids enlarged, each with its 95 % electrode-bootstrap ellipse (electrodes drawn within participant). Dorsal should sit above the identity line (leaning LWPS), ventral near it. | centroids and balance CIs **[run]** | `fig5_height_centroids.csv` | Coded, not run |
+| d | **The gradient in the test's units:** LWPC − LWPS by tertile, electrode means ± SEM, with the z slope, its electrode-bootstrap CI and its p | z slope −0.0077 SD/mm, p = 0.008, CI **[run]**; participant-level p and random-slope p in S-N4 (`fig5_height_participants.png`) | `fig5_height_balance.csv`, `section19.json` → `slope_by_electrode` | Coded, not run |
 | e | **Separable codes over the same electrodes:** congruency ↔ switch cross-decoding over time in task-responsive lPFC: both within-contrast ceilings and both transfers, with the early window (both decodable, no transfer) and the late one (partial transfer) marked; the RT-matched transfer once the seeds are in | ceilings 0.76 / 0.76; transfer from +0.62 s, 47 % and 26 % of the ceilings | A4 run ([`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01)) | Run 2026-10-01; controls pending (below) |
 
 Optional, beside b: the congruency-against-switch scatter (r = 0.23) with the
@@ -427,9 +428,10 @@ N4 doc):
 
 | Result | Where |
 |---|---|
-| LWPC and LWPS share electrodes; no centroid separation | Main text, F5b, with the participant-level r in the same sentence |
-| Locally intermixed (local similarity, N4 §19.3) | Main text, one sentence (the balance's near-range share against the single scores'); curves in S-N4. Only with the positive control beside it. |
-| Height gradient in the balance | F5a, c, d, with the participant-level and random-slope p; the parcel test as one sentence. Omnibus only, never a named parcel. |
+| LWPC and LWPS share electrodes; no centroid separation | Main text, F5b, with the electrode-bootstrap CI; the participant-level r in S-N4 |
+| Locally intermixed (local similarity, N4 §19.3) | Main text, one sentence at the electrode level (the balance's near-range excess against the single scores'); curves in S-N4, with the participant-level version. Only with the positive control beside it. |
+| Height gradient in the balance | F5a, c, d, with the electrode-bootstrap CI; the participant-level and random-slope p in S-N4; the parcel test as one sentence. Omnibus only, never a named parcel. |
+| Participant-level versions of the above (N4 §19.1–19.3) | S-N4, one paragraph (§3.5), for a reviewer who asks how far the results generalise across participants |
 | Congruency and switch share electrodes | Main text sentence; optional scatter beside F5b |
 | Separable congruency and switch codes, late partial transfer | F5e if its controls hold; otherwise S5 and one Discussion sentence |
 | Each adaptation tracks its own base effect more than the other (Test 1) | One Results sentence; bars in S-N4 |
@@ -519,6 +521,10 @@ work. Renumber at submission.
       the first local-similarity numbers are not usable, N4 §19.3) and
       `--rt-coupling` (§19.7); replace the within-participant reliabilities in
       §3.4 with the shared-split ones. Then the task-significant run.
+- [ ] Rerun `n4_section19_followups.py`, all sections, on the all-lPFC run with
+      the raw and the RT-adjusted `--long-df`, for the electrode-level numbers
+      (2026-10-06; [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)
+      §5); fill the **[run]** brackets in §3.4 and the Fig. 5 caption.
 - [ ] Run the segregation job with `RT_ADJUST_HG=1` (N4 §18.10) and the
       anatomy job on it: the full RT control for the overlap and the gradient.
 - [ ] Decide F5e with the A4 controls below; draw it from the A4 run's traces.
@@ -806,12 +812,21 @@ manuscript:
   participants (N4 §18.1). Add to the supplementary methods: "In the
   task-responsive subset, trials were split 200 times rather than 1,000."
 
-✏️ **Participants as the unit, and local similarity** (skeleton, 2026-10-02;
-§19 of the N4 doc). Add after the coordinate test.
+✏️ **Units of inference, intervals, and local similarity** (skeleton,
+2026-10-02; electrode level first since 2026-10-06; §19 of the N4 doc and
+[`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)). Add
+after the coordinate test. The participant-level paragraph can move to the
+supplementary methods with S-N4.
 
-> **Participant-level tests.** The tests above treat participant as a fixed
-> effect and electrodes as the units of inference. We therefore repeated the two
-> main tests with participants as the units. For the overlap, each participant's
+> **Units of inference.** The tests above treat participant as a fixed effect
+> and electrodes as the units of inference. Intervals at that level came from
+> an electrode bootstrap within participant: each participant kept its number
+> of electrodes, its electrodes were drawn with replacement, and the statistic
+> was recomputed (2,000 draws; for the separate-half correlations, on 100 of
+> the splits).
+>
+> **Participant-level tests (Supplementary).** We repeated the two main tests
+> with participants as the units. For the overlap, each participant's
 > separate-half LWPC–LWPS correlation was computed over its own electrodes
 > (participants with at least four), on the same scores and splits, and the
 > correlations were averaged in Fisher *z* with weights *n* − 3 and tested by
@@ -835,11 +850,22 @@ manuscript:
 > per participant and repetition, and the same halves were used for all of its
 > electrodes, so that no electrode's half shared trials with another
 > electrode's other half (**[n]** splits). Each participant's baseline for a
-> bin was its mean over shuffles of the participant's electrode positions;
-> we tested the excess over that baseline by flipping the sign of whole
-> participants, with intervals from a participant bootstrap. The same analysis
-> of LWPC, LWPS, congruency and switch type alone served as the positive
-> control. An electrode's similarity with itself across halves is its
+> bin was its mean over shuffles of the participant's electrode positions, and
+> the excess over it was pooled over all electrode pairs. Because neighbouring
+> contacts share trial noise, pairs are not exchangeable, and a test that
+> shuffles positions is too liberal. We therefore tested the excess with
+> electrodes as the units by its standard error: every estimate is a quadratic
+> form in the electrodes' scores, whose covariance under no local structure we
+> modelled as exchangeable signal plus trial noise, with the noise covariance
+> between each pair of electrodes estimated from the differences between their
+> trial halves (one-sided normal *p*, intervals ± 1.96 SE; the per-split
+> standardisation carried through by the delta method). On simulated data with
+> noise shared between neighbouring contacts and no local structure, this test
+> rejected at 4.0–4.7 % at α = 0.05 for reliabilities like ours. With
+> participants as the units (Supplementary), we flipped the sign of each
+> participant's excess, with intervals from a participant bootstrap. The same
+> analysis of LWPC, LWPS, congruency and switch type alone served as the
+> positive control. An electrode's similarity with itself across halves is its
 > split-half reliability, against which the neighbours' similarity is
 > expressed where that reliability is clearly positive.
 >
@@ -1085,23 +1111,19 @@ first one, shortened.*
 > 0.27–0.30), so we tested only population-level summaries. The two effects
 > shared electrodes. LWPC and LWPS scores from separate halves of the trials
 > were positively correlated within participants (Spearman *r* = 0.10,
-> *p* < 0.001; 397 electrodes, 21 participants; Fig. 5b), and electrodes
-> positive for each effect did not differ in location (centroid distance
-> 1.4 mm, *p* = 0.95). With participants as the unit, the correlation held
-> when each participant's own correlation was weighted by its electrode count
-> (*r* = 0.10, 95 % CI [0.03, 0.16], sign-flip *p* = 0.031; 20 participants
-> with at least four electrodes) but not when every participant counted
-> equally (*r* = 0.04, *p* = 0.35; 11 of 20 positive), so it describes the
-> electrode population rather than every participant (N4 §19.8).
+> 95 % CI **[electrode bootstrap, run]**, *p* < 0.001; 397 electrodes,
+> 21 participants; Fig. 5b), and electrodes positive for each effect did not
+> differ in location (centroid distance 1.4 mm, *p* = 0.95).
 > **[Overlap controls, N4 §19.8: "The overlap did not depend on nonlinear
 > responsiveness, on location (MNI coordinates partialled, r = 0.10), on RT
 > coupling, or on any one participant (r = 0.08–0.11 with each left out), but
 > it largely disappeared when each half's congruency and switch-type effects
 > were partialled out (r = 0.03, p = 0.23)." Then the Test 1 paragraph as the
-> explanation.]** **[Local similarity: no power at these reliabilities on the
-> task-significant electrodes (N4 §19.8); state it as "no detectable local
-> clustering" only if the all-lPFC shared-split run shows a working positive
-> control, otherwise leave it out.]** The base effects that the two adaptations act on,
+> explanation.]** **[Local similarity, electrode level, from the rerun
+> (`n4_section19_electrode_level.md` §5): the balance's near-range excess and
+> its within-participant reliability against LWPC's, with the positive
+> control; wording as in N4 §19.8, "one population rather than two intermixed
+> ones". The participant-level version goes to S-N4.]** The base effects that the two adaptations act on,
 > congruency and switch type, were scored from the same trials and halves with
 > the proportion blocks weighted equally. They also shared electrodes
 > (*r* = 0.23, *p* < 0.001).
@@ -1120,7 +1142,8 @@ first one, shortened.*
 > reliable map (within-participant split-half reliability 0.35 for switch,
 > 0.46 for congruency, from trial splits shared by all of a participant's
 > electrodes; N4 §19.8) and still correlated more, so that difference is not
-> one of reliability. All four correlations were positive: electrodes with
+> one of reliability **[electrode-bootstrap CIs for the two reliabilities and
+> their difference, run]**. All four correlations were positive: electrodes with
 > larger base effects of either kind adapted more on both.
 >
 > **The balance between the two adaptations varies modestly across lPFC.** The
@@ -1130,17 +1153,12 @@ first one, shortened.*
 > each participant left out), although no single parcel differed from zero
 > after FDR correction (all *q* ≥ 0.13). It also varied with position (MNI
 > coordinates: block *F* = 2.85, *p* = 0.031): relative to LWPS, LWPC was
-> weaker dorsally (*z* slope *p* = 0.008; Bonferroni-corrected over three
-> axes, *p* = 0.023). The predicted anterior–posterior axis showed no effect
-> (*p* = 0.58), and height explained about 2 % of the balance's variance
-> (Fig. 5a, c, d). With participants as the unit the gradient held, though
-> less strongly and unevenly across participants: the participants' own
-> slopes, weighted by their electrodes' spread in height, averaged −0.0077
-> SD/mm (95 % CI −0.0147 to −0.0013; sign-flip *p* = 0.041), and a mixed model
-> with a random height slope gave −0.0083 SD/mm (*p* = 0.037; between-
-> participant SD of the slope 0.010 SD/mm). With each participant left out,
-> *p* ranged from 0.002 to 0.099 (N4 §19.8). This gradient and its relation to
-> the base effects are described in Supplementary **[S-N4]**.
+> weaker dorsally (*z* slope −0.0077 SD/mm, 95 % CI **[electrode bootstrap,
+> run]**, *p* = 0.008; Bonferroni-corrected over three axes, *p* = 0.023). The
+> predicted anterior–posterior axis showed no effect (*p* = 0.58), and height
+> explained about 2 % of the balance's variance (Fig. 5a, c, d). This gradient,
+> its participant-level tests and its relation to the base effects are
+> described in Supplementary **[S-N4]**.
 >
 > Together, LWPC and LWPS adaptation are carried by one intermixed lPFC
 > population, and each tracks the local strength of the effect it regulates.
@@ -1157,7 +1175,10 @@ first one, shortened.*
 *The first paragraph is copied from §18.8 of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md#188-results-text-supplement-s-n4),
 the task-significant run with main effects (2026-10-01); §18.9 there gives
-each number's source. The next two paragraphs ("The adaptation gradient", "The
+each number's source. "Participants as the unit" is the §3.4 text that left the
+main text on 2026-10-06, when the main text settled on electrodes as the unit
+([`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)). The
+next two paragraphs ("The adaptation gradient", "The
 base-effect balance") are the §17.3 text that left the main text on 2026-10-01
 (§3.4 above). The others are written here from the numbers in §16.6.6 and the
 §17.3 supplement additions of that doc.*
@@ -1197,6 +1218,22 @@ base-effect balance") are the §17.3 text that left the main text on 2026-10-01
 > and LWPC did not vary with distance from the midline (*p* = 0.82). Because
 > the adaptation balance had no detectable gradient here, we did not test
 > whether it is inherited from the base effects.
+>
+> **Participants as the unit.** *(Moved from the main text on 2026-10-06; N4
+> §19.8.)* The main-text tests take electrodes as the units, with participant
+> as a fixed effect. With participants as the units, the LWPC–LWPS overlap held
+> when each participant's own correlation was weighted by its electrode count
+> (*r* = 0.10, 95 % CI [0.03, 0.16], sign-flip *p* = 0.031; 20 participants
+> with at least four electrodes) but not when every participant counted
+> equally (*r* = 0.04, *p* = 0.35; 11 of 20 positive), so it describes the
+> electrode population rather than every participant. The height gradient
+> held, though less strongly and unevenly across participants: the
+> participants' own slopes, weighted by their electrodes' spread in height,
+> averaged −0.0077 SD/mm (95 % CI −0.0147 to −0.0013; sign-flip *p* = 0.041),
+> and a mixed model with a random height slope gave −0.0083 SD/mm
+> (*p* = 0.037; between-participant SD of the slope 0.010 SD/mm). With each
+> participant left out, *p* ranged from 0.002 to 0.099. **[Local similarity
+> with participant sign flips: N4 §19.8 table, raw high gamma.]**
 >
 > **The adaptation gradient.** In all lPFC, the dorsal weakening of LWPC
 > relative to LWPS had a *z* slope of −0.0077 SD/mm, and it replicated across
@@ -1439,12 +1476,13 @@ caption (overlap at both levels, and the bars) is kept below for S-N4.*
 > random splits (Spearman; within-participant permutation null). Because each
 > half has half the trials, *r* is smaller than the correlation among the
 > plotted points. The box marks **c**. **c**, Each tertile's centroid, with its
-> 95 % region from a participant bootstrap. The two effects' shared variation
-> runs along the identity line; the height gradient is the centroids' spread
-> across it. **d**, LWPC − LWPS by height tertile, with participant and
-> responsiveness offsets removed; mean ± SEM across participants. The slope is
-> from the pre-specified coordinate model (within-electrode label-swap null),
-> with **[its participant-level test]**. **e**, Congruency and switch type
+> 95 % region from an electrode bootstrap within participant. The two effects'
+> shared variation runs along the identity line; the height gradient is the
+> centroids' spread across it. **d**, LWPC − LWPS by height tertile, with
+> participant and responsiveness offsets removed; mean ± SEM across
+> electrodes. The slope is from the pre-specified coordinate model
+> (within-electrode label-swap null), with **[its 95 % electrode-bootstrap
+> interval]**; participant-level versions in Supplementary **[S-N4]**. **e**, Congruency and switch type
 > decoded from task-responsive lPFC (**[n]** electrodes, **[N]** participants):
 > each within its own labels (ceiling) and each decoder tested on the other's
 > labels (transfer), in 250-ms windows. **[Bars: windows above the shuffle
