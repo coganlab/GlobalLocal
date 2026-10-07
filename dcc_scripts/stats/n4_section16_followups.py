@@ -325,9 +325,8 @@ def main(argv=None):
         os.makedirs(args.out_dir, exist_ok=True)
     s = load(args.scores)
     print(f"{len(s)} electrodes, {s['subject'].nunique()} participants")
-    for k in (int(x) for x in args.sections.split(',')):
-        SECTIONS[k](s, args)
+    return fu.run_sections(SECTIONS, args.sections, s, args)
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(1 if main() else 0)

@@ -38,6 +38,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+import traceback
 
 import numpy as np
 import pandas as pd
@@ -128,6 +129,8 @@ def swap_slope(d, value_col, n_perm, seed):
     """z slope and swap-null p of ``value_col`` via the pipeline's own coordinate test."""
     r = sfa.relative_score_coordinate_test(d, n_perm=n_perm, seed=seed,
                                            value_col=value_col, by_hemisphere=False)['all']
+    if r['slopes'].empty:                      # too few electrodes to fit
+        return np.nan, np.nan, int(r['n_electrodes'])
     row = r['slopes'].set_index('axis').loc['mni_z']
     return float(row['slope_per_mm']), float(row['p']), int(r['n_electrodes'])
 
@@ -638,9 +641,22 @@ def main(argv=None):
     s, ps = load(args.scores, args.per_split)
     H = half_matrices(s, ps)
     print(f"{len(s)} electrodes, {s['subject'].nunique()} subjects, {ps['split'].nunique()} splits")
-    for k in (int(x) for x in args.sections.split(',')):
-        SECTIONS[k](s, ps, H, args)
+    return run_sections(SECTIONS, args.sections, s, ps, H, args)
+
+
+def run_sections(sections, which, *inputs):
+    """Run each listed section; one that fails is reported and the rest still
+    run. Returns the numbers of the sections that failed."""
+    failed = []
+    for k in (int(x) for x in which.split(',')):
+        try:
+            sections[k](*inputs)
+        except Exception as exc:
+            traceback.print_exc()
+            print(f"\n(section {k} failed: {type(exc).__name__}: {exc})")
+            failed.append(k)
+    return failed
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(1 if main() else 0)

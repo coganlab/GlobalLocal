@@ -68,6 +68,16 @@ Two arms (`ARM`)
     Run the categorical arm, then the continuous one into a `continuous/`
     subdirectory of the same save dir.
 
+Follow-ups (`FOLLOWUPS`, continuous arm)
+----------------------------------------
+After the continuous arm's summary is written, the N4 follow-up scripts run on
+its outputs (`run_followups`): §15 into `continuous/section15/`, §16 into
+`continuous/section16/`, and for §19 the local similarity on shared splits
+(`LONG_DF_CSV`) and the RT row of the overlap controls (`RT_COUPLING_CSV`) in
+`continuous/` with the rest of §19, plus the RT-adjusted companion
+(`RT_LONG_DF_CSV`) in `continuous/section19_rt_adjusted/`. A missing input
+skips only its part.
+
 Driven by `run_stability_flexibility_anatomy_dcc.py` (wrapped by
 `sbatch_stability_flexibility_anatomy_dcc.sh`). Not run directly on the cluster;
 call `main(args)` with a populated argument namespace.
@@ -594,6 +604,9 @@ def run_score_anatomy(args):
     seed = int(getattr(args, 'seed', 0))
     save_dir = os.path.join(args.save_dir, 'continuous')
     os.makedirs(save_dir, exist_ok=True)
+    # the segregation run the scores came from (its JSONs give Figure 5 its r)
+    scores_csv = getattr(args, 'scores_csv', None)
+    seg_dir = os.path.dirname(os.path.abspath(scores_csv)) if scores_csv else None
 
     # 1. scores + the three anatomy maps -----------------------------------------
     if args.data_source == 'synthetic':
@@ -708,18 +721,28 @@ def run_score_anatomy(args):
     # 4c. §19 (advisor check 2026-10-02): the z slope and the LWPC-LWPS r with
     # electrodes and with participants as the unit, local similarity, and the
     # combined Figure 5, with its height bands and their centroids on the brain
-    # when MAKE_BRAIN. Each part fails on its own inside `section19`.
+    # when MAKE_BRAIN. Each part fails on its own inside `section19`. With 19 in
+    # FOLLOWUPS, local similarity gets its shared splits from LONG_DF_CSV and the
+    # overlap controls their RT row from RT_COUPLING_CSV.
     print("§19: electrodes and participants as the unit, local similarity, combined Figure 5")
-    scores_csv = getattr(args, 'scores_csv', None)
+    followups = tuple(getattr(args, 'followups', None) or ())
+    shared, shared_label, rt_coupling, input_lines = (
+        section19_inputs(args, tab, save_dir, seed=seed) if 19 in followups
+        else (None, 'shared by participant', None, []))
     s19_lines, s19 = sfa.section19(
-        tab, per_split, save_dir, coord_res=coord_res,
-        seg_dir=os.path.dirname(os.path.abspath(scores_csv)) if scores_csv else None,
-        n_perm=n_perm, seed=seed, make_brain=getattr(args, 'make_brain', True),
+        tab, per_split, save_dir, coord_res=coord_res, seg_dir=seg_dir,
+        n_perm=n_perm, seed=seed, per_split_shared=shared, rt_coupling=rt_coupling,
+        shared_label=shared_label, make_brain=getattr(args, 'make_brain', True),
         brain_kwargs=dict(subjects=(getattr(args, 'brain_subjects', None)
                                     or getattr(args, 'subjects', None)),
                           hemi=getattr(args, 'brain_hemi', 'both'),
                           zoom=getattr(args, 'brain_zoom', None)))
-    main_lines = list(main_lines) + s19_lines
+    # the same two files n4_section19_followups.py writes
+    with open(os.path.join(save_dir, 'summary_section19.txt'), 'w') as f:
+        f.write('\n'.join(s19_lines + input_lines) + '\n')
+    with open(os.path.join(save_dir, 'section19.json'), 'w') as f:
+        json.dump(s19, f, indent=2, default=str)
+    main_lines = list(main_lines) + s19_lines + input_lines
 
     # 5. figures ------------------------------------------------------------------
     # The §2.5 joint scatter, on the pooled-scaled scores this arm tests, with
@@ -786,6 +809,16 @@ def run_score_anatomy(args):
     write_score_summary(tab, roi_res, loso, coord_res, centers, ceiling,
                         scatter_diag, save_dir, roi_col=roi_col,
                         alpha=getattr(args, 'alpha', 0.05), main_lines=main_lines)
+
+    # 7. the N4 follow-up scripts, on the files just written ------------------------
+    if followups:
+        lines = run_followups(args, save_dir, followups, seg_dir=seg_dir,
+                              has_dm='dm' in tab, has_coords=has_coords,
+                              has_per_split=per_split is not None, roi_col=roi_col,
+                              min_subjects=min_subjects, n_perm=n_perm, seed=seed)
+        print('\n'.join(lines))
+        with open(os.path.join(save_dir, 'summary.txt'), 'a') as f:
+            f.write('\n'.join(lines) + '\n')
     return dict(scores=tab, coverage=coverage, roi_test=roi_res, loso=loso,
                 coordinate_test=coord_res, centers=centers, ceiling=ceiling,
                 scatter_diagnostics=scatter_diag, maps=maps, save_dir=save_dir)
@@ -897,6 +930,184 @@ def make_figure5(args, tab, per_split, track, save_dir, has_coords, n_perm=10000
         return fig['lines']
     except Exception as exc:
         return [f"  FIGURE 5: failed ({type(exc).__name__}: {exc})"]
+
+
+# ---------------------------------------------------------------------------
+# the N4 follow-ups (FOLLOWUPS): §19's extra inputs, and the §15, §16 and §19
+# scripts run on this job's own outputs
+# ---------------------------------------------------------------------------
+MAKE_LONG_DF = ("make it with: cd dcc_scripts/stats && RT_ADJUST_HG={rt} SCATTER_N_SPLITS={n} "
+                "SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh (N4 doc §19.5)")
+
+
+def section19_inputs(args, tab, save_dir, seed=0):
+    """What §19 needs beyond this run's own tables: ``(per_split_shared,
+    shared_label, rt_coupling, summary lines)``.
+
+    ``LONG_DF_CSV``      a segregation run's long table with trial ids, rescored
+                         here with one trial split per participant
+                         (``SHARED_N_SPLITS``) for §19.3's local similarity and
+                         the shared-split reliabilities; written to
+                         ``per_split_shared.csv``.
+    ``RT_COUPLING_CSV``  ``electrode, rt_r`` (an RT_ADJUST_HG=1 run's
+                         ``rt_adjustment_slopes.csv``) for the RT row of the
+                         overlap controls (§19.7).
+
+    A missing or unusable file costs only its part, with a line saying so.
+    """
+    from dcc_scripts.stats import n4_section19_followups as s19
+    shared, label, rt, lines = None, 'shared by participant', None, []
+    long_df = getattr(args, 'long_df_csv', None)
+    n_splits = int(getattr(args, 'shared_n_splits', 200))
+    if not long_df or not os.path.exists(long_df):
+        lines.append(f"  §19 shared splits: LONG_DF_CSV {'not found: ' + long_df if long_df else 'not set'}"
+                     "; local similarity skipped. "
+                     + MAKE_LONG_DF.format(rt=0, n=0))
+    else:
+        try:
+            label = s19.RT_LABEL if s19.rt_adjusted(long_df) else label
+            shared = s19.rescore_shared(long_df, tab['electrode'], n_splits=n_splits, seed=seed)
+            if shared is None:
+                lines.append(f"  §19 shared splits: {long_df} has no trial column; local "
+                             "similarity skipped. " + MAKE_LONG_DF.format(rt=0, n=0))
+            else:
+                shared.to_csv(os.path.join(save_dir, 'per_split_shared.csv'), index=False)
+                lines.append(f"  §19 shared splits ({label}): {long_df}, rescored with "
+                             f"{n_splits} splits -> per_split_shared.csv")
+        except Exception as exc:
+            shared = None
+            lines.append(f"  §19 shared splits: failed ({type(exc).__name__}: {exc})")
+    rt_csv = getattr(args, 'rt_coupling_csv', None)
+    if rt_csv and os.path.exists(rt_csv):
+        rt = pd.read_csv(rt_csv)
+        if 'rt_r' in rt.columns:
+            lines.append(f"  §19 RT coupling: {rt_csv}")
+        else:
+            rt = None
+            lines.append(f"  §19 RT coupling: {rt_csv} has no rt_r column; RT row skipped")
+    else:
+        lines.append(f"  §19 RT coupling: RT_COUPLING_CSV "
+                     f"{'not found: ' + rt_csv if rt_csv else 'not set'}; RT row skipped "
+                     "(it is the rt_adjustment_slopes.csv of the RT-adjusted long table's run)")
+    return shared, label, rt, lines
+
+
+class _Tee:
+    """A stream that writes to several: a script's printout to the job log and a file."""
+
+    def __init__(self, *streams):
+        self.streams = streams
+
+    def write(self, text):
+        for s in self.streams:
+            s.write(text)
+        return len(text)
+
+    def flush(self):
+        for s in self.streams:
+            s.flush()
+
+
+def _run_script(name, script_main, argv, save_dir, log_path=None, writes=None):
+    """``script_main(argv)``, with its printout also in ``log_path`` when given.
+    A script that fails costs only itself. Returns one summary line naming
+    ``writes`` (default ``log_path``) relative to ``save_dir``."""
+    import contextlib
+    print(f"\n{name}: {' '.join(argv)}")
+    try:
+        if log_path:
+            os.makedirs(os.path.dirname(log_path), exist_ok=True)
+            with open(log_path, 'w') as f, contextlib.redirect_stdout(_Tee(sys.stdout, f)):
+                failed = script_main(argv)
+        else:
+            failed = script_main(argv)
+    except (Exception, SystemExit) as exc:
+        return f"  {name}: failed ({type(exc).__name__}: {exc})"
+    return (f"  {name}: {os.path.relpath(writes or log_path, save_dir)}"
+            + (f" (section{'s' * (len(failed) > 1)} {', '.join(map(str, failed))} failed; "
+               "see the file)" if failed else ''))
+
+
+def run_followups(args, save_dir, followups, seg_dir=None, has_dm=True, has_coords=True,
+                  has_per_split=True, roi_col='anat', min_subjects=3, n_perm=10000, seed=0):
+    """The N4 follow-up scripts on the files this run just wrote into
+    ``save_dir``, each into a folder of its own (``FOLLOWUPS``):
+
+    15  ``n4_section15_followups.py``, every section (11 with
+        ``SUBSET_SCORES_CSV``) -> ``section15/summary_section15.txt``
+    16  ``n4_section16_followups.py`` sections 1-5 -> ``section16/``
+        (``summary_section16.txt`` and the panel tables). Its section 6 would
+        redraw the ``fig5.png`` this job drew.
+    19  ``n4_section19_followups.py`` section 3 on ``RT_LONG_DF_CSV``, the
+        RT-adjusted companion -> ``section19_rt_adjusted/``. The rest of §19 ran
+        in the job, into ``save_dir``, with ``section19_inputs``.
+
+    Every count (permutations, shuffles, bootstraps, simulations) is the
+    script's own default capped at ``n_perm``, so a quick run stays quick.
+    Returns summary lines.
+    """
+    from dcc_scripts.stats import n4_section15_followups as s15
+    from dcc_scripts.stats import n4_section16_followups as s16
+    from dcc_scripts.stats import n4_section19_followups as s19
+
+    def cap(default):
+        return str(min(default, n_perm))
+
+    scores = os.path.join(save_dir, 'scores_with_anatomy.csv')
+    lines = ["-" * 70, "FOLLOW-UPS — the N4 §15, §16 and §19 scripts on this run's outputs "
+                       f"(counts capped at N_PERM = {n_perm})"]
+    if 15 in followups:
+        if not has_per_split:
+            lines.append("  §15: skipped (it needs the per-split table: PER_SPLIT_CSV)")
+        else:
+            subset = getattr(args, 'subset_scores_csv', None)
+            argv = ['--scores', scores, '--per-split', os.path.join(save_dir, 'per_split.csv'),
+                    '--n-perm', cap(20000), '--n-perm-cv', cap(2000), '--n-boot', cap(2000),
+                    '--n-sim', cap(500), '--seed', str(seed)]
+            if subset and os.path.exists(subset):
+                argv += ['--subset-scores', subset]
+            lines.append(_run_script('§15', s15.main, argv, save_dir,
+                                     os.path.join(save_dir, 'section15', 'summary_section15.txt')))
+            if subset and not os.path.exists(subset):
+                lines.append(f"      SUBSET_SCORES_CSV not found ({subset}): section 11 skipped")
+    if 16 in followups:
+        if not (has_dm and has_coords):
+            lines.append("  §16: skipped (it needs the main effects, from a MAIN_EFFECTS=1 "
+                         "segregation run, and MNI coordinates)")
+        else:
+            out16 = os.path.join(save_dir, 'section16')
+            argv = ['--scores', scores, '--out-dir', out16, '--sections', '1,2,3,4,5',
+                    '--roi-col', roi_col, '--min-subjects', str(min_subjects),
+                    '--n-perm', cap(10000), '--n-perm-shuffle', cap(2000),
+                    '--n-boot', cap(2000), '--seed', str(seed)]
+            if seg_dir:
+                argv += ['--seg-dir', seg_dir]
+            tilt = os.path.join(save_dir, 'tilt_with_dm.csv')
+            if os.path.exists(tilt):
+                argv += ['--tilt', tilt]
+            lines.append(_run_script('§16', s16.main, argv, save_dir,
+                                     os.path.join(out16, 'summary_section16.txt')))
+    if 19 in followups:
+        rt_long = getattr(args, 'rt_long_df_csv', None)
+        if not rt_long or not os.path.exists(rt_long):
+            lines.append(f"  §19 RT-adjusted: RT_LONG_DF_CSV "
+                         f"{'not found: ' + rt_long if rt_long else 'not set'}; skipped. "
+                         + MAKE_LONG_DF.format(rt=1, n=200))
+        elif not (has_per_split and has_coords):
+            lines.append("  §19 RT-adjusted: skipped (it needs the per-split table and MNI "
+                         "coordinates)")
+        else:
+            out19 = os.path.join(save_dir, 'section19_rt_adjusted' if s19.rt_adjusted(rt_long)
+                                 else 'section19')
+            argv = ['--anatomy-dir', save_dir, '--long-df', rt_long, '--sections', '3',
+                    '--shared-n-splits', str(int(getattr(args, 'shared_n_splits', 200))),
+                    '--n-perm', cap(10000), '--n-boot', cap(2000), '--seed', str(seed)]
+            lines.append(_run_script('§19 RT-adjusted', s19.main, argv, save_dir,
+                                     writes=os.path.join(out19, 'summary_section19.txt')))
+            if not s19.rt_adjusted(rt_long):
+                lines.append(f"      NOTE: no rt_adjustment_slopes.csv beside {rt_long}, so "
+                             "it is not from an RT_ADJUST_HG=1 run; written to section19/")
+    return lines
 
 
 # ---------------------------------------------------------------------------
