@@ -161,6 +161,18 @@ python dcc_scripts/stats/n4_section19_followups.py \
 Each takes the rescoring time (5–10 minutes) plus about 2 minutes. The
 participant-level numbers come out the same as on 2026-10-05 (same seeds).
 
+Or, since 2026-10-07, rerun the anatomy job, which does both and the §15 and
+§16 follow-ups (N4 doc §19.5). The raw run's files (`summary_section19.txt`,
+`section19.json` and the tables) land in `continuous/` itself rather than
+`continuous/section19/`; the RT-adjusted ones in
+`continuous/section19_rt_adjusted/` as before:
+
+```bash
+cd dcc_scripts/stats
+ARM=continuous ROI_FILTER=lpfc ANAT_LEVEL=destrieux N_PERM=10000 \
+  bash submit_stability_flexibility_anatomy_dcc.sh
+```
+
 Numbers to collect for the main text **[run]**: the z slope's
 electrode-bootstrap CI; the overlap r's CI; the shared-split reliabilities'
 CIs, the congruency − switch reliability difference with its CI, and the

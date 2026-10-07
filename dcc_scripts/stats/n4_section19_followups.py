@@ -78,12 +78,43 @@ similarity) is skipped; the other sections run. Two ways to get trial ids:
 '''
 
 
+RT_LABEL = 'shared by participant, RT-adjusted HG'
+
+
 def _per_split_path(args):
     for d in (args.anatomy_dir, args.seg_dir):
         p = os.path.join(d, 'per_split.csv') if d else None
         if p and os.path.exists(p):
             return p
     return None
+
+
+def rt_adjusted(path):
+    """Whether a segregation run's table comes from an RT_ADJUST_HG=1 run: its
+    high gamma has the RT-linked part removed, and rt_adjustment_slopes.csv
+    sits beside it."""
+    return os.path.exists(os.path.join(os.path.dirname(os.path.abspath(path)),
+                                       'rt_adjustment_slopes.csv'))
+
+
+def rescore_shared(long_df_path, electrodes, n_splits=200, seed=0):
+    """The per-split table section 3 needs: the long table rescored with one
+    trial split per participant, on the electrodes in ``electrodes``. None, after
+    saying how to get trial ids, when the table has no `trial` column."""
+    long_df = pd.read_csv(long_df_path)
+    if 'trial' not in long_df.columns:
+        print(NO_TRIAL_IDS.format(path=long_df_path))
+        return None
+    from src.analysis.stats import stability_flexibility_segregation as sfs
+    n_all = pd.Series(electrodes).nunique()
+    long_df = long_df[long_df['electrode'].isin(set(electrodes))]
+    n_e = long_df['electrode'].nunique()
+    print(f"rescoring {n_e} electrodes with {n_splits} participant-shared "
+          f"splits ..." + (f" (the long table covers {n_e} of the {n_all} "
+                           "electrodes; section 3 runs on those)" if n_e < n_all else ''))
+    return sfs.compute_sensitivities_per_split(
+        long_df, n_splits=n_splits, seed=seed, contrast_mode='proportion',
+        effect_measure='cohens_d', main_effects=True, shared_split=True)
 
 
 def main(argv=None):
@@ -126,12 +157,10 @@ def main(argv=None):
 
     shared, shared_label = None, 'shared by participant'
     # A long table from an RT_ADJUST_HG=1 run has the RT-linked part of high gamma
-    # removed (rt_adjustment_slopes.csv sits beside it). Label it, and keep its
-    # results apart from the raw ones.
+    # removed. Label it, and keep its results apart from the raw ones.
     src = args.long_df or args.per_split_shared
-    if src and os.path.exists(os.path.join(os.path.dirname(os.path.abspath(src)),
-                                           'rt_adjustment_slopes.csv')):
-        shared_label = 'shared by participant, RT-adjusted HG'
+    if src and rt_adjusted(src):
+        shared_label = RT_LABEL
         if not args.out_dir:
             out_dir = os.path.join(args.anatomy_dir, 'section19_rt_adjusted')
         print(f"NOTE: {src} comes from an RT_ADJUST_HG=1 run: its high gamma has the "
@@ -141,21 +170,9 @@ def main(argv=None):
     if args.per_split_shared:
         shared = pd.read_csv(args.per_split_shared)
     elif args.long_df:
-        long_df = pd.read_csv(args.long_df)
-        if 'trial' not in long_df.columns:
-            print(NO_TRIAL_IDS.format(path=args.long_df))
-        else:
-            from src.analysis.stats import stability_flexibility_segregation as sfs
-            long_df = long_df[long_df['electrode'].isin(scores['electrode'])]
-            n_e = long_df['electrode'].nunique()
-            print(f"rescoring {n_e} electrodes with {args.shared_n_splits} participant-shared "
-                  f"splits ..." + (f" (the long table covers {n_e} of the {len(scores)} "
-                                   "electrodes; section 3 runs on those)"
-                                   if n_e < scores['electrode'].nunique() else ''))
-            shared = sfs.compute_sensitivities_per_split(
-                long_df, n_splits=args.shared_n_splits, seed=args.seed,
-                contrast_mode='proportion', effect_measure='cohens_d', main_effects=True,
-                shared_split=True)
+        shared = rescore_shared(args.long_df, scores['electrode'],
+                                n_splits=args.shared_n_splits, seed=args.seed)
+        if shared is not None:
             shared.to_csv(os.path.join(out_dir, 'per_split_shared.csv'), index=False)
     rt = pd.read_csv(args.rt_coupling) if args.rt_coupling else None
     if rt is not None and 'rt_r' not in rt.columns:

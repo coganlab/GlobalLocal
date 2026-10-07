@@ -39,6 +39,10 @@ ARM=continuous   plan §5–§7: per-electrode LWPC/LWPS SCORES -> anatomy. No
                  out so the next run can take the CSV route.
                  USE_COORDS=0 skips the coordinate/centroid panels (they need the
                  recon files).
+                 FOLLOWUPS (default 15,16,19) then runs the N4 follow-up scripts
+                 on the job's own outputs; §19's extra inputs are LONG_DF_CSV,
+                 RT_LONG_DF_CSV and RT_COUPLING_CSV (see FOLLOWUPS below), §15's
+                 SUBSET_SCORES_CSV. A missing input skips only its part.
 ARM=both         categorical, then continuous into a `continuous/` subdir.
 
 Restricting the anatomy
@@ -117,6 +121,28 @@ SCORES_CSV = _env('SCORES_CSV')          # its electrodes.csv
 PER_SPLIT_CSV = _env('PER_SPLIT_CSV')    # its per_split.csv (ceiling)
 N_SPLITS = int(_env('N_SPLITS', '200'))  # only when scoring here
 USE_COORDS = _env('USE_COORDS', '1') not in ('0', 'false', 'False')
+
+# continuous arm: the N4 follow-ups, run on this job's own outputs. Any of 15, 16,
+# 19 (comma- or space-separated); 'none' for none.
+#   15  n4_section15_followups.py -> continuous/section15/
+#   16  n4_section16_followups.py sections 1-5 -> continuous/section16/
+#   19  §19's local similarity on shared splits (LONG_DF_CSV) and the RT row of
+#       its overlap controls (RT_COUPLING_CSV), in continuous/ with the rest of
+#       §19; and the RT-adjusted companion (RT_LONG_DF_CSV) ->
+#       continuous/section19_rt_adjusted/
+_followups = _env('FOLLOWUPS', '15,16,19')
+_tokens = _followups.replace(',', ' ').split()
+if _followups.lower() in ('0', 'none', 'no'):
+    FOLLOWUPS = ()
+elif set(_tokens) <= {'15', '16', '19'}:
+    FOLLOWUPS = tuple(int(k) for k in _tokens)
+else:
+    raise ValueError(f"FOLLOWUPS takes 15, 16 and 19 (or 'none'); got {_followups!r}")
+LONG_DF_CSV = _env('LONG_DF_CSV')            # long table with trial ids, raw HG
+RT_LONG_DF_CSV = _env('RT_LONG_DF_CSV')      # the same, RT-adjusted HG
+RT_COUPLING_CSV = _env('RT_COUPLING_CSV')    # electrode, rt_r (rt_adjustment_slopes.csv)
+SUBSET_SCORES_CSV = _env('SUBSET_SCORES_CSV')  # §15 section 11: a subset run's scores
+SHARED_N_SPLITS = int(_env('SHARED_N_SPLITS', '200'))  # splits for the shared rescoring
 
 # --- electrode definition: 'a1' (window-mean ANOVA here) or 'power_traces'
 #     (finished cluster-corrected within-electrode ANOVA runs) ---
@@ -228,6 +254,12 @@ def run_analysis():
         per_split_csv=PER_SPLIT_CSV,
         n_splits=N_SPLITS,
         use_coords=USE_COORDS,
+        followups=FOLLOWUPS,
+        long_df_csv=LONG_DF_CSV,
+        rt_long_df_csv=RT_LONG_DF_CSV,
+        rt_coupling_csv=RT_COUPLING_CSV,
+        subset_scores_csv=SUBSET_SCORES_CSV,
+        shared_n_splits=SHARED_N_SPLITS,
         responsiveness=None,
         label_source=LABEL_SOURCE,
         pt_runs=PT_RUNS,
@@ -265,6 +297,16 @@ def run_analysis():
         print(f"  scores:             {SCORES_CSV or f'computed here ({N_SPLITS} splits)'}")
         print(f"  per-split (ceiling): {PER_SPLIT_CSV or ('computed here' if not SCORES_CSV else 'MISSING')}")
         print(f"  MNI coordinates:     {'yes' if USE_COORDS else 'no'}")
+        print(f"  follow-ups:          {', '.join(f'§{k}' for k in FOLLOWUPS) or 'none'}")
+        if 19 in FOLLOWUPS:
+            for name, path in (('long table (raw)', LONG_DF_CSV),
+                               ('long table (RT-adj.)', RT_LONG_DF_CSV),
+                               ('RT coupling', RT_COUPLING_CSV)):
+                state = ('' if not path else ' (found)' if os.path.exists(path)
+                         else ' (NOT FOUND: skipped)')
+                print(f"    {name + ':':<21} {path or 'not set'}{state}")
+        if 15 in FOLLOWUPS and SUBSET_SCORES_CSV:
+            print(f"    §15 subset scores:    {SUBSET_SCORES_CSV}")
     print(f"Label source:     {LABEL_SOURCE}")
     if LABEL_SOURCE == 'power_traces':
         print(f"  power_traces runs:  {PT_RUNS}")

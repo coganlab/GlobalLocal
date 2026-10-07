@@ -477,20 +477,22 @@ participant dropped, at a tenth of the permutations.
 
 It returns `(lines, out)`: the text that becomes `summary_section19.txt` and a
 dict that becomes `section19.json`. The anatomy job calls it on every new run
-(`stability_flexibility_anatomy_dcc.py:714`) without a shared table, so new
-runs skip section 3.
+(`stability_flexibility_anatomy_dcc.py:732`). With 19 in `FOLLOWUPS` (the
+default) it first rescores `LONG_DF_CSV` with shared splits and reads
+`RT_COUPLING_CSV` (`section19_inputs`), so section 3 and the RT row run there;
+without that long table, section 3 is skipped.
 
-**The script** (`n4_section19_followups.py:81`) is a thin wrapper:
+**The script** (`n4_section19_followups.py:120`) is a thin wrapper:
 
 1. reads `scores_with_anatomy.csv` and `per_split.csv` from `--anatomy-dir`
    (or `--seg-dir`);
 2. if the `--long-df` or `--per-split-shared` file has an
-   `rt_adjustment_slopes.csv` beside it, labels the run RT-adjusted and writes
-   to `section19_rt_adjusted/` (`:123–131`);
+   `rt_adjustment_slopes.csv` beside it (`rt_adjusted`), labels the run
+   RT-adjusted and writes to `section19_rt_adjusted/` (`:162`);
 3. with `--long-df`, rescores with `compute_sensitivities_per_split(...,
-   main_effects=True, shared_split=True)` (`:147`), 200 splits by default, and
-   saves `per_split_shared.csv`; a table without `trial` prints how to get one
-   and skips section 3;
+   main_effects=True, shared_split=True)` (`rescore_shared`, `:100`), 200
+   splits by default, and saves `per_split_shared.csv`; a table without
+   `trial` prints how to get one and skips section 3;
 4. reads `--rt-coupling` (needs `electrode`, `rt_r`);
 5. calls `sfa.section19` and writes `summary_section19.txt` and `section19.json`.
    `--brain` (with `--brain-hemi`, `--brain-zoom`) passes `make_brain=True` to
