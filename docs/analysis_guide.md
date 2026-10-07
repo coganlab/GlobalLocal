@@ -31,6 +31,7 @@ doesn't:
 | [`n2_direction_tests.md`](n2_direction_tests.md) | **Runbook for N2**: which way the LWPC and LWPS effects go in lPFC high gamma |
 | [`decoding.md`](decoding.md) | **Runbooks for decoding**: the ordinary decoding job, A4 cross-decoding with the task-transfer controls (§17), N3b block transfer, and what to do when a transfer comes back uninformative |
 | [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) | **Runbook and results for N4**: §0 leads with the current results, how each was computed, the figures, and manuscript-ready Methods and Results; then the runbook, the main-effect reference and §19 |
+| [`segregation_walkthrough.md`](segregation_walkthrough.md) | **The A1/A2 segregation statistics line by line** (§14): every step of `stability_flexibility_segregation.py` and why it is there; its notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each function's body one statement at a time on a planted demo electrode |
 | [`n4_code_walkthrough.md`](n4_code_walkthrough.md) | **The N4 code line by line**, mostly §19, with comprehension questions; its notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` steps through it on the real all-lPFC outputs |
 | [`a6_brain_behavior.md`](a6_brain_behavior.md) | **Runbook for A6** (§19): the per-participant brain–behavior scores and the RT confound |
 | [`stability_flexibility_battery.md`](stability_flexibility_battery.md) | The **shape of the data at every step** of A1–A7, one fake dataset followed end to end with the actual intermediate tables printed (backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py`), and **what each output file means** |
@@ -923,6 +924,13 @@ A1 and A2 share a module (`stats/stability_flexibility_segregation.py`), a
 launcher, and an output directory, so they are documented together: **A1 labels
 each electrode, A2 asks whether those labels overlap more or less than chance.**
 
+> **To understand the code line by line**, read
+> [`segregation_walkthrough.md`](segregation_walkthrough.md) next to its notebook
+> `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb`, which
+> runs every function's body one statement at a time on a planted demo electrode
+> and checks each step against the library. This section is the *why* and the
+> *how to run*.
+
 ### 14.1 A1 — the four interaction groups
 
 > **Goal.** Label each electrode by which of the **four two-way interactions** it
@@ -1085,14 +1093,17 @@ work = _canonical_labels(df, contrasts)      # attaches _scond/_smod/_fcond/_fmo
   disagree on direction.
 
 ```python
-specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
-         ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+specs = [('cpc', 'interaction', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+         ('sps', 'interaction', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
 if include_cross_controls:
-    specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
-              ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
+    specs += [('cps', 'interaction', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+              ('spc', 'interaction', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
 ```
-- **One spec table drives all four interactions.** Each row is `(flag, condition
-  column, modulator column, condition sub-label, modulator sub-label)`. *Why a
+- **One spec table drives all four interactions.** Each row is `(flag, kind,
+  condition column, modulator column, condition sub-label, modulator sub-label)`.
+  `kind` is `'interaction'` here; with `contrast_mode='condition'` the same table
+  holds two `'simple'` rows (the congruency and switch main effects, via
+  `_anova_simple_stats`), so the downstream CPC/SPS/S/F schema is unchanged. *Why a
   data-driven list rather than four copy-pasted blocks:* the four interactions are
   the *same computation* on different column pairs, so expressing them as data
   removes the risk that a future edit fixes a bug in the `CPC` branch but not the
@@ -1105,13 +1116,21 @@ if include_cross_controls:
 for (subj, elec), g in work.groupby(['subject', 'electrode']):
     hg = _scalar_hg(g['hg'])          # window-mean, even on a time-course table
     rec = dict(subject=subj, electrode=elec)
-    for name, cond_col, mod_col, cond_sub, mod_sub in specs:
-        stats = _anova_interaction_stats(g, cond_col, mod_col)     # Type III, sum-coded
+    for name, kind, cond_col, mod_col, cond_sub, mod_sub in specs:
+        stats = (_anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+                 if kind == 'interaction' else _anova_simple_stats(g, cond_sub))
         rec[f'p_{name}'] = stats['p']
         rec[f'F_{name}'] = stats['F']
-        rec[f'{name}_sign'] = np.sign(_interaction_effect(         # signed d-o-d direction
-            hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
+        if kind == 'interaction':
+            effect = _interaction_effect(                          # signed d-o-d direction
+                hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha)
+        else:
+            effect = _contrast_effect(g.assign(hg=hg), cond_sub, 'cohens_d', alpha)
+        rec[f'{name}_sign'] = np.sign(effect)
 ```
+
+(The `anova_model='twoway'` branch, main-effect labels only, is skipped here; see
+the function's docstring.)
 - **`_scalar_hg` reduces time-course cells to window means** so the sign describes
   the *same statistic* the F/p does. `_anova_interaction_stats` already reduces
   internally, but the sign path calls `_interaction_effect(..., 'cohens_d')`,
@@ -1175,25 +1194,28 @@ This function is *why* the interaction is trustworthy under the deliberately
 unequal (~75/25) proportion cells.
 
 ```python
-def _interaction_cohens_d(cells):
-    num, dfree, means = 0.0, 0, {}
-    for k, v in cells.items():
-        n = len(v)
-        if n < 2:
-            return np.nan                       # a cell with <2 trials -> undefined
-        num += (n - 1) * v.var(ddof=1)          # pooled within-cell SS
-        dfree += n - 1
-        means[k] = v.mean(0)
-    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
-           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
-    sp = np.sqrt(num / dfree)
-    return np.nan if sp == 0 else dod / sp
+W_INTERACTION = {(1.0, 1.0): +1.0, (0.0, 1.0): -1.0,      # difference-of-differences
+                 (1.0, 0.0): -1.0, (0.0, 0.0): +1.0}
+
+def _interaction_cohens_d(cells, w=None):
+    w = W_INTERACTION if w is None else w
+    st = _cell_stats(cells)                     # per-cell mean, var, n; None if a cell has < 2 trials
+    if st is None:
+        return np.nan
+    means, _, ns = st
+    ssq = sum((ns[k] - 1) * cells[k].var(ddof=1) for k in cells)   # pooled within-cell SS
+    sp = np.sqrt(ssq / sum(ns[k] - 1 for k in ns))
+    return np.nan if sp == 0 else _combine(means, w) / sp          # _combine = sum(w[k] * means[k])
 ```
 - **`cells`** is the four `(cond, mod)` cells as separate arrays (from
-  `_dod_cells`). The estimator averages the four cell means with **equal weight**,
-  not trial-count weight.
-- **`dod`** is the difference-of-differences: (effect of congruency in high-prop) −
-  (effect of congruency in low-prop). *Why equal cell weights matter:* the naive
+  `_dod_cells`); the key `(1, 1)` is incongruent in the **low** (25 %) block. The
+  estimator combines the four cell means with **equal weight**, not trial-count
+  weight.
+- **`_combine(means, W_INTERACTION)`** is the difference-of-differences:
+  (congruency effect in the low-proportion block) − (congruency effect in the
+  high-proportion block), the LWPC sign convention of §12. Passing `w=W_MAIN`
+  instead gives the congruency main effect averaged equally over the two blocks.
+  *Why equal cell weights matter:* the naive
   "+1 diagonal vs −1 diagonal pooled mean difference" is trial-count weighted, and
   in a 75/25 design the +1 super-group is dominated by the frequent cells. Under
   that imbalance a pure congruency **main effect** leaks into the "interaction"
@@ -1208,10 +1230,11 @@ def _interaction_cohens_d(cells):
   of the FDR count instead of pretending it has a null effect.
 
 The time-resolved sibling `_interaction_cluster(cells, alpha)` computes the same
-d-o-d **per time bin**, converts to a per-bin t, thresholds at the parametric
-`alpha` critical t, and returns the **signed cluster mass** (sum of supra-threshold
-t within contiguous runs). That single function is the bridge to §14.2: it is the
-temporal interaction test, emitting a signed graded scalar.
+d-o-d **per time bin**, converts to a per-bin t (`_cell_weighted_t`), thresholds
+at the parametric `alpha` critical t, and returns the **signed mass**: the sum of
+every supra-threshold bin's t, with no contiguity requirement (see the box in
+§14.2). That single function is the bridge to §14.2: a time-resolved interaction
+statistic emitting a signed graded scalar.
 
 </details>
 
@@ -1279,11 +1302,15 @@ Setting the flag under `contrast_mode='proportion'` is a no-op.
 
 **Why `ieeg`'s cluster test doesn't apply directly to an interaction.** A 2×2
 interaction is a **difference-of-differences (four cells)**, not a two-sample
-contrast, so `time_perm_cluster` would be permuting the wrong thing. The correct
-null permutes the **modulator within each condition level**, holding both main
-effects fixed so only the interaction is nulled — which is what the segregation
-module's permutation path (`per_electrode_labels` / `_interaction_cluster`)
-implements. `power_traces`' generic per-window ANOVA + extent-cluster correction
+contrast, so `time_perm_cluster` would be permuting the wrong thing. The
+segregation module's permutation path (`per_electrode_labels`, scoring with
+`_interaction_cluster` or the d-o-d) instead permutes the **modulator within
+each condition level**. That holds the cell counts and the condition main effect
+fixed and nulls the interaction. It does not hold the modulator (block) main
+effect fixed, which widens the null slightly (conservative), and block
+proportion is a block-level variable, so trials within a block are not strictly
+exchangeable in it (anticonservative); the comment in `perm_p_interaction`
+spells out both. `power_traces`' generic per-window ANOVA + extent-cluster correction
 is fine for selecting on *a factor's own* significance, but its interaction
 handling and its flat `load_significant_electrodes` output are not the
 interaction-co-registered signed scalar this design needs.
@@ -1328,9 +1355,12 @@ labels:
   every row — see §14.5.
 - **Continuous, threshold-free (Fig 7 headline):** correlate each electrode's LWPC
   effect size against its LWPS effect size across all electrodes
-  (`subject_clustered_corr`), estimated on **disjoint trial halves** so shared
-  trial noise cannot inflate it; null by within-subject permutation. Positive →
-  shared tuning; ≈0 → segregation.
+  (`split_resolved_corr`), with the two estimated on **disjoint trial halves** and
+  the correlation taken within each split before averaging, so shared trial noise
+  cannot inflate it; null by within-subject permutation; read next to the
+  split-half reliabilities. Positive → shared tuning; ≈0 with reliable maps, or
+  negative → segregation. (`subject_clustered_corr` on split-averaged scores is
+  the older estimator, kept as a diagnostic.)
 
 **Why the conjunction matters most:** it is the only test in the battery that can
 give **positive evidence for distinctness** (OR < 1). Decoding (A4) can only
@@ -3090,8 +3120,9 @@ Walk them in the same dependency order; each is synthetic and runs anywhere:
 | # | Tutorial notebook | Covers | Read alongside |
 |---|---|---|---|
 | 1 | `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb` | A1→A6 end to end, fill-in-the-blank, with `reveal("aN_solution")` | all of Part III |
-| 2 | `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` | A1 definition + A2 conjunction/correlation | §14 |
+| 2 | `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` | A1 definition + A2 conjunction/correlation, line by line: every function of the segregation module unrolled on one planted demo electrode, each step checked against the library | §14, [`segregation_walkthrough.md`](segregation_walkthrough.md) |
 | 3 | `src/analysis/stats/stability_flexibility_anatomy_tutorial.ipynb` | A3 coverage-conditioned ROI enrichment (incl. `attach_roi` line-by-line) | §16 |
+| 3b | `dcc_scripts/stats/stability_flexibility_anatomy_dcc_tutorial.ipynb` | the A3 DCC job line by line, both arms: anatomy maps and the overlapping-ROI trap, coverage, the χ² enrichment test and its within-subject null, `attach_scores`, the `delta` ROI and coordinate tests with the swap null, the noise ceiling; each step checked against the library | §16 |
 | 4 | `src/analysis/decoding/trial_splitting_tutorial.ipynb` | the disjoint def/decode split + double-dip demo | §21 |
 | 5 | `src/analysis/decoding/cross_decoding_tutorial.ipynb` | A4 pseudo-trials + label/set/temporal transfer | §17, §14.1 |
 | 6 | `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb` | A5 timing + A6 brain–behavior | §18, §19 |
