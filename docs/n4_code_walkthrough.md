@@ -197,22 +197,22 @@ rel_x = (U['xA'] * U['xB']).sum(1).mean()                                       
 
 ### 3.4 The anatomy tests: `_nuisance_design`, `_swap_null`, `_coordinate_fit`
 
-- `_nuisance_design` (`sfa:1005`): the design matrix every anatomy model
+- `_nuisance_design` (`sfa:1019`): the design matrix every anatomy model
   conditions on: intercept, participant dummies (fixed effects), centred `resp`.
-- `_swap_null` (`sfa:1033`): the effect-label swap. Swapping LWPC and LWPS within
+- `_swap_null` (`sfa:1047`): the effect-label swap. Swapping LWPC and LWPS within
   an electrode turns delta into −delta, so the null multiplies delta by random
   ±1 per electrode, re-residualises on the nuisance design, and recomputes the
   statistic, in chunks of 512.
-- `_coordinate_fit` (`sfa:1174`): delta ~ coordinates + nuisance. By
+- `_coordinate_fit` (`sfa:1188`): delta ~ coordinates + nuisance. By
   Frisch–Waugh, residualising the coordinates on the nuisance design once
-  (`Z = Z0 − X B Z0`, `sfa:1180`) lets each permutation be a 3-column regression:
+  (`Z = Z0 − X B Z0`, `sfa:1194`) lets each permutation be a 3-column regression:
   `R @ Zp.T` gives the three slopes, and the block *F* is the explained over the
-  residual sum of squares (`sfa:1195–1198`).
+  residual sum of squares (`sfa:1209–1212`).
 
-### 3.5 Scaling: `attach_scores` (`sfa:882`)
+### 3.5 Scaling: `attach_scores` (`sfa:896`)
 
 Renames `x`, `y`, `mx`, `my`, joins anatomy and coordinates, then
-(`sfa:945–955`):
+(`sfa:959–969`):
 
 ```python
 out['lwpc_s'] = out['lwpc_score'] / out['lwpc_score'].std(ddof=1)   # one factor per effect
@@ -230,9 +230,9 @@ units of every slope and balance in §19 are these "SD units".
 
 ### 4.1 Section 1: the height slope with participants as the unit
 
-**`coordinate_slope_by_participant`** (`sfa:1656`).
+**`coordinate_slope_by_participant`** (`sfa:1670`).
 
-*Step 1, residualise* (`_partial_axis_residuals`, `sfa:1594`):
+*Step 1, residualise* (`_partial_axis_residuals`, `sfa:1608`):
 
 ```python
 X, _ = _nuisance_design(d, covariates)              # intercept, participant dummies, resp
@@ -245,7 +245,7 @@ By Frisch–Waugh, the slope of `v` on `a` is exactly the coordinate test's *z*
 slope. Because participant dummies are in `N`, `v` and `a` are centred within
 each participant.
 
-*Step 2, split the slope by participant* (`sfa:1690–1697`):
+*Step 2, split the slope by participant* (`sfa:1704–1711`):
 
 ```python
 for s in participants:
@@ -261,7 +261,7 @@ spread in height** (`test_participant_slopes_decompose_the_coordinate_test_slope
 checks it to 1e-9). `top3_weight_share` is how much of that average three
 participants carry (38 % in all lPFC).
 
-*Step 3, test across participants* (`sfa:1699–1709`):
+*Step 3, test across participants* (`sfa:1713–1723`):
 
 ```python
 flips = rng.choice((-1, 1), size=(n_perm, n_participants))
@@ -274,21 +274,21 @@ Under the null that participants' slopes are symmetric around zero, each
 participant's sign is a coin flip. Participants, not electrodes, are now the
 units.
 
-*Step 4, unweighted* (`sfa:1711–1722`): the plain mean of `b_s` over
+*Step 4, unweighted* (`sfa:1725–1736`): the plain mean of `b_s` over
 participants with ≥ 3 electrodes and ≥ 5 mm spread, one-sample *t*-test, and a
 sign test on how many are negative. Every participant counts once.
 
-*Step 5, mixed models* (`_mixed_slope_fits`, `sfa:1608`): `statsmodels.mixedlm`,
+*Step 5, mixed models* (`_mixed_slope_fits`, `sfa:1622`): `statsmodels.mixedlm`,
 every predictor centred within participant and coordinates in cm for the
-optimiser (`sfa:1622–1627`), REML. `random_intercept` reproduces the
+optimiser (`sfa:1636–1641`), REML. `random_intercept` reproduces the
 electrode-level slope and precision (centred predictors: the intercept only
 absorbs participant means), so it is *not* a participant-level test.
 `random_slope` (`re_formula='~mni_z_c'`) lets each participant have its own
 height slope; its fixed slope's Wald *p* and the random-slope SD
-(`sqrt(cov_re)`, `sfa:1650`) are the numbers to quote.
+(`sqrt(cov_re)`, `sfa:1664`) are the numbers to quote.
 
-**`coordinate_slope_loso`** (`sfa:1734`): `_coordinate_fit` with each
-participant dropped, via `leave_one_subject_out` (`sfa:1458`); the first row,
+**`coordinate_slope_loso`** (`sfa:1748`): `_coordinate_fit` with each
+participant dropped, via `leave_one_subject_out` (`sfa:1472`); the first row,
 `(none)`, is the full fit.
 
 ### 4.2 Section 2: the overlap r with participants as the unit
@@ -315,33 +315,33 @@ unweighted: t-test of z against 0
 
 ### 4.3 Section 3: local similarity
 
-**`local_similarity`** (`sfa:2500`). The question: are nearby electrodes more
+**`local_similarity`** (`sfa:2744`). The question: are nearby electrodes more
 alike in their LWPC − LWPS balance than distant ones?
 
-*Guard* (`sfa:2551`): refuses a per-split table that is not
+*Guard* (`sfa:2795`): refuses a per-split table that is not
 `split_scheme == 'participant'` (§3.1 explains why).
 
-*Scores* (`_local_score_halves`, `sfa:2473`): builds the balance per half,
+*Scores* (`_local_score_halves`, `sfa:2717`): builds the balance per half,
 `balanceA = xA / SD_lwpc − yA / SD_lwps`, with the same pooled SDs as `delta`
 (read back from `scores` as `lwpc_score / lwpc_s`). The five scores are the
 balance, LWPC, LWPS, congruency and switch; each is a pair of (half A, half B)
 columns.
 
-*Clean* (`sfa:2567–2569`): `_residualised_split_matrices` with the MNI
+*Clean* (`sfa:2811–2813`): `_residualised_split_matrices` with the MNI
 coordinates as covariates, so the linear gradient is removed (the question is
 about structure *beyond* the gradient), plus `resp`, then centred within
 participant.
 
-*Standardise* (`standardise`, `sfa:2572`): within each participant, rank across
+*Standardise* (`standardise`, `sfa:2816`): within each participant, rank across
 its electrodes (Spearman) and re-centre; then scale each split's vector to unit
 mean square.
 
-*Pairs and distances* (`sfa:2588–2598`): for each participant, every pair
+*Pairs and distances* (`sfa:2832–2842`): for each participant, every pair
 `i < j` (`np.triu_indices`), their Euclidean distance in MNI mm, and, for bipolar
-channels, drop pairs that share a contact (`_channel_poles`, `sfa:2465`; none in
+channels, drop pairs that share a contact (`_channel_poles`, `sfa:2709`; none in
 this data set, which is monopolar).
 
-*The similarity matrix* (`sfa:2622`), per score and participant:
+*The similarity matrix* (`sfa:2866`), per score and participant:
 
 ```python
 C = 0.5 * (A[:, g].T @ B[:, g] + B[:, g].T @ A[:, g]) / n_splits
@@ -350,9 +350,9 @@ C = 0.5 * (A[:, g].T @ B[:, g] + B[:, g].T @ A[:, g]) / n_splits
 `C[i, j]` = electrode *i*'s half A times electrode *j*'s half B, plus the
 reverse, averaged over splits. Because the halves are shared, *i*'s A and *j*'s
 B never share a trial. `C[i, i]` is electrode *i*'s own split-half
-reliability; `trace(C) / n` is the score's reliability (`sfa:2623`, `2632`).
+reliability; `trace(C) / n` is the score's reliability (`sfa:2867`, `2876`).
 
-*Bins and baseline* (`sfa:2605–2627`):
+*Bins and baseline* (`sfa:2849–2871`):
 
 ```python
 obs[g], cnt[g] = bin_sums(C[iu, ju], D[iu, ju])              # sum of C per distance bin
@@ -366,19 +366,19 @@ each bin would hold with no relation between distance and similarity.
 Within-participant centring makes pairs slightly anti-correlated on average,
 and the baseline carries the same bias, so subtracting it removes it.
 
-*Test* (`sfa:2629–2656`): `excess = sum_g dev / n_pairs` per bin. The null
+*Test* (`sfa:2873–2900`): `excess = sum_g dev / n_pairs` per bin. The null
 flips the sign of each participant's whole excess (`flips @ dev`), one-sided
 (more similar than baseline). Intervals come from resampling participants.
 Pairs are not used as units because one data set's estimation noise is itself
 spatially smooth: a pair-level null gave 13 % false positives on simulated data,
 the participant sign-flip 2.5 %.
 
-*Ratios only to a reliable map* (`sfa:2635–2641`): the excess is also expressed
+*Ratios only to a reliable map* (`sfa:2879–2885`): the excess is also expressed
 as a share of the score's reliability (`relative`), but only when the
 reliability is positive in ≥ 90 % of bootstrap draws. Otherwise `notes` says
 why it is missing.
 
-*Contrasts and comparison* (`sfa:2662–2689`): nearest bin minus farthest bin per
+*Contrasts and comparison* (`sfa:2906–2933`): nearest bin minus farthest bin per
 score, with the same sign-flip null; and the balance's relative near-range
 excess against each single score's, with a paired participant bootstrap.
 
@@ -390,7 +390,7 @@ is "no power". On the real data a fourth case occurred: the balance's own
 reliability is about zero, so there is nothing reliable to be patchy or
 intermixed (§19.8.6 of the N4 doc).
 
-**`_shared_split_reliabilities`** (`sfa:2840`): runs `split_resolved_corr`
+**`_shared_split_reliabilities`** (`sfa:3084`): runs `split_resolved_corr`
 (with `n_perm=1`; only the reliabilities and *r* are wanted) on the
 per-electrode and the shared table, restricted to the electrodes both have,
 and on the main effects via `main_effect_view` (`sfs:667`, which puts `mx*`/`my*`
@@ -398,41 +398,55 @@ into the `x*`/`y*` slots). Output: `reliability_by_split_scheme.csv`.
 
 ### 4.4 Section 4: the combined Figure 5
 
-**`figure5_height`** (`sfa:2351`) assembles four pieces:
+**`figure5_height`** (`sfa:2571`) assembles four pieces:
 
-1. `figure5_height_points` (`sfa:2119`): runs `prepare_continuous` (`sfs:1173`:
+1. `figure5_height_points` (`sfa:2144`): runs `prepare_continuous` (`sfs:1173`:
    regress each score on `resp`, centre within participant) on `lwpc_s` and
    `lwps_s`, then adds each score's overall mean back (`x_plot`, `y_plot`), so
    the identity line still means LWPC = LWPS. `balance = x_plot − y_plot`.
-   `height_bands` (`sfa:2108`) cuts MNI *z* at its 33rd and 67th percentiles.
-2. `_figure5_test` (`sfa:1906`): panel b's *r*, read from the segregation run's
+   `height_bands` (`sfa:2133`) cuts MNI *z* at its 33rd and 67th percentiles.
+2. `_figure5_test` (`sfa:1920`): panel b's *r*, read from the segregation run's
    `correlation.json` if it tested the same electrodes, otherwise recomputed.
-3. `height_centroids` (`sfa:2147`): each tertile's mean of `x_plot`, `y_plot`.
+3. `height_centroids` (`sfa:2172`): each tertile's mean of `x_plot`, `y_plot`.
    The bootstrap resamples participants (one draw shared by all bands): per
    draw, `bincount` sums each participant's points, `n[draws].sum(1)` adds up
    the resampled participants' counts, and the ratio is the resampled centroid.
    The 2 × 2 covariance of those draws gives the ellipse (`_ellipse`,
-   `sfa:2206`, χ² with 2 df) and the 2.5–97.5 % of `x − y` the balance interval.
-4. `balance_by_height` (`sfa:2183`): delta with participant and `resp` removed
+   `sfa:2231`, χ² with 2 df) and the 2.5–97.5 % of `x − y` the balance interval.
+4. `balance_by_height` (`sfa:2208`): delta with participant and `resp` removed
    (`_nuisance_design` + least squares, mean added back), averaged within each
    participant and band, then mean ± SEM across participants.
 
-`sfa:2391–2393` refits the coordinate test on the plotted balance and prints
+`sfa:2618–2620` refits the coordinate test on the plotted balance and prints
 its slope next to the test's: if the figure's scaling drifted from the test's,
 the two would differ (on the real data both are −0.00770/mm).
 
+**The tertiles on the brain** (added 2026-10-06). `figure5_height` also writes
+`fig5_height_brain_centroids.csv` on every run, from
+`height_band_brain_centroids` (`sfa:2393`): for each tertile and hemisphere (the
+sign of *x*), the mean MNI position of its electrodes, skipped if fewer than
+three. Per hemisphere because a bilateral mean of *x* would sit near the
+midline, in neither hemisphere. With `make_brain=True` (the anatomy job's
+`MAKE_BRAIN`, the script's `--brain`), `plot_height_bands_on_brain`
+(`sfa:2494`) draws the electrodes in their tertile's colour at 40 % opacity and
+each centroid as an opaque, darker sphere, moved onto the lateral cortical
+surface at the same *y* and *z* so it is not hidden under the translucent brain.
+It needs the recon files and a display; without them it writes a sagittal
+fallback. Like panel c, these centroids describe where the sampled electrodes
+are and test nothing.
+
 ### 4.5 Section 5: the overlap controls
 
-**`overlap_controls`** (`sfa:1769`). One inner function, `run(name, table,
+**`overlap_controls`** (`sfa:1783`). One inner function, `run(name, table,
 covariates, half)`, calls `split_resolved_corr` with extra covariates and
-appends a row. In order (`sfa:1825–1851`):
+appends a row. In order (`sfa:1839–1865`):
 
 | Row | What is passed | Effect |
 |---|---|---|
 | `pre-specified` | nothing extra | the test as specified |
 | `+ responsiveness, nonlinear` | `log(resp)`, `resp²` as `covariates` | signal-to-noise beyond linear mean \|HG\| |
 | `+ MNI coordinates` | `mni_y, mni_z, mni_x` | a shared smooth gradient |
-| `+ base effects, same half` | `half=_SAME_HALF_BASE` (`sfa:1765`) | each half's LWPC and LWPS cleaned of that half's congruency and switch |
+| `+ base effects, same half` | `half=_SAME_HALF_BASE` (`sfa:1779`) | each half's LWPC and LWPS cleaned of that half's congruency and switch |
 | `+ RT coupling` | `rt_r` per electrode, on the electrodes that have one (and the `pre-specified` reference row on the same electrodes) | RT coupling |
 | `all of the above` | every covariate together, plus the same-half base effects | |
 | `responsiveness tertile …` | the pre-specified test within each third of `resp` | descriptive |
@@ -446,12 +460,12 @@ carry; `test_overlap_controls_remove_the_confound_that_made_the_overlap`
 plants a base-driven and an RT-driven overlap and checks that each control
 removes its own confound and not the other.
 
-Leave-one-participant-out (`sfa:1855–1866`): the pre-specified test with each
+Leave-one-participant-out (`sfa:1869–1880`): the pre-specified test with each
 participant dropped, at a tenth of the permutations.
 
 ### 4.6 The dispatcher and the script
 
-**`section19`** (`sfa:2864`) runs the five parts, each inside its own
+**`section19`** (`sfa:3108`) runs the five parts, each inside its own
 `try`, so one failure does not stop the rest:
 
 - section 1 only if coordinates exist;
@@ -463,22 +477,24 @@ participant dropped, at a tenth of the permutations.
 
 It returns `(lines, out)`: the text that becomes `summary_section19.txt` and a
 dict that becomes `section19.json`. The anatomy job calls it on every new run
-(`stability_flexibility_anatomy_dcc.py:713`) without a shared table, so new
+(`stability_flexibility_anatomy_dcc.py:714`) without a shared table, so new
 runs skip section 3.
 
-**The script** (`n4_section19_followups.py:77`) is a thin wrapper:
+**The script** (`n4_section19_followups.py:81`) is a thin wrapper:
 
 1. reads `scores_with_anatomy.csv` and `per_split.csv` from `--anatomy-dir`
    (or `--seg-dir`);
 2. if the `--long-df` or `--per-split-shared` file has an
    `rt_adjustment_slopes.csv` beside it, labels the run RT-adjusted and writes
-   to `section19_rt_adjusted/` (`:113–121`);
+   to `section19_rt_adjusted/` (`:123–131`);
 3. with `--long-df`, rescores with `compute_sensitivities_per_split(...,
-   main_effects=True, shared_split=True)` (`:137`), 200 splits by default, and
+   main_effects=True, shared_split=True)` (`:147`), 200 splits by default, and
    saves `per_split_shared.csv`; a table without `trial` prints how to get one
    and skips section 3;
 4. reads `--rt-coupling` (needs `electrode`, `rt_r`);
 5. calls `sfa.section19` and writes `summary_section19.txt` and `section19.json`.
+   `--brain` (with `--brain-hemi`, `--brain-zoom`) passes `make_brain=True` to
+   it, which draws the tertile brain in section 4; run that under `xvfb-run`.
 
 ---
 
