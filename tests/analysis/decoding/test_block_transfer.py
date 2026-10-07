@@ -1,4 +1,4 @@
-"""Tests for N3b block-transfer cross-decoding (docs/n3b_block_transfer.md).
+"""Tests for N3b block-transfer cross-decoding (docs/decoding.md#n3b-block-transfer).
 
 1. `Decoder.cv_cm_jim_window_shuffle(test_only=...)` — train on one set of trials,
    score on another, with folds cut only from the training trials.

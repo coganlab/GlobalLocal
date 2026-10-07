@@ -32,6 +32,15 @@ DATA_SOURCE=${DATA_SOURCE:-real}
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
 EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | cluster | peak_t
+# 1 = regress out the pooled within-cell HG~RT slope per electrode before any
+# split-half sensitivity is computed (requires EFFECT_MEASURE=cohens_d).
+RT_ADJUST_HG=${RT_ADJUST_HG:-1}
+# 1 = also score congruency/switch main effects on the same halves (output dir
+# ends in _main_effects; ~2x scoring time); 0 = LWPC/LWPS only
+MAIN_EFFECTS=${MAIN_EFFECTS:-1}
+# 1 = one trial split per participant, shared by all its electrodes (output dir
+# ends in _shared_split). Needed for local similarity (N4 doc §19.3).
+SHARED_SPLIT=${SHARED_SPLIT:-0}
 ALPHA=${ALPHA:-0.05}
 MIN_ELEC=${MIN_ELEC:-3}
 
@@ -41,10 +50,10 @@ MIN_ELEC=${MIN_ELEC:-3}
 # N_PERM_LABEL=${N_PERM_LABEL:-1000}
 
 N_SPLITS=${N_SPLITS:-200}
-N_PERM_CORR=${N_PERM_CORR:-1000}
-N_PERM_LABEL=${N_PERM_LABEL:-1000}
+N_PERM_CORR=${N_PERM_CORR:-10000}
+N_PERM_LABEL=${N_PERM_LABEL:-10000}
 
-# Scatter-only (docs/analysis_simplification_plan.md 2.5): assemble the trial
+# Scatter-only (docs/analysis_plans.md#simplification-plan 2.5): assemble the trial
 # table, score both contrasts per electrode, draw the subject-coloured joint
 # scatter, stop. No splits, no permutations -- minutes instead of hours, and it
 # is step 1 of the plan's order of operations. SCATTER_N_SPLITS>0 scores the
@@ -53,7 +62,7 @@ SCATTER_ONLY=${SCATTER_ONLY:-0}
 SCATTER_N_SPLITS=${SCATTER_N_SPLITS:-200}
 mkdir -p out
 
-echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, fdr=$FDR_CORRECTION, scatter_only=$SCATTER_ONLY)"
+echo "Submitting stability/flexibility segregation (source=$DATA_SOURCE, contrast=$CONTRAST_MODE, main_effects=$MAIN_EFFECTS, rt_adjust_hg=$RT_ADJUST_HG, fdr=$FDR_CORRECTION, scatter_only=$SCATTER_ONLY)"
 sbatch --job-name="segreg_${DATA_SOURCE}" \
-    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC",SCATTER_ONLY="$SCATTER_ONLY",SCATTER_N_SPLITS="$SCATTER_N_SPLITS" \
+    --export=ALL,EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",WINDOW_TMIN="$WINDOW_TMIN",WINDOW_TMAX="$WINDOW_TMAX",ELECTRODES="$ELECTRODES",DATA_SOURCE="$DATA_SOURCE",N_SPLITS="$N_SPLITS",N_PERM_CORR="$N_PERM_CORR",N_PERM_LABEL="$N_PERM_LABEL",CONTRAST_MODE="$CONTRAST_MODE",EFFECT_MEASURE="$EFFECT_MEASURE",RT_ADJUST_HG="$RT_ADJUST_HG",MAIN_EFFECTS="$MAIN_EFFECTS",SHARED_SPLIT="$SHARED_SPLIT",FDR_CORRECTION="$FDR_CORRECTION",ALPHA="$ALPHA",MIN_ELEC="$MIN_ELEC",SCATTER_ONLY="$SCATTER_ONLY",SCATTER_N_SPLITS="$SCATTER_N_SPLITS" \
     sbatch_stability_flexibility_segregation_dcc.sh

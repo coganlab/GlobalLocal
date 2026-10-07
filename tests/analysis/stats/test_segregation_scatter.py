@@ -1,4 +1,4 @@
-"""Tests for the joint scatter (docs/analysis_simplification_plan.md 2.5).
+"""Tests for the joint scatter (docs/analysis_plans.md#simplification-plan 2.5).
 
 The figure's job is to make the plan's five readings visible, and the fifth --
 "all the structure in one colour or a few points -> artifact" -- is the one that

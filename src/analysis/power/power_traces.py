@@ -2,7 +2,7 @@
 
 Historically this module held the entire power-trace pipeline (evoked building,
 windowed ANOVA, and plotting) in one ~2,400-line file. It has been split into
-focused submodules (see docs/refactoring_guide.md §5). This file now just
+focused submodules (see docs/code_maintenance.md#refactoring-guide §5). This file now just
 re-exports the public names so existing
 ``from src.analysis.power.power_traces import ...`` imports keep working.
 

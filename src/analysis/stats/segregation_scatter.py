@@ -2,7 +2,7 @@
 The joint scatter: each electrode's stability sensitivity against its own
 flexibility sensitivity, coloured by subject, with marginal histograms.
 
-This is §2.5 of `docs/analysis_simplification_plan.md` -- the descriptive figure
+This is §2.5 of `docs/analysis_plans.md#simplification-plan` -- the descriptive figure
 that is meant to come BEFORE any inference machinery, because it shows the
 reader the joint distribution the whole segregation question is about instead of
 asking them to trust a pipeline.

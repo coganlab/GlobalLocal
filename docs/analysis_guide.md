@@ -22,17 +22,23 @@ in a collapsed **▸ Line-by-line** block — click to expand. Everything you ne
 
 ### The other docs
 
-This guide is the only place that documents how to run an analysis. Five
-companion docs remain, each with a job this one doesn't do:
+This guide covers every analysis path. The other docs each do a job this one
+doesn't:
 
 | Doc | Read it when you want |
 |---|---|
-| `analysis_simplification_plan.md` | **Which analysis should be primary**, and why the decoding battery should not be. Diagnostic findings on the decoding pipeline, the baseline, and two defects in the segregation estimator |
-| `stability_flexibility_data_flow.md` | The **shape of the data at every step** of A1–A7 — one fake dataset followed end to end with the actual intermediate tables printed. Backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py` |
-| `stability_flexibility_segregation_methods.md` | Manuscript-ready **Methods** text for the segregation analysis, in a `cluster` and a `cohens_d` version |
-| `n4_anatomy_segregation_methods.md` | Manuscript-ready **combined N4 Methods** for continuous segregation, coverage-conditioned anatomy, coordinate follow-ups, maps, and descriptive medoids |
-| `refactoring_guide.md` | How the big modules were split (and how to split the next one). Records what has already been done to `decoding/` and `power/` |
-| `learning_assignments/segregation_bootstrap/README.md` | **A7** — a build-a-feature self-check with a pytest grader (§20) |
+| [`analysis_plans.md`](analysis_plans.md) | **What to do next and why each analysis is designed the way it is.** Every analysis plan, newest first. The closing figure plan is current; the concurrent-regulation plan holds the N1–N4 framework; the simplification plan holds the estimator diagnoses and bias fixes |
+| [`n2_direction_tests.md`](n2_direction_tests.md) | **Runbook for N2**: which way the LWPC and LWPS effects go in lPFC high gamma |
+| [`decoding.md`](decoding.md) | **Runbooks for decoding**: the ordinary decoding job, A4 cross-decoding with the task-transfer controls (§17), N3b block transfer, and what to do when a transfer comes back uninformative |
+| [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) | **Runbook and results for N4**: §0 leads with the current results, how each was computed, the figures, and manuscript-ready Methods and Results; then the runbook, the main-effect reference and §19 |
+| [`segregation_walkthrough.md`](segregation_walkthrough.md) | **The A1/A2 segregation statistics line by line** (§14): every step of `stability_flexibility_segregation.py` and why it is there; its notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each function's body one statement at a time on a planted demo electrode |
+| [`n4_code_walkthrough.md`](n4_code_walkthrough.md) | **The N4 code line by line**, mostly §19, with comprehension questions; its notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` steps through it on the real all-lPFC outputs |
+| [`a6_brain_behavior.md`](a6_brain_behavior.md) | **Runbook for A6** (§19): the per-participant brain–behavior scores and the RT confound |
+| [`stability_flexibility_battery.md`](stability_flexibility_battery.md) | The **shape of the data at every step** of A1–A7, one fake dataset followed end to end with the actual intermediate tables printed (backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py`), and **what each output file means** |
+| [`paper_draft.md`](paper_draft.md) | **The paper as it stands**: the F1–F5 and supplement figure plan after the 2026-10-01 results, and every Methods and Results paragraph written so far, in paper order |
+| [`methods.md`](methods.md) | Manuscript-ready **Methods** text: the combined N4 Methods, and the segregation analysis in a `cluster` and a `cohens_d` version |
+| [`code_maintenance.md`](code_maintenance.md) | How the big modules were split (and how to split the next one), and the duplicated code that could be consolidated |
+| [`learning_assignments/segregation_bootstrap/README.md`](learning_assignments/segregation_bootstrap/README.md) | **A7**, a build-a-feature self-check with a pytest grader (§20) |
 
 The repo-root `README.md` covers environment setup, BIDS conversion, cluster
 access, and the experiment itself. Runnable assignment stubs are in
@@ -117,7 +123,7 @@ battery (Part III) flattens the saved HG epochs into a **long single-trial
 table**, one row per (electrode, trial), where `hg` is either the window mean or
 the window's time course. Every module in that battery consumes only that table —
 which is why each one can be run end to end on synthetic ground truth with no
-data on disk. See `docs/stability_flexibility_data_flow.md`.
+data on disk. See `stability_flexibility_battery.md` › Data flow walk-through.
 
 ---
 
@@ -214,7 +220,7 @@ docs/examples/    # Runnable doc companions
 > ~4.7k- and ~2.4k-line monoliths. They are now thin re-export shims, so every
 > existing `from src.analysis.decoding.decoding import ...` still resolves — but
 > **new code should import from the specific submodule** (`decoding.decoder`,
-> `power.windowed_anova`, …). See `docs/refactoring_guide.md` for the full map
+> `power.windowed_anova`, …). See `code_maintenance.md` › Refactoring guide for the full map
 > and for two pre-existing bugs the split surfaced.
 
 ---
@@ -462,7 +468,7 @@ being compared).
 > therefore not present in the decoder's input, which bounds what these accuracies
 > can mean, and the per-condition minimum makes the effective n differ between
 > conditions you might want to compare. Both are worked through in
-> `analysis_simplification_plan.md` §1.1–1.2, which argues against using this
+> `analysis_plans.md` › Simplification plan §1.1–1.2, which argues against using this
 > battery as the primary test of shared vs. independent mechanisms.
 
 **Key files:** `decoding/decoding.py` used to hold the whole pipeline in one
@@ -551,6 +557,9 @@ main(args)
 sh submit_specific_conditions_decoding_dcc.sh
 # (edit conditions in submit_*.sh and parameters in run_decoding_dcc.py)
 ```
+
+The run-and-read walkthrough — electrode options, every knob, every output, and
+how to read the figures — is [`decoding.md`](decoding.md).
 
 > **Unit of analysis** matters here (`folds_as_samples` vs `repeats_as_samples`
 > vs bootstrap): it determines how accuracies are summed/averaged and how error
@@ -680,7 +689,9 @@ Path-level tests live under `tests/analysis/`:
 | `stats/test_stability_flexibility_anova_labels.py` | A1's four-interaction definition |
 | `stats/test_cmh_uninformative_strata.py` | the CMH empty-marginal fix (§14.5) |
 | `stats/test_stability_flexibility_timing.py` | A5, incl. the amplitude-invariance guard |
-| `stats/test_stability_flexibility_brain_behavior.py` | A6 |
+| `stats/test_stability_flexibility_brain_behavior.py` | A6 levels 2–3, and the blockType → proportion map pinned against the task code and `combinedData.csv` |
+| `stats/test_participant_brain_behavior.py` | A6 level 1: per-participant scores, the RT adjustment, shared-split reliability (§19) |
+| `stats/test_assemble_long_df.py` | the long table's `trial` / `rt` / `acc` columns |
 | `utils/test_labeled_array_utils.py`, `utils/test_general_utils.py` | shared plumbing |
 | `preproc/test_time_perm_cluster.py` | cluster permutation |
 
@@ -859,7 +870,7 @@ always use this mode.
 
 Because that table is the only input, **every module runs end to end on synthetic
 ground truth with no data on disk** — which is what makes the dry runs below
-possible. See `docs/stability_flexibility_data_flow.md` for the table printed at
+possible. See `stability_flexibility_battery.md` › Data flow walk-through for the table printed at
 every hand-off.
 
 ### 13.2 The two knobs shared across the segregation module
@@ -912,6 +923,13 @@ DATA_SOURCE=synthetic N_SPLITS=40 N_PERM_CORR=1000 N_PERM_LABEL=300 \
 A1 and A2 share a module (`stats/stability_flexibility_segregation.py`), a
 launcher, and an output directory, so they are documented together: **A1 labels
 each electrode, A2 asks whether those labels overlap more or less than chance.**
+
+> **To understand the code line by line**, read
+> [`segregation_walkthrough.md`](segregation_walkthrough.md) next to its notebook
+> `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb`, which
+> runs every function's body one statement at a time on a planted demo electrode
+> and checks each step against the library. This section is the *why* and the
+> *how to run*.
 
 ### 14.1 A1 — the four interaction groups
 
@@ -1075,14 +1093,17 @@ work = _canonical_labels(df, contrasts)      # attaches _scond/_smod/_fcond/_fmo
   disagree on direction.
 
 ```python
-specs = [('cpc', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
-         ('sps', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
+specs = [('cpc', 'interaction', 'congruency', 'incongruent_proportion', '_scond', '_smod'),
+         ('sps', 'interaction', 'switchType', 'switch_proportion',       '_fcond', '_fmod')]
 if include_cross_controls:
-    specs += [('cps', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
-              ('spc', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
+    specs += [('cps', 'interaction', 'congruency', 'switch_proportion',      '_scond', '_fmod'),
+              ('spc', 'interaction', 'switchType', 'incongruent_proportion', '_fcond', '_smod')]
 ```
-- **One spec table drives all four interactions.** Each row is `(flag, condition
-  column, modulator column, condition sub-label, modulator sub-label)`. *Why a
+- **One spec table drives all four interactions.** Each row is `(flag, kind,
+  condition column, modulator column, condition sub-label, modulator sub-label)`.
+  `kind` is `'interaction'` here; with `contrast_mode='condition'` the same table
+  holds two `'simple'` rows (the congruency and switch main effects, via
+  `_anova_simple_stats`), so the downstream CPC/SPS/S/F schema is unchanged. *Why a
   data-driven list rather than four copy-pasted blocks:* the four interactions are
   the *same computation* on different column pairs, so expressing them as data
   removes the risk that a future edit fixes a bug in the `CPC` branch but not the
@@ -1095,13 +1116,21 @@ if include_cross_controls:
 for (subj, elec), g in work.groupby(['subject', 'electrode']):
     hg = _scalar_hg(g['hg'])          # window-mean, even on a time-course table
     rec = dict(subject=subj, electrode=elec)
-    for name, cond_col, mod_col, cond_sub, mod_sub in specs:
-        stats = _anova_interaction_stats(g, cond_col, mod_col)     # Type III, sum-coded
+    for name, kind, cond_col, mod_col, cond_sub, mod_sub in specs:
+        stats = (_anova_interaction_stats(g, cond_col, mod_col)   # Type III, sum-coded
+                 if kind == 'interaction' else _anova_simple_stats(g, cond_sub))
         rec[f'p_{name}'] = stats['p']
         rec[f'F_{name}'] = stats['F']
-        rec[f'{name}_sign'] = np.sign(_interaction_effect(         # signed d-o-d direction
-            hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha))
+        if kind == 'interaction':
+            effect = _interaction_effect(                          # signed d-o-d direction
+                hg, g[cond_sub].to_numpy(), g[mod_sub].to_numpy(), 'cohens_d', alpha)
+        else:
+            effect = _contrast_effect(g.assign(hg=hg), cond_sub, 'cohens_d', alpha)
+        rec[f'{name}_sign'] = np.sign(effect)
 ```
+
+(The `anova_model='twoway'` branch, main-effect labels only, is skipped here; see
+the function's docstring.)
 - **`_scalar_hg` reduces time-course cells to window means** so the sign describes
   the *same statistic* the F/p does. `_anova_interaction_stats` already reduces
   internally, but the sign path calls `_interaction_effect(..., 'cohens_d')`,
@@ -1165,25 +1194,28 @@ This function is *why* the interaction is trustworthy under the deliberately
 unequal (~75/25) proportion cells.
 
 ```python
-def _interaction_cohens_d(cells):
-    num, dfree, means = 0.0, 0, {}
-    for k, v in cells.items():
-        n = len(v)
-        if n < 2:
-            return np.nan                       # a cell with <2 trials -> undefined
-        num += (n - 1) * v.var(ddof=1)          # pooled within-cell SS
-        dfree += n - 1
-        means[k] = v.mean(0)
-    dod = ((means[(1.0, 1.0)] - means[(0.0, 1.0)])
-           - (means[(1.0, 0.0)] - means[(0.0, 0.0)]))
-    sp = np.sqrt(num / dfree)
-    return np.nan if sp == 0 else dod / sp
+W_INTERACTION = {(1.0, 1.0): +1.0, (0.0, 1.0): -1.0,      # difference-of-differences
+                 (1.0, 0.0): -1.0, (0.0, 0.0): +1.0}
+
+def _interaction_cohens_d(cells, w=None):
+    w = W_INTERACTION if w is None else w
+    st = _cell_stats(cells)                     # per-cell mean, var, n; None if a cell has < 2 trials
+    if st is None:
+        return np.nan
+    means, _, ns = st
+    ssq = sum((ns[k] - 1) * cells[k].var(ddof=1) for k in cells)   # pooled within-cell SS
+    sp = np.sqrt(ssq / sum(ns[k] - 1 for k in ns))
+    return np.nan if sp == 0 else _combine(means, w) / sp          # _combine = sum(w[k] * means[k])
 ```
 - **`cells`** is the four `(cond, mod)` cells as separate arrays (from
-  `_dod_cells`). The estimator averages the four cell means with **equal weight**,
-  not trial-count weight.
-- **`dod`** is the difference-of-differences: (effect of congruency in high-prop) −
-  (effect of congruency in low-prop). *Why equal cell weights matter:* the naive
+  `_dod_cells`); the key `(1, 1)` is incongruent in the **low** (25 %) block. The
+  estimator combines the four cell means with **equal weight**, not trial-count
+  weight.
+- **`_combine(means, W_INTERACTION)`** is the difference-of-differences:
+  (congruency effect in the low-proportion block) − (congruency effect in the
+  high-proportion block), the LWPC sign convention of §12. Passing `w=W_MAIN`
+  instead gives the congruency main effect averaged equally over the two blocks.
+  *Why equal cell weights matter:* the naive
   "+1 diagonal vs −1 diagonal pooled mean difference" is trial-count weighted, and
   in a 75/25 design the +1 super-group is dominated by the frequent cells. Under
   that imbalance a pure congruency **main effect** leaks into the "interaction"
@@ -1198,10 +1230,11 @@ def _interaction_cohens_d(cells):
   of the FDR count instead of pretending it has a null effect.
 
 The time-resolved sibling `_interaction_cluster(cells, alpha)` computes the same
-d-o-d **per time bin**, converts to a per-bin t, thresholds at the parametric
-`alpha` critical t, and returns the **signed cluster mass** (sum of supra-threshold
-t within contiguous runs). That single function is the bridge to §14.2: it is the
-temporal interaction test, emitting a signed graded scalar.
+d-o-d **per time bin**, converts to a per-bin t (`_cell_weighted_t`), thresholds
+at the parametric `alpha` critical t, and returns the **signed mass**: the sum of
+every supra-threshold bin's t, with no contiguity requirement (see the box in
+§14.2). That single function is the bridge to §14.2: a time-resolved interaction
+statistic emitting a signed graded scalar.
 
 </details>
 
@@ -1269,11 +1302,15 @@ Setting the flag under `contrast_mode='proportion'` is a no-op.
 
 **Why `ieeg`'s cluster test doesn't apply directly to an interaction.** A 2×2
 interaction is a **difference-of-differences (four cells)**, not a two-sample
-contrast, so `time_perm_cluster` would be permuting the wrong thing. The correct
-null permutes the **modulator within each condition level**, holding both main
-effects fixed so only the interaction is nulled — which is what the segregation
-module's permutation path (`per_electrode_labels` / `_interaction_cluster`)
-implements. `power_traces`' generic per-window ANOVA + extent-cluster correction
+contrast, so `time_perm_cluster` would be permuting the wrong thing. The
+segregation module's permutation path (`per_electrode_labels`, scoring with
+`_interaction_cluster` or the d-o-d) instead permutes the **modulator within
+each condition level**. That holds the cell counts and the condition main effect
+fixed and nulls the interaction. It does not hold the modulator (block) main
+effect fixed, which widens the null slightly (conservative), and block
+proportion is a block-level variable, so trials within a block are not strictly
+exchangeable in it (anticonservative); the comment in `perm_p_interaction`
+spells out both. `power_traces`' generic per-window ANOVA + extent-cluster correction
 is fine for selecting on *a factor's own* significance, but its interaction
 handling and its flat `load_significant_electrodes` output are not the
 interaction-co-registered signed scalar this design needs.
@@ -1318,9 +1355,12 @@ labels:
   every row — see §14.5.
 - **Continuous, threshold-free (Fig 7 headline):** correlate each electrode's LWPC
   effect size against its LWPS effect size across all electrodes
-  (`subject_clustered_corr`), estimated on **disjoint trial halves** so shared
-  trial noise cannot inflate it; null by within-subject permutation. Positive →
-  shared tuning; ≈0 → segregation.
+  (`split_resolved_corr`), with the two estimated on **disjoint trial halves** and
+  the correlation taken within each split before averaging, so shared trial noise
+  cannot inflate it; null by within-subject permutation; read next to the
+  split-half reliabilities. Positive → shared tuning; ≈0 with reliable maps, or
+  negative → segregation. (`subject_clustered_corr` on split-averaged scores is
+  the older estimator, kept as a diagnostic.)
 
 **Why the conjunction matters most:** it is the only test in the battery that can
 give **positive evidence for distinctness** (OR < 1). Decoding (A4) can only
@@ -1356,7 +1396,7 @@ single set of `(x, y)`; `split_resolved_corr` does them per split and averages,
 which is the part that actually preserves the disjoint-half correction. Doing it
 the other way round — averaging `x` and `y` over splits and correlating once —
 reinstates essentially all of the same-trial bias, which is what the code did
-originally (`analysis_simplification_plan.md` §2.2).
+originally (`analysis_plans.md` › Simplification plan §2.2).
 
 So the aggregation is *pooling after within-subject centering* — a fixed-effects
 / "within" estimator. Between-subject differences in mean sensitivity cannot
@@ -1564,7 +1604,7 @@ overwrites a full run's):
   across the whole sweep — the built-in check that the test isn't manufacturing a
   result.
 
-See `stability_flexibility_data_flow.md` §2–§3 for a worked example on planted
+See `stability_flexibility_battery.md` › Data flow walk-through §2–§3 for a worked example on planted
 ground truth, including the near-miss electrode that raw *p* selects and FDR
 correctly rejects.
 
@@ -1612,7 +1652,7 @@ bound, and note that the figure annotates the pipeline's corrected estimate
 beside it when a full run produced one. `SCATTER_N_SPLITS=200` scores the
 sensitivities on disjoint halves instead, at the full estimator's cost.
 
-Rationale and the full reading key: `analysis_simplification_plan.md` §2.5.
+Rationale and the full reading key: `analysis_plans.md` › Simplification plan §2.5.
 
 ---
 
@@ -1958,7 +1998,11 @@ the contrast you *score*.
   `all` — see §17.1). Prediction: only the `both` group cross-decodes. This is
   the **all-vs-all** decode: its classes span every condition cell, so it is
   already pooled across both block proportions (§17.2) — only (0)/(0b) split by
-  block.
+  block. Every group also decodes each contrast **within** itself
+  (`stab_to_stab`, `flex_to_flex`) on the same trials and folds, and each
+  transfer is reported against the within decode of the labelling it is scored
+  on: how many windows it falls below that ceiling, and the share of the
+  ceiling's above-chance accuracy it keeps ([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §2).
 - **(c) Temporal generalization (Fig 10).** Train at *t*, test at *t′* →
   off-diagonal generalization = sustained/stable code, narrow diagonal =
   moving/phasic code. `cv_cm_jim_window_shuffle(..., temporal_generalization=True)`.
@@ -1992,12 +2036,38 @@ covers per group, so it has no separate code path.
 > a fold-leakage artifact rather than signal. The full diagnostic protocol —
 > failure signatures, the mandatory within-condition ceiling, the positive-control
 > ladder, and the report block to print with every transfer — is in
-> [`cross_decoding_controls.md`](cross_decoding_controls.md). The implemented
+> [`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls). The implemented
 > N3b *block-transfer* analysis trains congruency or switch type in one block
 > level and tests it in the other. It uses pooled design-specific 2×2 condition
 > sets and the decoder's `test_only` path; see
-> [`n3b_block_transfer.md`](n3b_block_transfer.md) for the designs, run command,
+> [`decoding.md` › N3b block transfer](decoding.md#n3b-block-transfer) for the designs, run command,
 > outputs, and interpretation.
+
+> **Status, 2026-09-30.** On the 171 task-significant lPFC electrodes with no
+> selection (`ELECTRODE_DEFINITION=none`, pooled 2×2), both label transfers are
+> above chance from ~0.5 s after the stimulus (congruency → switch keeps 64% of its
+> ceiling, switch → congruency 39%), with no pre-stimulus windows; before ~0.5 s
+> both contrasts are decodable but do not transfer. The pre-stimulus clusters
+> described above now appear only in the main-effect-*selected* groups and in the
+> all-electrode (398) reference, which points at block leakage through the
+> selection ([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §6).
+> The transfer sits where incongruent and switch trials both differ in RT, so it is
+> not reportable as a shared code until the confound controls are run: RT matching
+> (with its random-subset control), the response-locked run, and the
+> overall-activity control. The runbook, the comparison script and the reading
+> rules for all of them are in
+> [`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13.
+
+> **Status, 2026-10-01.** The NaN-trial change raised both ceilings (peaks 0.76),
+> so the 2026-09-30 shares above are superseded. On the same 171 electrodes the
+> transfers keep 47% (congruency → switch) and 26% (switch → congruency) from
+> ~0.5 s, still with no pre-stimulus windows. They survive removing each
+> subject's mean activity, and shrink under RT matching to 0.5–1.1 s, though the
+> half-trial runs are at the noise floor. Occipital cortex keeps similar shares.
+> The main-effect groups do not behave as a shared code predicts and are
+> dropped. Results and reading:
+> [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01); placement
+> (supplement S5): [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan).
 
 ### 17.1 Which electrodes are decoded
 
@@ -2011,11 +2081,18 @@ Three independent choices, easy to conflate:
 3. **How those loaded electrodes are split for the decodes** — the groups.
    `both`/`S_only`/`F_only` come from the interaction labels, and
    `REFERENCE_GROUP` (default `all`) adds the **unselected** set: every channel
-   in the decoded ROI array.
+   in the decoded ROI array. Main-effect labels (`CONTRAST_MODE=condition`) name
+   the same three groups `both`/`congruency_only`/`switch_type_only`.
 
 So "the `all` group" means *all the electrodes this run loaded* — with
 `ELECTRODES=sig` that is all baseline-significant electrodes in the ROI, with
 `ELECTRODES=all` it is every electrode in the ROI.
+
+To decode **only** that set, with no selected groups, use
+`ELECTRODE_DEFINITION=none` (§17.3): no ANOVA or table is read, the reference
+group is the only group, and temporal generalization runs on it by default.
+`ELECTRODE_DEFINITION=none bash submit_stability_flexibility_cross_decoding_dcc.sh`
+is the transfer on every baseline-significant electrode of the ROI.
 
 The reference group matters because `both`, `S_only` and `F_only` were each
 *chosen* for carrying an interaction, so none of them is a baseline for "does
@@ -2026,6 +2103,12 @@ decode is about. Set `REFERENCE_GROUP=''` to drop it.
 Temporal generalization costs `n_windows²` decodes per matrix, so it runs only on
 `TEMPGEN_GROUPS` (default `both`); use `TEMPGEN_GROUPS=both,all` to get the
 unselected comparison matrix too.
+
+**The csv route loads every electrode of the ROI.** With
+`ELECTRODE_DEFINITION=csv` the saved table *is* the electrode definition, so the
+array is not intersected with the baseline-significant list and `all` is every
+ROI electrode, whatever `ELECTRODES` says (and the output folder still says
+`sig`). Pair a csv run with controls run on `ELECTRODES=all`.
 
 ### 17.2 Conditions and contrasts — why the classes are derived, not written
 
@@ -2126,7 +2209,21 @@ or one directory per interaction (`POWER_TRACES_CPC`, `POWER_TRACES_SPS`,
 needs), `cluster` (raw cluster p, matching the existing lab convention), or
 `none`.
 
+`ELECTRODE_DEFINITION=none` is the fourth route: it defines no groups at all.
+Only the reference group is decoded (every electrode `ELECTRODES` loads), so the
+per-group within-block 2×2 has nothing to run on, and the definition window,
+`CONTRAST_MODE`, `FDR_CORRECTION`/`ALPHA` and the table settings are unused and
+left out of the output folder name. `REFERENCE_GROUP` must be non-empty.
+
 ### 17.4 Scripts — how to run it
+
+> **Current defaults.** The submit script's defaults changed on 2026-09-28: it now
+> runs the in-job `anova` route on `stimulus_main_effect_conditions`, with
+> main-effect (`condition`) groups, raw p, a 0–1.5 s definition window and
+> 64/16-sample decoding windows. A saved table is read only with
+> `ELECTRODE_DEFINITION=csv`. Where this section disagrees,
+> [`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) — the run-and-read walkthrough —
+> describes the scripts as they are.
 
 `dcc_scripts/decoding`, prefix `stability_flexibility_cross_decoding`. Every knob
 below is settable from the environment, so no run needs a file edited; each is
@@ -2163,8 +2260,9 @@ EPOCHS_ROOT_FILE=Stimulus_-1.0to1.5sec_..._nan_policy_omit \
 ```
 
 Everything else has a working default: `ROI=lpfc`, `ELECTRODES=sig`,
-`CONDITIONS=stimulus_experiment_conditions`, window `[0.0, 0.5]s`,
-`ELECTRODE_DEFINITION=anova`. The `anova` definition needs the long single-trial
+`CONDITIONS=stimulus_experiment_conditions`, window `[0.0, 0.5]s`, and
+`ELECTRODE_DEFINITION=csv` over the saved A1 tables listed in the script (one
+`union` job per table, §17.5). The `anova` definition needs the long single-trial
 table (`effect_measure='cluster'`), so a real run assembles both; the
 `power_traces` route skips the long-table assembly entirely.
 
@@ -2175,6 +2273,7 @@ table (`effect_measure='cluster'`), so a real run assembles both; the
 | decode a different region | `ROI=acc` (keys of `src/analysis/config/rois.py`) |
 | run the pooled transfer with 4× the trials per cell (drops the within-block designs) | `CONDITIONS=stimulus_main_effect_conditions` (§17.2) |
 | use every electrode, not just baseline-significant ones | `ELECTRODES=all` |
+| decode only the loaded electrodes as one set, with no selected groups | `ELECTRODE_DEFINITION=none` (§17.3) |
 | move the definition window | `WINDOW_TMIN=0.2 WINDOW_TMAX=0.7` |
 | define electrodes from the power-trace runs instead | `ELECTRODE_DEFINITION=power_traces POWER_TRACES_RUN_DIR=...` (§17.3) |
 | get the unselected temporal-generalization matrix too | `TEMPGEN_GROUPS=both,all` |
@@ -2212,11 +2311,15 @@ any interaction-based selection (§17.1).
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `ELECTRODE_DEFINITION` | `anova` | `anova` (in-job window-mean ANOVA) or `power_traces` (finished cluster-corrected runs). |
+| `ELECTRODE_DEFINITION` | `anova` (`csv` in the submit script) | `anova` (in-job window-mean ANOVA), `power_traces` (finished cluster-corrected runs), `csv` (a saved A1 `anova_labels.csv`) or `none` (no groups; only the reference group is decoded). |
+| `ANOVA_LABELS_CSV` | the submit script's list | `csv` only: the A1 table, or its result folder. |
+| `ANOVA_LABEL_EFFECT` / `ANOVA_LABEL_EFFECTS` | `union` | `csv` only: which population of the table each job starts from; the job then decodes the disjoint groups left in it. `union` (either effect) keeps all of them in one job. The names must match the table's mode (`lwpc`… for proportion, `congruency`… for condition); the submit script skips, and the runner refuses, the other mode's names. |
 | `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | `anova` only: definition window, in seconds from stimulus onset. |
-| `CONTRAST_MODE` | `proportion` | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. |
+| `CONTRAST_MODE` | `proportion` (`condition` in the submit script) | `proportion` uses LWPC/LWPS interaction-defined groups; `condition` uses congruency/switchType main-effect-defined groups. For a `csv` table it is read off the A1 folder name (`..._<roi>_<mode>_<correction>`), and a contradicting value is an error. |
 | `ALPHA` | `0.05` | FDR threshold for the electrode groups. |
-| `FDR_CORRECTION` | `fdr_bh` | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. |
+| `FDR_CORRECTION` | `fdr_bh` (submit script: `flags` for csv, `none` otherwise) | `fdr_bh` for primary corrected ANOVA labels, or `none` for raw-p exploratory ANOVA labels. `flags` (csv only) keeps the saved table's own flags. |
+| `ANOVA_MODEL` | `oneway` | `anova` + `condition` only: `oneway` tests congruency and switch type in separate ANOVAs; `twoway` fits one Type III `congruency * switchType` ANOVA (main effects balanced over the other factor) and counts the interaction (`CXS`) electrodes per group. Own `_twoway` folder. |
+| `ELECTRODE_SELECTION_SPLIT` | `false` | `anova` only: fit the ANOVA on `ELECTRODE_SELECTION_FRAC` (0.3) of the trials and decode the rest, so no decode is circular. |
 | `POWER_TRACES_RUN_DIR` | unset | `power_traces` only: one run carrying all four interactions. |
 | `POWER_TRACES_CPC` / `_SPS` / `_CPS` / `_SPC` | unset | `power_traces` only: one run directory per interaction (overrides the single-run form). |
 | `POWER_TRACES_CORRECTION` | `fdr_bh` | `fdr_bh`, `cluster`, or `none`. |
@@ -2232,14 +2335,17 @@ any interaction-based selection (§17.1).
 | `FRAC_TRAIN` | unset | **proportion of trials used for training.** Unset keeps `StratifiedKFold` at `(N_SPLITS-1)/N_SPLITS`; setting it switches to `StratifiedShuffleSplit` at exactly this fraction. |
 | `EXPLAINED_VARIANCE` | `0.8` | PCA variance retained. |
 | `N_PERM` | `500` | permutations for the cluster test over windows. |
-| `TEMPGEN_GROUPS` | `both` | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. |
+| `TEMPGEN_GROUPS` | `both` (`REFERENCE_GROUP` under `ELECTRODE_DEFINITION=none`) | comma-separated groups to run temporal generalization on; `''` skips it. Each matrix costs `n_windows²` decodes. The submit script exports it rather than passing it through `sbatch --export`, which would cut it at the comma. |
+| `TRAIN_LABEL` / `TEST_LABEL` | unset | one requested decode instead of the battery (`stability`/`congruency`, `flexibility`/`switchType`); written to its own `train_<x>_test_<y>/` subfolder. |
 | `SEED` | `0` | random seed. |
 | `SAVE_DIR` | derived | override the output directory. |
 
 **Outputs** →
 `results/<epochs_or_synthetic_tag>/cross_decoding_<roi>_window_<tmin>to<tmax>s_<electrodes>_<definition>/`
 — the ROI, electrode set and definition route are all in the path, so runs that
-differ in any of them don't overwrite each other:
+differ in any of them don't overwrite each other. `ELECTRODE_DEFINITION=none`
+uses no window, so its runs go to `cross_decoding_<roi>_<electrodes>_none/<conditions>/`
+instead:
 
 - `cross_decoding.json` — per design/group: mean and peak accuracy, shuffle mean,
   number of cluster-significant windows (bulky arrays stripped).
@@ -2264,6 +2370,248 @@ differ in any of them don't overwrite each other:
   an assumed 0.5.
 - **Temporal generalization matrix:** broad off-diagonal generalization → a
   sustained/stable code; a narrow diagonal → a moving/phasic code.
+
+### 17.5 Runbook: main-effect populations and the task positive controls
+
+Every job behind two items of [`analysis_plans.md` › Closing figure plan](analysis_plans.md#closing-figure-plan),
+in the order to submit them: "Cross-decoding within main-effect groups" (with
+main-effect decoding and power traces in the same groups) and "Congruency ↔ switch
+cross-decoding with task positive controls". Run the commands on a DCC login node;
+each one submits Slurm jobs.
+
+| Step | What | Script | Jobs |
+|---|---|---|---|
+| 0 | set up the shell | – | – |
+| 1 | the main-effect electrode table, if it does not exist | `stats/submit_stability_flexibility_anova_conjunction_dcc.sh` | 1 |
+| 2 | dry runs on synthetic data (optional) | A4 + task-transfer submit scripts | 2 |
+| 3 | cross-decoding in each main-effect population | `decoding/submit_stability_flexibility_cross_decoding_dcc.sh` | 1 (+1 clean version) |
+| 4 | main-effect decoding and power traces in the same populations | `decoding/submit_specific_conditions_decoding_dcc.sh`, `power/submit_specific_conditions_power_traces_dcc.sh` | 10 + 10 |
+| 5 | the task positive controls | `decoding/submit_task_transfer_dcc.sh` | 1 |
+| 6 | the confound controls: RT matching (+ random control), response-locked, overall activity, seeds | `decoding/submit_stability_flexibility_cross_decoding_dcc.sh` | 5–9 |
+
+Steps 3–5 read the table from step 1, so wait for it; after that they are
+independent and can be submitted together.
+
+#### Step 0: set up the shell
+
+```bash
+REPO=/hpc/home/$USER/coganlab/$USER/GlobalLocal
+cd $REPO                       # the checkout must include submit_task_transfer_dcc.sh
+export EPOCHS_ROOT_FILE=Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+COND_CSV=$REPO/dcc_scripts/stats/results/$EPOCHS_ROOT_FILE/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
+```
+
+**One epochs file for every job.** All the submit scripts below take
+`EPOCHS_ROOT_FILE` from the environment, and the electrode table must come from the
+same file, which the `COND_CSV` path guarantees. Without the `export`, each script
+falls back to its own default, and those disagree: the A4 script's default (no
+`_filterbank_hilbert`) is not the file its listed tables were computed from. The
+file above is the one the
+anatomy, N3b and the A1 script use. To reuse the older condition-mode table listed
+in the A4 script instead, export the epochs file it sits under
+(`Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit`)
+and `COND_CSV` follows.
+
+#### Step 1: the main-effect electrode table (skip if it exists)
+
+```bash
+ls $COND_CSV/anova_labels.csv || \
+    (cd $REPO/dcc_scripts/stats && bash submit_stability_flexibility_anova_conjunction_dcc.sh)
+```
+
+The A1 script's defaults are what this runbook assumes: condition mode (one ANOVA
+per electrode for the congruency and switch-type main effects), raw p < 0.05
+(`FDR_CORRECTION=none`), window 0–1.5 s, task-significant lPFC electrodes. The
+table's folder name records the mode (`..._condition_none`), and the jobs below read
+it from there.
+
+#### Step 2: dry runs (optional, no data)
+
+```bash
+cd $REPO/dcc_scripts/decoding
+DATA_SOURCE=synthetic WINDOW_SIZE=16 STEP_SIZE=16 bash submit_stability_flexibility_cross_decoding_dcc.sh
+DATA_SOURCE=synthetic SYNTHETIC_CODE=congruency_specific N_REPEATS=5 WINDOW_SIZE=16 STEP_SIZE=8 \
+    bash submit_task_transfer_dcc.sh
+```
+
+Planted answers: in the first, label transfer comes out above chance (a shared code
+is planted) with both within decodes above it; in the second, T1 sits at chance
+while T2 transfers. Synthetic epochs are 32 samples long, hence the smaller
+windows. Results go under `results/synthetic_<code>/`.
+
+#### Step 3: cross-decoding in each main-effect population
+
+```bash
+cd $REPO/dcc_scripts/decoding
+ELECTRODE_DEFINITION=csv ANOVA_LABELS_CSV=$COND_CSV bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
+`ELECTRODE_DEFINITION=csv` is required: the submit script's default route is now
+`anova`, which drops the table silently
+([`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §4.2).
+
+One job. It decodes `both` (congruency ∩ switch), `congruency_only`,
+`switch_type_only` and the reference `all` (every lPFC electrode, §17.1). Each gets
+the two transfers and the two within decodes, and `summary.txt` compares every
+transfer with its ceiling. Output:
+
+```
+results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_csv_condition_flags/
+    stimulus_main_effect_conditions/anova_label_selections/
+    anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none__effect-union__.../
+```
+
+(the `window_0.0to1.5s` and `sig` in that path are unused on the csv route).
+
+**Clean-ceiling version (one more job).** The table was fit on the trials step 3
+decodes, so each group's within decode of its *own* effect is inflated
+(`stab_to_stab` on `congruency_only`, `flex_to_flex` on `switch_type_only`, both on
+`both`); the transfers and the other contrast's ceiling are not. This version
+defines the groups in the job on 30% of the trials and decodes the other 70%:
+
+```bash
+ELECTRODE_DEFINITION=anova CONTRAST_MODE=condition ELECTRODE_SELECTION_SPLIT=true WINDOW_TMAX=1.5 \
+    bash submit_stability_flexibility_cross_decoding_dcc.sh
+```
+
+Output: `results/$EPOCHS_ROOT_FILE/cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none/stimulus_main_effect_conditions/`.
+It uses the task-significant electrodes (`ELECTRODES=sig`) and raw p. Since
+2026-09-30 the split names the folder (`..._anova_condition_none_split0.3s0/`), so
+it no longer overwrites an unsplit run with the same settings; a split run from
+before that date shares the unsplit folder (the slurm log's `[trial-split]` lines
+tell them apart).
+
+Options for either version: the submit script defaults to
+`CONDITIONS=stimulus_main_effect_conditions`, which pools the proportions into a
+2×2 (~4× the trials per cell for the transfer; the block designs are skipped).
+`CONDITIONS=stimulus_experiment_conditions` adds them. With the 16-cell set, the per-group block 2×2 names
+the groups `congruency` and `switch_type` and, without the trial split, skips every
+decode of a group's own contrast. `TEMPGEN_GROUPS=both,all` adds the temporal
+generalization matrix for the unselected group.
+
+#### Step 4: main-effect decoding and power traces in the same populations
+
+```bash
+cd $REPO/dcc_scripts/decoding
+CONDITIONS="stimulus_congruency_conditions stimulus_switch_type_conditions" \
+    ANOVA_LABELS_CSV=$COND_CSV bash submit_specific_conditions_decoding_dcc.sh
+cd $REPO/dcc_scripts/power
+mkdir -p out/aligned_svm_ncv          # where the power-trace jobs write their logs
+ANOVA_LABELS_CSV=$COND_CSV bash submit_specific_conditions_power_traces_dcc.sh
+```
+
+Ten power-trace jobs: five populations (`both`, `congruency`, `switch_type`,
+`congruency_only`, `switch_type_only`) × the two condition sets. Six decoding jobs:
+the decoding script lists only `both`, `congruency_only` and `switch_type_only`
+(edit its `ANOVA_LABEL_EFFECTS` array for more; see [`decoding.md`](decoding.md)
+§3.2). Unlike A4, these jobs use each population whole. Outputs:
+
+```
+dcc_scripts/decoding/figs/$EPOCHS_ROOT_FILE/anova_label_selections/<table>__effect-<population>__.../<condition set>/
+dcc_scripts/power/figs/$EPOCHS_ROOT_FILE/anova_within_roi/anova_label_selections/<table>__effect-<population>__.../<condition set>/
+```
+
+- Each population was selected on the effect these jobs show, so they are
+  descriptive (supplement S2/S2b). The step-3 within decodes are the same contrasts
+  matched to the transfers: same trials, same folds.
+- These two condition sets pool over the proportion blocks, and ~77% of
+  incongruent trials come from 75%-incongruent blocks, so a tonic block difference
+  contributes to the congruency contrast. Pre-stimulus accuracy is the artifact
+  meter.
+- Adaptation inside the groups (S2c): the same two commands with
+  `CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions"`.
+  Compare groups by the group × effect-type interaction (is LWPC − LWPS larger in
+  congruency electrodes than in switch electrodes?), never by significance here
+  and not there.
+
+#### Step 5: the task positive controls
+
+```bash
+cd $REPO/dcc_scripts/decoding
+ELECTRODES=all bash submit_task_transfer_dcc.sh
+```
+
+One job: the N3b 2×2 (train in one level, test in the other, uncentered and
+centered) with a trial-level factor in place of the block
+([`decoding.md` › Cross-decoding controls](decoding.md#cross-decoding-controls) §3.5).
+
+| Design | Decoded | Train → test | Condition set |
+|---|---|---|---|
+| T1 | task (global vs local) | congruent → incongruent trials | `stimulus_task_by_congruency_conditions` |
+| T2 | task | repeat → switch trials | `stimulus_task_by_switch_type_conditions` |
+| T3 | congruency | global-task → local-task trials | `stimulus_task_by_congruency_conditions` |
+| T4 | switch type | global-task → local-task trials | `stimulus_task_by_switch_type_conditions` |
+
+`ELECTRODES=all` because the csv route of step 3 decodes every lPFC electrode: a
+control has to run on the electrodes of the transfer it controls (for the
+clean-ceiling version, submit it again with `ELECTRODES=sig`). Output:
+`results/$EPOCHS_ROOT_FILE/task_transfer_lpfc_all_w64s16/pooled_design_conditions/`
+(`summary.txt`, `task_transfer.json`, `task_transfer_traces.npz`, one figure per
+transfer).
+
+#### Step 6: the confound controls
+
+A transfer above chance (step 3, or the `ELECTRODE_DEFINITION=none` run) is not
+yet a shared code: incongruent and switch trials are both slower, and both may
+simply raise overall activity. The runs that test this, in order, with their
+folders, the script that compares them side by side, the reading rules and the
+report block, are in
+[`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13. In short:
+
+```bash
+cd $REPO/dcc_scripts/decoding
+A4=submit_stability_flexibility_cross_decoding_dcc.sh
+ELECTRODE_DEFINITION=none RT_MATCH=rt     TEMPGEN_GROUPS= bash $A4   # RT-matched trials
+ELECTRODE_DEFINITION=none RT_MATCH=random TEMPGEN_GROUPS= bash $A4   # same counts, not RT-matched
+ELECTRODE_DEFINITION=none CONDITIONS=response_main_effect_conditions \
+    EPOCHS_ROOT_FILE=Response_${EPOCHS_ROOT_FILE#Stimulus_} bash $A4 # response-locked
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=remove_mean TEMPGEN_GROUPS= bash $A4   # pattern only
+ELECTRODE_DEFINITION=none ACTIVITY_CONTROL=mean_only   TEMPGEN_GROUPS= bash $A4   # overall activity only
+```
+
+Set these knobs per command, never with `export`: every launcher submits with
+`--export=ALL`, so an exported one would carry into later jobs.
+
+#### Checking on the jobs
+
+- `squeue -u $USER` lists them. Logs go to `out/` in the directory you submitted
+  from (`out/aligned_svm_ncv/` for power traces), and the top of each `.out` file
+  prints the job's settings and its save directory.
+- The time limits are the `#SBATCH --time` lines of the `sbatch_*.sh` scripts
+  (A1 12 h, decoding 48 h, power traces 10 h, A4 and task transfer 16 h). Slurm
+  reads `SBATCH_TIMELIMIT` and it overrides those lines, so a job that runs out
+  of time can be resubmitted as `SBATCH_TIMELIMIT=36:00:00 bash submit_...`.
+  `N_REPEATS=5` halves the decoding work instead.
+- The step-3 job is the heaviest: four groups × four decodes on up to every lPFC
+  electrode, plus the block designs and the temporal generalization on `both`.
+
+#### Reading the results, in this order
+
+1. **The prerequisite (step 3).** `stab_to_stab` and `flex_to_flex` on `all` must
+   beat shuffle. If either does not, a failed transfer means nothing.
+2. **T1.** Task learned on congruent trials should transfer to incongruent ones at
+   close to its within accuracy. If it does, the pipeline can carry a code from one
+   trial population to another, and a null congruency ↔ switch transfer is not a
+   pipeline failure.
+3. **The effect-size line.** The task cue (frame colour) is drawn with the stimulus,
+   so a task decoder is large and partly visual. `summary.txt` prints within-level
+   task accuracy (T1) next to within-level congruency accuracy (T3); the further
+   apart they are, the less T1 says about a congruency-sized code.
+4. **T3.** Congruency across task is the control at congruency's own effect size.
+   Set its "keeps X% of it" beside the step-3 transfer's: congruency transferring
+   across task while failing to transfer to switch type is the "separable codes"
+   result.
+5. **T2 / T4.** On a switch trial the previous task was the other one, so leftover
+   previous-task activity reverses between the two levels. A drop here is expected
+   even with one task code; report T2 but lean on T1 (the plan's own call).
+6. **The groups (step 3).** Compare each group's transfers and ceilings with
+   `all`'s. `both` is where a shared code is predicted; read its within decodes
+   from the clean-ceiling version, and discard any group with significant
+   pre-stimulus windows.
+7. **The confound controls (step 6).** Whether the transfer survives RT matching
+   (against its random control) and the overall-activity control decides what it
+   can be called: a shared code, a shared gain, or an RT difference
+   ([`decoding.md` › A4 cross-decoding](decoding.md#a4-cross-decoding) §13.4–13.5).
 
 ---
 
@@ -2352,35 +2700,61 @@ bin and carries no latency information — widen the window).
 
 ## 19. A6 — brain–behavior
 
-**Motivation.** Tie the neural selectivity to the **actual behavioral control
-adjustment**, so the substrates are shown to be *functional*. Two levels:
+> **Runbook and reading guide: [`a6_brain_behavior.md`](a6_brain_behavior.md).**
+> It covers the 2026-09-27 fixes (the behavioral block map, behavior from the same
+> trials, the ROI filter), the per-participant scores, the RT confound, every
+> output file and how to read it. This section is the summary.
 
-1. **Across subjects** (n = subjects, honest but underpowered) — does a subject
-   with more/stronger LWPC electrodes show a larger behavioral LWPC (congruency ×
+**Motivation.** Tie the neural adaptation to the **actual behavioral control
+adjustment**, so the substrates are shown to be *functional*. Three levels:
+
+1. **Across participants, continuous scores** (the version to report) — each
+   participant's mean signed per-electrode LWPC / LWPS d against its behavioral
+   LWPC / LWPS, both from the same trials, raw and with the RT-linked part of HG
+   removed, with split-half reliabilities and the ceiling they put on the
+   correlation.
+2. **Across subjects, label-based** (comparison only) — does a subject with
+   more/stronger LWPC electrodes show a larger behavioral LWPC (congruency ×
    incongruent-proportion) RT effect, and likewise LWPS?
-2. **Within subject, single-trial** (preferred, the powered test) — does
-   trial-by-trial HG in the LWPC electrode group predict the trial-by-trial
-   congruency-sequence RT adjustment (LWPS group ↔ switch adjustment), via a mixed
-   model with a subject random effect?
+3. **Within subject, single-trial** — does trial-by-trial HG in the LWPC electrode
+   group predict the trial-by-trial congruency-sequence RT adjustment (LWPS group ↔
+   switch adjustment), via a mixed model with a subject random effect?
 
 **Method.**
 
-1. Assembles the same window-mean long table as A1/A2/A3 and runs the A1 electrode
-   definition (`per_electrode_anova_labels`, `contrast_mode='proportion'`) →
-   per-electrode `S`/`F` flags.
-2. **Behavior**: per-subject LWPC/LWPS RT magnitudes from the raw trial table
-   (`combinedData.csv`; `subject_ID` renamed to `subject` on load) via
-   `behavioral_lwpc_lwps_magnitudes` — the **same** equal-cell-weight
-   difference-of-differences used for the neural interaction, so brain and
-   behavior are measured on the identical contrast.
-3. **Across subjects** (`subject_level_brain_behavior`) for all three neural
+1. Assembles the same window-mean long table as A1/A2/A3 (now with `trial`, `rt`
+   and `acc` from the epochs metadata), restricted to `ROIS` × `ELECTRODES`, and
+   runs the A1 electrode definition (`per_electrode_anova_labels`,
+   `contrast_mode='proportion'`) → per-electrode `S`/`F` flags.
+2. **Behavior**: per-participant LWPC/LWPS RT magnitudes read from
+   `src/config/ieeg_behavioral_subject_level_effects.csv`
+   (`load_subject_level_behavior`: `LWPC_effect` / `LWPS_effect` of the
+   `key_RT_mean` rows, LOW minus HIGH), matched to the epochs' IDs on their stem.
+   The same contrast scored on the long table's own trials
+   (`behavioral_lwpc_lwps_magnitudes`) is only a cross-check and the estimate of
+   the behavioral reliability behind the level-1 ceiling.
+3. **Per-participant scores** (`participant_scores`, `participant_brain_behavior`,
+   `rt_adjust_hg`): the mean of each participant's per-electrode d (raw and
+   RT-adjusted), reliabilities from one trial split per participant shared by all
+   its electrodes, matched and cross correlations, a joint regression of each
+   behavioral score on both neural scores, and a disjoint-half check.
+4. **Across subjects, label-based** (`subject_level_brain_behavior`) for all three
    summaries — `count` (`n_S`/`n_F`), `frac`, and `effect` (mean interaction F) —
    each with its **cross-pairing** control.
-4. **Within subject, single trial** (`trialwise_brain_behavior`).
+5. **Within subject, single trial** (`trialwise_brain_behavior`).
    `assemble_trial_table` builds a per-(subject, trial) table with RT and the
    window-mean HG averaged over the LWPC and LWPS electrode groups; the mixed model
    `adjustment ~ group HG` with a subject random intercept is then fit for the
    **matched** and the **cross** adjustment.
+
+**The RT confound.** If single-trial HG tracks RT within a cell, every electrode's
+d-o-d contains that slope × the participant's behavioral d-o-d. That builds a
+matched brain–behavior correlation, and a cross one in proportion to the
+behavioral LWPC–LWPS correlation (0.44), so "matched beats cross" and the joint
+regression both pass on RT coupling alone. `rt_adjust_hg` removes the RT-linked
+part of HG with the pooled within-cell slope (the ANCOVA slope over the 16 design
+cells); level (1) reports both variants. Details and a synthetic demonstration:
+[`a6_brain_behavior.md`](a6_brain_behavior.md) §4.1.
 
 **How the trial-level adjustment columns are defined.** `trialwise_brain_behavior`
 deliberately takes the adjustment columns as *input* — the operationalization is a
@@ -2402,54 +2776,67 @@ switchType × switch_proportion. **RT and the group HG are both centered within
 subject**, so the slope is a purely within-subject quantity — with an uncentered
 predictor, between-subject differences in mean HG would leak into the common
 slope, which is exactly what the "within subject" framing is meant to exclude.
+Because `w` averages about −0.5 over a subject's trials, a plain HG–RT correlation
+still leaks into both the matched and the cross slope; read level 3 with that in
+mind ([`a6_brain_behavior.md`](a6_brain_behavior.md) §11).
 
 **Scripts** (`dcc_scripts/stats`, prefix `stability_flexibility_brain_behavior`):
 
 ```bash
 cd dcc_scripts/stats
-# a planted matched coupling that beats its cross control at BOTH levels:
+# a planted link with RT coupling on top, and a matched coupling that beats its
+# cross control at levels 2 and 3:
 DATA_SOURCE=synthetic bash submit_stability_flexibility_brain_behavior_dcc.sh
+# the RT confound alone: level-1 raw r positive, RT-adjusted r ~0
+DATA_SOURCE=synthetic SYNTHETIC_LINK=0 SYNTHETIC_RT_COUPLING=0.4 SYNTHETIC_N_SUBJ=24 \
+    bash submit_stability_flexibility_brain_behavior_dcc.sh
 # the falsification: each neural group drives BOTH adjustments equally;
 # `specificity_ok` must stop holding:
 DATA_SOURCE=synthetic SYNTHETIC_CROSS_FRAC=1.0 \
     bash submit_stability_flexibility_brain_behavior_dcc.sh
-# real run — set EPOCHS_ROOT_FILE (and BEHAVIOR_CSV if not the repo-root copy):
+# real run — task-significant lPFC, 0-1.5 s, the N4 epochs file:
 bash submit_stability_flexibility_brain_behavior_dcc.sh
 ```
 
-| Variable | Default | Meaning |
+| Variable | Submitter default | Meaning |
 |---|---|---|
-| `DATA_SOURCE` | `real` | `real` = epoched data + behavioral CSV; `synthetic` = ground-truth dry run. |
-| `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
-| `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only: planted coupling strengths. |
-| `BEHAVIOR_CSV` | repo-root `combinedData.csv` | raw trial-level behavior. |
-| `BEHAVIOR_RT_COL` | `RT` | RT column in that table. |
-| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `0.5` | analysis window. |
-| `ELECTRODES` | `all` | `all` or `sig`. |
-| `ALPHA` | `0.05` | A1 FDR threshold for the S/F flags. |
-| `NEURAL_SUMMARY` | `count` | which per-subject neural summary headlines the across-subject level (`count`/`frac`/`effect`); all three are computed. |
-| `RUN_TRIALWISE` | `1` | set `0` for the across-subject level only (the single-trial level needs per-trial RT in the epochs metadata). |
+| `DATA_SOURCE` | `real` | `real` = epoched data; `synthetic` = ground-truth dry run. |
+| `ELECTRODES` / `ROIS` | `sig` / `lpfc` | the electrode set. `ELECTRODES` only filters when `ROIS` names a region (`ROIS=all` keeps every channel). |
+| `WINDOW_TMIN` / `WINDOW_TMAX` | `0.0` / `1.5` | analysis window. |
+| `MIN_ELEC` | `3` | participants with fewer usable electrodes get no level-1 neural score. |
+| `PARTICIPANT_N_SPLITS` | `200` | shared trial splits behind the level-1 reliabilities. |
+| `BEHAVIOR_CSV` | `src/config/ieeg_behavioral_subject_level_effects.csv` | the subject-level table the behavioral LWPC / LWPS come from. |
+| `SYNTHETIC_LINK` / `SYNTHETIC_RT_COUPLING` | `0.6` / `0.3` | synthetic only, level 1: the planted brain–behavior r, and HG noise SDs per RT SD. |
+| `SYNTHETIC_CROSS_FRAC` | `0.25` | synthetic only, levels 2–3: how much of each link leaks into the WRONG pairing. `1.0` destroys specificity (the falsification run). |
+| `SYNTHETIC_ACROSS_BETA` / `SYNTHETIC_WITHIN_BETA` | `1.2` / `0.6` | synthetic only, levels 2–3: planted coupling strengths. |
+| `ALPHA` / `FDR_CORRECTION` | `0.05` / `none` | A1 threshold for the level-2 S/F flags. |
+| `NEURAL_SUMMARY` | `count` | which label-based summary level 2 stars (`count`/`frac`/`effect`); all three are computed. |
+| `RUN_TRIALWISE` | `1` | set `0` to skip level 3. |
 
 **Outputs** →
-`results/<epochs_or_synthetic_tag>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<neural_summary>/`:
+`results/<epochs_or_synthetic_tag>/brain_behavior_window_<tmin>to<tmax>s_<electrodes>_<rois>_<neural_summary>/`:
 
-- `electrode_labels.csv` — the A1 per-electrode S/F labels A6 sits on.
-- `behavioral_magnitudes.csv` — per-subject `lwpc`/`lwps` RT d-o-d (signed, ms).
-- `subject_table_<mode>.csv` — the merged neural × behavioral table per neural summary.
-- `across_subject.json` — matched and cross correlations, `n`, and the caveat.
-- `trial_df.csv` (real runs) — the single-trial table with group HG and both adjustments.
-- `trialwise.json` — matched/cross slopes, p, z, and `specificity_ok` per group.
-- `brain_behavior_summary.png` — 4 panels: both matched scatters, the across-subject
-  specificity bars, and the within-subject slopes with 95% CIs.
-- `summary.txt` — printed verdict.
+- `summary.txt` — the three levels in words; level 1 first.
+- `participant_scores.csv`, `participant_electrode_scores.csv`,
+  `participant_reliability.csv`, `participant_brain_behavior.json` / `.png` —
+  level 1 (columns in [`a6_brain_behavior.md`](a6_brain_behavior.md) §9).
+- `long_df.csv` (real runs) — the single-trial long table, including `trial`,
+  `rt`, `acc`; level 1 can be rerun from it offline.
+- `behavioral_magnitudes.csv` — per-participant `lwpc`/`lwps` RT d-o-d (signed,
+  ms), from the long table.
+- `electrode_labels.csv` — the A1 per-electrode S/F labels level 2 sits on.
+- `subject_table_<mode>.csv`, `across_subject.json` — level 2.
+- `trial_df.csv` (real runs), `trialwise.json` — level 3.
+- `brain_behavior_summary.png` — levels 2 and 3: both matched scatters, the
+  across-subject specificity bars, and the within-subject slopes with 95% CIs.
 
-**Reading:** the headline is the **specificity gap**, not a p-value. With thousands
-of trials every slope is "significant", so the claim rests on the **matched**
-pairing (LWPC group ↔ congruency-sequence adjustment; LWPS group ↔ switch
-adjustment) being *stronger* than the **cross** pairing (`specificity_ok`) at both
-levels. Report the across-subject correlation with its *n* and the honest
-"underpowered at n = subjects" caveat — a null there is uninformative; the
-within-subject mixed model is the real test.
+**Reading:** level 1 is the across-participant result. Read the RT-adjusted r
+against its reliability ceiling and the |r| needed at this n — a null is
+uninformative, and a raw r that shrinks after adjustment was carried by RT.
+Specificity is the joint-regression β, not matched |r| > cross |r|. At level 3,
+with thousands of trials every slope is "significant", so read the gap between
+the matched and cross slopes. See [`a6_brain_behavior.md`](a6_brain_behavior.md)
+§10 for the step-by-step reading and the sentence to write for each outcome.
 
 ---
 
@@ -2733,8 +3120,9 @@ Walk them in the same dependency order; each is synthetic and runs anywhere:
 | # | Tutorial notebook | Covers | Read alongside |
 |---|---|---|---|
 | 1 | `src/analysis/stats/stability_flexibility_assignments_sandbox.ipynb` | A1→A6 end to end, fill-in-the-blank, with `reveal("aN_solution")` | all of Part III |
-| 2 | `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` | A1 definition + A2 conjunction/correlation | §14 |
+| 2 | `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` | A1 definition + A2 conjunction/correlation, line by line: every function of the segregation module unrolled on one planted demo electrode, each step checked against the library | §14, [`segregation_walkthrough.md`](segregation_walkthrough.md) |
 | 3 | `src/analysis/stats/stability_flexibility_anatomy_tutorial.ipynb` | A3 coverage-conditioned ROI enrichment (incl. `attach_roi` line-by-line) | §16 |
+| 3b | `dcc_scripts/stats/stability_flexibility_anatomy_dcc_tutorial.ipynb` | the A3 DCC job line by line, both arms: anatomy maps and the overlapping-ROI trap, coverage, the χ² enrichment test and its within-subject null, `attach_scores`, the `delta` ROI and coordinate tests with the swap null, the noise ceiling; each step checked against the library | §16 |
 | 4 | `src/analysis/decoding/trial_splitting_tutorial.ipynb` | the disjoint def/decode split + double-dip demo | §21 |
 | 5 | `src/analysis/decoding/cross_decoding_tutorial.ipynb` | A4 pseudo-trials + label/set/temporal transfer | §17, §14.1 |
 | 6 | `src/analysis/stats/stability_flexibility_a5_a6_tutorial.ipynb` | A5 timing + A6 brain–behavior | §18, §19 |
@@ -2772,4 +3160,4 @@ in order for depth. Runnable stubs for each assignment are in `docs/skeletons/`.
 | Selection → decode orchestration (DCC) | `build_anova_selected_electrode_sets` | `src/analysis/decoding/run_anova_electrode_selection.py` |
 | power_traces windowed ANOVA (temporal-profile figure) | `run_within_electrode_windowed_anova_cluster_correction`, `load_significant_electrodes` | `src/analysis/power/windowed_anova.py` |
 | Timing | `interaction_time_course`, `onset_50pct_peak`, `jackknife_onset_difference` | `src/analysis/stats/stability_flexibility_timing.py` |
-| Brain–behavior | `subject_level_brain_behavior`, `trialwise_brain_behavior`, `behavioral_lwpc_lwps_magnitudes` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |
+| Brain–behavior | `participant_scores`, `participant_brain_behavior`, `rt_adjust_hg`, `subject_level_brain_behavior`, `trialwise_brain_behavior`, `behavioral_lwpc_lwps_magnitudes` | `src/analysis/stats/stability_flexibility_brain_behavior.py` |

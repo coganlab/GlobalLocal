@@ -1,0 +1,144 @@
+==============================================================================
+STABILITY vs FLEXIBILITY — A6 BRAIN-BEHAVIOR
+==============================================================================
+           data_source: real
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+          behavior_csv: /hpc/home/jz421/coganlab/jz421/GlobalLocal/src/config/ieeg_behavioral_subject_level_effects.csv
+                window: [0.0, 1.5]s
+            electrodes: sig
+                  rois: lpfc
+         contrast_mode: proportion
+        effect_measure: cohens_d
+        fdr_correction: none
+primary_neural_summary: count
+                 alpha: 0.05
+              min_elec: 3
+  participant_n_splits: 200
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/brain_behavior_window_0.0to1.5s_sig_lpfc_count
+------------------------------------------------------------------------------
+electrodes: 171 | S (LWPC) = 22 | F (LWPS) = 27 | both = 5
+behavioral magnitudes (ieeg_behavioral_subject_level_effects.csv, key_RT_mean, ms): 20 subjects | mean LWPC = 117.4 | mean LWPS = 75.2
+behavior cross-check, table vs the long table's own trials (20 participants): r = +0.90 (LWPC), +0.76 (LWPS); mean |difference| = 59 / 75 ms
+------------------------------------------------------------------------------
+(1) ACROSS PARTICIPANTS, CONTINUOUS SCORES — the across-participant result
+      neural = mean signed per-electrode d (exploratory: mean |d|, and the
+      mean over d > 0 electrodes); behavior = the table's LWPC_effect / LWPS_effect;
+      both LOW minus HIGH (positive = the effect shrinks in the
+      high-proportion block).
+      21 participants in the long table; 18 with >= 3 usable electrodes (median 7 electrodes and 397 trials per participant)
+      split-half reliability of the participant values (one trial split per participant, 200 splits): full length [half-length r]
+          neural LWPC, raw                         nan  [-0.15 ± 0.20]
+          neural LWPC, RT-adjusted                 nan  [-0.25 ± 0.19]
+          neural LWPC |d|, raw                    0.20  [+0.11 ± 0.20]
+          neural LWPC |d|, RT-adjusted            0.16  [+0.09 ± 0.21]
+          neural LWPC d>0 elec., raw              0.29  [+0.17 ± 0.24]
+          neural LWPC d>0 elec., RT-adjusted      0.41  [+0.26 ± 0.28]
+          neural LWPS, raw                        0.38  [+0.23 ± 0.18]
+          neural LWPS, RT-adjusted                0.38  [+0.23 ± 0.17]
+          neural LWPS |d|, raw                    0.45  [+0.29 ± 0.18]
+          neural LWPS |d|, RT-adjusted            0.49  [+0.33 ± 0.19]
+          neural LWPS d>0 elec., raw              0.52  [+0.35 ± 0.20]
+          neural LWPS d>0 elec., RT-adjusted      0.48  [+0.32 ± 0.23]
+          behavioral LWPC (iEEG trials)           0.72  [+0.57 ± 0.11]
+          behavioral LWPS (iEEG trials)           0.56  [+0.39 ± 0.14]
+      the behavior table has no trials: the ceiling estimates its reliability by the iEEG-trial one
+      within-cell HG-RT correlation, median electrode per participant, median over participants: +0.130
+      [RT-ADJUSTED — the claim]  n = 17 participants; |r| needed for p < .05: 0.48
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.101 [-0.40, +0.55]  p = 0.7002  rho = -0.025  ceiling = nan
+          MATCHED  LWPS neural ↔ LWPS RT : r = -0.055 [-0.52, +0.44]  p = 0.8332  rho = +0.103  ceiling = 0.46
+          CROSS    LWPC neural ↔ LWPS RT : r = -0.128  p = 0.6246
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.149  p = 0.5674
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.05, p = 0.874) + neural LWPS (beta = +0.13, p = 0.662)
+          JOINT    LWPS RT ~ neural LWPS (beta = -0.00, p = 0.993) + neural LWPC (beta = -0.13, p = 0.67)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      [RAW — upper bound; RT coupling inflates it]  n = 17 participants; |r| needed for p < .05: 0.48
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.243 [-0.27, +0.65]  p = 0.3476  rho = +0.066  ceiling = nan
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.187 [-0.32, +0.61]  p = 0.4731  rho = +0.306  ceiling = 0.46
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.005  p = 0.9847
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.151  p = 0.5617
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.22, p = 0.453) + neural LWPS (beta = +0.07, p = 0.813)
+          JOINT    LWPS RT ~ neural LWPS (beta = +0.22, p = 0.457) + neural LWPC (beta = -0.08, p = 0.785)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      [MEAN |d|, RT-ADJUSTED — exploratory]  n = 17 participants; |r| needed for p < .05: 0.48
+          noise check, r(neural score, trials per participant): LWPC -0.15, LWPS -0.61 (clearly negative = noise-driven)
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.317 [-0.19, +0.69]  p = 0.2145  rho = +0.074  ceiling = 0.34
+          MATCHED  LWPS neural ↔ LWPS RT : r = -0.453 [-0.77, +0.03]  p = 0.06759  rho = -0.377  ceiling = 0.53
+          CROSS    LWPC neural ↔ LWPS RT : r = -0.381  p = 0.1309
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.389  p = 0.1229
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.51, p = 0.0381) + neural LWPS (beta = -0.57, p = 0.0242)
+          JOINT    LWPS RT ~ neural LWPS (beta = -0.37, p = 0.157) + neural LWPC (beta = -0.26, p = 0.313)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      [MEAN |d|, RAW — exploratory]  n = 17 participants; |r| needed for p < .05: 0.48
+          noise check, r(neural score, trials per participant): LWPC -0.05, LWPS -0.46 (clearly negative = noise-driven)
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.233 [-0.28, +0.64]  p = 0.3674  rho = -0.002  ceiling = 0.38
+          MATCHED  LWPS neural ↔ LWPS RT : r = -0.262 [-0.66, +0.25]  p = 0.3094  rho = -0.181  ceiling = 0.50
+          CROSS    LWPC neural ↔ LWPS RT : r = -0.316  p = 0.216
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.408  p = 0.1035
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.40, p = 0.111) + neural LWPS (beta = -0.53, p = 0.0392)
+          JOINT    LWPS RT ~ neural LWPS (beta = -0.18, p = 0.499) + neural LWPC (beta = -0.26, p = 0.337)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      [d > 0 ELECTRODES ONLY, RT-ADJUSTED — exploratory]  n = 11 participants; |r| needed for p < .05: 0.60
+          noise check, r(neural score, trials per participant): LWPC +0.21, LWPS -0.02 (clearly negative = noise-driven)
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.558 [-0.06, +0.87]  p = 0.07442  rho = +0.336  ceiling = 0.54
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.436 [-0.22, +0.82]  p = 0.1804  rho = +0.318  ceiling = 0.52
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.020  p = 0.9532
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.061  p = 0.8594
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.56, p = 0.0951) + neural LWPS (beta = -0.02, p = 0.953)
+          JOINT    LWPS RT ~ neural LWPS (beta = +0.44, p = 0.205) + neural LWPC (beta = +0.05, p = 0.87)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      [d > 0 ELECTRODES ONLY, RAW — exploratory]  n = 12 participants; |r| needed for p < .05: 0.58
+          noise check, r(neural score, trials per participant): LWPC +0.27, LWPS +0.07 (clearly negative = noise-driven)
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.527 [-0.07, +0.85]  p = 0.07814  rho = +0.490  ceiling = 0.46
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.547 [-0.04, +0.85]  p = 0.06546  rho = +0.545  ceiling = 0.54
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.004  p = 0.9909
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.174  p = 0.5892
+          JOINT    LWPC RT ~ neural LWPC (beta = +0.51, p = 0.109) + neural LWPS (beta = -0.06, p = 0.829)
+          JOINT    LWPS RT ~ neural LWPS (beta = +0.57, p = 0.0726) + neural LWPC (beta = +0.13, p = 0.666)
+          half-length r, same half / disjoint halves: n/a (the behavior table has no trial halves)
+      n = 17 participants: |r| must reach 0.48 for p < 0.05, and no observed r can exceed the reliability ceiling. A null is uninformative. The RT-adjusted variant is the claim; the raw one is an upper bound that RT coupling inflates.
+------------------------------------------------------------------------------
+(2) ACROSS SUBJECTS, LABEL-BASED — for comparison only: counts need
+    thresholded labels and 'effect' averages an unsigned F
+      neural = 'count' (n_S / n_F  (# selective electrodes)) <- primary
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.473  p = 0.03537
+          MATCHED  LWPS neural ↔ LWPS RT : r = +0.136  p = 0.567
+          CROSS    LWPC neural ↔ LWPS RT : r = +0.139  p = 0.559
+          CROSS    LWPS neural ↔ LWPC RT : r = +0.001  p = 0.9951
+          specificity (both matched |r| > their cross |r|): True
+      neural = 'frac' (frac_S / frac_F  (proportion of the subject's electrodes))
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.290  p = 0.2146
+          MATCHED  LWPS neural ↔ LWPS RT : r = -0.207  p = 0.3821
+          CROSS    LWPC neural ↔ LWPS RT : r = -0.126  p = 0.5978
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.364  p = 0.1142
+          specificity (both matched |r| > their cross |r|): False
+      neural = 'effect' (mean_stab / mean_flex  (mean interaction F))
+          MATCHED  LWPC neural ↔ LWPC RT : r = +0.270  p = 0.2495
+          MATCHED  LWPS neural ↔ LWPS RT : r = -0.056  p = 0.8139
+          CROSS    LWPC neural ↔ LWPS RT : r = -0.110  p = 0.6448
+          CROSS    LWPS neural ↔ LWPC RT : r = -0.192  p = 0.4181
+          specificity (both matched |r| > their cross |r|): False
+      n = 20 subjects. Across-subject correlation is underpowered at n=20 subjects; treat as supporting evidence, not decisive. The powered test is the within-subject single-trial mixed model.
+------------------------------------------------------------------------------
+(3) WITHIN SUBJECT, SINGLE TRIAL
+      model: adjustment ~ group HG, subject random intercept (mixedlm);
+      adjustment = the trial's signed contribution to its process's
+      difference-of-differences (d-o-d cell weight x subject-centered RT).
+      [LWPC]  n_trials = 3660  n_subjects = 24
+          MATCHED (adj_congruency): slope = -89.0808  p = 0.0001404  z = -3.81
+          CROSS   (adj_switch): slope = -140.4030  p = 2.126e-09  z = -5.99
+          specificity_ok (|matched| > |cross|): False
+      [LWPS]  n_trials = 4522  n_subjects = 24
+          MATCHED (adj_switch): slope = -160.6884  p = 1.183e-17  z = -8.55
+          CROSS   (adj_congruency): slope = -149.0658  p = 2.142e-15  z = -7.93
+          specificity_ok (|matched| > |cross|): True
+      NOTE: no behavior for ['D0144'] in ieeg_behavioral_subject_level_effects.csv; they drop out of every across-participant correlation
+==============================================================================
+Reading: (1) is the across-participant result. Read the RT-adjusted r against
+its ceiling and the |r| needed at this n: a null is uninformative, and a raw r
+that shrinks after adjustment was carried by RT coupling. Specificity is the
+JOINT beta, not matched |r| > cross |r|: behavioral LWPC and LWPS correlate
+across participants, and RT coupling alone makes matched beat cross. (2) is
+kept for comparison only. In (3) every slope is 'significant' with thousands
+of trials; a plain HG-RT correlation leaks into both slopes, so read it with
+docs/a6_brain_behavior.md.

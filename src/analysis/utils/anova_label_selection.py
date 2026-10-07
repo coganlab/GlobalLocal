@@ -37,6 +37,27 @@ _SET_EFFECTS = {
     "congruency_only": (("S",), ("F",)),
     "switch_type_only": (("F",), ("S",)),
 }
+# Electrodes carrying EITHER effect. For the A4 cross-decoding job this keeps
+# every disjoint group (both / S-only / F-only) in one run.
+_UNION_EFFECTS = {"union": ("S", "F")}
+
+# Effect names that belong to one A1 contrast mode. Both modes store their two
+# effects in the same S/F columns, so 'congruency' on a proportion-mode table
+# silently selects the LWPC electrodes (and 'lwpc' on a condition-mode table the
+# congruency ones): the right flags under the wrong name.
+MODE_EFFECTS = {
+    "proportion": ("lwpc", "lwps", "lwpc_only", "lwps_only"),
+    "condition": ("congruency", "switch_type", "congruency_only", "switch_type_only"),
+}
+
+
+def contrast_mode_from_path(path):
+    """'condition' or 'proportion' when an A1 result path names exactly one of
+    them (the A1 job names its folder ``..._<roi>_<mode>_<correction>``), else
+    None."""
+    tokens = set(re.split(r"[_/\\]", str(path)))
+    named = [mode for mode in MODE_EFFECTS if mode in tokens]
+    return named[0] if len(named) == 1 else None
 
 
 def anova_label_run_slug(path, effect="lwpc", correction="flags", alpha=0.05,
@@ -149,6 +170,7 @@ def load_anova_label_electrodes(path, effect="lwpc", correction="flags",
           ``F == 1`` and ``S == 0``.
         - ``"both"``: select the intersection, where both ``S == 1`` and
           ``F == 1``.
+        - ``"union"``: select every electrode with ``S == 1`` or ``F == 1``.
         - ``"cpc"``, ``"sps"``, ``"cps"``, or ``"spc"``: select the
           corresponding effect. For backward compatibility, ``"cpc"`` uses
           the ``S`` selection and ``"sps"`` uses the ``F`` selection.
@@ -217,11 +239,13 @@ default="flags"
     while preserving their first occurrence.
     """
     key = effect.strip().lower()
-    if key not in _EFFECTS and key not in _SET_EFFECTS:
-        raise ValueError(f"Unknown ANOVA effect {effect!r}; choose one of "
-                         f"{sorted(set(_EFFECTS) | set(_SET_EFFECTS))}")
+    known = set(_EFFECTS) | set(_SET_EFFECTS) | set(_UNION_EFFECTS)
+    if key not in known:
+        raise ValueError(f"Unknown ANOVA effect {effect!r}; choose one of {sorted(known)}")
     labels = load_anova_labels(path, correction=correction, alpha=alpha, roi=roi)
-    if key in _SET_EFFECTS:
+    if key in _UNION_EFFECTS:
+        include_cols, exclude_cols = _UNION_EFFECTS[key], ()
+    elif key in _SET_EFFECTS:
         include_cols, exclude_cols = _SET_EFFECTS[key]
     else:
         flag_col = {"CPC": "S", "SPS": "F"}.get(
@@ -232,7 +256,10 @@ default="flags"
     if missing:
         raise ValueError(f"{path} has no columns needed to define effect={effect!r} "
                          f"with correction={correction!r}; missing {missing}")
-    mask = labels[list(include_cols)].eq(1).all(axis=1)
+    if key in _UNION_EFFECTS:
+        mask = labels[list(include_cols)].eq(1).any(axis=1)
+    else:
+        mask = labels[list(include_cols)].eq(1).all(axis=1)
     if exclude_cols:
         mask &= labels[list(exclude_cols)].eq(0).all(axis=1)
     labels = labels[mask]

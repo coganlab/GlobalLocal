@@ -24,6 +24,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
 
 from src.analysis.decoding.cross_decoding import (  # noqa: E402
     build_cross_decoding_arrays,
+    pseudo_trial_counts,
+    synthetic_condition_cells,
     synthetic_roi_labeled_arrays,
 )
 
@@ -152,6 +154,37 @@ def test_a_condition_that_is_only_padding_is_skipped():
     out = build_cross_decoding_arrays(arrs, "synthetic", STAB, FLEX)
     assert 'Stimulus_i_s_25inc_25sw' not in out['conditions']
     assert not np.isnan(out['data']).all(axis=(1, 2)).any()
+
+
+def test_pseudo_trial_counts_are_the_rows_the_decoder_keeps():
+    """Padding rows do not count, a partial row counts but is flagged incomplete,
+    and the per-level sums are the class sizes of each contrast."""
+    cells = synthetic_condition_cells()
+    arrs = synthetic_roi_labeled_arrays(seed=0)
+    name = 'Stimulus_i_s_25inc_25sw'
+    padded = np.concatenate([arrs['synthetic'][name], np.full((25, 40, 32), np.nan)])
+    padded[0, :10] = np.nan
+    arrs['synthetic'][name] = padded
+
+    counts = pseudo_trial_counts(arrs, 'synthetic', cells)
+
+    out = build_cross_decoding_arrays(arrs, 'synthetic', STAB, FLEX)
+    for i, cond in enumerate(out['conditions']):
+        assert counts['per_condition'][cond] == int((out['strata'] == i).sum())
+    assert counts['incomplete'][name] == 1
+    assert sum(counts['incomplete'].values()) == 1
+    per_level = counts['per_level']
+    assert set(per_level) == {'congruency', 'switchType'}
+    for field in per_level:
+        assert sum(per_level[field].values()) == sum(counts['per_condition'].values())
+    assert per_level['congruency']['i'] == sum(
+        n for c, n in counts['per_condition'].items() if cells[c]['congruency'] == 'i')
+
+
+def test_pseudo_trial_counts_without_cells_has_no_per_level():
+    counts = pseudo_trial_counts(synthetic_roi_labeled_arrays(seed=0), 'synthetic')
+    assert 'per_level' not in counts
+    assert all(n > 0 for n in counts['per_condition'].values())
 
 
 def test_flat_string_list_is_accepted():

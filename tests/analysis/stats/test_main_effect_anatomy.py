@@ -1,0 +1,265 @@
+"""Main effects as the reference for the delta tilt (docs/analysis_plans.md#closing-figure-plan).
+
+Scoring: congruency/switch main effects come from the proportion run's own
+cells, equal weight over the proportion levels, on the same halves as
+LWPC/LWPS. Linking: the two planted worlds the plan asks for -- a tilt
+inherited from the main effects must shrink with dm as a covariate and be
+tracked by dm; a tilt of its own must do neither.
+"""
+import numpy as np
+import pandas as pd
+import pytest
+
+from src.analysis.stats import stability_flexibility_anatomy as sfa
+from src.analysis.stats import stability_flexibility_segregation as sfs
+
+
+def _block_offset_df(n_elec=40, seed=0):
+    """A true congruency effect (d = 0.5) plus an HG offset in 75%-incongruent
+    blocks, at the plan's per-participant cell counts. The offset is no
+    congruency effect, but a trial-count-weighted congruency score picks up
+    about half of it."""
+    rng = np.random.default_rng(seed)
+    frames = []
+    for e in range(n_elec):
+        for cong, prop, n in (('i', 25.0, 42), ('c', 25.0, 152),
+                              ('i', 75.0, 137), ('c', 75.0, 50)):
+            frames.append(pd.DataFrame(dict(
+                subject='S1', electrode=f'S1-e{e}', congruency=cong,
+                switchType=rng.choice(['s', 'r'], n), incongruent_proportion=prop,
+                switch_proportion=rng.choice([25.0, 75.0], n),
+                hg=1.0 * (prop == 75.0) + 0.5 * (cong == 'i') + rng.normal(0, 1, n))))
+    return pd.concat(frames, ignore_index=True)
+
+
+def test_main_effects_share_the_halves_and_leave_lwpc_lwps_unchanged():
+    df = _block_offset_df(n_elec=4)
+    with_main = sfs.compute_sensitivities_per_split(df, n_splits=5, contrast_mode='proportion',
+                                                    main_effects=True)
+    without = sfs.compute_sensitivities_per_split(df, n_splits=5, contrast_mode='proportion')
+
+    pd.testing.assert_frame_equal(with_main[list(without.columns)], without)
+    assert with_main[list(sfs.MAIN_EFFECT_COLS)].notna().all().all()
+    assert {'mx', 'my'} <= set(sfs.average_over_splits(with_main).columns)
+    with pytest.raises(ValueError, match='proportion'):
+        sfs.compute_sensitivities_per_split(df, n_splits=1, contrast_mode='condition',
+                                            main_effects=True)
+
+
+def test_main_effect_is_balanced_over_proportion_so_block_offsets_stay_out():
+    df = _block_offset_df()
+    avg = sfs.average_over_splits(sfs.compute_sensitivities_per_split(
+        df, n_splits=2, contrast_mode='proportion', main_effects=True))
+
+    assert abs(avg['mx'].mean() - 0.5) < 0.1      # the planted congruency effect
+    assert abs(avg['x'].mean()) < 0.1             # LWPC untouched by the offset
+    # a condition-mode score is trial-count weighted over proportion and absorbs
+    # about half the offset -- the trap the proportion-run scores avoid
+    assert sfs.naive_sensitivities(df, contrast_mode='condition')['x'].mean() > 0.8
+
+
+def test_attach_scores_adds_dm_only_with_main_effects():
+    scores = pd.DataFrame({'subject': ['A', 'A', 'B'], 'electrode': ['A-1', 'A-2', 'B-1'],
+                           'x': [1.0, 0.0, -1.0], 'y': [0.5, 0.5, 0.0],
+                           'mx': [2.0, 1.0, 0.0], 'my': [0.0, 3.0, 1.0]})
+    tab = sfa.attach_scores(scores, {})
+
+    assert np.allclose(tab['cong_s'], scores['mx'] / scores['mx'].std(ddof=1))
+    assert np.allclose(tab['dm'], tab['cong_s'] - tab['switch_s'])
+    assert np.allclose(tab['delta'], tab['lwpc_s'] - tab['lwps_s'])
+    assert 'dm' not in sfa.attach_scores(scores.drop(columns=['mx', 'my']), {})
+
+
+def test_split_resolved_corr_covariates_remove_a_shared_gradient():
+    """Two maps that share only a gradient correlate; partialling it removes that."""
+    rng = np.random.default_rng(0)
+    elec = pd.DataFrame({'subject': np.repeat([f'S{i}' for i in range(12)], 30),
+                         'electrode': [f'e{i}' for i in range(360)],
+                         'z': rng.uniform(-20, 70, 360)})
+    rows = []
+    for k in range(10):
+        noise = rng.normal(0, 1, (4, 360))
+        rows.append(elec.assign(split=k, xA=0.03 * elec['z'] + noise[0],
+                                xB=0.03 * elec['z'] + noise[1],
+                                yA=0.03 * elec['z'] + noise[2],
+                                yB=0.03 * elec['z'] + noise[3]))
+    per_split = pd.concat(rows).drop(columns='z')
+    resp = pd.Series(1.0 + rng.uniform(0, 1, 360), index=elec['electrode'])
+
+    shared = sfs.split_resolved_corr(per_split, resp, n_perm=200)
+    partial = sfs.split_resolved_corr(per_split, resp, n_perm=200,
+                                      covariates=elec.set_index('electrode')[['z']])
+    assert shared['corr'] > 0.3 and shared['p'] < 0.05
+    assert abs(partial['corr']) < 0.05 and partial['p'] > 0.05
+
+
+@pytest.fixture(scope='module')
+def worlds():
+    out = {}
+    for world in ('inherited', 'independent'):
+        scores, e2r, e2a, e2c = sfa._synthetic_scores(n_subj=14, seed=0, main_effects=world)
+        tab = sfa.attach_scores(scores, e2r, electrodes_to_anat=e2a, electrodes_to_coords=e2c)
+        out[world] = (tab, sfa._synthetic_per_split(scores, n_splits=20, seed=0))
+    return out
+
+
+def test_test2_shrinks_an_inherited_tilt_and_leaves_an_independent_one(worlds):
+    # the planted layout is anterior/posterior, so the tilt is on y here
+    inh = sfa.tilt_with_main_effect_covariate(*worlds['inherited'], axis='mni_y', n_perm=2000)
+    ind = sfa.tilt_with_main_effect_covariate(*worlds['independent'], axis='mni_y', n_perm=2000)
+    ti, tn = inh['table'].set_index('fit'), ind['table'].set_index('fit')
+
+    assert ti.loc['delta', 'p'] < 0.05 and tn.loc['delta', 'p'] < 0.05  # a tilt to explain
+    assert ti.loc['dm', 'p'] < 0.05 and tn.loc['dm', 'p'] > 0.05        # main effects tilt?
+    assert min(inh['shrinkage'].values()) > 0.5                        # carried by dm
+    assert max(abs(v) for v in ind['shrinkage'].values()) < 0.2        # survives dm
+    assert tn.loc['delta + dm', 'p'] < 0.05
+
+
+def test_continuous_arm_runs_the_label_and_coordinate_tests_on_dm(tmp_path):
+    """The job saves and prints dm's label test, leverage sweep and coordinate
+    test, and recovers the synthetic route's planted anterior/posterior layout."""
+    import json
+    from types import SimpleNamespace
+    dcc = pytest.importorskip('dcc_scripts.stats.stability_flexibility_anatomy_dcc')
+    dcc.run_score_anatomy(SimpleNamespace(
+        data_source='synthetic', save_dir=str(tmp_path), seed=0, n_perm=200,
+        min_subjects=3, roi_filter=None, anat_level='auto', make_brain=False,
+        alpha=0.05, subjects=[]))
+    out = tmp_path / 'continuous'
+
+    per_roi = pd.read_csv(out / 'dm_per_roi.csv')
+    assert {'mean_dm', 'mean_dm_adj', 'q'} <= set(per_roi.columns)
+    loso = pd.read_csv(out / 'dm_roi_loso.csv')
+    assert (loso['dropped'] == '(none)').sum() == 1 and len(loso) > 2
+    coords = pd.read_csv(out / 'dm_coordinates.csv').set_index(['hemi', 'axis'])
+    assert set(coords.index.get_level_values('hemi')) == {'all', 'lh', 'rh'}
+    # the inherited world plants congruency anteriorly and switch posteriorly
+    assert coords.loc[('all', 'mni_y'), 'slope_per_mm'] > 0
+    assert coords.loc[('all', 'mni_y'), 'p'] < 0.05
+
+    summary = (out / 'summary.txt').read_text()
+    for block in ('§5.2 PRIMARY — dm ~', '§9.2 leverage — the dm test',
+                  '§5.2 SECONDARY — dm ~ MNI coordinates',
+                  'congruency dominance increases ANTERIORLY', 'TEST 1', 'TEST 2'):
+        assert block in summary
+    main = json.loads((out / 'score_anatomy.json').read_text())['main_effects']
+    assert set(main['coordinates']) == {'all', 'lh', 'rh'}
+    assert len(main['per_roi']) == len(per_roi)
+    # Figure 5 comes with the run; the synthetic route has no segregation JSONs
+    assert 'FIGURE 5 — fig5.png' in summary and 'FIGURE 5: failed' not in summary
+    assert (out / 'fig5.png').exists() and (out / 'fig5.pdf').exists()
+    assert len(pd.read_csv(out / 'fig5b_bars.csv')) == 4
+
+
+def test_section16_followups_script_writes_the_panel_tables(tmp_path, worlds):
+    """The §16.6 follow-up script runs end to end on the job's score table."""
+    import json
+    from dcc_scripts.stats import n4_section16_followups as s16
+    tab, _ = worlds['inherited']
+    scores = tmp_path / 'scores_with_anatomy.csv'
+    tab.to_csv(scores, index=False)
+    main_json = tmp_path / 'correlation_main_effects.json'
+    main_json.write_text(json.dumps(dict(corr=0.2, reliability_x=0.4, reliability_y=0.3)))
+    out = tmp_path / 'section16'
+    s16.main(['--scores', str(scores), '--main-json', str(main_json), '--out-dir', str(out),
+              '--n-perm', '50', '--n-perm-shuffle', '10', '--n-boot', '10'])
+
+    labels = pd.read_csv(out / 'panel_b_label_means.csv')
+    assert {'delta_adj', 'dm_adj', 'abs_x'} <= set(labels.columns) and len(labels) > 2
+    bands = pd.read_csv(out / 'panel_c_midline.csv')
+    assert set(bands['score']) == {'congruency', 'switch', 'LWPC', 'LWPS'}
+    assert set(bands['band']) == {'medial', 'middle', 'lateral'}
+    assert (out / 'panel_c_height.csv').exists()
+
+
+def test_figure5_draws_the_job_tables(tmp_path, worlds):
+    """F5 from the anatomy tables alone: panel b is Test 1's rows in plot order,
+    and panel a's test is recomputed on exactly the plotted electrodes."""
+    tab, per_split = worlds['inherited']
+    track = sfa.delta_tracking_test(tab, per_split, n_perm=100)
+    fig = sfa.figure5(tab, track, str(tmp_path), per_split=per_split, n_perm=100,
+                      centroid=dict(distance=1.4, p=0.95))
+
+    for name in ('fig5.png', 'fig5.pdf', 'fig5a_points.csv', 'fig5b_bars.csv'):
+        assert (tmp_path / name).exists()
+    bars = pd.read_csv(tmp_path / 'fig5b_bars.csv')
+    assert list(bars['comparison']) == [row for *_, row in sfa.FIG5_BARS]
+    assert list(bars['matched']) == [True, False, True, False]
+    assert np.allclose(bars['corr'], track.set_index('comparison').loc[bars['comparison'], 'corr'])
+
+    resp = tab.set_index('electrode')['resp']
+    expected = (sfs.split_resolved_corr(sfs.main_effect_view(per_split), resp, n_perm=100)['corr'],
+                sfs.split_resolved_corr(per_split, resp, n_perm=100)['corr'])
+    for pts, stat, r in zip((fig['base'], fig['adapt']), fig['tests'], expected):
+        assert stat['source'].startswith('recomputed')
+        assert (stat['n_electrodes'], stat['n_subjects']) == (len(pts), pts['subject'].nunique())
+        assert np.isclose(stat['corr'], r)
+        assert np.allclose(pts.groupby('subject')[['x_resid', 'y_resid']].mean(), 0)
+
+
+def test_figure5_quotes_the_segregation_run_that_tested_these_electrodes(tmp_path):
+    """On a real segregation run's outputs, panel a's LWPC/LWPS points are its
+    continuous.csv and its r, p and n are its own JSONs; a JSON from a different
+    electrode set is recomputed from per_split.csv instead."""
+    import json
+    out = sfs.run_joint_distribution_analysis(
+        sfs._synthetic_df(), n_splits=4, n_perm_corr=50, n_perm_label=20,
+        contrast_mode='proportion', main_effects=True)
+    seg = tmp_path / 'seg'
+    seg.mkdir()
+    out['electrodes'].to_csv(seg / 'electrodes.csv', index=False)
+    out['continuous'].to_csv(seg / 'continuous.csv', index=False)
+    out['per_split'].to_csv(seg / 'per_split.csv', index=False)
+    for key, name in (('correlation', 'correlation.json'),
+                      ('main_effect_correlation', 'correlation_main_effects.json')):
+        (seg / name).write_text(json.dumps(out[key], default=float))
+    tab = sfa.attach_scores(pd.read_csv(seg / 'electrodes.csv'), {})
+    track = sfa.delta_tracking_test(tab, out['per_split'], n_perm=50)
+
+    fig = sfa.figure5(tab, track, str(tmp_path / 'fig'), seg_dir=str(seg))
+    assert [t['source'] for t in fig['tests']] == [
+        str(seg / 'correlation_main_effects.json'), str(seg / 'correlation.json')]
+    assert fig['tests'][1]['p'] == out['correlation']['p']
+    cont = out['continuous'].set_index('electrode')
+    adapt = fig['adapt'].set_index('electrode')
+    assert adapt.index.equals(cont.index)
+    assert np.allclose(adapt[['x_resid', 'y_resid']], cont[['x_resid', 'y_resid']])
+
+    other = dict(out['correlation'], n_electrodes=out['correlation']['n_electrodes'] + 50)
+    (seg / 'correlation.json').write_text(json.dumps(other, default=float))
+    fig = sfa.figure5(tab, track, str(tmp_path / 'fig'), seg_dir=str(seg), n_perm=50)
+    assert fig['tests'][1]['source'].startswith('recomputed')
+    assert np.isclose(fig['tests'][1]['corr'], out['correlation']['corr'])
+
+
+def test_section16_followups_section6_redraws_figure5(tmp_path, worlds):
+    """Section 6 redraws F5 from the anatomy run's files and the segregation dir."""
+    from dcc_scripts.stats import n4_section16_followups as s16
+    tab, per_split = worlds['inherited']
+    run = tmp_path / 'continuous'
+    run.mkdir()
+    tab.to_csv(run / 'scores_with_anatomy.csv', index=False)
+    sfa.delta_tracking_test(tab, per_split, n_perm=50).to_csv(run / 'delta_tracking.csv',
+                                                              index=False)
+    seg = tmp_path / 'seg'
+    seg.mkdir()
+    per_split.to_csv(seg / 'per_split.csv', index=False)    # no JSONs: recomputed
+    out = tmp_path / 'section16'
+    s16.main(['--scores', str(run / 'scores_with_anatomy.csv'), '--seg-dir', str(seg),
+              '--out-dir', str(out), '--sections', '6', '--n-perm', '50'])
+
+    assert (out / 'fig5.png').exists() and (out / 'fig5.pdf').exists()
+    assert len(pd.read_csv(out / 'fig5b_bars.csv')) == 4
+
+
+def test_test1_finds_tracking_only_when_inherited(worlds):
+    inh = sfa.delta_tracking_test(*worlds['inherited'], n_perm=500).set_index('comparison')
+    ind = sfa.delta_tracking_test(*worlds['independent'], n_perm=500).set_index('comparison')
+
+    assert inh.loc['dm vs delta', 'corr'] > 0.2 and inh.loc['dm vs delta', 'p'] < 0.05
+    assert inh.loc['dm vs delta, + MNI covariates', 'corr'] > 0.1
+    assert abs(ind.loc['dm vs delta', 'corr']) < 0.1   # p is ~uniform here; r is small
+    matched = inh.loc[['congruency vs LWPC', 'switch vs LWPS'], 'corr']
+    crossed = inh.loc[['congruency vs LWPS (crossed)', 'switch vs LWPC (crossed)'], 'corr']
+    assert matched.min() > crossed.max()

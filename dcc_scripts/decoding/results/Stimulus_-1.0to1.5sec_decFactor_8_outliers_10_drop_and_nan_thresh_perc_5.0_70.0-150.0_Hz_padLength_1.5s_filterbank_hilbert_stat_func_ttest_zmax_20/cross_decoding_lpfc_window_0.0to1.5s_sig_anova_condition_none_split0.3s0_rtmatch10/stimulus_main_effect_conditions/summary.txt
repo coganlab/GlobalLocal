@@ -1,0 +1,73 @@
+========================================================================
+STABILITY vs FLEXIBILITY — A4 CROSS-DECODING
+========================================================================
+           data_source: real
+        synthetic_code: shared
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+            electrodes: sig
+  electrode_definition: anova
+power_traces_correction: None
+       reference_group: all
+ electrode_group_sizes: {'both': 8, 'congruency_only': 29, 'switch_type_only': 31, 'all': 171}
+electrode_selection_split: 30% of trials select electrodes, the other 70% are decoded (seed 0)
+              rt_match: RT-matched; groups=the decoded factors, within=['subject'], bins=10, balance=equal, seed=0
+      activity_control: none
+                window: [0.0, 1.5]s
+           window_size: 64
+             step_size: 16
+              n_splits: 5
+             n_repeats: 10
+            frac_train: None
+                 alpha: 0.05
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/cross_decoding_lpfc_window_0.0to1.5s_sig_anova_condition_none_split0.3s0_rtmatch10/stimulus_main_effect_conditions
+------------------------------------------------------------------------
+RT matching of the decode trials:
+   [rt-match] RT-matched, groups=['congruency', 'task_sequence'] n_bins=10 balance=equal: kept 2860 of 6428 trials (44%)
+   [rt-match]   congruency (i - c): mean per-subject RT difference +161 ms before -> +2 ms after (t=0.68, p=0.503, n=24)
+   [rt-match]   task_sequence (s - r): mean per-subject RT difference +190 ms before -> +4 ms after (t=1.95, p=0.0639, n=24)
+------------------------------------------------------------------------
+A4(a) label transfer by group. stab = congruency (i vs c), flex = switch
+      type (s vs r); stab_to_stab / flex_to_flex are the within-contrast
+      ceilings, decoded on the same trials with the same folds.
+      prediction: only the 'both' group cross-decodes.
+      'all' is the UNSELECTED reference set (every electrode in the
+      decoded ROI array, i.e. what `electrodes` above already restricted it to) —
+      no interaction defined it, so it is the honest baseline for the selected groups.
+   [both] stab_to_stab: mean acc=0.461 peak=0.573 (shuffle 0.489) sig windows=0/37
+   [both] flex_to_flex: mean acc=0.518 peak=0.698 (shuffle 0.498) sig windows=12/37
+   [both] stab_to_flex: mean acc=0.498 peak=0.645 (shuffle 0.504) sig windows=4/37
+         vs flex_to_flex, its ceiling: below it in 9 windows; keeps 21% of it above chance
+   [both] flex_to_stab: mean acc=0.492 peak=0.635 (shuffle 0.498) sig windows=0/37
+         vs stab_to_stab, its ceiling: below it in 0 windows; keeps n/a (its ceiling never beats shuffle) of it above chance
+   [congruency_only] stab_to_stab: mean acc=0.556 peak=0.719 (shuffle 0.503) sig windows=12/37
+   [congruency_only] flex_to_flex: mean acc=0.535 peak=0.676 (shuffle 0.497) sig windows=4/37
+   [congruency_only] stab_to_flex: mean acc=0.541 peak=0.683 (shuffle 0.505) sig windows=5/37
+         vs flex_to_flex, its ceiling: below it in 8 windows; keeps 19% of it above chance
+   [congruency_only] flex_to_stab: mean acc=0.523 peak=0.591 (shuffle 0.502) sig windows=5/37
+         vs stab_to_stab, its ceiling: below it in 14 windows; keeps 32% of it above chance
+   [switch_type_only] stab_to_stab: mean acc=0.498 peak=0.648 (shuffle 0.497) sig windows=5/37
+   [switch_type_only] flex_to_flex: mean acc=0.526 peak=0.619 (shuffle 0.505) sig windows=10/37
+   [switch_type_only] stab_to_flex: mean acc=0.500 peak=0.567 (shuffle 0.508) sig windows=0/37
+         vs flex_to_flex, its ceiling: below it in 6 windows; keeps 31% of it above chance
+   [switch_type_only] flex_to_stab: mean acc=0.502 peak=0.590 (shuffle 0.494) sig windows=4/37
+         vs stab_to_stab, its ceiling: below it in 4 windows; keeps 22% of it above chance
+   [all] stab_to_stab: mean acc=0.520 peak=0.776 (shuffle 0.492) sig windows=7/37
+   [all] flex_to_flex: mean acc=0.520 peak=0.638 (shuffle 0.496) sig windows=9/37
+   [all] stab_to_flex: mean acc=0.525 peak=0.662 (shuffle 0.502) sig windows=10/37
+         vs flex_to_flex, its ceiling: below it in 4 windows; keeps 79% of it above chance
+   [all] flex_to_stab: mean acc=0.529 peak=0.646 (shuffle 0.499) sig windows=6/37
+         vs stab_to_stab, its ceiling: below it in 5 windows; keeps 45% of it above chance
+------------------------------------------------------------------------
+A4(c) temporal generalization (Fig 10):
+   stability (within) [both]: mean diagonal=0.461  mean off-diagonal=0.502  (diagonal/phasic code)
+   flexibility (within) [both]: mean diagonal=0.519  mean off-diagonal=0.491  (diagonal/phasic code)
+   stability->flexibility (cross) [both]: mean diagonal=0.502  mean off-diagonal=0.500  (diagonal/phasic code)
+========================================================================
+Reading: cross-decoding above chance on the 'both' group = a SHARED
+code; chance on 'both' while each process is individually decodable =
+ORTHOGONAL codes (segregation at the representational level). Chance is
+the refit shuffle null (train labels permuted), and the window-wise
+verdict is cluster-corrected across time, so read `n_sig_windows`
+rather than any single window's accuracy.
+========================================================================

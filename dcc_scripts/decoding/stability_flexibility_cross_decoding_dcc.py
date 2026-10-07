@@ -9,8 +9,10 @@ representation-level question those counting analyses cannot: do the "both"
 electrodes carry ONE shared code or a mix of two orthogonal codes?
 
 It runs on the **ordinary decoding pipeline**. The ROI LabeledArray is already a
-cross-subject pseudopopulation (subjects are NaN-padded to the per-condition max
-and concatenated along the channel axis); `Decoder.cv_cm_jim_window_shuffle`
+cross-subject pseudopopulation, built as the ordinary decoder builds it (each
+electrode's NaN trials dropped, every electrode subsampled to the fewest clean
+trials per condition, electrodes stacked along the channel axis);
+`Decoder.cv_cm_jim_window_shuffle`
 supplies disjoint train/test folds, a refit shuffle null, and time-resolved
 accuracy traces that the usual `time_perm_cluster` machinery corrects across
 windows. All A4 adds is a second label vector (`labels_test`) so the classifier is
@@ -25,8 +27,12 @@ Designs:
   (a) label transfer: train on stability, test on flexibility (and vice versa),
       SEPARATELY on the both / S_only / F_only groups, plus the UNSELECTED
       reference group (`args.reference_group`, default 'all' = every electrode in
-      the decoded ROI array). Prediction: only 'both' cross-decodes; the
-      reference group says what the region does before any selection.
+      the decoded ROI array). Each group also decodes each contrast within
+      itself, on the same trials and folds: the ceiling every transfer is read
+      against. Prediction: only 'both' cross-decodes; the reference group says
+      what the region does before any selection. With main-effect labels
+      (`args.contrast_mode == 'condition'`) S_only / F_only are named
+      congruency_only / switch_type_only.
       This design is ALREADY pooled: its classes are every 'i' cell vs every 'c'
       cell and every 's' cell vs every 'r' cell, across both block proportions.
       Only design (0)/(0b) splits by proportion.
@@ -37,6 +43,8 @@ Designs:
 The S/F electrode groups come from either route — see `ELECTRODE_DEFINITIONS`:
 `args.electrode_definition='anova'` fits one window-mean ANOVA per electrode in
 this job, 'power_traces' reads the finished cluster-corrected windowed-ANOVA runs.
+'none' defines no groups: every loaded electrode is decoded as the reference
+group alone, and the per-group designs have nothing to run on.
 
 Contrast and block definitions are read off each condition's declared factor
 levels (`cd.condition_cells`), not parsed out of condition names — the real and
@@ -58,9 +66,25 @@ shared-vs-orthogonal code (`cd.synthetic_roi_labeled_arrays`), which validates t
 whole path and that the analysis discriminates the two codes.
 
 With `args.analysis == 'block_transfer'` the job runs N3b instead
-(`run_block_transfer_job`, docs/n3b_block_transfer.md): each contrast is trained
+(`run_block_transfer_job`, docs/decoding.md#n3b-block-transfer): each contrast is trained
 in one block level and tested in the other, on every electrode of the ROI, with
-no electrode groups.
+no electrode groups. `args.analysis == 'task_transfer'` runs the task-transfer
+positive controls through the same function (docs/decoding.md#cross-decoding-controls
+§3.5): task trained on congruent (repeat) trials and tested on incongruent
+(switch) ones, and congruency / switch type trained in one task, tested in the
+other.
+
+`args.rt_match` ('rt' | 'random') subsamples the decode trials before the
+pseudopopulation is built, so the decoded factors' cells have the same
+per-subject RT distribution, or, for 'random', the same trial counts without
+regard to RT (`_apply_rt_match`, docs/decoding.md#rt-matching). It runs after the
+held-out selection split, in every analysis mode.
+
+`args.activity_control` ('remove_mean' | 'mean_only') transforms every decode's
+input, per electrode group, to ask whether a decode or transfer is carried by a
+uniform rise in activity or by the pattern across electrodes
+(`_activity_controlled`, `src/analysis/decoding/activity_control.py`,
+docs/decoding.md#overall-activity-control).
 
 Driven by `run_stability_flexibility_cross_decoding_dcc.py` (wrapped by
 `sbatch_stability_flexibility_cross_decoding_dcc.sh`). Not run directly on the
@@ -99,6 +123,7 @@ import matplotlib
 matplotlib.use('Agg')          # headless / cluster
 import matplotlib.pyplot as plt
 
+from src.analysis.decoding import activity_control
 from src.analysis.decoding import block_transfer as bt
 from src.analysis.decoding import cross_decoding as cd
 from src.analysis.decoding.accuracy_stats import (
@@ -122,6 +147,9 @@ EFFECT_MEASURE = 'cluster'
 
 # how each block factor is spelled in result keys and figures
 _BLOCK_TAG = {'incongruent_proportion': 'incongruent', 'switch_proportion': 'switch'}
+
+# each label transfer -> the within decode of the labelling it is SCORED on
+_TRANSFER_CEILINGS = {'stab_to_flex': 'flex_to_flex', 'flex_to_stab': 'stab_to_stab'}
 
 
 # ---------------------------------------------------------------------------
@@ -292,12 +320,42 @@ def make_plots(results, save_dir, *, first_time_point=-1.0,
 # ---------------------------------------------------------------------------
 # text summary
 # ---------------------------------------------------------------------------
+def _pseudo_trial_lines(counts, meta):
+    """summary.txt lines: how many pseudo-trials the decodes had (`cd.pseudo_trial_counts`)."""
+    per_condition = counts['per_condition']
+    total = sum(per_condition.values())
+    lines = ["Decoded pseudo-trials. Every electrode is subsampled to the fewest clean",
+             "trials of any electrode in a condition, so the subject with the fewest",
+             "trials sets the count; every electrode group decodes these same rows:"]
+    items = [f"{name}={n}" for name, n in per_condition.items()]
+    lines += ["   " + "  ".join(items[i:i + 4]) for i in range(0, len(items), 4)]
+    for field, levels in (counts.get('per_level') or {}).items():
+        lines.append(f"   {field}: " + "  ".join(f"{level}={n}"
+                                                 for level, n in sorted(levels.items())))
+    n_splits = meta.get('n_splits')
+    frac = meta.get('frac_train') or ((n_splits - 1) / n_splits if n_splits else None)
+    lines.append(f"   total={total}" + (f"; the label transfer trains on ~{round(total * frac)} "
+                                        "of them per fold" if frac else ""))
+    n_incomplete = sum(counts.get('incomplete', {}).values())
+    if n_incomplete:
+        lines.append(f"   WARNING: {n_incomplete} of them still hold a NaN; the folds "
+                     "subsample those out of training")
+    return lines
+
+
 def write_summary(results, save_dir, meta):
     lines = ["=" * 72,
              "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING",
              "=" * 72]
     for k, v in meta.items():
         lines.append(f"{k:>22}: {v}")
+
+    if results.get('rt_match'):
+        lines += ["-" * 72, "RT matching of the decode trials:"]
+        lines += [f"   {line}" for text in results['rt_match'] for line in text.splitlines()]
+
+    if results.get('pseudo_trials'):
+        lines += ["-" * 72] + _pseudo_trial_lines(results['pseudo_trials'], meta)
 
     if results.get('within_block'):
         lines += ["-" * 72, "A4(0) within-block decoding baseline (Fig 9):"]
@@ -321,7 +379,9 @@ def write_summary(results, save_dir, meta):
                              f"sig={r['n_sig_windows']}/{r['n_windows']}w")
 
     lines += ["-" * 72,
-              "A4(a) label transfer (train stability, test flexibility) by group:",
+              "A4(a) label transfer by group. stab = congruency (i vs c), flex = switch",
+              "      type (s vs r); stab_to_stab / flex_to_flex are the within-contrast",
+              "      ceilings, decoded on the same trials with the same folds.",
               "      prediction: only the 'both' group cross-decodes.",
               f"      '{meta.get('reference_group') or 'all'}' is the UNSELECTED "
               "reference set (every electrode in the",
@@ -330,11 +390,19 @@ def write_summary(results, save_dir, meta):
               "      no interaction defined it, so it is the honest baseline for "
               "the selected groups."]
     for g, res in results.get('label_transfer', {}).items():
+        info = next(iter(res.values()), {}).get('activity_control')
+        if info and info.get('mode') != 'none':
+            lines.append(f"   [{g}] activity control: {activity_control.describe(info)}")
         for direction, r in res.items():
             lines.append(
                 f"   [{g}] {direction}: mean acc={r['mean_accuracy']:.3f} "
                 f"peak={r['peak_accuracy']:.3f} (shuffle {r['shuffle_mean']:.3f}) "
                 f"sig windows={r['n_sig_windows']}/{r['n_windows']}")
+            if 'n_below_ceiling' in r:
+                ceiling = _TRANSFER_CEILINGS[direction]
+                lines.append(
+                    f"         vs {ceiling}, its ceiling: below it in {r['n_below_ceiling']} "
+                    f"windows; keeps {_retained_text(r, res[ceiling])} of it above chance")
 
     if results.get('temporal'):
         lines += ["-" * 72, "A4(c) temporal generalization (Fig 10):"]
@@ -380,7 +448,11 @@ def write_summary(results, save_dir, meta):
 #                     the ones the power-trace figures call significant -- but it
 #                     needs finished run directories, which is the only reason it
 #                     is not the default.
-ELECTRODE_DEFINITIONS = ('anova', 'power_traces', 'csv')
+#
+# 'none' skips the definition altogether: no labels table, no both / S_only /
+# F_only groups, and only the reference group (every loaded electrode, so
+# `args.electrodes` decides 'all' vs baseline-significant) is decoded.
+ELECTRODE_DEFINITIONS = ('anova', 'power_traces', 'csv', 'none')
 
 
 def _channel_keys(labels):
@@ -461,29 +533,65 @@ def _resolve_labels(args, df=None):
     from src.analysis.stats import stability_flexibility_segregation as sfs
     return sfs.per_electrode_anova_labels(
         df, alpha=args.alpha, contrast_mode=getattr(args, 'contrast_mode', CONTRAST_MODE),
-        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
+        anova_model=getattr(args, 'anova_model', 'oneway'))
 
 
-def _electrode_groups(labels):
+# The A1 table keeps one schema in both contrast modes (S = CPC, F = SPS), but
+# what the flags MEAN differs: the LWPC / LWPS interactions under 'proportion',
+# the congruency / switch-type MAIN effects under 'condition'. Groups are named
+# after what they hold, so a main-effect run never reports an "S_only" group.
+_GROUP_NAMES = {'proportion': ('both', 'S_only', 'F_only'),
+                'condition': ('both', 'congruency_only', 'switch_type_only')}
+
+
+def _electrode_groups(labels, contrast_mode='proportion'):
     """The three DISJOINT label-transfer groups, as ROI-array channel names."""
     chan = _channel_keys(labels)
     S = (labels['S'] == 1).to_numpy()
     F = (labels['F'] == 1).to_numpy()
+    both, s_only, f_only = _GROUP_NAMES[contrast_mode]
     return {
-        'both': chan[S & F].tolist(),
-        'S_only': chan[S & ~F].tolist(),
-        'F_only': chan[~S & F].tolist(),
+        both: chan[S & F].tolist(),
+        s_only: chan[S & ~F].tolist(),
+        f_only: chan[~S & F].tolist(),
     }
 
 
-def _interaction_groups(labels):
+def _interaction_overlap(labels, contrast_mode='condition'):
+    """Where the congruency x switch-type interaction electrodes (`CXS`, two-way
+    main-effect ANOVA only) fall among the three groups, i.e. what folding them
+    into 'both' would add. None when the labels carry no `CXS` flag."""
+    if 'CXS' not in labels.columns:
+        return None
+    X = (labels['CXS'] == 1).to_numpy()
+    S = (labels['S'] == 1).to_numpy()
+    F = (labels['F'] == 1).to_numpy()
+    both, s_only, f_only = _GROUP_NAMES[contrast_mode]
+    return {'total': int(X.sum()),
+            both: int((X & S & F).sum()),
+            s_only: int((X & S & ~F).sum()),
+            f_only: int((X & ~S & F).sum()),
+            'neither': int((X & ~S & ~F).sum())}
+
+
+def _interaction_groups(labels, contrast_mode='proportion'):
     """The FOUR interaction-defined electrode sets (possibly overlapping), keyed by
     the definition-group flag (CPC/SPS/CPS/SPC) so `cd.is_circular_decode` can name
     each set's double-dip cell. Used for the per-group within-block 2x2 that skips
-    the diagonal (define==decode) cell."""
+    the diagonal (define==decode) cell.
+
+    Main-effect labels (contrast_mode='condition') carry no interaction: their
+    CPC/SPS columns are the congruency / switch-type main effects, so the sets are
+    keyed 'congruency' / 'switch_type', whose circular cells are every decode of
+    their own contrast (`cd.MAIN_EFFECT_DECODE_CONTRAST`)."""
     chan = _channel_keys(labels)
-    return {flag: chan[(labels[flag] == 1).to_numpy()].tolist()
-            for flag in ('CPC', 'SPS', 'CPS', 'SPC') if flag in labels.columns}
+    if contrast_mode == 'condition':
+        flags = {'congruency': 'S', 'switch_type': 'F'}
+    else:
+        flags = {flag: flag for flag in ('CPC', 'SPS', 'CPS', 'SPC')}
+    return {name: chan[(labels[flag] == 1).to_numpy()].tolist()
+            for name, flag in flags.items() if flag in labels.columns}
 
 
 def _add_reference_group(groups, channel_names, args):
@@ -533,6 +641,31 @@ def _restrict_to_electrodes(roi_labeled_arrays, roi, channel_names, keep):
     return {roi: out}, len(idx)
 
 
+def _activity_controlled(args, roi_arrays, roi, channel_names):
+    """`args.activity_control` applied to decoded arrays whose channels are
+    `channel_names`: 'none' (unchanged), 'remove_mean' (each subject's mean across
+    these electrodes subtracted, per pseudo-trial and time point) or 'mean_only'
+    (one feature per subject, its mean). Applied per electrode GROUP, after
+    restriction, so a subject's mean is over the electrodes that group decodes.
+    Returns (arrays, info) — see `activity_control.apply_activity_control`."""
+    arrays, _, info = activity_control.apply_activity_control(
+        roi_arrays, roi, channel_names, getattr(args, 'activity_control', 'none') or 'none')
+    return arrays, info
+
+
+def _decoded_group(args, arrays, roi, channel_names, keep):
+    """One electrode group's decode input: `arrays` restricted to `keep`, then the
+    activity control. Returns (arrays, n_electrodes, info); arrays is None when
+    the group has no electrode in the ROI."""
+    restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, keep)
+    if restricted is None:
+        return None, 0, None
+    keep = set(keep)
+    kept_names = [ch for ch in channel_names if ch in keep]
+    restricted, info = _activity_controlled(args, restricted, roi, kept_names)
+    return restricted, n_kept, info
+
+
 # ---------------------------------------------------------------------------
 # the decoded ROI pseudopopulation (real data)
 # ---------------------------------------------------------------------------
@@ -542,7 +675,10 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
     Mirrors `decoding_dcc.main`'s setup so A4 decodes exactly what the ordinary
     decoding job would: the same ROI/significance electrode resolution, the same
     "filter against what actually survived epoching" step, and the same
-    pseudopopulation builder.
+    pseudopopulation builder, which drops each electrode's NaN (outlier) trials
+    and subsamples every electrode to the fewest clean trials per condition, so
+    every pseudo-trial is complete (the only NaN left are whole padding rows where
+    conditions differ in trial count, which `build_cross_decoding_arrays` drops).
 
     Returns `(roi, arrays, channel_names, cells)`, where `channel_names` is the
     array's own channel labelling (`subject-electrode`, in order — the thing
@@ -555,7 +691,7 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         filter_electrode_lists_against_subjects_mne_objects,
         print_summary_of_dropped_electrodes)
     from src.analysis.utils.labeled_array_utils import (
-        put_data_in_labeled_array_per_roi_subject)
+        make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel)
 
     roi = args.roi
     if args.rois_dict is None or roi not in args.rois_dict:
@@ -597,6 +733,9 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         from src.analysis.decoding.anova_electrode_selection import apply_trial_partition
         subjects_mne_objects = apply_trial_partition(
             subjects_mne_objects, trial_partitions, which='decode')
+    # After the selection split, so only decode trials are matched.
+    subjects_mne_objects = _apply_rt_match(
+        args, subjects_mne_objects, required_fields or cd.CROSS_DECODE_FIELDS)
 
     # An electrode in the ROI dict may have been dropped during epoching; asking
     # for it would index past the epochs object.
@@ -604,14 +743,135 @@ def _build_roi_arrays(args, LAB_root, trial_partitions=None, required_fields=Non
         [roi], raw_electrodes, subjects_mne_objects)
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
 
-    arrays = put_data_in_labeled_array_per_roi_subject(
-        subjects_mne_objects, condition_names, [roi], args.subjects,
-        electrodes, obs_axs=0, chans_axs=1, time_axs=2,
+    # Drop the NaN trials before anything else touches the data, as the ordinary
+    # decoder does: each electrode keeps its own clean trials (after the split and
+    # RT matching chose which trials are decoded), then every electrode is
+    # subsampled to the fewest clean trials of any electrode in that condition.
+    # Outlier trials are NaN per electrode, so a pseudo-trial padded across
+    # subjects is almost never complete, and the cross-decoder trains only on
+    # complete ones.
+    built = make_bootstrapped_roi_labeled_array_with_nan_trials_removed_for_each_channel(
+        roi, subjects_mne_objects, condition_names, args.subjects, electrodes,
+        n_bootstraps=1, obs_axs=0, chans_axs=1, time_axs=2,
         random_state=getattr(args, 'seed', 42))
+    if not built:
+        raise ValueError(f"no electrode of ROI {roi!r} survived for these subjects")
+    arrays = {roi: built[0]}
     channel_names = _roi_channel_names(arrays, roi)
     print(f"ROI {roi!r} pseudopopulation: {len(channel_names)} channels "
           f"({args.electrodes} electrodes)")
     return roi, arrays, channel_names, cells
+
+
+RT_MATCH_MODES = ('none', 'rt', 'random')
+
+
+def _rt_match_description(args):
+    """One line for summary.txt: which RT matching, if any, the decode trials had."""
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode == 'none':
+        return 'off'
+    what = {'rt': 'RT-matched', 'random': 'count-matched random control (not RT-matched)'}
+    groups = getattr(args, 'rt_match_groups', None) or 'the decoded factors'
+    within = ['subject'] + list(getattr(args, 'rt_match_within', None) or ())
+    return (f"{what.get(mode, mode)}; groups={groups}, within={within}, "
+            f"bins={getattr(args, 'rt_match_bins', None)}, "
+            f"balance={getattr(args, 'rt_match_balance', 'equal')}, "
+            f"seed={getattr(args, 'rt_match_seed', getattr(args, 'seed', 0))}")
+
+
+def _anova_model_description(args):
+    """One line for summary.txt: how the in-job ANOVA defined the main-effect groups."""
+    if (getattr(args, 'data_source', 'real') != 'real'
+            or getattr(args, 'electrode_definition', 'anova') != 'anova'
+            or getattr(args, 'contrast_mode', CONTRAST_MODE) != 'condition'):
+        return None
+    if getattr(args, 'anova_model', 'oneway') == 'twoway':
+        return ('twoway (one Type III congruency x switch type ANOVA per electrode; '
+                'main effects balanced over the other factor)')
+    return 'oneway (separate congruency and switch-type ANOVAs, each pooled over the other)'
+
+
+def _split_description(args):
+    """One line for summary.txt: whether electrodes were selected on held-out trials."""
+    if not getattr(args, 'electrode_selection_split', False):
+        return 'off (electrodes selected on the same trials that are decoded)'
+    return (f"{getattr(args, 'electrode_selection_frac', 0.3):.0%} of trials select "
+            f"electrodes, the other {1 - getattr(args, 'electrode_selection_frac', 0.3):.0%} "
+            f"are decoded (seed {getattr(args, 'electrode_selection_seed', 0)})")
+
+
+def _activity_control_description(args):
+    """One line for summary.txt: the overall-activity control of every decode."""
+    return {'none': 'none',
+            'remove_mean': "remove_mean (each subject's mean across the decoded "
+                           "electrodes subtracted, per pseudo-trial and time point)",
+            'mean_only': "mean_only (one feature per subject: its mean across the "
+                         "decoded electrodes)"}.get(
+        getattr(args, 'activity_control', 'none') or 'none',
+        getattr(args, 'activity_control', None))
+
+
+def _check_activity_control_args(args):
+    control = getattr(args, 'activity_control', 'none') or 'none'
+    if control not in activity_control.ACTIVITY_CONTROLS:
+        raise ValueError(f"activity_control must be one of "
+                         f"{activity_control.ACTIVITY_CONTROLS}; got {control!r}")
+
+
+def _check_rt_match_args(args):
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode not in RT_MATCH_MODES:
+        raise ValueError(f"rt_match must be one of {RT_MATCH_MODES}; got {mode!r}")
+    if mode != 'none' and args.data_source != 'real':
+        raise ValueError("RT matching needs real epochs (their metadata carries each "
+                         "trial's RT); the synthetic data have no RTs.")
+
+
+def _apply_rt_match(args, subjects_mne_objects, decoded_factors):
+    """RT-match the decode trials (`args.rt_match`), or return them unchanged.
+
+    'rt' keeps a subset in which every combination of the decoded factors has the
+    same per-subject RT distribution (`src/analysis/utils/rt_matching.py`); for
+    A4 that is the four congruency x switch-type cells, so neither labelling
+    carries an RT difference. 'random' is its control: the same number of trials
+    per subject and cell, drawn without regard to RT. `args.rt_match_groups`
+    overrides which factors are matched.
+
+    The before/after tables are written to `args.save_dir` as
+    rt_match_<factors>_{balance,contrasts,summary}.csv, and the printed summary is
+    appended to `args.rt_match_log` (read by the summary writers).
+    """
+    mode = getattr(args, 'rt_match', 'none') or 'none'
+    if mode == 'none':
+        return subjects_mne_objects
+    if mode not in RT_MATCH_MODES:
+        raise ValueError(f"rt_match must be one of {RT_MATCH_MODES}; got {mode!r}")
+    from src.analysis.utils import rt_matching as rtm
+
+    groups = tuple(getattr(args, 'rt_match_groups', None) or decoded_factors)
+    within = tuple(getattr(args, 'rt_match_within', None) or ())
+    n_bins = getattr(args, 'rt_match_bins', rtm.DEFAULT_N_BINS)
+    balance = getattr(args, 'rt_match_balance', 'equal')
+    matched, report = rtm.rt_match_subjects_mne_objects(
+        subjects_mne_objects, groups=groups, within=within, n_bins=n_bins,
+        balance=balance, seed=getattr(args, 'rt_match_seed', getattr(args, 'seed', 0)),
+        mode=mode, verbose=False)
+    text = rtm.format_rt_match_summary(report, groups=rtm.metadata_columns(groups),
+                                       n_bins=n_bins, balance=balance, mode=mode)
+    print(text)
+    lost = sorted(set(subjects_mne_objects) - set(matched))
+    if lost:
+        raise ValueError(
+            f"RT matching left no trials for subjects {lost}. Each subject's channels "
+            "are part of every pseudo-trial, so a subject cannot drop out; lower "
+            "RT_MATCH_BINS or check that every subject has every cell.")
+    tag = '_'.join(rtm.metadata_columns(groups))
+    rtm.save_rt_match_report(report, args.save_dir, prefix=f'rt_match_{tag}')
+    log = getattr(args, 'rt_match_log', None)
+    if log is not None:
+        log.append(text)
+    return matched
 
 
 def _split_subject_epochs(subjects_epochs, frac_select, seed):
@@ -675,9 +935,9 @@ def _roi_channel_names(arrays, roi):
 
 
 # ---------------------------------------------------------------------------
-# N3b: block-transfer cross-decoding (docs/n3b_block_transfer.md)
+# N3b: block-transfer cross-decoding (docs/decoding.md#n3b-block-transfer), and the
+# task-transfer positive controls (docs/decoding.md#cross-decoding-controls §3.5)
 # ---------------------------------------------------------------------------
-# name -> (decoded contrast, block factor it is transferred across)
 BLOCK_TRANSFER_DESIGNS = {
     # name: (decoded contrast, transfer factor, pooled condition-set name)
     'X1': ('congruency', 'incongruent_proportion', 'stimulus_lwpc_conditions'),
@@ -687,6 +947,61 @@ BLOCK_TRANSFER_DESIGNS = {
     'X2b': ('switchType', 'incongruent_proportion',
            'stimulus_switch_type_by_incongruent_proportion_conditions'),
 }
+
+# The same train-in-one-level / test-in-the-other 2x2, across a trial-level
+# factor instead of a block. T1/T2 are the task x congruency and task x switch
+# type controls: task (global vs local) learned on congruent (repeat) trials and
+# tested on incongruent (switch) ones. T3/T4 swap the roles, so the contrast is
+# the A4 contrast at its own effect size. T2 and T4 carry the previous-task
+# confound: on a switch trial the previous task was the other one.
+TASK_TRANSFER_DESIGNS = {
+    'T1': ('task', 'congruency', 'stimulus_task_by_congruency_conditions'),
+    'T2': ('task', 'switchType', 'stimulus_task_by_switch_type_conditions'),
+    'T3': ('congruency', 'task', 'stimulus_task_by_congruency_conditions'),
+    'T4': ('switchType', 'task', 'stimulus_task_by_switch_type_conditions'),
+}
+
+TRANSFER_ANALYSES = {'block_transfer': BLOCK_TRANSFER_DESIGNS,
+                     'task_transfer': TASK_TRANSFER_DESIGNS}
+
+# how a transfer factor's levels are printed; block proportions print as '25%'
+_LEVEL_NAMES = {'congruency': {'c': 'congruent', 'i': 'incongruent'},
+                'switchType': {'r': 'repeat', 's': 'switch'},
+                'task': {'g': 'global', 'l': 'local'}}
+
+
+def _level_label(factor, level):
+    return _LEVEL_NAMES.get(factor, {}).get(level, f'{level}%')
+
+
+def _transfer_tag(factor, train, test):
+    """File-name tag for one transfer: '25to75' for a block, 'congruent_to_incongruent'."""
+    if factor in _LEVEL_NAMES:
+        return f'{_level_label(factor, train)}_to_{_level_label(factor, test)}'
+    return f'{train}to{test}'
+
+
+def _retained(transfer, ceiling, chance=0.5):
+    """Share of the ceiling's above-chance accuracy that a transfer keeps, over the
+    windows where the ceiling beats its shuffle null; None if it never does.
+
+    Both are summaries from `_summarise`, scored on the same test trials, so this
+    is the "transfer as a fraction of within-condition accuracy" of
+    docs/decoding.md#cross-decoding-controls §2: 1 = full transfer, 0 = none.
+    """
+    sig = np.asarray(ceiling['significant_windows'], bool)
+    if not sig.any():
+        return None
+    within = np.asarray(ceiling['acc_true']).mean(axis=1)[sig].mean()
+    across = np.asarray(transfer['acc_true']).mean(axis=1)[sig].mean()
+    if within <= chance:
+        return None
+    return float((across - chance) / (within - chance))
+
+
+def _retained_text(transfer, ceiling):
+    share = _retained(transfer, ceiling)
+    return "n/a (its ceiling never beats shuffle)" if share is None else f"{share:.0%}"
 
 
 def _window_centers(n_windows, args):
@@ -727,29 +1042,61 @@ def _plot_block_transfer(results, args, roi):
     from src.analysis.decoding.plots.accuracies import plot_accuracies_nature_style
     for key, res in results.items():
         lo, hi = res['levels']
+        factor = res['block_col']
         for train, test in ((lo, hi), (hi, lo)):
             transfer = res['cells'][f'{train}->{test}']
             within = res['cells'][f'{test}->{test}']
+            into = f'{_level_label(factor, train)} -> {_level_label(factor, test)}'
             plot_accuracies_nature_style(
                 _window_centers(transfer['acc_true'].shape[0], args),
-                {f'within {test}%': within['acc_true'],
-                 f'{train}% -> {test}%': transfer['acc_true'],
+                {f'within {_level_label(factor, test)}': within['acc_true'],
+                 into: transfer['acc_true'],
                  'shuffle': transfer['acc_shuffle']},
                 significant_clusters=transfer['significant_windows'],
                 window_size=args.window_size, step_size=args.step_size,
                 sampling_rate=getattr(args, 'sampling_rate', 256),
-                comparison_name=f'{key}_{train}to{test}', roi=roi, save_dir=args.save_dir,
-                title=f"{res['design']} {res['contrast']}: {train}% -> {test}% "
+                comparison_name=f'{key}_{_transfer_tag(factor, train, test)}', roi=roi,
+                save_dir=args.save_dir,
+                title=f"{res['design']} {res['contrast']}: {into} "
                       f"({'centered' if res['centered'] else 'uncentered'})",
-                samples_axis=1, filename_suffix='block_transfer')
+                samples_axis=1,
+                filename_suffix=getattr(args, 'analysis', 'block_transfer'))
+
+
+def _task_effect_size_lines(results):
+    """Within-level task accuracy (T1) next to within-level congruency accuracy
+    (T3): the effect-size regime docs/analysis_plans.md#closing-figure-plan asks the task
+    control to be read against."""
+    def within(key):
+        res = results.get(key)
+        if res is None:
+            return None
+        accs = [res['cells'][f'{level}->{level}']['post_mean_accuracy']
+                for level in res['levels']]
+        return None if None in accs else float(np.mean(accs))
+
+    task, cong = within('T1_uncentered'), within('T3_uncentered')
+    if task is None or cong is None:
+        return []
+    return ["-" * 72,
+            f"EFFECT SIZE: within-level task accuracy {task:.3f} (T1) vs congruency "
+            f"{cong:.3f} (T3), post-stimulus, uncentered.",
+            "   The further task sits above congruency, the more T1 shows only that the",
+            "   pipeline can transfer a strong code; T3 is the control at congruency's",
+            "   own effect size."]
 
 
 def _write_block_transfer_summary(results, meta, save_dir):
+    task_controls = meta.get('analysis') == 'task_transfer'
+
     def cell(s):
         acc = s['post_mean_accuracy']
         return ("n/a" if acc is None else f"{acc:.3f}") + f" ({s['n_sig_post']}/{s['n_sig_pre']})"
 
-    lines = ["=" * 72, "N3b BLOCK-TRANSFER CROSS-DECODING", "=" * 72]
+    lines = ["=" * 72,
+             "TASK-TRANSFER POSITIVE CONTROLS" if task_controls
+             else "N3b BLOCK-TRANSFER CROSS-DECODING",
+             "=" * 72]
     lines += [f"{k:>22}: {v}" for k, v in meta.items()]
     if meta['n_resamples'] < 5:
         lines.append(f"NOTE: with only {meta['n_resamples']} resamples the cluster tests "
@@ -758,40 +1105,69 @@ def _write_block_transfer_summary(results, meta, save_dir):
     for key, res in results.items():
         lo, hi = res['levels']
         c = res['cells']
+        factor = res['block_col']
         lines += ["-" * 72,
-                  f"{key}: {res['contrast']}, trained in one {res['block_col']} level "
+                  f"{key}: {res['contrast']}, trained in one {factor} level "
                   "and tested in the other",
                   f"   balanced to {res['n_per_group']} trials per contrast x transfer cell "
                   f"(available: {res['group_sizes']})",
                   "   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):",
-                  f"   {'train | test':>14}{str(lo) + '%':>18}{str(hi) + '%':>18}"]
+                  f"   {'train | test':>14}{_level_label(factor, lo):>18}"
+                  f"{_level_label(factor, hi):>18}"]
         for train in (lo, hi):
-            lines.append(f"   {str(train) + '%':>14}{cell(c[f'{train}->{lo}']):>18}"
+            lines.append(f"   {_level_label(factor, train):>14}{cell(c[f'{train}->{lo}']):>18}"
                          f"{cell(c[f'{train}->{hi}']):>18}")
         for train, test in ((lo, hi), (hi, lo)):
-            lines.append(f"   {train}% -> {test}% vs within {test}%: below that ceiling in "
-                         f"{c[f'{train}->{test}']['n_below_ceiling']} windows")
-        flat = [f'{level}%' for level in (lo, hi) if c[f'{level}->{level}']['n_sig_post'] == 0]
+            transfer, ceiling = c[f'{train}->{test}'], c[f'{test}->{test}']
+            lines.append(f"   {_level_label(factor, train)} -> {_level_label(factor, test)} "
+                         f"vs within {_level_label(factor, test)}: below that ceiling in "
+                         f"{transfer['n_below_ceiling']} windows; keeps "
+                         f"{_retained_text(transfer, ceiling)} of it above chance")
+        flat = [_level_label(factor, level) for level in (lo, hi)
+                if c[f'{level}->{level}']['n_sig_post'] == 0]
         lines.append("   CEILING: " + (f"within {', '.join(flat)} never beats shuffle "
                                         "after stimulus onset -> nothing to transfer; "
                                         "this design is NOT interpretable" if flat else
                                         "both within-level decodes beat shuffle -> interpretable"))
         n_pre = sum(s['n_sig_pre'] for s in c.values())
-        if n_pre:
+        if n_pre and res['contrast'] == 'task':
+            lines.append(f"   PRE-STIMULUS: {n_pre} significant windows across the 2x2. The "
+                         "previous task predicts the current one on repeat trials, so some "
+                         "task information can precede the cue.")
+        elif n_pre:
             lines.append(f"   ARTIFACT FLAG: {n_pre} significant pre-stimulus windows across "
                          "the 2x2 (congruency/switch information cannot exist there yet)")
 
-    lines += ["=" * 72,
-              "Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the",
-              "within accuracy of the level it is TESTED on.",
-              "  transfer ~ within, centered and uncentered  -> the same code in both levels",
-              "  below within uncentered only                -> same axis, a tonic block shift",
-              "  below within centered, in BOTH directions   -> block context reorganizes the",
-              "                                                 code; check its cross-factor control",
-              "  below in one direction only                 -> the training level's code is",
-              "                                                 weaker, not a different axis",
-              "Resamples are not independent subjects, so window-wise p-values are optimistic.",
-              "=" * 72]
+    if task_controls:
+        lines += _task_effect_size_lines(results)
+        lines += ["=" * 72,
+                  "Reading (docs/decoding.md#cross-decoding-controls §3.5): compare each transfer with",
+                  "the within accuracy of the level it is TESTED on ('keeps X of it').",
+                  "  T1 task across congruency   -> the clean positive control: transfer ~",
+                  "                                 within means the pipeline carries a code",
+                  "                                 from one trial population to another",
+                  "  T2 task across switch type  -> confounded: on a switch trial the previous",
+                  "                                 task was the other one, so a drop is",
+                  "                                 expected even with a single task code",
+                  "  T3 / T4 congruency / switch -> the A4 contrasts, across task, at their",
+                  "  type across task               own effect size; set 'keeps X' beside the",
+                  "                                 A4 congruency <-> switch transfer's",
+                  "The task cue (frame colour) is drawn with the stimulus, so a task decoder is",
+                  "partly visual: T1 validates the code path, not congruency's effect size.",
+                  "Resamples are not independent subjects, so window-wise p-values are optimistic.",
+                  "=" * 72]
+    else:
+        lines += ["=" * 72,
+                  "Reading (docs/decoding.md#n3b-block-transfer §1.6): compare each transfer with the",
+                  "within accuracy of the level it is TESTED on.",
+                  "  transfer ~ within, centered and uncentered  -> the same code in both levels",
+                  "  below within uncentered only                -> same axis, a tonic block shift",
+                  "  below within centered, in BOTH directions   -> block context reorganizes the",
+                  "                                                 code; check its cross-factor control",
+                  "  below in one direction only                 -> the training level's code is",
+                  "                                                 weaker, not a different axis",
+                  "Resamples are not independent subjects, so window-wise p-values are optimistic.",
+                  "=" * 72]
     txt = "\n".join(lines)
     with open(os.path.join(save_dir, 'summary.txt'), 'w') as f:
         f.write(txt + "\n")
@@ -799,25 +1175,48 @@ def _write_block_transfer_summary(results, meta, save_dir):
 
 
 def run_block_transfer_job(args):
-    """N3b on every electrode of the decoded ROI array, with no electrode groups.
+    """N3b, or the task-transfer controls, on every electrode of the decoded ROI
+    array, with no electrode groups.
 
-    `args.electrodes` alone decides whether that means the task-significant
-    ('sig') or all ('all') electrodes of `args.roi`. Runs every design in
-    BLOCK_TRANSFER_DESIGNS, uncentered and centered, and writes
-    block_transfer.json, block_transfer_traces.npz, summary.txt and figures.
+    `args.analysis` picks the design table: 'block_transfer' (the default) runs
+    BLOCK_TRANSFER_DESIGNS, 'task_transfer' runs TASK_TRANSFER_DESIGNS.
+    `args.electrodes` alone decides whether the decoded electrodes are the
+    task-significant ('sig') or all ('all') electrodes of `args.roi`. Every design
+    runs uncentered and centered and writes <analysis>.json,
+    <analysis>_traces.npz, summary.txt and figures.
     """
+    analysis = getattr(args, 'analysis', 'block_transfer')
+    designs = TRANSFER_ANALYSES[analysis]
     cluster_kw = dict(n_perm=getattr(args, 'n_perm', 200), seed=getattr(args, 'seed', 42))
+    _check_rt_match_args(args)
+    _check_activity_control_args(args)
+    # shared by the per-design SimpleNamespace copies below (a shallow copy keeps
+    # the same list), so every condition set's matching summary lands here
+    args.rt_match_log = []
+    act_info = None                 # what the activity control did, for the summary
     if args.data_source == 'synthetic':
-        # A planted answer: 'block_specific' puts congruency on a different axis in
-        # each incongruent-proportion level, so X1 must fail while X3 transfers.
         # Synthetic epochs have no pre-stimulus period, so every window counts as post.
         args = SimpleNamespace(**{**vars(args), 'first_time_point': 0.0})
-        roi, cells = 'synthetic', cd.synthetic_condition_cells()
-        arrays = cd.synthetic_roi_labeled_arrays(
-            code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
-            block_code=('specific' if getattr(args, 'synthetic_code', None) == 'block_specific'
-                        else 'same'))
+        code = getattr(args, 'synthetic_code', None)
+        roi = 'synthetic'
+        if analysis == 'task_transfer':
+            # Planted answers: 'congruency_specific' puts task on a different axis
+            # on incongruent trials, so T1 must fail while T2 transfers; 'carryover'
+            # adds previous-task activity, which T2 and T4 cannot escape and T1 can.
+            cells = cd.synthetic_task_condition_cells()
+            arrays = cd.synthetic_task_labeled_arrays(
+                task_code='congruency_specific' if code == 'congruency_specific' else 'shared',
+                carryover=0.6 if code == 'carryover' else 0.0, seed=getattr(args, 'seed', 0))
+        else:
+            # A planted answer: 'block_specific' puts congruency on a different axis in
+            # each incongruent-proportion level, so X1 must fail while X3 transfers.
+            cells = cd.synthetic_condition_cells()
+            arrays = cd.synthetic_roi_labeled_arrays(
+                code='orthogonal', design_proportions=True, seed=getattr(args, 'seed', 0),
+                block_code='specific' if code == 'block_specific' else 'same')
         n_channels = next(iter(arrays[roi].values())).shape[1]
+        arrays, act_info = _activity_controlled(args, arrays, roi,
+                                                [f'ch{i}' for i in range(n_channels)])
     else:
         from src.analysis.utils.general_utils import resolve_lab_root
         # no electrode definition here: ELECTRODES alone picks 'sig' or 'all'
@@ -825,21 +1224,27 @@ def run_block_transfer_job(args):
         LAB_root = resolve_lab_root(args.LAB_root)
         n_channels = None
 
-    results, traces = {}, {}
-    for name, (contrast, block_col, conditions_name) in BLOCK_TRANSFER_DESIGNS.items():
+    results, traces, loaded = {}, {}, {}
+    for name, (contrast, block_col, conditions_name) in designs.items():
         if args.data_source != 'synthetic':
-            design_args = SimpleNamespace(
-                **{**vars(args),
-                   'conditions': getattr(experiment_conditions, conditions_name)})
-            roi, arrays, channel_names, cells = _build_roi_arrays(
-                design_args, LAB_root, required_fields=(contrast, block_col))
+            # T1/T3 and T2/T4 decode the same condition set; load each set once
+            if conditions_name not in loaded:
+                design_args = SimpleNamespace(
+                    **{**vars(args),
+                       'conditions': getattr(experiment_conditions, conditions_name)})
+                roi, arrays, channel_names, cells = _build_roi_arrays(
+                    design_args, LAB_root, required_fields=(contrast, block_col))
+                arrays, act_info = _activity_controlled(args, arrays, roi, channel_names)
+                loaded[conditions_name] = (roi, arrays, channel_names, cells)
+            roi, arrays, channel_names, cells = loaded[conditions_name]
             if n_channels is None:
                 n_channels = len(channel_names)
             elif n_channels != len(channel_names):
-                raise ValueError("N3b condition sets produced different electrode counts")
+                raise ValueError(f"{analysis} condition sets produced different "
+                                 "electrode counts")
         for center in (False, True):
             key = f"{name}_{'centered' if center else 'uncentered'}"
-            print(f"N3b {key}: {contrast} across {block_col}")
+            print(f"{analysis} {key}: {contrast} across {block_col}")
             out = bt.run_block_transfer(
                 arrays, roi, cells, contrast, block_col, center=center,
                 n_resamples=args.n_repeats, n_splits=args.n_splits,
@@ -856,19 +1261,26 @@ def run_block_transfer_job(args):
                 n_per_group=out['n_per_group'],
                 cells={f'{train}->{test}': s for (train, test), s in summary.items()})
             for (train, test), s in summary.items():
-                traces[f'{key}_{train}to{test}_true'] = s['acc_true']
-                traces[f'{key}_{train}to{test}_shuffle'] = s['acc_shuffle']
+                tag = _transfer_tag(block_col, train, test)
+                traces[f'{key}_{tag}_true'] = s['acc_true']
+                traces[f'{key}_{tag}_shuffle'] = s['acc_shuffle']
 
-    meta = dict(data_source=args.data_source, roi=roi, electrodes=args.electrodes,
-                n_channels=n_channels,
+    meta = dict(analysis=analysis, data_source=args.data_source, roi=roi,
+                electrodes=args.electrodes, n_channels=n_channels,
                 epochs_root_file=getattr(args, 'epochs_root_file', None),
                 window_size=args.window_size, step_size=args.step_size,
                 n_splits=args.n_splits, n_resamples=args.n_repeats,
                 n_perm=cluster_kw['n_perm'], seed=cluster_kw['seed'],
+                rt_match=_rt_match_description(args),
+                activity_control=(_activity_control_description(args)
+                                  if act_info is None or act_info['mode'] == 'none'
+                                  else activity_control.describe(act_info)),
                 save_dir=args.save_dir)
-    with open(os.path.join(args.save_dir, 'block_transfer.json'), 'w') as f:
+    if args.rt_match_log:
+        meta['rt_match_result'] = '\n' + '\n'.join(args.rt_match_log)
+    with open(os.path.join(args.save_dir, f'{analysis}.json'), 'w') as f:
         json.dump(_json_safe(_strip_arrays(dict(meta, designs=results))), f, indent=2)
-    np.savez(os.path.join(args.save_dir, 'block_transfer_traces.npz'), **traces)
+    np.savez(os.path.join(args.save_dir, f'{analysis}_traces.npz'), **traces)
     _plot_block_transfer(results, args, roi)
     _write_block_transfer_summary(results, meta, args.save_dir)
     return results
@@ -879,7 +1291,7 @@ def run_block_transfer_job(args):
 # ---------------------------------------------------------------------------
 def main(args):
     os.makedirs(args.save_dir, exist_ok=True)
-    if getattr(args, 'analysis', 'a4') == 'block_transfer':
+    if getattr(args, 'analysis', 'a4') in TRANSFER_ANALYSES:
         return run_block_transfer_job(args)
 
     # Decoder settings shared by every decode in this job.
@@ -892,6 +1304,16 @@ def main(args):
                       seed=getattr(args, 'seed', 42))
 
     # 1. assemble the ROI LabeledArrays + electrode groups -----------------------
+    definition = getattr(args, 'electrode_definition', 'anova')
+    if definition not in ELECTRODE_DEFINITIONS:
+        raise ValueError(f"electrode_definition must be one of {ELECTRODE_DEFINITIONS}; "
+                         f"got {definition!r}")
+    if definition == 'none' and not getattr(args, 'reference_group', 'all'):
+        raise ValueError("electrode_definition='none' decodes only the reference group, "
+                         "so reference_group must name it (e.g. 'all'), not be empty.")
+    _check_rt_match_args(args)
+    _check_activity_control_args(args)
+    args.rt_match_log = []
     trial_partitions = None
     if getattr(args, 'electrode_selection_split', False):
         if args.data_source != 'real' or getattr(args, 'electrode_definition', 'anova') != 'anova':
@@ -901,6 +1323,12 @@ def main(args):
                 "record, so this job cannot prove that its defining trials are "
                 "disjoint; generate the CSV on a saved selection partition or "
                 "use the in-job ANOVA split.")
+    if getattr(args, 'anova_model', 'oneway') == 'twoway' and (
+            definition != 'anova'
+            or getattr(args, 'contrast_mode', CONTRAST_MODE) != 'condition'):
+        raise ValueError("ANOVA_MODEL=twoway fits congruency x switch type in this job, "
+                         "so it needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition.")
+    interaction_overlap = None
 
     if args.data_source == 'synthetic':
         print(f"DATA SOURCE: synthetic ({args.synthetic_code} code) — validates the path "
@@ -912,23 +1340,26 @@ def main(args):
         n_ch = next(iter(arrays[roi].values())).shape[1]
         channel_names = [f'ch{i}' for i in range(n_ch)]
         half = n_ch // 2
-        a1_groups = {'both': channel_names,
-                     'S_only': channel_names[:half],
-                     'F_only': channel_names[half:]}
+        a1_groups = ({} if definition == 'none' else
+                     {'both': channel_names,
+                      'S_only': channel_names[:half],
+                      'F_only': channel_names[half:]})
         interaction_groups, labels = {}, None
     else:
         print("DATA SOURCE: real epoched data")
         from src.analysis.utils.general_utils import (
             resolve_lab_root, resolve_electrodes_to_keep, load_HG_ev1_rescaled_per_subject)
 
-        definition = getattr(args, 'electrode_definition', 'anova')
         print(f"ELECTRODE DEFINITION: {definition}")
         LAB_root = resolve_lab_root(args.LAB_root)
 
         # (i) the electrode definition. The power-traces route reads finished
         #     windowed-ANOVA runs, so it needs neither the epochs nor the long
-        #     single-trial table; the in-job ANOVA route builds both.
-        if definition == 'power_traces':
+        #     single-trial table; the in-job ANOVA route builds both. 'none'
+        #     defines no groups, so it loads nothing here either.
+        if definition == 'none':
+            labels = None
+        elif definition == 'power_traces':
             labels = _resolve_labels(args)
         else:
             from dcc_scripts.stats.stability_flexibility_segregation_dcc import assemble_long_df
@@ -950,11 +1381,20 @@ def main(args):
                   f"{df.electrode.nunique()} electrodes")
             labels = _resolve_labels(args, df)
 
-        a1_groups = _electrode_groups(labels)
-        labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
-        interaction_groups = _interaction_groups(labels)
-        print("A1 electrode groups: "
-              + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
+        if labels is None:
+            a1_groups, interaction_groups = {}, {}
+            print("A1 electrode groups: none -- only the reference group is decoded")
+        else:
+            contrast_mode = getattr(args, 'contrast_mode', CONTRAST_MODE)
+            a1_groups = _electrode_groups(labels, contrast_mode)
+            labels.to_csv(os.path.join(args.save_dir, 'anova_labels.csv'), index=False)
+            interaction_groups = _interaction_groups(labels, contrast_mode)
+            print("A1 electrode groups: "
+                  + "  ".join(f"{g}={len(v)}" for g, v in a1_groups.items()))
+            interaction_overlap = _interaction_overlap(labels, contrast_mode)
+            if interaction_overlap is not None:
+                print("congruency x switch_type interaction electrodes, by group: "
+                      + "  ".join(f"{g}={n}" for g, n in interaction_overlap.items()))
 
         # (ii) the decode runs on the ordinary ROI LabeledArray pseudopopulation
         roi, arrays, channel_names, cells = _build_roi_arrays(
@@ -997,7 +1437,13 @@ def main(args):
         transfer_pairs = [(f'{train_key}_to_{test_key}',
                            (contrast_strings[train_key], contrast_strings[test_key]))]
     else:
+        # The two within-contrast decodes are each transfer's ceiling: same trials,
+        # same folds, scored on the labelling the transfer is scored on
+        # (docs/decoding.md#cross-decoding-controls §2). A null transfer means nothing
+        # unless its ceiling beats chance.
         transfer_pairs = [
+            ('stab_to_stab', (stab_strings, stab_strings)),
+            ('flex_to_flex', (flex_strings, flex_strings)),
             ('stab_to_flex', (stab_strings, flex_strings)),
             ('flex_to_stab', (flex_strings, stab_strings))]
     # A condition set that POOLS over a proportion (e.g.
@@ -1017,12 +1463,21 @@ def main(args):
               "pooled label transfer / temporal generalization run")
 
     results = {}
+    if args.rt_match_log:
+        results['rt_match'] = list(args.rt_match_log)
+    # Every group decodes these same rows (a group only drops channels), so one
+    # count per run says how much data each decode had.
+    results['pseudo_trials'] = cd.pseudo_trial_counts(arrays, roi, cells)
+    print("decoded pseudo-trials per condition: "
+          + "  ".join(f"{n}={k}" for n, k in results['pseudo_trials']['per_condition'].items()))
 
     # 2. (0) within-block decoding baseline (Fig 9) ------------------------------
     # "Decode a contrast within one block level" is an ordinary decode over that
     # block's conditions — restrict the conditions, then train == test contrast.
     print("A4(0): within-block decoding baseline (Fig 9)")
     within_block = {}
+    # every loaded electrode, with the overall-activity control, if any
+    wb_arrays, _ = _activity_controlled(args, arrays, roi, channel_names)
     for cname, strings, block_col in (
             ('congruency (LWPC)', stab_strings, 'incongruent_proportion'),
             ('switchType (LWPS)', flex_strings, 'switch_proportion')):
@@ -1033,7 +1488,7 @@ def main(args):
         for level, conds in blocks[block_col].items():
             tag = f'{level}% {_BLOCK_TAG[block_col]}'
             try:
-                sub_arrays = cd.filter_conditions(arrays, roi, conds)
+                sub_arrays = cd.filter_conditions(wb_arrays, roi, conds)
             except ValueError as e:
                 print(f"     skipping block {tag}: {e}")
                 continue
@@ -1070,7 +1525,7 @@ def main(args):
                         if block_col in blocks]
         per_group = {}
         for gflag, elset in interaction_groups.items():
-            restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
+            restricted, n_kept, _ = _decoded_group(args, arrays, roi, channel_names, elset)
             if n_kept < args.min_group_size:
                 print(f"     group '{gflag}' has {n_kept} electrodes in ROI "
                       f"(< {args.min_group_size}); skipping")
@@ -1097,16 +1552,25 @@ def main(args):
     print("A4(a): label transfer (stability<->flexibility) per electrode group")
     lt = {}
     for g, elset in a1_groups.items():
-        restricted, n_kept = _restrict_to_electrodes(arrays, roi, channel_names, elset)
+        restricted, n_kept, act_info = _decoded_group(args, arrays, roi, channel_names, elset)
         if n_kept < args.min_group_size:
             print(f"     group '{g}' has {n_kept} electrodes in ROI "
                   f"(< {args.min_group_size}); skipping")
             continue
+        if act_info['mode'] != 'none':
+            print(f"     [{g}] activity control: {activity_control.describe(act_info)}")
         entry = {}
         for direction, (tr, te) in transfer_pairs:
             out = cd.run_cross_decoding(restricted, roi, tr, te, **dec_kw)
             entry[direction] = _summarise(out, **cluster_kw)
             entry[direction]['n_channels'] = n_kept
+            entry[direction]['activity_control'] = act_info
+        for direction, ceiling in _TRANSFER_CEILINGS.items():
+            if direction in entry and ceiling in entry:
+                below, _ = perform_time_perm_cluster_test_for_accuracies(
+                    entry[ceiling]['acc_true'], entry[direction]['acc_true'], **cluster_kw)
+                entry[direction]['n_below_ceiling'] = int(np.asarray(below).astype(bool).sum())
+                entry[direction]['retained'] = _retained(entry[direction], entry[ceiling])
         lt[g] = entry
     results['label_transfer'] = lt
 
@@ -1125,8 +1589,8 @@ def main(args):
             print(f"     no electrode group named '{g}' "
                   f"(have {sorted(a1_groups)}); skipping")
             continue
-        restricted, n_kept = _restrict_to_electrodes(
-            arrays, roi, channel_names, a1_groups[g])
+        restricted, n_kept, _ = _decoded_group(args, arrays, roi, channel_names,
+                                               a1_groups[g])
         if n_kept < args.min_group_size:
             print(f"     group '{g}' has {n_kept} electrodes in ROI "
                   f"(< {args.min_group_size}); skipping")
@@ -1164,7 +1628,13 @@ def main(args):
                                  == 'power_traces' else None),
         reference_group=getattr(args, 'reference_group', 'all'),
         electrode_group_sizes={g: len(v) for g, v in a1_groups.items()},
-        window=f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s",
+        anova_model=_anova_model_description(args),
+        interaction_electrodes=interaction_overlap,
+        electrode_selection_split=_split_description(args),
+        rt_match=_rt_match_description(args),
+        activity_control=_activity_control_description(args),
+        window=("unused (no electrode definition)" if definition == 'none' else
+                f"[{getattr(args, 'window_tmin', None)}, {getattr(args, 'window_tmax', None)}]s"),
         window_size=args.window_size, step_size=args.step_size,
         n_splits=args.n_splits, n_repeats=args.n_repeats,
         frac_train=getattr(args, 'frac_train', None),

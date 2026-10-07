@@ -1,0 +1,212 @@
+"""The A4 runner's environment handling, which all happens before any data loads.
+
+`run_stability_flexibility_cross_decoding_dcc.py` turns environment variables
+into module constants at import, so each case imports it in a fresh process
+(without running `run_analysis`) and reads back SAVE_DIR / CONTRAST_MODE, or the
+error it raises.
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+RUNNER = os.path.join(ROOT, 'dcc_scripts', 'decoding',
+                      'run_stability_flexibility_cross_decoding_dcc.py')
+CONDITION_CSV = '/x/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none'
+
+
+def _import_runner(**env):
+    """(module constants, stderr) of the runner imported under `env`."""
+    code = ("import json, runpy; m = runpy.run_path(%r); "
+            "print(json.dumps({k: m[k] for k in "
+            "('SAVE_DIR', 'CONTRAST_MODE', 'TEMPGEN_GROUPS')}))" % RUNNER)
+    full = {k: v for k, v in os.environ.items()
+            if k not in ('CONTRAST_MODE', 'ANOVA_LABEL_EFFECT', 'SAVE_DIR', 'TRAIN_LABEL',
+                         'TEST_LABEL', 'ELECTRODE_DEFINITION', 'ANOVA_LABELS_CSV',
+                         'FDR_CORRECTION', 'ANALYSIS', 'TEMPGEN_GROUPS',
+                         'REFERENCE_GROUP', 'ELECTRODES', 'ELECTRODE_SELECTION_SPLIT',
+                         'ELECTRODE_SELECTION_FRAC', 'ELECTRODE_SELECTION_SEED',
+                         'RT_MATCH', 'RT_MATCH_BINS', 'RT_MATCH_BALANCE',
+                         'RT_MATCH_WITHIN', 'RT_MATCH_GROUPS', 'RT_MATCH_SEED',
+                         'ACTIVITY_CONTROL', 'ANOVA_MODEL')}
+    full['DATA_SOURCE'] = 'synthetic'
+    full.update(env)
+    done = subprocess.run([sys.executable, '-c', code], cwd=ROOT, capture_output=True,
+                          text=True, env=full)
+    if done.returncode:
+        return None, done.stderr
+    return json.loads(done.stdout.strip().splitlines()[-1]), done.stderr
+
+
+def test_the_contrast_mode_is_read_off_the_a1_folder():
+    got, err = _import_runner(ELECTRODE_DEFINITION='csv', ANOVA_LABELS_CSV=CONDITION_CSV,
+                              ANOVA_LABEL_EFFECT='union')
+    assert got is not None, err
+    assert got['CONTRAST_MODE'] == 'condition'
+    assert '_csv_condition_' in got['SAVE_DIR']
+    assert '__effect-union__' in got['SAVE_DIR']
+
+
+def test_a_contradicting_contrast_mode_is_refused():
+    got, err = _import_runner(ELECTRODE_DEFINITION='csv', ANOVA_LABELS_CSV=CONDITION_CSV,
+                              CONTRAST_MODE='proportion')
+    assert got is None and 'condition-mode A1 table' in err
+
+
+def test_an_effect_name_from_the_other_mode_is_refused():
+    """'lwpc' on a condition-mode table would select the congruency electrodes
+    under an LWPC name."""
+    got, err = _import_runner(ELECTRODE_DEFINITION='csv', ANOVA_LABELS_CSV=CONDITION_CSV,
+                              ANOVA_LABEL_EFFECT='lwpc')
+    assert got is None and 'names a proportion-mode population' in err
+
+
+def test_the_table_is_ignored_off_the_csv_route():
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', ANOVA_LABELS_CSV=CONDITION_CSV,
+                              CONTRAST_MODE='condition')
+    assert got is not None, err
+    assert 'anova_label_selections' not in got['SAVE_DIR']
+
+
+def test_the_none_route_names_only_what_it_uses():
+    """No definition runs, so the window / contrast mode / correction are left
+    out of the folder, and temporal generalization defaults to the reference
+    group because there is no 'both'."""
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ELECTRODES='sig')
+    assert got is not None, err
+    assert os.path.join('cross_decoding_lpfc_sig_none', 'stimulus_experiment_conditions') \
+        in got['SAVE_DIR']
+    assert 'window_' not in got['SAVE_DIR']
+    assert got['TEMPGEN_GROUPS'] == ['all']
+
+
+def test_the_none_route_keeps_an_explicit_tempgen_choice():
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', TEMPGEN_GROUPS='')
+    assert got is not None, err
+    assert got['TEMPGEN_GROUPS'] == []
+
+
+def test_the_none_route_needs_a_reference_group():
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', REFERENCE_GROUP='')
+    assert got is None and 'decodes only the reference group' in err
+
+
+def test_an_unknown_definition_is_refused_before_any_work():
+    got, err = _import_runner(ELECTRODE_DEFINITION='sig')
+    assert got is None and 'ELECTRODE_DEFINITION must be one of' in err
+
+
+def test_a_single_pair_gets_its_own_folder():
+    got, err = _import_runner(TRAIN_LABEL='congruency', TEST_LABEL='congruency')
+    assert got is not None, err
+    assert got['SAVE_DIR'].endswith(os.path.join('train_congruency_test_congruency'))
+
+
+def test_the_in_job_anova_refuses_saved_flag_correction():
+    got, err = _import_runner(DATA_SOURCE='real', EPOCHS_ROOT_FILE='epochs',
+                              ELECTRODE_DEFINITION='anova', FDR_CORRECTION='flags')
+    assert got is None and "must be 'fdr_bh' or 'none'" in err
+
+
+def test_the_task_transfer_analysis_has_its_own_folder():
+    got, err = _import_runner(ANALYSIS='task_transfer')
+    assert got is not None, err
+    assert os.path.join('task_transfer_lpfc_sig_w20s10', 'pooled_design_conditions') \
+        in got['SAVE_DIR']
+
+
+def test_the_selection_split_gets_its_own_folder():
+    """A split run decodes a different set of trials, so it must not overwrite
+    the unsplit run of the same settings."""
+    plain, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition')
+    assert plain is not None, err
+    split, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                                ELECTRODE_SELECTION_SPLIT='true')
+    assert split is not None, err
+    assert '_split' not in plain['SAVE_DIR']
+    assert '_anova_condition_fdr_bh_split0.3s0' in split['SAVE_DIR']
+    other, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                                ELECTRODE_SELECTION_SPLIT='true',
+                                ELECTRODE_SELECTION_FRAC='0.5', ELECTRODE_SELECTION_SEED='2')
+    assert other is not None, err
+    assert '_split0.5s2' in other['SAVE_DIR']
+
+
+def test_the_two_way_anova_gets_its_own_folder():
+    """It selects different electrodes, so it must not overwrite the one-way run."""
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                              ANOVA_MODEL='twoway', ELECTRODE_SELECTION_SPLIT='true')
+    assert got is not None, err
+    assert '_anova_condition_fdr_bh_twoway_split0.3s0' in got['SAVE_DIR']
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='condition',
+                              ANOVA_MODEL='oneway')
+    assert got is not None, err
+    assert 'twoway' not in got['SAVE_DIR'] and 'oneway' not in got['SAVE_DIR']
+
+
+def test_the_two_way_anova_is_refused_where_it_cannot_run():
+    got, err = _import_runner(ELECTRODE_DEFINITION='anova', CONTRAST_MODE='proportion',
+                              ANOVA_MODEL='twoway')
+    assert got is None and 'needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition' in err
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ANOVA_MODEL='twoway')
+    assert got is None and 'needs ELECTRODE_DEFINITION=anova' in err
+    got, err = _import_runner(ANOVA_MODEL='threeway')
+    assert got is None and 'ANOVA_MODEL must be' in err
+
+
+def test_rt_matching_and_its_control_get_their_own_folders():
+    real = dict(DATA_SOURCE='real', EPOCHS_ROOT_FILE='epochs', ELECTRODE_DEFINITION='none')
+    folders = {}
+    for mode in ('none', 'rt', 'true', 'random'):
+        got, err = _import_runner(RT_MATCH=mode, **real)
+        assert got is not None, err
+        folders[mode] = got['SAVE_DIR']
+    assert '_rt' not in folders['none']
+    assert 'cross_decoding_lpfc_sig_none_rtmatch10' in folders['rt']
+    assert folders['true'] == folders['rt']
+    assert 'cross_decoding_lpfc_sig_none_rtrandom10' in folders['random']
+    got, err = _import_runner(RT_MATCH='rt', RT_MATCH_BINS='5', RT_MATCH_BALANCE='proportional',
+                              RT_MATCH_WITHIN='incongruent_proportion', **real)
+    assert got is not None, err
+    assert '_rtmatch5_proportional_within-incongruent_proportion' in got['SAVE_DIR']
+
+
+def test_rt_matching_tags_the_transfer_analyses_too():
+    got, err = _import_runner(ANALYSIS='task_transfer', DATA_SOURCE='real',
+                              EPOCHS_ROOT_FILE='epochs', RT_MATCH='rt')
+    assert got is not None, err
+    assert 'task_transfer_lpfc_sig_w20s10_rtmatch10' in got['SAVE_DIR']
+
+
+def test_rt_matching_is_refused_where_it_cannot_run():
+    got, err = _import_runner(RT_MATCH='rt')                  # synthetic: no RTs
+    assert got is None and 'needs real epochs' in err
+    got, err = _import_runner(RT_MATCH='median_split', DATA_SOURCE='real',
+                              EPOCHS_ROOT_FILE='epochs')
+    assert got is None and 'RT_MATCH must be' in err
+
+
+def test_the_activity_control_gets_its_own_folder():
+    folders = {}
+    for mode in ('none', 'remove_mean', 'mean_only'):
+        got, err = _import_runner(ELECTRODE_DEFINITION='none', ACTIVITY_CONTROL=mode)
+        assert got is not None, err
+        folders[mode] = got['SAVE_DIR']
+    assert 'remove_mean' not in folders['none'] and 'mean_only' not in folders['none']
+    assert 'cross_decoding_lpfc_sig_none_remove_mean' in folders['remove_mean']
+    assert 'cross_decoding_lpfc_sig_none_mean_only' in folders['mean_only']
+    # stacked with RT matching, both tags appear
+    got, err = _import_runner(ELECTRODE_DEFINITION='none', ACTIVITY_CONTROL='remove_mean',
+                              DATA_SOURCE='real', EPOCHS_ROOT_FILE='epochs', RT_MATCH='rt')
+    assert got is not None, err
+    assert 'cross_decoding_lpfc_sig_none_rtmatch10_remove_mean' in got['SAVE_DIR']
+    got, err = _import_runner(ANALYSIS='task_transfer', ACTIVITY_CONTROL='mean_only')
+    assert got is not None, err
+    assert 'task_transfer_lpfc_sig_w20s10_mean_only' in got['SAVE_DIR']
+
+
+def test_an_unknown_activity_control_is_refused():
+    got, err = _import_runner(ACTIVITY_CONTROL='zscore')
+    assert got is None and 'ACTIVITY_CONTROL must be' in err

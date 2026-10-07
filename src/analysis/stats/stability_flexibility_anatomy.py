@@ -111,7 +111,9 @@ runs without any data on disk.
 
 from __future__ import annotations
 
+import json
 import os
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -665,7 +667,7 @@ def _looks_blank(path):
 
 def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                            transparency=0.4, rm_wm=False, per_set_figures=False,
-                           **vis_kwargs):
+                           foci=None, **vis_kwargs):
     """Render colour-coded electrode sets on the fsaverage brain. Raises on failure.
 
     ``sets`` is a list of ``(name, {subject: [channels]}, colour)``. Each set is
@@ -673,6 +675,12 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
     only thing the renderer supports (one colour per call) and is why both the
     discrete group figure and the continuous score map are expressed as a list of
     single-colour sets — the continuous one just bins its scalar first.
+
+    ``foci`` are points that are not electrodes (e.g. centroids), drawn onto the
+    same ``Brain`` after the sets: ``(name, (x, y, z), hemi, colour, size)`` with
+    the position in fsaverage/MNI mm, the frame :func:`build_electrode_coord_map`
+    puts the electrodes in. A focus in a hemisphere the figure does not show is
+    skipped. They go into the combined figure only.
 
     Callers own the fallback: this function raises when the surface stack or the
     recon templates are missing, and each public plotting function catches that
@@ -740,6 +748,14 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                               **vis_kwargs)
     if fig is None:
         raise RuntimeError("no electrodes in any set to plot")
+    # ``add_foci`` takes positions in the Brain's units, which ``plot_on_average``
+    # sets to metres unless told otherwise; ``scale_factor`` it converts itself
+    to_units = 1000. if vis_kwargs.get('units', 'm') == 'm' else 1.
+    for name, xyz, focus_hemi, color, focus_size in (foci or ()):
+        if hemi in ('lh', 'rh') and focus_hemi != hemi:
+            continue
+        fig.add_foci(np.atleast_2d(np.asarray(xyz, float)) / to_units, hemi=focus_hemi,
+                     color=mcolors.to_rgb(color), scale_factor=focus_size)
     # ``save_brain_image`` (not ``Brain.save_image``) because pyvista < 0.48
     # doesn't make the render window current before grabbing its framebuffer;
     # the helper retries with an explicit ``MakeCurrent()``.
@@ -902,7 +918,9 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
     DataFrame with ``lwpc_score``/``lwps_score`` (raw), ``lwpc_s``/``lwps_s``
     (pooled-scaled), ``abs_lwpc``/``abs_lwps`` (for the |score| maps and the
     centroid weights, which need non-negative weights), ``delta`` and the
-    anatomy columns.
+    anatomy columns. Main effects (``mx``/``my`` from a ``main_effects=True``
+    run) get the same treatment: ``cong_s``, ``switch_s`` and
+    ``dm = cong_s - switch_s``, which every test below takes as ``value_col``.
 
     The scaling is ONE factor per EFFECT, computed across all electrodes pooled
     -- deliberately NOT a within-subject z-score:
@@ -921,7 +939,8 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
     """
     out = elec_df.copy()
     xc, yc = score_cols
-    out = out.rename(columns={xc: 'lwpc_score', yc: 'lwps_score'})
+    out = out.rename(columns={xc: 'lwpc_score', yc: 'lwps_score',
+                              'mx': 'cong_score', 'my': 'switch_score'})
     ids = electrode_ids(out, electrode_fmt=electrode_fmt)
     out['electrode_id'] = ids
     out['roi'] = ids.map(dict(electrodes_to_rois))
@@ -937,12 +956,17 @@ def attach_scores(elec_df, electrodes_to_rois, electrodes_to_anat=None,
         out['hemi'] = hemi
 
     # one scale factor per EFFECT, across all electrodes pooled
-    for src, dst in (('lwpc_score', 'lwpc_s'), ('lwps_score', 'lwps_s')):
+    for src, dst in (('lwpc_score', 'lwpc_s'), ('lwps_score', 'lwps_s'),
+                     ('cong_score', 'cong_s'), ('switch_score', 'switch_s')):
+        if src not in out:
+            continue
         sd = out[src].std(ddof=1)
         out[dst] = out[src] / sd if np.isfinite(sd) and sd > 0 else np.nan
     out['abs_lwpc'] = out['lwpc_s'].abs()
     out['abs_lwps'] = out['lwps_s'].abs()
     out['delta'] = out['lwpc_s'] - out['lwps_s']
+    if 'cong_s' in out:
+        out['dm'] = out['cong_s'] - out['switch_s']
     return out
 
 
@@ -1474,6 +1498,2140 @@ def leave_one_subject_out(test_fn, table, subject_col='subject',
 
 
 # ---------------------------------------------------------------------------
+# main effects as the reference for the delta tilt (docs/analysis_plans.md#closing-figure-plan)
+# ---------------------------------------------------------------------------
+def _delta_halves(scores, per_split):
+    """Per-split table with dm in the x slots and delta in the y slots, each
+    half divided by its effect's full-data pooled SD (read back off `scores`)."""
+    s = scores.set_index('electrode')
+    ps = per_split[per_split['electrode'].isin(s.index)]
+    sd = {k: np.nanmedian(s[f'{k}_score'] / s[f'{k}_s'])
+          for k in ('lwpc', 'lwps', 'cong', 'switch')}
+    return ps[['subject', 'electrode', 'split']].assign(
+        xA=ps['mxA'] / sd['cong'] - ps['myA'] / sd['switch'],
+        xB=ps['mxB'] / sd['cong'] - ps['myB'] / sd['switch'],
+        yA=ps['xA'] / sd['lwpc'] - ps['yA'] / sd['lwps'],
+        yB=ps['xB'] / sd['lwpc'] - ps['yB'] / sd['lwps'])
+
+
+def delta_tracking_test(scores, per_split, n_perm=10000, seed=1, min_elec=3,
+                        coord_cols=('mni_y', 'mni_z', 'mni_x')):
+    """Test 1: does the main-effect delta (dm) track delta across electrodes?
+
+    The pre-specified co-localization test, ``split_resolved_corr``, on dm and
+    delta instead of LWPC and LWPS: one from each disjoint half within every
+    split, residualised on responsiveness, centred within participant,
+    Spearman, within-participant permutation null. Then with MNI coordinates as
+    covariates (does the tracking go beyond a shared gradient?), then per
+    process, with the crossed pairings as controls. One row per comparison;
+    ``reliability_x``/``reliability_y`` are the two maps' split-half
+    reliabilities (within participant, so biased low: §15.4 of
+    docs/n4_continuous_anatomy.md).
+    """
+    from .stability_flexibility_segregation import split_resolved_corr
+    s = scores.set_index('electrode')
+    ps = per_split[per_split['electrode'].isin(s.index)]
+    deltas = _delta_halves(scores, per_split)
+    runs = [('dm vs delta', deltas, None)]
+    if set(coord_cols) <= set(s.columns) and s[list(coord_cols)].notna().all(axis=1).any():
+        xyz = s[list(coord_cols)].dropna()
+        runs.append(('dm vs delta, + MNI covariates',
+                     deltas[deltas['electrode'].isin(xyz.index)], xyz))
+    for name, a, b in (('congruency vs LWPC', 'mx', 'x'), ('switch vs LWPS', 'my', 'y'),
+                       ('congruency vs LWPS (crossed)', 'mx', 'y'),
+                       ('switch vs LWPC (crossed)', 'my', 'x')):
+        runs.append((name, ps[['subject', 'electrode', 'split']].assign(
+            xA=ps[a + 'A'], xB=ps[a + 'B'], yA=ps[b + 'A'], yB=ps[b + 'B']), None))
+    rows = []
+    for name, table, cov in runs:
+        r = split_resolved_corr(table, s['resp'], min_elec=min_elec, n_perm=n_perm,
+                                seed=seed, covariates=cov)
+        rows.append(dict(comparison=name, **{k: r[k] for k in (
+            'corr', 'p', 'reliability_x', 'reliability_y', 'n_electrodes', 'n_subjects')}))
+    return pd.DataFrame(rows)
+
+
+def tilt_with_main_effect_covariate(scores, per_split=None, axis='mni_z',
+                                    coord_cols=('mni_y', 'mni_z', 'mni_x'),
+                                    covariates=('resp',), n_perm=10000, seed=0):
+    """Test 2: does delta's tilt survive dm as a covariate?
+
+    ``relative_score_coordinate_test``'s fit (swap null) for dm (do the main
+    effects tilt the same way?), delta, and delta + dm. The swap flips only the
+    adaptation labels, which also breaks delta's link with dm, so that null is
+    conservative. dm and delta share trials there (noise correlation ~+0.05),
+    so with ``per_split`` delta is also refitted on each half of every split
+    with dm from the OPPOSITE half, and the slopes averaged (these two rows
+    have no p-value; read the full-data rows for it).
+
+    Returns ``table`` and ``shrinkage = 1 - with/without`` on ``axis``: near 1
+    the tilt is carried by the main effects, near 0 it survives them. Only
+    interpretable when delta's tilt without dm is itself distinguishable from 0.
+    """
+    d = scores.dropna(subset=['delta', 'dm', *coord_cols]).reset_index(drop=True)
+
+    def fit(data, value, covs, n):
+        r = _coordinate_fit(data, value, coord_cols, covs, n, seed)
+        return tuple(r['slopes'].set_index('axis').loc[axis, ['slope_per_mm', 'p']])
+
+    rows = [('dm', *fit(d, 'dm', covariates, n_perm)),
+            ('delta', *fit(d, 'delta', covariates, n_perm)),
+            ('delta + dm', *fit(d, 'delta', (*covariates, 'dm'), n_perm))]
+    shrinkage = {'same trials': 1 - rows[2][1] / rows[1][1]}
+    if per_split is not None and 'mxA' in per_split:
+        without, with_ = [], []
+        for _, hk in _delta_halves(d, per_split).groupby('split'):
+            dk = d.merge(hk.drop(columns=['subject', 'split']), on='electrode').dropna(
+                subset=['xA', 'xB', 'yA', 'yB'])
+            for da, dm in (('yA', 'xB'), ('yB', 'xA')):
+                without.append(fit(dk, da, covariates, 0)[0])
+                with_.append(fit(dk, da, (*covariates, dm), 0)[0])
+        rows += [('delta, split halves', np.mean(without), np.nan),
+                 ('delta + dm from the opposite half', np.mean(with_), np.nan)]
+        shrinkage['opposite half'] = 1 - np.mean(with_) / np.mean(without)
+    return dict(axis=axis, table=pd.DataFrame(rows, columns=['fit', 'slope_per_mm', 'p']),
+                shrinkage=shrinkage)
+
+
+# ---------------------------------------------------------------------------
+# participants as the unit (advisor check 2026-10-02; §19 of
+# docs/n4_continuous_anatomy.md), and the electrode-level versions reported
+# beside them (2026-10-06)
+# ---------------------------------------------------------------------------
+# The coordinate test conditions on participant with dummy variables (a fixed
+# intercept, `_nuisance_design`) and builds its null by flipping each
+# electrode's sign on its own. Electrodes are therefore the units of inference:
+# participants with many electrodes spread along the axis weigh most, and
+# neighbouring contacts, which share noise and nearly share coordinates, count
+# as independent. The functions below ask the same question with participants
+# as the units: the slope's decomposition into per-participant slopes, a mixed
+# model with a random slope, and the slope with each participant left out.
+def _partial_axis_residuals(d, value_col, axis, coord_cols, covariates):
+    """``value_col`` and ``axis``, each residualised on the coordinate test's
+    nuisance design (participant dummies + covariates) and on the OTHER
+    coordinates. By Frisch-Waugh, the pooled slope of the first on the second
+    is the coordinate test's slope on ``axis``."""
+    X, _ = _nuisance_design(d, covariates=covariates)
+    others = [c for c in coord_cols if c != axis]
+    N = np.column_stack([X, d[others].to_numpy(float)]) if others else X
+    B = np.linalg.pinv(N)
+    v = d[value_col].to_numpy(float)
+    a = d[axis].to_numpy(float)
+    return v - N @ (B @ v), a - N @ (B @ a)
+
+
+def _mixed_slope_fits(d, value_col, axis, coord_cols, covariates):
+    """``value ~ coordinates + covariates`` with a participant random intercept,
+    then with a random intercept and a random slope on ``axis``.
+
+    Every predictor is centred within participant, so the fixed slopes are
+    within-participant slopes, as in the coordinate test, and the random
+    intercept takes the participant means. Coordinates enter in cm for the
+    optimiser and are reported per mm. Wald p-values with ~20 participants run
+    a little liberal; read them next to the two-stage test.
+    """
+    import statsmodels.formula.api as smf
+
+    m = d[['subject', value_col]].copy()
+    terms = []
+    for c, scale in [(c, 10.0) for c in coord_cols] + [(c, 1.0) for c in covariates]:
+        if c not in d.columns:
+            continue
+        v = pd.to_numeric(d[c], errors='coerce')
+        m[c + '_c'] = (v - v.groupby(d['subject']).transform('mean')) / scale
+        terms.append(c + '_c')
+    m = m.dropna()
+    formula = f"{value_col} ~ " + " + ".join(terms)
+    out = {}
+    for name, re_formula in (('random_intercept', None), ('random_slope', f'~{axis}_c')):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            try:
+                fit = smf.mixedlm(formula, m, groups=m['subject'],
+                                  re_formula=re_formula).fit(reml=True,
+                                                             method=['lbfgs', 'powell'])
+            except Exception as exc:                     # singular, did not converge
+                out[name] = dict(error=f"{type(exc).__name__}: {exc}")
+                continue
+        row = dict(slope_per_mm=float(fit.params[f'{axis}_c']) / 10.0,
+                   se_per_mm=float(fit.bse[f'{axis}_c']) / 10.0,
+                   p=float(fit.pvalues[f'{axis}_c']),
+                   converged=bool(fit.converged),
+                   n_electrodes=int(len(m)), n_subjects=int(m['subject'].nunique()),
+                   warnings=sorted({str(w.message).split('\n')[0] for w in caught})[:3])
+        if re_formula:
+            cov = fit.cov_re
+            key = f'{axis}_c'
+            row['random_slope_sd_per_mm'] = (float(np.sqrt(max(cov.loc[key, key], 0.0))) / 10.0
+                                             if key in cov.index else np.nan)
+        out[name] = row
+    return out
+
+
+def coordinate_slope_by_participant(scores_with_coords, axis='mni_z', value_col='delta',
+                                    coord_cols=('mni_y', 'mni_z', 'mni_x'),
+                                    covariates=('resp',), min_elec=3, min_spread_mm=5.0,
+                                    n_perm=10000, n_boot=2000, seed=0, mixed_model=True):
+    """The coordinate test's slope on ``axis`` with participants as the units.
+
+    **Two-stage.** With ``value_col`` and ``axis`` residualised on the test's
+    nuisance terms and the other coordinates (:func:`_partial_axis_residuals`),
+    each participant s has its own slope ``b_s = sum_s a*v / w_s`` with weight
+    ``w_s = sum_s a**2`` (its spread along the axis). The pooled slope the
+    coordinate test reports is exactly ``sum w_s b_s / sum w_s``: a weighted
+    average of the participants' slopes. Two tests across participants:
+
+    * weighted: that average, with p from flipping the sign of whole
+      participants and a 95 % interval from a participant bootstrap;
+    * unweighted: the mean of ``b_s`` over participants with at least
+      ``min_elec`` electrodes and ``min_spread_mm`` of spread (SD of the
+      residualised axis), one-sample t-test, plus how many slopes are negative.
+
+    **Mixed model** (``mixed_model``): :func:`_mixed_slope_fits`, the same
+    model with a participant random intercept, and with a random intercept and
+    a random slope on ``axis``.
+
+    Returns a dict: ``per_participant`` (subject, n_electrodes, spread_mm,
+    weight, slope_per_mm), ``pooled_slope`` (equals the coordinate test's),
+    ``weighted``, ``unweighted``, ``top3_weight_share`` (how much of the
+    weighted average three participants carry) and ``mixed``.
+    """
+    from scipy.stats import binomtest, ttest_1samp
+
+    d = scores_with_coords.dropna(subset=[value_col, *coord_cols]).reset_index(drop=True)
+    v, a = _partial_axis_residuals(d, value_col, axis, coord_cols, covariates)
+    subj = d['subject'].astype(str).to_numpy()
+    rows = []
+    for s in np.unique(subj):
+        m = subj == s
+        w = float((a[m] ** 2).sum())
+        rows.append(dict(subject=s, n_electrodes=int(m.sum()),
+                         spread_mm=float(np.sqrt(w / m.sum())), weight=w,
+                         slope_per_mm=float((a[m] * v[m]).sum() / w) if w > 1e-9 else np.nan))
+    per = pd.DataFrame(rows)
+    pooled = float((a * v).sum() / (a * a).sum())
+
+    ok = per['slope_per_mm'].notna().to_numpy()
+    b, w = per.loc[ok, 'slope_per_mm'].to_numpy(float), per.loc[ok, 'weight'].to_numpy(float)
+    rng = np.random.default_rng(seed)
+    flips = rng.choice((-1.0, 1.0), size=(int(n_perm), len(b)))
+    null = (flips * (w * b)).sum(1) / w.sum()
+    idx = rng.integers(0, len(b), size=(int(n_boot), len(b)))
+    boot = (w[idx] * b[idx]).sum(1) / w[idx].sum(1)
+    weighted = dict(slope_per_mm=float((w * b).sum() / w.sum()),
+                    p_signflip=float((np.sum(np.abs(null) >= abs(pooled)) + 1) / (n_perm + 1)),
+                    ci=tuple(float(x) for x in np.percentile(boot, [2.5, 97.5])),
+                    n_participants=int(len(b)))
+
+    elig = (ok & (per['n_electrodes'] >= min_elec).to_numpy()
+            & (per['spread_mm'] >= min_spread_mm).to_numpy())
+    bu = per.loc[elig, 'slope_per_mm'].to_numpy(float)
+    neg = int((bu < 0).sum())
+    unweighted = dict(n_participants=int(len(bu)), n_negative=neg,
+                      min_elec=min_elec, min_spread_mm=min_spread_mm)
+    if len(bu) > 1:
+        t = ttest_1samp(bu, 0.0)
+        unweighted.update(mean_slope_per_mm=float(bu.mean()),
+                          sem=float(bu.std(ddof=1) / np.sqrt(len(bu))),
+                          t=float(t.statistic), p_t=float(t.pvalue),
+                          p_sign=float(binomtest(neg, len(bu), 0.5).pvalue))
+    per['in_unweighted_test'] = elig
+    share = np.sort(w)[::-1][:3].sum() / w.sum() if len(w) else np.nan
+
+    out = dict(axis=axis, value_col=value_col, per_participant=per, pooled_slope=pooled,
+               weighted=weighted, unweighted=unweighted, top3_weight_share=float(share),
+               n_electrodes=int(len(d)), n_subjects=int(len(per)))
+    if mixed_model:
+        out['mixed'] = _mixed_slope_fits(d, value_col, axis, coord_cols, covariates)
+    return out
+
+
+def coordinate_slope_by_electrode(scores_with_coords, axis='mni_z', value_col='delta',
+                                  coord_cols=('mni_y', 'mni_z', 'mni_x'), covariates=('resp',),
+                                  n_perm=10000, n_boot=2000, seed=0, coord_res=None):
+    """The coordinate test's slope on ``axis`` with electrodes as the units: the
+    level of the pre-specified test, reported next to
+    :func:`coordinate_slope_by_participant`.
+
+    The slope and its p are the coordinate test's (``coord_res``, a
+    :func:`relative_score_coordinate_test` result on the same scores; computed
+    if absent): participant as a fixed effect, each electrode's sign flipped on
+    its own. The 95 % interval is an electrode bootstrap within participant:
+    each participant keeps its electrode count, its electrodes are drawn with
+    replacement, and the slope is refitted on the residualised values
+    (:func:`_partial_axis_residuals`, recentred within participant per draw).
+    """
+    d = scores_with_coords.dropna(subset=[value_col, *coord_cols]).reset_index(drop=True)
+    if coord_res is None:
+        coord_res = relative_score_coordinate_test(d, n_perm=n_perm, seed=seed,
+                                                   value_col=value_col, coord_cols=coord_cols,
+                                                   covariates=covariates, by_hemisphere=False)
+    sl = coord_res['all']['slopes'].set_index('axis').loc[axis]
+    v, a = _partial_axis_residuals(d, value_col, axis, coord_cols, covariates)
+    subj = d['subject'].astype(str).to_numpy()
+    rng = np.random.default_rng(seed)
+    sxy, sxx = np.zeros(int(n_boot)), np.zeros(int(n_boot))
+    for s in np.unique(subj):
+        m = np.where(subj == s)[0]
+        idx = m[rng.integers(0, len(m), size=(int(n_boot), len(m)))]
+        aa = a[idx] - a[idx].mean(1, keepdims=True)
+        vv = v[idx] - v[idx].mean(1, keepdims=True)
+        sxy += (aa * vv).sum(1)
+        sxx += (aa * aa).sum(1)
+    boot = sxy / np.where(sxx > 0, sxx, np.nan)
+    return dict(axis=axis, value_col=value_col, slope_per_mm=float(sl['slope_per_mm']),
+                p=float(sl['p']), ci=tuple(float(x) for x in np.nanpercentile(boot, [2.5, 97.5])),
+                se_boot=float(np.nanstd(boot, ddof=1)),
+                pooled_slope=float((a * v).sum() / (a * a).sum()),
+                n_electrodes=int(len(d)), n_subjects=int(d['subject'].nunique()))
+
+
+def coordinate_slope_loso(scores_with_coords, axis='mni_z', value_col='delta',
+                          coord_cols=('mni_y', 'mni_z', 'mni_x'), covariates=('resp',),
+                          n_perm=2000, seed=0):
+    """The coordinate test's ``axis`` slope and swap-null p with each participant
+    left out (:func:`leave_one_subject_out`). Fewer permutations than the main
+    test: a leverage check on the estimate, not a second round of inference."""
+    d = scores_with_coords.dropna(subset=[value_col, *coord_cols])
+
+    def fit(t):
+        r = _coordinate_fit(t, value_col, coord_cols, covariates, n_perm, seed)
+        sl = r['slopes'].set_index('axis')
+        has = axis in sl.index
+        return dict(observed_stat=float(sl.loc[axis, 'slope_per_mm']) if has else np.nan,
+                    p=float(sl.loc[axis, 'p']) if has else np.nan,
+                    block_F=r['observed_stat'], block_p=r['p'],
+                    n_electrodes=r['n_electrodes'])
+
+    out = leave_one_subject_out(fit, d, keys=('observed_stat', 'p', 'block_F', 'block_p',
+                                              'n_electrodes'))
+    return out.rename(columns={'observed_stat': 'slope_per_mm'})
+
+
+# ---------------------------------------------------------------------------
+# what else could make LWPC and LWPS correlate across electrodes?
+# (2026-10-05; §19.7 of docs/n4_continuous_anatomy.md)
+# ---------------------------------------------------------------------------
+# The pre-specified test already removes shared trial noise (the two scores
+# come from disjoint halves of an electrode's trials) and linear responsiveness
+# (mean |HG|). `overlap_controls` reruns it with each remaining candidate
+# removed in turn. A control that leaves r where it was rules that candidate
+# out; one that removes r says the overlap goes with that property.
+_SAME_HALF_BASE = {'xA': ('mxA', 'myA'), 'xB': ('mxB', 'myB'),
+                   'yA': ('mxA', 'myA'), 'yB': ('mxB', 'myB')}
+
+
+def overlap_controls(scores, per_split, rt_coupling=None, coord_cols=('mni_y', 'mni_z', 'mni_x'),
+                     min_elec=3, n_perm=10000, seed=1, loso=True):
+    """The pre-specified LWPC-LWPS separate-half r, and the same test with one
+    candidate confound removed at a time.
+
+    Rows (``control``):
+
+    * ``pre-specified``: ``split_resolved_corr``, responsiveness (mean |HG|)
+      regressed out linearly.
+    * ``+ responsiveness, nonlinear``: also log and squared responsiveness, in
+      case signal-to-noise co-inflates both scores in a way mean |HG| does not
+      capture linearly.
+    * ``+ MNI coordinates``: a smooth gradient both maps share.
+    * ``+ base effects, same half``: each half's adaptation score with that
+      half's congruency and switch-type effects partialled out (needs a
+      MAIN_EFFECTS=1 run). This asks whether LWPC and LWPS overlap beyond what
+      the overlap of their base effects implies. The base effects are also the
+      best available proxy for an electrode's signal-to-noise, so a drop here
+      is either "both adaptations scale with the base effects" or residual
+      signal-to-noise; the row cannot tell which.
+    * ``+ RT coupling``: each electrode's within-cell HG-RT correlation
+      (``rt_coupling``: a Series or CSV-loaded table with ``electrode`` and
+      ``rt_r``, e.g. the A6 job's ``participant_electrode_scores.csv`` or the
+      RT-adjusted segregation run's ``rt_adjustment_slopes.csv``). If HG tracks
+      RT, an electrode's LWPC and LWPS each contain its coupling times the
+      participant's behavioral effect, so more strongly coupled electrodes
+      show more of both. ``rt_r`` is the scale-free version of the slope, which
+      is the coupling in d units. Only electrodes with a value enter this row.
+    * ``all of the above``.
+    * ``responsiveness tertile k``: the test within each tertile of
+      responsiveness (descriptive; participants need ``min_elec`` electrodes
+      in the tertile).
+
+    With ``loso``, ``leave_one_out`` gives the pre-specified r with each
+    participant left out (fewer permutations). Returns ``(table, leave_one_out)``.
+    The RT-adjusted segregation run (``RT_ADJUST_HG=1``, §18.10 of the N4 doc) is
+    the full version of the RT row: it removes the coupling from every trial
+    before scoring.
+    """
+    from .stability_flexibility_segregation import split_resolved_corr
+    s = scores.drop_duplicates('electrode').set_index('electrode')
+    ps = per_split[per_split['electrode'].isin(s.index)]
+    resp = s['resp']
+    rows = []
+
+    def run(name, table=ps, covariates=None, half=None, note=''):
+        try:
+            r = split_resolved_corr(table, resp, min_elec=min_elec, n_perm=n_perm, seed=seed,
+                                    covariates=covariates, half_covariates=half)
+            rows.append(dict(control=name, corr=r['corr'], p=r['p'],
+                             n_electrodes=r['n_electrodes'], n_subjects=r['n_subjects'],
+                             note=note))
+        except (ValueError, np.linalg.LinAlgError) as exc:
+            rows.append(dict(control=name, corr=np.nan, p=np.nan, n_electrodes=0,
+                             n_subjects=0, note=f"{type(exc).__name__}: {exc}"))
+
+    run('pre-specified')
+    pos = resp.where(resp > 0)
+    nonlin = pd.DataFrame({'log_resp': np.log(pos), 'resp_sq': resp ** 2}).dropna()
+    run('+ responsiveness, nonlinear', ps[ps['electrode'].isin(nonlin.index)], nonlin)
+    xyz = s[[c for c in coord_cols if c in s]].dropna() if set(coord_cols) <= set(s) else None
+    if xyz is not None and len(xyz):
+        run('+ MNI coordinates', ps[ps['electrode'].isin(xyz.index)], xyz)
+    has_base = set(_SAME_HALF_BASE['xA'] + _SAME_HALF_BASE['xB']) <= set(ps.columns)
+    if has_base:
+        run('+ base effects, same half', half=_SAME_HALF_BASE)
+    rt = None
+    if rt_coupling is not None:
+        rt = (rt_coupling if isinstance(rt_coupling, pd.Series)
+              else rt_coupling.drop_duplicates('electrode').set_index('electrode')['rt_r'])
+        rt = rt.reindex(s.index).dropna().rename('rt_r').to_frame()
+        run('pre-specified, electrodes with RT coupling', ps[ps['electrode'].isin(rt.index)],
+            note='the reference for the next row')
+        run('+ RT coupling', ps[ps['electrode'].isin(rt.index)], rt)
+    every = [t for t in (nonlin, xyz, rt) if t is not None and len(t)]
+    if every:
+        allcov = pd.concat(every, axis=1, join='inner')
+        run('all of the above', ps[ps['electrode'].isin(allcov.index)], allcov,
+            half=_SAME_HALF_BASE if has_base else None)
+    tert = pd.qcut(resp.rank(method='first'), 3, labels=['low', 'middle', 'high'])
+    for t in ('low', 'middle', 'high'):
+        run(f'responsiveness tertile: {t}', ps[ps['electrode'].isin(tert.index[tert == t])],
+            note='descriptive')
+    table = pd.DataFrame(rows)
+
+    out_loso = None
+    if loso:
+        lrows = []
+        for subj in sorted(ps['subject'].astype(str).unique()):
+            sub = ps[ps['subject'].astype(str) != subj]
+            try:
+                r = split_resolved_corr(sub, resp, min_elec=min_elec,
+                                        n_perm=max(500, n_perm // 10), seed=seed)
+                lrows.append(dict(dropped=subj, corr=r['corr'], p=r['p'],
+                                  n_electrodes=r['n_electrodes']))
+            except ValueError:
+                continue
+        out_loso = pd.DataFrame(lrows)
+    return table, out_loso
+
+
+# ---------------------------------------------------------------------------
+# Figure 5 (docs/paper_draft.md §1.4): a, the overlap at both levels;
+# b, each adaptation against its own and the other base effect
+# ---------------------------------------------------------------------------
+# F5b's bars in plot order: (adaptation, base effect, matched?, delta_tracking row)
+FIG5_BARS = (('LWPC', 'congruency', True, 'congruency vs LWPC'),
+             ('LWPC', 'switch', False, 'switch vs LWPC (crossed)'),
+             ('LWPS', 'switch', True, 'switch vs LWPS'),
+             ('LWPS', 'congruency', False, 'congruency vs LWPS (crossed)'))
+# congruency is the stability effect and switch the flexibility one: the
+# S_only / F_only blue and orange of the other N4 and segregation figures
+FIG5_COLORS = {'congruency': GROUP_COLORS['S_only'], 'switch': GROUP_COLORS['F_only']}
+_INK, _MUTED, _RULE = '#262626', '#737373', '#cfcfcf'
+
+
+def _fmt_p(p):
+    return f'{p:.2g}'
+
+
+def _fmt_r(r, digits=2):
+    return f'{r:.{digits}f}'.replace('-', '−')    # the axes' minus sign
+
+
+def figure5_points(scores, min_elec=3):
+    """F5a's points, ``(base, adapt)``: congruency vs switch and LWPC vs LWPS as
+    ``x_resid``/``y_resid``, the responsiveness-residualised, participant-centred
+    scores each pre-specified test correlates. ``prepare_continuous`` on the raw
+    scores, the transform behind the segregation run's ``continuous.csv``."""
+    from .stability_flexibility_segregation import prepare_continuous
+    cols = ['subject', 'electrode', 'x_resid', 'y_resid']
+    return tuple(prepare_continuous(scores[['subject', 'electrode', x, y, 'resp']]
+                                    .rename(columns={x: 'x', y: 'y'}), min_elec=min_elec)[cols]
+                 .reset_index(drop=True)
+                 for x, y in (('cong_score', 'switch_score'), ('lwpc_score', 'lwps_score')))
+
+
+def _figure5_test(points, scores, json_path, view, per_split, seg_dir, min_elec, n_perm, seed):
+    """The pre-specified test behind one half of F5a, from the segregation run
+    when it tested these electrodes, else recomputed (see :func:`figure5`)."""
+    from .stability_flexibility_segregation import split_resolved_corr
+    if json_path and os.path.exists(json_path):
+        with open(json_path) as f:
+            r = json.load(f)
+        if (r['n_electrodes'], r['n_subjects']) == (len(points), points['subject'].nunique()):
+            return dict(r, source=json_path)
+    ps_csv = os.path.join(seg_dir, 'per_split.csv') if seg_dir else None
+    if per_split is None and ps_csv and os.path.exists(ps_csv):
+        per_split = pd.read_csv(ps_csv)
+    if per_split is None:
+        raise ValueError(f"{json_path} is missing or tested other electrodes, and there "
+                         "is no per-split table to recompute it from")
+    ps = view(per_split[per_split['electrode'].isin(scores['electrode'])])
+    resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+    r = split_resolved_corr(ps, resp, min_elec=min_elec, n_perm=n_perm, seed=seed)
+    return dict(r, source=f'recomputed on these electrodes ({n_perm} permutations)')
+
+
+def figure5_bars(tracking):
+    """F5b's four rows of ``delta_tracking.csv`` (:func:`delta_tracking_test`) in
+    plot order, and its dm-vs-delta rows, the matched-minus-crossed test."""
+    t = tracking.set_index('comparison')
+    missing = [row for *_, row in FIG5_BARS if row not in t.index]
+    if missing or 'dm vs delta' not in t.index:
+        raise ValueError(f"delta_tracking lacks rows {missing or ['dm vs delta']}")
+    bars = pd.DataFrame([dict(adaptation=a, base_effect=b, matched=m, comparison=row,
+                              **t.loc[row, ['corr', 'p', 'n_electrodes', 'n_subjects']])
+                         for a, b, m, row in FIG5_BARS])
+    links = t.loc[[r for r in ('dm vs delta', 'dm vs delta, + MNI covariates') if r in t.index],
+                  ['corr', 'p', 'n_electrodes', 'n_subjects']]
+    return bars, links
+
+
+def _figure5_overlap(ax, d, stat, xlabel, ylabel, title, extra=()):
+    """One half of F5a: the points, annotated with the pre-specified test's r,
+    p and n. No fit line: the points' own correlation is not the test."""
+    ax.axhline(0, color=_RULE, lw=0.6, zorder=0)
+    ax.axvline(0, color=_RULE, lw=0.6, zorder=0)
+    ax.scatter(d['x_resid'], d['y_resid'], s=5, color=_INK, alpha=0.4, linewidths=0,
+               rasterized=True)
+    lim = 1.08 * np.nanmax(np.abs(d[['x_resid', 'y_resid']].to_numpy(float)))
+    ax.set(xlim=(-lim, lim), ylim=(-lim, lim), aspect='equal', xlabel=xlabel, ylabel=ylabel)
+    ax.set_title(title, loc='left', fontsize=7, color=_INK)
+    text = [f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}",
+            f"{stat['n_electrodes']} electrodes, {stat['n_subjects']} participants", *extra]
+    ax.text(0.03, 0.97, '\n'.join(text), transform=ax.transAxes, va='top', ha='left',
+            fontsize=5.5, color=_INK, linespacing=1.3,
+            bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
+
+
+def _figure5_tracking(ax, bars, links):
+    """F5b: matched bars filled, crossed open, grouped by adaptation effect, one
+    y axis from 0. The dm-vs-delta correlation's covariance is the matched
+    covariances minus the crossed ones (§16.6.5 of n4_continuous_anatomy.md), so
+    it annotates both pairs. No error bars: delta_tracking has no interval, and
+    the permutation null is not one."""
+    from matplotlib.patches import Patch
+    xs = np.array([0.0, 1.0, 2.5, 3.5])
+    width = 0.6
+    for x, b in zip(xs, bars.itertuples()):
+        c = FIG5_COLORS[b.base_effect]
+        ax.bar(x, b.corr, width=width, color=c if b.matched else 'white', edgecolor=c,
+               linewidth=1.0)
+    top = max(float(bars['corr'].max()), 0.0) or 0.1
+    for x, r in zip(xs, bars['corr']):
+        ax.text(x, r + (0.03 if r >= 0 else -0.03) * top, _fmt_r(r), ha='center',
+                va='bottom' if r >= 0 else 'top', fontsize=5.5, color=_INK)
+    ax.axhline(0, color=_INK, lw=0.6)
+    ax.set_xticks(xs)
+    ax.set_xticklabels(bars['base_effect'], fontsize=5.5)
+    ax.tick_params(axis='x', length=0)
+    for name in ('LWPC', 'LWPS'):
+        ax.text(xs[(bars['adaptation'] == name).to_numpy()].mean(), -0.13, name,
+                transform=ax.get_xaxis_transform(), ha='center', va='top', fontsize=7,
+                fontweight='bold', color=_INK)
+    ax.set_ylabel('r, separate halves')
+
+    y, lo, hi = 1.25 * top, xs[0] - width / 2, xs[-1] + width / 2
+    ax.plot([lo, lo, hi, hi], [y - 0.05 * top, y, y, y - 0.05 * top], color=_INK, lw=0.7)
+    names = {'dm vs delta': 'matched − crossed',
+             'dm vs delta, + MNI covariates': 'with MNI coordinates'}
+    ax.text(xs.mean(), y + 0.04 * top,
+            '\n'.join(f"{names[k]}: r = {_fmt_r(row['corr'], 3)}, p = {_fmt_p(row['p'])}"
+                      for k, row in links.iterrows()),
+            ha='center', va='bottom', fontsize=5.5, color=_INK, linespacing=1.3)
+    ax.set_ylim(min(0.0, 1.3 * float(bars['corr'].min())), 1.75 * top)
+    ax.set_xlim(lo - 0.3, hi + 0.3)
+    ax.legend(handles=[Patch(facecolor=_MUTED, edgecolor=_MUTED, label='own base effect (matched)'),
+                       Patch(facecolor='white', edgecolor=_MUTED,
+                             label='other base effect (crossed)')],
+              loc='upper center', bbox_to_anchor=(0.5, -0.22), frameon=False, fontsize=5.5,
+              ncol=2, handlelength=1.2, columnspacing=1.0, borderaxespad=0,
+              title=f"each bar: p ≤ {_fmt_p(bars['p'].max())}", title_fontsize=5.5)
+
+
+def plot_figure5(base, adapt, stat_base, stat_adapt, bars, links, out_stem, centroid=None):
+    """Draw F5 and write ``<out_stem>.png`` and ``<out_stem>.pdf`` (text stays
+    text in the PDF). Inputs as :func:`figure5` builds them."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    rc = {'font.size': 6.5, 'axes.labelsize': 6.5, 'axes.labelcolor': _INK,
+          'xtick.labelsize': 6, 'ytick.labelsize': 6, 'xtick.color': _INK, 'ytick.color': _INK,
+          'axes.edgecolor': _INK, 'axes.linewidth': 0.6, 'xtick.major.width': 0.6,
+          'ytick.major.width': 0.6, 'axes.spines.top': False, 'axes.spines.right': False,
+          'pdf.fonttype': 42, 'ps.fonttype': 42}
+    with plt.rc_context(rc):
+        fig = plt.figure(figsize=(7.2, 2.6))
+        gs = fig.add_gridspec(1, 3, width_ratios=[1, 1, 1.3], wspace=0.4,
+                              left=0.07, right=0.98, top=0.86, bottom=0.3)
+        ax_base, ax_adapt, ax_b = (fig.add_subplot(gs[0, i]) for i in range(3))
+        _figure5_overlap(ax_base, base, stat_base, 'congruency (d)', 'switch (d)',
+                         'Base effects')
+        extra = () if centroid is None else (
+            f"centroids {centroid['distance']:.1f} mm apart, p = {_fmt_p(centroid['p'])}",)
+        _figure5_overlap(ax_adapt, adapt, stat_adapt, 'LWPC (d)', 'LWPS (d)', 'Adaptation',
+                         extra)
+        _figure5_tracking(ax_b, bars, links)
+        for ax, letter in ((ax_base, 'a'), (ax_b, 'b')):
+            ax.text(-0.3, 1.13, letter, transform=ax.transAxes, fontsize=9,
+                    fontweight='bold', va='bottom', ha='left', color=_INK)
+        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
+        for p in paths:
+            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return paths
+
+
+def figure5(scores, tracking, out_dir, per_split=None, seg_dir=None, centroid=None,
+            min_elec=3, n_perm=10000, seed=1):
+    """Figure 5 from one anatomy run: ``fig5.png``/``.pdf``, ``fig5a_points.csv``
+    and ``fig5b_bars.csv`` in ``out_dir``. Returns the tables and summary lines.
+
+    ``scores``: :func:`attach_scores`'s table from a MAIN_EFFECTS=1 run;
+    ``tracking``: :func:`delta_tracking_test`'s table. Panel a's r, p and n are
+    the segregation run's own (``seg_dir``: ``correlation_main_effects.json``,
+    ``correlation.json``) when that run tested as many electrodes and
+    participants as there are points; otherwise, e.g. after an ROI filter, they
+    are recomputed on these electrodes with ``split_resolved_corr`` from
+    ``per_split`` (or ``seg_dir/per_split.csv``). ``centroid``: the
+    ``centroid_shuffle_test`` result for panel a's LWPC/LWPS half, if any.
+    """
+    from .stability_flexibility_segregation import main_effect_view
+    base, adapt = figure5_points(scores, min_elec)
+    stats = [_figure5_test(pts, scores, os.path.join(seg_dir, name) if seg_dir else None,
+                           view, per_split, seg_dir, min_elec, n_perm, seed)
+             for pts, name, view in ((base, 'correlation_main_effects.json', main_effect_view),
+                                     (adapt, 'correlation.json', lambda ps: ps))]
+    bars, links = figure5_bars(tracking)
+
+    os.makedirs(out_dir, exist_ok=True)
+    pd.concat([base.assign(panel='congruency vs switch'),
+               adapt.assign(panel='LWPC vs LWPS')]).to_csv(
+        os.path.join(out_dir, 'fig5a_points.csv'), index=False)
+    bars.to_csv(os.path.join(out_dir, 'fig5b_bars.csv'), index=False)
+    paths = plot_figure5(base, adapt, *stats, bars, links, os.path.join(out_dir, 'fig5'),
+                         centroid=centroid)
+
+    lines = [f"  FIGURE 5 — {', '.join(os.path.basename(p) for p in paths)}, "
+             "fig5a_points.csv, fig5b_bars.csv"]
+    for name, pts, st in (('congruency vs switch', base, stats[0]),
+                          ('LWPC vs LWPS', adapt, stats[1])):
+        check = ('' if (len(pts), pts['subject'].nunique())
+                 == (st['n_electrodes'], st['n_subjects'])
+                 else '   <- points and test differ: check min_elec and dropped electrodes')
+        lines.append(f"  a  {name:20s} r = {st['corr']:+.3f}  p = {_fmt_p(st['p'])}  "
+                     f"test {st['n_electrodes']} / {st['n_subjects']}, points {len(pts)} / "
+                     f"{pts['subject'].nunique()}  [{st['source']}]{check}")
+    if centroid is not None:
+        lines.append(f"  a  centroid distance {centroid['distance']:.2f} mm, "
+                     f"p = {_fmt_p(centroid['p'])} (types shuffled within participant)")
+    for b in bars.itertuples():
+        lines.append(f"  b  {b.comparison:30s} r = {b.corr:+.3f}  p = {_fmt_p(b.p)}")
+    for k, row in links.iterrows():
+        lines.append(f"  b  {k:30s} r = {row['corr']:+.3f}  p = {_fmt_p(row['p'])}"
+                     "   (matched − crossed)")
+    return dict(base=base, adapt=adapt, tests=stats, bars=bars, links=links, files=paths,
+                lines=lines)
+
+
+# ---------------------------------------------------------------------------
+# Figure 5, the two anatomy results in one figure (advisor meeting 2026-10-02;
+# docs/paper_draft.md §1.4)
+# ---------------------------------------------------------------------------
+# On the LWPC (x) against LWPS (y) scatter the two results lie along
+# perpendicular directions. The overlap (r > 0) is spread ALONG the identity
+# line. The gradient is a shift ACROSS it: LWPC - LWPS is each point's signed
+# distance from the line (times sqrt 2), so electrodes below the line lean
+# LWPC and electrodes above it lean LWPS. Colouring the points by height band
+# and marking each band's centroid shows both in one panel; the
+# balance-by-height panel shows the gradient in the coordinate test's units.
+HEIGHT_BANDS = ('ventral', 'middle', 'dorsal')
+# One-hue ordinal ramp, light (ventral) to dark (dorsal), validated as an
+# ordinal ramp: monotone lightness, visible steps, light end >= 2:1 on white.
+# Violet, so it is not read as the blue/orange congruency/switch identity.
+HEIGHT_COLORS = dict(zip(HEIGHT_BANDS, ('#a598e8', '#6a56cf', '#33218a')))
+
+
+def _darken(color, factor=0.6):
+    """A hex colour scaled toward black by ``factor``: the same hue, darker."""
+    return '#' + ''.join(f'{round(factor * int(color[i:i + 2], 16)):02x}' for i in (1, 3, 5))
+
+
+# Each band's centroid on the brain: its band's colour, darker. On a
+# light-to-dark ramp a darkened centroid comes near the next band's electrodes
+# in colour, so the centroids are also drawn larger.
+HEIGHT_CENTROID_COLORS = {b: _darken(c) for b, c in HEIGHT_COLORS.items()}
+
+
+def height_bands(values, edges=None, labels=HEIGHT_BANDS):
+    """Tertiles of ``values`` (MNI z) across electrodes, the cut S-N4's panel c
+    uses (``n4_section16_followups.band_tables``): fixed by rule, not chosen
+    after looking. Pass ``edges`` to apply a cut computed on another set.
+    Returns ``(labels, edges)``."""
+    v = pd.Series(values, dtype=float)
+    if edges is None:
+        edges = np.nanpercentile(v, [0, 100 / 3, 200 / 3, 100])
+    return pd.cut(v, edges, labels=list(labels), include_lowest=True), np.asarray(edges)
+
+
+def figure5_height_points(scores, axis='mni_z', min_elec=3):
+    """The points of the combined panel, and the band edges.
+
+    LWPC and LWPS are the pre-specified test's scores (responsiveness
+    regressed out, participant-centred; ``prepare_continuous``) on the pooled
+    scale of ``delta``, with each score's overall mean added back. So the
+    identity line means LWPC = LWPS in the units the gradient is tested in,
+    and ``x - y`` is delta with participant and responsiveness removed. Adding
+    constants does not move any correlation. The bands are tertiles of
+    ``axis`` over every electrode with coordinates, as in S-N4; electrodes
+    without coordinates stay in the table with no band.
+    """
+    from .stability_flexibility_segregation import prepare_continuous
+    pts = prepare_continuous(
+        scores[['subject', 'electrode', 'lwpc_s', 'lwps_s', 'resp']]
+        .rename(columns={'lwpc_s': 'x', 'lwps_s': 'y'}), min_elec=min_elec)
+    pts['x_plot'] = pts['x_resid'] + pts['x'].mean()
+    pts['y_plot'] = pts['y_resid'] + pts['y'].mean()
+    coords = [c for c in ('mni_x', 'mni_y', 'mni_z') if c in scores.columns]
+    pts = pts[['subject', 'electrode', 'x_resid', 'y_resid', 'x_plot', 'y_plot', 'resp']].merge(
+        scores[['electrode', *coords]].drop_duplicates('electrode'), on='electrode', how='left')
+    pts['balance'] = pts['x_plot'] - pts['y_plot']
+    _, edges = height_bands(scores[axis].dropna())
+    band, _ = height_bands(pts[axis], edges=edges)
+    pts['band'] = band.astype(object).where(band.notna(), None).to_numpy()
+    return pts.reset_index(drop=True), edges
+
+
+def height_centroids(points, n_boot=2000, seed=0, unit='participant'):
+    """Each band's centroid on the scatter (electrode means of ``x_plot`` and
+    ``y_plot``) with a bootstrap: the 2 x 2 covariance of the centroid (for its
+    95 % ellipse) and the 95 % interval of its balance ``x - y``. One draw is
+    shared by all bands. ``unit='participant'`` draws whole participants;
+    ``unit='electrode'`` draws electrodes within participant (each keeps its
+    electrode count), the level of the pre-specified tests."""
+    d = points.dropna(subset=['band']).reset_index(drop=True)
+    subjects = np.unique(d['subject'].astype(str))
+    s_index = {s: i for i, s in enumerate(subjects)}
+    rng = np.random.default_rng(seed)
+    if unit == 'electrode':
+        # counts[b, i]: how often electrode i is drawn in draw b
+        counts = np.zeros((int(n_boot), len(d)))
+        rows_b = np.arange(int(n_boot))[:, None]
+        for s in subjects:
+            m = np.where(d['subject'].astype(str).to_numpy() == s)[0]
+            np.add.at(counts, (rows_b, m[rng.integers(0, len(m), size=(int(n_boot), len(m)))]),
+                      1.0)
+    elif unit == 'participant':
+        draws = rng.integers(0, len(subjects), size=(int(n_boot), len(subjects)))
+    else:
+        raise ValueError(f"unit must be 'participant' or 'electrode', not {unit!r}")
+    rows = []
+    for band in HEIGHT_BANDS:
+        g = d[d['band'] == band]
+        if g.empty:
+            continue
+        if unit == 'electrode':
+            cb = counts[:, g.index.to_numpy()]
+            nb = cb.sum(1)
+            okb = nb > 0
+            bx = (cb @ g['x_plot'].to_numpy(float))[okb] / nb[okb]
+            by = (cb @ g['y_plot'].to_numpy(float))[okb] / nb[okb]
+        else:
+            si = g['subject'].astype(str).map(s_index).to_numpy()
+            n = np.bincount(si, minlength=len(subjects)).astype(float)
+            sx = np.bincount(si, weights=g['x_plot'].to_numpy(float), minlength=len(subjects))
+            sy = np.bincount(si, weights=g['y_plot'].to_numpy(float), minlength=len(subjects))
+            nb = n[draws].sum(1)
+            okb = nb > 0
+            bx = sx[draws].sum(1)[okb] / nb[okb]
+            by = sy[draws].sum(1)[okb] / nb[okb]
+        cov = np.cov(np.vstack([bx, by]))
+        x, y = float(g['x_plot'].mean()), float(g['y_plot'].mean())
+        lo, hi = np.percentile(bx - by, [2.5, 97.5])
+        rows.append(dict(band=band, n_electrodes=int(len(g)),
+                         n_participants=int(g['subject'].nunique()),
+                         z_min=float(g['mni_z'].min()) if 'mni_z' in g else np.nan,
+                         z_max=float(g['mni_z'].max()) if 'mni_z' in g else np.nan,
+                         x=x, y=y, balance=x - y, balance_lo=float(lo), balance_hi=float(hi),
+                         cov_xx=float(cov[0, 0]), cov_xy=float(cov[0, 1]),
+                         cov_yy=float(cov[1, 1])))
+    return pd.DataFrame(rows)
+
+
+def balance_by_height(scores, edges, axis='mni_z', value_col='delta', covariates=('resp',),
+                      unit='participant'):
+    """Means +/- SEM of the adjusted balance per height band.
+
+    ``value_col`` with participant and responsiveness offsets removed and its
+    mean added back (as in ``n4_section16_followups.adjusted``), in the units of
+    the coordinate test. ``unit='participant'``: each participant contributes
+    one mean to each band it has electrodes in; ``unit='electrode'``: every
+    electrode counts once (``n_electrodes`` replaces ``n_participants``).
+    Returns ``(summary, per_participant)``.
+    """
+    d = scores.dropna(subset=[value_col, axis]).reset_index(drop=True)
+    X, _ = _nuisance_design(d, covariates=covariates)
+    v = d[value_col].to_numpy(float)
+    d['adjusted'] = v - X @ np.linalg.lstsq(X, v, rcond=None)[0] + v.mean()
+    d['band'], _ = height_bands(d[axis], edges=edges)
+    per = d.groupby(['band', 'subject'], observed=True)['adjusted'].mean().reset_index()
+    if unit == 'electrode':
+        summary = (d.groupby('band', observed=True)['adjusted']
+                   .agg(mean='mean', sem='sem', n_electrodes='count').reset_index())
+    elif unit == 'participant':
+        summary = (per.groupby('band', observed=True)['adjusted']
+                   .agg(mean='mean', sem='sem', n_participants='count').reset_index())
+    else:
+        raise ValueError(f"unit must be 'participant' or 'electrode', not {unit!r}")
+    summary = summary.merge(d.groupby('band', observed=True)[axis].median()
+                            .rename(f'{axis}_median').reset_index(), on='band')
+    summary['band'] = summary['band'].astype(str)
+    per['band'] = per['band'].astype(str)
+    return summary, per
+
+
+def _ellipse(ax, x, y, cov, color, n_sd=np.sqrt(5.991)):
+    """95 % ellipse of a 2-D normal with covariance ``cov`` (chi-square, 2 df)."""
+    from matplotlib.patches import Ellipse
+    vals, vecs = np.linalg.eigh(np.asarray(cov, float))
+    vals = np.clip(vals, 0.0, None)
+    angle = float(np.degrees(np.arctan2(vecs[1, 1], vecs[0, 1])))
+    ax.add_patch(Ellipse((x, y), 2 * n_sd * np.sqrt(vals[1]), 2 * n_sd * np.sqrt(vals[0]),
+                         angle=angle, facecolor=color, alpha=0.18, edgecolor=color,
+                         linewidth=0.9, zorder=3))
+
+
+_FIG5_RC = {'font.size': 6.5, 'axes.labelsize': 6.5, 'axes.labelcolor': _INK,
+            'xtick.labelsize': 6, 'ytick.labelsize': 6, 'xtick.color': _INK,
+            'ytick.color': _INK, 'axes.edgecolor': _INK, 'axes.linewidth': 0.6,
+            'xtick.major.width': 0.6, 'ytick.major.width': 0.6, 'axes.spines.top': False,
+            'axes.spines.right': False, 'pdf.fonttype': 42, 'ps.fonttype': 42}
+
+
+def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
+                                electrode_alpha=1.):
+    """The electrodes on a sagittal projection (MNI y against ``axis``) in their
+    band's colour, with the band cuts drawn. ``centroids`` (rows of
+    :func:`height_band_brain_centroids`) go on top, opaque, darker and a little
+    larger; lower ``electrode_alpha`` to make them stand out."""
+    for band in HEIGHT_BANDS:
+        g = points[points['band'] == band]
+        ax.scatter(g['mni_y'], g[axis], s=4, color=HEIGHT_COLORS[band], alpha=electrode_alpha,
+                   linewidths=0, rasterized=True)
+    for e in edges[1:-1]:
+        ax.axhline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)))
+        ax.text(0.99, e, f'z = {e:.0f} mm', transform=ax.get_yaxis_transform(),
+                va='bottom', ha='right', fontsize=5.5, color=_INK,
+                bbox=dict(boxstyle='square,pad=0.1', fc='white', ec='none', alpha=0.85))
+    if centroids is not None:
+        for c in centroids.itertuples():
+            ax.scatter([c.mni_y], [getattr(c, axis)], s=12,
+                       color=HEIGHT_CENTROID_COLORS[c.band], edgecolor='white',
+                       linewidth=0.5, zorder=5)
+    ax.set(xlabel='MNI y (mm), posterior → anterior', ylabel='MNI z (mm)')
+    ax.set_aspect('equal', adjustable='datalim')
+
+
+def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis='mni_z',
+                        slope=None, brain_png=None, unit='participant'):
+    """Draw the combined anatomy figure and write ``<out_stem>.png``/``.pdf``.
+
+    a, the height bands on a sagittal projection of the electrodes (or
+    ``brain_png``, a rendered brain in the same colours), with the cuts drawn;
+    b, LWPC against LWPS coloured by band, with the identity line; c, the
+    band centroids enlarged (the box in b), each with its 95 % bootstrap
+    ellipse: the gradient is their spread across the identity line; d, the
+    adjusted balance by band, means +/- SEM, with the slope tests in ``slope``
+    (a list of text lines). ``unit`` ('participant' or 'electrode') names the
+    bootstrap and the means in the legend. Inputs as :func:`figure5_height`
+    builds them.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from matplotlib.patches import Rectangle
+
+    d = points.dropna(subset=['band'])
+    with plt.rc_context(_FIG5_RC):
+        fig = plt.figure(figsize=(7.2, 2.5))
+        gs = fig.add_gridspec(1, 4, width_ratios=[0.95, 1.15, 0.85, 0.8], wspace=0.5,
+                              left=0.06, right=0.98, top=0.86, bottom=0.2)
+        ax_a, ax_b, ax_z, ax_c = (fig.add_subplot(gs[0, i]) for i in range(4))
+
+        # a: where the bands are
+        if brain_png and os.path.exists(brain_png):
+            ax_a.imshow(plt.imread(brain_png))
+            ax_a.set_axis_off()
+        else:
+            _draw_height_bands_sagittal(ax_a, d, edges, axis=axis)
+        ax_a.set_title('Height bands', loc='left', fontsize=7, color=_INK)
+
+        # b: the overlap along the identity line, the gradient across it
+        for band in HEIGHT_BANDS:
+            g = d[d['band'] == band]
+            ax_b.scatter(g['x_plot'], g['y_plot'], s=5, color=HEIGHT_COLORS[band], alpha=0.45,
+                         linewidths=0, rasterized=True, zorder=2)
+        vals = d[['x_plot', 'y_plot']].to_numpy(float)
+        lo, hi = np.nanpercentile(vals, 0.5), np.nanpercentile(vals, 99.5)
+        pad = 0.06 * (hi - lo)
+        lo, hi = lo - pad, hi + pad
+        ax_b.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
+        ax_b.text(0.03, 0.97, 'leans LWPS', transform=ax_b.transAxes, ha='left', va='top',
+                  fontsize=5.5, color=_MUTED)
+        ax_b.text(0.97, 0.03, 'leans LWPC', transform=ax_b.transAxes, ha='right',
+                  va='bottom', fontsize=5.5, color=_MUTED)
+        ax_b.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
+                 xlabel='LWPC (SD units)', ylabel='LWPS (SD units)')
+        ax_b.set_title('Adaptation by electrode', loc='left', fontsize=7, color=_INK)
+        if stat is not None:
+            ax_b.text(0.97, 0.97,
+                      f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}\n"
+                      f"{stat['n_electrodes']} electrodes, {stat['n_subjects']} participants",
+                      transform=ax_b.transAxes, ha='right', va='top', fontsize=5.5,
+                      color=_INK, linespacing=1.3,
+                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
+
+        # c: the band centroids, enlarged; the box in b marks the region
+        ext = [np.sqrt(5.991 * max(v, 0.0)) for v in
+               np.r_[centroids['cov_xx'], centroids['cov_yy']]]
+        span = max(float(np.ptp(np.r_[centroids['x'], centroids['y']])) + 2 * max(ext, default=0),
+                   1e-3)
+        mid = float(np.mean(np.r_[centroids['x'], centroids['y']]))
+        zlo, zhi = mid - 0.6 * span, mid + 0.6 * span
+        ax_b.add_patch(Rectangle((zlo, zlo), zhi - zlo, zhi - zlo, fill=False,
+                                 edgecolor=_INK, linewidth=0.6, zorder=6))
+        ax_z.plot([zlo, zhi], [zlo, zhi], color=_MUTED, lw=0.7, zorder=1)
+        ax_z.text(zhi, zhi, 'LWPC = LWPS ', ha='right', va='top', fontsize=5.5,
+                  color=_MUTED, rotation=45, rotation_mode='anchor')
+        for c in centroids.itertuples():
+            col = HEIGHT_COLORS[c.band]
+            _ellipse(ax_z, c.x, c.y, [[c.cov_xx, c.cov_xy], [c.cov_xy, c.cov_yy]], col)
+            ax_z.scatter([c.x], [c.y], s=30, color=col, edgecolor='white', linewidth=1.0,
+                         zorder=5)
+        ax_z.set(xlim=(zlo, zhi), ylim=(zlo, zhi), aspect='equal',
+                 xlabel='LWPC (SD units)', ylabel='LWPS (SD units)')
+        ax_z.set_title('Band centroids (box in b)', loc='left', fontsize=7, color=_INK)
+        # one legend for every panel, under b and c (identity is never colour alone)
+        box_b, box_z = ax_b.get_position(), ax_z.get_position()
+        fig.legend(handles=[Line2D([], [], marker='o', ls='', color=HEIGHT_COLORS[b],
+                                   markersize=4, label=b) for b in HEIGHT_BANDS],
+                   loc='upper center', bbox_to_anchor=((box_b.x0 + box_z.x1) / 2, 0.06),
+                   ncol=3, frameon=False, fontsize=5.5, handletextpad=0.2,
+                   columnspacing=0.9, title='height tertile (MNI z); c: centroid with 95 % '
+                   f'{unit}-bootstrap region; d: {unit} means ± SEM', title_fontsize=5.5)
+
+        # d: the gradient in the coordinate test's units
+        b = balance.set_index('band').reindex([x for x in HEIGHT_BANDS
+                                               if x in set(balance['band'])])
+        xs = b[f'{axis}_median'].to_numpy(float)
+        ax_c.axhline(0, color=_RULE, lw=0.6, zorder=0)
+        ax_c.plot(xs, b['mean'], color=_RULE, lw=0.8, zorder=1)
+        for band, row in b.iterrows():
+            ax_c.errorbar(row[f'{axis}_median'], row['mean'], yerr=row['sem'], fmt='o',
+                          color=HEIGHT_COLORS[band], ecolor=_INK, elinewidth=0.7,
+                          capsize=0, markersize=4.5, markeredgecolor='white',
+                          markeredgewidth=0.6, zorder=3)
+        ax_c.set(xlabel='height, MNI z (mm)', ylabel='LWPC − LWPS (SD units)')
+        ax_c.set_title('Balance by height', loc='left', fontsize=7, color=_INK)
+        if slope:
+            # the corner the points leave free: falling balance -> lower left
+            falling = len(b) > 1 and b['mean'].iloc[-1] < b['mean'].iloc[0]
+            ax_c.text(0.03, 0.03 if falling else 0.97, '\n'.join(slope),
+                      transform=ax_c.transAxes, ha='left', va='bottom' if falling else 'top',
+                      fontsize=5.5, color=_INK, linespacing=1.3)
+
+        for ax, letter in ((ax_a, 'a'), (ax_b, 'b'), (ax_z, 'c'), (ax_c, 'd')):
+            ax.text(-0.3, 1.1, letter, transform=ax.transAxes, fontsize=9,
+                    fontweight='bold', va='bottom', ha='left', color=_INK)
+        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
+        for p in paths:
+            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return paths
+
+
+# The height bands on the brain: each electrode in its band's colour and each
+# band's centroid larger and darker, the rendered version of panel a.
+def height_band_brain_centroids(points, min_elec=3):
+    """Where each band sits on the brain: per band and hemisphere, the mean MNI
+    position of its electrodes. ``points`` as :func:`figure5_height_points`
+    returns it (or ``fig5_height_points.csv``).
+
+    Per hemisphere (sign of x, as in :func:`attach_scores`), because the mean x
+    of a bilateral band lies near the midline, in neither hemisphere's cortex.
+    Electrode means, like panel c's centroids, so an electrode-rich participant
+    pulls its band's centroid: they describe the sampled electrodes and test
+    nothing (§8 of the N4 doc). A band with fewer than ``min_elec`` electrodes
+    in a hemisphere gets no centroid there.
+    """
+    d = points.dropna(subset=['band', 'mni_x', 'mni_y', 'mni_z'])
+    hemi = np.where(d['mni_x'].to_numpy(float) < 0, 'lh', 'rh')
+    rows = []
+    for band in HEIGHT_BANDS:
+        for h in ('lh', 'rh'):
+            g = d[(d['band'] == band).to_numpy() & (hemi == h)]
+            if len(g) < min_elec:
+                continue
+            rows.append(dict(band=band, hemi=h, n_electrodes=int(len(g)),
+                             n_participants=int(g['subject'].nunique()),
+                             **{c: float(g[c].mean()) for c in ('mni_x', 'mni_y', 'mni_z')}))
+    return pd.DataFrame(rows, columns=['band', 'hemi', 'n_electrodes', 'n_participants',
+                                       'mni_x', 'mni_y', 'mni_z'])
+
+
+def _height_band_legend(ax_or_fig, edges=None, axis='mni_z', electrode_alpha=1., **kwargs):
+    """One legend for the band figures: each band's electrodes (at
+    ``electrode_alpha``), and its centroid opaque, darker and a little larger."""
+    from matplotlib.lines import Line2D
+    handles = []
+    for b in HEIGHT_BANDS:
+        handles += [Line2D([], [], marker='o', ls='', color=HEIGHT_COLORS[b], markersize=3.5,
+                           markeredgewidth=0, alpha=electrode_alpha, label=f'{b} electrode'),
+                    Line2D([], [], marker='o', ls='', color=HEIGHT_CENTROID_COLORS[b],
+                           markeredgecolor='white', markeredgewidth=0.5, markersize=5,
+                           label=f'{b} centroid')]
+    title = f'height tertile (MNI {axis[-1]}'
+    if edges is not None and len(edges) == 4:
+        title += f'; cuts at {edges[1]:.0f} and {edges[2]:.0f} mm'
+    title += '); centroid: mean position of the band\'s electrodes per hemisphere'
+    return ax_or_fig.legend(handles=handles, ncol=3, frameon=False, fontsize=5.5,
+                            handletextpad=0.2, columnspacing=0.9, title=title,
+                            title_fontsize=5.5, **kwargs)
+
+
+def plot_height_bands_sagittal(points, centroids, out_path, edges=None, axis='mni_z',
+                               electrode_alpha=0.4):
+    """The flat version of :func:`plot_height_bands_on_brain`: a sagittal
+    projection per hemisphere, the electrodes in their band's colour at
+    ``electrode_alpha`` and the band centroids opaque and darker. Its fallback
+    when the surface cannot render."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    d = points.dropna(subset=['band', 'mni_x', 'mni_y', axis])
+    hemi = np.where(d['mni_x'].to_numpy(float) < 0, 'lh', 'rh')
+    shown = [h for h in ('lh', 'rh') if (hemi == h).any()]
+    if not shown:
+        raise ValueError("no electrode has a height band and coordinates")
+    with plt.rc_context(_FIG5_RC):
+        fig, axes = plt.subplots(1, len(shown), figsize=(2.6 * len(shown), 2.6), squeeze=False)
+        for ax, h in zip(axes[0], shown):
+            _draw_height_bands_sagittal(ax, d[hemi == h], edges if edges is not None else [],
+                                        axis=axis, centroids=centroids[centroids['hemi'] == h],
+                                        electrode_alpha=electrode_alpha)
+            ax.set_title({'lh': 'Left hemisphere', 'rh': 'Right hemisphere'}[h], loc='left',
+                         fontsize=7, color=_INK)
+        fig.tight_layout()
+        _height_band_legend(fig, edges, axis, electrode_alpha=electrode_alpha,
+                            loc='upper center', bbox_to_anchor=(0.5, 0.0))
+        fig.savefig(out_path, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return out_path
+
+
+def _centroids_on_lateral_surface(centroids, subjects_dir=None, radius=4.0):
+    """Each centroid moved along x onto its hemisphere's lateral fsaverage pial
+    surface: the most lateral vertex within ``radius`` mm of its (y, z). y and z,
+    what a lateral view shows, are unchanged.
+
+    For display. A band's mean position lies under the cortex (the cortex is
+    curved), where the translucent surface washes its sphere out. A centroid
+    with no vertex within ``radius`` keeps its x.
+    """
+    import mne
+    from src.analysis.vis.jim_mri import get_sub_dir
+
+    shown = centroids.copy()
+    for h, g in centroids.groupby('hemi'):
+        rr, _ = mne.read_surface(os.path.join(get_sub_dir(subjects_dir), 'fsaverage', 'surf',
+                                              f'{h}.pial'))
+        for i, c in g.iterrows():
+            near = np.hypot(rr[:, 1] - c['mni_y'], rr[:, 2] - c['mni_z']) < radius
+            if near.any():
+                shown.at[i, 'mni_x'] = rr[near, 0].min() if h == 'lh' else rr[near, 0].max()
+    return shown
+
+
+def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axis='mni_z',
+                               subjects=None, hemi='both', size=0.45, centroid_size=None,
+                               electrode_alpha=0.4, transparency=0.4, rm_wm=False,
+                               centroids_on_surface=True, **vis_kwargs):
+    """The height bands on the fsaverage brain: each electrode in its band's
+    colour (``HEIGHT_COLORS``), and each band's centroid per hemisphere
+    (:func:`height_band_brain_centroids`) as a larger sphere in a darker shade
+    of it (``HEIGHT_CENTROID_COLORS``). The rendered version of Figure 5's
+    panel a: pass the PNG to :func:`figure5_height` as ``brain_png`` to put it
+    there.
+
+    ``points``: :func:`figure5_height_points`'s table or
+    ``fig5_height_points.csv``; every electrode with a band is drawn. Same
+    renderer as the score maps, so the electrodes sit where they do there, and
+    the centroids go in the same fsaverage/MNI frame. The centroids stand out
+    by colour and opacity more than size: they are opaque and ``centroid_size``
+    defaults to 1.5 x ``size``, while the electrodes are drawn at
+    ``electrode_alpha`` (``transparency`` is the brain surface's opacity, as in
+    the other brain figures). A centroid lies under the cortex, so by default
+    (``centroids_on_surface``) it is drawn at its y and z on the hemisphere's
+    lateral surface (:func:`_centroids_on_lateral_surface`); the returned
+    ``centroids`` keep the true mean. The renderer draws no legend, so
+    ``<out>_legend.png`` is written beside the figure. Without the surface stack
+    or the recon files this falls back to :func:`plot_height_bands_sagittal`
+    (``<out>_sagittal.png``).
+
+    Returns dict with ``combined`` (the path written), ``legend``,
+    ``centroids``, ``centroids_shown`` (where they were drawn) and ``fallback``
+    (plus ``error`` when it fell back).
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    d = points.dropna(subset=['band'])
+    if d.empty:
+        raise ValueError("no electrode has a height band")
+    base, ext = os.path.splitext(out_path)
+    if ext.lower() not in ('.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp'):
+        out_path = base + '.png'
+    if centroids is None:
+        centroids = height_band_brain_centroids(d)
+    if not subjects:
+        subjects = sorted(d['subject'].astype(str).unique())
+    if centroid_size is None:
+        centroid_size = 1.5 * size
+
+    with plt.rc_context(_FIG5_RC):
+        fig = plt.figure(figsize=(4.2, 0.5))
+        _height_band_legend(fig, edges, axis, electrode_alpha=electrode_alpha, loc='center')
+        legend = f'{base}_legend.png'
+        fig.savefig(legend, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+
+    sets = [(band, electrodes_by_subject(d[d['band'] == band]), HEIGHT_COLORS[band])
+            for band in HEIGHT_BANDS]
+    try:
+        shown = (_centroids_on_lateral_surface(centroids, vis_kwargs.get('subj_dir'))
+                 if centroids_on_surface and len(centroids) else centroids)
+        foci = [(f'{c.band}_{c.hemi}_centroid', (c.mni_x, c.mni_y, c.mni_z), c.hemi,
+                 HEIGHT_CENTROID_COLORS[c.band], centroid_size) for c in shown.itertuples()]
+        rendered = _render_electrode_sets(sets, out_path, subjects=subjects, hemi=hemi,
+                                          size=size, transparency=transparency, rm_wm=rm_wm,
+                                          foci=foci, elec_alpha=electrode_alpha, **vis_kwargs)
+        return dict(combined=rendered['combined'], legend=legend, centroids=centroids,
+                    centroids_shown=shown, counts=rendered['counts'], fallback=False)
+    except Exception as exc:  # pragma: no cover - depends on cluster-only stack
+        print(f"[F5 height] brain-surface render unavailable ({type(exc).__name__}: {exc}); "
+              f"falling back to sagittal projections.")
+        fallback = plot_height_bands_sagittal(d, centroids, f'{base}_sagittal.png',
+                                              edges=edges, axis=axis,
+                                              electrode_alpha=electrode_alpha)
+        return dict(combined=fallback, legend=legend, centroids=centroids,
+                    centroids_shown=centroids, fallback=True,
+                    error=f"{type(exc).__name__}: {exc}")
+
+
+def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None,
+                   participant_res=None, electrode_res=None, axis='mni_z',
+                   coord_cols=('mni_y', 'mni_z', 'mni_x'), min_elec=3, n_boot=2000,
+                   n_perm=10000, seed=1, brain_png=None, unit='electrode',
+                   make_brain=False, brain_kwargs=None):
+    """The combined anatomy figure from one anatomy run, with its tables, in
+    ``out_dir``.
+
+    ``unit`` sets the level of panels c and d and of d's annotation:
+
+    * ``'electrode'`` (default; the pre-specified tests' level): 95 %
+      electrode-bootstrap ellipses (electrodes drawn within participant),
+      electrode means +/- SEM, the coordinate test's slope and p with
+      ``electrode_res``'s interval (:func:`coordinate_slope_by_electrode`).
+      Writes ``fig5_height.png``/``.pdf``, ``fig5_height_centroids.csv`` and
+      ``fig5_height_balance.csv``;
+    * ``'participant'`` (supplement): participant-bootstrap ellipses,
+      participant means +/- SEM, and the participant-level p values of
+      ``participant_res`` (:func:`coordinate_slope_by_participant`) beside the
+      electrode-level one. Writes ``fig5_height_participants.*``,
+      ``fig5_height_participants_centroids.csv``,
+      ``fig5_height_participants_balance.csv`` and the per-participant band
+      means, ``fig5_height_balance_by_participant.csv``.
+
+    Both write ``fig5_height_points.csv`` (the same points). ``scores``:
+    :func:`attach_scores`'s table with coordinates. Panel b's r is the
+    pre-specified LWPC-LWPS test, taken as in :func:`figure5` (the segregation
+    run's ``correlation.json`` in ``seg_dir`` when it tested the same
+    electrodes, else recomputed from ``per_split``). ``coord_res``
+    (:func:`relative_score_coordinate_test`) is computed here if absent. The
+    summary lines include a check that the plotted balance gives the
+    coordinate test's slope.
+
+    Also writes ``fig5_height_brain_centroids.csv`` (each band's mean position
+    per hemisphere, :func:`height_band_brain_centroids`) and, with
+    ``make_brain``, ``fig5_height_brain.png``: the bands and those centroids on
+    the fsaverage brain (:func:`plot_height_bands_on_brain`, which takes
+    ``brain_kwargs``; it needs the recon files and a display). Neither depends
+    on ``unit``, so :func:`section19` asks for the brain once.
+    """
+    if unit not in ('electrode', 'participant'):
+        raise ValueError(f"unit must be 'participant' or 'electrode', not {unit!r}")
+    stem = 'fig5_height' if unit == 'electrode' else 'fig5_height_participants'
+    pts, edges = figure5_height_points(scores, axis, min_elec)
+    stat = None
+    try:
+        stat = _figure5_test(pts, scores, os.path.join(seg_dir, 'correlation.json')
+                             if seg_dir else None, lambda ps: ps, per_split, seg_dir,
+                             min_elec, n_perm, seed)
+    except ValueError as exc:
+        print(f"[F5 height] panel b without its test: {exc}")
+    plotted = pts.dropna(subset=['band'])
+    cents = height_centroids(plotted, n_boot=n_boot, seed=seed, unit=unit)
+    balance, per_participant = balance_by_height(scores, edges, axis=axis, unit=unit)
+
+    if coord_res is None:
+        coord_res = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed)
+    sl = coord_res['all']['slopes'].set_index('axis').loc[axis]
+    slope = [f"{axis[-1]} slope {sl['slope_per_mm']:+.4f} SD/mm".replace('-', '−')]
+    if unit == 'electrode' and electrode_res is not None:
+        lo, hi = electrode_res['ci']
+        slope.append(f"95 % CI [{lo:+.4f}, {hi:+.4f}]".replace('-', '−'))
+    slope.append(f"electrodes: p = {_fmt_p(sl['p'])}")
+    if unit == 'participant' and participant_res is not None:
+        slope.append(f"participants: p = {_fmt_p(participant_res['weighted']['p_signflip'])}")
+        rs = participant_res.get('mixed', {}).get('random_slope', {})
+        if 'p' in rs:
+            slope.append(f"random slope: p = {_fmt_p(rs['p'])}")
+
+    # the plotted balance against the coordinate test's own fit
+    chk = _coordinate_fit(plotted.dropna(subset=list(coord_cols)), 'balance', coord_cols,
+                          ('resp',), 0, seed)
+    chk_slope = float(chk['slopes'].set_index('axis').loc[axis, 'slope_per_mm'])
+
+    os.makedirs(out_dir, exist_ok=True)
+    tables = [f'{stem}_centroids.csv', f'{stem}_balance.csv']
+    pts.to_csv(os.path.join(out_dir, 'fig5_height_points.csv'), index=False)
+    cents.to_csv(os.path.join(out_dir, tables[0]), index=False)
+    balance.to_csv(os.path.join(out_dir, tables[1]), index=False)
+    if unit == 'participant':
+        tables.append('fig5_height_balance_by_participant.csv')
+        per_participant.to_csv(os.path.join(out_dir, tables[-1]), index=False)
+    paths = plot_figure5_height(pts, cents, balance, stat, edges,
+                                os.path.join(out_dir, stem), axis=axis, slope=slope,
+                                brain_png=brain_png, unit=unit)
+    brain_cents = height_band_brain_centroids(plotted)
+    brain_cents.to_csv(os.path.join(out_dir, 'fig5_height_brain_centroids.csv'), index=False)
+    brain = None
+    if make_brain:
+        brain = plot_height_bands_on_brain(plotted, os.path.join(out_dir, 'fig5_height_brain.png'),
+                                           centroids=brain_cents, edges=edges, axis=axis,
+                                           **(brain_kwargs or {}))
+
+    n_col = 'n_electrodes' if unit == 'electrode' else 'n_participants'
+    lines = [f"  FIGURE 5 (height), {unit.upper()}S AS THE UNIT — "
+             f"{', '.join(os.path.basename(p) for p in paths)}, fig5_height_points.csv, "
+             f"{', '.join(tables)}, fig5_height_brain_centroids.csv",
+             f"  bands: tertiles of {axis} at {edges[1]:.1f} and {edges[2]:.1f} mm; "
+             f"{len(plotted)} of {len(pts)} points have coordinates"]
+    if brain is not None:
+        lines.append(f"  brain: {os.path.basename(brain['combined'])}"
+                     + (f"  (FALLBACK, the surface did not render: {brain['error']})"
+                        if brain['fallback'] else ''))
+    for c in (brain_cents.itertuples() if unit == 'electrode' else ()):   # once in §19
+        lines.append(f"  brain {c.band:8s} {c.hemi} centroid MNI ({c.mni_x:+.1f}, {c.mni_y:+.1f}, "
+                     f"{c.mni_z:+.1f}) mm  ({c.n_electrodes} electrodes, "
+                     f"{c.n_participants} participants)")
+    if stat is not None:
+        lines.append(f"  b  LWPC vs LWPS r = {stat['corr']:+.3f}  p = {_fmt_p(stat['p'])}  "
+                     f"[{stat['source']}]")
+    for c in cents.itertuples():
+        lines.append(f"  c  {c.band:8s} centroid LWPC {c.x:+.3f}, LWPS {c.y:+.3f}; balance "
+                     f"{c.balance:+.3f} [{c.balance_lo:+.3f}, {c.balance_hi:+.3f}] ({unit} "
+                     f"bootstrap; {c.n_electrodes} electrodes, {c.n_participants} participants)")
+    for r in balance.itertuples():
+        lines.append(f"  d  {r.band:8s} adjusted LWPC − LWPS {r.mean:+.3f} ± {r.sem:.3f} SEM "
+                     f"({getattr(r, n_col)} {n_col[2:]})")
+    lines.append(f"  d  {axis} slope {sl['slope_per_mm']:+.5f}/mm (p = {_fmt_p(sl['p'])}); the "
+                 f"plotted balance gives {chk_slope:+.5f}/mm"
+                 + ("" if np.isclose(chk_slope, sl['slope_per_mm'], rtol=0.25, atol=1e-4)
+                    else "   <- differs from the test: check the scaling"))
+    return dict(points=pts, centroids=cents, balance=balance, stat=stat, edges=edges,
+                files=paths, lines=lines, check_slope=chk_slope, brain_centroids=brain_cents,
+                brain=brain)
+
+
+# ---------------------------------------------------------------------------
+# local similarity: is the LWPC-LWPS balance intermixed at the recorded scale?
+# (advisor meeting 2026-10-02; §19.3 of docs/n4_continuous_anatomy.md)
+# ---------------------------------------------------------------------------
+# "Intermixed" is a claim about arrangement: no patches of LWPC-leaning
+# electrodes next to patches of LWPS-leaning ones. The overlap correlation does
+# not test it, and the height gradient is structure at the scale of the whole
+# region. This asks the local question: for pairs of electrodes in the same
+# participant, how similar are their scores, as a function of the distance
+# between them? Similarity is taken ACROSS trial halves: one electrode's half A
+# against the other's half B. At distance 0 the same quantity is the
+# electrode's own split-half reliability.
+#
+# Two things make this valid, and both were learned the hard way (2026-10-05):
+#
+# 1. The halves must be shared by all of a participant's electrodes
+#    (`compute_sensitivities_per_split(shared_split=True)`). With a split drawn
+#    per electrode, electrode i's half A shares about half its trials with
+#    electrode j's half B, and the trial noise neighbouring contacts share
+#    then shows up as near-range "similarity" for every score. On simulated
+#    data with no local structure at all, per-electrode splits gave a
+#    near-range excess at p < 0.02 for all five scores.
+# 2. Inference must allow for that shared noise. One dataset's estimation
+#    noise is itself spatially smooth (neighbours share it), so pairs are not
+#    exchangeable and a null that shuffles positions is too narrow: 13 % false
+#    positives at alpha = 0.05 on the same simulations. The shuffle is kept
+#    only as each participant's baseline. Two valid tests of the excess over it:
+#    - participants as the unit: flip the sign of each participant's excess
+#      (2.5 % false positives with six simulated participants);
+#    - electrodes as the unit (2026-10-06): each estimate is a quadratic form in
+#      the scores, so its variance follows from their covariance across
+#      electrodes, and the trial noise neighbours share is estimated from the
+#      half differences (`_LocalElectrodeCov`). On null data with that noise,
+#      21 participants and reliability ~0.25: 4 % false positives at 0.05,
+#      SE matching the excess's spread (§19.3 of the N4 doc).
+#
+# Patches make near pairs more similar than far ones; intermixing makes the
+# curve flat once the linear gradient is removed. A single score (LWPC alone,
+# or congruency) is the positive control: if single maps share signal with
+# their neighbours but the balance does not, the balance varies on a finer
+# scale than the sampling, i.e. it is intermixed there.
+LOCAL_BINS_MM = (10.0, 20.0, 40.0)
+
+
+def _channel_poles(electrode):
+    """The contacts a channel is built from: ``'D57-LA1-LA2'`` -> ``{'LA1', 'LA2'}``
+    for a bipolar derivative, ``{'LA1'}`` for a monopolar contact. The id is
+    ``{subject}-{channel}`` and subject ids carry no hyphen."""
+    parts = str(electrode).split('-')
+    return set(parts[1:]) if len(parts) > 1 else {parts[0]}
+
+
+def _local_score_halves(per_split, scores):
+    """``{name: (half-A column, half-B column)}`` for the scores the per-split
+    table can give, with the balance built as ``delta`` is: each effect's half
+    divided by its full-data pooled scale (read off ``scores``)."""
+    s = scores.drop_duplicates('electrode').set_index('electrode')
+    sd = {k: float(np.nanmedian(s[f'{k}_score'] / s[f'{k}_s']))
+          for k in ('lwpc', 'lwps') if f'{k}_score' in s and f'{k}_s' in s}
+    if len(sd) < 2:
+        sd = {'lwpc': float(np.nanstd(per_split[['xA', 'xB']].to_numpy(), ddof=1)),
+              'lwps': float(np.nanstd(per_split[['yA', 'yB']].to_numpy(), ddof=1))}
+    ps = per_split.copy()
+    for h in ('A', 'B'):
+        ps[f'balance{h}'] = ps[f'x{h}'] / sd['lwpc'] - ps[f'y{h}'] / sd['lwps']
+    names = {'LWPC − LWPS': ('balanceA', 'balanceB'), 'LWPC': ('xA', 'xB'),
+             'LWPS': ('yA', 'yB')}
+    if {'mxA', 'mxB', 'myA', 'myB'} <= set(ps.columns):
+        names.update({'congruency': ('mxA', 'mxB'), 'switch': ('myA', 'myB')})
+    return ps, names
+
+
+def _quadratic_cov(W1, G12, W2, G21):
+    """``Cov(u' W1 u / 2, v' W2 v / 2)`` for zero-mean Gaussian vectors u, v with
+    ``Cov(u, v) = G12`` (``G21`` its transpose) and symmetric W1, W2 (Isserlis):
+    ``tr(W1 G12 W2 G21) / 2``. With ``u = v`` it is the variance of a sum of
+    pair products ``sum_{i<j} W[i, j] u_i u_j``."""
+    return 0.5 * float(np.sum((W1 @ G12) * (W2 @ G21).T))
+
+
+def _local_score_cov(Au, Bu, Av, Bv, signal_var, clip=True):
+    """Covariance across one participant's electrodes of two scores' full-data
+    values ``S = (A + B) / 2`` (splits x electrodes halves), under no local
+    structure: signal exchangeable across electrodes (``signal_var`` times the
+    within-participant centring projector) plus trial noise. The noise part is
+    estimated from the half differences ``D = (A - B) / 2``: with one split per
+    participant, D is the electrodes' trial noise with random signs, so
+    ``mean_k D_u' D_v`` carries the noise neighbouring contacts share."""
+    n = Au.shape[1]
+    Du, Dv = 0.5 * (Au - Bu), 0.5 * (Av - Bv)
+    noise = Du.T @ Dv / Au.shape[0]
+    s = max(signal_var, 0.0) if clip else signal_var
+    return s * (np.eye(n) - 1.0 / n) + noise
+
+
+class _LocalElectrodeCov:
+    """Covariances of :func:`local_similarity`'s estimates with electrodes as
+    the unit (participants fixed).
+
+    Every estimate is a quadratic form in the scores' full-data values S,
+    ``Q = sum_g S_g' W_g S_g / 2``, divided by the per-split standardisation
+    ``M = |S|^2 / n + const`` (1 in the standardised units): a bin's excess
+    (W: its pair weights over its pair count), the reliability (W = 2 I / n),
+    the nearest-minus-farthest contrast. :func:`_quadratic_cov` gives the
+    covariances of the Q under the scores' covariance across electrodes
+    (:func:`_local_score_cov`: exchangeable signal plus trial noise, shared by
+    neighbours as the half differences show), and the delta method carries
+    them through the division: for x = Q_x / M_x and y = Q_y / M_y,
+    ``Cov(x, y) = C(Qx, Qy) - y C(Qx, My) - x C(Mx, Qy) + x y C(Mx, My)``.
+    The division matters for the reliability (``Var = (1 - rel)^2 Var(M)``),
+    hardly for an excess near zero.
+    """
+
+    def __init__(self, halves, groups):
+        self.halves, self.groups = halves, groups
+        self.n_tot = float(sum(len(g) for g in groups))
+        self.n_free = float(sum(len(g) - 1 for g in groups))
+        self.M = [2.0 * np.eye(len(g)) / self.n_tot for g in groups]
+        self._gam = {}
+
+    def gamma(self, u, v):
+        if (u, v) not in self._gam:
+            (Au, Bu), (Av, Bv) = self.halves[u], self.halves[v]
+            k = Au.shape[0]
+            # signal (co)variance per electrode, from the same-electrode cross-half
+            # similarity, undoing the within-participant centring's (n - 1) / n
+            sig = sum(np.trace(Au[:, g].T @ Bv[:, g] + Bu[:, g].T @ Av[:, g]) / (2 * k)
+                      for g in self.groups) / self.n_free
+            self._gam[(u, v)] = [_local_score_cov(Au[:, g], Bu[:, g], Av[:, g], Bv[:, g],
+                                                  sig, clip=(u == v)) for g in self.groups]
+        return self._gam[(u, v)]
+
+    def _raw(self, u, Wu, v, Wv):
+        return sum(_quadratic_cov(a, G, b, G.T) for a, b, G in zip(Wu, Wv, self.gamma(u, v)))
+
+    def cov(self, u, Wu, x, v, Wv, y):
+        """Cov of two standardised estimates: score u's with weights Wu (one
+        matrix per participant) and value x, score v's with Wv and value y."""
+        M = self.M
+        return (self._raw(u, Wu, v, Wv) - y * self._raw(u, Wu, v, M)
+                - x * self._raw(u, M, v, Wv) + x * y * self._raw(u, M, v, M))
+
+
+def _relative_difference_electrode(elv, el, u, v, w_near):
+    """Electrode level for :func:`local_similarity`'s ``comparison``: score u's
+    nearest-bin excess as a share of its reliability minus score v's, with a
+    delta-method interval from the joint covariance of the four estimates."""
+    eu, ev = el[u], el[v]
+    if not (eu['reliable'] and ev['reliable']) or not eu['n_near']:
+        return dict(balance_relative_electrode=np.nan, score_relative_electrode=np.nan,
+                    difference_electrode=np.nan, difference_lo_electrode=np.nan,
+                    difference_hi_electrode=np.nan,
+                    note_electrode='a reliability is not clearly positive (electrode level)')
+    q = [(u, w_near, eu['excess']), (u, elv.M, eu['rel']),
+         (v, w_near, ev['excess']), (v, elv.M, ev['rel'])]
+    cov = np.array([[elv.cov(a, Wa, xa, b, Wb, xb) for b, Wb, xb in q] for a, Wa, xa in q])
+    au, ru, av, rv = eu['excess'], eu['rel'], ev['excess'], ev['rel']
+    grad = np.array([1 / ru, -au / ru ** 2, -1 / rv, av / rv ** 2])
+    diff, se = au / ru - av / rv, float(np.sqrt(max(grad @ cov @ grad, 0.0)))
+    return dict(balance_relative_electrode=au / ru, score_relative_electrode=av / rv,
+                difference_electrode=diff, difference_lo_electrode=diff - 1.96 * se,
+                difference_hi_electrode=diff + 1.96 * se, note_electrode='')
+
+
+def is_shared_split(per_split):
+    """True when every row of the per-split table came from a split shared by
+    all of a participant's electrodes (``split_scheme == 'participant'``)."""
+    return ('split_scheme' in per_split.columns
+            and bool((per_split['split_scheme'] == 'participant').all()))
+
+
+def local_similarity(per_split, scores_with_coords, bins_mm=LOCAL_BINS_MM,
+                     remove_gradient=True, coord_cols=('mni_x', 'mni_y', 'mni_z'),
+                     method='spearman', min_elec=3, n_perm=2000, n_boot=2000, seed=0,
+                     exclude_shared_contacts=True, require_shared_split=True,
+                     min_reliable_share=0.9):
+    """Cross-half similarity of electrode pairs within participant, by distance.
+
+    ``per_split`` must come from ``compute_sensitivities_per_split(...,
+    shared_split=True)`` (the segregation job with ``SHARED_SPLIT=1``, or
+    ``n4_section19_followups.py --long-df``); a table split per electrode is
+    refused (see the section comment). ``require_shared_split=False`` is for
+    tables whose halves carry independent noise by construction, e.g. planted
+    test data.
+
+    For each score (the LWPC - LWPS balance, LWPC, LWPS and, from a
+    MAIN_EFFECTS=1 run, congruency and switch):
+
+    1. per split and half, the scores are residualised on responsiveness and,
+       with ``remove_gradient``, on the coordinates (centred within
+       participant: the linear gradient), then centred within participant
+       (the pre-specified test's treatment); with ``method='spearman'`` ranked
+       and re-centred within participant; then scaled to unit mean square;
+    2. ``C[i, j] = mean_k 1/2 (A_k[i] B_k[j] + B_k[i] A_k[j])`` for electrodes i,
+       j of one participant. ``C[i, i]`` is electrode i's split-half
+       reliability;
+    3. pairs are binned by Euclidean distance (``bins_mm`` edges; the last bin
+       is open) and summed per participant.
+
+    **Baseline.** Each participant's baseline for a bin is the mean of that bin
+    under shuffles of its electrode positions (``n_perm``); its excess is
+    observed minus baseline (centring makes pairs slightly anti-correlated by
+    construction, and the baseline carries the same bias). ``excess`` pools
+    participants by pair count, i.e. over every electrode pair.
+
+    **Two inferences on the same estimates.**
+
+    * Participants as the unit: ``p_greater`` flips the sign of whole
+      participants' excesses (one-sided, more similar than baseline);
+      ``*_lo``/``*_hi`` come from a participant bootstrap.
+    * Electrodes as the unit (``*_electrode`` columns): each estimate is a
+      quadratic form in the scores, so its standard error (``se_electrode``)
+      follows from the scores' covariance across electrodes under no local
+      structure: exchangeable signal plus trial noise, the noise neighbours
+      share estimated from the half differences (:class:`_LocalElectrodeCov`).
+      ``p_greater_electrode`` is one-sided normal; intervals are ± 1.96 SE.
+      Participant stays a fixed effect, as in the pre-specified tests.
+
+    ``relative`` divides the excess by the score's reliability, the share of
+    an electrode's reliable signal its neighbours carry. It is only reported
+    when the reliability is clearly positive: positive in at least
+    ``min_reliable_share`` of the bootstrap draws (participant level), or
+    ``rel / SE`` above the matching normal quantile (``relative_electrode``).
+    At a reliability near or below zero the ratio is not defined, and
+    ``notes`` says so. Pairs of bipolar channels sharing a contact are dropped
+    (``exclude_shared_contacts``).
+
+    Returns a dict: ``table`` (one row per score and bin), ``contrasts``
+    (nearest minus farthest bin, both p values), ``comparison`` (the balance's
+    relative nearest-bin excess minus each single score's: paired participant
+    bootstrap, and a delta-method electrode-level interval, where defined),
+    ``notes`` and the counts.
+    """
+    from scipy.stats import norm, rankdata
+    from .stability_flexibility_segregation import _residualised_split_matrices
+
+    if require_shared_split and not is_shared_split(per_split):
+        raise ValueError(
+            "local_similarity needs one trial split per participant, shared by all "
+            "its electrodes (split_scheme == 'participant'). This per-split table was "
+            "split electrode by electrode, so one electrode's half A shares trials "
+            "with its neighbours' half B and shared trial noise reads as local "
+            "similarity. Rescore with compute_sensitivities_per_split(shared_split="
+            "True): SHARED_SPLIT=1 in the segregation job, or "
+            "n4_section19_followups.py --long-df <segregation run>/long_df.csv.")
+
+    coord_cols = list(coord_cols)
+    s = scores_with_coords.drop_duplicates('electrode').set_index('electrode')
+    have = s[coord_cols + ['resp']].dropna().index
+    ps, names = _local_score_halves(per_split[per_split['electrode'].isin(have)],
+                                    scores_with_coords)
+    keys = [k for pair in names.values() for k in pair]
+    cov = s.loc[have, coord_cols] if remove_gradient else None
+    elecs, subj, groups, splits, mats, _ = _residualised_split_matrices(
+        ps, s.loc[have, 'resp'], min_elec=min_elec, covariates=cov, keys=keys)
+    P = s.loc[elecs, coord_cols].to_numpy(float)
+
+    def standardise(M):
+        M = M.copy()
+        for g in groups:
+            blk = M[:, g]
+            if method == 'spearman':
+                blk = rankdata(blk, axis=1)
+            M[:, g] = blk - blk.mean(axis=1, keepdims=True)
+        ms = np.sqrt((M ** 2).mean(axis=1, keepdims=True))
+        return np.divide(M, ms, out=np.zeros_like(M), where=ms > 0)
+
+    edges = np.r_[0.0, np.asarray(bins_mm, float), np.inf]
+    labels = ([f'< {edges[1]:g} mm']
+              + [f'{a:g}–{b:g} mm' for a, b in zip(edges[1:-2], edges[2:-1])]
+              + [f'> {edges[-2]:g} mm'])
+    n_bins, n_g = len(labels), len(groups)
+
+    pair_info = []
+    for g in groups:
+        iu, ju = np.triu_indices(len(g), k=1)
+        keep = np.ones(len(iu), bool)
+        if exclude_shared_contacts:
+            poles = [_channel_poles(e) for e in elecs[g]]
+            keep = np.array([not (poles[i] & poles[j]) for i, j in zip(iu, ju)], bool)
+        D = np.linalg.norm(P[g][:, None, :] - P[g][None, :, :], axis=-1)
+        pair_info.append((iu[keep], ju[keep], D))
+    n_excluded = int(sum(len(np.triu_indices(len(g), 1)[0]) - len(pi[0])
+                         for g, pi in zip(groups, pair_info)))
+
+    rng = np.random.default_rng(seed)
+    perms = [[rng.permutation(len(g)) for _ in range(int(n_perm))] for g in groups]
+    draws = rng.integers(0, n_g, size=(int(n_boot), n_g))
+    flips = rng.choice((-1.0, 1.0), size=(int(n_perm), n_g))
+
+    # Electrode level: a participant's excess in a bin is sum_{i<j} W[i, j] C[i, j]
+    # with W = 1[pair in bin] - (the share of the participant's pairs in the bin),
+    # the second term being the position-shuffle baseline's exact expectation.
+    # W_bins[gi] is (n_bins, n, n), symmetric, zero on the diagonal.
+    W_bins = []
+    for g, (iu, ju, D) in zip(groups, pair_info):
+        ia, ja = np.triu_indices(len(g), k=1)
+        share = (np.bincount(np.searchsorted(edges, D[ia, ja], side='right') - 1,
+                             minlength=n_bins)[:n_bins] / max(len(ia), 1))
+        b_kept = np.searchsorted(edges, D[iu, ju], side='right') - 1
+        W = np.zeros((n_bins, len(g), len(g)))
+        for bi in range(n_bins):
+            W[bi, iu, ju] = W[bi, ju, iu] = (b_kept == bi) - share[bi]
+        W_bins.append(W)
+    z_reliable = float(norm.ppf(min_reliable_share))
+
+    def bin_sums(c_pairs, d_pairs):
+        b = np.searchsorted(edges, d_pairs, side='right') - 1
+        return (np.bincount(b, weights=c_pairs, minlength=n_bins)[:n_bins],
+                np.bincount(b, minlength=n_bins)[:n_bins].astype(float))
+
+    def ratio(num, den):
+        with np.errstate(invalid='ignore', divide='ignore'):
+            return np.where(den > 0, num / np.where(den > 0, den, 1.0), np.nan)
+
+    rows, contrasts, rel_draws, notes = [], [], {}, []
+    halves, el = {}, {}                  # per score: standardised halves; electrode level
+    elv = _LocalElectrodeCov(halves, groups)
+    for name, (ka, kb) in names.items():
+        A, B = standardise(mats[ka]), standardise(mats[kb])
+        halves[name] = (A, B)
+        obs = np.zeros((n_g, n_bins))
+        cnt = np.zeros((n_g, n_bins))
+        base = np.zeros((n_g, n_bins))
+        self_sum, self_n = np.zeros(n_g), np.zeros(n_g)
+        for gi, (g, (iu, ju, D)) in enumerate(zip(groups, pair_info)):
+            C = 0.5 * (A[:, g].T @ B[:, g] + B[:, g].T @ A[:, g]) / len(splits)
+            self_sum[gi], self_n[gi] = np.trace(C), len(g)
+            c_pairs = C[iu, ju]
+            obs[gi], cnt[gi] = bin_sums(c_pairs, D[iu, ju])
+            base[gi] = np.mean([bin_sums(c_pairs, D[p[iu], p[ju]])[0] for p in perms[gi]],
+                               axis=0)
+        dev = obs - base                                   # each participant's excess
+        n = cnt.sum(0)
+        excess = ratio(dev.sum(0), n)
+        null = ratio(flips @ dev, n[None, :])              # participant sign flips
+        rel = float(self_sum.sum() / self_n.sum())
+        b_excess = ratio(dev[draws].sum(1), cnt[draws].sum(1))
+        b_rel = self_sum[draws].sum(1) / self_n[draws].sum(1)
+        reliable = (rel > 0) and np.mean(b_rel > 0) >= min_reliable_share
+        b_relative = np.where((b_rel > 0)[:, None], b_excess / b_rel[:, None], np.nan)
+        rel_draws[name] = b_relative if reliable else None
+        if not reliable:
+            notes.append(f"{name}: reliability {rel:+.3f} (positive in "
+                         f"{np.mean(b_rel > 0):.0%} of bootstrap draws), so its excess is "
+                         "not expressed as a share of it at the participant level")
+
+        # electrode level: the same estimates, their variance from the scores'
+        # covariance across electrodes, shared trial noise included
+        M = elv.M
+        w_bin = [[W[bi] / n[bi] if n[bi] else W[bi] for W in W_bins] for bi in range(n_bins)]
+        var_rel = elv.cov(name, M, rel, name, M, rel)
+        se_rel = float(np.sqrt(max(var_rel, 0.0)))
+        var_bin = np.array([elv.cov(name, w_bin[bi], excess[bi], name, w_bin[bi], excess[bi])
+                            if n[bi] else np.nan for bi in range(n_bins)])
+        cov_bin_rel = np.array([elv.cov(name, w_bin[bi], excess[bi], name, M, rel)
+                                if n[bi] else np.nan for bi in range(n_bins)])
+        se_bin = np.sqrt(np.maximum(var_bin, 0.0))
+        reliable_e = rel > 0 and se_rel > 0 and rel / se_rel >= z_reliable
+        el[name] = dict(rel=rel, excess=float(excess[0]), n_near=float(n[0]),
+                        reliable=reliable_e)
+        if not reliable_e:
+            notes.append(f"{name}: reliability {rel:+.3f} ± {se_rel:.3f} (electrode-level "
+                         "SE), so its excess is not expressed as a share of it at the "
+                         "electrode level")
+
+        rows.append(dict(score=name, bin='same electrode', n_pairs=int(self_n.sum()),
+                         n_participants=n_g, similarity=rel,
+                         similarity_lo=float(np.percentile(b_rel, 2.5)),
+                         similarity_hi=float(np.percentile(b_rel, 97.5)),
+                         se_electrode=se_rel,
+                         similarity_lo_electrode=rel - 1.96 * se_rel,
+                         similarity_hi_electrode=rel + 1.96 * se_rel))
+        for bi, label in enumerate(labels):
+            ok = np.isfinite(null[:, bi])
+            se = float(se_bin[bi])
+            row = dict(score=name, bin=label, n_pairs=int(n[bi]),
+                       n_participants=int((cnt[:, bi] > 0).sum()),
+                       similarity=float(ratio(obs[:, bi].sum(), n[bi])),
+                       baseline=float(ratio(base[:, bi].sum(), n[bi])),
+                       excess=float(excess[bi]),
+                       excess_lo=float(np.nanpercentile(b_excess[:, bi], 2.5)),
+                       excess_hi=float(np.nanpercentile(b_excess[:, bi], 97.5)),
+                       p_greater=(float((np.sum(null[ok, bi] >= excess[bi]) + 1)
+                                        / (ok.sum() + 1)) if n[bi] else np.nan),
+                       se_electrode=se,
+                       excess_lo_electrode=float(excess[bi] - 1.96 * se),
+                       excess_hi_electrode=float(excess[bi] + 1.96 * se),
+                       p_greater_electrode=(float(norm.sf(excess[bi] / se))
+                                            if n[bi] and se > 0 else np.nan))
+            if reliable:
+                row.update(relative=float(excess[bi] / rel),
+                           relative_lo=float(np.nanpercentile(b_relative[:, bi], 2.5)),
+                           relative_hi=float(np.nanpercentile(b_relative[:, bi], 97.5)))
+            if reliable_e and n[bi]:
+                a = float(excess[bi])
+                se_r = float(np.sqrt(max(se_bin[bi] ** 2 / rel ** 2
+                                         + a ** 2 * var_rel / rel ** 4
+                                         - 2 * a * cov_bin_rel[bi] / rel ** 3, 0.0)))
+                row.update(relative_electrode=a / rel,
+                           relative_lo_electrode=a / rel - 1.96 * se_r,
+                           relative_hi_electrode=a / rel + 1.96 * se_r)
+            rows.append(row)
+        near, far = 0, n_bins - 1
+        if n[near] and n[far]:
+            per_g = dev[:, near] / n[near] - dev[:, far] / n[far]
+            obs_c = float(per_g.sum())
+            null_c = flips @ per_g
+            Wc = [W[near] / n[near] - W[far] / n[far] for W in W_bins]
+            se_c = float(np.sqrt(max(elv.cov(name, Wc, obs_c, name, Wc, obs_c), 0.0)))
+            contrasts.append(dict(score=name, nearest=labels[near], farthest=labels[far],
+                                  near_minus_far=obs_c,
+                                  p_greater=float((np.sum(null_c >= obs_c) + 1)
+                                                  / (n_perm + 1)),
+                                  se_electrode=se_c,
+                                  p_greater_electrode=(float(norm.sf(obs_c / se_c))
+                                                       if se_c > 0 else np.nan)))
+
+    comparison = []
+    first = 'LWPC − LWPS'
+    for name, d in rel_draws.items():
+        if name == first:
+            continue
+        row = dict(bin=labels[0], score=name)
+        if rel_draws.get(first) is None or d is None:
+            row.update(balance_relative=np.nan, score_relative=np.nan, difference_lo=np.nan,
+                       difference_hi=np.nan, note='a reliability is not clearly positive')
+        else:
+            diff = rel_draws[first][:, 0] - d[:, 0]
+            row.update(balance_relative=float(np.nanmedian(rel_draws[first][:, 0])),
+                       score_relative=float(np.nanmedian(d[:, 0])),
+                       difference_lo=float(np.nanpercentile(diff, 2.5)),
+                       difference_hi=float(np.nanpercentile(diff, 97.5)), note='')
+        row.update(_relative_difference_electrode(
+            elv, el, first, name, [W[0] / max(el[first]['n_near'], 1.0) for W in W_bins]))
+        comparison.append(row)
+
+    return dict(table=pd.DataFrame(rows), contrasts=pd.DataFrame(contrasts),
+                comparison=pd.DataFrame(comparison), notes=notes, bins=labels,
+                n_electrodes=len(elecs), n_subjects=n_g, n_splits=len(splits),
+                n_pairs_excluded=n_excluded, method=method,
+                remove_gradient=bool(remove_gradient))
+
+
+def plot_local_similarity(result, out_path, unit='electrode'):
+    """Small multiples, one per score, shared y: each distance bin's excess
+    similarity over the participants' position-shuffle baselines, with 95 %
+    intervals at ``unit``'s level ('electrode': ± 1.96 electrode-level SE;
+    'participant': participant bootstrap); the score's reliability in the
+    title."""
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
+    sfx = '_electrode' if unit == 'electrode' else ''
+    t = result['table']
+    scores = list(dict.fromkeys(t['score']))
+    rc = {'font.size': 6.5, 'axes.labelsize': 6.5, 'xtick.labelsize': 5.5,
+          'ytick.labelsize': 6, 'axes.spines.top': False, 'axes.spines.right': False,
+          'axes.linewidth': 0.6, 'axes.edgecolor': _INK, 'pdf.fonttype': 42}
+    with plt.rc_context(rc):
+        fig, axes = plt.subplots(1, len(scores), figsize=(1.45 * len(scores) + 0.4, 2.0),
+                                 sharey=True, squeeze=False)
+        for ax, name in zip(axes[0], scores):
+            g = t[t['score'] == name]
+            rel = g.loc[g['bin'] == 'same electrode', 'similarity'].iloc[0]
+            g = g[g['bin'] != 'same electrode'].reset_index(drop=True)
+            x = np.arange(len(g))
+            ax.axhline(0, color=_RULE, lw=0.6, zorder=0)
+            ax.errorbar(x, g['excess'],
+                        yerr=[g['excess'] - g['excess_lo' + sfx],
+                              g['excess_hi' + sfx] - g['excess']],
+                        fmt='o-', color=_INK, ecolor=_MUTED, elinewidth=0.7, capsize=0,
+                        ms=3.5, lw=0.8, zorder=3)
+            ax.set_xticks(x)
+            ax.set_xticklabels([b.replace(' mm', '') for b in g['bin']], rotation=45,
+                               ha='right')
+            ax.set_title(f'{name}\nreliability {_fmt_r(rel)}', fontsize=6.5, color=_INK,
+                         loc='left')
+            ax.set_xlabel('distance (mm)')
+        axes[0, 0].set_ylabel('excess cross-half similarity')
+        fig.text(0.99, 0.01, 'excess over each participant\'s position-shuffle baseline; '
+                 + ('95 % CI, electrode level (shared trial noise included)'
+                    if unit == 'electrode' else '95 % participant bootstrap'),
+                 ha='right', va='bottom', fontsize=5.5, color=_MUTED)
+        fig.tight_layout(rect=(0, 0.04, 1, 1))
+        fig.savefig(out_path, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return out_path
+
+
+# ---------------------------------------------------------------------------
+# §19 in one call: the anatomy job and n4_section19_followups.py both use it
+# ---------------------------------------------------------------------------
+def electrode_slope_lines(el):
+    """Summary lines for :func:`coordinate_slope_by_electrode`."""
+    lo, hi = el['ci']
+    return [f"  {el['axis']} SLOPE, ELECTRODES AS THE UNIT (the coordinate test; "
+            f"{el['n_electrodes']} electrodes, {el['n_subjects']} participants)",
+            f"    slope {el['slope_per_mm']:+.5f}/mm  95 % CI [{lo:+.5f}, {hi:+.5f}] (electrode "
+            f"bootstrap within participant)  swap-null p = {el['p']:.4g}"]
+
+
+def electrode_corr_lines(ec, label='pre-specified test', reliabilities=True,
+                         names=('LWPC', 'LWPS')):
+    """Summary lines for ``electrode_split_corr``. ``reliabilities=False`` leaves
+    them out, for a table split electrode by electrode (they are biased there;
+    §19.3 of the N4 doc). ``names``: the two scores, x then y."""
+    lo, hi = ec['ci']
+    nx, ny = names
+    lines = [f"  {nx}–{ny} SEPARATE-HALF r, ELECTRODES AS THE UNIT ({label}; "
+             f"{ec['n_electrodes']} electrodes, {ec['n_subjects']} participants)",
+             f"    r = {ec['corr']:+.3f}  95 % CI [{lo:+.3f}, {hi:+.3f}]  permutation p = "
+             f"{ec['p']:.4g}  (electrode bootstrap within participant, "
+             f"{ec['n_boot_splits']} of {ec['n_splits']} splits)"]
+    if reliabilities:
+        (xl, xh), (yl, yh) = ec['reliability_x_ci'], ec['reliability_y_ci']
+        dl, dh = ec['reliability_diff_ci']
+        lines.append(f"    within-participant reliability: {nx} {ec['reliability_x']:+.3f} "
+                     f"[{xl:+.3f}, {xh:+.3f}], {ny} {ec['reliability_y']:+.3f} "
+                     f"[{yl:+.3f}, {yh:+.3f}]; {nx} − {ny} {ec['reliability_diff']:+.3f} "
+                     f"[{dl:+.3f}, {dh:+.3f}]")
+        if ec['noise_corrected_note']:
+            lines.append(f"    noise-corrected r: {ec['noise_corrected_note']}")
+        else:
+            nl, nh = ec['corr_noise_corrected_ci']
+            lines.append(f"    noise-corrected r = {ec['corr_noise_corrected']:+.3f}  95 % CI "
+                         f"[{nl:+.3f}, {nh:+.3f}]")
+    return lines
+
+
+def participant_slope_lines(part, loso=None):
+    """Summary lines for :func:`coordinate_slope_by_participant` (and its
+    leave-one-out table)."""
+    ax = part['axis']
+    w, u = part['weighted'], part['unweighted']
+    lines = [f"  {ax} SLOPE, PARTICIPANTS AS THE UNIT ({part['n_subjects']} participants, "
+             f"{part['n_electrodes']} electrodes)",
+             f"    pooled slope {part['pooled_slope']:+.5f}/mm = the coordinate test's; it is "
+             "the weight-averaged participant slope",
+             f"    weighted:   {w['slope_per_mm']:+.5f}/mm  95 % CI [{w['ci'][0]:+.5f}, "
+             f"{w['ci'][1]:+.5f}]  sign-flip p = {w['p_signflip']:.4g}  "
+             f"({w['n_participants']} participants)",
+             f"    three participants carry {part['top3_weight_share']:.0%} of the weight"]
+    if 'p_t' in u:
+        lines.append(f"    unweighted: {u['mean_slope_per_mm']:+.5f}/mm ± {u['sem']:.5f}  "
+                     f"t-test p = {u['p_t']:.4g}  {u['n_negative']}/{u['n_participants']} "
+                     f"negative (sign test p = {u['p_sign']:.3g})  [>= {u['min_elec']} "
+                     f"electrodes, >= {u['min_spread_mm']:g} mm spread]")
+    for name, r in (part.get('mixed') or {}).items():
+        if 'error' in r:
+            lines.append(f"    mixed, {name.replace('_', ' ')}: failed ({r['error']})")
+            continue
+        extra = (f"  random-slope SD {r['random_slope_sd_per_mm']:.5f}/mm"
+                 if 'random_slope_sd_per_mm' in r else '')
+        conv = '' if r['converged'] else '  NOT CONVERGED'
+        lines.append(f"    mixed, {name.replace('_', ' ')}: {r['slope_per_mm']:+.5f}/mm "
+                     f"± {r['se_per_mm']:.5f}  Wald p = {r['p']:.4g}{extra}{conv}")
+    if loso is not None and len(loso) > 1:
+        drop = loso[loso['dropped'] != '(none)']
+        lines.append(f"    leave one participant out: slope {drop['slope_per_mm'].min():+.5f} "
+                     f"to {drop['slope_per_mm'].max():+.5f}/mm, p {drop['p'].min():.3g} to "
+                     f"{drop['p'].max():.3g}")
+    return lines
+
+
+def participant_corr_lines(pc):
+    """Summary lines for ``participant_split_corr``."""
+    lo, hi = pc['ci_weighted']
+    return [f"  LWPC–LWPS SEPARATE-HALF r, PARTICIPANTS AS THE UNIT ({pc['n_participants']} "
+            f"participants with >= {pc['min_elec']} electrodes, {pc['n_electrodes']} electrodes)",
+            f"    weighted (n - 3): r = {pc['corr_weighted']:+.3f}  95 % CI [{lo:+.3f}, {hi:+.3f}]"
+            f"  sign-flip p = {pc['p_signflip']:.4g}",
+            f"    unweighted: r = {pc['corr_unweighted']:+.3f}  t-test p = {pc['p_t']:.4g}  "
+            f"{pc['n_positive']}/{pc['n_participants']} positive"]
+
+
+def local_similarity_lines(loc, unit='electrode'):
+    """Summary lines for :func:`local_similarity`, with ``unit``'s inference
+    ('electrode' or 'participant'; the estimates are the same)."""
+    t = loc['table']
+    sfx = '_electrode' if unit == 'electrode' else ''
+    how = ("95 % CI ± 1.96 SE, one-sided p; SE from the scores' covariance across "
+           "electrodes, trial noise shared by neighbours included" if unit == 'electrode'
+           else "95 % participant bootstrap, participant sign-flip p")
+    lines = [f"  LOCAL SIMILARITY, {unit.upper()}S AS THE UNIT ({loc['n_electrodes']} electrodes, "
+             f"{loc['n_subjects']} participants, {loc['n_splits']} shared splits; "
+             f"{'linear gradient removed' if loc['remove_gradient'] else 'raw'}; "
+             f"{loc['n_pairs_excluded']} contact-sharing pairs dropped)",
+             f"    excess cross-half similarity over each participant's position-shuffle "
+             f"baseline [{how}]"]
+    for name, g in t.groupby('score', sort=False):
+        s_row = g[g['bin'] == 'same electrode'].iloc[0]
+        cells = [f"{r['bin'].replace(' mm', '')}: {r['excess']:+.3f} [{r['excess_lo' + sfx]:+.3f}, "
+                 f"{r['excess_hi' + sfx]:+.3f}] p {r['p_greater' + sfx]:.2g}"
+                 for _, r in g[g['bin'] != 'same electrode'].iterrows()]
+        lines.append(f"    {name:<12} reliability {s_row['similarity']:+.3f} "
+                     f"[{s_row['similarity_lo' + sfx]:+.3f}, {s_row['similarity_hi' + sfx]:+.3f}]")
+        lines.append("        " + '  '.join(cells))
+    for _, r in loc['contrasts'].iterrows():
+        lines.append(f"    {r['score']:<12} nearest − farthest {r['near_minus_far']:+.3f}  "
+                     f"p = {r['p_greater' + sfx]:.3g}")
+    for _, r in loc['comparison'].iterrows():
+        note = r['note' + sfx]
+        if note:
+            lines.append(f"    nearest bin, share of reliability, LWPC − LWPS vs {r['score']}: "
+                         f"not defined ({note})")
+        else:
+            lines.append(f"    nearest bin, share of reliability: LWPC − LWPS "
+                         f"{r['balance_relative' + sfx]:+.2f} vs {r['score']} "
+                         f"{r['score_relative' + sfx]:+.2f}  difference 95 % CI "
+                         f"[{r['difference_lo' + sfx]:+.2f}, {r['difference_hi' + sfx]:+.2f}]")
+    lines += [f"    NOTE: {n}" for n in loc.get('notes', [])
+              if (unit == 'electrode') == ('electrode level' in n)]
+    lines.append("    read: intermixed = no excess for LWPC − LWPS at short range while the "
+                 "single scores show one; if the single scores show none either, the test "
+                 "has no power")
+    return lines
+
+
+def overlap_control_lines(table, loso=None):
+    """Summary lines for :func:`overlap_controls`."""
+    lines = ["  LWPC–LWPS SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED"]
+    for r in table.itertuples():
+        if not np.isfinite(r.corr):
+            lines.append(f"    {r.control:<44} not run ({r.note})")
+            continue
+        note = f"   [{r.note}]" if r.note else ''
+        lines.append(f"    {r.control:<44} r = {r.corr:+.3f}  p = {r.p:.3g}  "
+                     f"({r.n_electrodes} electrodes, {r.n_subjects} participants){note}")
+    if loso is not None and len(loso):
+        lines.append(f"    leave one participant out: r {loso['corr'].min():+.3f} to "
+                     f"{loso['corr'].max():+.3f}, p {loso['p'].min():.3g} to {loso['p'].max():.3g}")
+    return lines
+
+
+def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3, seed=1,
+                                shared_label='shared by participant'):
+    """Within-participant split-half reliabilities from both split schemes, on
+    the electrodes both tables have. Per-electrode splits let one electrode's half A share trials with another's
+    half B, which biases the within-participant centring; the shared split does
+    not."""
+    from .stability_flexibility_segregation import (split_resolved_corr, main_effect_view,
+                                                    MAIN_EFFECT_COLS)
+    resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+    common = set(resp.index) & set(per_split['electrode']) & set(per_split_shared['electrode'])
+    rows = []
+    for scheme, table in (('per electrode', per_split), (shared_label, per_split_shared)):
+        t = table[table['electrode'].isin(common)]
+        r = split_resolved_corr(t, resp, min_elec=min_elec, n_perm=1, seed=seed)
+        row = dict(split=scheme, LWPC=r['reliability_x'], LWPS=r['reliability_y'],
+                   overlap_r=r['corr'])
+        if set(MAIN_EFFECT_COLS) <= set(t.columns):
+            m = split_resolved_corr(main_effect_view(t), resp, min_elec=min_elec, n_perm=1,
+                                    seed=seed)
+            row.update(congruency=m['reliability_x'], switch=m['reliability_y'])
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mni_z',
+              n_perm=10000, n_boot=2000, seed=0, sections=(1, 2, 3, 4, 5),
+              per_split_shared=None, rt_coupling=None,
+              shared_label='shared by participant', make_brain=False, brain_kwargs=None):
+    """§19 of docs/n4_continuous_anatomy.md from one anatomy run's tables.
+
+    Every part is reported with electrodes as the unit first (the level of the
+    pre-specified tests: participant a fixed effect; main text) and with
+    participants as the unit second (supplement).
+
+    1. the ``axis`` slope: :func:`coordinate_slope_by_electrode`, then
+       :func:`coordinate_slope_by_participant` and :func:`coordinate_slope_loso`;
+    2. the LWPC-LWPS separate-half r: ``electrode_split_corr``, then
+       ``participant_split_corr``;
+    3. :func:`local_similarity` (both inferences on the same estimates) and its
+       figure at each level. Needs ``per_split_shared``: a per-split table
+       scored with one trial split per participant
+       (``compute_sensitivities_per_split(shared_split=True)``); ``per_split``
+       is used only if it is itself shared. Also compares the
+       within-participant reliabilities of the two split schemes, and gives
+       the pre-specified LWPC-LWPS r on the shared table with electrode-level
+       intervals for it, its reliabilities and its noise-corrected value
+       (``shared_label`` names the table, e.g. when its high gamma was
+       RT-adjusted);
+    4. the combined anatomy figure (:func:`figure5_height`) at each level, and
+       with ``make_brain`` the height bands and their centroids on the brain,
+       drawn once (``brain_kwargs`` go to :func:`plot_height_bands_on_brain`);
+    5. :func:`overlap_controls` (electrode level; leave one participant out as
+       the participant-level check), with ``rt_coupling`` (electrode ->
+       ``rt_r``) for its RT row.
+
+    ``scores``: :func:`attach_scores`'s table (``scores_with_anatomy.csv``);
+    ``per_split``: the run's per-split table (2, 3 and 5 need it).
+    ``coord_res``: the anatomy job's :func:`relative_score_coordinate_test`
+    result (computed here if absent). Each section fails on its own. Writes its
+    tables and figures to ``out_dir``; returns ``(summary lines, JSON-able
+    dict)``.
+    """
+    from .stability_flexibility_segregation import (MAIN_EFFECT_COLS, electrode_split_corr,
+                                                    main_effect_view, participant_split_corr)
+    os.makedirs(out_dir, exist_ok=True)
+    has_coords = axis in scores.columns and scores[axis].notna().any()
+    lines = ["-" * 70, "§19 — ELECTRODES AND PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, "
+                       "COMBINED FIGURE 5, OVERLAP CONTROLS",
+             "  each part: electrodes as the unit first (the pre-specified tests' level), "
+             "participants as the unit second (supplement)"]
+    out, part, el_slope = {}, None, None
+
+    def fail(name, exc):
+        lines.append(f"  {name}: failed ({type(exc).__name__}: {exc})")
+
+    if has_coords and coord_res is None and (1 in sections or 4 in sections):
+        try:
+            coord_res = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed)
+        except Exception as exc:
+            fail('coordinate test', exc)
+    if 1 in sections and has_coords:
+        try:
+            el_slope = coordinate_slope_by_electrode(scores, axis=axis, n_perm=n_perm,
+                                                     n_boot=n_boot, seed=seed,
+                                                     coord_res=coord_res)
+            lines += electrode_slope_lines(el_slope)
+            out['slope_by_electrode'] = el_slope
+        except Exception as exc:
+            fail(f'{axis} slope by electrode', exc)
+        try:
+            part = coordinate_slope_by_participant(scores, axis=axis, n_perm=n_perm,
+                                                   n_boot=n_boot, seed=seed)
+            loso = coordinate_slope_loso(scores, axis=axis, n_perm=max(1000, n_perm // 10),
+                                         seed=seed)
+            part['per_participant'].to_csv(os.path.join(out_dir, f'{axis}_slope_by_participant.csv'),
+                                           index=False)
+            loso.to_csv(os.path.join(out_dir, f'{axis}_slope_loso.csv'), index=False)
+            lines += participant_slope_lines(part, loso)
+            out['slope_by_participant'] = {k: v for k, v in part.items()
+                                           if k != 'per_participant'}
+        except Exception as exc:
+            fail(f'{axis} slope by participant', exc)
+    if per_split is not None:
+        ps = per_split[per_split['electrode'].isin(scores['electrode'])]
+        resp = scores.drop_duplicates('electrode').set_index('electrode')['resp']
+        if 2 in sections:
+            try:
+                ec = electrode_split_corr(ps, resp, n_perm=n_perm, n_boot=n_boot, seed=seed)
+                lines += electrode_corr_lines(ec, reliabilities=is_shared_split(ps))
+                if not is_shared_split(ps):
+                    lines.append("    (reliabilities: from the shared-split table, section 3; "
+                                 "this table's per-electrode split biases them)")
+                out['electrode_corr'] = ec
+            except Exception as exc:
+                fail('electrode-level LWPC–LWPS r', exc)
+            try:
+                pc = participant_split_corr(ps, resp, n_perm=n_perm, n_boot=n_boot, seed=seed)
+                pc['per_participant'].to_csv(os.path.join(out_dir, 'participant_corr.csv'),
+                                             index=False)
+                lines += participant_corr_lines(pc)
+                out['participant_corr'] = {k: v for k, v in pc.items() if k != 'per_participant'}
+            except Exception as exc:
+                fail('participant-level LWPC–LWPS r', exc)
+        shared = per_split_shared if per_split_shared is not None else ps
+        if 3 in sections and has_coords and not is_shared_split(shared):
+            lines.append("  local similarity: skipped. It needs one trial split per participant "
+                         "shared by all its electrodes, and this run split each electrode on "
+                         "its own (§19.3 of the N4 doc). Rerun n4_section19_followups.py with "
+                         "--long-df <segregation run>/long_df.csv, or the segregation job with "
+                         "SHARED_SPLIT=1.")
+        elif 3 in sections and has_coords:
+            try:
+                loc = local_similarity(shared[shared['electrode'].isin(scores['electrode'])],
+                                       scores, n_perm=min(n_perm, 5000), n_boot=n_boot,
+                                       seed=seed)
+                loc['table'].to_csv(os.path.join(out_dir, 'local_similarity.csv'), index=False)
+                loc['contrasts'].to_csv(os.path.join(out_dir, 'local_similarity_contrasts.csv'),
+                                        index=False)
+                loc['comparison'].to_csv(os.path.join(out_dir, 'local_similarity_comparison.csv'),
+                                         index=False)
+                plot_local_similarity(loc, os.path.join(out_dir, 'local_similarity.png'),
+                                      unit='electrode')
+                plot_local_similarity(loc, os.path.join(out_dir,
+                                                        'local_similarity_by_participant.png'),
+                                      unit='participant')
+                lines += local_similarity_lines(loc, unit='electrode')
+                lines += local_similarity_lines(loc, unit='participant')
+                out['local_similarity'] = dict(
+                    table=loc['table'].to_dict(orient='records'),
+                    contrasts=loc['contrasts'].to_dict(orient='records'),
+                    comparison=loc['comparison'].to_dict(orient='records'),
+                    notes=loc['notes'])
+            except Exception as exc:
+                fail('local similarity', exc)
+            if per_split_shared is not None:
+                try:
+                    sh = per_split_shared[per_split_shared['electrode'].isin(resp.index)]
+                    r = electrode_split_corr(sh, resp, n_perm=n_perm, n_boot=n_boot, seed=seed)
+                    lines += electrode_corr_lines(r, label=f'the rescored table, {shared_label}')
+                    out['overlap_shared'] = r
+                    if set(MAIN_EFFECT_COLS) <= set(sh.columns):
+                        m = electrode_split_corr(main_effect_view(sh), resp, n_perm=n_perm,
+                                                 n_boot=n_boot, seed=seed)
+                        lines += electrode_corr_lines(
+                            m, label=f'the rescored table, {shared_label}',
+                            names=('congruency', 'switch'))
+                        out['main_effects_shared'] = m
+                except Exception as exc:
+                    fail('overlap on the rescored table', exc)
+            if per_split_shared is not None and not is_shared_split(ps):
+                try:
+                    rel = _shared_split_reliabilities(ps, per_split_shared, scores,
+                                                      shared_label=shared_label)
+                    rel.to_csv(os.path.join(out_dir, 'reliability_by_split_scheme.csv'),
+                               index=False)
+                    lines += ["  WITHIN-PARTICIPANT SPLIT-HALF RELIABILITY BY SPLIT SCHEME "
+                              "(the per-electrode split biases these)",
+                              *("    " + l for l in rel.to_string(
+                                  index=False, float_format=lambda v: f'{v:+.3f}').split('\n'))]
+                    out['reliability_by_split_scheme'] = rel.to_dict(orient='records')
+                except Exception as exc:
+                    fail('reliabilities by split scheme', exc)
+        if 5 in sections:
+            try:
+                table, oloso = overlap_controls(scores, ps, rt_coupling=rt_coupling,
+                                                n_perm=n_perm, seed=seed)
+                table.to_csv(os.path.join(out_dir, 'overlap_controls.csv'), index=False)
+                if oloso is not None:
+                    oloso.to_csv(os.path.join(out_dir, 'overlap_loso.csv'), index=False)
+                lines += overlap_control_lines(table, oloso)
+                out['overlap_controls'] = table.to_dict(orient='records')
+            except Exception as exc:
+                fail('overlap controls', exc)
+    elif any(k in sections for k in (2, 3, 5)):
+        lines.append("  no per-split table: sections 2, 3 and 5 were skipped")
+    if 4 in sections and has_coords:
+        try:                          # the slope tests panel d quotes, if section 1 did not run
+            if el_slope is None:
+                el_slope = coordinate_slope_by_electrode(scores, axis=axis, n_perm=n_perm,
+                                                         n_boot=n_boot, seed=seed,
+                                                         coord_res=coord_res)
+            if part is None:
+                part = coordinate_slope_by_participant(scores, axis=axis, n_perm=n_perm,
+                                                       n_boot=n_boot, seed=seed)
+        except Exception as exc:
+            fail(f'{axis} slope tests for the figure', exc)
+        for unit, key in (('electrode', 'figure5_height'),
+                          ('participant', 'figure5_height_participants')):
+            try:
+                fig = figure5_height(scores, out_dir, per_split=per_split, seg_dir=seg_dir,
+                                     coord_res=coord_res, participant_res=part,
+                                     electrode_res=el_slope, axis=axis, n_boot=n_boot,
+                                     n_perm=n_perm, seed=seed, unit=unit,
+                                     make_brain=make_brain and unit == 'electrode',
+                                     brain_kwargs=brain_kwargs)
+                lines += fig['lines']
+                out[key] = dict(
+                    centroids=fig['centroids'].to_dict(orient='records'),
+                    balance=fig['balance'].to_dict(orient='records'),
+                    edges=[float(e) for e in fig['edges']],
+                    brain_centroids=fig['brain_centroids'].to_dict(orient='records'),
+                    brain=(None if fig['brain'] is None else
+                           {k: fig['brain'].get(k) for k in ('combined', 'fallback', 'error')}))
+            except Exception as exc:
+                fail(f'combined figure 5 ({unit}s as the unit)', exc)
+    if not has_coords:
+        lines.append(f"  no {axis} coordinates: sections 1, 3 and 4 were skipped")
+    return lines, out
+
+
+# ---------------------------------------------------------------------------
 # §6 brain maps of the continuous scores
 # ---------------------------------------------------------------------------
 # The five surfaces of the plan. Map 5 carries the argument; 1-4 are what a
@@ -1487,6 +3645,14 @@ SCORE_MAPS = (
     dict(value_col='abs_lwpc', label='|LWPC|', cmap='viridis', symmetric=False),
     dict(value_col='abs_lwps', label='|LWPS|', cmap='viridis', symmetric=False),
     dict(value_col='delta', label='LWPC - LWPS (relative map)',
+         cmap='coolwarm', symmetric=True),
+)
+MAIN_EFFECT_MAPS = (
+    dict(value_col='cong_s', label='signed congruency (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='switch_s', label='signed switch type (pooled-scaled)',
+         cmap='coolwarm', symmetric=True),
+    dict(value_col='dm', label='congruency - switch (relative map)',
          cmap='coolwarm', symmetric=True),
 )
 
@@ -1730,7 +3896,7 @@ def _synthetic_anatomy(n_subj=12, seed=0, enrichment=0.6,
 
 def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
                       rois=("dlpfc", "lpfc", "acc", "parietal", "occ", "v1"),
-                      anterior=("dlpfc", "lpfc", "acc")):
+                      anterior=("dlpfc", "lpfc", "acc"), main_effects=None):
     """Continuous scores with a planted anatomy x effect-type interaction.
 
     The continuous counterpart of :func:`_synthetic_anatomy`: per-electrode LWPC
@@ -1750,6 +3916,12 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
 
     A per-subject GAIN multiplies both scores and the responsiveness proxy, so
     the pooled-scaling and covariate paths are exercised rather than assumed.
+
+    ``main_effects`` adds congruency/switch scores (``mx``/``my``) for the two
+    worlds of the main-effect check: ``'inherited'`` gives the main effects
+    the anterior/posterior layout and makes each adaptation score a share of
+    its own main effect; ``'independent'`` gives the main effects no layout and
+    leaves ``x``/``y`` as they are.
 
     Returns ``(scores, electrodes_to_rois, electrodes_to_anat,
     electrodes_to_coords)`` — ready for :func:`attach_scores`.
@@ -1779,7 +3951,22 @@ def _synthetic_scores(n_subj=12, seed=0, gradient=0.8, gain_sd=0.6,
             rows.append(dict(subject=subject, electrode=electrode,
                              x=lwpc, y=lwps,
                              resp=gain * float(rng.uniform(0.5, 1.5))))
-    return pd.DataFrame(rows), e2r, e2a, e2c
+    scores = pd.DataFrame(rows)
+    if main_effects not in (None, 'inherited', 'independent'):
+        raise ValueError("main_effects must be None, 'inherited' or 'independent'")
+    if main_effects:                         # own stream: x/y above are unchanged
+        rng = np.random.default_rng(seed + 1)
+        n, inherited = len(scores), main_effects == 'inherited'
+        g = scores.groupby('subject')['resp'].transform('mean').to_numpy()  # ~ gain
+        front = scores['electrode'].map(e2r).isin(anterior).to_numpy(float)
+        scores['mx'] = g * (0.5 + 1.5 * inherited * gradient * front
+                            + rng.normal(0, 0.3, n))
+        scores['my'] = g * (0.5 + 1.5 * inherited * gradient * (1 - front)
+                            + rng.normal(0, 0.3, n))
+        if inherited:
+            scores['x'] = 0.5 * scores['mx'] + g * rng.normal(0, 0.3, n)
+            scores['y'] = 0.5 * scores['my'] + g * rng.normal(0, 0.3, n)
+    return scores, e2r, e2a, e2c
 
 
 def _synthetic_per_split(scores, n_splits=20, noise=1.0, seed=0):
@@ -1799,7 +3986,13 @@ def _synthetic_per_split(scores, n_splits=20, noise=1.0, seed=0):
                 subject=r.subject, electrode=r.electrode, split=k,
                 xA=r.x + rng.normal(0, noise), xB=r.x + rng.normal(0, noise),
                 yA=r.y + rng.normal(0, noise), yB=r.y + rng.normal(0, noise)))
-    return pd.DataFrame(rows)
+    out = pd.DataFrame(rows)
+    if 'mx' in scores:              # main effects: better measured, own stream
+        rng = np.random.default_rng(seed + 1)
+        for c in ('mxA', 'mxB', 'myA', 'myB'):
+            out[c] = (np.tile(scores[c[:2]].to_numpy(float), int(n_splits))
+                      + rng.normal(0, noise / 3, len(out)))
+    return out
 
 
 if __name__ == '__main__':

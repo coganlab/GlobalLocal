@@ -14,7 +14,8 @@ splits, repeats), not a separate pseudo-trial scheme.
 Most knobs can be overridden from the submit script via environment variables
 (EPOCHS_ROOT_FILE, DATA_SOURCE, SYNTHETIC_CODE, WINDOW_TMIN, WINDOW_TMAX,
 ELECTRODES, ALPHA, WINDOW_SIZE, STEP_SIZE, N_SPLITS, N_REPEATS, FRAC_TRAIN,
-N_PERM, MIN_GROUP_SIZE, ROI) so you can rerun without editing Python.
+N_PERM, MIN_GROUP_SIZE, ROI, RT_MATCH and its RT_MATCH_* knobs, ACTIVITY_CONTROL)
+so you can rerun without editing Python.
 """
 import sys
 import os
@@ -38,25 +39,33 @@ project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import main
+from dcc_scripts.decoding.stability_flexibility_cross_decoding_dcc import (
+    ELECTRODE_DEFINITIONS, main)
 from src.analysis.config import experiment_conditions
 from src.analysis.config.rois import rois_dict as ALL_ROIS_DICT
-from src.analysis.utils.anova_label_selection import anova_label_run_slug
+from src.analysis.utils.anova_label_selection import (
+    MODE_EFFECTS, anova_label_run_slug, contrast_mode_from_path)
 
 # ---------------------------------------------------------------------------
 # ANALYSIS PARAMETERS
 # ---------------------------------------------------------------------------
 # Which analysis this job runs:
 #   'a4'             the stability/flexibility cross-decoding battery (default)
-#   'block_transfer' N3b (docs/n3b_block_transfer.md): each contrast trained in
+#   'block_transfer' N3b (docs/decoding.md#n3b-block-transfer): each contrast trained in
 #                    one block level and tested in the other, on EVERY electrode
 #                    of ROI. ELECTRODES alone picks 'sig' or 'all'; the electrode
 #                    group settings below (ELECTRODE_DEFINITION, the ANOVA CSV,
 #                    power traces, REFERENCE_GROUP, TEMPGEN_GROUPS) are unused,
 #                    and N_REPEATS counts balanced resamples.
+#   'task_transfer'  the task x congruency / task x switch type positive controls
+#                    (docs/decoding.md#cross-decoding-controls §3.5): the same job as
+#                    'block_transfer' with task, congruency and switch type as
+#                    the transfer factors. SYNTHETIC_CODE: shared |
+#                    congruency_specific | carryover.
 ANALYSIS = os.environ.get('ANALYSIS', 'a4')
-if ANALYSIS not in ('a4', 'block_transfer'):
-    raise ValueError(f"ANALYSIS must be 'a4' or 'block_transfer'; got {ANALYSIS!r}")
+if ANALYSIS not in ('a4', 'block_transfer', 'task_transfer'):
+    raise ValueError("ANALYSIS must be 'a4', 'block_transfer' or 'task_transfer'; "
+                     f"got {ANALYSIS!r}")
 
 LAB_ROOT = None                      # auto-resolved in main()
 TASK = 'GlobalLocal'
@@ -100,8 +109,9 @@ WINDOW_TMAX = float(os.environ.get('WINDOW_TMAX', '0.5'))
 # every 'i' cell vs every 'c' cell. The 16-cell set does not restrict the
 # transfer to within a block — only designs (0)/(0b) split by block.
 #
-# `response_experiment_conditions` is the response-locked 16-cell equivalent and
-# works the same way (pair it with a response-locked EPOCHS_ROOT_FILE).
+# `response_experiment_conditions` / `response_main_effect_conditions` are the
+# response-locked 16- and 4-cell equivalents and work the same way (pair them with
+# a Response_... EPOCHS_ROOT_FILE).
 #
 # What CANNOT be used, and why:
 #   - sets carrying just one factor (stimulus_congruency_conditions,
@@ -132,15 +142,19 @@ CONDITIONS = getattr(experiment_conditions, CONDITIONS_NAME)
 #                     'sig' keeps the baseline task-significant ones, 'all' keeps
 #                     every electrode in the ROI.
 #   the GROUPS      = how those loaded electrodes are then split for the decodes:
-#                     both / S_only / F_only from the interaction labels, plus the
-#                     unselected REFERENCE_GROUP over all of them.
+#                     both / S_only / F_only from the interaction labels (both /
+#                     congruency_only / switch_type_only from main-effect labels),
+#                     plus the unselected REFERENCE_GROUP over all of them.
 ROI = os.environ.get('ROI', 'lpfc')                         # a key of ROIS_DICT
 ROIS_DICT = {ROI: ALL_ROIS_DICT[ROI]} if ROI in ALL_ROIS_DICT else None
 if DATA_SOURCE == 'real' and ROIS_DICT is None:
     raise ValueError(f"ROI={ROI!r} is not in src/analysis/config/rois.py "
                      f"(have {sorted(ALL_ROIS_DICT)}).")
 ELECTRODES = os.environ.get('ELECTRODES', 'sig')            # 'all' or 'sig'
-CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
+# 'proportion' = LWPC/LWPS interaction labels, 'condition' = congruency /
+# switch-type main-effect labels. On the csv route it is read off the A1 folder
+# name when unset (see below). Default 'proportion'.
+CONTRAST_MODE = os.environ.get('CONTRAST_MODE') or None
 FDR_CORRECTION = os.environ.get('FDR_CORRECTION', 'fdr_bh')
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 ELECTRODE_SELECTION_SPLIT = os.environ.get(
@@ -158,12 +172,62 @@ if not 0 < ELECTRODE_SELECTION_FRAC < 1:
 #                     are exactly the electrodes the power-trace figures call
 #                     significant. More sensitive to transient interactions the
 #                     window mean dilutes; requires the run directories below.
+#   'csv'          -- the S/F flags of a saved A1 anova_labels.csv (ANOVA_LABELS_CSV).
+#                     ANOVA_LABEL_EFFECT first restricts it to one population
+#                     (both, congruency, lwpc_only, ...); the job then decodes the
+#                     disjoint groups left in it. 'union' keeps every group.
+#   'none'         -- no electrode groups: decode only REFERENCE_GROUP, i.e. every
+#                     electrode ELECTRODES loads ('sig' = all baseline-significant
+#                     electrodes of ROI). The window, contrast mode, correction and
+#                     table settings are unused.
 ELECTRODE_DEFINITION = os.environ.get('ELECTRODE_DEFINITION', 'anova')
+if ELECTRODE_DEFINITION not in ELECTRODE_DEFINITIONS:
+    raise ValueError(f"ELECTRODE_DEFINITION must be one of {list(ELECTRODE_DEFINITIONS)}; "
+                     f"got {ELECTRODE_DEFINITION!r}")
 ANOVA_LABELS_CSV = os.environ.get('ANOVA_LABELS_CSV') or None
 ANOVA_LABEL_EFFECT = os.environ.get('ANOVA_LABEL_EFFECT', 'both')
 # Most A1 files are already generated for one ROI and therefore do not carry a
 # separate ``roi`` column. Leave this unset unless the CSV actually has one.
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
+
+# A saved A1 table stores its two effects in the same S/F columns whichever
+# contrast mode built it, and its folder names the mode
+# (``..._<roi>_<mode>_<correction>``). On the csv route the mode only names the
+# groups, so take it from the folder and refuse a contradiction: that would
+# report main-effect electrodes as LWPC/LWPS ones, or the reverse.
+_csv_mode = (contrast_mode_from_path(ANOVA_LABELS_CSV)
+             if ELECTRODE_DEFINITION == 'csv' and ANOVA_LABELS_CSV else None)
+if _csv_mode and CONTRAST_MODE and CONTRAST_MODE != _csv_mode:
+    raise ValueError(f"CONTRAST_MODE={CONTRAST_MODE!r}, but {ANOVA_LABELS_CSV} is a "
+                     f"{_csv_mode}-mode A1 table; leave CONTRAST_MODE unset or match it.")
+CONTRAST_MODE = CONTRAST_MODE or _csv_mode or 'proportion'
+if CONTRAST_MODE not in MODE_EFFECTS:
+    raise ValueError(f"CONTRAST_MODE must be one of {sorted(MODE_EFFECTS)}; "
+                     f"got {CONTRAST_MODE!r}")
+_other_mode = [mode for mode, names in MODE_EFFECTS.items()
+               if mode != CONTRAST_MODE and ANOVA_LABEL_EFFECT.strip().lower() in names]
+if ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'csv' and _other_mode:
+    raise ValueError(
+        f"ANOVA_LABEL_EFFECT={ANOVA_LABEL_EFFECT!r} names a {_other_mode[0]}-mode "
+        f"population, but these are {CONTRAST_MODE}-mode labels; use one of "
+        f"{list(MODE_EFFECTS[CONTRAST_MODE])}, 'both' or 'union'.")
+if (ANALYSIS == 'a4' and DATA_SOURCE == 'real' and ELECTRODE_DEFINITION == 'anova'
+        and FDR_CORRECTION not in ('fdr_bh', 'none')):
+    raise ValueError("ELECTRODE_DEFINITION=anova fits the ANOVA in this job, so "
+                     f"FDR_CORRECTION must be 'fdr_bh' or 'none'; got {FDR_CORRECTION!r}.")
+# How the in-job ANOVA tests the condition-mode main effects:
+#   oneway  separate congruency and switch-type ANOVAs, each pooled over the other
+#           factor (default)
+#   twoway  one Type III congruency x switch type ANOVA per electrode: each main
+#           effect balanced over the other factor, plus the interaction, which is
+#           written to anova_labels.csv (CXS) and counted against the groups
+#           (summary.txt `interaction_electrodes`) but does not change them
+ANOVA_MODEL = (os.environ.get('ANOVA_MODEL') or 'oneway').strip().lower()
+if ANOVA_MODEL not in ('oneway', 'twoway'):
+    raise ValueError(f"ANOVA_MODEL must be oneway or twoway; got {ANOVA_MODEL!r}")
+if ANOVA_MODEL == 'twoway' and (ELECTRODE_DEFINITION != 'anova' or CONTRAST_MODE != 'condition'):
+    raise ValueError("ANOVA_MODEL=twoway fits congruency x switch type in this job, so it "
+                     "needs ELECTRODE_DEFINITION=anova and CONTRAST_MODE=condition.")
 
 # power_traces route: either ONE run whose ANOVA carried all four interactions,
 #   POWER_TRACES_RUN_DIR=/path/to/run
@@ -183,12 +247,19 @@ POWER_TRACES_ROI = os.environ.get('POWER_TRACES_ROI')       # None = don't filte
 # electrode in the decoded ROI array (so ELECTRODES above decides whether that
 # means "all" or "all baseline-significant"). Set REFERENCE_GROUP='' to drop it.
 REFERENCE_GROUP = os.environ.get('REFERENCE_GROUP', 'all')
+if ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'none' and not REFERENCE_GROUP:
+    raise ValueError("ELECTRODE_DEFINITION=none decodes only the reference group; "
+                     "set REFERENCE_GROUP to a name (e.g. 'all'), not ''.")
 
 # Temporal generalization costs n_windows^2 decodes per matrix, so it runs on a
 # chosen subset of the groups. TEMPGEN_GROUPS='both,all' adds the unselected
-# reference matrix; TEMPGEN_GROUPS='' skips the design entirely.
+# reference matrix; TEMPGEN_GROUPS='' skips the design entirely. With
+# ELECTRODE_DEFINITION=none there is no 'both' group, so the default is the
+# reference group.
+_tempgen_default = REFERENCE_GROUP if ELECTRODE_DEFINITION == 'none' else 'both'
 TEMPGEN_GROUPS = tuple(g.strip() for g in
-                       os.environ.get('TEMPGEN_GROUPS', 'both').split(',') if g.strip())
+                       os.environ.get('TEMPGEN_GROUPS', _tempgen_default).split(',')
+                       if g.strip())
 TRAIN_LABEL = os.environ.get('TRAIN_LABEL') or None
 TEST_LABEL = os.environ.get('TEST_LABEL') or None
 if bool(TRAIN_LABEL) != bool(TEST_LABEL):
@@ -206,6 +277,51 @@ N_PERM = int(os.environ.get('N_PERM', '500'))               # cluster-test permu
 MIN_GROUP_SIZE = int(os.environ.get('MIN_GROUP_SIZE', '5'))  # min electrodes per group
 SEED = int(os.environ.get('SEED', '0'))
 
+# --- RT matching of the decode trials (src/analysis/utils/rt_matching.py) ---
+# Incongruent and switch trials are slower, so late stimulus-locked windows can
+# separate the classes by time-to-response alone. RT_MATCH subsamples the decode
+# trials, per subject, so every combination of the decoded factors has the same
+# RT distribution (A4: the four congruency x switch-type cells), and keeps about
+# half the trials:
+#   none    no matching (default)
+#   rt      RT-matched subset
+#   random  the control: the same number of trials per subject and cell as 'rt',
+#           drawn without regard to RT. Compare 'rt' with 'random', not with
+#           'none', so the trial loss is the same on both sides.
+# RT_MATCH_BINS (quantile bins per subject), RT_MATCH_BALANCE (equal |
+# proportional), RT_MATCH_WITHIN (extra strata, comma-separated, e.g.
+# incongruent_proportion,switch_proportion), RT_MATCH_GROUPS (override the
+# matched factors, comma-separated) and RT_MATCH_SEED tune it.
+RT_MATCH = (os.environ.get('RT_MATCH') or 'none').strip().lower()
+RT_MATCH = {'false': 'none', '0': 'none', 'off': 'none', 'no': 'none',
+            'true': 'rt', '1': 'rt', 'on': 'rt', 'yes': 'rt'}.get(RT_MATCH, RT_MATCH)
+if RT_MATCH not in ('none', 'rt', 'random'):
+    raise ValueError(f"RT_MATCH must be none, rt or random; got {RT_MATCH!r}")
+if RT_MATCH != 'none' and DATA_SOURCE != 'real':
+    raise ValueError("RT_MATCH needs real epochs; the synthetic data have no RTs.")
+RT_MATCH_BINS = int(os.environ.get('RT_MATCH_BINS') or '10')
+RT_MATCH_BALANCE = os.environ.get('RT_MATCH_BALANCE') or 'equal'
+if RT_MATCH_BALANCE not in ('equal', 'proportional'):
+    raise ValueError(f"RT_MATCH_BALANCE must be equal or proportional; got {RT_MATCH_BALANCE!r}")
+RT_MATCH_WITHIN = tuple(f.strip() for f in os.environ.get('RT_MATCH_WITHIN', '').split(',')
+                        if f.strip())
+RT_MATCH_GROUPS = tuple(f.strip() for f in os.environ.get('RT_MATCH_GROUPS', '').split(',')
+                        if f.strip()) or None
+
+# --- overall-activity control (src/analysis/decoding/activity_control.py) ---
+# Is a decode / transfer carried by a uniform rise in HG on hard trials rather
+# than by a pattern across electrodes? Applied to every decode of the job, per
+# electrode group, after the pseudopopulation is built:
+#   none         no change (default)
+#   remove_mean  subtract each subject's mean across the decoded electrodes, per
+#                pseudo-trial and time point: only the pattern is left
+#   mean_only    decode from each subject's mean alone: only the uniform part
+# Read each against its own ceilings (the `retained` shares), not raw accuracy.
+ACTIVITY_CONTROL = (os.environ.get('ACTIVITY_CONTROL') or 'none').strip().lower()
+if ACTIVITY_CONTROL not in ('none', 'remove_mean', 'mean_only'):
+    raise ValueError("ACTIVITY_CONTROL must be none, remove_mean or mean_only; "
+                     f"got {ACTIVITY_CONTROL!r}")
+
 # Proportion of trials used for TRAINING in each split. Unset (the default) keeps
 # StratifiedKFold, i.e. (N_SPLITS-1)/N_SPLITS. Set it to sweep the train/test
 # proportion directly — StratifiedShuffleSplit is used instead and N_SPLITS then
@@ -213,6 +329,7 @@ SEED = int(os.environ.get('SEED', '0'))
 #   FRAC_TRAIN=0.5 bash submit_stability_flexibility_cross_decoding_dcc.sh
 FRAC_TRAIN = os.environ.get('FRAC_TRAIN')
 FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
+RT_MATCH_SEED = int(os.environ.get('RT_MATCH_SEED') or SEED)
 
 # --- output ---
 # The ROI, electrode set and definition route all change what was decoded, so
@@ -220,21 +337,40 @@ FRAC_TRAIN = float(FRAC_TRAIN) if FRAC_TRAIN else None
 # A synthetic run must never share a folder with the real results, even when
 # the submit script also exports EPOCHS_ROOT_FILE.
 _tag = f'synthetic_{SYNTHETIC_CODE}' if DATA_SOURCE == 'synthetic' else EPOCHS_ROOT_FILE
+# The 'none' route uses no definition window, contrast mode or correction, so
+# they stay out of its folder name.
+_run_name = (f'cross_decoding_{ROI}_{ELECTRODES}_none' if ELECTRODE_DEFINITION == 'none'
+             else f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
+                  f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}')
+# The two-way model selects different electrodes; the one-way name is unchanged.
+_run_name += '_twoway' if ANOVA_MODEL == 'twoway' else ''
+# The held-out selection split and RT matching change which trials are decoded,
+# so they name the folder too; with both off the name is unchanged.
+_split_tag = (f'_split{ELECTRODE_SELECTION_FRAC:g}s{ELECTRODE_SELECTION_SEED}'
+              if ELECTRODE_SELECTION_SPLIT and ELECTRODE_DEFINITION == 'anova' else '')
+_rt_tag = '' if RT_MATCH == 'none' else (
+    f"_rt{'match' if RT_MATCH == 'rt' else 'random'}{RT_MATCH_BINS}"
+    + ('' if RT_MATCH_BALANCE == 'equal' else f'_{RT_MATCH_BALANCE}')
+    + (f"_within-{'-'.join(RT_MATCH_WITHIN)}" if RT_MATCH_WITHIN else '')
+    + (f"_groups-{'-'.join(RT_MATCH_GROUPS)}" if RT_MATCH_GROUPS else '')
+    + (f'_seed{RT_MATCH_SEED}' if RT_MATCH_SEED != SEED else ''))
+_act_tag = '' if ACTIVITY_CONTROL == 'none' else f'_{ACTIVITY_CONTROL}'
+_run_name += _split_tag + _rt_tag + _act_tag
 SAVE_DIR = os.environ.get('SAVE_DIR') or os.path.join(
-    current_script_dir, 'results', _tag,
-    f'cross_decoding_{ROI}_window_{WINDOW_TMIN}to{WINDOW_TMAX}s_'
-    f'{ELECTRODES}_{ELECTRODE_DEFINITION}_{CONTRAST_MODE}_{FDR_CORRECTION}',
-    CONDITIONS_NAME)
-if ANOVA_LABELS_CSV and not os.environ.get('SAVE_DIR'):
+    current_script_dir, 'results', _tag, _run_name, CONDITIONS_NAME)
+if ANOVA_LABELS_CSV and ELECTRODE_DEFINITION == 'csv' and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
         anova_label_run_slug(
             ANOVA_LABELS_CSV, effect=ANOVA_LABEL_EFFECT, correction=FDR_CORRECTION,
             alpha=ALPHA, roi=ANOVA_LABEL_ROI))
-if ANALYSIS == 'block_transfer' and not os.environ.get('SAVE_DIR'):
+# A single requested transfer writes the same file names as the full battery.
+if TRAIN_LABEL and not os.environ.get('SAVE_DIR'):
+    SAVE_DIR = os.path.join(SAVE_DIR, f'train_{TRAIN_LABEL.lower()}_test_{TEST_LABEL.lower()}')
+if ANALYSIS in ('block_transfer', 'task_transfer') and not os.environ.get('SAVE_DIR'):
     SAVE_DIR = os.path.join(
         current_script_dir, 'results', _tag,
-        f'block_transfer_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}',
+        f'{ANALYSIS}_{ROI}_{ELECTRODES}_w{WINDOW_SIZE}s{STEP_SIZE}{_rt_tag}{_act_tag}',
         'pooled_design_conditions')
 
 
@@ -261,6 +397,7 @@ def run_analysis():
         electrode_selection_seed=ELECTRODE_SELECTION_SEED,
         contrast_mode=CONTRAST_MODE,
         fdr_correction=FDR_CORRECTION,
+        anova_model=ANOVA_MODEL,
         electrode_definition=ELECTRODE_DEFINITION,
         anova_labels_csv=ANOVA_LABELS_CSV,
         anova_label_effect=ANOVA_LABEL_EFFECT,
@@ -284,27 +421,43 @@ def run_analysis():
         n_perm=N_PERM,
         min_group_size=MIN_GROUP_SIZE,
         seed=SEED,
+        rt_match=RT_MATCH,
+        rt_match_bins=RT_MATCH_BINS,
+        rt_match_balance=RT_MATCH_BALANCE,
+        rt_match_within=RT_MATCH_WITHIN,
+        rt_match_groups=RT_MATCH_GROUPS,
+        rt_match_seed=RT_MATCH_SEED,
+        activity_control=ACTIVITY_CONTROL,
         save_dir=SAVE_DIR,
     )
 
+    transfer_job = ANALYSIS in ('block_transfer', 'task_transfer')
     print("=" * 72)
-    print("N3b BLOCK-TRANSFER CROSS-DECODING" if ANALYSIS == 'block_transfer'
-          else "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING")
+    print({'block_transfer': "N3b BLOCK-TRANSFER CROSS-DECODING",
+           'task_transfer': "TASK-TRANSFER POSITIVE CONTROLS"}.get(
+               ANALYSIS, "STABILITY vs FLEXIBILITY — A4 CROSS-DECODING"))
     print("=" * 72)
     print(f"Data source:      {DATA_SOURCE}"
           + (f" (code={SYNTHETIC_CODE})" if DATA_SOURCE == 'synthetic' else ""))
     print(f"Subjects:         {SUBJECTS}")
     print(f"Task:             {TASK}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
-    print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
+    if not (ANALYSIS == 'a4' and ELECTRODE_DEFINITION == 'none'):
+        print(f"Analysis window:  [{WINDOW_TMIN}, {WINDOW_TMAX}] s")
     if ANALYSIS == 'block_transfer':
         print("Conditions:       design-specific pooled 2x2 sets (LWPC/LWPS/control)")
+    elif ANALYSIS == 'task_transfer':
+        print("Conditions:       stimulus_task_by_congruency / _by_switch_type (pooled 2x2)")
     else:
         print(f"Conditions:       {len(CONDITIONS)} cells")
     print(f"ROI:              {ROI} | electrodes: {ELECTRODES}")
     print("-" * 72)
-    if ANALYSIS == 'block_transfer':
+    if transfer_job:
         print("Electrode groups: none (every loaded electrode is decoded)")
+    elif ELECTRODE_DEFINITION == 'none':
+        print(f"Elec definition:  none (no groups; every loaded electrode is decoded "
+              f"as '{REFERENCE_GROUP}')")
+        print(f"temporal gen on:  {list(TEMPGEN_GROUPS) or '(none)'}")
     else:
         print(f"Elec definition:  {ELECTRODE_DEFINITION}"
               + (f" (runs={POWER_TRACES_RUNS}, correction={POWER_TRACES_CORRECTION}, "
@@ -312,12 +465,26 @@ def run_analysis():
         print(f"Reference group:  {REFERENCE_GROUP or '(none)'} "
               f"| temporal gen on: {list(TEMPGEN_GROUPS) or '(none)'}")
         print(f"alpha (A1):       {ALPHA}")
+        if ELECTRODE_DEFINITION == 'anova' and CONTRAST_MODE == 'condition':
+            print(f"ANOVA model:      {ANOVA_MODEL}")
     print(f"window/step:      {WINDOW_SIZE}/{STEP_SIZE} samples "
           f"| n_splits: {N_SPLITS} | n_repeats: {N_REPEATS}")
     print("train fraction:   "
           + (f"{FRAC_TRAIN} (StratifiedShuffleSplit)" if FRAC_TRAIN
              else f"{(N_SPLITS - 1) / N_SPLITS:.2f} (StratifiedKFold default)"))
     print(f"n_perm:           {N_PERM} | min_group_size: {MIN_GROUP_SIZE} | seed: {SEED}")
+    if ELECTRODE_SELECTION_SPLIT:
+        print(f"selection split:  {ELECTRODE_SELECTION_FRAC:.0%} select / "
+              f"{1 - ELECTRODE_SELECTION_FRAC:.0%} decode (seed {ELECTRODE_SELECTION_SEED})"
+              + ("" if ELECTRODE_DEFINITION == 'anova' else
+                 "  [only the anova route supports it; the job will refuse]"))
+    print(f"RT matching:      {RT_MATCH}"
+          + ("" if RT_MATCH == 'none' else
+             f" (bins={RT_MATCH_BINS}, balance={RT_MATCH_BALANCE}, "
+             f"within=subject{''.join(',' + w for w in RT_MATCH_WITHIN)}, "
+             f"groups={list(RT_MATCH_GROUPS) if RT_MATCH_GROUPS else 'decoded factors'}, "
+             f"seed={RT_MATCH_SEED})"))
+    print(f"Activity control: {ACTIVITY_CONTROL}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 72)
 

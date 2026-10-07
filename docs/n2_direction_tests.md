@@ -1,7 +1,7 @@
 # N2 — direction tests on the adaptation effects
 
 **What this document is.** A standalone walkthrough of the analysis that answers
-beat **N2** in [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md)
+beat **N2** in [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan)
 §2: *which way do the LWPC and LWPS effects go in lPFC high gamma?* It covers the
 data flow end to end, every parameter that changes the answer, the exact commands
 to run it, and how to read what comes back.
@@ -9,6 +9,25 @@ to run it, and how to read what comes back.
 It assumes nothing about what you remember. If you only read one section, read
 [§2 The sign convention](#2-the-sign-convention-read-this-first) — every other
 number in this document is meaningless without it.
+
+> **Where N2 sits in the paper (2026-10-01).** The direction in Fig. 3 does not
+> come from this analysis. F3b's bars are the windowed ANOVA's two-way
+> interaction clusters, run on the block-balanced sets
+> (`stimulus_lwpc_block_balanced_conditions`,
+> `stimulus_lwps_block_balanced_conditions`) and split at sign changes. A blue
+> (negative) bar is the adaptation direction (§2 table). Both adaptation
+> clusters are blue, so the figure carries the direction itself. The three
+> tests here are now supplementary (S2d, the old F3d), and the two simple
+> effects go in the Results text.
+> Layout: [`paper_draft.md`](paper_draft.md) §1.4, F3. Two consequences:
+>
+> - The ANOVA computes each cluster's p (`sig_clusters_with_sign`) but does not
+>   save it. `power_traces_dcc.py` writes only masks and the signed contrast to
+>   `anova_F_traces/*.npz`, and the interaction npz gets an empty
+>   `cluster_p_values`. Save it before reporting a p.
+> - This analysis runs on the 4-cell sets; the figure's ANOVA runs on the
+>   8-cell block-balanced sets (§4.2, §8 item 3). Either say so, or recompute
+>   the simple effects from the block-balanced `_evoked.npz` files.
 
 ---
 
@@ -35,7 +54,7 @@ N2 lives here:
 The confusion is understandable: the segregation module computes per-electrode
 LWPC/LWPS scores on **the same sign convention**, so it is a second read on the
 same direction question. That relationship is spelled out in
-[§8](#8-the-second-read-the-two-files-you-thought-this-was-in).
+[§9](#9-the-second-read--the-two-files-you-thought-this-was-in).
 
 ---
 
@@ -97,7 +116,7 @@ compare numbers across them without converting, you will read the result backwar
 |---|---|---|
 | `power_traces_dcc.py` interaction follow-up (**this analysis**) | **low − high** | positive = adaptation |
 | `stability_flexibility_segregation.W_INTERACTION` (`:519`) | **low − high** | same convention — agrees with N2 |
-| `windowed_anova._signed_contrast_per_window` (`:37`) | **high − low** | orders factor levels *alphabetically*; only used to split clusters at sign flips and colour pos/neg bars, neither of which depends on absolute orientation |
+| `windowed_anova._signed_contrast_per_window` (`:37`) | **high − low** | orders factor levels *alphabetically* (`c` < `i`, `r` < `s`, `25%` < `75%`), so its 2 × 2 contrast is −(low − high). It splits clusters at sign flips and colours the bars. Splitting does not depend on absolute orientation, but the colour does, and F3 reads the direction off it: in `plot_2way_interaction_for_roi`, a **blue** (negative) bar is the adaptation direction and a red (positive) bar is the opposite |
 | `power_traces_dcc.py:531` `signed_contrast` in the saved ANOVA npz | **high − low** | inherits the above. The inline comment says "Flip it when reading." |
 | cross-decoding `block_difference` | high − low on *accuracy* | not a condition effect; has no adaptation direction |
 
@@ -251,7 +270,7 @@ resolving the registry directly:
 > because no one added `subtraction_pairs` for them. So the direction test runs on
 > the 4-cell sets, which split by the **tested** proportion factor but leave the
 > **other** proportion factor uncontrolled. Worth a per-cell count check; see
-> [§7](#7-known-gaps-against-the-plan).
+> [§8](#8-known-gaps-against-the-plan).
 
 ### 4.3 The statistical knobs
 
@@ -477,13 +496,23 @@ That is the base effect and it should be there.
 
 ### Step 3 — the kill switch
 
-> Compare against the **behavioral** LWPC/LWPS directions from
-> `stats/erin_linear_mixed_effects_model.py` / `combinedData.csv`. Both are on the
-> same low-minus-high convention (pinned by the sign-convention test), so they are
-> directly comparable.
+> Compare against the **behavioral** LWPC/LWPS directions: the per-participant
+> `lwpc` / `lwps` from `behavioral_lwpc_lwps_magnitudes` (A6's
+> `behavioral_magnitudes.csv`, or `combinedData.csv` through the corrected
+> `blockType` map). Both are on the same low-minus-high convention (pinned by the
+> sign-convention test), so they are directly comparable. On `combinedData.csv`
+> both are positive: LWPC +123 ms, LWPS +97 ms, 20 of 23 participants each.
+> `erin_linear_mixed_effects_model.py` is a post-error model with no congruency ×
+> proportion term, and until 2026-09-27 its `blockType` map, like the A6 module's,
+> swapped blocks A and D ([`a6_brain_behavior.md`](a6_brain_behavior.md) §1.1).
 >
 > **If the neural directions disagree with the behavioral ones, stop.** Re-read the
 > epoch metadata before running anything in N3–N4.
+>
+> A match is not independent evidence of adaptation on its own: if HG tracks RT
+> within cells, the neural d-o-d inherits behavior's sign
+> ([`a6_brain_behavior.md`](a6_brain_behavior.md) §4.1). The RT-adjusted
+> per-electrode scores in A6's `participant_electrode_scores.csv` are the check.
 
 ### Step 4 — report `n_electrodes` and `n_subjects` together
 
@@ -583,7 +612,7 @@ windows actually tiled, so the two analyses cover the same window.
 | `stability_flexibility_anatomy_dcc.py` | N4 | are those scores organized differently across cortex? ROI/Destrieux enrichment, coverage-conditioned, with a within-electrode effect-label-swap null |
 
 Their outputs are documented separately in
-[`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md)
+[`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide)
 (§"Segregation output directory" and §"A3 anatomy output directory").
 
 ---
@@ -610,9 +639,9 @@ Their outputs are documented separately in
 
 ## Related documents
 
-- [`analysis_plan_concurrent_regulation.md`](analysis_plan_concurrent_regulation.md) §2 — the N2 spec this implements; §9.2 and §9.4 for the leverage and pairing arguments
-- [`stability_flexibility_data_flow.md`](stability_flexibility_data_flow.md) — the A1–A7 walkthrough
+- [`analysis_plans.md` › Concurrent-regulation plan](analysis_plans.md#concurrent-regulation-plan) §2 — the N2 spec this implements; §9.2 and §9.4 for the leverage and pairing arguments
+- [`stability_flexibility_battery.md` › Data flow walk-through](stability_flexibility_battery.md#data-flow-walk-through) — the A1–A7 walkthrough
 - [`analysis_guide.md`](analysis_guide.md) — the pipelines as built
-- [`stability_flexibility_outputs_guide.md`](stability_flexibility_outputs_guide.md) — how to read the N4 segregation/anatomy outputs
+- [`stability_flexibility_battery.md` › Outputs guide](stability_flexibility_battery.md#outputs-guide) — how to read the N4 segregation/anatomy outputs
 - [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md) — how to run and interpret the N4 continuous-score anatomy tests, maps, and descriptive medoids
-- [`analysis_simplification_plan.md`](analysis_simplification_plan.md) §2.2b — why the contrasts are cell-balanced
+- [`analysis_plans.md` › Simplification plan](analysis_plans.md#simplification-plan) §2.2b — why the contrasts are cell-balanced

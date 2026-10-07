@@ -1,0 +1,91 @@
+========================================================================
+N3b BLOCK-TRANSFER CROSS-DECODING
+========================================================================
+           data_source: real
+                   roi: lpfc
+            electrodes: sig
+            n_channels: 171
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+           window_size: 64
+             step_size: 16
+              n_splits: 5
+           n_resamples: 10
+                n_perm: 500
+                  seed: 0
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/block_transfer_lpfc_sig_w64s16/stimulus_experiment_conditions
+------------------------------------------------------------------------
+X1_uncentered: congruency, trained in one incongruent_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'c|inc25|sw25': 92, 'c|inc25|sw75': 85, 'c|inc75|sw25': 33, 'c|inc75|sw75': 35, 'i|inc25|sw25': 34, 'i|inc25|sw75': 32, 'i|inc75|sw25': 86, 'i|inc75|sw75': 86})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.570 (16/0)      0.559 (18/9)
+              75%      0.539 (20/0)      0.562 (20/0)
+   25% -> 75% vs within 75%: below that ceiling in 5 windows
+   75% -> 25% vs within 25%: below that ceiling in 14 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 9 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X1_centered: congruency, trained in one incongruent_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'c|inc25|sw25': 92, 'c|inc25|sw75': 85, 'c|inc75|sw25': 33, 'c|inc75|sw75': 35, 'i|inc25|sw25': 34, 'i|inc25|sw75': 32, 'i|inc75|sw25': 86, 'i|inc75|sw75': 86})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.601 (17/0)     0.557 (18/10)
+              75%      0.582 (20/0)      0.555 (18/0)
+   25% -> 75% vs within 75%: below that ceiling in 5 windows
+   75% -> 25% vs within 25%: below that ceiling in 8 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 10 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X2_uncentered: switchType, trained in one switch_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'r|inc25|sw25': 91, 'r|inc25|sw75': 33, 'r|inc75|sw25': 86, 'r|inc75|sw75': 32, 's|inc25|sw25': 35, 's|inc25|sw75': 84, 's|inc75|sw25': 33, 's|inc75|sw75': 89})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.568 (13/0)      0.540 (12/0)
+              75%       0.525 (8/0)      0.549 (14/0)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 15 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+X2_centered: switchType, trained in one switch_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'r|inc25|sw25': 91, 'r|inc25|sw75': 33, 'r|inc75|sw25': 86, 'r|inc75|sw75': 32, 's|inc25|sw25': 35, 's|inc25|sw75': 84, 's|inc75|sw25': 33, 's|inc75|sw75': 89})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.602 (16/0)      0.532 (11/0)
+              75%      0.558 (11/0)      0.547 (13/2)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 14 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 2 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X3_uncentered: congruency, trained in one switch_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'c|inc25|sw25': 92, 'c|inc25|sw75': 85, 'c|inc75|sw25': 33, 'c|inc75|sw75': 35, 'i|inc25|sw25': 34, 'i|inc25|sw75': 32, 'i|inc75|sw25': 86, 'i|inc75|sw75': 86})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.586 (16/5)      0.549 (16/0)
+              75%      0.547 (18/0)      0.564 (14/0)
+   25% -> 75% vs within 75%: below that ceiling in 11 windows
+   75% -> 25% vs within 25%: below that ceiling in 16 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 5 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X3_centered: congruency, trained in one switch_proportion level and tested in the other
+   balanced to 32 trials per class per physical block (available: {'c|inc25|sw25': 92, 'c|inc25|sw75': 85, 'c|inc75|sw25': 33, 'c|inc75|sw75': 35, 'i|inc25|sw25': 34, 'i|inc25|sw75': 32, 'i|inc75|sw25': 86, 'i|inc75|sw75': 86})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.600 (18/7)      0.567 (17/0)
+              75%      0.568 (19/0)      0.586 (18/0)
+   25% -> 75% vs within 75%: below that ceiling in 10 windows
+   75% -> 25% vs within 25%: below that ceiling in 19 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 7 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+========================================================================
+Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the
+within accuracy of the level it is TESTED on.
+  transfer ~ within, centered and uncentered  -> the same code in both levels
+  below within uncentered only                -> same axis, a tonic block shift
+  below within centered, in BOTH directions   -> block context reorganizes the
+                                                 code; counts only if X3 transfers
+  below in one direction only                 -> the training level's code is
+                                                 weaker, not a different axis
+Resamples are not independent subjects, so window-wise p-values are optimistic.
+========================================================================

@@ -97,6 +97,23 @@ def test_pooled_conditions_still_define_both_contrasts(pooled_cells):
         assert cd._class_of(name, flex) == (0 if cell['switchType'] == 's' else 1)
 
 
+def test_response_main_effect_set_mirrors_the_stimulus_one(pooled_cells):
+    """The response-locked pooled 2x2 is the stimulus one with the event swapped:
+    same cells, same factor levels, same pooled block events."""
+    stim, resp = ec.stimulus_main_effect_conditions, ec.response_main_effect_conditions
+    assert {n.replace('Stimulus_', 'Response_') for n in stim} == set(resp)
+    for name, meta in stim.items():
+        twin = resp[name.replace('Stimulus_', 'Response_')]
+        assert twin['BIDS_events'] == [e.replace('Stimulus/', 'Response/')
+                                       for e in meta['BIDS_events']]
+        assert (twin['congruency'], twin['switchType']) == (meta['congruency'],
+                                                            meta['switchType'])
+    resp_cells = cd.condition_cells(resp)
+    assert cd.factors_are_crossed(resp_cells)
+    assert sorted(tuple(c[f] for f in cd.CROSS_DECODE_FIELDS) for c in resp_cells.values()) \
+        == sorted(tuple(c[f] for f in cd.CROSS_DECODE_FIELDS) for c in pooled_cells.values())
+
+
 def test_has_block_factor_separates_the_two_condition_sets(real_cells, pooled_cells):
     for field in ('incongruent_proportion', 'switch_proportion'):
         assert cd.has_block_factor(real_cells, field)
@@ -331,9 +348,92 @@ def test_pooled_branch_transfers_over_all_trials(tmp_path, monkeypatch):
     lt = results['label_transfer']
     assert set(lt) >= {'both', 'all'}
     for group, res in lt.items():
-        assert set(res) == {'stab_to_flex', 'flex_to_stab'}
+        # each transfer is read against the within decode of what it is scored on
+        assert set(res) == {'stab_to_stab', 'flex_to_flex', 'stab_to_flex', 'flex_to_stab'}
         for direction, r in res.items():
             assert set(r['conditions']) == set(ec.stimulus_main_effect_conditions)
+        for direction in ('stab_to_flex', 'flex_to_stab'):
+            assert {'n_below_ceiling', 'retained'} <= set(res[direction])
 
     assert (tmp_path / 'cross_decoding.json').exists()
-    assert (tmp_path / 'summary.txt').exists()
+    assert 'its ceiling' in (tmp_path / 'summary.txt').read_text()
+
+
+def test_the_pseudo_trial_counts_reach_the_json_and_summary(tmp_path, monkeypatch):
+    """The real builder pads conditions to a common length with all-NaN rows. The
+    count the job reports is what is decoded, padding excluded, per condition and
+    per class, so a run's data size is on record without the slurm log."""
+    import json
+    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+    arrays = xd._build_roi_arrays(None, None)[1]['lpfc']
+    real = {'Stimulus_ir': 24, 'Stimulus_is': 18, 'Stimulus_cr': 24, 'Stimulus_cs': 20}
+    for name, n in real.items():
+        arrays[name][n:] = np.nan                     # padding up to 24 rows
+
+    results = xd.main(_stub_args(tmp_path, ec.stimulus_main_effect_conditions))
+
+    assert results['pseudo_trials']['per_condition'] == real
+    assert results['pseudo_trials']['per_level'] == {
+        'congruency': {'c': 44, 'i': 42}, 'switchType': {'r': 48, 's': 38}}
+    saved = json.loads((tmp_path / 'cross_decoding.json').read_text())
+    assert saved['pseudo_trials']['per_condition'] == real
+    text = (tmp_path / 'summary.txt').read_text()
+    assert 'Stimulus_is=18' in text
+    assert 'congruency: c=44  i=42' in text
+    assert 'total=86; the label transfer trains on ~57 of them per fold' in text
+    assert 'WARNING' not in text
+
+
+def test_the_none_route_decodes_only_the_loaded_electrodes(tmp_path, monkeypatch):
+    """electrode_definition='none': no labels are resolved and no groups are
+    built, so the reference group (every loaded channel) is the only one decoded,
+    including by temporal generalization."""
+    cells = cd.condition_cells(ec.stimulus_main_effect_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+
+    def _no_labels(args, df=None):
+        raise AssertionError("the 'none' route must not resolve electrode labels")
+    monkeypatch.setattr(xd, '_resolve_labels', _no_labels)
+    args = _stub_args(tmp_path, ec.stimulus_main_effect_conditions)
+    args.electrode_definition = 'none'
+    args.tempgen_groups = ('all',)
+
+    results = xd.main(args)
+
+    lt = results['label_transfer']
+    assert set(lt) == {'all'}
+    assert set(lt['all']) == {'stab_to_stab', 'flex_to_flex', 'stab_to_flex', 'flex_to_stab'}
+    assert lt['all']['stab_to_flex']['n_channels'] == len(CHANNEL_NAMES)
+    assert results.get('within_block_by_group') is None
+    assert results['temporal'] and all(k.endswith('[all]') for k in results['temporal'])
+    assert not (tmp_path / 'anova_labels.csv').exists()
+    assert 'unused (no electrode definition)' in (tmp_path / 'summary.txt').read_text()
+
+
+def test_the_none_route_refuses_to_drop_its_only_group(tmp_path):
+    args = _stub_args(tmp_path, ec.stimulus_main_effect_conditions)
+    args.electrode_definition = 'none'
+    args.reference_group = ''
+    with pytest.raises(ValueError, match='decodes only the reference group'):
+        xd.main(args)
+
+
+def test_main_effect_labels_name_their_groups(tmp_path, monkeypatch):
+    """contrast_mode='condition': the S/F flags are the congruency and switch-type
+    MAIN effects, so the groups are named for them, and a main-effect group skips
+    every decode of its own contrast in the per-group 2x2, not one cell."""
+    cells = cd.condition_cells(ec.stimulus_experiment_conditions)
+    _stub_data_loading(monkeypatch, cells, LABELS, CHANNEL_NAMES)
+    args = _stub_args(tmp_path, ec.stimulus_experiment_conditions)
+    args.contrast_mode = 'condition'
+
+    results = xd.main(args)
+
+    assert set(results['label_transfer']) == {'both', 'congruency_only',
+                                              'switch_type_only', 'all'}
+    by_group = results['within_block_by_group']
+    assert set(by_group) == {'congruency', 'switch_type'}
+    assert by_group['congruency']['cells']
+    assert all(cell.startswith('switchType') for cell in by_group['congruency']['cells'])
+    assert all(cell.startswith('congruency') for cell in by_group['switch_type']['cells'])

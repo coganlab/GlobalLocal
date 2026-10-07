@@ -89,6 +89,21 @@ if ALIGN_TO_POWER_TRACES_RUN:
 #                 'cluster'     -> aggregate cluster-mass statistic on windowed HG time courses
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
+# RT_ADJUST_HG=1 removes each electrode's pooled within-design-cell HG~RT
+# component before sensitivity scoring. It requires scalar window-mean HG.
+RT_ADJUST_HG = os.environ.get('RT_ADJUST_HG', '0') not in ('0', '', 'false', 'False')
+if RT_ADJUST_HG and EFFECT_MEASURE != 'cohens_d':
+    raise ValueError("RT_ADJUST_HG=1 requires EFFECT_MEASURE=cohens_d")
+
+# MAIN_EFFECTS=1 (proportion mode): also score congruency and switch type on the
+# same halves (mx/my columns) for the main-effect anatomy, docs/analysis_plans.md#closing-figure-plan
+MAIN_EFFECTS = (os.environ.get('MAIN_EFFECTS', '0') not in ('0', '', 'false', 'False')
+                and CONTRAST_MODE == 'proportion')
+
+# SHARED_SPLIT=1: one trial split per participant, used by all of its electrodes
+# (compute_sensitivities_per_split). Needed by the local-similarity analysis
+# (docs/n4_continuous_anatomy.md §19.3); the pre-specified tests are valid either way.
+SHARED_SPLIT = os.environ.get('SHARED_SPLIT', '0') not in ('0', '', 'false', 'False')
 
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
@@ -102,7 +117,7 @@ ROIS_DICT = select_rois(ROIS)
 # Prefer passing a {electrode: baseline-vs-signal cluster stat} dict here.
 RESPONSIVENESS = None
 
-# --- scatter-only fast path (docs/analysis_simplification_plan.md 2.5) -------
+# --- scatter-only fast path (docs/analysis_plans.md#simplification-plan 2.5) -------
 # SCATTER_ONLY=1 assembles the trial table, scores both contrasts per electrode,
 # writes the joint scatter (coloured by subject, marginal histograms, leverage
 # diagnostics) and stops -- no splits, no permutations, no categorical arm. This
@@ -128,6 +143,12 @@ _roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
 SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'segregation_results',
                         f'window_{WINDOW_TMIN}to{WINDOW_TMAX}s_{ELECTRODES}'
                         f'_{_roi_tag}_{CONTRAST_MODE}_{EFFECT_MEASURE}_{FDR_CORRECTION}')
+if MAIN_EFFECTS and not SCATTER_ONLY:   # never overwrite an archived LWPC/LWPS-only run
+    SAVE_DIR += '_main_effects'
+if RT_ADJUST_HG:
+    SAVE_DIR += '_rt_adjusted'
+if SHARED_SPLIT:
+    SAVE_DIR += '_shared_split'
 # Keep the scatter-only run in its own directory: its sensitivities are scored
 # differently (all trials, by default) from the ones a full run plots, so writing
 # both scatters to the same path would silently overwrite one with the other.
@@ -152,6 +173,9 @@ def run_analysis():
         responsiveness=RESPONSIVENESS,
         contrast_mode=CONTRAST_MODE,
         effect_measure=EFFECT_MEASURE,
+        rt_adjust_hg=RT_ADJUST_HG,
+        main_effects=MAIN_EFFECTS,
+        shared_split=SHARED_SPLIT,
         n_splits=N_SPLITS,
         n_perm_corr=N_PERM_CORR,
         n_perm_label=N_PERM_LABEL,
@@ -181,6 +205,8 @@ def run_analysis():
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"Contrast mode:    {CONTRAST_MODE}")
     print(f"Effect measure:   {EFFECT_MEASURE}")
+    print(f"RT-adjust HG:     {RT_ADJUST_HG}")
+    print(f"Shared split:     {SHARED_SPLIT}")
     print("-" * 70)
     if SCATTER_ONLY:
         print("MODE:             SCATTER ONLY (plan 2.5) - no inference is run")

@@ -14,7 +14,9 @@ on the cluster; call `main(args)` with a populated argument namespace.
 The analysis input `df` is long format, one row per (electrode, trial):
     subject, electrode, hg, congruency in {'c','i'}, switchType in {'s','r'}
 We build it by window-averaging HG_ev1_rescaled over [tmin, tmax] and reading
-`congruency` and `task_sequence` (-> switchType) from the epochs metadata.
+`congruency` and `task_sequence` (-> switchType) from the epochs metadata. The
+table also carries `trial` (the epoch index, shared by all of a subject's
+electrodes), `rt` and `acc`, which the A6 brain-behavior job needs.
 """
 
 import warnings
@@ -54,6 +56,31 @@ from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrode
 STAB, FLEX = "#2c7fb8", "#d95f0e"
 
 
+def apply_rt_adjustment(df, enabled=False, effect_measure='cohens_d'):
+    """Return the analysis table and, when requested, its HG-on-RT slopes.
+
+    The adjustment deliberately happens here, before either scatter scoring or
+    ``run_joint_distribution_analysis`` calls ``compute_sensitivities_per_split``.
+    Keeping it at the orchestration boundary also makes every downstream N4/F5
+    score (LWPC/LWPS and the optional main effects) use the same adjusted HG.
+    """
+    if not enabled:
+        return df, None
+    if effect_measure != 'cohens_d' or df['hg'].dtype == object:
+        raise ValueError("RT_ADJUST_HG requires EFFECT_MEASURE=cohens_d (scalar, "
+                         "window-mean HG)")
+    if 'rt' not in df.columns or not np.isfinite(
+            pd.to_numeric(df['rt'], errors='coerce')).any():
+        raise ValueError("RT_ADJUST_HG requires finite reaction times in the long "
+                         "table; check the epochs metadata")
+
+    # Import locally: the brain-behavior module imports the core segregation
+    # statistics, while this DCC wrapper is also used by that analysis.
+    from src.analysis.stats.stability_flexibility_brain_behavior import rt_adjust_hg
+    adjusted, slopes = rt_adjust_hg(df)
+    return adjusted, slopes
+
+
 
 # ---------------------------------------------------------------------------
 # long-format assembly from epoched data
@@ -73,6 +100,29 @@ def _proportion_col(md, name):
     return np.full(len(md), np.nan)
 
 
+# metadata column aliases -- the event-name parser emits the first of each tuple,
+# but a metadata CSV attached upstream may already use a short name.
+_RT_COLS = ('reaction_time', 'RT', 'rt')
+_ACC_COLS = ('accuracy', 'acc')
+_SWITCH_COLS = ('task_sequence', 'switchType')
+
+
+def _first_col(md, names):
+    """The first of `names` that is a metadata column, or None."""
+    for n in names:
+        if n in md.columns:
+            return n
+    return None
+
+
+def _numeric_col(md, names):
+    """The first of `names` present in the metadata, as float; NaN if none is."""
+    col = _first_col(md, names)
+    if col is None:
+        return np.full(len(md), np.nan)
+    return pd.to_numeric(md[col], errors='coerce').to_numpy()
+
+
 def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
                      effect_measure='cohens_d'):
     """Build the (electrode, trial) long table from per-subject Epochs.
@@ -87,6 +137,14 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
     incongruent_proportion / switch_proportion
                 = metadata block proportions (for contrast_mode='proportion')
     electrode   = f"{subject}-{channel}"  (unique across subjects)
+    trial       = the epoch's index within its subject. Every electrode of a
+                  subject carries the same index for the same trial, so a trial
+                  split can be shared by all of them (the per-participant
+                  reliability in `stability_flexibility_brain_behavior` needs
+                  that), and it matches `trial` in the A6 single-trial table.
+    rt, acc     = metadata reaction time (ms) and accuracy, NaN when the metadata
+                  has neither ('reaction_time'/'RT'/'rt', 'accuracy'/'acc'). A6
+                  scores behavior from them and removes the RT-linked part of HG.
     """
     # Both time-resolved measures need the per-trial time COURSE. 'peak_t'
     # was previously excluded here, so it silently received window means and
@@ -103,10 +161,12 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
             md = make_metadata_from_event_names(epochs)
 
         cong = md['congruency'].to_numpy().astype(str)
-        sw = md['task_sequence'].to_numpy().astype(str) if 'task_sequence' in md.columns \
-            else md['switchType'].to_numpy().astype(str)
+        sw = md[_first_col(md, _SWITCH_COLS)].to_numpy().astype(str)
         inc_prop = _proportion_col(md, 'incongruent_proportion')
         sw_prop = _proportion_col(md, 'switch_proportion')
+        trial = np.arange(len(md))
+        rt = _numeric_col(md, _RT_COLS)
+        acc = _numeric_col(md, _ACC_COLS)
 
         times = epochs.times
         s_idx, e_idx = _window_indices(times, tmin, tmax)
@@ -126,10 +186,13 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
             fr = pd.DataFrame(dict(
                 subject=sub,
                 electrode=f"{sub}-{ch_names[ci]}",
+                trial=trial[keep_trials],
                 congruency=cong[keep_trials],
                 switchType=sw[keep_trials],
                 incongruent_proportion=inc_prop[keep_trials],
-                switch_proportion=sw_prop[keep_trials]))
+                switch_proportion=sw_prop[keep_trials],
+                rt=rt[keep_trials],
+                acc=acc[keep_trials]))
             if cluster:
                 # store each trial's windowed time course as an object cell
                 tc = win[keep_trials, ci, :]           # (n_kept, n_win)
@@ -238,10 +301,14 @@ def save_results(out, save_dir):
     # The old split-averaged estimator, kept as a diagnostic only: it averages
     # the sensitivities over splits before correlating, which forfeits the
     # disjoint-half correction. Written out so the two can be compared, NOT for
-    # inference. See docs/analysis_simplification_plan.md 2.2.
+    # inference. See docs/analysis_plans.md#simplification-plan 2.2.
     if 'correlation_split_averaged' in out:
         with open(os.path.join(save_dir, 'correlation_split_averaged.json'), 'w') as f:
             json.dump(_json_safe(out['correlation_split_averaged']), f, indent=2)
+
+    if 'main_effect_correlation' in out:
+        with open(os.path.join(save_dir, 'correlation_main_effects.json'), 'w') as f:
+            json.dump(_json_safe(out['main_effect_correlation']), f, indent=2)
 
     k = out['conjunction']
     conj_json = dict(
@@ -298,6 +365,13 @@ def write_summary(out, save_dir, meta):
         a = out['correlation_split_averaged']
         lines += [f"  diagnostic: split-averaged (biased) corr = {a['corr']:+.4f}"
                   f"  p = {a['p']:.4g}   [not for inference]"]
+    if 'main_effect_correlation' in out:
+        m = out['main_effect_correlation']
+        lines += [f"MAIN EFFECTS (congruency vs switch, same halves): corr = "
+                  f"{m['corr']:+.4f}  p = {m['p']:.4g}   reliability_x = "
+                  f"{m['reliability_x']:+.4f}  reliability_y = {m['reliability_y']:+.4f}",
+                  "     compare with the LWPC/LWPS corr only next to both levels' "
+                  "reliabilities"]
     lines += [
         "-" * 68,
         f"CATEGORICAL (CMH): MH odds ratio = {k['mh_odds_ratio']:.4f}",
@@ -313,7 +387,7 @@ def write_summary(out, save_dir, meta):
 
 
 # ---------------------------------------------------------------------------
-# the joint scatter (docs/analysis_simplification_plan.md 2.5)
+# the joint scatter (docs/analysis_plans.md#simplification-plan 2.5)
 # ---------------------------------------------------------------------------
 def make_joint_scatter(elec, save_dir, contrast_mode='proportion',
                        effect_measure=None, correlation=None,
@@ -581,6 +655,9 @@ def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
     split-averaged disjoint-half ones (slower, but shared trial noise removed).
     """
     df = build_long_df(args, LAB_root, effect_measure=effect_measure)
+    df, rt_slopes = apply_rt_adjustment(
+        df, enabled=getattr(args, 'rt_adjust_hg', False),
+        effect_measure=effect_measure)
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
 
@@ -592,6 +669,13 @@ def run_scatter_only(args, LAB_root, contrast_mode, effect_measure):
         alpha=args.alpha, n_splits=n_splits)
 
     os.makedirs(args.save_dir, exist_ok=True)
+    # the long table too: it carries `trial`, so it is the quick way to give an
+    # older run a table that shared splits can use (docs/n4_continuous_anatomy.md §19.5)
+    (df.drop(columns=['hg']) if df['hg'].dtype == object else df).to_csv(
+        os.path.join(args.save_dir, 'long_df.csv'), index=False)
+    if rt_slopes is not None:
+        rt_slopes.to_csv(os.path.join(args.save_dir, 'rt_adjustment_slopes.csv'),
+                         index=False)
     elec.to_csv(os.path.join(args.save_dir, 'scatter_sensitivities.csv'), index=False)
     diag = make_joint_scatter(elec, args.save_dir, contrast_mode=contrast_mode,
                               effect_measure=effect_measure)
@@ -608,6 +692,7 @@ def main(args):
     # analysis options (default to the original behaviour)
     contrast_mode = getattr(args, 'contrast_mode', 'condition')
     effect_measure = getattr(args, 'effect_measure', 'cohens_d')
+    main_effects = getattr(args, 'main_effects', False)
 
     print(f"LAB_root: {LAB_root}")
     print(f"contrast_mode: {contrast_mode} | effect_measure: {effect_measure}")
@@ -619,12 +704,22 @@ def main(args):
     # 1. build the long-format df -------------------------------------------------
     df = build_long_df(args, LAB_root, effect_measure=effect_measure)
 
+    # Remove the within-design-cell RT-linked component before any split is
+    # drawn. Thus both halves, all four F5 maps, and every downstream anatomy
+    # test are based on adjusted HG rather than adjusting already-made scores.
+    df, rt_slopes = apply_rt_adjustment(
+        df, enabled=getattr(args, 'rt_adjust_hg', False),
+        effect_measure=effect_measure)
+
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
           f"{df.electrode.nunique()} electrodes")
     # cluster mode stores per-trial time courses in `hg`; keep the CSV readable
     # by dropping that (array) column, the metadata columns are what matters here
     long_csv = df.drop(columns=['hg']) if df['hg'].dtype == object else df
     long_csv.to_csv(os.path.join(args.save_dir, 'long_df.csv'), index=False)
+    if rt_slopes is not None:
+        rt_slopes.to_csv(os.path.join(args.save_dir, 'rt_adjustment_slopes.csv'),
+                         index=False)
 
     # 2. run the analysis ---------------------------------------------------------
     out = sfs.run_joint_distribution_analysis(
@@ -632,7 +727,8 @@ def main(args):
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label, alpha=args.alpha, min_elec=args.min_elec,
         contrast_mode=contrast_mode, effect_measure=effect_measure,
-        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'))
+        fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),
+        main_effects=main_effects, shared_split=getattr(args, 'shared_split', False))
 
     # 3. persist ------------------------------------------------------------------
     save_results(out, args.save_dir)
@@ -650,6 +746,9 @@ def main(args):
         electrodes=args.electrodes,
         rois=(list(args.rois_dict.keys()) if args.rois_dict else 'all'),
         contrast_mode=contrast_mode, effect_measure=effect_measure,
+        rt_adjust_hg=getattr(args, 'rt_adjust_hg', False),
+        main_effects=main_effects,
+        shared_split=getattr(args, 'shared_split', False),
         n_splits=args.n_splits, n_perm_corr=args.n_perm_corr,
         n_perm_label=args.n_perm_label,
         fdr_correction=getattr(args, 'fdr_correction', 'fdr_bh'),

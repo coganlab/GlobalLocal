@@ -1,0 +1,110 @@
+========================================================================
+N3b BLOCK-TRANSFER CROSS-DECODING
+========================================================================
+           data_source: real
+                   roi: lpfc
+            electrodes: sig
+            n_channels: 171
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+           window_size: 64
+             step_size: 16
+              n_splits: 5
+           n_resamples: 10
+                n_perm: 500
+                  seed: 0
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/block_transfer_lpfc_sig_w64s16/pooled_design_conditions
+------------------------------------------------------------------------
+X1_uncentered: congruency, trained in one incongruent_proportion level and tested in the other
+   balanced to 56 trials per contrast x transfer cell (available: {'c|incongruent_proportion=25': 168, 'c|incongruent_proportion=75': 57, 'i|incongruent_proportion=25': 56, 'i|incongruent_proportion=75': 168})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.605 (16/0)      0.557 (17/0)
+              75%      0.556 (16/0)      0.541 (17/0)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 16 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+X1_centered: congruency, trained in one incongruent_proportion level and tested in the other
+   balanced to 56 trials per contrast x transfer cell (available: {'c|incongruent_proportion=25': 168, 'c|incongruent_proportion=75': 57, 'i|incongruent_proportion=25': 56, 'i|incongruent_proportion=75': 168})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.629 (18/0)      0.566 (17/0)
+              75%      0.577 (16/0)      0.545 (14/0)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 16 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+X2_uncentered: switchType, trained in one switch_proportion level and tested in the other
+   balanced to 54 trials per contrast x transfer cell (available: {'r|switch_proportion=25': 166, 'r|switch_proportion=75': 55, 's|switch_proportion=25': 54, 's|switch_proportion=75': 164})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.622 (17/0)      0.549 (11/0)
+              75%      0.553 (11/0)       0.538 (9/0)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 15 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+X2_centered: switchType, trained in one switch_proportion level and tested in the other
+   balanced to 54 trials per contrast x transfer cell (available: {'r|switch_proportion=25': 166, 'r|switch_proportion=75': 55, 's|switch_proportion=25': 54, 's|switch_proportion=75': 164})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.644 (18/0)      0.551 (11/0)
+              75%      0.568 (11/0)      0.541 (12/0)
+   25% -> 75% vs within 75%: below that ceiling in 0 windows
+   75% -> 25% vs within 25%: below that ceiling in 15 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+------------------------------------------------------------------------
+X3_uncentered: congruency, trained in one switch_proportion level and tested in the other
+   balanced to 108 trials per contrast x transfer cell (available: {'c|switch_proportion=25': 111, 'c|switch_proportion=75': 112, 'i|switch_proportion=25': 109, 'i|switch_proportion=75': 108})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%     0.646 (22/15)      0.548 (15/0)
+              75%      0.549 (14/0)     0.660 (22/15)
+   25% -> 75% vs within 75%: below that ceiling in 37 windows
+   75% -> 25% vs within 25%: below that ceiling in 37 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 30 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X3_centered: congruency, trained in one switch_proportion level and tested in the other
+   balanced to 108 trials per contrast x transfer cell (available: {'c|switch_proportion=25': 111, 'c|switch_proportion=75': 112, 'i|switch_proportion=25': 109, 'i|switch_proportion=75': 108})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%     0.665 (22/15)      0.578 (16/0)
+              75%      0.565 (15/0)     0.674 (20/12)
+   25% -> 75% vs within 75%: below that ceiling in 37 windows
+   75% -> 25% vs within 25%: below that ceiling in 37 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 27 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X2b_uncentered: switchType, trained in one incongruent_proportion level and tested in the other
+   balanced to 107 trials per contrast x transfer cell (available: {'r|incongruent_proportion=25': 111, 'r|incongruent_proportion=75': 112, 's|incongruent_proportion=25': 107, 's|incongruent_proportion=75': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.609 (21/6)      0.569 (18/0)
+              75%      0.558 (18/0)      0.652 (22/0)
+   25% -> 75% vs within 75%: below that ceiling in 29 windows
+   75% -> 25% vs within 25%: below that ceiling in 23 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 6 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+------------------------------------------------------------------------
+X2b_centered: switchType, trained in one incongruent_proportion level and tested in the other
+   balanced to 107 trials per contrast x transfer cell (available: {'r|incongruent_proportion=25': 111, 'r|incongruent_proportion=75': 112, 's|incongruent_proportion=25': 107, 's|incongruent_proportion=75': 110})
+   post-stimulus mean accuracy (significant windows vs shuffle, post/pre):
+     train | test               25%               75%
+              25%      0.627 (19/6)      0.575 (17/0)
+              75%      0.576 (18/0)      0.661 (22/0)
+   25% -> 75% vs within 75%: below that ceiling in 29 windows
+   75% -> 25% vs within 25%: below that ceiling in 20 windows
+   CEILING: both within-level decodes beat shuffle -> interpretable
+   ARTIFACT FLAG: 6 significant pre-stimulus windows across the 2x2 (congruency/switch information cannot exist there yet)
+========================================================================
+Reading (docs/n3b_block_transfer.md §1.6): compare each transfer with the
+within accuracy of the level it is TESTED on.
+  transfer ~ within, centered and uncentered  -> the same code in both levels
+  below within uncentered only                -> same axis, a tonic block shift
+  below within centered, in BOTH directions   -> block context reorganizes the
+                                                 code; check its cross-factor control
+  below in one direction only                 -> the training level's code is
+                                                 weaker, not a different axis
+Resamples are not independent subjects, so window-wise p-values are optimistic.
+========================================================================
