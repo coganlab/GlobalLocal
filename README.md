@@ -291,6 +291,7 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `n2_direction_tests.md` | N2 runbook: the direction tests on the LWPC and LWPS effects |
 | `decoding.md` | Decoding runbooks: the ordinary decoding job, A4 cross-decoding with the task-transfer controls, N3b block transfer, and the cross-decoding troubleshooting protocol |
 | `n4_continuous_anatomy.md` | N4 runbook and results: §0 has the current results, how they were computed, the figures, and Methods and Results text; then the anatomical tests, brain maps, the main-effect reference (§16) and §19 |
+| `segregation_walkthrough.md` | The A1/A2 segregation statistics line by line: every step of `stability_flexibility_segregation.py` and why it is there; companion notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each step on a planted demo electrode |
 | `n4_code_walkthrough.md` | The N4 code line by line (mostly §19), with comprehension questions; companion notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` |
 | `a6_brain_behavior.md` | A6 runbook: the per-participant brain–behavior scores, the RT adjustment, the 2026-09-27 block-map fix, every output and how to read it |
 | `methods.md` | Manuscript-ready Methods text: N4 segregation and anatomy, and the segregation analysis in a `cluster` and a `cohens_d` version |
