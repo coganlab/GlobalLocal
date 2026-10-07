@@ -133,6 +133,7 @@ to the §19.5 files:
 | `local_similarity_by_participant.png` | the participant-bootstrap version (was `local_similarity.png`) |
 | `fig5_height.png/.pdf`, `fig5_height_centroids.csv`, `fig5_height_balance.csv` | **now electrode level**; the balance table has `n_electrodes` |
 | `fig5_height_participants.png/.pdf`, `_participants_centroids.csv`, `_participants_balance.csv`, `fig5_height_balance_by_participant.csv` | the participant-level figure (was `fig5_height.*`) |
+| `fig5_height_brain.png`, `fig5_height_brain_centroids.csv` | the bands and their centroids on the brain (`--brain` / `MAKE_BRAIN`; N4 §19.4). The same at both levels, so drawn once, with the electrode-level figure |
 
 Two file names changed meaning: `local_similarity.png` and `fig5_height.*`
 are electrode level now. Older folders hold the participant-level versions

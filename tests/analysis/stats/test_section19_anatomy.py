@@ -5,6 +5,8 @@ similarity, the combined Figure 5, and the RT-adjusted check on Fig. 3. Each
 test plants a known world and checks the analysis finds it, and that the
 participant-level versions decompose the pooled numbers exactly.
 """
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -317,8 +319,11 @@ def test_figure5_height_shows_the_planted_lean_and_matches_the_test(tmp_path):
         .set_index('axis').loc['mni_z', 'slope_per_mm']
     assert fig['check_slope'] == pytest.approx(coord, rel=0.25)
     for name in ('fig5_height.png', 'fig5_height.pdf', 'fig5_height_centroids.csv',
-                 'fig5_height_balance.csv', 'fig5_height_points.csv'):
+                 'fig5_height_balance.csv', 'fig5_height_points.csv',
+                 'fig5_height_brain_centroids.csv'):
         assert (tmp_path / name).exists()
+    # the brain is drawn only when asked: it needs the recon files
+    assert fig['brain'] is None and not (tmp_path / 'fig5_height_brain.png').exists()
 
 
 def test_figure5_height_at_both_levels(tmp_path):
@@ -344,6 +349,170 @@ def test_height_bands_are_tertiles():
     labels, edges = sfa.height_bands(np.arange(30.0))
     assert labels.value_counts().to_dict() == {'ventral': 10, 'middle': 10, 'dorsal': 10}
     assert len(edges) == 4
+
+
+# ---------------------------------------------------------------------------
+# the height bands on the brain
+# ---------------------------------------------------------------------------
+def test_brain_centroids_are_each_bands_mean_position_per_hemisphere():
+    tab, _ = _gradient_world()
+    pts, edges = sfa.figure5_height_points(tab)
+    cents = sfa.height_band_brain_centroids(pts)
+    d = pts.dropna(subset=['band'])
+
+    assert len(cents) == 6 and set(cents['hemi']) == {'lh', 'rh'}
+    for c in cents.itertuples():
+        side = (d['mni_x'] < 0) if c.hemi == 'lh' else (d['mni_x'] >= 0)
+        g = d[(d['band'] == c.band) & side]
+        assert c.n_electrodes == len(g)
+        assert c.n_participants == g['subject'].nunique()
+        assert (c.mni_x, c.mni_y, c.mni_z) == \
+            pytest.approx(tuple(g[['mni_x', 'mni_y', 'mni_z']].mean()))
+        # in its own hemisphere and within its band's heights
+        assert (c.mni_x < 0) == (c.hemi == 'lh')
+        k = sfa.HEIGHT_BANDS.index(c.band)
+        assert edges[k] <= c.mni_z <= edges[k + 1]
+    assert sfa.height_band_brain_centroids(pts, min_elec=10 ** 6).empty
+
+
+def test_centroid_colours_are_darker_shades_of_the_band_colours():
+    import matplotlib.colors as mcolors
+    for b in sfa.HEIGHT_BANDS:
+        band = np.array(mcolors.to_rgb(sfa.HEIGHT_COLORS[b]))
+        cent = np.array(mcolors.to_rgb(sfa.HEIGHT_CENTROID_COLORS[b]))
+        assert (cent < band).all()
+        # every channel scaled alike: the same hue
+        assert cent / band == pytest.approx(np.full(3, 0.6), abs=0.01)
+
+
+LATERAL_X = 60.0
+
+
+def _fake_pial(subjects_dir):
+    """fsaverage pial stand-ins: per hemisphere a lateral sheet at |x| = 60 mm
+    and a medial one at |x| = 20 mm, over y -20..80 and z -40..80 on a 2 mm grid."""
+    import mne
+    y, z = np.meshgrid(np.arange(-20, 81, 2.0), np.arange(-40, 81, 2.0))
+    os.makedirs(os.path.join(subjects_dir, 'fsaverage', 'surf'), exist_ok=True)
+    for h, side in (('lh', -1), ('rh', 1)):
+        rr = np.vstack([np.c_[np.full(y.size, side * x), y.ravel(), z.ravel()]
+                        for x in (LATERAL_X, 20.0)])
+        tris = np.c_[np.arange(len(rr) - 2), np.arange(1, len(rr) - 1), np.arange(2, len(rr))]
+        mne.write_surface(os.path.join(subjects_dir, 'fsaverage', 'surf', f'{h}.pial'), rr, tris,
+                          overwrite=True)
+
+
+def _fake_surface_stack(monkeypatch, tmp_path):
+    """Stand-ins for the cluster-only renderer. Records each ``plot_on_average``
+    call (one per electrode set) and each focus added to the Brain."""
+    import sys
+    import types
+    import matplotlib.image as mpimg
+    calls, foci = [], []
+    _fake_pial(str(tmp_path / 'recon'))
+
+    class Brain:
+        def add_foci(self, coords, hemi, color, scale_factor):
+            foci.append(dict(coords=np.asarray(coords), hemi=hemi, color=color,
+                             size=scale_factor))
+
+        def close(self):
+            pass
+
+    def plot_on_average(subjects, picks, color, fig=None, **kwargs):
+        calls.append(dict(n=len(picks), color=tuple(color), hemi=kwargs['hemi'],
+                          alpha=kwargs.get('elec_alpha', 1.)))
+        return fig or Brain()
+
+    def save_brain_image(fig, path):
+        mpimg.imsave(path, np.random.default_rng(0).random((8, 8, 3)))
+        return True
+
+    vis = types.ModuleType('plot_sig_electrodes_dcc')
+    vis.save_brain_image = save_brain_image
+    vis.electrodes_to_global_indices = \
+        lambda by_subject, offsets: list(range(sum(len(v) for v in by_subject.values())))
+    mri = types.ModuleType('jim_mri')
+    mri.plot_on_average = plot_on_average
+    mri.get_sub_dir = lambda subj_dir=None: subj_dir or str(tmp_path / 'recon')
+    pv = types.ModuleType('pyvista')
+    pv.global_theme = types.SimpleNamespace(allow_empty_mesh=False)
+    monkeypatch.setitem(sys.modules, 'pyvista', pv)
+    monkeypatch.setitem(sys.modules, 'dcc_scripts.vis.plot_sig_electrodes_dcc', vis)
+    monkeypatch.setitem(sys.modules, 'src.analysis.vis.jim_mri', mri)
+    monkeypatch.setattr(sfa, '_fsaverage_index_space', lambda subjects: ({}, list(subjects)))
+    monkeypatch.setenv('DISPLAY', ':0')
+    monkeypatch.setenv('PYVISTA_OFF_SCREEN', 'false')
+    return calls, foci
+
+
+def test_brain_figure_draws_the_bands_and_the_centroids_on_one_brain(monkeypatch, tmp_path):
+    import matplotlib.colors as mcolors
+    calls, foci = _fake_surface_stack(monkeypatch, tmp_path)
+    tab, _ = _gradient_world(n_subj=8)
+    pts, edges = sfa.figure5_height_points(tab)
+    out = sfa.plot_height_bands_on_brain(pts, str(tmp_path / 'brain.png'), edges=edges)
+    cents = out['centroids']
+
+    assert not out['fallback'] and (tmp_path / 'brain.png').exists()
+    assert (tmp_path / 'brain_legend.png').exists()
+    # one set per band, in the band's colour, with the band's electrodes
+    n = pts['band'].value_counts()
+    assert [c['color'] for c in calls] == [mcolors.to_rgb(sfa.HEIGHT_COLORS[b])
+                                           for b in sfa.HEIGHT_BANDS]
+    assert [c['n'] for c in calls] == [n[b] for b in sfa.HEIGHT_BANDS]
+    # translucent, so the opaque centroids stand out
+    assert all(c['alpha'] == 0.4 for c in calls)
+    # the centroids keep their true mean ...
+    assert cents.equals(sfa.height_band_brain_centroids(pts))
+    # ... and go onto the same Brain in its units (metres), in their hemisphere,
+    # darker and a little larger than the electrodes, at their y and z on the
+    # lateral surface
+    assert len(foci) == len(cents) == 6
+    for f, c in zip(foci, cents.itertuples()):
+        x = -LATERAL_X if c.hemi == 'lh' else LATERAL_X
+        assert f['coords'] == pytest.approx(np.array([[x, c.mni_y, c.mni_z]]) / 1000)
+        assert f['hemi'] == c.hemi
+        assert f['color'] == mcolors.to_rgb(sfa.HEIGHT_CENTROID_COLORS[c.band])
+        assert f['size'] == pytest.approx(1.5 * 0.45)
+
+    # at the true mean when asked; a one-hemisphere figure gets that
+    # hemisphere's centroids only
+    foci.clear()
+    sfa.plot_height_bands_on_brain(pts, str(tmp_path / 'lh.png'), hemi='lh',
+                                   centroids_on_surface=False)
+    lh = cents[cents['hemi'] == 'lh']
+    assert len(foci) == 3 and {f['hemi'] for f in foci} == {'lh'}
+    assert np.vstack([f['coords'] for f in foci]) == \
+        pytest.approx(lh[['mni_x', 'mni_y', 'mni_z']].to_numpy() / 1000)
+
+
+def test_centroid_moves_to_the_lateral_surface_only_where_there_is_one(tmp_path):
+    _fake_pial(str(tmp_path))
+    cents = pd.DataFrame(dict(band=['dorsal', 'dorsal', 'middle'], hemi=['lh', 'rh', 'lh'],
+                              mni_x=[-40.0, 41.0, -45.0], mni_y=[30.0, 31.0, 500.0],
+                              mni_z=[40.0, 39.0, 10.0]))
+    shown = sfa._centroids_on_lateral_surface(cents, str(tmp_path))
+    assert list(shown['mni_x']) == [-LATERAL_X, LATERAL_X, -45.0]      # last: no surface there
+    assert shown[['mni_y', 'mni_z']].equals(cents[['mni_y', 'mni_z']])
+
+
+def test_brain_figure_falls_back_to_sagittal_projections(monkeypatch, tmp_path):
+    def no_surface(*args, **kwargs):
+        raise RuntimeError('no recon files')
+    monkeypatch.setattr(sfa, '_centroids_on_lateral_surface', no_surface)
+    monkeypatch.setattr(sfa, '_render_electrode_sets', no_surface)
+    tab, ps = _gradient_world(n_subj=8)
+
+    fig = sfa.figure5_height(tab, str(tmp_path), per_split=ps, n_perm=50, n_boot=50,
+                             make_brain=True)
+
+    assert fig['brain']['fallback']
+    assert fig['brain']['combined'].endswith('fig5_height_brain_sagittal.png')
+    assert (tmp_path / 'fig5_height_brain_sagittal.png').exists()
+    assert (tmp_path / 'fig5_height_brain_centroids.csv').exists()
+    assert any('FALLBACK' in line and 'no recon files' in line for line in fig['lines'])
+    assert sum(line.startswith('  brain ') for line in fig['lines']) == 6
 
 
 def test_section19_runs_every_part_and_skips_without_a_per_split_table(tmp_path):

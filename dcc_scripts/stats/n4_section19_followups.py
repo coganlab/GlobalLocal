@@ -23,6 +23,10 @@ participants as the unit second (for the supplement):
 4. the combined Figure 5: LWPC against LWPS coloured by height tertile, the
    tertile centroids, and the balance by height (fig5_height.* at the
    electrode level, fig5_height_participants.* at the participant level);
+   with ``--brain``, also the electrodes on the fsaverage brain coloured by
+   tertile, with each tertile's centroid per hemisphere drawn larger in a
+   darker shade (the one step that reads recon files; run it under
+   ``xvfb-run`` or on a node with a display);
 5. the LWPC-LWPS overlap r with each candidate confound removed in turn
    (nonlinear responsiveness, coordinates, same-half base effects, RT
    coupling) and with each participant left out.
@@ -40,7 +44,8 @@ with shared splits, a few minutes) or ``--per-split-shared`` (the
         [--per-split  <per_split.csv; default: --anatomy-dir, then --seg-dir>] \\
         [--long-df    <segregation run>/long_df.csv]        (section 3) \\
         [--rt-coupling <A6 run>/participant_electrode_scores.csv]   (section 5) \\
-        [--out-dir    <default: <anatomy-dir>/section19>] [--sections 1,2,3,4,5]
+        [--out-dir    <default: <anatomy-dir>/section19>] [--sections 1,2,3,4,5] \\
+        [--brain [--brain-hemi both|lh|rh|split] [--brain-zoom 0.8]]   (section 4)
 
 ``--seg-dir`` gives panel b of the figure its pre-specified r
 (``correlation.json``); without it the r is recomputed from the per-split table.
@@ -104,6 +109,12 @@ def main(argv=None):
     ap.add_argument('--rt-coupling', default=None,
                     help='CSV with electrode and rt_r (A6 participant_electrode_scores.csv or '
                          'the RT-adjusted run\'s rt_adjustment_slopes.csv) for section 5')
+    ap.add_argument('--brain', action='store_true',
+                    help='section 4: also draw the height tertiles and their centroids on the '
+                         'fsaverage brain (fig5_height_brain.png; needs the recon files)')
+    ap.add_argument('--brain-hemi', default='both', choices=('both', 'lh', 'rh', 'split'))
+    ap.add_argument('--brain-zoom', type=float, default=None,
+                    help='per-panel camera zoom for --brain (<1 zooms out)')
     args = ap.parse_args(argv)
 
     scores = pd.read_csv(os.path.join(args.anatomy_dir, 'scores_with_anatomy.csv'))
@@ -154,7 +165,8 @@ def main(argv=None):
                                n_perm=args.n_perm, n_boot=args.n_boot, seed=args.seed,
                                sections=tuple(int(x) for x in args.sections.split(',')),
                                per_split_shared=shared, rt_coupling=rt,
-                               shared_label=shared_label)
+                               shared_label=shared_label, make_brain=args.brain,
+                               brain_kwargs=dict(hemi=args.brain_hemi, zoom=args.brain_zoom))
     text = '\n'.join(lines)
     print(text)
     with open(os.path.join(out_dir, 'summary_section19.txt'), 'w') as f:
