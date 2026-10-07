@@ -73,6 +73,125 @@ def _local_world(kind, n_subj=14, seed=0, n_splits=10, noise=0.7, bipolar=False)
     return tab, pd.DataFrame(ps).assign(split_scheme='participant')
 
 
+def _shared_noise_world(seed=0, n_subj=10, n_trials=160, n_splits=30, noise_len=5.0,
+                        tau=0.25, sigma=4.0, field=0.0):
+    """Like real shared-split data: contacts on shafts 3.5 mm apart, trial noise
+    shared by nearby contacts, and halves that are disjoint trial sets of ONE
+    dataset (so the full-data noise is fixed across splits and only its split
+    into halves varies). True scores have no local structure unless ``field``
+    adds a smooth one to LWPC. Reliability ~0.25 with the defaults."""
+    rng = np.random.default_rng(seed)
+    rows, ps, coords = [], [], {}
+    for s in range(n_subj):
+        P = []
+        for c in rng.uniform(-25, 25, size=(int(rng.integers(2, 5)), 3)) + [40, 30, 20]:
+            u = rng.normal(size=3)
+            P += [c + k * 3.5 * u / np.linalg.norm(u) for k in range(int(rng.integers(4, 8)))]
+        P = np.asarray(P)
+        n = len(P)
+        D = np.linalg.norm(P[:, None] - P[None], axis=-1)
+        L = np.linalg.cholesky(np.exp(-(D / noise_len) ** 2) + 1e-6 * np.eye(n))
+        sx, sy = tau * rng.normal(size=n), tau * rng.normal(size=n)
+        if field:
+            Lf = np.linalg.cholesky(np.exp(-(D / 6.0) ** 2) + 1e-6 * np.eye(n))
+            sx = sx + field * (Lf @ rng.normal(size=n))
+        ex = sigma * (L @ rng.normal(size=(n, n_trials)))
+        ey = sigma * (L @ rng.normal(size=(n, n_trials)))
+        for e in range(n):
+            coords[f'S{s}-L{e}'] = tuple(P[e])
+            rows.append(dict(subject=f'S{s}', electrode=f'S{s}-L{e}', x=sx[e] + ex[e].mean(),
+                             y=sy[e] + ey[e].mean(), resp=1.0 + 0.1 * rng.normal()))
+        for k in range(n_splits):
+            m = np.zeros(n_trials, bool)
+            m[rng.permutation(n_trials)[: n_trials // 2]] = True
+            xA, xB = sx + ex[:, m].mean(1), sx + ex[:, ~m].mean(1)
+            yA, yB = sy + ey[:, m].mean(1), sy + ey[:, ~m].mean(1)
+            ps += [(f'S{s}', f'S{s}-L{e}', k, xA[e], xB[e], yA[e], yB[e]) for e in range(n)]
+    tab = sfa.attach_scores(pd.DataFrame(rows), {}, electrodes_to_coords=coords)
+    ps = pd.DataFrame(ps, columns=['subject', 'electrode', 'split', 'xA', 'xB', 'yA', 'yB'])
+    return tab, ps.assign(split_scheme='participant')
+
+
+# ---------------------------------------------------------------------------
+# electrodes as the unit (2026-10-06)
+# ---------------------------------------------------------------------------
+def test_electrode_slope_is_the_coordinate_test_with_an_interval():
+    tab, _ = _gradient_world(slope=0.03)
+    coord = sfa.relative_score_coordinate_test(tab, n_perm=500)
+    el = sfa.coordinate_slope_by_electrode(tab, n_boot=500, coord_res=coord)
+    row = coord['all']['slopes'].set_index('axis').loc['mni_z']
+
+    assert el['slope_per_mm'] == pytest.approx(row['slope_per_mm'])
+    assert el['pooled_slope'] == pytest.approx(row['slope_per_mm'], rel=1e-9)
+    assert el['p'] == row['p'] and el['p'] < 0.01
+    assert el['ci'][0] < el['slope_per_mm'] < el['ci'][1] < 0
+    lines = sfa.electrode_slope_lines(el)
+    assert 'ELECTRODES AS THE UNIT' in lines[0]
+
+
+def test_electrode_split_corr_is_the_pooled_test_with_intervals():
+    tab, ps = _gradient_world(slope=0.0, shared_sd=1.0)
+    resp = tab.set_index('electrode')['resp']
+    pooled = sfs.split_resolved_corr(ps, resp, n_perm=200)
+    ec = sfs.electrode_split_corr(ps, resp, n_perm=200, n_boot=300)
+
+    assert ec['corr'] == pooled['corr'] and ec['p'] == pooled['p']
+    assert ec['ci'][0] < ec['corr'] < ec['ci'][1] and ec['ci'][0] > 0
+    for k in ('x', 'y'):
+        lo, hi = ec[f'reliability_{k}_ci']
+        assert lo < ec[f'reliability_{k}'] < hi
+    lo, hi = ec['corr_noise_corrected_ci']
+    assert lo < ec['corr_noise_corrected'] < hi and not ec['noise_corrected_note']
+    # halves of pure noise: no reliability, so no noise-corrected interval
+    noisy = sfa._synthetic_per_split(tab.rename(columns={'lwpc_score': 'x',
+                                                         'lwps_score': 'y'}),
+                                     n_splits=6, noise=50.0)
+    ec = sfs.electrode_split_corr(noisy, resp, n_perm=50, n_boot=200)
+    assert ec['noise_corrected_note'].startswith('not estimable')
+
+
+def test_local_similarity_electrode_se_matches_the_spread_without_local_structure():
+    """The electrode-level SE must carry the trial noise neighbours share: over
+    null datasets the excess's spread matches it, where a position shuffle's
+    spread is ~1.5 times too narrow (§19.3 of the N4 doc). The reliability's SE
+    must allow for the per-split standardisation."""
+    ex, se, rel, rse = [], [], [], []
+    for seed in range(40):
+        tab, ps = _shared_noise_world(seed=seed)
+        res = sfa.local_similarity(ps, tab, n_perm=50, n_boot=20, seed=seed)
+        t = res['table'].set_index(['score', 'bin'])
+        ex.append(t.loc[('LWPC', res['bins'][0]), 'excess'])
+        se.append(t.loc[('LWPC', res['bins'][0]), 'se_electrode'])
+        rel.append(t.loc[('LWPC', 'same electrode'), 'similarity'])
+        rse.append(t.loc[('LWPC', 'same electrode'), 'se_electrode'])
+    assert 0.7 < np.std(ex, ddof=1) / np.mean(se) < 1.35
+    assert 0.6 < np.std(rel, ddof=1) / np.mean(rse) < 1.4
+    assert abs(np.mean(ex)) < 2 * np.mean(se) / np.sqrt(len(ex))
+
+
+def test_local_similarity_electrode_level_finds_a_planted_patch():
+    tab, ps = _shared_noise_world(seed=3, n_subj=14, field=0.6)
+    res = sfa.local_similarity(ps, tab, n_perm=200, n_boot=200)
+    near = _near(res, 'LWPC')
+    assert near['p_greater_electrode'] < 0.01
+    assert near['excess_lo_electrode'] > 0
+    assert _near(res, 'LWPS')['p_greater_electrode'] > 0.01
+    c = res['contrasts'].set_index('score').loc['LWPC']
+    assert c['p_greater_electrode'] < 0.01
+    lines = sfa.local_similarity_lines(res, unit='electrode')
+    assert 'ELECTRODES AS THE UNIT' in lines[0]
+    assert 'PARTICIPANTS AS THE UNIT' in sfa.local_similarity_lines(res, unit='participant')[0]
+
+
+def test_local_similarity_electrode_comparison_when_both_maps_are_reliable():
+    mixed = sfa.local_similarity(*reversed(_local_world('intermixed')), n_perm=200, n_boot=200)
+    cmp = mixed['comparison'].set_index('score').loc['LWPC']
+    assert cmp['note_electrode'] == ''
+    assert cmp['difference_hi_electrode'] < 0        # the balance shares less than LWPC
+    assert cmp['difference_lo_electrode'] < cmp['difference_electrode'] \
+        < cmp['difference_hi_electrode']
+
+
 # ---------------------------------------------------------------------------
 # participants as the unit
 # ---------------------------------------------------------------------------
@@ -205,6 +324,25 @@ def test_figure5_height_shows_the_planted_lean_and_matches_the_test(tmp_path):
         assert (tmp_path / name).exists()
     # the brain is drawn only when asked: it needs the recon files
     assert fig['brain'] is None and not (tmp_path / 'fig5_height_brain.png').exists()
+
+
+def test_figure5_height_at_both_levels(tmp_path):
+    tab, ps = _gradient_world(slope=0.02)
+    el = sfa.figure5_height(tab, str(tmp_path), per_split=ps, n_perm=200, n_boot=200)
+    pa = sfa.figure5_height(tab, str(tmp_path), per_split=ps, n_perm=200, n_boot=200,
+                            unit='participant')
+
+    for name in ('fig5_height.png', 'fig5_height_participants.png',
+                 'fig5_height_participants_centroids.csv', 'fig5_height_participants_balance.csv',
+                 'fig5_height_balance_by_participant.csv'):
+        assert (tmp_path / name).exists()
+    assert 'n_electrodes' in el['balance'] and 'n_participants' in pa['balance']
+    assert el['balance']['n_electrodes'].sum() == len(tab)
+    # same centroids, different intervals
+    assert np.allclose(el['centroids']['balance'], pa['centroids']['balance'])
+    assert 'ELECTRODES AS THE UNIT' in el['lines'][0]
+    with pytest.raises(ValueError, match='unit'):
+        sfa.figure5_height(tab, str(tmp_path), per_split=ps, unit='shaft')
 
 
 def test_height_bands_are_tertiles():
@@ -380,9 +518,17 @@ def test_brain_figure_falls_back_to_sagittal_projections(monkeypatch, tmp_path):
 def test_section19_runs_every_part_and_skips_without_a_per_split_table(tmp_path):
     tab, ps = _local_world('intermixed', n_subj=8)
     lines, out = sfa.section19(tab, ps, str(tmp_path), n_perm=100, n_boot=50)
-    assert {'slope_by_participant', 'participant_corr', 'local_similarity',
-            'figure5_height'} <= set(out)
+    assert {'slope_by_electrode', 'slope_by_participant', 'electrode_corr', 'participant_corr',
+            'local_similarity', 'figure5_height', 'figure5_height_participants'} <= set(out)
     assert not any('failed' in line for line in lines)
+    # electrode level first, participant level second, in every part
+    text = '\n'.join(lines)
+    for part in ('SLOPE', 'SEPARATE-HALF r', 'LOCAL SIMILARITY', 'FIGURE 5 (height)'):
+        first = [ln for ln in lines if part in ln and 'AS THE UNIT' in ln and '§19' not in ln]
+        assert 'ELECTRODES' in first[0] and 'PARTICIPANTS' in first[1], part
+    assert text.index('mni_z SLOPE, ELECTRODES') < text.index('mni_z SLOPE, PARTICIPANTS')
+    for name in ('local_similarity.png', 'local_similarity_by_participant.png'):
+        assert (tmp_path / name).exists()
 
     lines, out = sfa.section19(tab, None, str(tmp_path / 'no_split'), n_perm=50, n_boot=20,
                                sections=(1, 2, 3))
@@ -511,8 +657,8 @@ def test_section19_skips_local_similarity_on_a_per_electrode_split(tmp_path):
     lines, out = sfa.section19(tab, ps.drop(columns='split_scheme'), str(tmp_path / 's'),
                                n_perm=50, n_boot=20, sections=(3,), per_split_shared=ps)
     assert 'local_similarity' in out and 'reliability_by_split_scheme' in out
-    assert 'overlap_shared' in out
-    assert any('ON THE RESCORED TABLE' in line for line in lines)
+    assert 'overlap_shared' in out and 'reliability_x_ci' in out['overlap_shared']
+    assert any('the rescored table' in line for line in lines)
 
 
 def test_local_similarity_does_not_divide_by_an_unreliable_map():
@@ -620,4 +766,9 @@ def test_section19_script_labels_an_rt_adjusted_long_table(tmp_path, capsys):
                  '--n-boot', '20'])
     out = capsys.readouterr().out
     assert 'RT_ADJUST_HG=1 run' in out and 'RT-adjusted HG' in out
+    # the rescored table's reliabilities with electrode-level intervals, for
+    # the adaptations and for the base effects
+    assert 'LWPC–LWPS SEPARATE-HALF r, ELECTRODES AS THE UNIT (the rescored table' in out
+    assert 'congruency–switch SEPARATE-HALF r, ELECTRODES AS THE UNIT' in out
+    assert 'congruency − switch' in out
     assert (tmp_path / 'section19_rt_adjusted' / 'summary_section19.txt').exists()
