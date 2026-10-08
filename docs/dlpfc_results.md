@@ -1,6 +1,7 @@
 # DLPFC: results and what is still needed to report it
 
-*Written 2026-10-08 from the DLPFC runs of 2026-10-07 and 2026-10-08. Every
+*Written 2026-10-08 from the DLPFC runs of 2026-10-07 and 2026-10-08; anatomy
+updated the same day from the reruns into DLPFC-named folders (§1). Every
 number below was read from the run outputs named in §1; the all-lPFC numbers
 it is compared against come from the sections of
 [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md),
@@ -59,15 +60,27 @@ the same size:
    pre-stimulus decoding as the artifact meter, so this needs explaining (§3,
    §4).
 
-**Two problems with the runs themselves:**
+**Problems with the runs themselves:**
 
-- ⚠️ **The DLPFC anatomy run overwrote the all-lPFC anatomy folder.**
-  `submit_stability_flexibility_anatomy_dcc.sh` still had `ROI_FILTER=lpfc`, and
-  the output folder is named after `ROI_FILTER`, not after the scores. So
-  `anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` now holds DLPFC results
-  (277 electrodes) under an lPFC name. The tracked `summary.txt` and
-  `summary_section19.txt` in it show as modified in git; **do not commit
-  them** (`git add .` would). §8.1 fixes this.
+- **DLPFC anatomy now has its own folder, and the rerun changes nothing.** The
+  submit script now passes `ROI` through, so the rerun wrote
+  `anatomy_a1_dlpfc_window_0.0to1.5s_all/continuous/`. Every number in it
+  matches the first run, including §19, which now reads DLPFC-only long tables
+  (§1). §6 stands as written.
+- ⚠️ **There is no task-significant DLPFC anatomy yet.** The `_sig` and `_all`
+  DLPFC folders are byte-identical (277 electrodes in both). In this route
+  `ELECTRODES` only names the folder. The electrodes come from `SCORES_CSV`,
+  and the submit script points that at the `all_${ROI}` segregation run whatever
+  `ELECTRODES` is. A real sig run needs the sig segregation tables passed in
+  (§8.1).
+- ⚠️ **Both all-lPFC anatomy folders still hold DLPFC.**
+  `anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` (the folder the N4 doc
+  cites) still has the first DLPFC run. `anatomy_a1_lpfc_window_0.0to1.5s_all/`
+  has an intermediate DLPFC run from before `ROI` was passed through (10-08
+  09:36–09:42). Both have 277 electrodes. Commit 3461b20 committed the DLPFC
+  `summary.txt` and `summary_section19.txt` into the `_sig` lPFC folder, so
+  **git HEAD now holds DLPFC numbers under the lPFC path**. The last lPFC
+  version is at `3461b20^` (398 electrodes). §8.1 restores it.
 - The F3-equivalent DLPFC power traces used the 4-cell sets
   (`stimulus_lwpc_conditions`, `stimulus_lwps_conditions`), not the 8-cell
   `_block_balanced` sets F3 is drawn from. They are not yet the F3 analysis
@@ -95,21 +108,21 @@ All runs use the epochs file
 | A4 cross-decoding, no groups | `decoding/results/<root>/cross_decoding_dlpfc_sig_none/stimulus_main_effect_conditions/` | 10-07 19:57 | sig, 121 |
 | Segregation, main effects (4 runs) | `stats/results/<root>/segregation_results/window_0.0to1.5s_{all,sig}_dlpfc_proportion_cohens_d_fdr_bh_main_effects{,_rt_adjusted}/` | 10-07 | all 275 / 19; sig 113 / 14 |
 | Segregation, scatter only (long tables) | `…/window_0.0to1.5s_sig_dlpfc_proportion_cohens_d_fdr_bh{,_rt_adjusted}_scatter_only_splits0/` | 10-07 | sig |
-| N4 anatomy + §15, §16, §19 follow-ups | **`stats/results/<root>/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/`** (wrong name; see §0) | 10-08 08:53–09:00 | all, 277 / 21 |
+| Segregation, scatter only, all electrodes (DLPFC long tables for §19) | `…/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh{_scatter_only_splits0,_rt_adjusted_scatter_only_splits200}/` | 10-08 | all |
+| N4 anatomy + §15, §16, §19 follow-ups (**the one §6 reports**) | `stats/results/<root>/anatomy_a1_dlpfc_window_0.0to1.5s_all/continuous/` | 10-08 09:38–10:08 | all, 277 / 21 |
+| Same, `ELECTRODES=sig` | `…/anatomy_a1_dlpfc_window_0.0to1.5s_sig/continuous/` | 10-08 09:38–10:08 | **all, 277 / 21**: identical to `_all`, not a sig run (§0) |
+| First DLPFC anatomy run (superseded) | `…/anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` (wrong name; §0) | 10-08 08:53–09:00 | all, 277 / 21 |
 
 Anatomy inputs (from the end of its `summary.txt`): scores and per-split table
-from the `all_dlpfc…_main_effects` segregation run. §19's shared-split long
-table and RT coupling came from the **lPFC** scatter-only runs
-(`all_lpfc…_scatter_only_splits0/long_df.csv`,
-`all_lpfc…_rt_adjusted_scatter_only_splits200/rt_adjustment_slopes.csv`),
-because those paths are fixed in the submit script. DLPFC is a subset of lPFC,
-so the tables hold every DLPFC electrode. The job kept only the 275 scored ones,
-and the trial split is drawn per participant, so the numbers should match a
-DLPFC-only long table. State the source in the Methods, or regenerate it (§8.1).
-
-Not in the anatomy folder despite the name: `section19/` (dated 10-05), the
-`*_by_roi.png` maps (09-17) and `section16/fig5*` (10-01) are left over from
-lPFC runs. Everything dated 10-08 is DLPFC.
+from the `all_dlpfc…_main_effects` segregation run; §19's shared-split long
+table and RT coupling from the DLPFC scatter-only runs
+(`all_dlpfc…_scatter_only_splits0/long_df.csv`,
+`all_dlpfc…_rt_adjusted_scatter_only_splits200/{long_df,rt_adjustment_slopes}.csv`).
+The first run read the **lPFC** long tables instead. Every number in
+`summary.txt`, `summary_section19.txt`, `section15/`, `section16/` and
+`section19_rt_adjusted/` is the same in both runs; only the input paths
+differ. So using the lPFC tables made no difference, as expected: DLPFC is a
+subset and the trial split is drawn per participant.
 
 ---
 
@@ -272,8 +285,11 @@ Reading:
 ## 6. Anatomy (F5, S-N4)
 
 All DLPFC, `all_dlpfc…_main_effects` scores, 277 electrodes, 21 participants,
-10 Destrieux labels after the coverage filter. The lPFC column is the
-committed 2026-10-01 summary and N4 §19.8.
+10 Destrieux labels after the coverage filter, from
+`anatomy_a1_dlpfc_window_0.0to1.5s_all/continuous/` (the 10-08 rerun; the same
+numbers as the first run, §1). The lPFC column is the 2026-10-01 summary (at
+`3461b20^`) and N4 §19.8. There is no task-significant DLPFC column: the
+`_sig` folder repeats the all-electrode run (§0).
 
 ### 6.1 Pre-specified tests
 
@@ -363,8 +379,9 @@ Reading:
 
 ### 6.4 Local similarity (§19.3)
 
-Raw high gamma, 275 electrodes, 19 participants, 200 shared splits, linear
-gradient removed, electrodes as the unit [95 % CI], one-sided p.
+Raw high gamma, 275 electrodes, 19 participants, 200 shared splits from the
+DLPFC long table, linear gradient removed, electrodes as the unit [95 % CI],
+one-sided p.
 
 | Score | Reliability | < 10 mm excess | Nearest − farthest |
 |---|---|---|---|
@@ -420,42 +437,59 @@ Run each from a compute node with the preamble in
 submit script's arrays before running: several are edited in the working tree
 right now (`git diff dcc_scripts/`).
 
-### 8.1 Anatomy: give DLPFC and lPFC their own folders (required)
+### 8.1 Anatomy: restore lPFC, and add a real task-significant DLPFC run
 
-1. **Copy the current folder before anything overwrites it.** It is the only
-   copy of the DLPFC anatomy:
+Done on 10-08: DLPFC into its own folder, with DLPFC-only long tables for §19
+(§1). Two things are left. `ELECTRODES` is fixed in
+`submit_stability_flexibility_anatomy_dcc.sh` (line 39, now `all`) and is not
+read from the environment. It only names the output folder, so both runs below
+set it to `sig` first and back to `all` afterwards.
+
+1. **Restore all lPFC (required).** Set `ELECTRODES=sig` so the run lands in
+   the folder the N4 doc cites. That overwrites the superseded first DLPFC run
+   there (§1); the `_all` DLPFC folder has the same numbers. `ROI` now picks
+   the scores, the long tables and the folder:
 
    ```bash
-   cd dcc_scripts/stats/results/<root>
-   cp -a anatomy_a1_lpfc_window_0.0to1.5s_sig anatomy_a1_lpfc_window_0.0to1.5s_sig__dlpfc_run_20261008
+   cd dcc_scripts/stats
+   ROI=lpfc bash submit_stability_flexibility_anatomy_dcc.sh
    ```
 
-2. **Rerun DLPFC into a DLPFC-named folder.** `ROI_FILTER` names the folder,
-   and with `dlpfc` it keeps the same 277 electrodes and the same 10 labels:
+   Then compare the tracked `summary.txt` and `summary_section19.txt` with
+   the last lPFC version, not with HEAD (HEAD holds DLPFC, §0):
+   `git diff 3461b20^ -- 'results/<root>/anatomy_a1_lpfc_window_0.0to1.5s_sig/'`.
+   Only paths should differ (398 electrodes; F = 1.907, p = 0.0102). The stray
+   DLPFC run in `anatomy_a1_lpfc_window_0.0to1.5s_all/` can be deleted, or
+   overwritten by an `ELECTRODES=all` lPFC run.
+
+2. **Task-significant DLPFC (needed for a sig supplement row).** Pass the
+   `sig_dlpfc` segregation tables, because the defaults point at `all_${ROI}`:
 
    ```bash
    cd dcc_scripts/stats
    SEG=/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/stats/results/<root>/segregation_results
-   ROI_FILTER=dlpfc \
-     SCORES_CSV=$SEG/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/electrodes.csv \
-     PER_SPLIT_CSV=$SEG/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/per_split.csv \
+   SIG=$SEG/window_0.0to1.5s_sig_dlpfc_proportion_cohens_d_fdr_bh
+   ROI=dlpfc \
+     SCORES_CSV=${SIG}_main_effects/electrodes.csv \
+     PER_SPLIT_CSV=${SIG}_main_effects/per_split.csv \
+     LONG_DF_CSV=${SIG}_scatter_only_splits0/long_df.csv \
+     RT_LONG_DF_CSV=${SIG}_rt_adjusted_scatter_only_splits0/long_df.csv \
+     RT_COUPLING_CSV=${SIG}_rt_adjusted_scatter_only_splits0/rt_adjustment_slopes.csv \
      bash submit_stability_flexibility_anatomy_dcc.sh
    ```
 
-   Writes `anatomy_a1_dlpfc_window_0.0to1.5s_sig/continuous/`. One job, with
-   the §15, §16 and §19 follow-ups.
+   This replaces the duplicate in `anatomy_a1_dlpfc_window_0.0to1.5s_sig/`.
+   Check that its `summary.txt` reports 121 electrodes and 20 participants
+   (the sig `electrodes.csv`; 113 / 14 in the split tests), not 277. The sig RT-adjusted scatter-only run is
+   `splits0`, while the all-electrode one is `splits200`. The job rescores the
+   shared splits itself (`SHARED_N_SPLITS=200`), so this should not matter;
+   check that `section19_rt_adjusted/` was written. Expect it to be
+   underpowered, like the sig segregation (§5: 14 participants).
 
-3. **Restore all lPFC** the same way, with the `all_lpfc…_main_effects` scores
-   and `ROI_FILTER=lpfc`. Then `git diff` the tracked `summary.txt` and
-   `summary_section19.txt` against HEAD: they should come back to the lPFC
-   numbers (398 electrodes).
-
-4. *Optional, for a clean record:* a DLPFC all-electrode scatter-only
-   segregation run for §19's long tables. It needs `ELECTRODES=all` in
-   `submit_stability_flexibility_segregation_dcc.sh` (currently fixed at `sig`,
-   not an environment variable), then
-   `RT_ADJUST_HG=0 SCATTER_N_SPLITS=0 SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh`.
-   Pass its `long_df.csv` as `LONG_DF_CSV` in step 2.
+   Do steps 1 and 2 with the same `ELECTRODES=sig` edit, then set it back to
+   `all`. Note that the `_sig` suffix means different things in the two
+   folders: task-significant electrodes for DLPFC after step 2, all electrodes
+   for lPFC (N4 doc, §13).
 
 ### 8.2 Power traces on F3's sets (required for F3)
 
@@ -521,6 +555,8 @@ Add DLPFC rows to the coverage table: 277 electrodes / 21 participants (all),
 
 ### 8.6 Already done for DLPFC
 
-Segregation (all and sig, raw and RT-adjusted), anatomy with §15/§16/§19 (wrong
-folder name), LWPC/LWPS and cross-effect decoding (sig and all), A4 baseline
-cross-decoding, 4-cell power traces.
+Segregation (all and sig, raw and RT-adjusted; scatter-only long tables for
+both), anatomy with §15/§16/§19 on all electrodes in
+`anatomy_a1_dlpfc_window_0.0to1.5s_all/` (10-08 rerun), LWPC/LWPS and
+cross-effect decoding (sig and all), A4 baseline cross-decoding, 4-cell power
+traces.

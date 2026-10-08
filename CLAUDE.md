@@ -13,6 +13,20 @@ Guidance for Claude Code (and other coding agents) working in this repository.
 - Tests use synthetic MNE fixtures (`tests/conftest.py`) and need no real data:
   `make test-fast` (or `pytest -m "not slow"`).
 
+## Where shared code goes
+
+- Shared helpers live in `src/analysis/utils/`, in a module named for what it
+  does (like `epoch_metadata_utils.py` or `rt_matching.py`). Add to the matching
+  module or create a new topic module. Don't add new functions to
+  `general_utils.py`: it is already a large mixed module and should shrink over
+  time, with functions moving into topic modules as they are touched.
+- Before writing a helper, search `src/` and `dcc_scripts/` for an existing one.
+  `_json_safe` (6 files), `sanitize_filename` (3), `_subdir` and `_figure` are
+  each defined separately in several files; consolidate them into one utility
+  when you work on code that uses them.
+- New utilities get a test in `tests/` using the synthetic fixtures in
+  `tests/conftest.py`.
+
 ## Running anything on the DCC
 
 DCC policy: login nodes are only for file management, job submission and light

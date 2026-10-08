@@ -152,7 +152,7 @@ Framing rules that still apply (concurrent-regulation plan §0):
 | **All lPFC, raw rescoring** (2026-10-05; N4 §19.8, fourth run) | Shared-split reliabilities for the paper: LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35 (were 0.07, −0.09, 0.34, 0.24). The LWPS reliability argument survives with these. Overlap r 0.111 (p = 0.0002). Local similarity as on RT-adjusted HG: positive control works, and the balance has no reliable variation beyond the gradient. Supports "one population rather than two intermixed ones" (wording in N4 §19.8). |
 | **All lPFC, RT-adjusted rescoring** (2026-10-05; N4 §19.8, third run) | **The overlap survives the full RT control**: r = 0.103 (p = 0.0004) on RT-adjusted high gamma with shared splits, against 0.097 raw; the RT-coupling covariate on all electrodes gives 0.082 (p = 0.001). Local similarity: the positive control works (LWPC, p = 0.007), but the balance has no reliable within-participant variation beyond the gradient. Supportable wording: "no reliable electrode-by-electrode LWPC-vs-LWPS difference beyond a shallow dorsal–ventral bias". Not a positive test of "intermixed". Repeat on raw high gamma (Run 2). |
 | **§19 at the electrode level** (2026-10-06; [`n4_section19_electrode_level.md`](n4_section19_electrode_level.md)) | Decision: electrodes as the unit in the main text, as in the pre-specified tests; participants as the unit in S-N4. Every §19 part now reports both, electrode level first. New: electrode-bootstrap intervals for the z slope, the overlap r, the shared-split reliabilities and the noise-corrected r; a valid electrode-level test for local similarity (shared trial noise included; 4 % false positives at α = 0.05 on realistic null data, where a position shuffle gives 13 %). `fig5_height.png` is now electrode level; the participant version is `fig5_height_participants.png`. Needs one rerun of `n4_section19_followups.py` for the electrode-level numbers. |
-| **DLPFC runs** (2026-10-07/08; [`dlpfc_results.md`](dlpfc_results.md)) | Under consideration as the reported region; nothing switched yet. Replicates at the electrode level: F3 (4-cell sets; both adaptation clusters in the behavioral direction, no cross-effects), F4 (both adaptations decode only in low-proportion blocks), the overlap (r = 0.094, p = 0.0015, 275 electrodes / 19 participants; shared splits 0.121), its base-effect explanation, local similarity, and the A4 pattern. The parcel test is stronger (F = 2.65, p = 0.002). **Weaker or different:** the height gradient fails the participant-level rule (weighted p = 0.117), and distance from the midline replaces it (F = 19.1, p = 0.0001; z p = 0.86 with \|x\| in); the overlap fails with participants as the unit (p = 0.12); LWPS no longer tracks switch type more than congruency; congruency decodes pre-stimulus in A4. ⚠️ The anatomy run overwrote the all-lPFC anatomy folder (§1.7). |
+| **DLPFC runs** (2026-10-07/08; [`dlpfc_results.md`](dlpfc_results.md)) | Under consideration as the reported region; nothing switched yet. Replicates at the electrode level: F3 (4-cell sets; both adaptation clusters in the behavioral direction, no cross-effects), F4 (both adaptations decode only in low-proportion blocks), the overlap (r = 0.094, p = 0.0015, 275 electrodes / 19 participants; shared splits 0.121), its base-effect explanation, local similarity, and the A4 pattern. The parcel test is stronger (F = 2.65, p = 0.002). **Weaker or different:** the height gradient fails the participant-level rule (weighted p = 0.117), and distance from the midline replaces it (F = 19.1, p = 0.0001; z p = 0.86 with \|x\| in); the overlap fails with participants as the unit (p = 0.12); LWPS no longer tracks switch type more than congruency; congruency decodes pre-stimulus in A4. Anatomy rerun into its own folder on 10-08 with DLPFC-only §19 tables: same numbers. Anatomy is all-electrode only; the task-significant run has not been done yet. ⚠️ The all-lPFC anatomy folder still holds the DLPFC run (§1.7). |
 | **Local similarity, shared splits** (2026-10-05; task-significant subset) | No power for the adaptation scores (reliabilities 0.04–0.14); positive control only for switch type. Does not support "intermixed". Within-participant reliabilities were strongly biased by the per-electrode split (LWPC 0.01 → 0.17, LWPS 0.00 → 0.14, congruency 0.25 → 0.39, switch 0.25 → 0.39); the overlap r was not (0.073 vs 0.076). |
 
 ### 1.3 Status at a glance
@@ -509,12 +509,17 @@ work. Renumber at submission.
 **F5 and S-N4** (N4 §17.4):
 
 - [ ] **The all-lPFC anatomy folder was overwritten again, by the DLPFC run**
-      (2026-10-08). `anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` now
-      holds DLPFC results (277 electrodes), because the folder is named after
-      `ROI_FILTER`, which was still `lpfc`. Its tracked `summary.txt` and
-      `summary_section19.txt` show as modified: do not commit them. Copy the
-      folder, then rerun DLPFC with `ROI_FILTER=dlpfc` and lPFC on its own
-      scores ([`dlpfc_results.md`](dlpfc_results.md) §8.1).
+      (2026-10-08). `anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` (and
+      `…_all/`) now hold DLPFC results (277 electrodes), and commit 3461b20
+      committed the DLPFC `summary.txt` and `summary_section19.txt` there; the
+      lPFC versions are at `3461b20^`. DLPFC has since been rerun into
+      `anatomy_a1_dlpfc_window_0.0to1.5s_all/` (same numbers). Still to do:
+      rerun lPFC with `ROI=lpfc` and diff against `3461b20^`
+      ([`dlpfc_results.md`](dlpfc_results.md) §8.1).
+- [ ] **No task-significant DLPFC anatomy yet.** The DLPFC `_sig` anatomy
+      folder is identical to `_all`: `ELECTRODES` only names the folder, and
+      the scores default to the `all_dlpfc` segregation run. Pass the
+      `sig_dlpfc` tables ([`dlpfc_results.md`](dlpfc_results.md) §8.1, step 2).
 - [ ] **Check that the all-lPFC anatomy folder survived.** The task-significant
       rerun wrote to `anatomy_a1_lpfc_window_0.0to1.5s_sig/`, the all-lPFC
       folder (its `score_anatomy.json` → `maps`). If no copy was made first,
