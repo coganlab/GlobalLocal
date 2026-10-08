@@ -5,12 +5,12 @@
 # cells being contrasted hold 3:1 vs 1:3 mixtures of the OTHER proportion block
 # and a block-level offset enters the contrast at every timepoint. Kept for
 # reference; prefer the block-balanced sets.
-CONDITIONS=(
-    stimulus_lwpc_conditions
-    stimulus_lwps_conditions
-    stimulus_congruency_by_switch_proportion_conditions
-    stimulus_switch_type_by_incongruent_proportion_conditions
-)
+# CONDITIONS=(
+#     stimulus_lwpc_conditions
+#     stimulus_lwps_conditions
+#     stimulus_congruency_by_switch_proportion_conditions
+#     stimulus_switch_type_by_incongruent_proportion_conditions
+# )
 
 # CONDITIONS=(
 #     stimulus_big_letter_conditions
@@ -39,10 +39,17 @@ CONDITIONS=(
 # Do NOT also list the *_by_switch_prop_/_by_inc_prop_block_balanced labels --
 # they share a conditions_obj with these two, so they resolve to the same save
 # name and the jobs would race on one output path.
-# CONDITIONS=(
-#     stimulus_lwpc_block_balanced_conditions
-#     stimulus_lwps_block_balanced_conditions
-# )
+CONDITIONS=(
+    stimulus_lwpc_block_balanced_conditions
+    stimulus_lwps_block_balanced_conditions
+)
+
+CONDITIONS=(
+    stimulus_lwpc_block_balanced_conditions
+    stimulus_lwps_block_balanced_conditions
+    stimulus_congruency_by_switch_prop_block_balanced_conditions
+    stimulus_switch_type_by_inc_prop_block_balanced_conditions
+)
 
 # Epochs file selection. EPOCHS_ROOT_FILE in the environment wins over the default.
 
@@ -138,7 +145,7 @@ ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 
 # Which electrodes to start from, before any saved-ANOVA selection:
 #   all = every electrode in the ROI, sig = those significant vs baseline.
-ELECTRODES=${ELECTRODES:-sig}
+ELECTRODES=${ELECTRODES:-all}
 
 # which electrodes to exclude
 #

@@ -80,7 +80,7 @@ If `conda` isn't found, point the user to "Troubleshooting" in
 ### Be careful with
 
 - **`/cwork` and `results/`:** these hold hours of cluster output. Don't delete,
-  move or overwrite anything there without asking.
+  move or overwrite anything there without asking. In fact, NEVER delete or modify anything in `/cwork`. That is where the raw data is.
 - **Patient data:** don't print raw iEEG arrays, EDFs or clinical files into the
   conversation. Read logs, summaries, array shapes and result tables instead.
 - **Large fan-outs:** say how many jobs and how much CPU/memory a submit script
