@@ -1,0 +1,59 @@
+----------------------------------------------------------------------
+§19 — ELECTRODES AND PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, COMBINED FIGURE 5, OVERLAP CONTROLS
+  each part: electrodes as the unit first (the pre-specified tests' level), participants as the unit second (supplement)
+  mni_z SLOPE, ELECTRODES AS THE UNIT (the coordinate test; 277 electrodes, 21 participants)
+    slope -0.01012/mm  95 % CI [-0.01858, -0.00139] (electrode bootstrap within participant)  swap-null p = 0.0325
+  mni_z SLOPE, PARTICIPANTS AS THE UNIT (21 participants, 277 electrodes)
+    pooled slope -0.01012/mm = the coordinate test's; it is the weight-averaged participant slope
+    weighted:   -0.01012/mm  95 % CI [-0.02083, +0.00138]  sign-flip p = 0.117  (19 participants)
+    three participants carry 44% of the weight
+    unweighted: -0.02050/mm ± 0.01142  t-test p = 0.0904  12/18 negative (sign test p = 0.238)  [>= 3 electrodes, >= 5 mm spread]
+    mixed, random intercept: failed (LinAlgError: Singular matrix)
+    mixed, random slope: -0.01241/mm ± 0.00596  Wald p = 0.03721  random-slope SD 0.01124/mm
+    leave one participant out: slope -0.01280 to -0.00761/mm, p 0.00799 to 0.13
+  LWPC–LWPS SEPARATE-HALF r, ELECTRODES AS THE UNIT (pre-specified test; 275 electrodes, 19 participants)
+    r = +0.094  95 % CI [+0.034, +0.151]  permutation p = 0.0013  (electrode bootstrap within participant, 100 of 200 splits)
+    (reliabilities: from the shared-split table, section 3; this table's per-electrode split biases them)
+  LWPC–LWPS SEPARATE-HALF r, PARTICIPANTS AS THE UNIT (17 participants with >= 4 electrodes, 269 electrodes)
+    weighted (n - 3): r = +0.086  95 % CI [-0.004, +0.167]  sign-flip p = 0.1241
+    unweighted: r = +0.050  t-test p = 0.2019  8/17 positive
+  local similarity: skipped. It needs one trial split per participant shared by all its electrodes, and this run split each electrode on its own (§19.3 of the N4 doc). Rerun n4_section19_followups.py with --long-df <segregation run>/long_df.csv, or the segregation job with SHARED_SPLIT=1.
+  LWPC–LWPS SEPARATE-HALF r WITH EACH CANDIDATE CONFOUND REMOVED
+    pre-specified                                r = +0.094  p = 0.0013  (275 electrodes, 19 participants)
+    + responsiveness, nonlinear                  r = +0.089  p = 0.002  (275 electrodes, 19 participants)
+    + MNI coordinates                            r = +0.065  p = 0.0151  (275 electrodes, 19 participants)
+    + base effects, same half                    r = +0.043  p = 0.0986  (275 electrodes, 19 participants)
+    all of the above                             r = +0.038  p = 0.145  (275 electrodes, 19 participants)
+    responsiveness tertile: low                  r = -0.004  p = 0.935  (86 electrodes, 10 participants)   [descriptive]
+    responsiveness tertile: middle               r = +0.130  p = 0.0175  (84 electrodes, 10 participants)   [descriptive]
+    responsiveness tertile: high                 r = +0.110  p = 0.0332  (90 electrodes, 14 participants)   [descriptive]
+    leave one participant out: r +0.070 to +0.117, p 0.000999 to 0.011
+  FIGURE 5 (height), ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
+  brain: fig5_height_brain.png
+  brain ventral  lh centroid MNI (-29.9, +43.3, +18.4) mm  (62 electrodes, 11 participants)
+  brain ventral  rh centroid MNI (+38.9, +37.9, +20.0) mm  (30 electrodes, 8 participants)
+  brain middle   lh centroid MNI (-28.0, +34.7, +36.5) mm  (53 electrodes, 12 participants)
+  brain middle   rh centroid MNI (+32.8, +32.3, +38.1) mm  (39 electrodes, 8 participants)
+  brain dorsal   lh centroid MNI (-22.9, +20.1, +56.5) mm  (51 electrodes, 12 participants)
+  brain dorsal   rh centroid MNI (+22.0, +24.8, +55.6) mm  (40 electrodes, 10 participants)
+  b  LWPC vs LWPS r = +0.094  p = 0.0015  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  c  ventral  centroid LWPC +0.125, LWPS +0.187; balance -0.062 [-0.242, +0.122] (electrode bootstrap; 92 electrodes, 15 participants)
+  c  middle   centroid LWPC -0.161, LWPS +0.062; balance -0.223 [-0.429, -0.009] (electrode bootstrap; 92 electrodes, 17 participants)
+  c  dorsal   centroid LWPC -0.087, LWPS +0.219; balance -0.306 [-0.483, -0.112] (electrode bootstrap; 91 electrodes, 18 participants)
+  d  ventral  adjusted LWPC − LWPS -0.068 ± 0.097 SEM (93 electrodes)
+  d  middle   adjusted LWPC − LWPS -0.225 ± 0.111 SEM (92 electrodes)
+  d  dorsal   adjusted LWPC − LWPS -0.316 ± 0.095 SEM (92 electrodes)
+  d  mni_z slope -0.01012/mm (p = 0.032); the plotted balance gives -0.01012/mm
+  FIGURE 5 (height), PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_brain_centroids.csv
+  bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
+  b  LWPC vs LWPS r = +0.094  p = 0.0015  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  c  ventral  centroid LWPC +0.125, LWPS +0.187; balance -0.062 [-0.233, +0.135] (participant bootstrap; 92 electrodes, 15 participants)
+  c  middle   centroid LWPC -0.161, LWPS +0.062; balance -0.223 [-0.434, -0.079] (participant bootstrap; 92 electrodes, 17 participants)
+  c  dorsal   centroid LWPC -0.087, LWPS +0.219; balance -0.306 [-0.496, -0.134] (participant bootstrap; 91 electrodes, 18 participants)
+  d  ventral  adjusted LWPC − LWPS -0.233 ± 0.217 SEM (16 participants)
+  d  middle   adjusted LWPC − LWPS -0.437 ± 0.140 SEM (17 participants)
+  d  dorsal   adjusted LWPC − LWPS -0.348 ± 0.099 SEM (19 participants)
+  d  mni_z slope -0.01012/mm (p = 0.032); the plotted balance gives -0.01012/mm
+  §19 shared splits: LONG_DF_CSV not found: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv; local similarity skipped. make it with: cd dcc_scripts/stats && RT_ADJUST_HG=0 SCATTER_N_SPLITS=0 SCATTER_ONLY=1 bash submit_stability_flexibility_segregation_dcc.sh (N4 doc §19.5)
+  §19 RT coupling: RT_COUPLING_CSV not found: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200/rt_adjustment_slopes.csv; RT row skipped (it is the rt_adjustment_slopes.csv of the RT-adjusted long table's run)

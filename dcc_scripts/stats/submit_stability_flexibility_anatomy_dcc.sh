@@ -21,6 +21,9 @@
 #     PT_RUN_DIR="/hpc/home/$USER/coganlab/$USER/GlobalLocal/dcc_scripts/power/figs/<epochs_root>/anova_within_electrode/stimulus_experiment_conditions_24_subjects" \
 #     bash submit_stability_flexibility_anatomy_dcc.sh
 
+# ROI - gets threaded through below
+ROI=${ROI:-dlpfc}
+
 # ---------------------------------------------------------------------------
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # Only used by LABEL_SOURCE=a1 — the power_traces route reads finished runs.
@@ -63,7 +66,7 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # A MAIN_EFFECTS=1 segregation run (directory ends in _main_effects) also gets
 # the main-effect anatomy: dm = congruency - switch, and Tests 1 and 2 of
 # docs/analysis_plans.md#closing-figure-plan. Drop the suffix for the archived LWPC/LWPS-only run.
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects"
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_main_effects"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}
@@ -89,8 +92,8 @@ USE_COORDS=${USE_COORDS:-1}
 # ---------------------------------------------------------------------------
 export FOLLOWUPS=${FOLLOWUPS:-15,16,19}
 SEG_RESULTS=$(dirname "$SEG_RUN")
-LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
-RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
+LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
+RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
 RT_LONG_DF_CSV=${RT_LONG_DF_CSV:-"$RT_SEG_RUN/long_df.csv"}
 RT_COUPLING_CSV=${RT_COUPLING_CSV:-"$RT_SEG_RUN/rt_adjustment_slopes.csv"}
 SUBSET_SCORES_CSV=${SUBSET_SCORES_CSV:-}   # §15 section 11: a subset run's scores_with_anatomy.csv
@@ -120,7 +123,7 @@ PT_ROI=${PT_ROI:-}                       # the ANOVA run's ROI, e.g. lpfc
 #   ANAT_LEVEL : auto | group | destrieux — level for the histogram + test.
 #                'auto' uses raw Destrieux labels once restricted to one group.
 # ---------------------------------------------------------------------------
-ROI_FILTER=${ROI_FILTER:-'lpfc'}
+ROI_FILTER=${ROI_FILTER:-${ROI}}
 ANAT_LEVEL=${ANAT_LEVEL:-auto}
 HIST_TOP_N=${HIST_TOP_N:-}               # cap the Destrieux histogram at N labels
 
