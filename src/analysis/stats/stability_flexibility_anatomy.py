@@ -667,7 +667,7 @@ def _looks_blank(path):
 
 def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                            transparency=0.4, rm_wm=False, per_set_figures=False,
-                           foci=None, **vis_kwargs):
+                           foci=None, lines=None, **vis_kwargs):
     """Render colour-coded electrode sets on the fsaverage brain. Raises on failure.
 
     ``sets`` is a list of ``(name, {subject: [channels]}, colour)``. Each set is
@@ -681,6 +681,10 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
     the position in fsaverage/MNI mm, the frame :func:`build_electrode_coord_map`
     puts the electrodes in. A focus in a hemisphere the figure does not show is
     skipped. They go into the combined figure only.
+
+    ``lines`` are straight segments drawn the same way (e.g. band cuts):
+    ``(start_xyz, end_xyz, hemi, colour, radius)``, in mm, each drawn as a tube
+    of that radius. Same frame and hemisphere rule as ``foci``.
 
     Callers own the fallback: this function raises when the surface stack or the
     recon templates are missing, and each public plotting function catches that
@@ -756,6 +760,15 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
             continue
         fig.add_foci(np.atleast_2d(np.asarray(xyz, float)) / to_units, hemi=focus_hemi,
                      color=mcolors.to_rgb(color), scale_factor=focus_size)
+    # Brain has no public line method, so segments go through the per-view loop
+    # and renderer that ``Brain.add_foci`` itself uses (MNE 1.10)
+    for start, end, line_hemi, color, radius in (lines or ()):
+        if hemi in ('lh', 'rh') and line_hemi != hemi:
+            continue
+        for _ in fig._iter_views(line_hemi):
+            fig._renderer.tube(np.atleast_2d(np.asarray(start, float)) / to_units,
+                               np.atleast_2d(np.asarray(end, float)) / to_units,
+                               radius=radius / to_units, color=mcolors.to_rgb(color))
     # ``save_brain_image`` (not ``Brain.save_image``) because pyvista < 0.48
     # doesn't make the render window current before grabbing its framebuffer;
     # the helper retries with an explicit ``MakeCurrent()``.
@@ -2154,10 +2167,11 @@ def figure5(scores, tracking, out_dir, per_split=None, seg_dir=None, centroid=No
 # and marking each band's centroid shows both in one panel; the
 # balance-by-height panel shows the gradient in the coordinate test's units.
 HEIGHT_BANDS = ('ventral', 'middle', 'dorsal')
-# One-hue ordinal ramp, light (ventral) to dark (dorsal), validated as an
-# ordinal ramp: monotone lightness, visible steps, light end >= 2:1 on white.
-# Violet, so it is not read as the blue/orange congruency/switch identity.
-HEIGHT_COLORS = dict(zip(HEIGHT_BANDS, ('#a598e8', '#6a56cf', '#33218a')))
+# Wong (2011, Nat. Methods 8:441) colour-blind-safe blue, bluish green and
+# reddish purple, ventral to dorsal. Three distinct hues rather than a one-hue
+# ramp, so neighbouring bands are easy to tell apart; the band order is carried
+# by the labels and by position.
+HEIGHT_COLORS = dict(zip(HEIGHT_BANDS, ('#0072b2', '#009e73', '#cc79a7')))
 
 
 def _darken(color, factor=0.6):
@@ -2165,9 +2179,8 @@ def _darken(color, factor=0.6):
     return '#' + ''.join(f'{round(factor * int(color[i:i + 2], 16)):02x}' for i in (1, 3, 5))
 
 
-# Each band's centroid on the brain: its band's colour, darker. On a
-# light-to-dark ramp a darkened centroid comes near the next band's electrodes
-# in colour, so the centroids are also drawn larger.
+# Each band's centroid: its band's colour, darker. Drawn opaque and a little
+# larger, so it stands out from its band's translucent electrodes.
 HEIGHT_CENTROID_COLORS = {b: _darken(c) for b, c in HEIGHT_COLORS.items()}
 
 
@@ -2562,6 +2575,41 @@ def _centroids_on_lateral_surface(centroids, subjects_dir=None, radius=4.0):
     return shown
 
 
+def _cuts_on_lateral_surface(edges, hemis=('lh', 'rh'), subjects_dir=None, axis='mni_z',
+                             tol=1.0, margin=1.0):
+    """Each band cut as a straight segment just outside each hemisphere's
+    lateral fsaverage pial surface: ``[(start_xyz, end_xyz, hemi), ...]`` in mm.
+
+    A cut at ``axis = e`` is a plane, which a lateral view sees edge-on, as a
+    line. The segment lies in that plane and spans the pial vertices within
+    ``tol`` mm of it, ``margin`` mm lateral to the most lateral of them, so the
+    translucent cortex never covers it. For display, like
+    :func:`_centroids_on_lateral_surface`. A cut on ``mni_x`` is not visible in
+    a lateral view and gives no segment.
+    """
+    import mne
+    from src.analysis.vis.jim_mri import get_sub_dir
+
+    k = ('mni_x', 'mni_y', 'mni_z').index(axis)
+    if k == 0:
+        return []
+    across = 3 - k              # a z cut runs along y, a y cut along z
+    segments = []
+    for h in hemis:
+        rr, _ = mne.read_surface(os.path.join(get_sub_dir(subjects_dir), 'fsaverage', 'surf',
+                                              f'{h}.pial'))
+        for e in edges:
+            near = rr[np.abs(rr[:, k] - e) <= tol]
+            if not len(near):
+                continue
+            x = near[:, 0].min() - margin if h == 'lh' else near[:, 0].max() + margin
+            start, end = np.full(3, x), np.full(3, x)
+            start[k] = end[k] = e
+            start[across], end[across] = near[:, across].min(), near[:, across].max()
+            segments.append((start, end, h))
+    return segments
+
+
 def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axis='mni_z',
                                subjects=None, hemi='both', size=0.45, centroid_size=None,
                                electrode_alpha=0.4, transparency=0.4, rm_wm=False,
@@ -2583,7 +2631,8 @@ def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axi
     the other brain figures). A centroid lies under the cortex, so by default
     (``centroids_on_surface``) it is drawn at its y and z on the hemisphere's
     lateral surface (:func:`_centroids_on_lateral_surface`); the returned
-    ``centroids`` keep the true mean. The renderer draws no legend, so
+    ``centroids`` keep the true mean. With ``edges`` the two band cuts are
+    drawn as dark lines across each hemisphere (:func:`_cuts_on_lateral_surface`). The renderer draws no legend, so
     ``<out>_legend.png`` is written beside the figure. Without the surface stack
     or the recon files this falls back to :func:`plot_height_bands_sagittal`
     (``<out>_sagittal.png``).
@@ -2623,9 +2672,14 @@ def plot_height_bands_on_brain(points, out_path, centroids=None, edges=None, axi
                  if centroids_on_surface and len(centroids) else centroids)
         foci = [(f'{c.band}_{c.hemi}_centroid', (c.mni_x, c.mni_y, c.mni_z), c.hemi,
                  HEIGHT_CENTROID_COLORS[c.band], centroid_size) for c in shown.itertuples()]
+        # the cuts: dark lines 1 mm thick, thinner than an electrode
+        cuts = ([(start, end, h, _INK, 0.5) for start, end, h in _cuts_on_lateral_surface(
+                    edges[1:-1], subjects_dir=vis_kwargs.get('subj_dir'), axis=axis)]
+                if edges is not None else [])
         rendered = _render_electrode_sets(sets, out_path, subjects=subjects, hemi=hemi,
                                           size=size, transparency=transparency, rm_wm=rm_wm,
-                                          foci=foci, elec_alpha=electrode_alpha, **vis_kwargs)
+                                          foci=foci, lines=cuts, elec_alpha=electrode_alpha,
+                                          **vis_kwargs)
         return dict(combined=rendered['combined'], legend=legend, centroids=centroids,
                     centroids_shown=shown, counts=rendered['counts'], fallback=False)
     except Exception as exc:  # pragma: no cover - depends on cluster-only stack

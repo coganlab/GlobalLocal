@@ -380,9 +380,9 @@ def test_centroid_colours_are_darker_shades_of_the_band_colours():
     for b in sfa.HEIGHT_BANDS:
         band = np.array(mcolors.to_rgb(sfa.HEIGHT_COLORS[b]))
         cent = np.array(mcolors.to_rgb(sfa.HEIGHT_CENTROID_COLORS[b]))
-        assert (cent < band).all()
-        # every channel scaled alike: the same hue
-        assert cent / band == pytest.approx(np.full(3, 0.6), abs=0.01)
+        # every channel scaled alike: the same hue, darker
+        assert cent == pytest.approx(0.6 * band, abs=0.01)
+        assert cent.sum() < band.sum()
 
 
 LATERAL_X = 60.0
@@ -408,10 +408,23 @@ def _fake_surface_stack(monkeypatch, tmp_path):
     import sys
     import types
     import matplotlib.image as mpimg
-    calls, foci = [], []
+    calls, foci, lines = [], [], []
     _fake_pial(str(tmp_path / 'recon'))
 
+    class Renderer:
+        hemi = None
+
+        def tube(self, origin, destination, radius, color):
+            lines.append(dict(start=np.asarray(origin), end=np.asarray(destination),
+                              radius=radius, color=color, hemi=self.hemi))
+
     class Brain:
+        _renderer = Renderer()
+
+        def _iter_views(self, hemi):
+            self._renderer.hemi = hemi
+            yield 0, 0, 'lateral'
+
         def add_foci(self, coords, hemi, color, scale_factor):
             foci.append(dict(coords=np.asarray(coords), hemi=hemi, color=color,
                              size=scale_factor))
@@ -443,12 +456,12 @@ def _fake_surface_stack(monkeypatch, tmp_path):
     monkeypatch.setattr(sfa, '_fsaverage_index_space', lambda subjects: ({}, list(subjects)))
     monkeypatch.setenv('DISPLAY', ':0')
     monkeypatch.setenv('PYVISTA_OFF_SCREEN', 'false')
-    return calls, foci
+    return calls, foci, lines
 
 
 def test_brain_figure_draws_the_bands_and_the_centroids_on_one_brain(monkeypatch, tmp_path):
     import matplotlib.colors as mcolors
-    calls, foci = _fake_surface_stack(monkeypatch, tmp_path)
+    calls, foci, lines = _fake_surface_stack(monkeypatch, tmp_path)
     tab, _ = _gradient_world(n_subj=8)
     pts, edges = sfa.figure5_height_points(tab)
     out = sfa.plot_height_bands_on_brain(pts, str(tmp_path / 'brain.png'), edges=edges)
@@ -475,6 +488,16 @@ def test_brain_figure_draws_the_bands_and_the_centroids_on_one_brain(monkeypatch
         assert f['hemi'] == c.hemi
         assert f['color'] == mcolors.to_rgb(sfa.HEIGHT_CENTROID_COLORS[c.band])
         assert f['size'] == pytest.approx(1.5 * 0.45)
+    # each cut once per hemisphere, in metres: 1 mm lateral to the cortex, at
+    # the cut's height, across the hemisphere's extent there (fake pial: y -20..80)
+    expected = [(h, e) for h in ('lh', 'rh') for e in edges[1:-1]]
+    assert len(lines) == len(expected) == 4
+    for line, (h, e) in zip(lines, expected):
+        x = -(LATERAL_X + 1) if h == 'lh' else LATERAL_X + 1
+        assert line['hemi'] == h and line['color'] == mcolors.to_rgb(sfa._INK)
+        assert line['start'] == pytest.approx(np.array([[x, -20, e]]) / 1000)
+        assert line['end'] == pytest.approx(np.array([[x, 80, e]]) / 1000)
+        assert line['radius'] == pytest.approx(0.5 / 1000)
 
     # at the true mean when asked; a one-hemisphere figure gets that
     # hemisphere's centroids only

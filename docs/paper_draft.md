@@ -421,8 +421,9 @@ necessary for the story.
   participant-centred, each score's mean added back, on delta's pooled scale),
   not `joint_scatter.png`. The job prints the z slope of the plotted balance
   next to the coordinate test's as a check that b–d and the test agree.
-- Height tertiles use a one-hue violet ramp (validated as an ordinal ramp), so
-  they are not read as the blue/orange congruency/switch identity of e.
+- Height tertiles use the Wong (2011) colour-blind-safe blue, bluish green and
+  reddish purple, distinct hues so neighbouring bands are easy to tell apart;
+  the blue sits near the congruency blue of e.
 - No "electrodes driving the z effect": at single-electrode reliability ~0.3
   the most influential electrodes are partly selected on noise. The centroids
   carry the gradient.

@@ -2775,8 +2775,10 @@ Points **above** the line lean LWPS, **below** it LWPC.
 Choices, and why:
 
 - **Tertiles of z** over every electrode with coordinates: the S-N4 panel c cut,
-  fixed by rule. Three ordered bands get a one-hue violet ramp (validated as
-  ordinal), so they are not read as the blue/orange congruency/switch identity.
+  fixed by rule. The three bands get the Wong (2011) colour-blind-safe blue,
+  bluish green and reddish purple: distinct hues, so neighbouring bands are
+  easy to tell apart. The blue sits near the congruency blue. The brain
+  rendering draws the two cuts as lines across each hemisphere.
 - **The separating line is the identity line**, not a dorsal/ventral boundary.
   At ~2 % of variance the tertiles overlap almost completely in score space; a
   classifier line would suggest a separation that is not there. The z cuts are

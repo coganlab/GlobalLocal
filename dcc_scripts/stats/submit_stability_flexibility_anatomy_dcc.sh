@@ -36,7 +36,7 @@ EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thr
 # ---------------------------------------------------------------------------
 WINDOW_TMIN=0.0
 WINDOW_TMAX=1.5
-ELECTRODES=all            # 'all' or 'sig'
+ELECTRODES=sig            # 'all' or 'sig'
 
 # Data source: 'real' loads epoched data + the ROI atlas; 'synthetic' validates
 # the whole path with a ground-truth electrode->ROI map.
@@ -92,8 +92,8 @@ USE_COORDS=${USE_COORDS:-1}
 # ---------------------------------------------------------------------------
 export FOLLOWUPS=${FOLLOWUPS:-15,16,19}
 SEG_RESULTS=$(dirname "$SEG_RUN")
-LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
-RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
+LONG_DF_CSV=${LONG_DF_CSV:-"$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv"}
+RT_SEG_RUN="$SEG_RESULTS/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200"
 RT_LONG_DF_CSV=${RT_LONG_DF_CSV:-"$RT_SEG_RUN/long_df.csv"}
 RT_COUPLING_CSV=${RT_COUPLING_CSV:-"$RT_SEG_RUN/rt_adjustment_slopes.csv"}
 SUBSET_SCORES_CSV=${SUBSET_SCORES_CSV:-}   # §15 section 11: a subset run's scores_with_anatomy.csv

@@ -25,7 +25,7 @@ participants as the unit second (for the supplement):
    electrode level, fig5_height_participants.* at the participant level);
    with ``--brain``, also the electrodes on the fsaverage brain coloured by
    tertile, with each tertile's centroid per hemisphere drawn larger in a
-   darker shade (the one step that reads recon files; run it under
+   darker shade, and the tertile cuts as lines (the one step that reads recon files; run it under
    ``xvfb-run`` or on a node with a display);
 5. the LWPC-LWPS overlap r with each candidate confound removed in turn
    (nonlinear responsiveness, coordinates, same-half base effects, RT
