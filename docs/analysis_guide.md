@@ -35,6 +35,7 @@ doesn't:
 | [`n4_code_walkthrough.md`](n4_code_walkthrough.md) | **The N4 code line by line**, mostly §19, with comprehension questions; its notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` steps through it on the real all-lPFC outputs |
 | [`a6_brain_behavior.md`](a6_brain_behavior.md) | **Runbook for A6** (§19): the per-participant brain–behavior scores and the RT confound |
 | [`stability_flexibility_battery.md`](stability_flexibility_battery.md) | The **shape of the data at every step** of A1–A7, one fake dataset followed end to end with the actual intermediate tables printed (backed by the runnable `docs/examples/stability_flexibility_data_flow_demo.py`), and **what each output file means** |
+| [`dlpfc_results.md`](dlpfc_results.md) | **Whether the paper could report DLPFC instead of all lPFC**: every DLPFC result (traces, decoding, cross-decoding, segregation, anatomy) next to its lPFC counterpart, and the runs still needed |
 | [`paper_draft.md`](paper_draft.md) | **The paper as it stands**: the F1–F5 and supplement figure plan after the 2026-10-01 results, and every Methods and Results paragraph written so far, in paper order |
 | [`methods.md`](methods.md) | Manuscript-ready **Methods** text: the combined N4 Methods, and the segregation analysis in a `cluster` and a `cohens_d` version |
 | [`code_maintenance.md`](code_maintenance.md) | How the big modules were split (and how to split the next one), and the duplicated code that could be consolidated |

@@ -1,0 +1,63 @@
+----------------------------------------------------------------------
+§19 — ELECTRODES AND PARTICIPANTS AS THE UNIT, LOCAL SIMILARITY, COMBINED FIGURE 5, OVERLAP CONTROLS
+  each part: electrodes as the unit first (the pre-specified tests' level), participants as the unit second (supplement)
+  LOCAL SIMILARITY, ELECTRODES AS THE UNIT (275 electrodes, 19 participants, 200 shared splits; linear gradient removed; 0 contact-sharing pairs dropped)
+    excess cross-half similarity over each participant's position-shuffle baseline [95 % CI ± 1.96 SE, one-sided p; SE from the scores' covariance across electrodes, trial noise shared by neighbours included]
+    LWPC − LWPS  reliability -0.016 [-0.207, +0.175]
+        < 10: +0.021 [-0.126, +0.169] p 0.39  10–20: -0.114 [-0.257, +0.029] p 0.94  20–40: +0.048 [-0.024, +0.119] p 0.096  > 40: -0.005 [-0.081, +0.072] p 0.55
+    LWPC         reliability +0.166 [+0.023, +0.309]
+        < 10: +0.151 [+0.029, +0.273] p 0.0076  10–20: +0.090 [-0.024, +0.204] p 0.06  20–40: +0.043 [-0.022, +0.108] p 0.098  > 40: -0.108 [-0.165, -0.050] p 1
+    LWPS         reliability -0.045 [-0.243, +0.152]
+        < 10: -0.051 [-0.222, +0.119] p 0.72  10–20: -0.086 [-0.229, +0.057] p 0.88  20–40: +0.043 [-0.030, +0.115] p 0.12  > 40: +0.005 [-0.075, +0.085] p 0.45
+    congruency   reliability +0.256 [+0.126, +0.385]
+        < 10: +0.191 [+0.067, +0.314] p 0.0013  10–20: +0.057 [-0.072, +0.186] p 0.19  20–40: +0.019 [-0.052, +0.089] p 0.3  > 40: -0.080 [-0.130, -0.031] p 1
+    switch       reliability +0.137 [-0.014, +0.288]
+        < 10: +0.107 [-0.016, +0.230] p 0.044  10–20: -0.003 [-0.133, +0.128] p 0.52  20–40: +0.036 [-0.034, +0.106] p 0.16  > 40: -0.055 [-0.118, +0.007] p 0.96
+    LWPC − LWPS  nearest − farthest +0.026  p = 0.397
+    LWPC         nearest − farthest +0.259  p = 0.000232
+    LWPS         nearest − farthest -0.056  p = 0.691
+    congruency   nearest − farthest +0.271  p = 8.25e-05
+    switch       nearest − farthest +0.162  p = 0.019
+    nearest bin, share of reliability, LWPC − LWPS vs LWPC: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs LWPS: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs congruency: not defined (a reliability is not clearly positive (electrode level))
+    nearest bin, share of reliability, LWPC − LWPS vs switch: not defined (a reliability is not clearly positive (electrode level))
+    NOTE: LWPC − LWPS: reliability -0.016 ± 0.097 (electrode-level SE), so its excess is not expressed as a share of it at the electrode level
+    NOTE: LWPS: reliability -0.045 ± 0.101 (electrode-level SE), so its excess is not expressed as a share of it at the electrode level
+    read: intermixed = no excess for LWPC − LWPS at short range while the single scores show one; if the single scores show none either, the test has no power
+  LOCAL SIMILARITY, PARTICIPANTS AS THE UNIT (275 electrodes, 19 participants, 200 shared splits; linear gradient removed; 0 contact-sharing pairs dropped)
+    excess cross-half similarity over each participant's position-shuffle baseline [95 % participant bootstrap, participant sign-flip p]
+    LWPC − LWPS  reliability -0.016 [-0.043, +0.013]
+        < 10: +0.021 [-0.031, +0.064] p 0.28  10–20: -0.114 [-0.193, +0.016] p 0.77  20–40: +0.048 [-0.064, +0.108] p 0.3  > 40: -0.005 [-0.045, +0.057] p 0.51
+    LWPC         reliability +0.166 [+0.050, +0.261]
+        < 10: +0.151 [+0.035, +0.241] p 0.022  10–20: +0.090 [-0.035, +0.192] p 0.45  20–40: +0.043 [-0.046, +0.107] p 0.21  > 40: -0.108 [-0.241, +0.016] p 0.85
+    LWPS         reliability -0.045 [-0.188, +0.057]
+        < 10: -0.051 [-0.135, +0.027] p 0.78  10–20: -0.086 [-0.125, +0.035] p 0.77  20–40: +0.043 [-0.012, +0.079] p 0.25  > 40: +0.005 [-0.052, +0.054] p 0.28
+    congruency   reliability +0.256 [+0.064, +0.421]
+        < 10: +0.191 [-0.010, +0.361] p 0.086  10–20: +0.057 [+0.004, +0.102] p 0.054  20–40: +0.019 [-0.086, +0.062] p 0.35  > 40: -0.080 [-0.122, -0.013] p 0.96
+    switch       reliability +0.137 [+0.043, +0.223]
+        < 10: +0.107 [-0.036, +0.270] p 0.14  10–20: -0.003 [-0.058, +0.087] p 0.52  20–40: +0.036 [-0.011, +0.119] p 0.17  > 40: -0.055 [-0.131, +0.044] p 0.77
+    LWPC − LWPS  nearest − farthest +0.026  p = 0.365
+    LWPC         nearest − farthest +0.259  p = 0.0214
+    LWPS         nearest − farthest -0.056  p = 0.735
+    congruency   nearest − farthest +0.271  p = 0.0214
+    switch       nearest − farthest +0.162  p = 0.164
+    nearest bin, share of reliability, LWPC − LWPS vs LWPC: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs LWPS: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs congruency: not defined (a reliability is not clearly positive)
+    nearest bin, share of reliability, LWPC − LWPS vs switch: not defined (a reliability is not clearly positive)
+    NOTE: LWPC − LWPS: reliability -0.016 (positive in 15% of bootstrap draws), so its excess is not expressed as a share of it at the participant level
+    NOTE: LWPS: reliability -0.045 (positive in 28% of bootstrap draws), so its excess is not expressed as a share of it at the participant level
+    read: intermixed = no excess for LWPC − LWPS at short range while the single scores show one; if the single scores show none either, the test has no power
+  LWPC–LWPS SEPARATE-HALF r, ELECTRODES AS THE UNIT (the rescored table, shared by participant, RT-adjusted HG; 275 electrodes, 19 participants)
+    r = +0.116  95 % CI [+0.049, +0.184]  permutation p = 0.0005999  (electrode bootstrap within participant, 100 of 200 splits)
+    within-participant reliability: LWPC +0.190 [+0.104, +0.284], LWPS +0.006 [-0.087, +0.091]; LWPC − LWPS +0.184 [+0.068, +0.310]
+    noise-corrected r: not estimable: both reliabilities positive in 53% of the electrode-bootstrap draws (needs 90%)
+  congruency–switch SEPARATE-HALF r, ELECTRODES AS THE UNIT (the rescored table, shared by participant, RT-adjusted HG; 275 electrodes, 19 participants)
+    r = +0.139  95 % CI [+0.064, +0.226]  permutation p = 0.0016  (electrode bootstrap within participant, 100 of 200 splits)
+    within-participant reliability: congruency +0.338 [+0.240, +0.425], switch +0.292 [+0.201, +0.378]; congruency − switch +0.045 [-0.068, +0.166]
+    noise-corrected r = +0.444  95 % CI [+0.217, +0.733]
+  WITHIN-PARTICIPANT SPLIT-HALF RELIABILITY BY SPLIT SCHEME (the per-electrode split biases these)
+                                    split   LWPC   LWPS  overlap_r  congruency  switch
+                            per electrode +0.049 -0.148     +0.094      +0.335  +0.182
+    shared by participant, RT-adjusted HG +0.190 +0.006     +0.116      +0.338  +0.292

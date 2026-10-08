@@ -5,11 +5,11 @@ STABILITY vs FLEXIBILITY — A4 CROSS-DECODING
         synthetic_code: shared
                   task: GlobalLocal
       epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
-            electrodes: sig
+            electrodes: all
   electrode_definition: none
 power_traces_correction: None
        reference_group: all
- electrode_group_sizes: {'all': 54}
+ electrode_group_sizes: {'all': 398}
            anova_model: None
 interaction_electrodes: None
 electrode_selection_split: off (electrodes selected on the same trials that are decoded)
@@ -22,15 +22,15 @@ electrode_selection_split: off (electrodes selected on the same trials that are 
              n_repeats: 10
             frac_train: None
                  alpha: 0.05
-              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/cross_decoding_occ_sig_none/stimulus_main_effect_conditions
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/cross_decoding_lpfc_all_none/stimulus_main_effect_conditions
 ------------------------------------------------------------------------
 Decoded pseudo-trials. Every electrode is subsampled to the fewest clean
 trials of any electrode in a condition, so the subject with the fewest
 trials sets the count; every electrode group decodes these same rows:
-   Stimulus_ir=59  Stimulus_is=46  Stimulus_cr=98  Stimulus_cs=79
-   congruency: c=177  i=105
-   switchType: r=157  s=125
-   total=282; the label transfer trains on ~226 of them per fold
+   Stimulus_ir=58  Stimulus_is=44  Stimulus_cr=76  Stimulus_cs=76
+   congruency: c=152  i=102
+   switchType: r=134  s=120
+   total=254; the label transfer trains on ~203 of them per fold
 ------------------------------------------------------------------------
 A4(a) label transfer by group. stab = congruency (i vs c), flex = switch
       type (s vs r); stab_to_stab / flex_to_flex are the within-contrast
@@ -39,17 +39,17 @@ A4(a) label transfer by group. stab = congruency (i vs c), flex = switch
       'all' is the UNSELECTED reference set (every electrode in the
       decoded ROI array, i.e. what `electrodes` above already restricted it to) —
       no interaction defined it, so it is the honest baseline for the selected groups.
-   [all] stab_to_stab: mean acc=0.547 peak=0.592 (shuffle 0.489) sig windows=26/37
-   [all] flex_to_flex: mean acc=0.536 peak=0.630 (shuffle 0.505) sig windows=23/37
-   [all] stab_to_flex: mean acc=0.520 peak=0.593 (shuffle 0.514) sig windows=11/37
-         vs flex_to_flex, its ceiling: below it in 15 windows; keeps 54% of it above chance
-   [all] flex_to_stab: mean acc=0.504 peak=0.550 (shuffle 0.494) sig windows=12/37
-         vs stab_to_stab, its ceiling: below it in 32 windows; keeps 23% of it above chance
+   [all] stab_to_stab: mean acc=0.622 peak=0.759 (shuffle 0.483) sig windows=26/37
+   [all] flex_to_flex: mean acc=0.657 peak=0.831 (shuffle 0.507) sig windows=37/37
+   [all] stab_to_flex: mean acc=0.567 peak=0.683 (shuffle 0.542) sig windows=17/37
+         vs flex_to_flex, its ceiling: below it in 30 windows; keeps 43% of it above chance
+   [all] flex_to_stab: mean acc=0.514 peak=0.590 (shuffle 0.497) sig windows=11/37
+         vs stab_to_stab, its ceiling: below it in 29 windows; keeps 8% of it above chance
 ------------------------------------------------------------------------
 A4(c) temporal generalization (Fig 10):
-   stability (within) [all]: mean diagonal=0.550  mean off-diagonal=0.513  (diagonal/phasic code)
-   flexibility (within) [all]: mean diagonal=0.535  mean off-diagonal=0.526  (diagonal/phasic code)
-   stability->flexibility (cross) [all]: mean diagonal=0.524  mean off-diagonal=0.517  (diagonal/phasic code)
+   stability (within) [all]: mean diagonal=0.621  mean off-diagonal=0.555  (sustained/stable code)
+   flexibility (within) [all]: mean diagonal=0.657  mean off-diagonal=0.588  (sustained/stable code)
+   stability->flexibility (cross) [all]: mean diagonal=0.568  mean off-diagonal=0.534  (diagonal/phasic code)
 ========================================================================
 Reading: cross-decoding above chance on the 'both' group = a SHARED
 code; chance on 'both' while each process is individually decodable =

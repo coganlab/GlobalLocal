@@ -27,6 +27,13 @@ real all-lPFC outputs.
 *Status as of 2026-10-05, the date of the latest runs. Each number points to the
 section that holds it, and that section names its source file.*
 
+⚠️ *2026-10-08: the DLPFC anatomy run wrote into
+`anatomy_a1_lpfc_window_0.0to1.5s_sig/continuous/` (the folder is named after
+`ROI_FILTER`, which was `lpfc`). Until it is rerun, the files there dated
+2026-10-08 are DLPFC (277 electrodes), not all lPFC; the numbers in this doc
+are still the lPFC ones. The DLPFC results, set against this section's, are in
+[`dlpfc_results.md`](dlpfc_results.md) §5–§6, and the fix is in its §8.1.*
+
 ### 0.1 The question, the scores and the population
 
 N4 asks how the two adaptation effects, LWPC and LWPS, are organized across

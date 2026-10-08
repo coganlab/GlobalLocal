@@ -63,7 +63,7 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # A MAIN_EFFECTS=1 segregation run (directory ends in _main_effects) also gets
 # the main-effect anatomy: dm = congruency - switch, and Tests 1 and 2 of
 # docs/analysis_plans.md#closing-figure-plan. Drop the suffix for the archived LWPC/LWPS-only run.
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects"
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}

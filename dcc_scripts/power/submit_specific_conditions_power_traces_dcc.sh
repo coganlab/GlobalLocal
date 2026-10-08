@@ -5,12 +5,12 @@
 # cells being contrasted hold 3:1 vs 1:3 mixtures of the OTHER proportion block
 # and a block-level offset enters the contrast at every timepoint. Kept for
 # reference; prefer the block-balanced sets.
-# CONDITIONS=(
-#     stimulus_lwpc_conditions
-#     stimulus_lwps_conditions
-#     # stimulus_congruency_by_switch_proportion_conditions
-#     # stimulus_switch_type_by_incongruent_proportion_conditions
-# )
+CONDITIONS=(
+    stimulus_lwpc_conditions
+    stimulus_lwps_conditions
+    stimulus_congruency_by_switch_proportion_conditions
+    stimulus_switch_type_by_incongruent_proportion_conditions
+)
 
 # CONDITIONS=(
 #     stimulus_big_letter_conditions
@@ -20,16 +20,16 @@
 #     # stimulus_switch_type_by_incongruent_proportion_conditions
 # )
 
-# Space-separated CONDITIONS in the environment replace this list, e.g.
-#   CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions"
-if [[ -n "${CONDITIONS:-}" ]]; then
-    read -r -a CONDITIONS <<< "$CONDITIONS"
-else
-    CONDITIONS=(
-        stimulus_congruency_conditions
-        stimulus_switch_type_conditions
-    )
-fi
+# # Space-separated CONDITIONS in the environment replace this list, e.g.
+# #   CONDITIONS="stimulus_lwpc_block_balanced_conditions stimulus_lwps_block_balanced_conditions"
+# if [[ -n "${CONDITIONS:-}" ]]; then
+#     read -r -a CONDITIONS <<< "$CONDITIONS"
+# else
+#     CONDITIONS=(
+#         stimulus_congruency_conditions
+#         stimulus_switch_type_conditions
+#     )
+# fi
 
 
 # One cell per block type + full-factorial ANOVA, so the 2-way terms are

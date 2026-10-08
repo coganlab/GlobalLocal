@@ -1898,6 +1898,13 @@ except the unsplit `anova` group run
 no `rt_match` or `activity_control` line in its `summary.txt`, and its `all`
 group reproduces the 2026-09-29 baseline. Leave it out, or rerun it.
 
+**DLPFC (2026-10-07).** `cross_decoding_dlpfc_sig_none/` (121 task-significant
+electrodes, no controls): ceilings 0.755 / 0.735, transfer from +0.69 s keeping
+39 % and 17 % of the ceilings, close to lPFC. Unlike lPFC, congruency is
+decodable **before the stimulus** (−1.0 to −0.5 s, cluster p = 0.002), probably
+from block proportion leaking into the pooled main-effect set. Details and the
+control runs still needed: [`dlpfc_results.md`](dlpfc_results.md) §4, §8.4.
+
 **Short version.** Congruency and switch type are each strongly decodable from
 the 171 task-significant lPFC electrodes, and they share a minority of their
 code. The congruency decoder recovers about half of switch type's decodable

@@ -76,7 +76,7 @@ SYNTHETIC_CODE=${SYNTHETIC_CODE:-shared}
 #   ELECTRODES       which of that region's electrodes get loaded at all
 #   REFERENCE_GROUP  the unselected group decoded alongside both/S_only/F_only
 # ---------------------------------------------------------------------------
-ROI=${ROI:-occ}
+ROI=${ROI:-dlpfc}
 ELECTRODES=${ELECTRODES:-sig}            # 'sig' (baseline task-significant) or 'all'
 REFERENCE_GROUP=${REFERENCE_GROUP:-all}  # '' to drop it
 MIN_GROUP_SIZE=${MIN_GROUP_SIZE:-5}      # skip electrode groups smaller than this
@@ -108,7 +108,7 @@ ANOVA_LABELS_CSVS=(
     # each definition window/correction.
     # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_proportion_none
     # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_ind_equal_var_False_nan_policy_omit/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
-    /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
+    # /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/anova_conjunction_window_0.0to1.5s_sig_lpfc_condition_none
 )
 
 
@@ -223,7 +223,7 @@ FRAC_TRAIN=${FRAC_TRAIN:-}
 # Each gets its own folder (..._rtmatch10 / ..._rtrandom10). The comma-separated
 # ones (RT_MATCH_WITHIN, RT_MATCH_GROUPS) are exported rather than put in the
 # sbatch --export list, which splits on commas.
-export RT_MATCH=${RT_MATCH:-random}
+export RT_MATCH=${RT_MATCH:-none}
 export RT_MATCH_BINS=${RT_MATCH_BINS:-10}             # quantile RT bins per subject
 export RT_MATCH_BALANCE=${RT_MATCH_BALANCE:-equal}    # equal | proportional
 export RT_MATCH_WITHIN=${RT_MATCH_WITHIN:-}           # extra strata, e.g. incongruent_proportion,switch_proportion
@@ -237,7 +237,7 @@ export RT_MATCH_SEED=${RT_MATCH_SEED:-}               # default: SEED
 #                pseudo-trial and time point (a transfer that survives is a pattern)
 #   mean_only    decode each subject's mean alone (the uniform part only)
 # Each gets its own folder (..._remove_mean / ..._mean_only).
-export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-remove_mean}
+export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-none}
 
 mkdir -p out
 
