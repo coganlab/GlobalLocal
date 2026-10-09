@@ -138,6 +138,7 @@ BRAIN_ZOOM=${BRAIN_ZOOM:-}
 
 # A1 electrode definition + A3 hyperparameters.
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+                                            # continuous arm: condition also draws Figure 5 (height) on congruency vs switch
 FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (LABEL_SOURCE=a1)
 ALPHA=${ALPHA:-0.05}
 MIN_SUBJECTS=${MIN_SUBJECTS:-3}      # keep ROIs sampled in >= this many subjects

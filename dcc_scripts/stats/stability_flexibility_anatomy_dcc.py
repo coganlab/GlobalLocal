@@ -729,10 +729,20 @@ def run_score_anatomy(args):
     shared, shared_label, rt_coupling, input_lines = (
         section19_inputs(args, tab, save_dir, seed=seed) if 19 in followups
         else (None, 'shared by participant', None, []))
+    # CONTRAST_MODE=condition also draws the combined Figure 5 on congruency
+    # against switch type, from the main effects of a MAIN_EFFECTS=1 run
+    fig5_pairs = ('adaptation',)
+    if CONTRAST_MODE == 'condition':
+        if 'dm' in tab:
+            fig5_pairs += ('main_effects',)
+        else:
+            print("CONTRAST_MODE=condition but the scores carry no main effects (not a "
+                  "MAIN_EFFECTS=1 run): Figure 5 is drawn for LWPC/LWPS only")
     s19_lines, s19 = sfa.section19(
         tab, per_split, save_dir, coord_res=coord_res, seg_dir=seg_dir,
         n_perm=n_perm, seed=seed, per_split_shared=shared, rt_coupling=rt_coupling,
         shared_label=shared_label, make_brain=getattr(args, 'make_brain', True),
+        pairs=fig5_pairs,
         brain_kwargs=dict(subjects=(getattr(args, 'brain_subjects', None)
                                     or getattr(args, 'subjects', None)),
                           hemi=getattr(args, 'brain_hemi', 'both'),

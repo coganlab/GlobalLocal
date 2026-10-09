@@ -237,7 +237,7 @@ export RT_MATCH_SEED=${RT_MATCH_SEED:-}               # default: SEED
 #                pseudo-trial and time point (a transfer that survives is a pattern)
 #   mean_only    decode each subject's mean alone (the uniform part only)
 # Each gets its own folder (..._remove_mean / ..._mean_only).
-export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-none}
+export ACTIVITY_CONTROL=${ACTIVITY_CONTROL:-remove_mean}
 
 mkdir -p out
 

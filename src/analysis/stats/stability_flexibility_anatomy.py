@@ -2183,6 +2183,24 @@ def _darken(color, factor=0.6):
 # larger, so it stands out from its band's translucent electrodes.
 HEIGHT_CENTROID_COLORS = {b: _darken(c) for b, c in HEIGHT_COLORS.items()}
 
+# The score pairs the combined figure can be drawn for. Everything that differs
+# between them is here, so figure5_height and its helpers take one name.
+# 'adaptation' is the pre-specified figure: LWPC against LWPS, balance delta.
+# 'main_effects' is the same figure on congruency against switch type, balance
+# dm; it needs the cong_s/switch_s columns of a MAIN_EFFECTS=1 run. `json` is
+# the segregation run's test of the pair; `main_effects` says that test reads
+# the main-effect slots of the per-split table (main_effect_view).
+FIG5_PAIRS = {
+    'adaptation': dict(x='lwpc_s', y='lwps_s', value_col='delta', x_name='LWPC',
+                       y_name='LWPS', title='Adaptation by electrode',
+                       json='correlation.json', main_effects=False,
+                       prefix='fig5_height'),
+    'main_effects': dict(x='cong_s', y='switch_s', value_col='dm', x_name='congruency',
+                         y_name='switch', title='Main effects by electrode',
+                         json='correlation_main_effects.json', main_effects=True,
+                         prefix='fig5_height_main_effects'),
+}
+
 
 def height_bands(values, edges=None, labels=HEIGHT_BANDS):
     """Tertiles of ``values`` (MNI z) across electrodes, the cut S-N4's panel c
@@ -2195,8 +2213,12 @@ def height_bands(values, edges=None, labels=HEIGHT_BANDS):
     return pd.cut(v, edges, labels=list(labels), include_lowest=True), np.asarray(edges)
 
 
-def figure5_height_points(scores, axis='mni_z', min_elec=3):
+def figure5_height_points(scores, axis='mni_z', min_elec=3, pair='adaptation'):
     """The points of the combined panel, and the band edges.
+
+    ``pair`` (a key of :data:`FIG5_PAIRS`) picks the two scores; the text
+    below is the default, and the main-effects pair reads the same with
+    congruency, switch and ``dm``.
 
     LWPC and LWPS are the pre-specified test's scores (responsiveness
     regressed out, participant-centred; ``prepare_continuous``) on the pooled
@@ -2208,9 +2230,10 @@ def figure5_height_points(scores, axis='mni_z', min_elec=3):
     without coordinates stay in the table with no band.
     """
     from .stability_flexibility_segregation import prepare_continuous
+    spec = FIG5_PAIRS[pair]
     pts = prepare_continuous(
-        scores[['subject', 'electrode', 'lwpc_s', 'lwps_s', 'resp']]
-        .rename(columns={'lwpc_s': 'x', 'lwps_s': 'y'}), min_elec=min_elec)
+        scores[['subject', 'electrode', spec['x'], spec['y'], 'resp']]
+        .rename(columns={spec['x']: 'x', spec['y']: 'y'}), min_elec=min_elec)
     pts['x_plot'] = pts['x_resid'] + pts['x'].mean()
     pts['y_plot'] = pts['y_resid'] + pts['y'].mean()
     coords = [c for c in ('mni_x', 'mni_y', 'mni_z') if c in scores.columns]
@@ -2354,7 +2377,7 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
 
 
 def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis='mni_z',
-                        slope=None, brain_png=None, unit='participant'):
+                        slope=None, brain_png=None, unit='participant', pair='adaptation'):
     """Draw the combined anatomy figure and write ``<out_stem>.png``/``.pdf``.
 
     a, the height bands on a sagittal projection of the electrodes (or
@@ -2364,8 +2387,8 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
     ellipse: the gradient is their spread across the identity line; d, the
     adjusted balance by band, means +/- SEM, with the slope tests in ``slope``
     (a list of text lines). ``unit`` ('participant' or 'electrode') names the
-    bootstrap and the means in the legend. Inputs as :func:`figure5_height`
-    builds them.
+    bootstrap and the means in the legend; ``pair`` (:data:`FIG5_PAIRS`) names
+    the two scores on the axes. Inputs as :func:`figure5_height` builds them.
     """
     import matplotlib
     matplotlib.use('Agg')
@@ -2373,6 +2396,7 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
     from matplotlib.lines import Line2D
     from matplotlib.patches import Rectangle
 
+    x_name, y_name, title = (FIG5_PAIRS[pair][k] for k in ('x_name', 'y_name', 'title'))
     d = points.dropna(subset=['band'])
     with plt.rc_context(_FIG5_RC):
         fig = plt.figure(figsize=(7.2, 2.5))
@@ -2398,13 +2422,13 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
         pad = 0.06 * (hi - lo)
         lo, hi = lo - pad, hi + pad
         ax_b.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
-        ax_b.text(0.03, 0.97, 'leans LWPS', transform=ax_b.transAxes, ha='left', va='top',
+        ax_b.text(0.03, 0.97, f'leans {y_name}', transform=ax_b.transAxes, ha='left', va='top',
                   fontsize=5.5, color=_MUTED)
-        ax_b.text(0.97, 0.03, 'leans LWPC', transform=ax_b.transAxes, ha='right',
+        ax_b.text(0.97, 0.03, f'leans {x_name}', transform=ax_b.transAxes, ha='right',
                   va='bottom', fontsize=5.5, color=_MUTED)
         ax_b.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
-                 xlabel='LWPC (SD units)', ylabel='LWPS (SD units)')
-        ax_b.set_title('Adaptation by electrode', loc='left', fontsize=7, color=_INK)
+                 xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
+        ax_b.set_title(title, loc='left', fontsize=7, color=_INK)
         if stat is not None:
             ax_b.text(0.97, 0.97,
                       f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}\n"
@@ -2423,7 +2447,7 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
         ax_b.add_patch(Rectangle((zlo, zlo), zhi - zlo, zhi - zlo, fill=False,
                                  edgecolor=_INK, linewidth=0.6, zorder=6))
         ax_z.plot([zlo, zhi], [zlo, zhi], color=_MUTED, lw=0.7, zorder=1)
-        ax_z.text(zhi, zhi, 'LWPC = LWPS ', ha='right', va='top', fontsize=5.5,
+        ax_z.text(zhi, zhi, f'{x_name} = {y_name} ', ha='right', va='top', fontsize=5.5,
                   color=_MUTED, rotation=45, rotation_mode='anchor')
         for c in centroids.itertuples():
             col = HEIGHT_COLORS[c.band]
@@ -2431,7 +2455,7 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
             ax_z.scatter([c.x], [c.y], s=30, color=col, edgecolor='white', linewidth=1.0,
                          zorder=5)
         ax_z.set(xlim=(zlo, zhi), ylim=(zlo, zhi), aspect='equal',
-                 xlabel='LWPC (SD units)', ylabel='LWPS (SD units)')
+                 xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
         ax_z.set_title('Band centroids (box in b)', loc='left', fontsize=7, color=_INK)
         # one legend for every panel, under b and c (identity is never colour alone)
         box_b, box_z = ax_b.get_position(), ax_z.get_position()
@@ -2453,7 +2477,7 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
                           color=HEIGHT_COLORS[band], ecolor=_INK, elinewidth=0.7,
                           capsize=0, markersize=4.5, markeredgecolor='white',
                           markeredgewidth=0.6, zorder=3)
-        ax_c.set(xlabel='height, MNI z (mm)', ylabel='LWPC − LWPS (SD units)')
+        ax_c.set(xlabel='height, MNI z (mm)', ylabel=f'{x_name} − {y_name} (SD units)')
         ax_c.set_title('Balance by height', loc='left', fontsize=7, color=_INK)
         if slope:
             # the corner the points leave free: falling balance -> lower left
@@ -2697,7 +2721,7 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
                    participant_res=None, electrode_res=None, axis='mni_z',
                    coord_cols=('mni_y', 'mni_z', 'mni_x'), min_elec=3, n_boot=2000,
                    n_perm=10000, seed=1, brain_png=None, unit='electrode',
-                   make_brain=False, brain_kwargs=None):
+                   make_brain=False, brain_kwargs=None, pair='adaptation'):
     """The combined anatomy figure from one anatomy run, with its tables, in
     ``out_dir``.
 
@@ -2732,24 +2756,37 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     the fsaverage brain (:func:`plot_height_bands_on_brain`, which takes
     ``brain_kwargs``; it needs the recon files and a display). Neither depends
     on ``unit``, so :func:`section19` asks for the brain once.
+
+    ``pair`` (a key of :data:`FIG5_PAIRS`; default the pre-specified LWPC-LWPS
+    figure) picks the two scores, the balance (``delta`` or ``dm``), panel b's
+    test and the axis labels. Every file name above starts with the pair's
+    prefix instead of ``fig5_height`` (``fig5_height_main_effects`` for the
+    main effects). ``coord_res``, ``participant_res`` and ``electrode_res``
+    must be on the pair's balance.
     """
     if unit not in ('electrode', 'participant'):
         raise ValueError(f"unit must be 'participant' or 'electrode', not {unit!r}")
-    stem = 'fig5_height' if unit == 'electrode' else 'fig5_height_participants'
-    pts, edges = figure5_height_points(scores, axis, min_elec)
+    from .stability_flexibility_segregation import main_effect_view
+    spec = FIG5_PAIRS[pair]
+    prefix, x_name, y_name = spec['prefix'], spec['x_name'], spec['y_name']
+    stem = prefix if unit == 'electrode' else f'{prefix}_participants'
+    pts, edges = figure5_height_points(scores, axis, min_elec, pair=pair)
     stat = None
     try:
-        stat = _figure5_test(pts, scores, os.path.join(seg_dir, 'correlation.json')
-                             if seg_dir else None, lambda ps: ps, per_split, seg_dir,
-                             min_elec, n_perm, seed)
+        stat = _figure5_test(pts, scores, os.path.join(seg_dir, spec['json'])
+                             if seg_dir else None,
+                             main_effect_view if spec['main_effects'] else (lambda ps: ps),
+                             per_split, seg_dir, min_elec, n_perm, seed)
     except ValueError as exc:
         print(f"[F5 height] panel b without its test: {exc}")
     plotted = pts.dropna(subset=['band'])
     cents = height_centroids(plotted, n_boot=n_boot, seed=seed, unit=unit)
-    balance, per_participant = balance_by_height(scores, edges, axis=axis, unit=unit)
+    balance, per_participant = balance_by_height(scores, edges, axis=axis,
+                                                 value_col=spec['value_col'], unit=unit)
 
     if coord_res is None:
-        coord_res = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed)
+        coord_res = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed,
+                                                   value_col=spec['value_col'])
     sl = coord_res['all']['slopes'].set_index('axis').loc[axis]
     slope = [f"{axis[-1]} slope {sl['slope_per_mm']:+.4f} SD/mm".replace('-', '−')]
     if unit == 'electrode' and electrode_res is not None:
@@ -2769,27 +2806,27 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
 
     os.makedirs(out_dir, exist_ok=True)
     tables = [f'{stem}_centroids.csv', f'{stem}_balance.csv']
-    pts.to_csv(os.path.join(out_dir, 'fig5_height_points.csv'), index=False)
+    pts.to_csv(os.path.join(out_dir, f'{prefix}_points.csv'), index=False)
     cents.to_csv(os.path.join(out_dir, tables[0]), index=False)
     balance.to_csv(os.path.join(out_dir, tables[1]), index=False)
     if unit == 'participant':
-        tables.append('fig5_height_balance_by_participant.csv')
+        tables.append(f'{prefix}_balance_by_participant.csv')
         per_participant.to_csv(os.path.join(out_dir, tables[-1]), index=False)
     paths = plot_figure5_height(pts, cents, balance, stat, edges,
                                 os.path.join(out_dir, stem), axis=axis, slope=slope,
-                                brain_png=brain_png, unit=unit)
+                                brain_png=brain_png, unit=unit, pair=pair)
     brain_cents = height_band_brain_centroids(plotted)
-    brain_cents.to_csv(os.path.join(out_dir, 'fig5_height_brain_centroids.csv'), index=False)
+    brain_cents.to_csv(os.path.join(out_dir, f'{prefix}_brain_centroids.csv'), index=False)
     brain = None
     if make_brain:
-        brain = plot_height_bands_on_brain(plotted, os.path.join(out_dir, 'fig5_height_brain.png'),
+        brain = plot_height_bands_on_brain(plotted, os.path.join(out_dir, f'{prefix}_brain.png'),
                                            centroids=brain_cents, edges=edges, axis=axis,
                                            **(brain_kwargs or {}))
 
     n_col = 'n_electrodes' if unit == 'electrode' else 'n_participants'
-    lines = [f"  FIGURE 5 (height), {unit.upper()}S AS THE UNIT — "
-             f"{', '.join(os.path.basename(p) for p in paths)}, fig5_height_points.csv, "
-             f"{', '.join(tables)}, fig5_height_brain_centroids.csv",
+    lines = [f"  FIGURE 5 (height) {x_name} vs {y_name}, {unit.upper()}S AS THE UNIT — "
+             f"{', '.join(os.path.basename(f) for f in paths)}, {prefix}_points.csv, "
+             f"{', '.join(tables)}, {prefix}_brain_centroids.csv",
              f"  bands: tertiles of {axis} at {edges[1]:.1f} and {edges[2]:.1f} mm; "
              f"{len(plotted)} of {len(pts)} points have coordinates"]
     if brain is not None:
@@ -2801,14 +2838,14 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
                      f"{c.mni_z:+.1f}) mm  ({c.n_electrodes} electrodes, "
                      f"{c.n_participants} participants)")
     if stat is not None:
-        lines.append(f"  b  LWPC vs LWPS r = {stat['corr']:+.3f}  p = {_fmt_p(stat['p'])}  "
+        lines.append(f"  b  {x_name} vs {y_name} r = {stat['corr']:+.3f}  p = {_fmt_p(stat['p'])}  "
                      f"[{stat['source']}]")
     for c in cents.itertuples():
-        lines.append(f"  c  {c.band:8s} centroid LWPC {c.x:+.3f}, LWPS {c.y:+.3f}; balance "
+        lines.append(f"  c  {c.band:8s} centroid {x_name} {c.x:+.3f}, {y_name} {c.y:+.3f}; balance "
                      f"{c.balance:+.3f} [{c.balance_lo:+.3f}, {c.balance_hi:+.3f}] ({unit} "
                      f"bootstrap; {c.n_electrodes} electrodes, {c.n_participants} participants)")
     for r in balance.itertuples():
-        lines.append(f"  d  {r.band:8s} adjusted LWPC − LWPS {r.mean:+.3f} ± {r.sem:.3f} SEM "
+        lines.append(f"  d  {r.band:8s} adjusted {x_name} − {y_name} {r.mean:+.3f} ± {r.sem:.3f} SEM "
                      f"({getattr(r, n_col)} {n_col[2:]})")
     lines.append(f"  d  {axis} slope {sl['slope_per_mm']:+.5f}/mm (p = {_fmt_p(sl['p'])}); the "
                  f"plotted balance gives {chk_slope:+.5f}/mm"
@@ -3482,7 +3519,8 @@ def _shared_split_reliabilities(per_split, per_split_shared, scores, min_elec=3,
 def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mni_z',
               n_perm=10000, n_boot=2000, seed=0, sections=(1, 2, 3, 4, 5),
               per_split_shared=None, rt_coupling=None,
-              shared_label='shared by participant', make_brain=False, brain_kwargs=None):
+              shared_label='shared by participant', make_brain=False, brain_kwargs=None,
+              pairs=('adaptation',)):
     """§19 of docs/n4_continuous_anatomy.md from one anatomy run's tables.
 
     Every part is reported with electrodes as the unit first (the level of the
@@ -3503,9 +3541,11 @@ def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mn
        intervals for it, its reliabilities and its noise-corrected value
        (``shared_label`` names the table, e.g. when its high gamma was
        RT-adjusted);
-    4. the combined anatomy figure (:func:`figure5_height`) at each level, and
-       with ``make_brain`` the height bands and their centroids on the brain,
-       drawn once (``brain_kwargs`` go to :func:`plot_height_bands_on_brain`);
+    4. the combined anatomy figure (:func:`figure5_height`) at each level for
+       each of ``pairs`` (keys of :data:`FIG5_PAIRS`; ``'main_effects'`` adds
+       the congruency-switch figure with slope tests on ``dm``), and with
+       ``make_brain`` the height bands and their centroids on the brain, drawn
+       once (``brain_kwargs`` go to :func:`plot_height_bands_on_brain`);
     5. :func:`overlap_controls` (electrode level; leave one participant out as
        the participant-level check), with ``rt_coupling`` (electrode ->
        ``rt_r``) for its RT row.
@@ -3651,35 +3691,46 @@ def section19(scores, per_split, out_dir, coord_res=None, seg_dir=None, axis='mn
     elif any(k in sections for k in (2, 3, 5)):
         lines.append("  no per-split table: sections 2, 3 and 5 were skipped")
     if 4 in sections and has_coords:
-        try:                          # the slope tests panel d quotes, if section 1 did not run
-            if el_slope is None:
-                el_slope = coordinate_slope_by_electrode(scores, axis=axis, n_perm=n_perm,
-                                                         n_boot=n_boot, seed=seed,
-                                                         coord_res=coord_res)
-            if part is None:
-                part = coordinate_slope_by_participant(scores, axis=axis, n_perm=n_perm,
-                                                       n_boot=n_boot, seed=seed)
-        except Exception as exc:
-            fail(f'{axis} slope tests for the figure', exc)
-        for unit, key in (('electrode', 'figure5_height'),
-                          ('participant', 'figure5_height_participants')):
+        for i, pair in enumerate(pairs):
+            value_col, prefix = FIG5_PAIRS[pair]['value_col'], FIG5_PAIRS[pair]['prefix']
+            # panel d quotes the slope tests on the pair's own balance: section 1's
+            # for delta, computed here for another pair or when section 1 did not run
+            p_coord, p_el, p_part = ((coord_res, el_slope, part) if value_col == 'delta'
+                                     else (None, None, None))
             try:
-                fig = figure5_height(scores, out_dir, per_split=per_split, seg_dir=seg_dir,
-                                     coord_res=coord_res, participant_res=part,
-                                     electrode_res=el_slope, axis=axis, n_boot=n_boot,
-                                     n_perm=n_perm, seed=seed, unit=unit,
-                                     make_brain=make_brain and unit == 'electrode',
-                                     brain_kwargs=brain_kwargs)
-                lines += fig['lines']
-                out[key] = dict(
-                    centroids=fig['centroids'].to_dict(orient='records'),
-                    balance=fig['balance'].to_dict(orient='records'),
-                    edges=[float(e) for e in fig['edges']],
-                    brain_centroids=fig['brain_centroids'].to_dict(orient='records'),
-                    brain=(None if fig['brain'] is None else
-                           {k: fig['brain'].get(k) for k in ('combined', 'fallback', 'error')}))
+                if p_coord is None:
+                    p_coord = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed,
+                                                             value_col=value_col)
+                if p_el is None:
+                    p_el = coordinate_slope_by_electrode(scores, axis=axis, value_col=value_col,
+                                                         n_perm=n_perm, n_boot=n_boot, seed=seed,
+                                                         coord_res=p_coord)
+                if p_part is None:
+                    p_part = coordinate_slope_by_participant(scores, axis=axis,
+                                                             value_col=value_col, n_perm=n_perm,
+                                                             n_boot=n_boot, seed=seed)
             except Exception as exc:
-                fail(f'combined figure 5 ({unit}s as the unit)', exc)
+                fail(f'{axis} slope tests for the {pair} figure', exc)
+            for unit in ('electrode', 'participant'):
+                stem = prefix if unit == 'electrode' else f'{prefix}_participants'
+                try:
+                    # the bands on the brain do not depend on the pair: drawn once
+                    fig = figure5_height(scores, out_dir, per_split=per_split, seg_dir=seg_dir,
+                                         coord_res=p_coord, participant_res=p_part,
+                                         electrode_res=p_el, axis=axis, n_boot=n_boot,
+                                         n_perm=n_perm, seed=seed, unit=unit, pair=pair,
+                                         make_brain=make_brain and unit == 'electrode' and i == 0,
+                                         brain_kwargs=brain_kwargs)
+                    lines += fig['lines']
+                    out[stem.replace('fig5', 'figure5')] = dict(
+                        centroids=fig['centroids'].to_dict(orient='records'),
+                        balance=fig['balance'].to_dict(orient='records'),
+                        edges=[float(e) for e in fig['edges']],
+                        brain_centroids=fig['brain_centroids'].to_dict(orient='records'),
+                        brain=(None if fig['brain'] is None else
+                               {k: fig['brain'].get(k) for k in ('combined', 'fallback', 'error')}))
+                except Exception as exc:
+                    fail(f'combined figure 5, {pair} ({unit}s as the unit)', exc)
     if not has_coords:
         lines.append(f"  no {axis} coordinates: sections 1, 3 and 4 were skipped")
     return lines, out

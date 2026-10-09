@@ -39,10 +39,10 @@
 # Do NOT also list the *_by_switch_prop_/_by_inc_prop_block_balanced labels --
 # they share a conditions_obj with these two, so they resolve to the same save
 # name and the jobs would race on one output path.
-CONDITIONS=(
-    stimulus_lwpc_block_balanced_conditions
-    stimulus_lwps_block_balanced_conditions
-)
+# CONDITIONS=(
+#     stimulus_lwpc_block_balanced_conditions
+#     stimulus_lwps_block_balanced_conditions
+# )
 
 CONDITIONS=(
     stimulus_lwpc_block_balanced_conditions
@@ -145,7 +145,7 @@ ANOVA_LABEL_ROI=${ANOVA_LABEL_ROI:-}                    # e.g. lpfc; blank = all
 
 # Which electrodes to start from, before any saved-ANOVA selection:
 #   all = every electrode in the ROI, sig = those significant vs baseline.
-ELECTRODES=${ELECTRODES:-all}
+ELECTRODES=${ELECTRODES:-sig}
 
 # which electrodes to exclude
 #

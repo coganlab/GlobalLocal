@@ -345,6 +345,30 @@ def test_figure5_height_at_both_levels(tmp_path):
         sfa.figure5_height(tab, str(tmp_path), per_split=ps, unit='shaft')
 
 
+def test_figure5_height_main_effects_pair_is_the_same_figure_under_its_own_names(tmp_path):
+    tab, _ = _gradient_world(slope=0.02)
+    # congruency and switch set to LWPC and LWPS: the main-effects figure must
+    # then give the adaptation figure's numbers, in its own files and labels
+    tab = tab.assign(cong_s=tab['lwpc_s'], switch_s=tab['lwps_s'], dm=tab['delta'])
+    ad = sfa.figure5_height(tab, str(tmp_path), n_perm=50, n_boot=50)
+    me = sfa.figure5_height(tab, str(tmp_path), n_perm=50, n_boot=50, pair='main_effects')
+
+    pd.testing.assert_frame_equal(ad['centroids'], me['centroids'])
+    pd.testing.assert_frame_equal(ad['balance'], me['balance'])
+    assert me['check_slope'] == pytest.approx(ad['check_slope'])
+    for name in ('fig5_height_main_effects.png', 'fig5_height_main_effects_centroids.csv',
+                 'fig5_height_main_effects_points.csv',
+                 'fig5_height_main_effects_brain_centroids.csv'):
+        assert (tmp_path / name).exists()
+    assert 'congruency vs switch' in me['lines'][0]
+
+    lines, out = sfa.section19(tab, None, str(tmp_path / 's19'), n_perm=50, n_boot=20,
+                               sections=(4,), pairs=('adaptation', 'main_effects'))
+    assert {'figure5_height', 'figure5_height_main_effects',
+            'figure5_height_main_effects_participants'} <= set(out)
+    assert not any('failed' in line for line in lines)
+
+
 def test_height_bands_are_tertiles():
     labels, edges = sfa.height_bands(np.arange(30.0))
     assert labels.value_counts().to_dict() == {'ventral': 10, 'middle': 10, 'dorsal': 10}
