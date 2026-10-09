@@ -22,7 +22,7 @@
 #     bash submit_stability_flexibility_anatomy_dcc.sh
 
 # ROI - gets threaded through below
-ROI=${ROI:-dlpfc}
+ROI=${ROI:-lpfc}
 
 # ---------------------------------------------------------------------------
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
@@ -66,7 +66,7 @@ SYNTHETIC_ENRICHMENT=${SYNTHETIC_ENRICHMENT:-0.6}
 # A MAIN_EFFECTS=1 segregation run (directory ends in _main_effects) also gets
 # the main-effect anatomy: dm = congruency - switch, and Tests 1 and 2 of
 # docs/analysis_plans.md#closing-figure-plan. Drop the suffix for the archived LWPC/LWPS-only run.
-SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_${ROI}_proportion_cohens_d_fdr_bh_main_effects"
+SEG_RUN="/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_${ELECTRODES}_${ROI}_proportion_cohens_d_fdr_bh_main_effects"
 
 ARM=${ARM:-continuous}
 SCORES_CSV=${SCORES_CSV:-"$SEG_RUN/electrodes.csv"}
@@ -137,7 +137,7 @@ BRAIN_HEMI=${BRAIN_HEMI:-split}   # both | lh | rh | split
 BRAIN_ZOOM=${BRAIN_ZOOM:-}
 
 # A1 electrode definition + A3 hyperparameters.
-CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
+CONTRAST_MODE=${CONTRAST_MODE:-condition}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
                                             # continuous arm: condition also draws Figure 5 (height) on congruency vs switch
 FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none (LABEL_SOURCE=a1)
 ALPHA=${ALPHA:-0.05}

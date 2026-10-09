@@ -1,0 +1,61 @@
+========================================================================
+STABILITY vs FLEXIBILITY — A4 CROSS-DECODING
+========================================================================
+           data_source: real
+        synthetic_code: shared
+                  task: GlobalLocal
+      epochs_root_file: Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20
+            electrodes: sig
+  electrode_definition: none
+power_traces_correction: None
+       reference_group: all
+ electrode_group_sizes: {'all': 121}
+           anova_model: None
+interaction_electrodes: None
+electrode_selection_split: off (electrodes selected on the same trials that are decoded)
+              rt_match: off
+      activity_control: remove_mean (each subject's mean across the decoded electrodes subtracted, per pseudo-trial and time point)
+                window: unused (no electrode definition)
+           window_size: 64
+             step_size: 16
+              n_splits: 5
+             n_repeats: 10
+            frac_train: None
+                 alpha: 0.05
+              save_dir: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/decoding/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/cross_decoding_dlpfc_sig_none_remove_mean/stimulus_main_effect_conditions
+------------------------------------------------------------------------
+Decoded pseudo-trials. Every electrode is subsampled to the fewest clean
+trials of any electrode in a condition, so the subject with the fewest
+trials sets the count; every electrode group decodes these same rows:
+   Stimulus_ir=58  Stimulus_is=44  Stimulus_cr=77  Stimulus_cs=76
+   congruency: c=153  i=102
+   switchType: r=135  s=120
+   total=255; the label transfer trains on ~204 of them per fold
+------------------------------------------------------------------------
+A4(a) label transfer by group. stab = congruency (i vs c), flex = switch
+      type (s vs r); stab_to_stab / flex_to_flex are the within-contrast
+      ceilings, decoded on the same trials with the same folds.
+      prediction: only the 'both' group cross-decodes.
+      'all' is the UNSELECTED reference set (every electrode in the
+      decoded ROI array, i.e. what `electrodes` above already restricted it to) —
+      no interaction defined it, so it is the honest baseline for the selected groups.
+   [all] activity control: remove_mean over 20 subjects (4 with one electrode, which carry nothing after it: D0065, D0102, D0110, D0145)
+   [all] stab_to_stab: mean acc=0.500 peak=0.622 (shuffle 0.498) sig windows=14/37
+   [all] flex_to_flex: mean acc=0.524 peak=0.642 (shuffle 0.499) sig windows=13/37
+   [all] stab_to_flex: mean acc=0.520 peak=0.603 (shuffle 0.498) sig windows=13/37
+         vs flex_to_flex, its ceiling: below it in 12 windows; keeps 75% of it above chance
+   [all] flex_to_stab: mean acc=0.516 peak=0.595 (shuffle 0.499) sig windows=11/37
+         vs stab_to_stab, its ceiling: below it in 4 windows; keeps 62% of it above chance
+------------------------------------------------------------------------
+A4(c) temporal generalization (Fig 10):
+   stability (within) [all]: mean diagonal=0.503  mean off-diagonal=0.510  (diagonal/phasic code)
+   flexibility (within) [all]: mean diagonal=0.527  mean off-diagonal=0.519  (diagonal/phasic code)
+   stability->flexibility (cross) [all]: mean diagonal=0.521  mean off-diagonal=0.506  (diagonal/phasic code)
+========================================================================
+Reading: cross-decoding above chance on the 'both' group = a SHARED
+code; chance on 'both' while each process is individually decodable =
+ORTHOGONAL codes (segregation at the representational level). Chance is
+the refit shuffle null (train labels permuted), and the window-wise
+verdict is cluster-corrected across time, so read `n_sig_windows`
+rather than any single window's accuracy.
+========================================================================
