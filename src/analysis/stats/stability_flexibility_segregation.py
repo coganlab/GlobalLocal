@@ -1195,17 +1195,32 @@ def participant_split_corr(per_split, resp, min_elec=4, method='spearman',
 
 
 def naive_sensitivities(df, contrast_mode='condition', contrasts=None,
-                        effect_measure='cohens_d', alpha=0.05):
-    """Per-electrode (x, y) from ALL trials (shares trial noise). Only for the
-    diagnostic naive-vs-disjoint comparison; the analysis itself always uses the
-    disjoint-half estimator in `compute_sensitivities`."""
+                        effect_measure='cohens_d', alpha=0.05, main_effects=False):
+    """Per-electrode (x, y) from every trial in `df` (x and y share trial noise).
+    Not for the x-y correlation, which uses the disjoint-half estimator in
+    `compute_sensitivities_per_split`. Used for the naive-vs-disjoint diagnostic
+    and to score electrodes on held-out selection trials
+    (`src.analysis.decoding.score_electrode_selection`).
+
+    `main_effects=True` (proportion mode only) also scores each process's main
+    effect over the same four cells, as `compute_sensitivities_per_split` does:
+    `mx` (congruency) and `my` (switch type)."""
     contrasts = finalize_contrasts(df, resolve_contrasts(contrast_mode, contrasts))
+    if main_effects and not _is_interaction(contrasts['stability']):
+        raise ValueError("main_effects=True needs contrast_mode='proportion'; in "
+                         "condition mode x and y already are the main effects")
     work = _canonical_labels(df, contrasts)
     rows = []
     for (subj, elec), g in work.groupby(['subject', 'electrode']):
-        rows.append(dict(subject=subj, electrode=elec,
-                         x=_effect_for(g, 'stability', '_slab', contrasts, effect_measure, alpha),
-                         y=_effect_for(g, 'flexibility', '_flab', contrasts, effect_measure, alpha)))
+        row = dict(subject=subj, electrode=elec,
+                   x=_effect_for(g, 'stability', '_slab', contrasts, effect_measure, alpha),
+                   y=_effect_for(g, 'flexibility', '_flab', contrasts, effect_measure, alpha))
+        if main_effects:
+            row['mx'] = _effect_for(g, 'stability', '_slab', contrasts, effect_measure, alpha,
+                                    w=W_MAIN)
+            row['my'] = _effect_for(g, 'flexibility', '_flab', contrasts, effect_measure, alpha,
+                                    w=W_MAIN)
+        rows.append(row)
     return pd.DataFrame(rows)
 
 

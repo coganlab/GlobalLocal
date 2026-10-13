@@ -66,7 +66,8 @@ def run_pooled_shuffle_for_roi(roi, roi_labeled_arrays, strings_to_find, args, r
         balance_method='subsample', # Subsampling is recommended for pooling
         obs_axs=args.obs_axs,
         window_size=args.window_size,
-        step_size=args.step_size
+        step_size=args.step_size,
+        feature_mode=getattr(args, 'feature_mode', 'channels_x_time')
     )
     
 def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition_names, electrodes, condition_comparisons, save_dir):
@@ -183,7 +184,8 @@ def process_bootstrap(bootstrap_idx, subjects_mne_objects, args, rois, condition
             n_perm=args.n_shuffle_perms,
             sampling_rate=args.sampling_rate,
             first_time_point=-1,
-            folds_as_samples=args.folds_as_samples
+            folds_as_samples=args.folds_as_samples,
+            feature_mode=getattr(args, 'feature_mode', 'channels_x_time')
         )
         
         # Now compute accuracies and perform time permutation cluster test

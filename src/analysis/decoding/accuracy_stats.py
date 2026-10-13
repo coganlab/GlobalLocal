@@ -159,7 +159,8 @@ def make_pooled_shuffle_distribution(
     balance_method: str,
     obs_axs: int,
     window_size: int,
-    step_size: int
+    step_size: int,
+    feature_mode: str = 'channels_x_time'
 ) -> np.ndarray:
     """
     Generates a pooled shuffle distribution for a given ROI.
@@ -193,6 +194,9 @@ def make_pooled_shuffle_distribution(
         The number of time samples in each sliding window.
     step_size : int
         The number of time samples to slide the window by.
+    feature_mode : str
+        What one decoder sample is (``Decoder.FEATURE_MODES``); must match the
+        true decode's, or the null is for a different decoder.
 
     Returns
     -------
@@ -218,7 +222,8 @@ def make_pooled_shuffle_distribution(
         oversample=True,
         n_splits=n_splits,
         n_repeats=n_perm,  # Use n_perm for repetitions
-        random_state=random_state
+        random_state=random_state,
+        feature_mode=feature_mode
     )
 
     # 3. Run the time-windowed decoding with shuffle=True

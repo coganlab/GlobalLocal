@@ -180,6 +180,26 @@ def main(args):
               f"{args.anova_label_effect} ({args.anova_label_correction})")
 
     # ------------------------------------------------------------------
+    # 3b'. Optionally use one electrode set from a score-selection file
+    #      (score_electrode_selection_dcc.py), on the trials that selection
+    #      did not use, so the traces are not measured on the trials that
+    #      chose the electrodes. docs/decoding.md §3.7.
+    # ------------------------------------------------------------------
+    if getattr(args, 'electrode_sets_json', None):
+        if getattr(args, 'anova_labels_csv', None):
+            raise ValueError("electrode_sets_json already defines the electrodes; it cannot "
+                             "be combined with anova_labels_csv")
+        from src.analysis.decoding.score_electrode_selection import held_out_electrode_sets
+        sets, subjects_mne_objects, _ = held_out_electrode_sets(
+            args.electrode_sets_json, rois, subjects_mne_objects, names=[args.electrode_set])
+        electrodes = sets[args.electrode_set]
+        remaining = sum(len(v) for d in electrodes.values() for v in d.values())
+        if not remaining:
+            raise ValueError(f"electrode set {args.electrode_set!r} matched zero loaded electrodes")
+        print(f"[score-selection] {remaining} electrodes in set {args.electrode_set!r}, "
+              f"decode-side trials only")
+
+    # ------------------------------------------------------------------
     # 3c. Drop named electrodes.
     #     One electrode with a large excursion moves the across-electrode mean
     #     by excursion/n_electrodes, which for a ~170-electrode ROI is enough

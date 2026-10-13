@@ -337,52 +337,135 @@ def plot_pca_3d_trajectory(
             traj_3[:min(3, n_kept)] = pcs[:min(3, n_kept)]
             trajectories[lab][w] = traj_3
     
-    # plot with one set of 3D axes, one line per condition, and color-coded markers for time
-    fig = plt.figure(figsize=(10,8))
+    _plot_3d_trajectories(
+        trajectories, window_centers_s, label_to_name,
+        pca.explained_variance_ratio_, n_kept,
+        title=(f"3D PCA trajectory - {roi}\n"
+               f"({n_kept} PCs total, "
+               f"{pca.explained_variance_ratio_.sum():.1%} variance; "
+               f"red ★ = t≈0)"),
+        out_stem=os.path.join(save_dir, f"pca_3d_trajectory_{roi.replace(' ', '_').replace('/', '_')}"))
+
+
+def _plot_3d_trajectories(trajectories, window_centers_s, label_to_name, var_ratio, n_kept,
+                          title, out_stem):
+    """One 3-D line per condition through its (n_windows, 3) PC scores in
+    ``trajectories`` ({label: array}), markers coloured by window centre (s),
+    a red star at the window nearest t = 0. ``var_ratio`` labels the axes.
+    Writes ``<out_stem>.pdf`` and ``.png``."""
+    fig = plt.figure(figsize=(10, 8))
     ax = fig.add_subplot(111, projection='3d')
-    
+
     cmap = plt.get_cmap('viridis')
     norm = plt.Normalize(vmin=window_centers_s[0], vmax=window_centers_s[-1])
-    
+    zero_idx = int(np.argmin(np.abs(np.array(window_centers_s))))
+
     for lab, traj in trajectories.items():
         # Connecting line (one color per condition)
-        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], '-', linewidth=1.5, alpha=0.6, label=label_to_name[lab])
-        
+        ax.plot(traj[:, 0], traj[:, 1], traj[:, 2], '-', linewidth=1.5, alpha=0.6,
+                label=label_to_name[lab])
         # markers colored by time
         ax.scatter(traj[:, 0], traj[:, 1], traj[:, 2],
                    c=[cmap(norm(t)) for t in window_centers_s],
                    s=40, edgecolors='k', linewidths=0.5)
-        
         # mark the window closest to t=0 with a star
-        zero_idx = int(np.argmin(np.abs(np.array(window_centers_s))))
         ax.scatter(*traj[zero_idx], s=200, marker='*',
                    facecolors='none', edgecolors='red', linewidths=2)
-    
-    ax.set_xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.1%})")
-    ax.set_ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.1%})"
-                  if n_kept >= 2 else "PC2 (n/a)")
-    ax.set_zlabel(f"PC3 ({pca.explained_variance_ratio_[2]:.1%})"
-                  if n_kept >= 3 else "PC3 (n/a)")   
-    ax.set_title(
-        f"3D PCA trajectory - {roi}\n"
-        f"({n_kept} PCs total, "
-        f"{pca.explained_variance_ratio_.sum():.1%} variance; "
-        f"red ★ = t≈0)"
-    )
+
+    names = ('PC1', 'PC2', 'PC3')
+    labels = [f"{names[i]} ({var_ratio[i]:.1%})" if n_kept > i else f"{names[i]} (n/a)"
+              for i in range(3)]
+    ax.set_xlabel(labels[0])
+    ax.set_ylabel(labels[1])
+    ax.set_zlabel(labels[2])
+    ax.set_title(title)
     ax.legend()
-    
+
     sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
     sm.set_array([])
     cb = fig.colorbar(sm, ax=ax, shrink=0.6, pad=0.1)
     cb.set_label("Time (s)")
-    
-    os.makedirs(save_dir, exist_ok=True)
-    safe_roi = roi.replace(" ", "_").replace("/", "_")
-    out = os.path.join(save_dir, f"pca_3d_trajectory_{safe_roi}.pdf")
-    plt.savefig(out, format='pdf', dpi=300, bbox_inches='tight')
-    plt.savefig(out.replace('.pdf', '.png'), format='png', dpi=300, bbox_inches='tight')
+
+    os.makedirs(os.path.dirname(out_stem) or '.', exist_ok=True)
+    plt.savefig(f'{out_stem}.pdf', format='pdf', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{out_stem}.png', format='png', dpi=300, bbox_inches='tight')
     plt.close(fig)
-    print(f"Saved 3D PCA trajectory to {out}")
+    print(f"Saved 3D PCA trajectory to {out_stem}.pdf")
+
+
+def channel_pca_trajectories(data, labels, window_size, step_size, n_components=3,
+                             remove_condition_mean=False):
+    """Each condition's path through channel space, on the top principal axes.
+
+    ``data`` (n_trials, n_channels, n_times) and ``labels`` (n_trials,). Each
+    condition's mean is averaged in the decoder's windows (``window_size`` /
+    ``step_size`` samples), giving one channel vector per condition and
+    window: the population state. PCA is fit on those states (conditions x
+    windows as samples, channels as features), so each PC is a pattern across
+    channels, and each condition's trajectory is its states projected onto the
+    PCs, with no embedding of a window into the rest of the epoch.
+
+    ``remove_condition_mean`` subtracts the across-condition mean state at each
+    window before the fit, so the PCs describe how the conditions differ
+    rather than the response they share (in high gamma that shared response
+    usually takes PC1).
+
+    Returns ``(trajectories, pca)``: ``{label: (n_windows, n_components)}``,
+    padded with NaN when there are fewer components, and the fitted PCA.
+    """
+    classes = np.unique(labels)
+    means = np.stack([np.nanmean(data[labels == c], axis=0) for c in classes])   # (k, ch, t)
+    states = windower(means, window_size, axis=-1, step_size=step_size).mean(axis=-1)
+    states = np.moveaxis(states, 0, 1)                                           # (k, win, ch)
+    if remove_condition_mean:
+        states = states - states.mean(axis=0, keepdims=True)
+    k, n_win, n_ch = states.shape
+    pca = PCA(n_components=min(n_components, k * n_win, n_ch))
+    scores = pca.fit_transform(states.reshape(k * n_win, n_ch)).reshape(k, n_win, -1)
+    out = {}
+    for i, c in enumerate(classes):
+        traj = np.full((n_win, n_components), np.nan)
+        traj[:, :scores.shape[-1]] = scores[i]
+        out[c] = traj
+    return out, pca
+
+
+def plot_channel_pca_3d_trajectory(roi_labeled_arrays, roi, strings_to_find, cats, save_dir,
+                                   window_size, step_size, sampling_rate,
+                                   obs_axs=0, random_state=42, remove_condition_mean=False):
+    """:func:`channel_pca_trajectories` on one ROI's decoding data, drawn like
+    :func:`plot_pca_3d_trajectory`: the channel-space counterpart, for
+    ``feature_mode='channels'``. Window centres (s) come from the array's own
+    time labels, so they are right for any epoch start. Writes
+    ``channel_pca_3d_trajectory_<roi>`` (``..._condition_mean_removed`` with
+    ``remove_condition_mean``)."""
+    data, labels, _ = concatenate_and_balance_data_for_decoding(
+        roi_labeled_arrays, roi, strings_to_find,
+        obs_axs=obs_axs, balance_method='subsample',
+        balance_strata=True, random_state=random_state
+    )
+    if data.size == 0:
+        print(f"No data for {roi}, skipping channel-space PCA.")
+        return None
+    trajectories, pca = channel_pca_trajectories(
+        data, labels, window_size, step_size, remove_condition_mean=remove_condition_mean)
+    n_windows = next(iter(trajectories.values())).shape[0]
+    t0 = float(roi_labeled_arrays[roi].labels[-1][0])
+    window_centers_s = [t0 + (step_size * w + window_size / 2) / sampling_rate
+                        for w in range(n_windows)]
+    label_to_name = {v: str(k[0]) for k, v in cats.items()}
+    var = pca.explained_variance_ratio_
+    print(f"[{roi}] channel-space PCA: {data.shape[1]} channels, top {pca.n_components_} PCs "
+          f"explain {var.sum():.1%} of the condition-state variance")
+    suffix = '_condition_mean_removed' if remove_condition_mean else ''
+    _plot_3d_trajectories(
+        trajectories, window_centers_s, label_to_name, var, pca.n_components_,
+        title=(f"Channel-space PCA trajectory - {roi}\n"
+               f"(top {pca.n_components_} PCs: {var.sum():.1%} of variance"
+               f"{'; condition mean removed' if remove_condition_mean else ''}; red ★ = t≈0)"),
+        out_stem=os.path.join(save_dir,
+                              f"channel_pca_3d_trajectory_{roi.replace(' ', '_').replace('/', '_')}{suffix}"))
+    return trajectories, pca
 
 
 # need to get time window by time window version next. Also this is untested rn. 10/31/25.

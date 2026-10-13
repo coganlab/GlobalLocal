@@ -211,6 +211,60 @@ shuffle traces.
 > check. `submit_loo_decoding_dcc.sh` (§5.5) is the check that no single subject
 > carries a result.
 
+#### 2.4 What one sample is: `FEATURE_MODE`
+
+By default a decoder sample is one (pseudo-)trial and its features are every
+channel × time point in the window (`FEATURE_MODE=channels_x_time`). With
+`FEATURE_MODE=channels`, each **trial at one time point** is a sample, with the
+channels as the features:
+
+- Inside each window, `(trials, channels, w)` becomes `(trials × w, channels)`,
+  and each training label is repeated `w` times.
+- The folds are still cut **by trial**, before that expansion, so all of a
+  trial's time points sit on one side of the split. If the folds were cut
+  over trial × time samples, neighbouring (autocorrelated) time points of one
+  trial would fall in both train and test, and accuracy would be inflated.
+- A test trial is scored by averaging its `w` time points' decision scores
+  (a soft vote) and taking the best class. The confusion matrix therefore
+  still counts trials, so the statistics in §2.3 and the figures are unchanged.
+- The shuffle permutes labels per trial, before the expansion.
+- The pseudo-trial caveat is the same as in §2.2. Electrodes from different
+  patients come from different trials, but they are time-locked, so a
+  (pseudo-trial, time point) vector is a pseudo-population state at that time.
+
+The decoder then asks a different question: is there a **spatial pattern**
+that separates the classes throughout the window? Differences in a response's
+time course within the window no longer count. PCA (`EXPLAINED_VARIANCE`) runs
+in channel space, with at most n_channels components.
+
+```bash
+FEATURE_MODE=channels CONDITIONS="stimulus_congruency_conditions" \
+    bash submit_specific_conditions_decoding_dcc.sh
+```
+
+File names get `_feat-channels`. Needs a classifier with `decision_function`
+(LDA, linear SVC).
+
+**State-space trajectories in channel space.** With `FEATURE_MODE=channels` and
+`RUN_VISUALIZATION_DEBUG = True` (in `run_decoding_dcc.py`), the visualisation
+step also writes `channel_pca_3d_trajectory_<roi>` and
+`..._condition_mean_removed` (`plots/trajectories.py`,
+`channel_pca_trajectories`):
+
+1. Each condition's mean is averaged in the decoding windows, giving one
+   channel vector per condition and window.
+2. PCA is fit on those vectors, so each PC is a pattern across channels.
+3. Each condition's path is its window vectors projected onto the top PCs.
+
+The older `pca_3d_trajectory` instead fits PCA on channels × time features,
+where each PC is a whole spatiotemporal pattern. That is why its first PCs
+explain little of the variance. It also takes its time axis from
+`FIRST_TIME_POINT` (−1.5), which is 0.5 s off for the −1.0 s epochs; the
+channel-space plot reads the times from the data. In high gamma, PC1 of the
+plain version is mostly the response all conditions share. The
+`condition_mean_removed` version subtracts that shared response first, so its
+PCs describe how the conditions differ.
+
 ---
 
 ### 3. Choosing the electrodes
@@ -230,6 +284,8 @@ Two levels decide what is decoded:
 | **ANOVA sets on held-out trials** | the power-traces windowed-ANOVA sets (lwpc, lwps, …) from 30% of trials, decoded on the other 70% | `submit_decoding_with_anova_electrode_selection_dcc.sh` | `figs/<EPOCHS>/elecset_<set>/` |
 | **responsiveness on held-out trials** | electrodes that respond on half the trials, decoded on the other half | `submit_decoding_with_electrode_definition_split_dcc.sh` | `figs/<EPOCHS>/`, `_defsplit` in the names |
 | **coupling sets** | electrodes in a significant gamma-envelope correlation pair, against n-matched non-coupled draws | `submit_decoding_with_coupling_electrode_sets_dcc.sh` | `figs/<EPOCHS>/elecset_coupled/`, `elecset_uncoupled_drawNN/` |
+| **window-mean groups** (§3.6) | sig, nonsig and all electrodes, each at a matched count, decoded from 0–1.5 s means, compared by membership permutation | `submit_window_mean_groups_dcc.sh` | `figs/<EPOCHS>/window_mean_groups/` |
+| **top-fraction sets on held-out trials** (§3.7) | each score's top 20 % (LWPC, LWPS, congruency, switch type) chosen on 30 % of trials, decoded on the other 70 % | `score_electrode_selection_dcc.py`, then `submit_decoding_with_score_electrode_sets_dcc.sh` | `figs/<EPOCHS>/score_selections/<selection>/<CONDITION>/elecset_<set>/` |
 
 The job refuses ANOVA sets combined with either the responsiveness split or
 coupling sets. A saved-table filter is applied before any of the held-out routes,
@@ -239,7 +295,7 @@ so an `ANOVA_LABELS_CSV` left in the environment narrows them too (§3.1).
 
 This is "decode from the region", with no selection on the decoded effect.
 
-- **`ELECTRODES`** is a constant in `run_decoding_dcc.py` (`'sig'` as shipped; there
+- **`ELECTRODES`** is a constant in `run_decoding_dcc.py` (`'all'` as shipped; there
   is no environment variable). `sig` keeps the electrodes whose high gamma beats
   their pre-stimulus baseline, read from
   `sig_chans_<subject>_<EPOCHS_ROOT_FILE>.json`; `all` keeps every ROI electrode.
@@ -362,6 +418,125 @@ and compares the coupled trace with the distribution over draws. Its header
 explains the knobs; run `report_coupling_counts.py` first, and
 `run_coupling_comparison_dcc.py` after a run split over several jobs.
 
+#### 3.6 Window-mean decoding in sig / nonsig / all electrodes
+
+```bash
+bash submit_window_mean_groups_dcc.sh                      # congruency and switch type
+ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
+```
+
+**What it asks.** Do the task-significant electrodes (`sig`), the rest
+(`nonsig`) and all of them (`all`) decode the contrast equally well, with no
+time features?
+
+**How it decodes:**
+- Each electrode's HG is averaged over `WINDOW_MEAN_TMIN`–`TMAX` (0–1.5 s), so a
+  trial is one vector of electrode means.
+- Accuracy grows with the number of electrodes, so every group is decoded at
+  the same size, `n_match`. By default that's the smallest group's size; set
+  `WINDOW_MEAN_N_MATCH` to change it.
+- Each group's `n_match` electrodes are drawn at random, afresh in each of
+  `WINDOW_MEAN_BOOTSTRAPS` (20) pseudo-trial draws. Every group's draw comes from
+  the same pseudo-trials.
+
+**How groups are compared.** By membership permutation, not by an ANOVA over
+bootstraps:
+- The bootstraps and CV repeats re-use the same trials. A test across them
+  gets more significant the more of them you run.
+- Instead, the two groups' electrodes are pooled and dealt back into groups of
+  the original sizes, keeping any overlap, and the matched decode is repeated
+  `WINDOW_MEAN_N_PERM` (1000) times.
+- The p is two-sided, with a floor of 1/(n_perm+1). Holm-adjusted p is reported
+  across the three pairs.
+- The null is "which group an electrode belongs to does not matter".
+- For `sig` vs `all`, each permutation draws a pseudo-`sig` from `all`.
+
+**Output.** `figs/<EPOCHS>/window_mean_groups/<condition>_<window>_<n>bts_<n>perm_seed<seed>/<comparison>/<roi>/`:
+- `accuracies.csv` (group × bootstrap × repeat, true and shuffled-label);
+- `summary.csv`;
+- `tests.csv` (difference, p, Holm p, the null's 95 % range);
+- `params.json`;
+- `group_bars.png`/`.pdf`: bars are means, whiskers are 2.5–97.5 % over
+  bootstraps × repeats, dots are bootstrap means, white dashes are chance, and
+  brackets give the Holm p.
+
+**Reading it.**
+- To use non-sig or all electrodes for the anatomy, the claim is "they decode
+  *at least as well as* sig". A non-significant p is not evidence of
+  equivalence. Report the difference beside the null's range, and look at the
+  bars' overlap.
+- Cost: about 0.16 s per decode, so 1000 permutations × 20 bootstraps × 3 pairs
+  is about an hour per contrast and ROI on 5 cores.
+- The job refuses to run with any other electrode route (§3.2–3.5, §3.7).
+
+#### 3.7 Top-fraction electrode sets on held-out trials
+
+**Step 1: select (minutes).** Split each subject's correct trials 30 / 70
+(stratified, keyed on `trial_count`). Score every lPFC electrode on the 30 %
+with the A1 window-mean contrasts (`naive_sensitivities`,
+`contrast_mode='proportion'`, `main_effects=True`): LWPC, LWPS, congruency and
+switch type. Keep each score's top 20 % per ROI:
+
+```bash
+cd dcc_scripts/decoding
+sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc                    # top 20 %, positive
+sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc --sign negative    # most negative 20 %
+sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc --sign absolute    # largest |score|
+```
+
+`--sign positive` keeps the largest scores. Those are the behavioural
+direction for LWPC and LWPS (the low-proportion block shows the larger effect),
+and incongruent > congruent or switch > repeat for the main effects. Other
+options: `--frac-select`, `--top-frac`, `--electrodes sig`, `--tmin/--tmax`,
+`--seed`.
+
+Each score is ranked on its own (the top 20 % of LWPC, the top 20 % of LWPS,
+and so on). The scores are raw per-electrode Cohen's d on the selection trials,
+pooled over participants; unlike the A3 scores, responsiveness and participant
+means are not removed.
+
+The job writes `figs/<EPOCHS>/score_selections/<params>/`:
+- `score_selection.json`: the sets, the trial split and the parameters;
+- `selection_scores.csv`: every candidate's scores and set membership.
+
+The sets are `lwpc`, `lwps`, `congruency`, `switch_type`, the `<score>_only`
+sets of each pair, `adaptation_overlap` and `main_effects_overlap`.
+
+**Step 2: decode the other 70 %.**
+
+```bash
+ELECTRODE_SETS_JSON=figs/$EPOCHS_ROOT_FILE/score_selections/<params>/score_selection.json \
+    bash submit_decoding_with_score_electrode_sets_dcc.sh
+```
+
+This runs one job per condition set (default: congruency, switch type, and the
+block-balanced LWPC and LWPS sets), with the battery run once per set into
+`elecset_<name>/`. Limit the sets with `ELECTRODE_SETS=lwpc_only,lwps_only`.
+
+**Step 3: power traces on the same 70 %.** One set per job:
+
+```bash
+cd ../power
+for SET in lwpc lwps congruency switch_type; do
+  ELECTRODE_SETS_JSON=<same file> ELECTRODE_SET=$SET ELECTRODES=all \
+      bash submit_specific_conditions_power_traces_dcc.sh
+done
+```
+
+The output goes to `.../anova_within_roi/score_selections/<params>/<set>/<condition>/`.
+
+**What it shows.** The question is whether, for example, the top LWPC
+electrodes carry LWPC but not LWPS, in both decoding and power. Each set is 20 %
+of the ROI, so the sets match in size. Because selection and measurement use
+disjoint trials, a set's effect on its own contrast is not inflated by the
+selection. Electrodes in both top sets go to `*_overlap`, not `*_only`.
+
+> **Fixed alongside (2026-10-13):** `assign_trial_partitions` seeded each
+> subject with `hash(subject)`. Python salts string hashes per process, so the
+> same `SEED` gave a different 30/70 split in every job, including the §3.3
+> ANOVA route. It now uses `zlib.crc32`. ANOVA-route runs made before this fix
+> cannot be reproduced exactly.
+
 ---
 
 ### 4. Parameters
@@ -386,7 +561,7 @@ explains the knobs; run `report_coupling_counts.py` first, and
 | `SUBJECTS` | 24 subjects | |
 | `ACC_TRIALS_ONLY` | `True` | Correct trials only. |
 | `ROIS_DICT` | `lpfc` | Overridden by `ROIS`. |
-| `ELECTRODES` | `'sig'` | `'sig'` or `'all'` (§3.1). Ignored on the csv route. |
+| `ELECTRODES` | `'all'` | `'sig'` or `'all'` (§3.1). Ignored on the csv route. |
 | `MODEL_CHOICE` | `'LDA'` | `'SVC'` for a linear SVM. |
 | `EXPLAINED_VARIANCE` | `0.90` | PCA variance kept. |
 | `N_SPLITS` / `N_REPEATS` | `5` / `5` | CV folds; repeats per bootstrap. |

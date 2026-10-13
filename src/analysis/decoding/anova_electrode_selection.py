@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import re
 import warnings
+import zlib
 
 import numpy as np
 import pandas as pd
@@ -174,7 +175,9 @@ def assign_trial_partitions(sub_trials, frac_select=0.3, seed=0):
     partitions = {}
     for sub in sorted(sub_trials):
         ids, strata = sub_trials[sub]
-        sub_seed = seed + (abs(hash(sub)) % 100_000)
+        # crc32, not hash(): Python salts str hashes per process, so hash(sub)
+        # gave every job a different split for the same seed
+        sub_seed = seed + (zlib.crc32(str(sub).encode()) % 100_000)
         idx_sel, idx_dec = stratified_trial_split(strata, frac_def=frac_select,
                                                   seed=sub_seed)
         partitions[sub] = {'select': set(ids[idx_sel].tolist()),

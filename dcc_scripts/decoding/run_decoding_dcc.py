@@ -364,7 +364,42 @@ ANOVA_LABEL_CORRECTION = os.environ.get('ANOVA_LABEL_CORRECTION', 'flags')
 ANOVA_LABEL_ALPHA = float(os.environ.get('ANOVA_LABEL_ALPHA', 0.05))
 ANOVA_LABEL_ROI = os.environ.get('ANOVA_LABEL_ROI') or None
 
+# --- What one decoder sample is (docs/decoding.md §2.4) -------------------------
+#   'channels_x_time'  a trial; its channels x time points in the window are the
+#                      features (the original decoder)
+#   'channels'         a trial at one time point; its channels are the features.
+#                      A test trial is scored by averaging its time points'
+#                      decision scores. Folds are cut by trial either way.
+FEATURE_MODE = os.environ.get('FEATURE_MODE', 'channels_x_time')
+
+# --- Window-mean decoding in sig / nonsig / all electrodes (docs/decoding.md §3.6) ---
+# Replaces the battery: each electrode's HG averaged over WINDOW_MEAN_TMIN..TMAX
+# (s) is one feature, every group is decoded at the smallest group's size (or
+# WINDOW_MEAN_N_MATCH), and each pair of groups gets a membership-permutation
+# test (WINDOW_MEAN_N_PERM permutations, Holm across pairs). WINDOW_MEAN_BOOTSTRAPS
+# pseudo-trial draws; they are cheap here, so more than BOOTSTRAPS.
+WINDOW_MEAN_GROUPS = _env_bool('WINDOW_MEAN_GROUPS', False)
+WINDOW_MEAN_TMIN = float(os.environ.get('WINDOW_MEAN_TMIN', 0.0))
+WINDOW_MEAN_TMAX = float(os.environ.get('WINDOW_MEAN_TMAX', 1.5))
+WINDOW_MEAN_BOOTSTRAPS = int(os.environ.get('WINDOW_MEAN_BOOTSTRAPS', 20))
+WINDOW_MEAN_N_PERM = int(os.environ.get('WINDOW_MEAN_N_PERM', 1000))
+WINDOW_MEAN_N_MATCH = (int(os.environ['WINDOW_MEAN_N_MATCH'])
+                       if os.environ.get('WINDOW_MEAN_N_MATCH') else None)
+
+# --- Electrode sets from a score-selection file (docs/decoding.md §3.7) ---------
+# score_electrode_selection_dcc.py's score_selection.json: the battery runs once
+# per set (ELECTRODE_SETS, comma separated; default all) on the trials the
+# selection did not use.
+ELECTRODE_SETS_JSON = os.environ.get('ELECTRODE_SETS_JSON') or None
+ELECTRODE_SETS = (os.environ['ELECTRODE_SETS'].split(',')
+                  if os.environ.get('ELECTRODE_SETS') else None)
+
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE)
+if ELECTRODE_SETS_JSON:
+    SAVE_DIR = os.path.join(
+        SAVE_DIR, 'score_selections',
+        os.path.basename(os.path.dirname(os.path.abspath(ELECTRODE_SETS_JSON))),
+        CONDITION_LABEL)
 if ANOVA_LABELS_CSV:
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
@@ -471,6 +506,15 @@ def run_analysis():
         anova_label_correction=ANOVA_LABEL_CORRECTION,
         anova_label_alpha=ANOVA_LABEL_ALPHA,
         anova_label_roi=ANOVA_LABEL_ROI,
+        feature_mode=FEATURE_MODE,
+        window_mean_groups=WINDOW_MEAN_GROUPS,
+        window_mean_tmin=WINDOW_MEAN_TMIN,
+        window_mean_tmax=WINDOW_MEAN_TMAX,
+        window_mean_bootstraps=WINDOW_MEAN_BOOTSTRAPS,
+        window_mean_n_perm=WINDOW_MEAN_N_PERM,
+        window_mean_n_match=WINDOW_MEAN_N_MATCH,
+        electrode_sets_json=ELECTRODE_SETS_JSON,
+        electrode_sets=ELECTRODE_SETS,
         # cluster_tails=CLUSTER_TAILS,
     )
 
@@ -517,6 +561,13 @@ def run_analysis():
         print(f"  ANOVA perms / alpha / FDR: {ELECTRODE_SELECTION_N_PERM} / "
               f"{ELECTRODE_SELECTION_ALPHA} / {ELECTRODE_SELECTION_USE_FDR}")
         print(f"  Split strata:              {ELECTRODE_SELECTION_STRATA}")
+    print(f"Feature mode:                  {FEATURE_MODE}")
+    print(f"Window-mean group comparison:  {WINDOW_MEAN_GROUPS}"
+          + (f" ({WINDOW_MEAN_TMIN}-{WINDOW_MEAN_TMAX} s, {WINDOW_MEAN_BOOTSTRAPS} bootstraps, "
+             f"{WINDOW_MEAN_N_PERM} permutations, n_match={WINDOW_MEAN_N_MATCH or 'smallest group'})"
+             if WINDOW_MEAN_GROUPS else ""))
+    print(f"Score-selected electrode sets: {ELECTRODE_SETS_JSON or 'off'}"
+          + (f" (sets: {ELECTRODE_SETS or 'all'})" if ELECTRODE_SETS_JSON else ""))
     print(f"Explained variance: {EXPLAINED_VARIANCE}")
     print(f"Balance method:     {BALANCE_METHOD}")
     print(f"Balance strata:     {BALANCE_STRATA}")

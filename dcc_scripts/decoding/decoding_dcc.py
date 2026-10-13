@@ -411,6 +411,27 @@ def main(args):
     
     print_summary_of_dropped_electrodes(raw_electrodes, electrodes)
 
+    if getattr(args, 'feature_mode', 'channels_x_time') == 'channels':
+        elec_string_to_add_to_filename += '_feat-channels'
+
+    # --- Optional: window-mean decoding in sig / nonsig / all electrodes ---
+    # Its own analysis, in place of the battery: every group decoded at a
+    # matched size, pairs tested by membership permutation. See
+    # window_mean_groups_dcc.py and docs/decoding.md §3.6.
+    if getattr(args, 'window_mean_groups', False):
+        for flag in ('anova_labels_csv', 'electrode_definition_split', 'anova_electrode_selection',
+                     'coupling_electrode_selection', 'electrode_sets_json'):
+            if getattr(args, flag, None):
+                raise ValueError(f"window_mean_groups compares the sig, nonsig and all electrodes "
+                                 f"of the ROI; it cannot be combined with {flag}")
+        from dcc_scripts.decoding.window_mean_groups_dcc import run_window_mean_group_comparison
+        run_window_mean_group_comparison(
+            args, rois, condition_names, get_comparisons(args.condition_label),
+            filter_electrode_lists_against_subjects_mne_objects(
+                rois, all_electrodes_per_subject_roi, subjects_mne_objects),
+            sig_electrodes_per_subject_roi, subjects_mne_objects, save_dir)
+        return
+
     if getattr(args, 'anova_labels_csv', None):
         from src.analysis.utils.anova_label_selection import (
             load_anova_label_electrodes, selected_pairs)
@@ -465,6 +486,22 @@ def main(args):
     # and the decoding battery below is run once per requested set.
     electrode_sets = None
     coupling_report = {}
+
+    # --- Optional: electrode sets from a score-selection file ---
+    # score_electrode_selection_dcc.py chose them on a held-out share of the
+    # trials; decode the rest, once per set. docs/decoding.md §3.7.
+    if getattr(args, 'electrode_sets_json', None):
+        for flag in ('anova_labels_csv', 'electrode_definition_split', 'anova_electrode_selection',
+                     'coupling_electrode_selection'):
+            if getattr(args, flag, None):
+                raise ValueError(f"electrode_sets_json already defines the electrodes and the "
+                                 f"trial split; it cannot be combined with {flag}")
+        from src.analysis.decoding.score_electrode_selection import held_out_electrode_sets
+        electrode_sets, subjects_mne_objects, sel_params = held_out_electrode_sets(
+            args.electrode_sets_json, rois, subjects_mne_objects,
+            names=getattr(args, 'electrode_sets', None))
+        elec_string_to_add_to_filename += (
+            f"_scoresel-top{sel_params['top_frac']:g}{sel_params['sign']}")
     if getattr(args, 'anova_electrode_selection', False):
         if getattr(args, 'electrode_definition_split', False):
             # Both would split the trials, so the second split would run on a
@@ -535,7 +572,8 @@ def main(args):
         # completion and wrote a full battery of figures titled "in sig
         # electrodes", with no elecset_coupled/ or elecset_uncoupled_drawNN/
         # anywhere and nothing in the log to say why. Fail loudly instead.
-        for flag in ('anova_electrode_selection', 'coupling_electrode_selection'):
+        for flag in ('anova_electrode_selection', 'coupling_electrode_selection',
+                     'electrode_sets_json'):
             if getattr(args, flag, False):
                 raise RuntimeError(
                     f"{flag} is on but no electrode sets were built. The run would "

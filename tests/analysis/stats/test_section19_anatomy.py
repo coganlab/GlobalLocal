@@ -320,10 +320,21 @@ def test_figure5_height_shows_the_planted_lean_and_matches_the_test(tmp_path):
     assert fig['check_slope'] == pytest.approx(coord, rel=0.25)
     for name in ('fig5_height.png', 'fig5_height.pdf', 'fig5_height_centroids.csv',
                  'fig5_height_balance.csv', 'fig5_height_points.csv',
-                 'fig5_height_brain_centroids.csv'):
+                 'fig5_height_brain_centroids.csv', 'fig5_height_partials.csv'):
         assert (tmp_path / name).exists()
     # the brain is drawn only when asked: it needs the recon files
     assert fig['brain'] is None and not (tmp_path / 'fig5_height_brain.png').exists()
+
+
+def test_height_partial_residuals_carry_the_coordinate_tests_slope():
+    tab, _ = _gradient_world(slope=0.02)
+    _, edges = sfa.height_bands(tab['mni_z'])
+    part, slope = sfa.height_partial_residuals(tab, edges)
+    coord = sfa.relative_score_coordinate_test(tab, n_perm=20)['all']['slopes'] \
+        .set_index('axis').loc['mni_z', 'slope_per_mm']
+    assert slope == pytest.approx(coord, rel=1e-6)
+    assert np.polyfit(part['mni_z'], part['partial'], 1)[0] == pytest.approx(slope, rel=1e-6)
+    assert set(part['band'].dropna()) == set(sfa.HEIGHT_BANDS)
 
 
 def test_figure5_height_at_both_levels(tmp_path):

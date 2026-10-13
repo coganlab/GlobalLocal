@@ -2334,6 +2334,39 @@ def balance_by_height(scores, edges, axis='mni_z', value_col='delta', covariates
     return summary, per
 
 
+def height_partial_residuals(scores, edges, axis='mni_z', value_col='delta',
+                             coord_cols=('mni_y', 'mni_z', 'mni_x'), covariates=('resp',)):
+    """Each electrode's balance against its height in the coordinate test's
+    model: the points of panel c.
+
+    Fits ``value_col ~ coord_cols + covariates + participant`` (the model of
+    :func:`relative_score_coordinate_test`, without its permutations) and
+    gives each electrode ``partial = residual + slope * (axis - mean) +
+    mean(value_col)``: its balance with participant, responsiveness and the
+    other coordinates removed, keeping the part ``axis`` explains. The
+    residuals are orthogonal to every term of the fit, so a straight line
+    through these points has exactly the test's ``axis`` slope: the line drawn
+    through them is the test, not a separate fit. ``partial`` is in
+    ``value_col``'s units (SD units), ``axis`` in mm.
+
+    Returns ``(table, slope_per_mm)``; the table has ``subject``,
+    ``electrode``, ``axis``, ``band`` (cut at ``edges``) and ``partial``.
+    """
+    d = scores.dropna(subset=[value_col, *coord_cols]).reset_index(drop=True)
+    X, _ = _nuisance_design(d, covariates=covariates)
+    C = d[list(coord_cols)].to_numpy(float)
+    C = C - C.mean(axis=0)
+    design = np.column_stack([X, C])
+    v = d[value_col].to_numpy(float)
+    beta = np.linalg.lstsq(design, v, rcond=None)[0]
+    k = list(coord_cols).index(axis)
+    slope = float(beta[X.shape[1] + k])
+    table = d[['subject', 'electrode', axis]].copy()
+    table['partial'] = v - design @ beta + slope * C[:, k] + v.mean()
+    table['band'], _ = height_bands(d[axis], edges=edges)
+    return table, slope
+
+
 def _ellipse(ax, x, y, cov, color, n_sd=np.sqrt(5.991)):
     """95 % ellipse of a 2-D normal with covariance ``cov`` (chi-square, 2 df)."""
     from matplotlib.patches import Ellipse
@@ -2376,47 +2409,56 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
     ax.set_aspect('equal', adjustable='datalim')
 
 
-def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis='mni_z',
+def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis='mni_z',
                         slope=None, brain_png=None, unit='participant', pair='adaptation'):
     """Draw the combined anatomy figure and write ``<out_stem>.png``/``.pdf``.
 
-    a, the height bands on a sagittal projection of the electrodes (or
-    ``brain_png``, a rendered brain in the same colours), with the cuts drawn;
-    b, LWPC against LWPS coloured by band, with the identity line; c, the
-    band centroids enlarged (the box in b), each with its 95 % bootstrap
-    ellipse: the gradient is their spread across the identity line; d, the
-    adjusted balance by band, means +/- SEM, with the slope tests in ``slope``
-    (a list of text lines). ``unit`` ('participant' or 'electrode') names the
-    bootstrap and the means in the legend; ``pair`` (:data:`FIG5_PAIRS`) names
-    the two scores on the axes. Inputs as :func:`figure5_height` builds them.
+    a, the height bands on the brain (``brain_png``, white margins trimmed), or
+    on a sagittal projection of the electrodes when there is no render; b, LWPC
+    against LWPS coloured by band, with the identity line and each band's
+    centroid, beside a zoom on the centroids (each with its 95 % bootstrap
+    ellipse) that connector lines tie to its box in the scatter: the overlap
+    runs along the identity line, the gradient is the centroids' spread across
+    it; c, every electrode's balance against its height (``partials``,
+    :func:`height_partial_residuals`) with the coordinate test's slope, and the
+    slope tests in ``slope`` (a list of text lines). ``unit`` ('participant' or
+    'electrode') names the bootstrap in the legend; c shows electrodes at both
+    levels. ``pair`` (:data:`FIG5_PAIRS`) names the two scores on the axes.
+    Inputs as :func:`figure5_height` builds them.
     """
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     from matplotlib.lines import Line2D
-    from matplotlib.patches import Rectangle
+    from src.analysis.utils.image_utils import trim_whitespace
 
     x_name, y_name, title = (FIG5_PAIRS[pair][k] for k in ('x_name', 'y_name', 'title'))
     d = points.dropna(subset=['band'])
     with plt.rc_context(_FIG5_RC):
-        fig = plt.figure(figsize=(7.2, 2.5))
-        gs = fig.add_gridspec(1, 4, width_ratios=[0.95, 1.15, 0.85, 0.8], wspace=0.5,
-                              left=0.06, right=0.98, top=0.86, bottom=0.2)
-        ax_a, ax_b, ax_z, ax_c = (fig.add_subplot(gs[0, i]) for i in range(4))
+        fig = plt.figure(figsize=(7.2, 5.0))
+        rows = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.15], hspace=0.3,
+                                left=0.07, right=0.98, top=0.95, bottom=0.16)
+        ax_a = fig.add_subplot(rows[0])
+        bottom = rows[1].subgridspec(1, 3, width_ratios=[1.15, 0.8, 1.0], wspace=0.55)
+        ax_b, ax_z, ax_c = (fig.add_subplot(bottom[0, i]) for i in range(3))
 
         # a: where the bands are
         if brain_png and os.path.exists(brain_png):
-            ax_a.imshow(plt.imread(brain_png))
+            ax_a.imshow(trim_whitespace(plt.imread(brain_png)))
             ax_a.set_axis_off()
         else:
             _draw_height_bands_sagittal(ax_a, d, edges, axis=axis)
-        ax_a.set_title('Height bands', loc='left', fontsize=7, color=_INK)
+        ax_a.set_title(f'Height bands (cuts at MNI {axis[-1]} = {edges[1]:.0f} and '
+                       f'{edges[2]:.0f} mm)', loc='left', fontsize=7, color=_INK)
 
-        # b: the overlap along the identity line, the gradient across it
+        # b, left: the overlap along the identity line, the gradient across it
         for band in HEIGHT_BANDS:
             g = d[d['band'] == band]
             ax_b.scatter(g['x_plot'], g['y_plot'], s=5, color=HEIGHT_COLORS[band], alpha=0.45,
                          linewidths=0, rasterized=True, zorder=2)
+        for c in centroids.itertuples():
+            ax_b.scatter([c.x], [c.y], s=18, color=HEIGHT_CENTROID_COLORS[c.band],
+                         edgecolor='white', linewidth=0.6, zorder=7)
         vals = d[['x_plot', 'y_plot']].to_numpy(float)
         lo, hi = np.nanpercentile(vals, 0.5), np.nanpercentile(vals, 99.5)
         pad = 0.06 * (hi - lo)
@@ -2437,57 +2479,63 @@ def plot_figure5_height(points, centroids, balance, stat, edges, out_stem, axis=
                       color=_INK, linespacing=1.3,
                       bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
 
-        # c: the band centroids, enlarged; the box in b marks the region
+        # b, right: the centroids enlarged, each with its 95 % bootstrap ellipse;
+        # the box and connector lines tie it to the region it shows in the scatter
         ext = [np.sqrt(5.991 * max(v, 0.0)) for v in
                np.r_[centroids['cov_xx'], centroids['cov_yy']]]
         span = max(float(np.ptp(np.r_[centroids['x'], centroids['y']])) + 2 * max(ext, default=0),
                    1e-3)
         mid = float(np.mean(np.r_[centroids['x'], centroids['y']]))
         zlo, zhi = mid - 0.6 * span, mid + 0.6 * span
-        ax_b.add_patch(Rectangle((zlo, zlo), zhi - zlo, zhi - zlo, fill=False,
-                                 edgecolor=_INK, linewidth=0.6, zorder=6))
         ax_z.plot([zlo, zhi], [zlo, zhi], color=_MUTED, lw=0.7, zorder=1)
         ax_z.text(zhi, zhi, f'{x_name} = {y_name} ', ha='right', va='top', fontsize=5.5,
                   color=_MUTED, rotation=45, rotation_mode='anchor')
         for c in centroids.itertuples():
-            col = HEIGHT_COLORS[c.band]
-            _ellipse(ax_z, c.x, c.y, [[c.cov_xx, c.cov_xy], [c.cov_xy, c.cov_yy]], col)
-            ax_z.scatter([c.x], [c.y], s=30, color=col, edgecolor='white', linewidth=1.0,
-                         zorder=5)
+            _ellipse(ax_z, c.x, c.y, [[c.cov_xx, c.cov_xy], [c.cov_xy, c.cov_yy]],
+                     HEIGHT_COLORS[c.band])
+            ax_z.scatter([c.x], [c.y], s=30, color=HEIGHT_CENTROID_COLORS[c.band],
+                         edgecolor='white', linewidth=1.0, zorder=5)
         ax_z.set(xlim=(zlo, zhi), ylim=(zlo, zhi), aspect='equal',
-                 xlabel=f'{x_name} (SD units)', ylabel=f'{y_name} (SD units)')
-        ax_z.set_title('Band centroids (box in b)', loc='left', fontsize=7, color=_INK)
-        # one legend for every panel, under b and c (identity is never colour alone)
-        box_b, box_z = ax_b.get_position(), ax_z.get_position()
-        fig.legend(handles=[Line2D([], [], marker='o', ls='', color=HEIGHT_COLORS[b],
-                                   markersize=4, label=b) for b in HEIGHT_BANDS],
-                   loc='upper center', bbox_to_anchor=((box_b.x0 + box_z.x1) / 2, 0.06),
-                   ncol=3, frameon=False, fontsize=5.5, handletextpad=0.2,
-                   columnspacing=0.9, title='height tertile (MNI z); c: centroid with 95 % '
-                   f'{unit}-bootstrap region; d: {unit} means ± SEM', title_fontsize=5.5)
+                 xlabel=f'{x_name} (SD units)')
+        ax_z.set_title('Band centroids', loc='left', fontsize=7, color=_INK)
+        ax_b.indicate_inset_zoom(ax_z, edgecolor=_INK, linewidth=0.6, alpha=1)
 
-        # d: the gradient in the coordinate test's units
-        b = balance.set_index('band').reindex([x for x in HEIGHT_BANDS
-                                               if x in set(balance['band'])])
-        xs = b[f'{axis}_median'].to_numpy(float)
+        # c: every electrode along the height axis, in the coordinate test's units
+        for band in HEIGHT_BANDS:
+            g = partials[partials['band'] == band]
+            ax_c.scatter(g[axis], g['partial'], s=5, color=HEIGHT_COLORS[band], alpha=0.6,
+                         linewidths=0, rasterized=True, zorder=2)
+        b1, b0 = np.polyfit(partials[axis].to_numpy(float), partials['partial'].to_numpy(float), 1)
+        zs = np.array([partials[axis].min(), partials[axis].max()])
+        ax_c.plot(zs, b0 + b1 * zs, color=_INK, lw=0.9, zorder=3)
         ax_c.axhline(0, color=_RULE, lw=0.6, zorder=0)
-        ax_c.plot(xs, b['mean'], color=_RULE, lw=0.8, zorder=1)
-        for band, row in b.iterrows():
-            ax_c.errorbar(row[f'{axis}_median'], row['mean'], yerr=row['sem'], fmt='o',
-                          color=HEIGHT_COLORS[band], ecolor=_INK, elinewidth=0.7,
-                          capsize=0, markersize=4.5, markeredgecolor='white',
-                          markeredgewidth=0.6, zorder=3)
-        ax_c.set(xlabel='height, MNI z (mm)', ylabel=f'{x_name} − {y_name} (SD units)')
+        for e in edges[1:-1]:
+            ax_c.axvline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
+        ax_c.set(xlabel=f'height, MNI {axis[-1]} (mm)', ylabel=f'{x_name} − {y_name} (SD units)')
         ax_c.set_title('Balance by height', loc='left', fontsize=7, color=_INK)
         if slope:
-            # the corner the points leave free: falling balance -> lower left
-            falling = len(b) > 1 and b['mean'].iloc[-1] < b['mean'].iloc[0]
-            ax_c.text(0.03, 0.03 if falling else 0.97, '\n'.join(slope),
-                      transform=ax_c.transAxes, ha='left', va='bottom' if falling else 'top',
-                      fontsize=5.5, color=_INK, linespacing=1.3)
+            # the bottom corner the line leaves free: falling -> left, rising -> right
+            ax_c.text(0.03 if b1 < 0 else 0.97, 0.03, '\n'.join(slope),
+                      transform=ax_c.transAxes, ha='left' if b1 < 0 else 'right', va='bottom',
+                      fontsize=5.5, color=_INK, linespacing=1.3,
+                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
 
-        for ax, letter in ((ax_a, 'a'), (ax_b, 'b'), (ax_z, 'c'), (ax_c, 'd')):
-            ax.text(-0.3, 1.1, letter, transform=ax.transAxes, fontsize=9,
+        # one legend for the bottom row (identity is never colour alone)
+        box_b, box_c = ax_b.get_position(), ax_c.get_position()
+        fig.legend(handles=[Line2D([], [], marker='o', ls='', color=HEIGHT_COLORS[b],
+                                   markersize=4, label=b) for b in HEIGHT_BANDS]
+                   + [Line2D([], [], marker='o', ls='', color=_INK, markeredgecolor='white',
+                             markersize=5, label='band centroid')],
+                   loc='upper center', bbox_to_anchor=((box_b.x0 + box_c.x1) / 2, 0.07),
+                   ncol=4, frameon=False, fontsize=5.5, handletextpad=0.2, columnspacing=0.9,
+                   title=f'height tertile (MNI {axis[-1]}); b: centroids zoomed at right, with '
+                         f'95 % {unit}-bootstrap regions\nc: each electrode, participant, '
+                         'responsiveness and the other two coordinates removed; line: the '
+                         'coordinate test\'s slope', title_fontsize=5.5)
+
+        for ax, letter, x, y in ((ax_a, 'a', -0.02, 1.02), (ax_b, 'b', -0.3, 1.1),
+                                 (ax_c, 'c', -0.3, 1.1)):
+            ax.text(x, y, letter, transform=ax.transAxes, fontsize=9,
                     fontweight='bold', va='bottom', ha='left', color=_INK)
         paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
         for p in paths:
@@ -2783,6 +2831,8 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     cents = height_centroids(plotted, n_boot=n_boot, seed=seed, unit=unit)
     balance, per_participant = balance_by_height(scores, edges, axis=axis,
                                                  value_col=spec['value_col'], unit=unit)
+    partials, partial_slope = height_partial_residuals(
+        scores, edges, axis=axis, value_col=spec['value_col'], coord_cols=coord_cols)
 
     if coord_res is None:
         coord_res = relative_score_coordinate_test(scores, n_perm=n_perm, seed=seed,
@@ -2805,16 +2855,9 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     chk_slope = float(chk['slopes'].set_index('axis').loc[axis, 'slope_per_mm'])
 
     os.makedirs(out_dir, exist_ok=True)
-    tables = [f'{stem}_centroids.csv', f'{stem}_balance.csv']
-    pts.to_csv(os.path.join(out_dir, f'{prefix}_points.csv'), index=False)
-    cents.to_csv(os.path.join(out_dir, tables[0]), index=False)
-    balance.to_csv(os.path.join(out_dir, tables[1]), index=False)
-    if unit == 'participant':
-        tables.append(f'{prefix}_balance_by_participant.csv')
-        per_participant.to_csv(os.path.join(out_dir, tables[-1]), index=False)
-    paths = plot_figure5_height(pts, cents, balance, stat, edges,
-                                os.path.join(out_dir, stem), axis=axis, slope=slope,
-                                brain_png=brain_png, unit=unit, pair=pair)
+    # Panel a: a render made now, else one made earlier. The bands depend on
+    # neither the pair nor the unit, so section19 renders them once, under the
+    # adaptation figure's name; without any render panel a is the sagittal view.
     brain_cents = height_band_brain_centroids(plotted)
     brain_cents.to_csv(os.path.join(out_dir, f'{prefix}_brain_centroids.csv'), index=False)
     brain = None
@@ -2822,11 +2865,27 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
         brain = plot_height_bands_on_brain(plotted, os.path.join(out_dir, f'{prefix}_brain.png'),
                                            centroids=brain_cents, edges=edges, axis=axis,
                                            **(brain_kwargs or {}))
+        if brain_png is None and not brain['fallback']:
+            brain_png = brain['combined']
+    if brain_png is None:
+        brain_png = os.path.join(out_dir, f"{FIG5_PAIRS['adaptation']['prefix']}_brain.png")
+
+    tables = [f'{stem}_centroids.csv', f'{stem}_balance.csv']
+    pts.to_csv(os.path.join(out_dir, f'{prefix}_points.csv'), index=False)
+    cents.to_csv(os.path.join(out_dir, tables[0]), index=False)
+    balance.to_csv(os.path.join(out_dir, tables[1]), index=False)
+    partials.to_csv(os.path.join(out_dir, f'{prefix}_partials.csv'), index=False)
+    if unit == 'participant':
+        tables.append(f'{prefix}_balance_by_participant.csv')
+        per_participant.to_csv(os.path.join(out_dir, tables[-1]), index=False)
+    paths = plot_figure5_height(pts, cents, partials, stat, edges,
+                                os.path.join(out_dir, stem), axis=axis, slope=slope,
+                                brain_png=brain_png, unit=unit, pair=pair)
 
     n_col = 'n_electrodes' if unit == 'electrode' else 'n_participants'
     lines = [f"  FIGURE 5 (height) {x_name} vs {y_name}, {unit.upper()}S AS THE UNIT — "
              f"{', '.join(os.path.basename(f) for f in paths)}, {prefix}_points.csv, "
-             f"{', '.join(tables)}, {prefix}_brain_centroids.csv",
+             f"{', '.join(tables)}, {prefix}_partials.csv, {prefix}_brain_centroids.csv",
              f"  bands: tertiles of {axis} at {edges[1]:.1f} and {edges[2]:.1f} mm; "
              f"{len(plotted)} of {len(pts)} points have coordinates"]
     if brain is not None:
@@ -2841,19 +2900,22 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
         lines.append(f"  b  {x_name} vs {y_name} r = {stat['corr']:+.3f}  p = {_fmt_p(stat['p'])}  "
                      f"[{stat['source']}]")
     for c in cents.itertuples():
-        lines.append(f"  c  {c.band:8s} centroid {x_name} {c.x:+.3f}, {y_name} {c.y:+.3f}; balance "
+        lines.append(f"  b  {c.band:8s} centroid {x_name} {c.x:+.3f}, {y_name} {c.y:+.3f}; balance "
                      f"{c.balance:+.3f} [{c.balance_lo:+.3f}, {c.balance_hi:+.3f}] ({unit} "
                      f"bootstrap; {c.n_electrodes} electrodes, {c.n_participants} participants)")
     for r in balance.itertuples():
-        lines.append(f"  d  {r.band:8s} adjusted {x_name} − {y_name} {r.mean:+.3f} ± {r.sem:.3f} SEM "
+        lines.append(f"  table {r.band:8s} adjusted {x_name} − {y_name} {r.mean:+.3f} ± {r.sem:.3f} SEM "
                      f"({getattr(r, n_col)} {n_col[2:]})")
-    lines.append(f"  d  {axis} slope {sl['slope_per_mm']:+.5f}/mm (p = {_fmt_p(sl['p'])}); the "
+    lines.append(f"  c  {axis} slope {sl['slope_per_mm']:+.5f}/mm (p = {_fmt_p(sl['p'])}); the "
                  f"plotted balance gives {chk_slope:+.5f}/mm"
                  + ("" if np.isclose(chk_slope, sl['slope_per_mm'], rtol=0.25, atol=1e-4)
                     else "   <- differs from the test: check the scaling"))
+    lines.append(f"  c  line through the {len(partials)} electrodes: {partial_slope:+.5f}/mm"
+                 + ("" if np.isclose(partial_slope, sl['slope_per_mm'], rtol=1e-6, atol=1e-9)
+                    else "   <- not the test's slope: coord_res was fit on other electrodes"))
     return dict(points=pts, centroids=cents, balance=balance, stat=stat, edges=edges,
                 files=paths, lines=lines, check_slope=chk_slope, brain_centroids=brain_cents,
-                brain=brain)
+                brain=brain, partials=partials)
 
 
 # ---------------------------------------------------------------------------

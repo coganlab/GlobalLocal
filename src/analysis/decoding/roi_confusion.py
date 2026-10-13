@@ -101,7 +101,7 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
     n_splits=5, n_repeats=5, obs_axs=0, time_axs=-1,
     balance_method='pad_with_nans', explained_variance=0.8, random_state=42, window_size=None,
     step_size=1, n_perm=100, sampling_rate=256, first_time_point=-1, folds_as_samples: bool = False,
-    balance_strata=True, random_seed=42
+    balance_strata=True, random_seed=42, feature_mode='channels_x_time'
 ):
     """
     Performs time-windowed decoding analysis for specified regions of interest (ROIs) and conditions.
@@ -227,8 +227,8 @@ def get_confusion_matrices_for_rois_time_window_decoding_jim(
         print(f"time_window_centers are: {time_window_centers}")
         
         # Create Decoder instances
-        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={}, random_state=random_state)
-        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={}, random_state=random_state)
+        decoder_true = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_repeats, clf_params={}, random_state=random_state, feature_mode=feature_mode)
+        decoder_shuffle = Decoder(cats, explained_variance, oversample=True, clf=clf, n_splits=n_splits, n_repeats=n_perm, clf_params={}, random_state=random_state, feature_mode=feature_mode)
 
         # Run decoding with true labels
         cm_true = decoder_true.cv_cm_jim_window_shuffle(

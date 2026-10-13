@@ -32,7 +32,7 @@ from sklearn.decomposition import PCA
 from src.analysis.config import experiment_conditions
 from src.analysis.config.condition_registry import get_comparisons, get_pooled_shuffle_settings, get_conditions_obj
 from src.analysis.utils.labeled_array_utils import make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel
-from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory, plot_static_pca_projection, plot_pca_over_time
+from src.analysis.decoding.decoding import concatenate_and_balance_data_for_decoding, plot_high_dim_decision_slice, plot_pca_3d_trajectory, plot_channel_pca_3d_trajectory, plot_static_pca_projection, plot_pca_over_time
 
 # TODO: go through and add save dir and test these plotting functions. Also, update to use condition_registry. Add a vis pairs line to each condition_registry entry i think.
 def run_visualization_debug(args, rois, condition_label, electrodes, subjects_mne_objects, save_dir):
@@ -129,6 +129,21 @@ def run_visualization_debug(args, rois, condition_label, electrodes, subjects_mn
                 explained_variance=args.explained_variance,
                 clf=args.clf_model
             )
+
+            # channels as features: PCs are patterns across channels, fit on the
+            # conditions' window states; drawn with and without the shared response
+            if getattr(args, 'feature_mode', 'channels_x_time') == 'channels':
+                for remove_mean in (False, True):
+                    plot_channel_pca_3d_trajectory(
+                        roi_labeled_arrays_viz, roi, strings_to_find, cats,
+                        save_dir=os.path.join(save_dir, f"{condition_comparison}", f"{roi}"),
+                        window_size=args.window_size,
+                        step_size=args.step_size,
+                        sampling_rate=args.sampling_rate,
+                        obs_axs=args.obs_axs,
+                        random_state=args.random_state,
+                        remove_condition_mean=remove_mean,
+                    )
                     
     print(f"\n{'='*20} ✅ VISUALIZATION DEBUG COMPLETE {'='*20}\n")
 

@@ -11,6 +11,11 @@ from src.analysis.utils.general_utils import windower
 
 from .data_prep import flatten_features, mixup2, sample_fold
 
+# What one decoder sample is. 'channels_x_time' (default): one trial, its
+# channels x time points as the features. 'channels': one trial at one time
+# point, its channels as the features (the folds are still cut by trial).
+FEATURE_MODES = ('channels_x_time', 'channels')
+
 class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
     '''
     Decoder class that inherits from two parents: PcaEstimateDecoder and MinimumNaNSplit.
@@ -28,7 +33,8 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
                  oversample: bool = True, max_features: int = float("inf"), 
                  clf: BaseEstimator = LinearDiscriminantAnalysis(),
                  clf_params: dict = None,
-                 random_state: int = None):
+                 random_state: int = None,
+                 feature_mode: str = 'channels_x_time'):
         # two-stage constructor b/c inherits from two classes
         PcaEstimateDecoder.__init__(self, 
                                     explained_variance=explained_variance,
@@ -41,6 +47,25 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         self.categories = categories
         self.max_features = max_features
         self.random_state = random_state
+        if feature_mode not in FEATURE_MODES:
+            raise ValueError(f"feature_mode must be one of {FEATURE_MODES}, got {feature_mode!r}")
+        self.feature_mode = feature_mode
+
+    def _predict_trials(self, x_samples, n_per_trial):
+        """One predicted label per trial from ``n_per_trial`` consecutive rows
+        of ``x_samples`` each (a trial's time points, ``feature_mode='channels'``).
+
+        The classifier's decision scores are averaged over a trial's rows (a
+        soft vote) and the trial gets the best class, so the confusion matrix
+        counts trials, as in ``'channels_x_time'``. Needs a classifier with
+        ``decision_function`` (LDA, linear SVC)."""
+        scores = self.model.decision_function(x_samples)
+        classes = self.model.classes_
+        if scores.ndim == 1:   # two classes: one signed score, positive -> classes[1]
+            mean = scores.reshape(-1, n_per_trial).mean(axis=1)
+            return classes[(mean > 0).astype(int)]
+        mean = scores.reshape(-1, n_per_trial, scores.shape[1]).mean(axis=1)
+        return classes[mean.argmax(axis=1)]
 
     def cv_cm_jim(self, x_data: np.ndarray, labels: np.ndarray,
               normalize: str = None, obs_axs: int = -2):
@@ -414,13 +439,29 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
         # Step 6: Flatten each window and split it back into train / test.
         # Done up front so temporal generalization can pair any train window with
         # any test window without re-windowing.
-        # E.g., (100, 10, 64) -> (100, 640): one feature vector per trial.
+        # 'channels_x_time': (100, 10, 64) -> (100, 640), one feature vector per trial.
+        # 'channels': (100, 10, 64) -> (100 * 64, 10), one row per trial and time
+        # point. The expansion comes after the fold split, so all of a trial's
+        # time points are on one side of it: neighbouring, autocorrelated time
+        # points never sit in train and test at once.
         n_train = len(y_train_proc)
+        channels = self.feature_mode == 'channels'
+        # windower puts a window's samples on the last axis; unwindowed data
+        # keeps them on time_axs
+        t_ax = -1 if window is not None else time_axs
+        n_per_trial = windowed[0].shape[t_ax] if channels else 1
         per_window = []
         for x_window in windowed:
-            x_flat = x_window.reshape(x_window.shape[0], -1)
-            # We know the first n_train samples are training (sample_fold ordered them)
-            per_window.append(np.split(x_flat, [n_train], axis=0))
+            if channels:
+                x_flat = np.moveaxis(x_window, t_ax, 1)    # (trials, time, channels...)
+                x_flat = x_flat.reshape(x_flat.shape[0] * n_per_trial, -1)
+            else:
+                x_flat = x_window.reshape(x_window.shape[0], -1)
+            # We know the first n_train trials are training (sample_fold ordered them)
+            per_window.append(np.split(x_flat, [n_train * n_per_trial], axis=0))
+        y_fit = np.repeat(y_train_proc, n_per_trial)
+        predict = ((lambda x: self._predict_trials(x, n_per_trial)) if channels
+                   else self.predict)
 
         # Step 7: Fit and predict
         if temporal_generalization:
@@ -429,16 +470,16 @@ class Decoder(PcaEstimateDecoder, MinimumNaNSplit):
             n_win = len(per_window)
             out_cm = np.zeros((n_win, n_win, n_cats, n_cats))
             for i, (x_train_w, _) in enumerate(per_window):
-                self.fit(x_train_w, y_train_proc)
+                self.fit(x_train_w, y_fit)
                 for j, (_, x_test_w) in enumerate(per_window):
-                    preds = self.predict(x_test_w)
+                    preds = predict(x_test_w)
                     out_cm[i, j] = confusion_matrix(y_test_proc, preds, labels=cm_labels)
             return out_cm   # Shape: (n_train_windows, n_test_windows, n_cats, n_cats)
 
         out_cm = []  # list to collect confusion matrices
         for x_train_w, x_test_w in per_window:
-            self.fit(x_train_w, y_train_proc)   # train on this window's features
-            preds = self.predict(x_test_w)      # predict test labels
+            self.fit(x_train_w, y_fit)          # train on this window's features
+            preds = predict(x_test_w)           # predict test labels
             # Compares true test labels with predictions. With a separate test
             # labelling (cross-decoding) y_test_proc is the OTHER label vector.
             out_cm.append(confusion_matrix(y_test_proc, preds, labels=cm_labels))

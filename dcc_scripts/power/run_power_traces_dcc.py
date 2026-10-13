@@ -272,7 +272,20 @@ PLOT_STYLE = {
 #   'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"]
 # }
 
+# One electrode set from score_electrode_selection_dcc.py's score_selection.json,
+# on the trials the selection did not use (docs/decoding.md §3.7). ELECTRODE_SET
+# names the set (lwpc, lwps, lwpc_only, congruency, ...); one set per job.
+ELECTRODE_SETS_JSON = os.environ.get('ELECTRODE_SETS_JSON') or None
+ELECTRODE_SET = os.environ.get('ELECTRODE_SET') or None
+if ELECTRODE_SETS_JSON and not ELECTRODE_SET:
+    raise ValueError("ELECTRODE_SETS_JSON is set; name one set with ELECTRODE_SET")
+
 SAVE_DIR = os.path.join(current_script_dir, 'figs', EPOCHS_ROOT_FILE, 'anova_within_' + ANOVA_UNIT)
+if ELECTRODE_SETS_JSON:
+    SAVE_DIR = os.path.join(
+        SAVE_DIR, 'score_selections',
+        os.path.basename(os.path.dirname(os.path.abspath(ELECTRODE_SETS_JSON))),
+        ELECTRODE_SET, CONDITION_LABEL)
 if ANOVA_LABELS_CSV:
     SAVE_DIR = os.path.join(
         SAVE_DIR, 'anova_label_selections',
@@ -316,6 +329,8 @@ def run_analysis():
         anova_label_correction=ANOVA_LABEL_CORRECTION,
         anova_label_alpha=ANOVA_LABEL_ALPHA,
         anova_label_roi=ANOVA_LABEL_ROI,
+        electrode_sets_json=ELECTRODE_SETS_JSON,
+        electrode_set=ELECTRODE_SET,
         sampling_rate=SAMPLING_RATE,
         window_size=WINDOW_SIZE,
         step_size=STEP_SIZE,
@@ -335,6 +350,8 @@ def run_analysis():
     print(f"Epochs file:       {os.path.basename(EPOCHS_ROOT_FILE)}")
     print(f"Electrodes (all or sig):       {ELECTRODES}")
     print(f"Excluded electrodes:       {EXCLUDE_ELECTRODES or 'none'}")
+    print(f"Score-selected set:        "
+          f"{f'{ELECTRODE_SET} from {ELECTRODE_SETS_JSON}' if ELECTRODE_SETS_JSON else 'off'}")
     print(f"sampling rate: {SAMPLING_RATE}"),
 
     print("-" * 70)

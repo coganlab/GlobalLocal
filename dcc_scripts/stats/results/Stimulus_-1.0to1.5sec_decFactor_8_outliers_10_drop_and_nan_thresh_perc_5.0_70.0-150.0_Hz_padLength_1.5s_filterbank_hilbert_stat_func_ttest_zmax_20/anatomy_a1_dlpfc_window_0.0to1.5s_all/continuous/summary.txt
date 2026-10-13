@@ -197,7 +197,7 @@ delta + dm from the opposite half     -0.009866      NaN
     responsiveness tertile: middle               r = +0.130  p = 0.0175  (84 electrodes, 10 participants)   [descriptive]
     responsiveness tertile: high                 r = +0.110  p = 0.0332  (90 electrodes, 14 participants)   [descriptive]
     leave one participant out: r +0.070 to +0.117, p 0.000999 to 0.011
-  FIGURE 5 (height), ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_brain_centroids.csv
+  FIGURE 5 (height) LWPC vs LWPS, ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_brain_centroids.csv
   bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
   brain: fig5_height_brain.png
   brain ventral  lh centroid MNI (-29.9, +43.3, +18.4) mm  (62 electrodes, 11 participants)
@@ -214,7 +214,7 @@ delta + dm from the opposite half     -0.009866      NaN
   d  middle   adjusted LWPC − LWPS -0.225 ± 0.111 SEM (92 electrodes)
   d  dorsal   adjusted LWPC − LWPS -0.316 ± 0.095 SEM (92 electrodes)
   d  mni_z slope -0.01012/mm (p = 0.032); the plotted balance gives -0.01012/mm
-  FIGURE 5 (height), PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_brain_centroids.csv
+  FIGURE 5 (height) LWPC vs LWPS, PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_brain_centroids.csv
   bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
   b  LWPC vs LWPS r = +0.094  p = 0.0015  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
   c  ventral  centroid LWPC +0.125, LWPS +0.187; balance -0.062 [-0.233, +0.135] (participant bootstrap; 92 electrodes, 15 participants)
@@ -224,6 +224,32 @@ delta + dm from the opposite half     -0.009866      NaN
   d  middle   adjusted LWPC − LWPS -0.437 ± 0.140 SEM (17 participants)
   d  dorsal   adjusted LWPC − LWPS -0.348 ± 0.099 SEM (19 participants)
   d  mni_z slope -0.01012/mm (p = 0.032); the plotted balance gives -0.01012/mm
+  FIGURE 5 (height) congruency vs switch, ELECTRODES AS THE UNIT — fig5_height_main_effects.png, fig5_height_main_effects.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_centroids.csv, fig5_height_main_effects_balance.csv, fig5_height_main_effects_brain_centroids.csv
+  bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
+  brain ventral  lh centroid MNI (-29.9, +43.3, +18.4) mm  (62 electrodes, 11 participants)
+  brain ventral  rh centroid MNI (+38.9, +37.9, +20.0) mm  (30 electrodes, 8 participants)
+  brain middle   lh centroid MNI (-28.0, +34.7, +36.5) mm  (53 electrodes, 12 participants)
+  brain middle   rh centroid MNI (+32.8, +32.3, +38.1) mm  (39 electrodes, 8 participants)
+  brain dorsal   lh centroid MNI (-22.9, +20.1, +56.5) mm  (51 electrodes, 12 participants)
+  brain dorsal   rh centroid MNI (+22.0, +24.8, +55.6) mm  (40 electrodes, 10 participants)
+  b  congruency vs switch r = +0.209  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation_main_effects.json]
+  c  ventral  centroid congruency +0.456, switch +0.537; balance -0.081 [-0.257, +0.089] (electrode bootstrap; 92 electrodes, 15 participants)
+  c  middle   centroid congruency +0.222, switch +0.173; balance +0.049 [-0.147, +0.247] (electrode bootstrap; 92 electrodes, 17 participants)
+  c  dorsal   centroid congruency +0.308, switch +0.367; balance -0.059 [-0.236, +0.134] (electrode bootstrap; 91 electrodes, 18 participants)
+  d  ventral  adjusted congruency − switch -0.075 ± 0.089 SEM (93 electrodes)
+  d  middle   adjusted congruency − switch +0.055 ± 0.105 SEM (92 electrodes)
+  d  dorsal   adjusted congruency − switch -0.053 ± 0.097 SEM (92 electrodes)
+  d  mni_z slope -0.00336/mm (p = 0.46); the plotted balance gives -0.00336/mm
+  FIGURE 5 (height) congruency vs switch, PARTICIPANTS AS THE UNIT — fig5_height_main_effects_participants.png, fig5_height_main_effects_participants.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_participants_centroids.csv, fig5_height_main_effects_participants_balance.csv, fig5_height_main_effects_balance_by_participant.csv, fig5_height_main_effects_brain_centroids.csv
+  bands: tertiles of mni_z at 29.6 and 46.0 mm; 275 of 275 points have coordinates
+  b  congruency vs switch r = +0.209  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation_main_effects.json]
+  c  ventral  centroid congruency +0.456, switch +0.537; balance -0.081 [-0.301, +0.232] (participant bootstrap; 92 electrodes, 15 participants)
+  c  middle   centroid congruency +0.222, switch +0.173; balance +0.049 [-0.141, +0.191] (participant bootstrap; 92 electrodes, 17 participants)
+  c  dorsal   centroid congruency +0.308, switch +0.367; balance -0.059 [-0.292, +0.114] (participant bootstrap; 91 electrodes, 18 participants)
+  d  ventral  adjusted congruency − switch +0.045 ± 0.195 SEM (16 participants)
+  d  middle   adjusted congruency − switch -0.083 ± 0.131 SEM (17 participants)
+  d  dorsal   adjusted congruency − switch -0.013 ± 0.151 SEM (19 participants)
+  d  mni_z slope -0.00336/mm (p = 0.46); the plotted balance gives -0.00336/mm
   §19 shared splits (shared by participant): /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv, rescored with 200 splits -> per_split_shared.csv
   §19 RT coupling: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200/rt_adjustment_slopes.csv
 ======================================================================
