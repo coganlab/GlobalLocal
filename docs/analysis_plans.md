@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-13 | **Current, not built.** The state-space figure the advisors asked for: congruency and switch coding axes from condition-mean differences, their angle over time against a null and a split-half ceiling, and held-out trajectories of the four condition means. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
+| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-13 | **Current, not built.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
 | [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
@@ -57,19 +57,26 @@ paper.
 Build it, but **do not expect or claim orthogonal codes.** The anatomy
 (congruency–switch r = 0.23 across electrodes) and the A4 cross-decoding
 (partial transfer from +0.62 s) already show that the congruency and switch
-codes are partly shared. The analysis below is a third view of that result,
-resolved in time and drawn as trajectories. It is not an independent test.
+codes are partly shared. The analysis below is a third view of that result: the
+population-readout view of the same per-electrode effects that F5 maps,
+resolved in time, extended to multi-dimensional subspaces and drawn as
+trajectories. It is not independent evidence (§1, "How this relates to the
+anatomy").
 
 What to build, in order:
 
 1. **Coding axes** for congruency and switch type in each A4 decoding window:
    the per-electrode difference of condition means, pooled across participants
-   (§2).
-2. **Coding angle over time** between the two axes, against a label-shuffle
-   null and a split-half ceiling (§3). This is the result.
-3. **Trajectories** of the four held-out condition means projected onto the two
+   (§3.1).
+2. **Subspace test** (§3.4): the congruency and switch coding subspaces over
+   0–1.5 s compared by principal angles and the alignment index, against a
+   label-shuffle null and a split-half ceiling. **This is the main result.** It
+   is the test the phrase "orthogonal subspaces" refers to.
+3. **Coding angle over time** between the per-window axes, with the same null
+   and ceiling (§3.2). This says when the sharing appears.
+4. **Trajectories** of the four held-out condition means projected onto the two
    axes (§4). This is the picture.
-4. Optional: dPCA for a variance-by-variable panel (§5), and adaptation as
+5. Optional: dPCA for a variance-by-variable panel (§5), and adaptation as
    block-split projections (§6, supplement).
 
 The likely story: **both codes are present in the same electrodes; they are
@@ -96,6 +103,28 @@ shared. **Check before quoting it** that the 0.23 and the two reliabilities are
 on the same split basis (both separate halves, same half length). It is the
 number a reviewer would compute, and §3.2 computes it properly.
 
+**How this relates to the anatomy.** A linear population code for a variable is
+a direction in electrode space whose entries are each electrode's effect.
+Whether two codes are orthogonal is therefore a question about the per-electrode
+weights, the same congruency and switch scores F5 maps. Neither this plan nor
+Weber et al. can see anything about the population that those weights do not
+contain. Weber's alignment, the Spearman correlation of PC1 loadings over a
+300 ms window, is close to a time-averaged, rank-based anatomy correlation. The
+anatomy asks where the effects are. The geometry ignores location and asks
+whether a reader of all of lPFC could separate the two variables. What the
+geometry adds:
+
+| Difference from the anatomy r | Why it matters |
+|---|---|
+| Uncentered: the cosine keeps each map's mean, which a correlation subtracts | Orthogonality is about the cosine. If both effects raise HG on average, the codes share that direction even when the centered r is low. For 1-D codes this is the main way the geometry can differ from r = 0.23, and it can only push toward more shared. A4's `remove_mean` probes the same component |
+| Time-resolved | Separate early and shared late, as A4 suggests, averages into one r |
+| Noise ceiling | Noise pulls any comparison of weights toward 0, which reads as "orthogonal"; the split-half ceiling corrects it (§3.2) |
+| Multi-dimensional subspaces | Whether *any* direction is shared, even when the dominant patterns differ (§3.4). The anatomy cannot ask this |
+
+In the text, present the geometry as the population-readout view of Fig. 5's
+effects, agreeing with it, not as a separate line of evidence. A reviewer who
+sees them presented as independent will raise exactly this point.
+
 ### 2. Weber et al. (2023): what they did, and what to keep
 
 Weber et al. (2023, PNAS, "Subspace partitioning in the human prefrontal cortex
@@ -119,8 +148,8 @@ each participant** (14 with at least 10 electrodes in the region):
 | Weber's step | Problem for this dataset | Change |
 |---|---|---|
 | A separate population per participant (at least 10 electrodes each) | ~18 lPFC electrodes per participant (398 / 22); a behavior link across 14 participants is underpowered | Pool all lPFC electrodes across participants. Betas and condition means are per electrode, so no simultaneous recording is needed |
-| Alignment = Spearman correlation of PC1 loadings | A PC's sign is arbitrary, so a signed correlation has no fixed meaning; no cross-validation, null or ceiling, so noisy data look orthogonal | Cosine of the coding axes on held-out data, with a null and a ceiling (§3) |
-| PCA on the beta matrix, ~97 % in 5 PCs | Close to guaranteed for a smooth 300 ms beta matrix; says nothing about dimensionality | Drop it. The axes are defined directly by the variables |
+| Alignment = Spearman correlation of PC1 loadings | A PC's sign is arbitrary, so a signed correlation has no fixed meaning; only PC1 is compared; no cross-validation, null or ceiling, so noisy data look orthogonal | Principal angles and the alignment index between the full subspaces (§3.4), and the cosine of the per-window axes (§3.2), all on held-out data with a null and a ceiling |
+| PCA on the beta matrix, ~97 % in 5 PCs | Close to guaranteed for a smooth 300 ms beta matrix, so it says nothing about dimensionality. PCA also centers each electrode across time, which removes the time-averaged coding pattern | Keep the decomposition for the subspace test, but uncentered (SVD), with the number of dimensions chosen by split-half reproducibility, not by variance explained (§3.4) |
 | "Trajectories" are trajectories of betas | Not what readers expect from a state-space figure | Project the four condition means onto the axes (§4) |
 | Behavior across participants | Underpowered here; F5 already tests adaptation within participants | Leave behavior to the existing figures and §6 |
 
@@ -200,6 +229,50 @@ A negative cosine therefore means opposite directions, not an arbitrary flip.
 The time course should reproduce A4's timing. Say so in the text: two methods
 agreeing is the point.
 
+#### 3.4 Subspace test (the main result)
+
+The per-window cosine compares one axis per variable at a time. The subspace
+test asks whether the congruency and switch codes share **any** direction over
+the trial, even if their dominant patterns differ.
+
+1. **Effect matrices.** On each half, stack the per-window effects into an
+   electrode × window matrix over 0–1.5 s: C for congruency (columns are the
+   c of §3.1), S for switch.
+2. **Subspaces.** Take each matrix's top k left singular vectors with an
+   uncentered SVD: U_C (electrodes × k) and U_S. Uncentered, because centering
+   each electrode across time removes the time-averaged pattern, which is the
+   main coding direction.
+3. **Choosing k.** Report k = 1, 2 and 3. The primary k is the largest at which
+   half B's effects keep more variance in half A's subspace than under the
+   label-shuffle null, so each kept dimension is reproducible, not noise. Do not
+   choose k by "95 % of variance" (§2).
+4. **Principal angles** between U_C (half A) and U_S (half B): the cosines are
+   the singular values of U_Cᵀ U_S. The smallest angle says whether any
+   direction is shared; the largest whether the subspaces are the same.
+5. **Alignment index** (Elsayed et al. 2016): the fraction of the congruency
+   effects' variance that falls inside the switch subspace, divided by the
+   most any k-dimensional subspace could capture:
+   A(C → S) = trace(U_Sᵀ C Cᵀ U_S) / (sum of the top k eigenvalues of C Cᵀ).
+   It runs from 0 (orthogonal) to 1 (the same). Compute it both ways
+   (C → S and S → C), since it is not symmetric.
+6. **Ceiling and null.** The ceiling is the same quantity between halves of one
+   variable (U_C from half A against U_C from half B, and likewise for S).
+   Report each congruency–switch value as a fraction of the ceiling. The null
+   is the label shuffle of §3.2. Average over the seeded splits and over the
+   symmetric pairing.
+
+Read it as:
+
+| Result | Meaning |
+|---|---|
+| All principal angles near the null (orthogonal), with the ceilings high | Separate subspaces: no shared direction at this noise level |
+| The smallest angle well below the null, the others near it | One shared direction on top of separate ones. This is the likely outcome, given A4's late transfer. Check whether that direction is the overall-activity one (`remove_mean`, §3.3) or the RT one |
+| All angles small relative to the ceilings | One shared code. Not expected, since A4's ceilings sit above the transfers |
+
+Run it with the §3.3 controls. If the shared direction disappears under
+`remove_mean` or RT matching, that is the result: the codes are separate apart
+from a shared overall-activity or slowing component.
+
 ### 4. Trajectories
 
 1. Fit c and s on half A, averaged over 0–1.5 s, the same window as the
@@ -259,13 +332,18 @@ unless it is clean.
 
 | Outcome | Wording |
 |---|---|
+| Subspaces: one shared direction, the rest separate; the shared direction goes with `remove_mean` or RT matching | Congruency and switch type are coded in largely separate subspaces of the same electrodes; what they share is a common overall-activity or slowing component |
+| Subspaces: one shared direction that survives the controls | The two codes share one direction and are otherwise separate |
 | Alignment low early, rising after ~0.6 s; early separation survives `remove_mean` | Congruency and switch type are coded by the same electrodes along separable directions early, and partly converge later; the late shared part tracks RT and is also seen in occipital cortex |
 | Alignment partial throughout | The two codes are partly shared at every time point; each also carries information the other lacks (with A4's within-contrast ceilings above the transfers) |
 | Early separation gone under `remove_mean` | The separation is carried by overall activity differences, not by patterns; report the codes as partly shared and keep the trajectories descriptive |
 
 Do not claim:
 
-- **"Orthogonal subspaces."** The anatomy and A4 already show otherwise.
+- **"Orthogonal subspaces"**, unless §3.4 finds every principal angle at the
+  null with high ceilings. The anatomy and A4 already point the other way.
+- **Independent confirmation of the anatomy.** The geometry uses the same
+  per-electrode effects (§1).
 - **"No overlap early."** That is a null. The positive claim is the change over
   time (as for A4's panel d).
 - **"Low-dimensional coding"** from variance explained in a PCA of betas
@@ -284,14 +362,16 @@ Not yet read in detail. Candidates:
   overall-activity control.
 - `src/analysis/utils/rt_matching.py`: the RT-matched and random trial subsets.
 
-The new computation (axes, cosines, null, ceiling, projections) is small and
+The new computation (axes, cosines, subspaces and their angles, null, ceiling,
+projections) is small and
 takes in-memory arrays. It belongs in a utility next to `cross_decoding.py`,
 with loading, saving and plotting in the entry-point script.
 
 ### 9. Placement
 
-- **F5:** the trajectory panel (§4) and the alignment-over-time panel (§3),
-  with the A4 cross-decoding as the statistic behind them. Whether they join
+- **F5:** the subspace test (§3.4; principal angles or alignment index as a
+  fraction of the ceiling, with the null), the trajectory panel (§4) and the
+  alignment-over-time panel (§3.2), with the A4 cross-decoding beside them. Whether they join
   or replace the current panel d is for the advisors.
 - **Supplement:** the `remove_mean`, RT and occipital versions; the
   early-vs-late axes variant; dPCA if run; the block-split adaptation (§6)
@@ -316,6 +396,9 @@ with loading, saving and plotting in the entry-point script.
   population data. *eLife* 5: e10989.
 - Haufe S, et al. (2014). On the interpretation of weight vectors of linear
   models in multivariate neuroimaging. *NeuroImage* 87: 96–110.
+- Elsayed GF, Lara AH, Kaufman MT, Churchland MM, Cunningham JP (2016).
+  Reorganization between preparatory and movement population responses in
+  motor cortex. *Nature Communications* 7: 13239. (Alignment index.)
 
 ---
 
