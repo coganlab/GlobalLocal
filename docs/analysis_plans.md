@@ -282,24 +282,34 @@ seeded splits.
   averaged over splits (and over the symmetric pairing c_B, s_A). Near 0 means
   separate; near 1 means as shared as noise allows. It is the disattenuated
   correlation of §1, computed per window.
-- **Null (is anything shared?):** shuffle one factor's labels at a time
-  (congruency with switch kept, then switch with congruency kept) and recompute
-  the **raw** cos(c_A, s_B). This is the "no congruency code" (or "no switch
-  code") null, not an orthogonal code. Two rules:
-  - **One permutation per participant**, applied to all of that participant's
-    electrodes. They share trials, so trial-to-trial noise is correlated across
-    them, often along a shared "everything up on this trial" direction. A
-    separate permutation per electrode would make the noise independent, put
-    the null cosines too close to 0, and let shared noise pass as alignment.
-    Each participant gets its own permutation; seed and record them.
-  - **Within cells of the other labels:** permute congruency only among trials
-    with the same switch type, incProp block and switchProp block. That keeps
-    the design (congruency is correlated with incProp by construction, which
-    affects the estimate) and destroys only the congruency effect.
+- **Null (is anything shared?):** a label shuffle, tested on the **raw**
+  cos(c_A, s_B). It is the "no congruency code" (or "no switch code") null,
+  not an orthogonal code. One shuffle, set by three rules:
+
+  | Question | Rule | Why |
+  |---|---|---|
+  | Which labels? | One factor at a time: congruency (switch untouched), then separately switch (congruency untouched) | Shuffling both makes both vectors noise, which is the null for "neither code exists", not the question |
+  | Whose trials share a permutation? | One permutation per participant, applied to all of that participant's electrodes | They share trials, so trial-to-trial noise is correlated across them, often along an "everything up on this trial" direction. A permutation per electrode would make the noise independent, put the null cosines too close to 0, and let shared noise pass as alignment |
+  | Which trials can swap? | Only trials in the same cell of the other labels: same switch type, incProp block and switchProp block | Keeps the design (congruency is correlated with incProp by construction, which affects the estimate) and destroys only the congruency effect |
+
+  One congruency-null iteration: for each participant, group the trials by
+  (switch type, incProp block, switchProp block); permute the congruency labels
+  within each group; apply them to all of that participant's electrodes;
+  recompute c_A and c_B (s_A and s_B stay real); record the raw
+  cos(c_A, s_B). Repeat with recorded seeds, then do the same for switch.
 - **Not one code (is it below the ceiling?):** the normalized ratio against 1,
-  with a bootstrap CI over participants (or electrodes within participants).
-  Do not run the ratio through the shuffle: with one factor shuffled its
-  ceiling is ≈ 0 and the ratio is undefined.
+  with a bootstrap CI: resample participants with replacement, keeping their
+  real labels, and recompute the ratio. The codes stay real, so the ceiling
+  stays well defined.
+
+**Why the shuffle tests the raw cosine, not the ratio.** With congruency
+shuffled, c_A and c_B are independent noise, so the ceiling cos(c_A, c_B) is
+≈ 0 and can be negative. The ratio then comes out huge, unstable or undefined
+(e.g. 0.03 / √(0.01 × 0.40) = 0.47; with cos(c_A, c_B) = −0.02, the square root
+of a negative). Nothing is lost: in the real data the denominator is a fixed
+positive number, so ratio > 0 exactly when the raw cosine > 0. The
+normalization only matters for how much is shared, which is the bootstrap
+test.
 
 "Partly shared" means passing both tests: raw cosine above the shuffle null,
 and normalized ratio below 1. This mirrors A4's "above chance, below the
