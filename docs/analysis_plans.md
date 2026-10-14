@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-13 | **Current, not built.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
+| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-13 | **Current, not built.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
 | [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
@@ -175,25 +175,86 @@ Averaged over the 0–1.5 s window, cos θ is close to the anatomy's
 congruency–switch r. The analysis adds the time course, the null and the
 ceiling.
 
-**Why the cosine, not a correlation.** Pearson r is the cosine of the
-mean-centered vectors. Centering hides a direction both codes share when both
-raise (or both lower) activity across electrodes. Example, four electrodes:
-c = (2, 1, 2, 1) and s = (1, 2, 1, 2) give r = −1 but cos θ = 0.8. A reader
-summing all electrodes sees nearly the same signal for both. Orthogonality is a
-readout question, so use the cosine. The cosine also ignores magnitude, which
-a dot product or Euclidean distance does not.
+**Why the cosine, not a correlation.** The cosine measures direction only:
+dividing by |c| |s| removes magnitude, so congruency having twice switch's
+effect everywhere would still read as the same direction. A dot product or a
+Euclidean distance (Weber's "distance") mixes magnitude in. Pearson r is the
+cosine of the **mean-centered** vectors, and centering changes the answer.
+Worked example, four electrodes:
 
-**The regression version, and when it matches.** With ±0.5 effect coding, a
-regressor split evenly between its levels and uncorrelated with the others has
-OLS beta cov(x, HG) / var(x) = mean(high) − mean(low), the difference of
-condition means. **This design is not balanced:** the proportion manipulation
+```
+c = (2, 1, 2, 1)    s = (1, 2, 1, 2)
+
+cosine:  c · s = 2·1 + 1·2 + 2·1 + 1·2 = 8
+         |c|² = 4 + 1 + 4 + 1 = 10,  |s|² = 10
+         cos θ = 8 / (√10 · √10) = 0.8
+
+Pearson: mean(c) = mean(s) = 1.5
+         c' = c − 1.5 = (+.5, −.5, +.5, −.5)
+         s' = s − 1.5 = (−.5, +.5, −.5, +.5)
+         c' · s' = −0.25 · 4 = −1,  |c'|² = |s'|² = 1
+         r = −1
+```
+
+Split each vector into a **uniform part** (the same on every electrode) and a
+**pattern part** (the deviations, which sum to zero):
+
+```
+c = 1.5·(1, 1, 1, 1) + (+.5, −.5, +.5, −.5)
+s = 1.5·(1, 1, 1, 1) + (−.5, +.5, −.5, +.5)
+```
+
+The uniform parts are identical (both effects raise every electrode by 1.5),
+and the pattern parts are opposite. Because the pattern parts sum to zero, the
+cross terms vanish: c · s = 9 (uniform) − 1 (pattern) = 8, and
+|c|² = 9 + 1 = 10. So the cosine is (9 − 1) / 10, which counts both parts by
+size: each vector is 90 % uniform, so it comes out at +0.8. The correlation is
+−1 / 1, because centering deletes the uniform part and leaves only the
+opposite patterns.
+
+Correlation is not wrong. It answers a narrower question: are the patterns
+similar once any across-the-board shift is set aside? The cosine answers
+whether the two effects move activity in the same direction overall. A
+downstream area reading these electrodes sees everything rise by ~1.5 on both
+incongruent and switch trials, and only a small tilt telling them apart. The
+codes are mostly overlapping, as the cosine says. "Orthogonal subspaces" is a
+claim about the whole activity change, so use the cosine.
+
+For this dataset:
+
+- If congruency and switch barely change mean HG across lPFC, cos θ ≈ the
+  anatomy r (0.23). If both raise HG on average (both make trials harder), the
+  cosine is higher than 0.23.
+- The uniform part is a natural candidate for the shared component: "everything
+  rises on harder trials" is a generic difficulty or slowing signal, which fits
+  A4's RT and occipital results.
+- **Report both.** The cosine gives the overall overlap, the correlation the
+  pattern-only overlap, and the gap between them is how much of the sharing is
+  an across-the-board shift. This is the logic of A4's `remove_mean`, except that
+  `remove_mean` subtracts the mean within each participant, not across the
+  pooled population.
+
+**The regression version, and when it matches.** For one electrode and window,
+with effect coding x_C = +0.5 (incongruent) / −0.5 (congruent) and x_S = +0.5
+(switch) / −0.5 (repeat), fit HG = b0 + b_C·x_C + b_S·x_S + ε. If each regressor
+is split evenly between its levels and the regressors are uncorrelated, OLS
+fits each beta separately as b = cov(x, HG) / var(x):
+
+```
+var(x_C)     = 0.25
+cov(x_C, HG) = 0.5·(0.5·mean_I) − 0.5·(0.5·mean_C) = 0.25·(mean_I − mean_C)
+b_C          = mean_I − mean_C
+```
+
+So the beta is the difference of condition means in HG z units, and stacking
+it across electrodes gives c. **This design is not balanced:** the proportion manipulation
 correlates congruency with incProp and switch type with switchProp. The three
 estimates then differ:
 
 | Estimate | What it is |
 |---|---|
 | Raw mean(incongruent) − mean(congruent), all trials pooled | Weighted toward the blocks with more incongruent trials, so block differences leak in |
-| Regression with main effects and block terms only | A weighted average of the within-block effects, with weights set by OLS, not equal |
+| Regression with main effects and block terms only | A weighted average of the within-block effects, with weights proportional to n_block · p(1 − p), p being the block's proportion of incongruent (or switch) trials (Angrist & Pischke, *Mostly Harmless Econometrics*, ch. 3). Equal only when blocks have the same size and mirror-image proportions (e.g. 25 % / 75 %); check against the design |
 | Saturated regression: congruency × switch × incProp × switchProp with all interactions, effect-coded | The equally weighted average of the within-cell differences, i.e. the definition above (the Type III, unweighted-means logic) |
 
 Use the within-cell differences unless a covariate is added (e.g. RT, §3.3);
@@ -221,8 +282,28 @@ seeded splits.
   averaged over splits (and over the symmetric pairing c_B, s_A). Near 0 means
   separate; near 1 means as shared as noise allows. It is the disattenuated
   correlation of §1, computed per window.
-- **Null:** shuffle the congruency and switch labels within each participant
-  and cell of the other factor, and recompute. This is the orthogonal code.
+- **Null (is anything shared?):** shuffle one factor's labels at a time
+  (congruency with switch kept, then switch with congruency kept) and recompute
+  the **raw** cos(c_A, s_B). This is the "no congruency code" (or "no switch
+  code") null, not an orthogonal code. Two rules:
+  - **One permutation per participant**, applied to all of that participant's
+    electrodes. They share trials, so trial-to-trial noise is correlated across
+    them, often along a shared "everything up on this trial" direction. A
+    separate permutation per electrode would make the noise independent, put
+    the null cosines too close to 0, and let shared noise pass as alignment.
+    Each participant gets its own permutation; seed and record them.
+  - **Within cells of the other labels:** permute congruency only among trials
+    with the same switch type, incProp block and switchProp block. That keeps
+    the design (congruency is correlated with incProp by construction, which
+    affects the estimate) and destroys only the congruency effect.
+- **Not one code (is it below the ceiling?):** the normalized ratio against 1,
+  with a bootstrap CI over participants (or electrodes within participants).
+  Do not run the ratio through the shuffle: with one factor shuffled its
+  ceiling is ≈ 0 and the ratio is undefined.
+
+"Partly shared" means passing both tests: raw cosine above the shuffle null,
+and normalized ratio below 1. This mirrors A4's "above chance, below the
+ceiling".
 
 Report the time course of the alignment with its null band and with the
 windows where both ceilings are reliably positive. Leave windows with a ceiling
@@ -275,9 +356,11 @@ the trial, even if their dominant patterns differ.
    (C → S and S → C), since it is not symmetric.
 6. **Ceiling and null.** The ceiling is the same quantity between halves of one
    variable (U_C from half A against U_C from half B, and likewise for S).
-   Report each congruency–switch value as a fraction of the ceiling. The null
-   is the label shuffle of §3.2. Average over the seeded splits and over the
-   symmetric pairing.
+   Report each congruency–switch value as a fraction of the ceiling. As in
+   §3.2, there are two tests: the **raw** principal angles and alignment index
+   against the label-shuffle null (is anything shared?), and the
+   ceiling-normalized values against 1 with a bootstrap CI (is it not one
+   code?). Average over the seeded splits and over the symmetric pairing.
 
 Read it as:
 
@@ -290,6 +373,124 @@ Read it as:
 Run it with the §3.3 controls. If the shared direction disappears under
 `remove_mean` or RT matching, that is the result: the codes are separate apart
 from a shared overall-activity or slowing component.
+
+#### 3.5 How the subspace test maps onto Weber's analysis
+
+The test is not taken from a single paper. It is **Weber's pipeline with the
+comparison step replaced by standard subspace measures**: principal angles
+(classical linear algebra; Björck & Golub 1973) and the alignment index
+(Elsayed et al. 2016).
+
+| Step | Weber et al. (2023) | Subspace test |
+|---|---|---|
+| 1. Effects per electrode over time | Betas, electrode × time, per variable, within each participant | The same matrices, C and S (electrode × window), pooled across participants, on two trial halves |
+| 2. A subspace per variable | PCA on each beta matrix, 5 PCs (≈97 %) | Uncentered SVD, keeping the k dimensions that replicate across halves |
+| 3. Compare the subspaces | Spearman r of the two PC1 loading vectors | Principal angles between the full k-dimensional subspaces. With k = 1 this is Weber's comparison, the angle between the two PC1s, without the sign problem |
+| 4. Project one into the other | History betas projected onto the context PCs; Euclidean distance between the trajectories | Alignment index: the share of congruency's effect variance that lands in switch's subspace, out of the most possible |
+| 5. Noise | None | Split-half ceiling and label-shuffle null |
+| 6. Behavior | Correlated with switch cost across 14 participants | Dropped |
+
+**What a "subspace" means here.** Column t of C is the electrode pattern of the
+congruency effect in window t. If that pattern is the same throughout the trial
+and only grows and shrinks, every column is a multiple of one vector: C has
+rank 1 and its subspace is one axis. If the pattern changes (one pattern early,
+another late), C needs two or more dimensions. The SVD returns U_C, whose k
+orthonormal columns span the patterns congruency takes.
+
+**Principal angles.** For two k-dimensional subspaces, θ₁ is the smallest
+angle between any vector in one and any vector in the other; θ₂ is the next
+smallest using vectors orthogonal to the first pair; and so on to θ_k. Their
+cosines are the singular values of the k × k matrix U_Cᵀ U_S. A small θ₁ means
+at least one direction is shared; a small θ_k means the subspaces are the same.
+For intuition: two planes through the origin in 3-D always share a line
+(θ₁ = 0), but in ~400 electrode dimensions random low-dimensional subspaces are
+nearly orthogonal, so a small θ₁ means something as long as it beats the
+shuffle null.
+
+**Alignment index.** The numerator, trace(U_Sᵀ C Cᵀ U_S), projects every
+congruency pattern (each column of C) onto the switch subspace and adds up the
+squared lengths: the congruency-effect variance the switch subspace captures.
+It is the normalized form of Weber's "project history into the context
+subspace". The denominator is the most any k-dimensional subspace could
+capture (congruency's own top k). One deviation from Elsayed et al.: they
+compared against random subspaces drawn to match the data's covariance. This
+plan uses the label-shuffle null so the test lines up with A4. Say so in the
+Methods.
+
+**Why two halves.** Noise always makes estimated subspaces look different, so
+even a perfectly shared code would not give an index of 1. The ceiling (the
+same quantity between halves of one variable) measures how far noise alone
+pulls it down.
+
+#### 3.6 Why these choices
+
+**Uncentered SVD, not PCA.** PCA is an SVD after centering each electrode across
+the columns, here the time windows. That subtracts each electrode's
+time-averaged effect, so PCA finds how the code changes over time, not what the
+code is. Example: congruency has a sustained pattern u in every window and a
+second pattern v only late.
+
+```
+columns of C:   early windows: u          late windows: u + v
+PCA (centered):  u is constant across windows → subtracted → subspace ≈ {v}
+SVD (uncentered): subspace ≈ {u, v}
+```
+
+PCA would miss the sustained code. Over 0–1.5 s much of the effect is probably
+sustained, so this is a real risk. (Whether Weber's code centered has not been
+checked; standard PCA does.)
+
+**k by reproducibility, not by "95 % of variance".** Noise adds dimensions, and
+a smooth beta matrix reaches 95 % with few components whatever the signal.
+Keeping only the dimensions found in half A that also capture half B's effects
+better than the shuffle null keeps signal and drops noise.
+
+**Principal angles, not the Spearman r of PC1 loadings.**
+
+- *Sign.* PC1 and −PC1 are equally valid outputs, so the sign of r is
+  arbitrary. In Weber's Fig. 4A, a strongly negative loading correlation is
+  shown as a low-switch-cost example; with one PC's sign flipped the same data
+  read as strongly aligned. A subspace contains both u and −u, so principal
+  angles have no sign to get wrong.
+- *Only PC1, and PC order is fragile.* If both variables use patterns u and v,
+  but congruency weights u slightly more and switch weights v slightly more:
+
+  ```
+  congruency: PC1 = u, PC2 = v        switch: PC1 = v, PC2 = u
+  Spearman r of the PC1s ≈ 0     → reads as "orthogonal"
+  principal angles = 0°, 0°      → identical subspaces
+  ```
+
+  When two components have similar variance, noise alone can swap their
+  order.
+- *Centering and ranks.* Spearman centers, so it has the cosine-vs-correlation
+  problem of §3.1, and ranking discards magnitudes.
+
+With k = 1 the principal angle is arccos |cos(PC1_C, PC1_S)|: Weber's
+comparison with these problems removed.
+
+**Alignment index, not a projection onto the switch axis.** With one axis and
+one window they are the same thing. Projecting c onto the unit switch axis ŝ
+gives c · ŝ = |c| cos θ, and the fraction of congruency's effect captured is
+(c · ŝ)² / |c|² = cos² θ, which is the index for k = 1. The index generalizes
+it in two ways:
+
+- *Normalization.* Raw projection lengths depend on effect size (the same
+  problem as Weber's distance). The index divides by the best any
+  k-dimensional subspace could do, so it runs from 0 to 1.
+- *Weighting by effect.* Principal angles treat every dimension alike: a shared
+  direction carrying 2 % of the congruency effect gives as small a θ₁ as one
+  carrying 80 %. The index weights each direction by how much effect it
+  carries.
+
+| Measure | Question it answers |
+|---|---|
+| Principal angles (θ₁ especially) | Is there **any** direction both codes use? |
+| Alignment index | **How much** of one code's effect lies in the other's subspace? |
+
+Report both. "One shared direction (small θ₁) that carries 15 % of the
+congruency effect (low index)" is more specific than either number alone, and
+it is the kind of partial overlap A4 suggests.
 
 ### 4. Trajectories
 
@@ -417,6 +618,55 @@ with loading, saving and plotting in the entry-point script.
 - Elsayed GF, Lara AH, Kaufman MT, Churchland MM, Cunningham JP (2016).
   Reorganization between preparatory and movement population responses in
   motor cortex. *Nature Communications* 7: 13239. (Alignment index.)
+- Björck Å, Golub GH (1973). Numerical methods for computing angles between
+  linear subspaces. *Mathematics of Computation* 27: 579–594. (Principal
+  angles.)
+
+### 12. Reading list
+
+For understanding the methods, roughly in reading order. If there is only an
+afternoon: Shlens (the PCA/SVD part), the SciPy principal-angles docs, and the
+alignment-index Methods in Elsayed et al. (2016).
+
+**Foundations (dot products, projections, eigenvectors).**
+- 3Blue1Brown, *Essence of Linear Algebra* (YouTube): the dot product, change
+  of basis and eigenvector chapters. Geometric intuition, ~2 hours.
+
+**SVD, and how PCA relates to it.**
+- Shlens J (2014). *A Tutorial on Principal Component Analysis*.
+  arXiv:1404.1100. Start here: derives PCA, then shows it is an SVD of
+  mean-centered data.
+- Steve Brunton's SVD lecture series (YouTube), with chapter 1 of Brunton &
+  Kutz, *Data-Driven Science and Engineering*. What the SVD computes, why it
+  is optimal, and the link to PCA.
+- Stats StackExchange, "Relationship between SVD and PCA. How to use SVD to
+  perform PCA?" (search the title). The top answer is a one-page summary.
+- Strang G, *Introduction to Linear Algebra* (SVD chapter), or MIT
+  OpenCourseWare 18.06. The full textbook treatment.
+
+**Principal angles.**
+- SciPy documentation for `scipy.linalg.subspace_angles`, and Wikipedia,
+  "Angles between flats". The definition, the computation, and the function
+  to use.
+- Björck & Golub (1973), above. The original method; the first few pages give
+  the definition.
+- Gallego JA, et al. (2018). Cortical population activity within a preserved
+  neural manifold underlies multiple motor behaviors. *Nature Communications*.
+  Principal angles applied to neural data.
+
+**Alignment index.**
+- Elsayed et al. (2016), above: the alignment-index figure and its Methods,
+  including how they built the null.
+- Kaufman MT, et al. (2014). Cortical activity in the null space: permitting
+  preparation without movement. *Nature Neuroscience*. Why the subspace
+  activity occupies matters for readout. Optional background.
+
+**Neuroscience context.**
+- Cunningham JP, Yu BM (2014). Dimensionality reduction for large-scale neural
+  recordings. *Nature Neuroscience*. PCA, dPCA and related methods for neural
+  data, and when each fits.
+- Ebitz RB, Hayden BY (2021). The population doctrine in cognitive
+  neuroscience. *Neuron*. The framing Weber cites; useful for the Discussion.
 
 ---
 
