@@ -315,9 +315,30 @@ test.
 and normalized ratio below 1. This mirrors A4's "above chance, below the
 ceiling".
 
-Report the time course of the alignment with its null band and with the
-windows where both ceilings are reliably positive. Leave windows with a ceiling
-near 0 blank, because the ratio is undefined there.
+**How to plot it, so the plot and the stats match.** Plot cosines, not the
+ratio: the same layout as the A4 cross-decoding panel (chance, ceilings,
+transfer). Three lines against time:
+
+| Line | What it is | A4 equivalent |
+|---|---|---|
+| Cross | raw cos(c_A, s_B), averaged with cos(c_B, s_A) | the transfer |
+| Ceiling | √(cos(c_A, c_B) · cos(s_A, s_B)) | the within-contrast ceilings |
+| Null band | 95 % range of the raw cross cosine under the shuffle | chance |
+
+Mark "anything shared" where the cross line is above the null band (shuffle
+test, cluster-corrected over windows as in A4), and "not one code" where the
+bootstrap CI of (ceiling − cross) excludes 0. Grey out windows where the
+ceiling's own CI includes 0, since the codes are not reliable there. The ratio
+is the cross line's height as a fraction of the ceiling's; report it in the
+text as a summary (e.g. averaged over the windows where both ceilings hold,
+with its bootstrap CI).
+
+Alternative, if a single normalized line is wanted: plot the ratio, and put
+the null in ratio units by dividing each shuffled raw cosine by the real-data
+ceiling of that window (a fixed positive number), with 1 as a reference line.
+The cosine version is preferred: it shows where the ceiling is reliable, which
+a ratio hides and blows up where the ceiling is small, and it matches the A4
+panel beside it.
 
 The sign is fixed by construction (incongruent and switch, the harder
 conditions, are the positive side of each axis), as in the A4 transfer pairing.
@@ -506,16 +527,45 @@ it is the kind of partial overlap A4 suggests.
 
 1. Fit c and s on half A, averaged over 0–1.5 s, the same window as the
    anatomy.
-2. Make them an orthonormal pair for display: x = c / |c|, y = the part of s
-   orthogonal to c, normalized. State the order in the caption.
-3. On half B, average HG for the four cells (congruent/incongruent ×
-   repeat/switch) at each time point, and project onto x and y.
+2. Make them an orthonormal pair for display (Gram–Schmidt):
+
+   ```
+   x      = c / |c|                congruency axis, unit length
+   s_perp = s − (s · x) · x        remove the part of s along x
+   y      = s_perp / |s_perp|      the rest of s, unit length
+   ```
+
+   c and s are not perpendicular (cosine ~0.2–0.5), but a plot's axes are.
+   Projecting onto ĉ and ŝ directly would count the shared part on both axes
+   and distort distances. Toy example: c = (1, 0), s = (0.6, 0.8) gives
+   x = (1, 0), y = (0, 1), and the switch effect sits at (0.6, 0.8): mostly
+   along y, partly along x. **The order matters:** with c first, x is pure
+   congruency and y is "switch beyond what it shares with congruency". State
+   the order in the caption.
+3. On half B, average HG for the four cells of the 2 × 2 (incongruent-switch,
+   incongruent-repeat, congruent-switch, congruent-repeat; proportion blocks
+   weighted equally) at each time point. **Subtract the mean of the four cells
+   at each time point**, so the evoked response shared by all four (which also
+   projects onto x and y, especially if c has a uniform component) does not
+   move all the trajectories together. Then project each cell's electrode
+   vector p(t): x-coordinate = p(t) · x, y-coordinate = p(t) · y.
 4. Plot the four trajectories in the x–y plane with time as the path, plus
-   x(t) and y(t) traces underneath.
+   x(t) and y(t) traces underneath. The uncentered version can go in the
+   supplement.
+5. Report the fraction of the centered cells' variance that falls in the
+   plane span{c, s}, so a reader knows the 2-D view is not a thin slice of the
+   condition-dependent activity (as Kobak et al. 2016 report for dPCA).
 
 Incongruent and congruent separate along x, and switch and repeat along y.
 Wherever the codes are shared, switch conditions also move along x. That shows
 the partial overlap directly.
+
+**Is this a subspace?** Yes. Each axis is a 1-D subspace of the electrode
+space, and span{c, s} is a 2-D one (Mante et al.'s task-relevant axes); the
+trajectories are the activity projected into it. It is the k = 1 case of §3.4,
+used for display, not the test. If §3.4 finds a variable needs k = 2 (an early
+and a late pattern), one time-averaged axis blends them, and the early-vs-late
+variant below covers that.
 
 Variant (supplement): fixed axes from an early window (~0.1–0.5 s, both
 decodable, no transfer) against a late one (~0.6–1.4 s), to show the
