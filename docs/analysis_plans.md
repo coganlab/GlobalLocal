@@ -175,12 +175,30 @@ Averaged over the 0–1.5 s window, cos θ is close to the anatomy's
 congruency–switch r. The analysis adds the time course, the null and the
 ceiling.
 
-The regression version is equivalent: regress each electrode's HG on
-effect-coded (±0.5) congruency and switch type, with the proportion blocks as
-nuisance terms, and use the two beta vectors. With balanced cells it gives the
-same axes. Use the regression only if covariates are added (e.g. RT, §3.3).
-Effect coding matters: with dummy coding and interactions in the model, each
-main-effect beta becomes the effect in the reference block only.
+**Why the cosine, not a correlation.** Pearson r is the cosine of the
+mean-centered vectors. Centering hides a direction both codes share when both
+raise (or both lower) activity across electrodes. Example, four electrodes:
+c = (2, 1, 2, 1) and s = (1, 2, 1, 2) give r = −1 but cos θ = 0.8. A reader
+summing all electrodes sees nearly the same signal for both. Orthogonality is a
+readout question, so use the cosine. The cosine also ignores magnitude, which
+a dot product or Euclidean distance does not.
+
+**The regression version, and when it matches.** With ±0.5 effect coding, a
+regressor split evenly between its levels and uncorrelated with the others has
+OLS beta cov(x, HG) / var(x) = mean(high) − mean(low), the difference of
+condition means. **This design is not balanced:** the proportion manipulation
+correlates congruency with incProp and switch type with switchProp. The three
+estimates then differ:
+
+| Estimate | What it is |
+|---|---|
+| Raw mean(incongruent) − mean(congruent), all trials pooled | Weighted toward the blocks with more incongruent trials, so block differences leak in |
+| Regression with main effects and block terms only | A weighted average of the within-block effects, with weights set by OLS, not equal |
+| Saturated regression: congruency × switch × incProp × switchProp with all interactions, effect-coded | The equally weighted average of the within-cell differences, i.e. the definition above (the Type III, unweighted-means logic) |
+
+Use the within-cell differences unless a covariate is added (e.g. RT, §3.3);
+then use the saturated, effect-coded regression. With dummy coding, each
+main-effect beta becomes the effect in the reference cell only.
 
 **Why not the decoder hyperplanes.** A decoder's weights point where the signal
 is least contaminated by noise, not where the variable moves activity (Haufe et
