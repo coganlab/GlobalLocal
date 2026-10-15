@@ -1,9 +1,13 @@
 """Window-mean decoding and the matched, membership-permutation group comparison."""
+import json
 import os
+from types import SimpleNamespace
 
 import numpy as np
+import pytest
 import mne
 
+from dcc_scripts.decoding.window_mean_groups_dcc import run_window_mean_group_comparison
 from src.analysis.decoding.window_mean_decoding import (
     compare_electrode_groups, window_mean_dataset)
 from src.analysis.decoding.plots.group_bars import plot_group_accuracy_bars
@@ -80,3 +84,68 @@ def test_nested_null_keeps_the_superset_whole():
                                    n_perm=20, n_splits=3, n_repeats=2)
     assert len(res['null'][('sig', 'all')]) == 20
     assert res['group_sizes'] == {'sig': 6, 'all': 14}
+
+
+def test_unmatched_decodes_each_group_whole(tmp_path):
+    data, channels, groups = _datasets()
+    res = compare_electrode_groups(data, channels, groups, match_electrodes=False, n_perm=20,
+                                   n_splits=3, n_repeats=2)
+    s = res['summary'].set_index('group')
+    assert res['n_match'] is None
+    assert s['n_decoded'].to_dict() == {'sig': 6, 'nonsig': 8, 'all': 14}
+    assert s.loc['sig', 'mean'] > 0.75 and s.loc['nonsig', 'mean'] < 0.62
+    t = res['tests'].set_index(['group_1', 'group_2'])
+    # no permutation reaches sig's lead: the smallest two-sided p
+    assert t.loc[('sig', 'nonsig'), 'p'] == pytest.approx(2 / 21)
+    paths = plot_group_accuracy_bars(res, str(tmp_path / 'bars'))
+    assert all(os.path.exists(p) for p in paths)
+
+
+def test_unmatched_null_carries_the_size_difference():
+    # every channel carries the class, so the 9-electrode group wins on size
+    # alone; the permutation deals groups of 3 and 9 too, so its null is centred
+    # below zero and the difference is not significant
+    data, channels, _ = _datasets(n_sig=12, n_non=0, effect=0.3, seed=5)
+    groups = {'small': channels[:3], 'large': channels[3:]}
+    res = compare_electrode_groups(data, channels, groups, match_electrodes=False, n_perm=40,
+                                   n_splits=3, n_repeats=2)
+    t = res['tests'].iloc[0]
+    assert res['null'][('small', 'large')].mean() < -0.02
+    assert t['difference'] < -0.02 and t['p'] > 0.05
+
+
+def test_n_match_needs_matching():
+    data, channels, groups = _datasets(n_boot=1)
+    with pytest.raises(ValueError, match='match_electrodes'):
+        compare_electrode_groups(data, channels, groups, n_match=4, match_electrodes=False)
+
+
+def test_dcc_run_unmatched_writes_its_own_tag(tmp_path):
+    mne.set_log_level('ERROR')
+    rng = np.random.default_rng(0)
+    chans = [f'CH{i}' for i in range(5)]
+
+    def ep(shift):
+        d = rng.normal(size=(20, 5, 30))
+        d[:, :3, 10:] += shift                    # CH0-2 carry the condition
+        return mne.EpochsArray(d, mne.create_info(chans, 100., 'eeg'), tmin=-0.1)
+
+    subs = {'sub1': {'Stimulus_c': {'HG_ev1_power_rescaled': ep(0.0)},
+                     'Stimulus_i': {'HG_ev1_power_rescaled': ep(1.0)}}}
+    args = SimpleNamespace(
+        condition_label='congruency', window_mean_tmin=0.0, window_mean_tmax=0.19,
+        window_mean_bootstraps=2, window_mean_n_perm=4, window_mean_n_match=None,
+        window_mean_match_electrodes=False, random_state=0, subjects=['sub1'], chans_axs=1,
+        time_axs=-1, balance_method='subsample', balance_strata=True, n_jobs=1,
+        clf_model=None, clf_model_str='lda', explained_variance=0.9, n_splits=3, n_repeats=1,
+        epochs_root_file='synthetic')
+    run_window_mean_group_comparison(
+        args, ['lpfc'], ['Stimulus_c', 'Stimulus_i'],
+        {'c_vs_i': [['Stimulus_c'], ['Stimulus_i']]}, {'lpfc': {'sub1': chans}},
+        {'lpfc': {'sub1': chans[:3]}}, subs, str(tmp_path))
+    out = tmp_path / 'window_mean_groups' / 'congruency_0to0.19s_2bts_4perm_seed0_unmatched'
+    out = out / 'c_vs_i' / 'lpfc'
+    params = json.loads((out / 'params.json').read_text())
+    assert params['match_electrodes'] is False and params['n_match'] is None
+    assert params['group_sizes'] == {'sig': 3, 'nonsig': 2, 'all': 5}
+    assert (out / 'group_bars.png').exists()

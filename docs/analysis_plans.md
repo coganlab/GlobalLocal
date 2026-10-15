@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-15 | **Current; §3.1-3.4 and §4 built (2026-10-15), not yet run on real data.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
+| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-15 | **Current; §3.1-3.4 and §4 built (2026-10-15); §3.1-3.3 run on real data, §3.4 and §4 not yet.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
 | [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
@@ -46,8 +46,10 @@ the A4 cross-decoding*
 **Status:** plan, 2026-10-13. §3.1-3.3 (coding axes, cosine, null, ceiling,
 bootstrap, `remove_mean`, RT and region controls), the subspace test (§3.4)
 and the trajectories (§4, with the early-vs-late variant) built 2026-10-15, in
-one job; not yet run on real data (§8; runbook [`coding_axes.md`](coding_axes.md);
-the math worked through in [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md)).
+one job (§8; runbook [`coding_axes.md`](coding_axes.md); the math worked
+through in [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md)).
+§3.1-3.3 ran on real data on 2026-10-15 ([`coding_axes.md`](coding_axes.md)
+§10); §3.4 and §4 were added after that run and have not run on real data.
 Not built: the lPFC-subsampled control, §5 and §6. The single-window map-level
 cosine, `map_reliability(method='cosine')` (2026-10-14), is described in
 [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5. Companion to F5 in

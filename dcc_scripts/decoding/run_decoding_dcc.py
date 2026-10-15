@@ -66,6 +66,15 @@ ACC_TRIALS_ONLY = True
 # Parallel processing
 N_JOBS = int(os.environ.get('N_JOBS', os.environ.get('SLURM_CPUS_PER_TASK', 5)))
 
+
+def _env_bool(name, default):
+    """A boolean setting from the environment ('1'/'true'/'yes'/'on'), else default."""
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
 # DECODING PARAMETERS
 # First, choose your classifier
 MODEL_CHOICE = 'LDA'  # Options: 'LDA', 'SVC'
@@ -135,7 +144,9 @@ PERMUTATION_TYPE = 'independent'
 # plotting
 SINGLE_COLUMN = True
 SHOW_LEGEND = True
-RUN_VISUALIZATION_DEBUG = False # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
+# Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
+# Memory-heavy; a launcher can turn it off with RUN_VISUALIZATION_DEBUG=0.
+RUN_VISUALIZATION_DEBUG = _env_bool('RUN_VISUALIZATION_DEBUG', True)
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
 CONDITION_NAME = os.environ.get('CONDITION_NAME')
@@ -205,6 +216,7 @@ EPOCHS_ROOT_FILE = os.environ.get(
 
 ROIS_DICT = {
      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
 }
 
 # A launcher can override the ROIs without editing this file: ROIS=lpfc,occ.
@@ -231,13 +243,6 @@ ELECTRODES = 'all'
 # script can turn the split on without editing this file (the hardcoded values
 # are the defaults). The dedicated launcher
 # ``submit_decoding_with_electrode_definition_split_dcc.sh`` sets these.
-def _env_bool(name, default):
-    val = os.environ.get(name)
-    if val is None:
-        return default
-    return val.strip().lower() in ('1', 'true', 'yes', 'on')
-
-
 ELECTRODE_DEFINITION_SPLIT = _env_bool('ELECTRODE_DEFINITION_SPLIT', False)
 ELECTRODE_DEFINITION_SPLIT_FRAC = float(
     os.environ.get('ELECTRODE_DEFINITION_SPLIT_FRAC', 0.5))   # fraction of trials used to define electrodes
@@ -375,7 +380,8 @@ FEATURE_MODE = os.environ.get('FEATURE_MODE', 'channels_x_time')
 # --- Window-mean decoding in sig / nonsig / all electrodes (docs/decoding.md §3.6) ---
 # Replaces the battery: each electrode's HG averaged over WINDOW_MEAN_TMIN..TMAX
 # (s) is one feature, every group is decoded at the smallest group's size (or
-# WINDOW_MEAN_N_MATCH), and each pair of groups gets a membership-permutation
+# WINDOW_MEAN_N_MATCH; WINDOW_MEAN_MATCH_ELECTRODES=false decodes each group on
+# all its electrodes instead), and each pair of groups gets a membership-permutation
 # test (WINDOW_MEAN_N_PERM permutations, Holm across pairs). WINDOW_MEAN_BOOTSTRAPS
 # pseudo-trial draws; they are cheap here, so more than BOOTSTRAPS.
 WINDOW_MEAN_GROUPS = _env_bool('WINDOW_MEAN_GROUPS', False)
@@ -385,6 +391,7 @@ WINDOW_MEAN_BOOTSTRAPS = int(os.environ.get('WINDOW_MEAN_BOOTSTRAPS', 20))
 WINDOW_MEAN_N_PERM = int(os.environ.get('WINDOW_MEAN_N_PERM', 1000))
 WINDOW_MEAN_N_MATCH = (int(os.environ['WINDOW_MEAN_N_MATCH'])
                        if os.environ.get('WINDOW_MEAN_N_MATCH') else None)
+WINDOW_MEAN_MATCH_ELECTRODES = _env_bool('WINDOW_MEAN_MATCH_ELECTRODES', True)
 
 # --- Electrode sets from a score-selection file (docs/decoding.md §3.7) ---------
 # score_electrode_selection_dcc.py's score_selection.json: the battery runs once
@@ -513,6 +520,7 @@ def run_analysis():
         window_mean_bootstraps=WINDOW_MEAN_BOOTSTRAPS,
         window_mean_n_perm=WINDOW_MEAN_N_PERM,
         window_mean_n_match=WINDOW_MEAN_N_MATCH,
+        window_mean_match_electrodes=WINDOW_MEAN_MATCH_ELECTRODES,
         electrode_sets_json=ELECTRODE_SETS_JSON,
         electrode_sets=ELECTRODE_SETS,
         # cluster_tails=CLUSTER_TAILS,
@@ -564,7 +572,9 @@ def run_analysis():
     print(f"Feature mode:                  {FEATURE_MODE}")
     print(f"Window-mean group comparison:  {WINDOW_MEAN_GROUPS}"
           + (f" ({WINDOW_MEAN_TMIN}-{WINDOW_MEAN_TMAX} s, {WINDOW_MEAN_BOOTSTRAPS} bootstraps, "
-             f"{WINDOW_MEAN_N_PERM} permutations, n_match={WINDOW_MEAN_N_MATCH or 'smallest group'})"
+             f"{WINDOW_MEAN_N_PERM} permutations, "
+             + (f"n_match={WINDOW_MEAN_N_MATCH or 'smallest group'})" if WINDOW_MEAN_MATCH_ELECTRODES
+                else "unmatched: each group on all its electrodes)")
              if WINDOW_MEAN_GROUPS else ""))
     print(f"Score-selected electrode sets: {ELECTRODE_SETS_JSON or 'off'}"
           + (f" (sets: {ELECTRODE_SETS or 'all'})" if ELECTRODE_SETS_JSON else ""))

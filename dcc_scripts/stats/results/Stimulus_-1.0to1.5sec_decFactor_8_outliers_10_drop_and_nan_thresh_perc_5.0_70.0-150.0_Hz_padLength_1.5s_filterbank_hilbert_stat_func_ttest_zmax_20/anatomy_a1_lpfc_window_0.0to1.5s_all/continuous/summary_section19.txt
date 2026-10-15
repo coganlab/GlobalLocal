@@ -89,7 +89,7 @@
     responsiveness tertile: middle               r = +0.131  p = 0.0046  (123 electrodes, 15 participants)   [descriptive]
     responsiveness tertile: high                 r = +0.084  p = 0.0591  (128 electrodes, 16 participants)   [descriptive]
     leave one participant out: r +0.081 to +0.113, p 0.000999 to 0.004
-  FIGURE 5 (height) LWPC vs LWPS, ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_brain_centroids.csv
+  FIGURE 5 (height) LWPC vs LWPS, ELECTRODES AS THE UNIT — fig5_height.png, fig5_height.pdf, fig5_height_points.csv, fig5_height_centroids.csv, fig5_height_balance.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
   bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
   brain: fig5_height_brain.png
   brain ventral  lh centroid MNI (-41.4, +27.6, +1.7) mm  (88 electrodes, 13 participants)
@@ -99,24 +99,26 @@
   brain dorsal   lh centroid MNI (-23.2, +24.3, +52.5) mm  (72 electrodes, 13 participants)
   brain dorsal   rh centroid MNI (+25.1, +27.5, +51.0) mm  (61 electrodes, 10 participants)
   b  LWPC vs LWPS r = +0.097  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
-  c  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.223, +0.148] (electrode bootstrap; 132 electrodes, 19 participants)
-  c  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.234, +0.107] (electrode bootstrap; 132 electrodes, 18 participants)
-  c  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.492, -0.178] (electrode bootstrap; 133 electrodes, 19 participants)
-  d  ventral  adjusted LWPC − LWPS -0.037 ± 0.096 SEM (133 electrodes)
-  d  middle   adjusted LWPC − LWPS -0.068 ± 0.088 SEM (132 electrodes)
-  d  dorsal   adjusted LWPC − LWPS -0.336 ± 0.084 SEM (133 electrodes)
-  d  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
-  FIGURE 5 (height) LWPC vs LWPS, PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_brain_centroids.csv
+  b  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.223, +0.148] (electrode bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.234, +0.107] (electrode bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.492, -0.178] (electrode bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted LWPC − LWPS -0.037 ± 0.096 SEM (133 electrodes)
+  table middle   adjusted LWPC − LWPS -0.068 ± 0.088 SEM (132 electrodes)
+  table dorsal   adjusted LWPC − LWPS -0.336 ± 0.084 SEM (133 electrodes)
+  c  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
+  c  line through the 398 electrodes: -0.00770/mm
+  FIGURE 5 (height) LWPC vs LWPS, PARTICIPANTS AS THE UNIT — fig5_height_participants.png, fig5_height_participants.pdf, fig5_height_points.csv, fig5_height_participants_centroids.csv, fig5_height_participants_balance.csv, fig5_height_balance_by_participant.csv, fig5_height_partials.csv, fig5_height_brain_centroids.csv
   bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
   b  LWPC vs LWPS r = +0.097  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
-  c  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.193, +0.119] (participant bootstrap; 132 electrodes, 19 participants)
-  c  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.258, +0.058] (participant bootstrap; 132 electrodes, 18 participants)
-  c  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.487, -0.201] (participant bootstrap; 133 electrodes, 19 participants)
-  d  ventral  adjusted LWPC − LWPS -0.151 ± 0.085 SEM (20 participants)
-  d  middle   adjusted LWPC − LWPS -0.141 ± 0.134 SEM (18 participants)
-  d  dorsal   adjusted LWPC − LWPS -0.375 ± 0.121 SEM (19 participants)
-  d  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
-  FIGURE 5 (height) congruency vs switch, ELECTRODES AS THE UNIT — fig5_height_main_effects.png, fig5_height_main_effects.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_centroids.csv, fig5_height_main_effects_balance.csv, fig5_height_main_effects_brain_centroids.csv
+  b  ventral  centroid LWPC +0.016, LWPS +0.052; balance -0.036 [-0.193, +0.119] (participant bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid LWPC +0.220, LWPS +0.289; balance -0.068 [-0.258, +0.058] (participant bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid LWPC -0.140, LWPS +0.197; balance -0.337 [-0.487, -0.201] (participant bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted LWPC − LWPS -0.151 ± 0.085 SEM (20 participants)
+  table middle   adjusted LWPC − LWPS -0.141 ± 0.134 SEM (18 participants)
+  table dorsal   adjusted LWPC − LWPS -0.375 ± 0.121 SEM (19 participants)
+  c  mni_z slope -0.00770/mm (p = 0.0074); the plotted balance gives -0.00770/mm
+  c  line through the 398 electrodes: -0.00770/mm
+  FIGURE 5 (height) congruency vs switch, ELECTRODES AS THE UNIT — fig5_height_main_effects.png, fig5_height_main_effects.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_centroids.csv, fig5_height_main_effects_balance.csv, fig5_height_main_effects_partials.csv, fig5_height_main_effects_brain_centroids.csv
   bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
   brain ventral  lh centroid MNI (-41.4, +27.6, +1.7) mm  (88 electrodes, 13 participants)
   brain ventral  rh centroid MNI (+43.3, +21.8, +5.8) mm  (44 electrodes, 11 participants)
@@ -125,22 +127,24 @@
   brain dorsal   lh centroid MNI (-23.2, +24.3, +52.5) mm  (72 electrodes, 13 participants)
   brain dorsal   rh centroid MNI (+25.1, +27.5, +51.0) mm  (61 electrodes, 10 participants)
   b  congruency vs switch r = +0.224  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation_main_effects.json]
-  c  ventral  centroid congruency +0.312, switch +0.183; balance +0.129 [-0.042, +0.286] (electrode bootstrap; 132 electrodes, 19 participants)
-  c  middle   centroid congruency +0.400, switch +0.373; balance +0.027 [-0.123, +0.184] (electrode bootstrap; 132 electrodes, 18 participants)
-  c  dorsal   centroid congruency +0.311, switch +0.337; balance -0.026 [-0.197, +0.146] (electrode bootstrap; 133 electrodes, 19 participants)
-  d  ventral  adjusted congruency − switch +0.130 ± 0.085 SEM (133 electrodes)
-  d  middle   adjusted congruency − switch +0.024 ± 0.080 SEM (132 electrodes)
-  d  dorsal   adjusted congruency − switch -0.027 ± 0.088 SEM (133 electrodes)
-  d  mni_z slope -0.00371/mm (p = 0.15); the plotted balance gives -0.00371/mm
-  FIGURE 5 (height) congruency vs switch, PARTICIPANTS AS THE UNIT — fig5_height_main_effects_participants.png, fig5_height_main_effects_participants.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_participants_centroids.csv, fig5_height_main_effects_participants_balance.csv, fig5_height_main_effects_balance_by_participant.csv, fig5_height_main_effects_brain_centroids.csv
+  b  ventral  centroid congruency +0.312, switch +0.183; balance +0.129 [-0.042, +0.286] (electrode bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid congruency +0.400, switch +0.373; balance +0.027 [-0.123, +0.184] (electrode bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid congruency +0.311, switch +0.337; balance -0.026 [-0.197, +0.146] (electrode bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted congruency − switch +0.130 ± 0.085 SEM (133 electrodes)
+  table middle   adjusted congruency − switch +0.024 ± 0.080 SEM (132 electrodes)
+  table dorsal   adjusted congruency − switch -0.027 ± 0.088 SEM (133 electrodes)
+  c  mni_z slope -0.00371/mm (p = 0.15); the plotted balance gives -0.00371/mm
+  c  line through the 398 electrodes: -0.00371/mm
+  FIGURE 5 (height) congruency vs switch, PARTICIPANTS AS THE UNIT — fig5_height_main_effects_participants.png, fig5_height_main_effects_participants.pdf, fig5_height_main_effects_points.csv, fig5_height_main_effects_participants_centroids.csv, fig5_height_main_effects_participants_balance.csv, fig5_height_main_effects_balance_by_participant.csv, fig5_height_main_effects_partials.csv, fig5_height_main_effects_brain_centroids.csv
   bands: tertiles of mni_z at 16.3 and 38.1 mm; 397 of 397 points have coordinates
   b  congruency vs switch r = +0.224  p = 0.0001  [/hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_main_effects/correlation_main_effects.json]
-  c  ventral  centroid congruency +0.312, switch +0.183; balance +0.129 [+0.010, +0.272] (participant bootstrap; 132 electrodes, 19 participants)
-  c  middle   centroid congruency +0.400, switch +0.373; balance +0.027 [-0.122, +0.175] (participant bootstrap; 132 electrodes, 18 participants)
-  c  dorsal   centroid congruency +0.311, switch +0.337; balance -0.026 [-0.224, +0.162] (participant bootstrap; 133 electrodes, 19 participants)
-  d  ventral  adjusted congruency − switch +0.224 ± 0.125 SEM (20 participants)
-  d  middle   adjusted congruency − switch +0.028 ± 0.126 SEM (18 participants)
-  d  dorsal   adjusted congruency − switch -0.027 ± 0.166 SEM (19 participants)
-  d  mni_z slope -0.00371/mm (p = 0.15); the plotted balance gives -0.00371/mm
+  b  ventral  centroid congruency +0.312, switch +0.183; balance +0.129 [+0.010, +0.272] (participant bootstrap; 132 electrodes, 19 participants)
+  b  middle   centroid congruency +0.400, switch +0.373; balance +0.027 [-0.122, +0.175] (participant bootstrap; 132 electrodes, 18 participants)
+  b  dorsal   centroid congruency +0.311, switch +0.337; balance -0.026 [-0.224, +0.162] (participant bootstrap; 133 electrodes, 19 participants)
+  table ventral  adjusted congruency − switch +0.224 ± 0.125 SEM (20 participants)
+  table middle   adjusted congruency − switch +0.028 ± 0.126 SEM (18 participants)
+  table dorsal   adjusted congruency − switch -0.027 ± 0.166 SEM (19 participants)
+  c  mni_z slope -0.00371/mm (p = 0.15); the plotted balance gives -0.00371/mm
+  c  line through the 398 electrodes: -0.00371/mm
   §19 shared splits (shared by participant): /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_scatter_only_splits0/long_df.csv, rescored with 200 splits -> per_split_shared.csv
   §19 RT coupling: /hpc/home/jz421/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_lpfc_proportion_cohens_d_fdr_bh_rt_adjusted_scatter_only_splits200/rt_adjustment_slopes.csv

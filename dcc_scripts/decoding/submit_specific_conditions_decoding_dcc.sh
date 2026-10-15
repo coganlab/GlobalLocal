@@ -31,7 +31,7 @@ EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_decFactor_8_outliers
 #   channels_x_time  a trial; its channels x time points are the features
 #   channels         a trial at one time point; its channels are the features.
 #                    File and job names get _feat-channels.
-FEATURE_MODE="${FEATURE_MODE:-channels_x_time}"
+FEATURE_MODE="${FEATURE_MODE:-channels}"
 case "$FEATURE_MODE" in
     channels_x_time) FEATURE_TAG="" ;;
     channels) FEATURE_TAG="_feat-channels" ;;
