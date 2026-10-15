@@ -16,8 +16,8 @@ else
         stimulus_lwps_block_balanced_conditions
         stimulus_congruency_by_switch_prop_block_balanced_conditions
         stimulus_switch_type_by_inc_prop_block_balanced_conditions
-        # stimulus_congruency_conditions
-        # stimulus_switch_type_conditions
+        stimulus_congruency_conditions
+        stimulus_switch_type_conditions
     )
 fi
 
