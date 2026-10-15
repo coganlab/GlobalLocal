@@ -74,6 +74,13 @@ TWO OPTIONS (independent, combinable; both default to the original behaviour):
                                        the strongest-tuning instant regardless of
                                        how long it lasts. For scalar (single-bin)
                                        HG it reduces to the two-sample t.
+                       'mean_diff'  -> difference of mean window-mean HG, in HG
+                                       units, not standardised. The coding axis
+                                       of the subspace plan (docs/analysis_plans.md,
+                                       subspace plan §3.1): unlike d it does not
+                                       divide each electrode by its own SD, so
+                                       comparing the effects as a vector across
+                                       electrodes does not re-weight them.
 """
 
 import copy
@@ -337,6 +344,15 @@ def _cohens_d(a, b):
     return np.nan if sp == 0 else (a.mean() - b.mean()) / sp
 
 
+def _mean_diff(a, b):
+    """Unstandardised mean difference (a - b), in HG units. NaN if too few trials
+    (the same < 2 rule as `_cohens_d`, so both measures drop the same electrodes)."""
+    a = np.asarray(a, float); b = np.asarray(b, float)
+    if len(a) < 2 or len(b) < 2:
+        return np.nan
+    return a.mean() - b.mean()
+
+
 # The cluster-mass effect can be computed two ways, selected by this toggle:
 #   USE_TIME_PERM_CLUSTER = False (default) -> deterministic parametric mass
 #       (per-bin t thresholded at the alpha t-critical). Fast, dependency-free,
@@ -454,20 +470,24 @@ def _stack(vals):
     return np.vstack([np.asarray(v, float) for v in vals])
 
 
+SCALAR_EFFECT_MEASURES = ('cohens_d', 'mean_diff')   # need window-mean HG
+
+
 def _require_scalar_hg(arr, effect_measure):
-    """Guard: 'cohens_d' is only defined on scalar (window-mean) HG.
+    """Guard: 'cohens_d' and 'mean_diff' are only defined on scalar (window-mean) HG.
 
     `_cohens_d` / `_interaction_cohens_d` standardise a per-time-bin mean by a
-    SCALAR pooled SD, so handing them time courses returns a length-T vector
-    rather than one number. That propagates silently into `compute_sensitivities`
-    as an array-valued sensitivity and corrupts the correlation instead of
-    failing. Assemble the table with window means for 'cohens_d', or use
-    'cluster' / 'peak_t' for time courses.
+    SCALAR pooled SD, and the mean differences take a per-time-bin mean, so
+    handing them time courses returns a length-T vector rather than one number.
+    That propagates silently into `compute_sensitivities` as an array-valued
+    sensitivity and corrupts the correlation instead of failing. Assemble the
+    table with window means for these, or use 'cluster' / 'peak_t' for time
+    courses.
     """
-    if effect_measure == 'cohens_d' and np.ndim(arr) > 1 and arr.shape[1] > 1:
+    if effect_measure in SCALAR_EFFECT_MEASURES and np.ndim(arr) > 1 and arr.shape[1] > 1:
         raise ValueError(
-            "effect_measure='cohens_d' requires scalar (window-mean) hg, but the "
-            f"table holds time courses of length {arr.shape[1]}. Either build the "
+            f"effect_measure={effect_measure!r} requires scalar (window-mean) hg, but "
+            f"the table holds time courses of length {arr.shape[1]}. Either build the "
             "long table with window means, or use effect_measure='cluster' / "
             "'peak_t', which are defined on time courses.")
 
@@ -483,8 +503,10 @@ def _effect_from_arrays(hg, lab, effect_measure, alpha):
         return _peak_t_effect(pos, neg)
     if effect_measure == 'cohens_d':
         return _cohens_d(pos, neg)
-    raise ValueError("effect_measure must be 'cohens_d', 'cluster' or 'peak_t'; "
-                     f"got {effect_measure!r}")
+    if effect_measure == 'mean_diff':
+        return _mean_diff(pos, neg)
+    raise ValueError("effect_measure must be 'cohens_d', 'mean_diff', 'cluster' or "
+                     f"'peak_t'; got {effect_measure!r}")
 
 
 def _contrast_effect(frame, labcol, effect_measure, alpha):
@@ -549,6 +571,17 @@ def _interaction_cohens_d(cells, w=None):
     return np.nan if sp == 0 else _combine(means, w) / sp
 
 
+def _interaction_mean_diff(cells, w=None):
+    """Cell-weighted contrast of the four cell means, unstandardised (HG units).
+    With `w=W_MAIN` it is the equal-weight average of the two within-`mod`
+    differences, the coding-axis entry of the subspace plan §3.1. NaN if any cell
+    has < 2 trials, as for `_interaction_cohens_d`."""
+    st = _cell_stats(cells)
+    if st is None:
+        return np.nan
+    return float(_combine(st[0], W_INTERACTION if w is None else w))
+
+
 def _cell_weighted_t(cells, w):
     """Per-bin t of the cell-weighted contrast; (tvals, total_n) or (None, None)."""
     st = _cell_stats(cells)
@@ -603,8 +636,10 @@ def _interaction_effect(hg, cond, mod, effect_measure, alpha, w=None):
         return _interaction_peak_t(cells, w)
     if effect_measure == 'cohens_d':
         return _interaction_cohens_d(cells, w)
-    raise ValueError("effect_measure must be 'cohens_d', 'cluster' or 'peak_t'; "
-                     f"got {effect_measure!r}")
+    if effect_measure == 'mean_diff':
+        return _interaction_mean_diff(cells, w)
+    raise ValueError("effect_measure must be 'cohens_d', 'mean_diff', 'cluster' or "
+                     f"'peak_t'; got {effect_measure!r}")
 
 
 # A MAIN-effect contrast (contrast_mode='condition') scored by pooling all
@@ -820,6 +855,160 @@ def compute_sensitivities_per_split(df, n_splits=200, seed=0,
     out = pd.DataFrame(rows)
     if shared_split:
         out['split_scheme'] = 'participant'
+    return out
+
+
+def window_means(hg, times, window_size, step_size):
+    """Each row's mean HG in sliding windows, and the window grid.
+
+    `hg` holds equal-length 1-D time courses, one per row (the `hg` column of a
+    long table built with ``assemble_long_df(..., time_courses=True)``), and
+    `times` the time (s) of each of their samples. Windows are `window_size`
+    samples long and start every `step_size` samples from ``times[0]``; a
+    remainder shorter than a window is dropped. With 64 / 16 samples at 256 Hz
+    and ``times[0]`` on the A4 grid (a multiple of 62.5 ms from -1 s), these are
+    the A4 decoding windows.
+
+    Returns ``(means, grid)``: `means` is (rows, windows); `grid` has one row per
+    window with `window` (0-based), `window_tmin` / `window_tmax` (times of its
+    first and last sample, s) and `window_center` (start + window_size / 2
+    samples, s: the A4 convention).
+    """
+    times = np.asarray(times, float)
+    x = np.vstack(np.asarray(hg))                         # (rows, samples)
+    if x.shape[1] != len(times):
+        raise ValueError(f"hg time courses have {x.shape[1]} samples, `times` has "
+                         f"{len(times)}")
+    starts = np.arange(0, len(times) - window_size + 1, step_size)
+    if starts.size == 0:
+        raise ValueError(f"time courses of {len(times)} samples are shorter than one "
+                         f"window ({window_size} samples)")
+    dt = (times[-1] - times[0]) / (len(times) - 1) if len(times) > 1 else 0.0
+    means = np.stack([x[:, s:s + window_size].mean(axis=1) for s in starts], axis=1)
+    grid = pd.DataFrame(dict(window=np.arange(len(starts)),
+                             window_tmin=times[starts],
+                             window_tmax=times[starts + window_size - 1],
+                             window_center=times[starts] + window_size * dt / 2))
+    return means, grid
+
+
+def compute_sensitivities_per_window(df, times, window_size, step_size, **kwargs):
+    """`compute_sensitivities_per_split` in each sliding time window, on the SAME
+    trial halves in every window.
+
+    `df` is the long table with each trial's HG *time course* in `hg`; `times`
+    and the window grid are as in `window_means`. Each trial's HG in a window is
+    its mean over the window's samples, scored as the single-window run scores
+    it; `kwargs` go to `compute_sensitivities_per_split`, so `effect_measure`
+    must be one of `SCALAR_EFFECT_MEASURES`.
+
+    This is the general path (any scalar measure, LWPC/LWPS as well as the main
+    effects). For mean-difference main effects, `main_effect_mean_diffs` gives
+    the same numbers orders of magnitude faster.
+
+    The halves are the same trials in every window: every window sees the same
+    rows and the same `seed`, and the splitter's random draws do not depend on
+    HG. So differences between windows are differences in HG, never a different
+    split, which the subspace test (docs/analysis_plans.md, subspace plan §3.4)
+    needs when it stacks one half's windows into a matrix.
+
+    Returns the per-split table with the `window_means` grid columns added.
+    """
+    effect_measure = kwargs.get('effect_measure', 'cohens_d')
+    if effect_measure not in SCALAR_EFFECT_MEASURES:
+        raise ValueError("per-window scoring collapses each window to its mean, so "
+                         f"effect_measure must be one of {SCALAR_EFFECT_MEASURES}; "
+                         f"got {effect_measure!r}")
+    means, grid = window_means(df['hg'].to_numpy(), times, window_size, step_size)
+    frames = [compute_sensitivities_per_split(df.assign(hg=means[:, w]), **kwargs)
+              .assign(window=w) for w in grid['window']]
+    return pd.concat(frames, ignore_index=True).merge(grid, on='window')
+
+
+# The four (cond, mod) cells of a W_MAIN main effect, in a fixed order, and
+# their weights: +1/2 (cond pos) or -1/2 (cond neg) in each `mod` block.
+_MAIN_CELLS = ((1.0, 1.0), (0.0, 1.0), (1.0, 0.0), (0.0, 0.0))
+_MAIN_WEIGHTS = np.array([W_MAIN[c] for c in _MAIN_CELLS])
+
+
+def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=False):
+    """Congruency and switch-type main effects as mean differences, in many
+    windows at once, on shared trial halves.
+
+    For each column of `hg_windows` these are the `mxA`/`mxB`/`myA`/`myB` that
+    ``compute_sensitivities_per_split(df, n_splits, seed, contrast_mode=
+    'proportion', main_effects=True, shared_split=True, effect_measure=
+    'mean_diff')`` gives, on the same halves, but computed as a few matrix
+    products per participant instead of a loop over electrodes and splits:
+    fast enough to rescore every permutation of a label-shuffle null.
+
+    A mean difference is linear in HG, so each effect is a weighted sum of cell
+    means, and each cell mean is a sum over the trials in that (split, half,
+    cell), divided by their count. One indicator matrix (trials x [split, half,
+    cell]) per participant gives all of them in one product.
+
+    `df` is the long table, one row per electrode x trial with a `trial` column;
+    its `hg` is not used. `hg_windows` is (rows of `df`, windows), e.g. from
+    `window_means`, in the row order of `df`. `remove_mean=True` first subtracts,
+    per participant, trial and window, the mean across that participant's
+    electrodes: A4's `remove_mean`, the overall-activity control of
+    docs/analysis_plans.md, subspace plan §3.3.
+
+    Returns one row per electrode x split x window: subject, electrode, split,
+    window, mxA, mxB, myA, myB, split_scheme. An effect is NaN where one of its
+    cells has fewer than 2 trials in that half, as in the loop.
+    """
+    from src.analysis.decoding.activity_control import remove_subject_mean
+
+    hg_windows = np.asarray(hg_windows, float)
+    if hg_windows.ndim != 2 or len(hg_windows) != len(df):
+        raise ValueError(f"hg_windows must be (rows of df, windows) = ({len(df)}, ...); "
+                         f"got shape {hg_windows.shape}")
+    n_win = hg_windows.shape[1]
+    contrasts = finalize_contrasts(df, resolve_contrasts('proportion'))
+    work = _canonical_labels(df.drop(columns='hg', errors='ignore'), contrasts)
+    work['_row'] = np.arange(len(work))
+    # The same draws as compute_sensitivities_per_split(shared_split=True).
+    halves = _shared_trial_halves(work, _strata_columns(contrasts), n_splits,
+                                  np.random.default_rng(seed))
+    frames = []
+    for subj, sub in work.groupby('subject'):
+        half = halves[subj]                               # trials x splits, 0 = A
+        trials = half.index.to_numpy()
+        elecs = np.sort(sub['electrode'].unique())
+        x = np.full((len(elecs), len(trials), n_win), np.nan)
+        x[np.searchsorted(elecs, sub['electrode'].to_numpy()),
+          pd.Index(trials).get_indexer(sub['trial'].to_numpy())] = \
+            hg_windows[sub['_row'].to_numpy()]
+        if remove_mean:
+            x = remove_subject_mean(x, [subj] * len(elecs), chans_axis=0)
+        finite = np.isfinite(x)
+        x = np.where(finite, x, 0.0)
+
+        labels = sub.drop_duplicates('trial').set_index('trial').loc[trials]
+        in_half = half.to_numpy()[:, :, None] == np.arange(2)       # trials x splits x 2
+        effects = {}
+        for col, (condcol, modcol) in (('mx', ('_scond', '_smod')),
+                                       ('my', ('_fcond', '_fmod'))):
+            cond, mod = labels[condcol].to_numpy(), labels[modcol].to_numpy()
+            in_cell = np.stack([(cond == c) & (mod == m) for c, m in _MAIN_CELLS], 1)
+            ind = (in_half[:, :, :, None] & in_cell[:, None, None, :]).astype(float)
+            ind = ind.reshape(len(trials), -1)                      # trials x (split, half, cell)
+            sums = np.tensordot(x, ind, axes=([1], [0]))            # elec x window x (...)
+            counts = np.tensordot(finite.astype(float), ind, axes=([1], [0]))
+            shape = (len(elecs), n_win, n_splits, 2, len(_MAIN_CELLS))
+            with np.errstate(divide='ignore', invalid='ignore'):
+                means = (sums / counts).reshape(shape)
+            eff = (means * _MAIN_WEIGHTS).sum(-1)
+            eff[(counts.reshape(shape) < 2).any(-1)] = np.nan
+            effects[f'{col}A'], effects[f'{col}B'] = eff[..., 0], eff[..., 1]
+        e, w, k = np.meshgrid(np.arange(len(elecs)), np.arange(n_win),
+                              np.arange(n_splits), indexing='ij')
+        frames.append(pd.DataFrame(dict(
+            subject=subj, electrode=elecs[e.ravel()], split=k.ravel(), window=w.ravel(),
+            **{c: v.ravel() for c, v in effects.items()})))
+    out = pd.concat(frames, ignore_index=True)
+    out['split_scheme'] = 'participant'
     return out
 
 

@@ -31,9 +31,9 @@ DATA_SOURCE=${DATA_SOURCE:-real}
 # Contrast/electrode-label options.
 CONTRAST_MODE=${CONTRAST_MODE:-proportion}   # proportion=LWPC/LWPS interactions; condition=congruency/switch main effects
 FDR_CORRECTION=${FDR_CORRECTION:-fdr_bh}     # fdr_bh or none
-EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | cluster | peak_t
+EFFECT_MEASURE=${EFFECT_MEASURE:-cohens_d}    # cohens_d | mean_diff | cluster | peak_t
 # 1 = regress out the pooled within-cell HG~RT slope per electrode before any
-# split-half sensitivity is computed (requires EFFECT_MEASURE=cohens_d).
+# split-half sensitivity is computed (requires EFFECT_MEASURE=cohens_d or mean_diff).
 RT_ADJUST_HG=${RT_ADJUST_HG:-0}
 # 1 = also score congruency/switch main effects on the same halves (output dir
 # ends in _main_effects; ~2x scoring time); 0 = LWPC/LWPS only

@@ -86,14 +86,15 @@ if ALIGN_TO_POWER_TRACES_RUN:
 # contrast_mode : 'condition'  -> stability=congruency(i vs c), flexibility=switchType(s vs r)
 #                 'proportion' -> stability=incongruent_proportion, flexibility=switch_proportion
 # effect_measure: 'cohens_d'   -> standardized mean diff on window-mean HG
+#                 'mean_diff'   -> unstandardized mean diff on window-mean HG (HG units)
 #                 'cluster'     -> aggregate cluster-mass statistic on windowed HG time courses
 CONTRAST_MODE = os.environ.get('CONTRAST_MODE', 'proportion')
 EFFECT_MEASURE = os.environ.get('EFFECT_MEASURE', 'cluster')
 # RT_ADJUST_HG=1 removes each electrode's pooled within-design-cell HG~RT
 # component before sensitivity scoring. It requires scalar window-mean HG.
 RT_ADJUST_HG = os.environ.get('RT_ADJUST_HG', '0') not in ('0', '', 'false', 'False')
-if RT_ADJUST_HG and EFFECT_MEASURE != 'cohens_d':
-    raise ValueError("RT_ADJUST_HG=1 requires EFFECT_MEASURE=cohens_d")
+if RT_ADJUST_HG and EFFECT_MEASURE not in ('cohens_d', 'mean_diff'):
+    raise ValueError("RT_ADJUST_HG=1 requires EFFECT_MEASURE=cohens_d or mean_diff")
 
 # MAIN_EFFECTS=1 (proportion mode): also score congruency and switch type on the
 # same halves (mx/my columns) for the main-effect anatomy, docs/analysis_plans.md#closing-figure-plan

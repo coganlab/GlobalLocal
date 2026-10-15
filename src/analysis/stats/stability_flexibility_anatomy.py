@@ -1327,7 +1327,6 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     and the ratio is the alignment of §3.2. The ``*_pearson`` keys still report
     Pearson, so one call returns both numbers the plan asks for.
 
-
     A corrected value above 1 is out of range for a correlation. It means the
     reliabilities are too small to bound anything, not that the maps are
     more-than-perfectly correlated -- ``note`` says so, and
@@ -1336,12 +1335,12 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     """
     from scipy.stats import spearmanr, pearsonr
     def cosine_similarity(u, v):
-        return np.dot(u,v) / (np.linalg.norm(u) * np.linalg.norm(v))
-    
+        return np.dot(u, v) / (np.linalg.norm(u) * np.linalg.norm(v))
+
     fn_method_mapping = {'spearman': lambda u, v: spearmanr(u, v)[0],
                          'pearson': lambda u, v: pearsonr(u, v)[0],
                          'cosine': cosine_similarity}
-    fn = fn_method_mapping[method]    
+    fn = fn_method_mapping[method]
 
     d = per_split.dropna(subset=['xA', 'xB', 'yA', 'yB']).copy()
     # keep only electrodes defined on EVERY split, so each split's vectors are
@@ -1379,7 +1378,7 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     # the values the attenuation ratio is built from: Pearson stands in for
     # Spearman (see the docstring); the cosine is linear, so it is used as is.
     arr_c = arr if method == 'cosine' else arr_p
-    
+
     def _corrected(b, rx, ry):
         return b / np.sqrt(rx * ry) if (rx > 0 and ry > 0) else np.nan
 

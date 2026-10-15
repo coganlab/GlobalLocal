@@ -66,9 +66,9 @@ def apply_rt_adjustment(df, enabled=False, effect_measure='cohens_d'):
     """
     if not enabled:
         return df, None
-    if effect_measure != 'cohens_d' or df['hg'].dtype == object:
-        raise ValueError("RT_ADJUST_HG requires EFFECT_MEASURE=cohens_d (scalar, "
-                         "window-mean HG)")
+    if effect_measure not in sfs.SCALAR_EFFECT_MEASURES or df['hg'].dtype == object:
+        raise ValueError("RT_ADJUST_HG requires EFFECT_MEASURE=cohens_d or mean_diff "
+                         "(scalar, window-mean HG)")
     if 'rt' not in df.columns or not np.isfinite(
             pd.to_numeric(df['rt'], errors='coerce')).any():
         raise ValueError("RT_ADJUST_HG requires finite reaction times in the long "
@@ -124,7 +124,7 @@ def _numeric_col(md, names):
 
 
 def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
-                     effect_measure='cohens_d'):
+                     effect_measure='cohens_d', time_courses=None):
     """Build the (electrode, trial) long table from per-subject Epochs.
 
     hg          = HG_ev1_rescaled over [tmin, tmax]s. With effect_measure=
@@ -132,6 +132,11 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
                   trial / channel); with 'cluster' it is the per-trial time
                   COURSE over the window (a 1-D array), so the analysis can use
                   the aggregate cluster statistic instead of the window mean.
+                  `time_courses=True` asks for the time courses whatever the
+                  measure (the per-window scoring averages each window itself,
+                  `compute_sensitivities_per_window`); None follows
+                  `effect_measure`. Time-course rows with any non-finite sample
+                  are dropped, where window means use nanmean.
     congruency  = metadata 'congruency'      ('c' / 'i')
     switchType  = metadata 'task_sequence'   ('s' / 'r'); 'n' (first-of-block) dropped
     incongruent_proportion / switch_proportion
@@ -150,7 +155,8 @@ def assemble_long_df(subjects_epochs, tmin, tmax, electrodes_to_keep=None,
     # was previously excluded here, so it silently received window means and
     # collapsed to a single-bin t -- losing exactly the duration-invariance
     # it exists to provide.
-    cluster = effect_measure in ('cluster', 'peak_t')
+    cluster = (effect_measure in ('cluster', 'peak_t') if time_courses is None
+               else bool(time_courses))
     frames = []
     for sub, epochs in subjects_epochs.items():
         md = epochs.metadata
@@ -237,6 +243,10 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
         sw = rng.choice(['s', 'r'], n_tr)
         inc_prop = rng.choice([25.0, 75.0], n_tr)
         sw_prop = rng.choice([25.0, 75.0], n_tr)
+        # RT (ms) from its own stream, so adding it changed none of the HG draws:
+        # slower on incongruent and switch trials, as in the behaviour.
+        rt = (np.random.default_rng((seed, s)).normal(700, 120, n_tr)
+              + 60 * (cong == 'i') + 80 * (sw == 's'))
         for e in range(int(rng.integers(15, 26))):
             gain = rng.lognormal(0, gain_sd)
             bx, by = rng.multivariate_normal([0, 0], cov)
@@ -250,7 +260,8 @@ def make_synthetic_df(rho_true=0.4, n_subj=10, seed=0, gain_sd=0.5,
             base = (bx * (cong == 'i') * (1.0 + (inc_prop == 75.0))
                     + by * (sw == 's') * (1.0 + (sw_prop == 75.0)))
             fr = dict(subject=f"S{s:02d}", electrode=f"S{s:02d}-e{e}",
-                      congruency=cong, switchType=sw,
+                      trial=np.arange(n_tr),      # shared by the subject's electrodes
+                      rt=rt, congruency=cong, switchType=sw,
                       incongruent_proportion=inc_prop, switch_proportion=sw_prop)
             frame = pd.DataFrame(fr)
             if cluster:

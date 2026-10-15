@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-13 | **Current, not built.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
+| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-15 | **Current; §3.1-3.3 built (2026-10-15), not yet run on real data.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
 | [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
@@ -43,7 +43,10 @@ and [`a6_brain_behavior.md`](a6_brain_behavior.md).
 *A state-space figure for the base effects, consistent with the anatomy and
 the A4 cross-decoding*
 
-**Status:** plan, 2026-10-13. Nothing built or run. Companion to F5 in
+**Status:** plan, 2026-10-13. §3.1-3.3 (coding axes, cosine, null, ceiling,
+bootstrap, `remove_mean`, RT and region controls) built 2026-10-15, not yet run
+on real data (§8; runbook [`coding_axes.md`](coding_axes.md)); §3.4 onwards not
+built. Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
 [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01).
 
@@ -645,6 +648,22 @@ The new computation (axes, cosines, subspaces and their angles, null, ceiling,
 projections) is small and
 takes in-memory arrays. It belongs in a utility next to `cross_decoding.py`,
 with loading, saving and plotting in the entry-point script.
+
+**Built (2026-10-15): §3.1-3.3.**
+
+| Piece | Where |
+|---|---|
+| Mean-difference effect (§3.1 axis, HG units) | `effect_measure='mean_diff'` in `stats/stability_flexibility_segregation.py` |
+| Per-window scoring on the same halves in every window | `window_means`, `compute_sensitivities_per_window` (general, any scalar measure), `main_effect_mean_diffs` (the main effects as matrix products, the same numbers, fast enough for the null) |
+| Cosines, ceilings, alignment, Pearson versions | `coding_axis_cosines` in `stats/coding_axes.py`; `map_reliability(method='cosine')` gives the same numbers for one window |
+| Label-shuffle null, one factor at a time, one permutation per participant within cells | `permute_within_cells`, `cross_cosine_null`; cluster-corrected over windows by cluster mass (`shared_windows`; A4's run-length test fails on this null, see its docstring) |
+| Participant bootstrap: ceiling CIs (reliable windows), ceiling - cross ("not one code"), alignment | `compare_coding_axes` |
+| `remove_mean` (§3.3) | `main_effect_mean_diffs(remove_mean=True)`, reusing `decoding/activity_control.remove_subject_mean` |
+| RT control (§3.3): regression, RT matching and its random-subset control | `rt_control`, reusing `rt_adjust_hg`, `rt_match`, `count_matched_random` |
+| Jobs and figures | `dcc_scripts/subspace/submit_coding_axes_all.sh` (main run and every control), `plot_coding_axes_controls.py` (the comparison figure). How to run and read them: [`coding_axes.md`](coding_axes.md) |
+
+Not built: the lPFC-subsampled-to-occipital control of §3.3, the subspace test
+(§3.4), the trajectories (§4) and §5-6.
 
 ### 9. Placement
 
