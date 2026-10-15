@@ -256,15 +256,17 @@ spread by a *t*-test; and a linear mixed model with a participant random
 intercept and random *z* slope (REML, predictors centred within participant).
 `coordinate_slope_loso` drops each participant in turn.
 
-*Figure 5* (`figure5_height`, §19.4): electrodes split into tertiles of MNI *z*;
-each tertile's centroid on the LWPC-against-LWPS scatter with a 95 %
-participant-bootstrap region; and the adjusted balance per tertile as
-participant means ± SEM.
+*Figure 5* (`figure5_height`, §19.4; redrawn 2026-10-10): electrodes split into
+tertiles of MNI *z* and shown on the brain (a); each tertile's centroid on the
+LWPC-against-LWPS scatter with a 95 % bootstrap region (b); and every
+electrode's balance against its height, with participant, responsiveness and
+MNI *x* and *y* removed, under the coordinate test's slope (c).
 
-**Look at.** Fig. 5a (where the tertiles are), 5c (tertile centroids against the
-identity line) and 5d (balance by height); `fig5_height_centroids.csv`,
-`fig5_height_balance.csv`, `mni_z_slope_by_participant.csv`,
-`mni_z_slope_loso.csv`.
+**Look at.** Fig. 5a (where the tertiles are), 5b (tertile centroids against the
+identity line, in the zoom) and 5c (balance by height); `fig5_height_centroids.csv`,
+`fig5_height_partials.csv`, `mni_z_slope_by_participant.csv`,
+`mni_z_slope_loso.csv`. `fig5_height_balance.csv` keeps the tertile means ± SEM
+that the figure no longer draws.
 
 **Read it as.** A shallow gradient: relative to LWPS, LWPC is weaker dorsally.
 It explains about 2 % of the balance's variance, was not predicted (the
@@ -331,11 +333,10 @@ run writes it to `continuous/`.
 
 | Figure | File | Shows | In the paper |
 |---|---|---|---|
-| Fig. 5a | `fig5_height.png`, panel a; or `fig5_height_brain.png` | Electrodes on a sagittal projection (MNI *y* against *z*), coloured by height tertile; cuts at *z* = 16.3 and 38.1 mm. The brain version (added 2026-10-06, §19.4) shows the same tertiles on fsaverage with each tertile's centroid per hemisphere; positions in `fig5_height_brain_centroids.csv` | Main |
-| Fig. 5b | panel b | LWPC against LWPS (the test's residualised scores), coloured by tertile, identity line, *r* = 0.097, *p* = 0.0001 | Main |
-| Fig. 5c | panel c | The tertile centroids, enlarged, with 95 % participant-bootstrap regions; dorsal sits above the identity line | Main |
-| Fig. 5d | panel d | Adjusted LWPC − LWPS by tertile, participant means ± SEM, with the slope's electrode- and participant-level *p* | Main |
-| Fig. 5e | A4 cross-decoding traces ([`decoding.md`](decoding.md#138-results-2026-10-01)) | Congruency ↔ switch codes over the same electrodes | Main if its controls hold ([`paper_draft.md`](paper_draft.md) §1.4) |
+| Fig. 5a | `fig5_height.png`, panel a (from `fig5_height_brain.png`) | The electrodes on fsaverage, coloured by height tertile, with each tertile's centroid per hemisphere (§19.4); cuts at *z* = 16.3 and 38.1 mm; positions in `fig5_height_brain_centroids.csv`. Without a render, the panel falls back to a sagittal projection (MNI *y* against *z*). Layout revised 2026-10-10 | Main |
+| Fig. 5b | panel b | LWPC against LWPS (the test's residualised scores), coloured by tertile, identity line, *r* = 0.097, *p* = 0.0001, the tertile centroids; beside it a zoom on the centroids with their 95 % bootstrap regions (the old panel c); dorsal sits above the identity line | Main |
+| Fig. 5c | panel c | Every electrode's LWPC − LWPS against MNI *z*, with participant, responsiveness and MNI *x* and *y* removed, and the coordinate test's *z* slope as the line (the line has exactly the test's slope; [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §4.4). Replaces the tertile means ± SEM | Main |
+| Fig. 5d | A4 cross-decoding traces ([`decoding.md`](decoding.md#138-results-2026-10-01)) | Congruency ↔ switch codes over the same electrodes | Main if its controls hold ([`paper_draft.md`](paper_draft.md) §1.4) |
 | S-N4 | `fig5.png`, panel b | Matched vs crossed base-effect × adaptation correlations (Test 1) | Supplement |
 | S-N4 | `section19/local_similarity.png` | Excess similarity by distance for the balance and each single score | Supplement |
 | S-N4 | `delta_by_roi.png`, `dm_by_roi.png` | Adjusted balance per parcel | Supplement |
@@ -512,9 +513,11 @@ marked *(Supplementary)* can move to the supplementary methods.
 > Each tertile's centroid was computed on the overlap scatter (the
 > responsiveness-residualised, participant-centred scores that the overlap test
 > correlates, on the balance's scale), with a 95 % region from 2,000
-> participant bootstrap resamples. The balance by tertile was shown as
-> participant means ± SEM after participant and responsiveness were removed.
-> The tertiles were not used for inference.
+> participant bootstrap resamples. The balance was shown for every electrode
+> against its height as a component-plus-residual plot: its residual from the
+> coordinate model plus the fitted height term, so that participant,
+> responsiveness and the other two coordinates were removed and a line through
+> the points has the test's slope. The tertiles were not used for inference.
 >
 > **Local similarity** *(Supplementary)*. To ask whether electrodes leaning
 > toward LWPC or LWPS form local patches, we compared each pair of electrodes
@@ -2765,12 +2768,19 @@ directions: the overlap is spread **along** the identity line, the gradient is a
 shift **across** it (LWPC − LWPS is each point's signed distance from the line).
 Points **above** the line lean LWPS, **below** it LWPC.
 
+Layout since 2026-10-10 (two rows, 7.2 × 5.0 in):
+
 | Panel | Content |
 |---|---|
-| a | Height tertiles on a sagittal projection of the electrodes (MNI y against z), with the two cuts drawn. Pass `brain_png` for a rendered brain in the same colours instead. |
-| b | LWPC against LWPS, coloured by tertile, identity line, the pre-specified r. A box marks panel c's region. |
-| c | The three tertile centroids enlarged, each with its 95 % participant-bootstrap ellipse. With a dorsal LWPS lean the dorsal centroid sits above the line and the ventral one near it. |
-| d | The balance by tertile: participant means ± SEM of `delta` with participant and responsiveness removed (the coordinate test's units), annotated with the z slope's electrode-level and participant-level p. |
+| a | The top row: the rendered brain (`fig5_height_brain.png`, below), white margins trimmed by `trim_whitespace`, with the two cuts in the title. The render is made before the figure is drawn; without one, `figure5_height` reuses a `fig5_height_brain.png` already in `out_dir`, and without that it falls back to a sagittal projection of the electrodes (MNI y against z) with the cuts drawn. |
+| b | LWPC against LWPS, coloured by tertile, identity line, the pre-specified r and the three tertile centroids. Beside it, a zoom on the centroids, each with its 95 % bootstrap ellipse (electrode or participant bootstrap, by `unit`), tied to its region of the scatter by connector lines (`indicate_inset_zoom`). With a dorsal LWPS lean the dorsal centroid sits above the line and the ventral one near it. |
+| c | Every electrode's balance against its height (`height_partial_residuals`, written to `fig5_height_partials.csv`): its residual from the coordinate model (`delta ~ y + z + x + resp + participant`) plus the fitted z term, plus the mean of `delta`. A straight line through these points has exactly the coordinate test's z slope, so the line drawn is the test. Dashed lines mark the tertile cuts; the text gives the slope, its interval and its p. |
+
+Before 2026-10-10 the figure had four panels in one row: a sagittal projection
+(a), the scatter with a box (b), the enlarged centroids (c), and the tertile
+means ± SEM of the adjusted balance (d). The tertile means are still written to
+`fig5_height_balance.csv`. The statistics behind panel c are in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §4.4.
 
 Choices, and why:
 
@@ -2884,8 +2894,9 @@ xvfb-run -a python dcc_scripts/stats/n4_section19_followups.py \
     --sections 1,4 --brain --brain-hemi split
 ```
 
-Keep section 1 with section 4: it supplies panel d's participant-level p, and
-`fig5_height.png` is redrawn without those lines if it is left out.
+Keep section 1 with section 4: it supplies the electrode-bootstrap interval in
+`fig5_height.png` and the participant-level p in `fig5_height_participants.png`,
+and the figures are drawn without those lines if it is left out.
 `--brain-zoom` sets the camera zoom (`<1` zooms out).
 
 **The long table needs a `trial` column**, added to `assemble_long_df` on
@@ -2917,7 +2928,7 @@ and 5); see §19.8.1.
 | `local_similarity.csv`, `_contrasts.csv`, `_comparison.csv`, `local_similarity.png` | §19.3 (with `--long-df`) |
 | `per_split_shared.csv`, `reliability_by_split_scheme.csv` | §19.3: the shared-split table, and the reliabilities from both schemes |
 | `overlap_controls.csv`, `overlap_loso.csv` | §19.7 |
-| `fig5_height.png/.pdf`, `fig5_height_points.csv`, `_centroids.csv`, `_balance.csv`, `_balance_by_participant.csv` | §19.4 |
+| `fig5_height.png/.pdf`, `fig5_height_points.csv`, `_centroids.csv`, `_partials.csv` (panel c), `_balance.csv`, `_balance_by_participant.csv` | §19.4 |
 | `fig5_height_brain_centroids.csv` | §19.4: each tertile's mean MNI position per hemisphere, with electrode and participant counts |
 | `fig5_height_brain.png`, `_legend.png` (or `fig5_height_brain_sagittal.png`) | §19.4: the tertiles and their centroids on the brain (`MAKE_BRAIN` / `--brain`) |
 | `summary_section19.txt`, `section19.json` | everything above in words and numbers |

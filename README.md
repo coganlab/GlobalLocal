@@ -141,6 +141,7 @@ the repo and is effectively the project's standard library.
 | `epoch_metadata_utils.py` | 237 | Parses MNE event-name strings (`Stimulus/i25.0/Taskg/…`) into a proper metadata DataFrame, and adds previous-trial columns |
 | `anova_label_selection.py` | 260 | Reads an A1 `anova_labels.csv` back into an electrode selection. Deliberately MNE-free so power, decoding and cross-decoding all select electrodes identically |
 | `electrode_exclusion.py` | 76 | Drops named electrodes from a `{roi: {subject: [channels]}}` selection. Exists because one electrode with a large excursion visibly shifts a ~170-electrode ROI mean and no amount of condition balancing removes it |
+| `image_utils.py` | 23 | `trim_whitespace`: crops a rendered image (a brain) to its non-white pixels, so it fills its figure panel |
 | `outlier_analysis.ipynb` | 2845 | Exploratory notebook on outlier thresholds |
 
 ## 1.7 `src/analysis/power/` — high-gamma power traces and the windowed ANOVA
@@ -179,6 +180,8 @@ The largest subpackage. Already split out of a 4,752-line monolith (see
 | `coupling_comparison.py` | 417 | Reads the per-electrode-set `MASTER_RESULTS` pickles back and tests coupled vs. the distribution over matched control draws |
 | `cross_decoding.py` | 615 | **A4.** Train on one contrast, score against another, to ask whether "both"-selective electrodes carry one shared code or two orthogonal ones. Includes circularity guards and a synthetic-data generator with planted geometry |
 | `context_comparison.py` | 366 | Top-level context comparisons (e.g. the same contrast decoded in a 25% vs 75% block) and the cross-block overlay plot |
+| `window_mean_decoding.py` | 186 | Decoding from each electrode's window-mean HG, and comparing electrode groups (sig / nonsig / all) at a matched electrode count with a membership-permutation test ([`docs/new_analyses_walkthrough.md`](docs/new_analyses_walkthrough.md) §2) |
+| `score_electrode_selection.py` | 139 | Electrode sets from the top fraction of a per-electrode score (LWPC, LWPS, congruency, switch type) chosen on held-out trials, with their unique and overlap sets; reads the selection file back for decoding and power traces (§3 of the same doc) |
 
 **Thin orchestration wrappers** (called by `decoding_dcc.py`, one concern each):
 `run_anova_electrode_selection.py` (261), `run_coupling_electrode_selection.py` (269),
@@ -191,7 +194,8 @@ The largest subpackage. Already split out of a 4,752-line monolith (see
 |---|---:|---|
 | `accuracies.py` | 939 | Nature-style accuracy time courses, single- and multi-significance-bar variants, multipanel figures |
 | `confusion.py` | 377 | Confusion matrices, TFR-mask pages, pooled cm-trace extraction and plotting |
-| `trajectories.py` | 673 | PCA/UMAP static projections, PCA-over-time, 3-D trajectories, decision-boundary slices |
+| `trajectories.py` | 756 | PCA/UMAP static projections, PCA-over-time, 3-D trajectories (including channel-space PCA trajectories for `FEATURE_MODE=channels`), decision-boundary slices |
+| `group_bars.py` | 63 | The bar figure for the window-mean group comparison: matched-size accuracy per group, chance, and the permutation p for each pair |
 | `replot.py` | 639 | Regenerates any decoding figure from its saved `MASTER_RESULTS_*.pkl` — new labels/colors/layout with **no re-decoding** |
 | `style.py` | 59 | The shared `NATURE_STYLE` constant |
 
@@ -260,7 +264,8 @@ Organized by analysis area, each following the four-layer pattern from §1.2.
 |---|---|
 | `preproc/` | `plot_clean_dcc.py` — the DCC copy of line-noise filtering; `submit_make_epoched_data.sh` / `sbatch_make_epoched_data.sh` fan `make_epoched_data.py` out over subjects |
 | `power/` | `power_traces_dcc.py` (479) + `run_power_traces_dcc.py` (340) — the power-trace and windowed-ANOVA job. Plus two diagnostics: `diagnose_block_effects.py` (block-confound cross-tab straight from epochs) and `diagnose_electrode_deviations.py` (attributes a trace excursion to specific electrodes by reading the saved evoked `.npz`s — no re-run needed) |
-| `decoding/` | `decoding_dcc.py` (616) + `run_decoding_dcc.py` (556) — the main decoding battery, including the optional electrode-definition split, ANOVA-defined electrode sets, and coupling-defined electrode sets. `stability_flexibility_cross_decoding_dcc.py` (960) is A4. `james_sun_cluster_decoding_dcc.py` is the TFR-cluster decoding job. `report_coupling_counts.py` counts coupled/eligible electrodes **before** you spend cluster time. `run_coupling_comparison_dcc.py` re-runs the coupled-vs-control comparison over saved results |
+| `decoding/` | `decoding_dcc.py` (616) + `run_decoding_dcc.py` (556) — the main decoding battery, including the optional electrode-definition split, ANOVA-defined electrode sets, and coupling-defined electrode sets. `stability_flexibility_cross_decoding_dcc.py` (960) is A4. `james_sun_cluster_decoding_dcc.py` is the TFR-cluster decoding job. `report_coupling_counts.py` counts coupled/eligible electrodes **before** you spend cluster time. `run_coupling_comparison_dcc.py` re-runs the coupled-vs-control comparison over saved results. `window_mean_groups_dcc.py` (94, launched by `submit_window_mean_groups_dcc.sh`) runs the sig / nonsig / all window-mean comparison; `score_electrode_selection_dcc.py` (138, `sbatch_score_electrode_selection_dcc.sh`) writes the top-fraction sets that `submit_decoding_with_score_electrode_sets_dcc.sh` and the power-traces job read |
+| `subspace/` | `subspace_notebook.ipynb`: a scratch notebook stepping through `map_reliability` (including its cosine option). The subspace analysis itself is not built ([`docs/analysis_plans.md`](docs/analysis_plans.md#subspace-trajectory-plan)) |
 | `spec/` | `make_wavelets_dcc.py`, `plot_wavelets_dcc.py`, `wavelet_differences_dcc.py`, `get_sig_tfr_differences_dcc.py`, and `wavelet_functions_dcc.py` (a DCC copy of the library — see the consolidation doc) |
 | `stats/` | One core + entry point per battery step: `stability_flexibility_anova_conjunction_dcc.py` (A1/A2), `power_traces_conjunction_dcc.py` (A1/A2 via ANOVA-defined electrodes), `stability_flexibility_anatomy_dcc.py` (A3), `stability_flexibility_timing_dcc.py` (A5), `stability_flexibility_brain_behavior_dcc.py` (A6), `stability_flexibility_segregation_dcc.py`. Each assembles the long-form table from epochs, runs the library, and writes results + plots + a human-readable summary |
 | `vis/` | `plot_sig_electrodes_dcc.py` (533) — significant electrodes per condition on the fsaverage brain plus ROI histograms; `condition_plot_specs.py` (296) is the registry of *what to compare*, the one file you edit to define a new brain-plot comparison |
@@ -294,6 +299,7 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `n4_continuous_anatomy.md` | N4 runbook and results: §0 has the current results, how they were computed, the figures, and Methods and Results text; then the anatomical tests, brain maps, the main-effect reference (§16) and §19 |
 | `segregation_walkthrough.md` | The A1/A2 segregation statistics line by line: every step of `stability_flexibility_segregation.py` and why it is there; companion notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each step on a planted demo electrode |
 | `n4_code_walkthrough.md` | The N4 code line by line (mostly §19), with comprehension questions; companion notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` |
+| `new_analyses_walkthrough.md` | The 2026-10-13 analyses (channels-as-features decoding, window-mean sig/nonsig/all decoding, top-20 % score sets, the redrawn Figure 5): how to run each, its code step by step, and its statistics |
 | `a6_brain_behavior.md` | A6 runbook: the per-participant brain–behavior scores, the RT adjustment, the 2026-09-27 block-map fix, every output and how to read it |
 | `methods.md` | Manuscript-ready Methods text: N4 segregation and anatomy, and the segregation analysis in a `cluster` and a `cohens_d` version |
 | `stability_flexibility_battery.md` | One fake dataset followed through A1–A7 with every intermediate table printed (generated by `docs/examples/stability_flexibility_data_flow_demo.py`, which runs anywhere with no cluster or iEEG data), and what each output PNG/CSV/JSON/TXT means |

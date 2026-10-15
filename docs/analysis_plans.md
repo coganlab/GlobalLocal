@@ -46,7 +46,9 @@ the A4 cross-decoding*
 **Status:** plan, 2026-10-13. §3.1-3.3 (coding axes, cosine, null, ceiling,
 bootstrap, `remove_mean`, RT and region controls) built 2026-10-15, not yet run
 on real data (§8; runbook [`coding_axes.md`](coding_axes.md)); §3.4 onwards not
-built. Companion to F5 in
+built. The single-window map-level cosine, `map_reliability(method='cosine')`
+(2026-10-14), is described in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5. Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
 [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01).
 
