@@ -24,7 +24,7 @@ EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_decFactor_8_outliers
 
 # Comma-separated ROI names from src/analysis/config/rois.py (e.g. lpfc,dlpfc).
 # Empty uses ROIS_DICT in run_decoding_dcc.py (dlpfc).
-ROIS="${ROIS:-}"
+ROIS="${ROIS:-lpfc,dlpfc}"
 
 # Each electrode's HG is averaged over TMIN..TMAX (s), one feature per electrode.
 WINDOW_MEAN_TMIN="${WINDOW_MEAN_TMIN:-0.0}"

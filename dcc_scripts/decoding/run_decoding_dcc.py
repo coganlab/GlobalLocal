@@ -66,6 +66,15 @@ ACC_TRIALS_ONLY = True
 # Parallel processing
 N_JOBS = int(os.environ.get('N_JOBS', os.environ.get('SLURM_CPUS_PER_TASK', 5)))
 
+
+def _env_bool(name, default):
+    """A boolean setting from the environment ('1'/'true'/'yes'/'on'), else default."""
+    val = os.environ.get(name)
+    if val is None:
+        return default
+    return val.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
 # DECODING PARAMETERS
 # First, choose your classifier
 MODEL_CHOICE = 'LDA'  # Options: 'LDA', 'SVC'
@@ -135,7 +144,9 @@ PERMUTATION_TYPE = 'independent'
 # plotting
 SINGLE_COLUMN = True
 SHOW_LEGEND = True
-RUN_VISUALIZATION_DEBUG = False # Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
+# Collapsed onto the first two PCs, this plots each trial and the SVM or LDA hyperplane.
+# Memory-heavy; a launcher can turn it off with RUN_VISUALIZATION_DEBUG=0.
+RUN_VISUALIZATION_DEBUG = _env_bool('RUN_VISUALIZATION_DEBUG', True)
 
 # Condition selection - this comes in via the submit script now. Kind of confusing because everything else is set in this script. Oh well.
 CONDITION_NAME = os.environ.get('CONDITION_NAME')
@@ -205,6 +216,7 @@ EPOCHS_ROOT_FILE = os.environ.get(
 
 ROIS_DICT = {
      'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
+     'lpfc': ["G_front_inf-Opercular", "G_front_inf-Orbital", "G_front_inf-Triangul", "G_front_middle", "G_front_sup", "Lat_Fis-ant-Horizont", "Lat_Fis-ant-Vertical", "S_circular_insula_ant", "S_circular_insula_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
 }
 
 # A launcher can override the ROIs without editing this file: ROIS=lpfc,occ.
@@ -231,13 +243,6 @@ ELECTRODES = 'all'
 # script can turn the split on without editing this file (the hardcoded values
 # are the defaults). The dedicated launcher
 # ``submit_decoding_with_electrode_definition_split_dcc.sh`` sets these.
-def _env_bool(name, default):
-    val = os.environ.get(name)
-    if val is None:
-        return default
-    return val.strip().lower() in ('1', 'true', 'yes', 'on')
-
-
 ELECTRODE_DEFINITION_SPLIT = _env_bool('ELECTRODE_DEFINITION_SPLIT', False)
 ELECTRODE_DEFINITION_SPLIT_FRAC = float(
     os.environ.get('ELECTRODE_DEFINITION_SPLIT_FRAC', 0.5))   # fraction of trials used to define electrodes
