@@ -447,7 +447,9 @@ ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
 ```
 
 Without `ROIS` the job uses `run_decoding_dcc.py`'s `ROIS_DICT`, which ships
-as `dlpfc`. The code walk-through and the statistics are in
+as `dlpfc`. `ROIS`, `EPOCHS_ROOT_FILE` and the `WINDOW_MEAN_*` parameters can
+also be set near the top of `submit_window_mean_groups_dcc.sh`; the
+environment overrides them. The code walk-through and the statistics are in
 [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §2.
 
 **What it asks.** Do the task-significant electrodes (`sig`), the rest
