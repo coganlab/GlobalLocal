@@ -1308,15 +1308,25 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     Do NOT Spearman-Brown the reliabilities up here: that would pair a
     full-length ceiling with a half-length numerator and understate the ratio.
 
-    ``between_noise_corrected`` is always computed from PEARSON correlations,
-    whatever ``method`` is, because the attenuation formula is classical-test-
-    theory algebra for linear measurements. Ranking is a non-linear transform
-    that deflates the self-reliabilities more than it deflates the cross term,
-    so a Spearman ratio is not an attenuation correction and can sit far above
-    1 (on the lPFC run: 1.374 under Spearman, 1.022 under Pearson, from nearly
-    identical ``between`` values of 0.172 and 0.174). ``between`` itself is
+    ``between_noise_corrected`` is computed from PEARSON correlations when
+    ``method`` is 'spearman' or 'pearson', because the attenuation formula is
+    classical-test-theory algebra for linear measurements. Ranking is a non-linear
+    transform that deflates the self-reliabilities more than it deflates the cross
+    term, so a Spearman ratio is not an attenuation correction and can sit far
+    above 1 (on the lPFC run: 1.374 under Spearman, 1.022 under Pearson, from
+    nearly identical ``between`` values of 0.172 and 0.174). ``between`` itself is
     still reported under ``method``, which stays Spearman by default for
     robustness to outliers.
+
+    ``method='cosine'`` compares the maps without centring. A correlation
+    subtracts each map's mean; the cosine keeps it, so it asks whether the two
+    effects move activity in the same direction overall, not only whether their
+    patterns agree (docs/analysis_plans.md, subspace plan §3.1). Its
+    ``between_noise_corrected`` is computed from the cosines themselves: the
+    attenuation algebra holds for the uncentred cosine of two equal-sized halves,
+    and the ratio is the alignment of §3.2. The ``*_pearson`` keys still report
+    Pearson, so one call returns both numbers the plan asks for.
+
 
     A corrected value above 1 is out of range for a correlation. It means the
     reliabilities are too small to bound anything, not that the maps are
@@ -1325,7 +1335,13 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
     the ratio is. Report ``between`` and the reliabilities in that case.
     """
     from scipy.stats import spearmanr, pearsonr
-    fn = spearmanr if method == 'spearman' else pearsonr
+    def cosine_similarity(u, v):
+        return np.dot(u,v) / (np.linalg.norm(u) * np.linalg.norm(v))
+    
+    fn_method_mapping = {'spearman': lambda u, v: spearmanr(u, v)[0],
+                         'pearson': lambda u, v: pearsonr(u, v)[0],
+                         'cosine': cosine_similarity}
+    fn = fn_method_mapping[method]    
 
     d = per_split.dropna(subset=['xA', 'xB', 'yA', 'yB']).copy()
     # keep only electrodes defined on EVERY split, so each split's vectors are
@@ -1347,8 +1363,8 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
             continue
         xa, xb = g['xA'].to_numpy(), g['xB'].to_numpy()
         ya, yb = g['yA'].to_numpy(), g['yB'].to_numpy()
-        rows.append((0.5 * (fn(xa, yb)[0] + fn(xb, ya)[0]),
-                     fn(xa, xb)[0], fn(ya, yb)[0]))
+        rows.append((0.5 * (fn(xa, yb) + fn(xb, ya)),
+                     fn(xa, xb), fn(ya, yb)))
         # The attenuation correction below is Pearson algebra, so it is always
         # computed on Pearson correlations even when `method='spearman'` --
         # see `between_noise_corrected` in the docstring.
@@ -1356,21 +1372,25 @@ def map_reliability(per_split, parcels=None, method='spearman', min_units=3):
                        pearsonr(xa, xb)[0], pearsonr(ya, yb)[0]))
     if not rows:
         raise ValueError(f"every split has fewer than min_units={min_units} {unit}s")
-    between, rel_x, rel_y = np.nanmean(np.array(rows, float), axis=0)
+    arr = np.array(rows, float)
+    between, rel_x, rel_y = np.nanmean(arr, axis=0)
     arr_p = np.array(rows_p, float)
     between_p, rel_xp, rel_yp = np.nanmean(arr_p, axis=0)
-
+    # the values the attenuation ratio is built from: Pearson stands in for
+    # Spearman (see the docstring); the cosine is linear, so it is used as is.
+    arr_c = arr if method == 'cosine' else arr_p
+    
     def _corrected(b, rx, ry):
         return b / np.sqrt(rx * ry) if (rx > 0 and ry > 0) else np.nan
 
-    corrected = _corrected(between_p, rel_xp, rel_yp)
+    corrected = _corrected(*np.nanmean(arr_c, axis=0))
 
     # The ratio is unstable when the reliabilities are small, so report a
     # bootstrap interval over splits next to the point estimate rather than the
     # point estimate alone.
     if np.isfinite(corrected):
         rng = np.random.default_rng(0)
-        boot = np.array([_corrected(*arr_p[rng.integers(0, len(arr_p), len(arr_p))].mean(axis=0))
+        boot = np.array([_corrected(*arr_c[rng.integers(0, len(arr_c), len(arr_c))].mean(axis=0))
                          for _ in range(2000)], float)
         ci = (tuple(float(v) for v in np.nanpercentile(boot, [2.5, 97.5]))
               if np.isfinite(boot).any() else (np.nan, np.nan))
