@@ -6,6 +6,7 @@
 #   ANOVA_LABELS_CSV=/path/to/..._condition_none \
 #       bash submit_specific_conditions_decoding_dcc.sh    # main-effect decoding in
 #                                                          # each main-effect population
+#   FEATURE_MODE=channels bash submit_specific_conditions_decoding_dcc.sh
 
 # Space-separated CONDITIONS in the environment replace this list.
 if [[ -n "${CONDITIONS:-}" ]]; then
@@ -24,6 +25,19 @@ fi
 # Override this in the environment when decoding a different epochs dataset.
 # EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_0.5sec_within-1.0-0.0sec_base_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
 EPOCHS_ROOT_FILE="${EPOCHS_ROOT_FILE:-Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20}"
+
+# What one decoder sample is (docs/decoding.md §2.4). Set it here; FEATURE_MODE
+# in the environment overrides it.
+#   channels_x_time  a trial; its channels x time points are the features
+#   channels         a trial at one time point; its channels are the features.
+#                    File and job names get _feat-channels.
+FEATURE_MODE="${FEATURE_MODE:-channels_x_time}"
+case "$FEATURE_MODE" in
+    channels_x_time) FEATURE_TAG="" ;;
+    channels) FEATURE_TAG="_feat-channels" ;;
+    *) echo "FEATURE_MODE must be channels_x_time or channels, not '$FEATURE_MODE'." >&2
+       exit 1 ;;
+esac
 
 
 # Optional selections from stats/results/anova_conjunction_windows/anova_labels.csv.
@@ -121,9 +135,9 @@ for CSV_INDEX in "${!ANOVA_LABELS_CSVS[@]}"; do
     for EFFECT_INDEX in "${!EFFECTS_THIS_CSV[@]}"; do
         ANOVA_LABEL_EFFECT="${EFFECTS_THIS_CSV[$EFFECT_INDEX]}"
         for COND in "${CONDITIONS[@]}"; do
-            echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT"
-            sbatch --job-name="dec_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}" \
-                --export=ALL,CONDITION_NAME="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
+            echo "Submitting: condition=$COND anova_labels=${ANOVA_LABELS_CSV:-none} effect=$ANOVA_LABEL_EFFECT feature_mode=$FEATURE_MODE"
+            sbatch --job-name="dec_a${CSV_INDEX}e${EFFECT_INDEX}_${COND}${FEATURE_TAG}" \
+                --export=ALL,CONDITION_NAME="$COND",EPOCHS_ROOT_FILE="$EPOCHS_ROOT_FILE",FEATURE_MODE="$FEATURE_MODE",ANOVA_LABELS_CSV="$ANOVA_LABELS_CSV",ANOVA_LABEL_EFFECT="$ANOVA_LABEL_EFFECT",ANOVA_LABEL_CORRECTION="$ANOVA_LABEL_CORRECTION",ANOVA_LABEL_ALPHA="$ANOVA_LABEL_ALPHA",ANOVA_LABEL_ROI="$ANOVA_LABEL_ROI" \
                 sbatch_decoding_dcc.sh
             # sleep 2
         done

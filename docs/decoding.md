@@ -242,8 +242,10 @@ FEATURE_MODE=channels CONDITIONS="stimulus_congruency_conditions" \
     bash submit_specific_conditions_decoding_dcc.sh
 ```
 
-File names get `_feat-channels`. Needs a classifier with `decision_function`
-(LDA, linear SVC).
+Or set `FEATURE_MODE` near the top of
+`submit_specific_conditions_decoding_dcc.sh`; the environment value overrides
+it. File and job names get `_feat-channels`. Needs a classifier with
+`decision_function` (LDA, linear SVC).
 
 `FEATURE_MODE` reaches the sliding-window decode and its pooled shuffle, so the
 accuracy traces, their cluster test and the LWPC/LWPS context comparisons all
