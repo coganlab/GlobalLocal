@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 """
 Entrypoint for the coding-axes analysis (docs/analysis_plans.md, subspace plan
-§3.1-3.3). Sets the parameters and calls coding_axes_dcc.main(). Wrapped by
+§3.1-3.4 and §4: the coding axes and their cosine, the subspace test and the
+trajectories). Sets the parameters and calls coding_axes_dcc.main(). Wrapped by
 sbatch_coding_axes_dcc.sh; the per-run choices come from submit_coding_axes_dcc.sh
 as environment variables (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOWS_TMIN,
 WINDOWS_TMAX, WINDOW_SIZE, STEP_SIZE, REMOVE_MEAN, RT_CONTROL, RT_MATCH_BINS,
 ELECTRODES, ROIS, N_SPLITS,
-N_PERM, N_NULL_SPLITS, N_BOOT, ALPHA, SEED).
+N_PERM, N_NULL_SPLITS, N_BOOT, ALPHA, SEED, K_MAX, TRAJ_AXES, TRAJ_FIRST).
 """
 import sys
 import os
@@ -102,6 +103,23 @@ N_BOOT = int(os.environ.get('N_BOOT', '2000'))              # participant resamp
 ALPHA = float(os.environ.get('ALPHA', '0.05'))
 SEED = int(os.environ.get('SEED', '0'))                     # every other seed derives from it
 
+# --- subspace test (§3.4) ---
+# K_MAX: subspace dimensions compared (k = 1..K_MAX) and tested for
+# reproducibility; the primary k is the largest at which both variables'
+# leading dimensions all beat their shuffle null. The plan reports k = 1-3.
+K_MAX = int(os.environ.get('K_MAX', '3'))
+
+# --- trajectories (§4) ---
+# TRAJ_AXES: the windows (s) the trajectory axes c and s are averaged over,
+# 'tmin:tmax' comma-separated, one figure each. The first is the main figure
+# (0-1.5 s, the anatomy's window); the other two are the early-vs-late variant.
+# TRAJ_FIRST: the axis Gram-Schmidt keeps whole (x); the other becomes y.
+TRAJ_AXES = [tuple(float(v) for v in w.split(':'))
+             for w in os.environ.get('TRAJ_AXES', '0.0:1.5,0.1:0.5,0.6:1.4').split(',')]
+TRAJ_FIRST = os.environ.get('TRAJ_FIRST', 'congruency').strip().lower()
+if TRAJ_FIRST not in ('congruency', 'switch'):
+    raise ValueError(f"TRAJ_FIRST must be congruency or switch; got {TRAJ_FIRST!r}")
+
 # --- output ---
 _tag = EPOCHS_ROOT_FILE if EPOCHS_ROOT_FILE else f'synthetic_rho{SYNTHETIC_RHO}'
 _roi_tag = 'all_rois' if ROIS_DICT is None else '-'.join(ROIS_DICT)
@@ -140,11 +158,14 @@ def run_analysis():
         n_boot=N_BOOT,
         alpha=ALPHA,
         seed=SEED,
+        k_max=K_MAX,
+        traj_axes=TRAJ_AXES,
+        traj_first=TRAJ_FIRST,
         save_dir=SAVE_DIR,
     )
 
     print("=" * 70)
-    print("CODING AXES (subspace plan §3.1-3.3)")
+    print("CODING AXES, SUBSPACE TEST, TRAJECTORIES (subspace plan §3.1-3.4, §4)")
     print("=" * 70)
     print(f"Data source:      {DATA_SOURCE}" + (f" (rho={SYNTHETIC_RHO})" if DATA_SOURCE == 'synthetic' else ""))
     print(f"Subjects:         {SUBJECTS}")
@@ -155,6 +176,8 @@ def run_analysis():
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")
     print(f"n_splits:         {N_SPLITS} | null: {N_PERM} x {N_NULL_SPLITS} splits per factor")
     print(f"n_boot:           {N_BOOT} | alpha: {ALPHA} | seed: {SEED}")
+    print(f"Subspace k_max:   {K_MAX}")
+    print(f"Trajectory axes:  {TRAJ_AXES} s | first: {TRAJ_FIRST}")
     print(f"Save dir:         {SAVE_DIR}")
     print("=" * 70)
 

@@ -1,15 +1,19 @@
-# Coding axes: runbook
+# Coding axes, subspace test and trajectories: runbook
 
-How to run, check and read the coding-axes analysis: the congruency and
-switch-type coding axes in every A4 decoding window, and the cosine between
-them against a label-shuffle null and a split-half ceiling. The design and the
+How to run, check and read the coding-axes job. It computes the congruency
+and switch-type coding axes in every A4 decoding window and the cosine between
+them, against a label-shuffle null and a split-half ceiling. On the same axes,
+halves and shuffles it also runs the subspace test (principal angles and the
+alignment index) and draws the condition trajectories. The design and the
 reasons behind each choice are in
-[`analysis_plans.md` › Subspace trajectory plan §3](analysis_plans.md#3-coding-axes-and-the-angle-between-them);
-this page only says how to produce and read the numbers.
+[`analysis_plans.md` › Subspace trajectory plan §3–4](analysis_plans.md#3-coding-axes-and-the-angle-between-them).
+The math is worked through with small examples in
+[`subspace_math_walkthrough.md`](subspace_math_walkthrough.md). This page
+only says how to produce and read the numbers.
 
-**Status (2026-10-15):** §3.1–3.3 built and tested on synthetic data; not yet
-run on real data. The subspace test (§3.4) and the trajectories (§4) are not
-built.
+**Status (2026-10-15):** §3.1–3.4 and §4 built and tested on synthetic data;
+not yet run on real data. Not built: the lPFC-subsampled-to-occipital control,
+dPCA (§5) and the block-split adaptation (§6).
 
 ## Contents
 
@@ -63,6 +67,48 @@ A window is **reliable** where both ceilings' 95% CIs exclude 0. Elsewhere
 there is no measurable code, so its cosines mean nothing, and the figure greys
 it out.
 
+### 1.1 The subspace test (plan §3.4)
+
+On each split, stack a half's per-window axes side by side: C_A, C_B (congruency)
+and S_A, S_B (switch type), each electrodes × windows over 0–1.5 s. Then:
+
+| Quantity | Definition |
+|---|---|
+| **subspace** of a matrix | its top k left singular vectors, from an SVD without centring (`coding_subspace`) |
+| **principal angles** θ₁ ≤ … ≤ θ_k | cosines = singular values of U_Cᵀ U_S. θ₁ small: some direction is shared; all small: the same subspace |
+| **alignment index** A(C → S) | the share of the congruency effect inside the switch subspace, out of the most any k-dim subspace could hold: ‖U_Sᵀ C‖² / (σ₁² + … + σ_k² of C). Also S → C |
+| **cross** | congruency from one half against switch from the other, both pairings averaged |
+| **ceilings** | the same between the two halves of one variable |
+| **normalized** | cross / √(congruency ceiling × switch ceiling) |
+| **k** per variable | its number of leading dimensions whose held-out variance (‖u_jᵀ M_B‖² with u_j from half A) beats its shuffle null |
+| **primary k** | the smaller of the two k |
+
+All are averaged over the 200 splits and reported for k = 1 to `K_MAX` (3).
+The tests mirror §1: **shared** where the raw cross value beats both shuffle
+nulls (the same shuffles as the cosine null, scored once for both); **not one
+code** where the participant-bootstrap CI of ceiling − cross excludes 0. A row
+is **reliable** where each ceiling beats its own variable's shuffle null.
+These numbers are never negative, so "CI excludes 0" would pass even for
+noise. The pre-specified tests are θ₁ and the two alignment indices at the
+primary k; the other rows are descriptive.
+
+### 1.2 The trajectories (plan §4)
+
+On each split: the axes c and s from half A, averaged over an axis window
+(0–1.5 s for the main figure); x = c/|c| and y = the part of s perpendicular to
+c, unit length (Gram–Schmidt, congruency first). On half B: each electrode's
+mean HG in the four congruency × switch-type cells in every window, each the
+equal-weight mean of its four proportion blocks, centred by subtracting the
+mean of the four cells. The cells' coordinates are their dot products with x
+and y over the pooled electrodes. Then the halves are swapped, and everything
+is averaged over both directions and the 200 splits, with a participant-bootstrap
+CI. The halves are the coding axes' own.
+
+The job also reports how much of the centred cells' activity the plane holds:
+raw (a lower bound, since noise fills all ~400 directions) and noise-corrected
+(cross-half products, which remove independent noise). Axis windows 0.1–0.5 s
+and 0.6–1.4 s give the plan's early-vs-late variant.
+
 ## 2. Quick start
 
 All commands run from `dcc_scripts/subspace/` on the DCC.
@@ -91,8 +137,11 @@ List the main run first: runs are drawn in the order given. The figure and
 to put them elsewhere).
 
 Each job is one `sbatch` (8 cores, 64 GB, 12 h limit). Expected run time on the
-real lPFC data: loading the epochs, then about 20 min, almost all of it the two
-1000-permutation nulls (about 0.5 s per permutation). Logs go to `out/`.
+real lPFC data: loading the epochs, then about 20 min for the two
+1000-permutation nulls (about 0.5 s per permutation), plus roughly 10–15 min
+for the subspace test's participant bootstrap (2000 draws of 800 SVDs each;
+timed at about 0.3 s per draw on a 4-core machine, not yet on the DCC). The
+trajectories add a minute or two. Logs go to `out/`.
 
 ## 3. The runs: main result and controls
 
@@ -107,14 +156,18 @@ real lPFC data: loading the epochs, then about 20 min, almost all of it the two
 
 `submit_coding_axes_all.sh` submits all six. Settings combine
 (e.g. `REMOVE_MEAN=1 RT_CONTROL=adjust`), and anything you put in front of
-`submit_coding_axes_all.sh` applies to all six jobs.
+`submit_coding_axes_all.sh` applies to all six jobs. Every control applies to
+the subspace test and the trajectories too: the RT control and `remove_mean`
+act on the trials before anything is scored.
 
 Not built yet: the plan's lPFC-subsampled-to-occipital's-54-electrodes control.
 
 ## 4. Settings
 
 Environment variables read by `run_coding_axes_dcc.py`; defaults in brackets.
-The output directory name records every one that changes the numbers.
+The output directory name records every one that changes the coding-axis
+numbers. `K_MAX`, `TRAJ_AXES` and `TRAJ_FIRST` change only the subspace and
+trajectory outputs, and are recorded in `run_config.json` only.
 
 | Variable | Default | What it does |
 |---|---|---|
@@ -133,6 +186,9 @@ The output directory name records every one that changes the numbers.
 | `N_BOOT` | `2000` | participant resamples |
 | `ALPHA` | `0.05` | test level; CIs are the central 1 − α |
 | `SEED` | `0` | every random draw derives from it (`run_config.json` → `seeds`) |
+| `K_MAX` | `3` | subspace dimensions compared (k = 1 … `K_MAX`) and tested for reproducibility |
+| `TRAJ_AXES` | `0.0:1.5,0.1:0.5,0.6:1.4` | trajectory axis windows (s), `tmin:tmax`, comma-separated; one figure each. The first is the main figure |
+| `TRAJ_FIRST` | `congruency` | the axis Gram–Schmidt keeps whole (x); `switch` swaps the roles |
 
 ## 5. Outputs
 
@@ -149,6 +205,15 @@ Each run writes to
 | `run_config.json` | every setting and seed, electrode and participant counts, the window grid |
 | `rt_adjust_slopes.csv` | (`adjust`) each electrode's HG-on-RT slope and within-cell correlation, per window |
 | `rt_match_contrasts.csv`, `rt_match_summary.csv` | (`match`; `rt_random_*` for `random`) per-participant RT differences (incongruent − congruent, switch − repeat) before and after selection, and their t-test across participants |
+| `subspace_test.png` | the subspace figure (§6.1) |
+| `subspace_test.csv` | one row per `measure` (`angle`, `alignment`), `k` and `component` (angle index, or `congruency_to_switch` / `switch_to_congruency`): `cross`, `congruency_ceiling`, `switch_ceiling`, `ceiling`, `normalized`, the angles in degrees (`*_deg`), bootstrap CIs (`*_lo`, `*_hi`), the null thresholds (`null_hi_<factor>`), pointwise p (`p_<factor>`), the marks (`shared_<factor>`, `shared`, `reliable_congruency`, `reliable_switch`, `reliable`, `not_one_code`) and `primary` |
+| `subspace_dimensions.csv` | per variable and dimension: held-out variance (`heldout`, and as a fraction of the held-out total), the null threshold, p, `reproducible`, `kept` |
+| `subspace_summary.json` | k per variable, the primary k, and at the primary k: θ₁ and both alignment indices with their CIs and marks |
+| `null_subspace.npz` | per factor (`<factor>_cross`, `<factor>_ceiling`, `<factor>_dims`): every shuffle's cross values, the shuffled variable's ceilings and its per-dimension held-out variance |
+| `trajectories_<axes>.png`, `trajectories_<axes>_uncentred.png` | the trajectory figure for each axis window (§6.2), e.g. `trajectories_0.0-1.5s.png` |
+| `trajectories.csv` | one row per axis window (`axes`), `cells` (`centred` / `uncentred`), `cell` and window: `x`, `y`, and for centred cells the bootstrap CI (`x_lo` … `y_hi`), with the window grid |
+| `trajectory_fractions.csv` | per axis window and window: `plane_fraction` (raw) and `plane_fraction_signal` (noise-corrected); `window = -1` is all windows together, with bootstrap CIs |
+| `trajectory_summary.json` | electrodes and participants used, electrodes dropped (per participant), and per axis window: the cosine between its two axes before Gram–Schmidt, the overall fractions with CIs, and the raw fraction's chance level 2 / n_electrodes |
 
 `plot_coding_axes_controls.py` writes `coding_axes_controls.png` and
 `coding_axes_controls.csv` (one row per run: alignment over its reliable
@@ -195,6 +260,56 @@ Compare timing too: the plan expects the codes to be separable early and to
 converge after about 0.6 s, as in A4. Report the first shared window from the
 strip, or `shared_from_s` in the controls table.
 
+### 6.1 The subspace test
+
+`subspace_test.png`:
+
+- **a, principal angles; b, alignment index.** One column per row of
+  `subspace_test.csv`, labelled by k and component. Blue dot: the raw cross
+  value with its bootstrap CI, filled where it is **shared** (above both shuffle
+  nulls). Orange tick: the ceiling. Grey bar: the stricter null's threshold.
+  Light band: the primary k. Faded: a ceiling not above its own null, so that
+  row is not interpretable.
+- **c, d, how many dimensions.** Held-out variance per dimension (log scale),
+  filled where it is kept; the grey tick is the null's 95th percentile. The
+  panel title gives k.
+
+| What you see at the primary k | Reading |
+|---|---|
+| θ₁ shared and not one code; both alignment indices low-to-middling | **partly shared**: at least one direction in common, carrying that share of each effect. The expected outcome (plan §3.4) |
+| θ₁ not above the nulls, ceilings reliable | separate subspaces at this noise level. Required before saying "orthogonal" (plan §7), and only with high ceilings |
+| everything at the ceiling (no "not one code") | one shared code. Not expected |
+| k = 0 for a variable (summary `primary_k` null) | that variable's code is not reproducible across halves; there is no subspace to compare |
+
+For the text: `subspace_summary.json` → `theta_1` (`cross_deg`, `normalized`
+with CI) and the two `alignment_*` entries. Quote the raw value, the ceiling
+and the normalized value together, as for the cosine. Then read the controls'
+runs: if θ₁ stops being shared under `REMOVE_MEAN=1` or RT matching, the shared
+direction is the overall-activity or slowing component (plan §3.4).
+
+### 6.2 The trajectories
+
+`trajectories_0.0-1.5s.png`:
+
+- **a:** the four centred condition means in the plane, time as the path (open
+  circle = first window, arrow = last). Colour = congruency, line style = switch
+  type. x is the congruency axis; y is the part of the switch axis
+  perpendicular to it.
+- **b, c:** x(t) and y(t) with the participant-bootstrap CI.
+- The footer gives the plane fractions and cos(c, s) of the two axes.
+
+Incongruent and congruent separate along x, and switch and repeat along y.
+**Where the codes are shared, the switch cells also move along x**: the
+solid lines (switch) sit to the right of the dashed ones (repeat) of the same
+colour. Compare `trajectories_0.1-0.5s.png` and `trajectories_0.6-1.4s.png`:
+if the codes converge late, the late axes' cosine is higher and the x offset
+larger. The uncentred figures keep the evoked response (supplement).
+
+The trajectories are a picture of the subspace test's k = 1 case, not a test.
+Positions shrink toward 0 when the axes are noisy (held-out projections onto a
+noisy axis are attenuated), so compare shapes and timing, not absolute sizes
+across runs with different ceilings.
+
 ## 7. Checks before trusting a run
 
 1. **Ceilings.** Most of 0.1–1.4 s should be reliable. If the ceilings are
@@ -211,6 +326,21 @@ strip, or `shared_from_s` in the controls table.
 4. **Null resolution.** With `N_PERM=1000` the smallest pointwise p is 1/1001.
    A dry run with `N_PERM=50` can't get below about 0.02; don't read its p
    values.
+5. **k.** `subspace_summary.json` → `k`. If a variable has k = 0, its code does
+   not replicate across halves and the subspace rows mean nothing for it. If
+   `primary_k_capped` is true, every tested dimension replicated; raise `K_MAX`
+   to see where it stops.
+6. **Trajectory electrodes.** `trajectory_summary.json` →
+   `n_electrodes_dropped`. The block-balanced cells need at least one trial in
+   each of the 16 congruency × switch × block cells in each half; the rarest
+   (incongruent switch trials in the 25 %-incongruent, 25 %-switch block) has
+   about 5 per participant. A participant with a cell of 0–1 trials loses all of
+   its electrodes from the trajectories (not from the tests).
+7. **Plane fractions.** The raw fraction should be well above its chance level
+   (`plane_fraction_chance`); the noise-corrected one says what share of the
+   condition-dependent signal the picture shows. A low corrected fraction means
+   much of the condition-dependent activity is outside span{c, s} (an
+   interaction, or patterns that change over time; see k).
 
 ## 8. Code map and tests
 
@@ -224,17 +354,29 @@ strip, or `shared_from_s` in the controls table.
 | Shuffle null | `permute_within_cells`, `cross_cosine_null` |
 | Cluster correction | `shared_windows` |
 | Bootstrap, marks, summary | `compare_coding_axes` |
+| Shuffle draws shared by both nulls | `null_draws` (`coding_axes.py`); `cross_cosine` and `coding_subspaces.subspace_null_stats` score each draw |
+| Subspace primitives | `coding_subspace`, `principal_angle_cosines`, `alignment_index`, `heldout_variance` in [`src/analysis/stats/coding_subspaces.py`](../src/analysis/stats/coding_subspaces.py) |
+| Subspace point estimates, k, null, bootstrap, marks | `subspace_stats`, `dimension_test`, `subspace_null`, `compare_subspaces` (same module) |
+| Shared halves and cell means | `shared_halves`, `half_cell_means`, and `main_effect_mean_diffs(halves=...)` in `stability_flexibility_segregation.py` |
+| Trajectories | `axis_window_means`, `balanced_cell_means`, `trajectory_sums`, `condition_trajectories` in [`src/analysis/stats/coding_trajectories.py`](../src/analysis/stats/coding_trajectories.py) |
 | Job, per-run figure, controls figure | [`dcc_scripts/subspace/coding_axes_dcc.py`](../dcc_scripts/subspace/coding_axes_dcc.py), `run_coding_axes_dcc.py`, `plot_coding_axes_controls.py` |
+| Subspace and trajectory figures | [`dcc_scripts/subspace/subspace_figures.py`](../dcc_scripts/subspace/subspace_figures.py) |
 
-`coding_axes.py` only computes (in-memory tables in, tables out); loading,
-saving and plotting are in the `dcc_scripts/subspace` files.
+`coding_axes.py`, `coding_subspaces.py` and `coding_trajectories.py` only
+compute (in-memory tables in, tables out); loading, saving and plotting are in
+the `dcc_scripts/subspace` files.
 
 Tests (run from the repo root in the `ieeg` environment):
 
 ```bash
 python -m pytest -q tests/analysis/stats/test_coding_axes.py \
-                    tests/analysis/stats/test_per_window_sensitivities.py
+                    tests/analysis/stats/test_per_window_sensitivities.py \
+                    tests/analysis/stats/test_coding_subspaces.py \
+                    tests/analysis/stats/test_coding_trajectories.py
 ```
+
+(`python -m pytest`, not bare `pytest`, unless the repo is pip-installed: bare
+`pytest` does not put the repo root on the import path.)
 
 They pin:
 - the fast scorer against the loop;
@@ -245,7 +387,16 @@ They pin:
 - the RT control;
 - the cluster test against a correlated null;
 - the bootstrap and marks on a planted shared code;
-- the controls figure.
+- the controls figure;
+- the subspace primitives against SciPy and planted geometry, and the plan's
+  two worked examples (PCA drops a sustained pattern; Spearman of PC1s
+  misreads swapped PC order);
+- k = 1 reducing to the cosine; the ceiling normalization through noise;
+- the dimension test finding planted ranks; a shared direction marked shared
+  and not one code; orthogonal codes not marked shared;
+- the trajectories against a direct one-split computation; cells at half the
+  planted effects; equal block weights; the plane fractions;
+- the whole job end to end on synthetic data (marked `slow`).
 
 ## 9. Deviations from the plan, and limits
 
@@ -274,3 +425,34 @@ They pin:
 - **Mean differences only.** The job scores no other measure: only mean
   differences have the fast scorer the null needs. For per-window Cohen's d,
   use `compute_sensitivities_per_window`.
+
+Subspace test and trajectories:
+
+- **The ceiling normalization is exact at k = 1 and a heuristic above it.**
+  At k = 1 the normalized angle cosine is |§3.2's alignment| and the
+  normalized index its square. For k > 1 the geometric mean of the two
+  variables' ceilings is applied per angle and per index. On a planted shared
+  2-D subspace it averages 0.92–1.06 across noise levels, but single estimates
+  scatter (about ±0.05 at a raw value of 0.5, ±0.15 near 0.1). Lean on the
+  raw values and the shuffle test at k > 1.
+- **"Reliable" for subspace rows is a ceiling above its own shuffle null,**
+  not §3.2's "CI excludes 0". Principal-angle cosines and alignment indices
+  are never negative, so the CI rule would pass for noise.
+- **The primary k is the smaller of the two variables' k,** so both subspaces
+  are reproducible at it. The plan says "the largest at which half B's effects
+  keep more variance in half A's subspace than under the null" without saying
+  whose. Each dimension is tested on its own held-out variance, in order,
+  stopping at the first failure.
+- **No correction across rows.** The rows are not a time series. θ₁ and the
+  two alignment indices at the primary k are the pre-specified tests; report
+  the rest as descriptive.
+- **The bootstrap uses all 200 splits per draw;** the null draws average 20
+  (`N_NULL_SPLITS`), which only widens the null (conservative, as in §3.2).
+- **Trajectory cells weight the four proportion blocks equally,** which needs
+  a trial in each of the 16 congruency × switch × block cells in each half
+  (check 6). Electrodes without one are dropped from the trajectories only.
+- **The plane fraction comes in two versions.** The plan asks for "the
+  fraction of the centred cells' variance in the plane". The raw version is
+  that, but noise fills every electrode direction, so it is mostly a measure
+  of signal-to-noise. The noise-corrected version (cross-half products) is the
+  one to quote for "the 2-D view is not a thin slice".

@@ -99,6 +99,31 @@ def test_fast_main_effects_match_the_loop():
         assert np.allclose(m[f'{col}_ref'], m[col], equal_nan=True)
 
 
+def test_shared_halves_reproduce_the_scorer_and_its_cell_means():
+    """`halves=` scores on exactly the trials the seed draws, and the cell means
+    behind the effects are plain means over those trials."""
+    rng = np.random.default_rng(3)
+    df, times = _trial_long(rng.normal(size=4), rng.normal(size=4), n_subj=2, n_elec=4,
+                            n_time=8, seed=3)
+    means, _ = sfs.window_means(df['hg'].to_numpy(), times, 4, 4)
+    labels = df.drop(columns='hg')
+    halves = sfs.shared_halves(labels, n_splits=3, seed=11)
+    a = sfs.main_effect_mean_diffs(labels, means, n_splits=3, seed=11)
+    b = sfs.main_effect_mean_diffs(labels, means, halves=halves)
+    assert a.equals(b)
+
+    system = {'cong': (('_scond',), ((1.0,), (0.0,)))}           # incongruent, congruent
+    subj, elecs, out = next(sfs.half_cell_means(labels, means, system, halves))
+    cell_means, counts = out['cong']                               # (e, windows, splits, 2, 2)
+    rows = (labels['subject'] == subj) & (labels['electrode'] == elecs[1])
+    half = halves[subj][2].reindex(labels.loc[rows, 'trial']).to_numpy()   # split 2
+    in_b = rows.to_numpy().copy()
+    in_b[rows.to_numpy()] = half == 1
+    inc = in_b & (labels['congruency'] == 'i').to_numpy()
+    assert cell_means[1, 0, 2, 1, 0] == pytest.approx(means[inc, 0].mean())
+    assert counts[1, 0, 2, 1, 0] == inc.sum()
+
+
 def test_remove_mean_ignores_a_shift_shared_by_a_participants_electrodes():
     rng = np.random.default_rng(2)
     df, times = _trial_long(rng.normal(size=6), rng.normal(size=6), n_subj=2, n_elec=6)
