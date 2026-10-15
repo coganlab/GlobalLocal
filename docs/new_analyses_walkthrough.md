@@ -250,6 +250,7 @@ ROIS=lpfc bash submit_window_mean_groups_dcc.sh                    # congruency 
 ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
 CONDITIONS="stimulus_lwpc_block_balanced_conditions" ROIS=lpfc \
     bash submit_window_mean_groups_dcc.sh
+WINDOW_MEAN_MATCH_ELECTRODES=false ROIS=lpfc bash submit_window_mean_groups_dcc.sh   # each group whole
 ```
 
 One job per condition set; the default sets are congruency and switch type. The
@@ -263,21 +264,24 @@ coupling sets, `ELECTRODE_SETS_JSON`).
 | `WINDOW_MEAN_BOOTSTRAPS` | 20 | Pseudo-trial draws |
 | `WINDOW_MEAN_N_PERM` | 1000 | Membership permutations per pair of groups. The smallest possible p is 1/(n_perm + 1) |
 | `WINDOW_MEAN_N_MATCH` | smallest group | Electrodes decoded per group |
+| `WINDOW_MEAN_MATCH_ELECTRODES` | true | `false` decodes each group on all its electrodes, with no size matching (§2.4). `WINDOW_MEAN_N_MATCH` must then be empty |
 
 The classifier, `EXPLAINED_VARIANCE`, `N_SPLITS` and `N_REPEATS` are the
 decoding job's (LDA, 0.90, 5, 5).
 
 **Cost.** About 0.16 s per decode. Each permutation decodes both groups in every
 bootstrap, so 1000 permutations × 20 bootstraps × 2 groups × 3 pairs is 120,000
-decodes, about an hour per contrast and ROI on 5 cores.
+decodes, about an hour per contrast and ROI on 5 cores. Unmatched, the decodes
+are the same in number but larger (`all` uses every electrode), so slower.
 
 **Outputs**, in
-`figs/<EPOCHS>/window_mean_groups/<condition>_<tmin>to<tmax>s_<n>bts_<n>perm_seed<seed>/<comparison>/<roi>/`:
+`figs/<EPOCHS>/window_mean_groups/<condition>_<tmin>to<tmax>s_<n>bts_<n>perm_seed<seed>/<comparison>/<roi>/`
+(the tag ends in `_unmatched` with `WINDOW_MEAN_MATCH_ELECTRODES=false`):
 
 | File | What |
 |---|---|
 | `accuracies.csv` | One row per group, bootstrap and CV repeat: true accuracy and shuffled-label accuracy |
-| `summary.csv` | Per group: mean accuracy, its 2.5–97.5 percentiles over bootstraps × repeats, mean chance, the group's size and `n_match` |
+| `summary.csv` | Per group: mean accuracy, its 2.5–97.5 percentiles over bootstraps × repeats, mean chance, the group's size, `n_match` (empty unmatched) and `n_decoded` (electrodes it was decoded on) |
 | `tests.csv` | Per pair: the accuracy difference, permutation p, Holm-adjusted p, the null's 2.5–97.5 percentiles |
 | `params.json` | Every setting, including group sizes and subjects |
 | `group_bars.png`/`.pdf` | The bar plot (§2.5) |
@@ -286,10 +290,10 @@ decodes, about an hour per contrast and ROI on 5 cores.
 
 Entry: `decoding_dcc.main` (`dcc_scripts/decoding/decoding_dcc.py:421`) hands
 over to `run_window_mean_group_comparison`
-(`dcc_scripts/decoding/window_mean_groups_dcc.py:27`), which loads, saves and
+(`dcc_scripts/decoding/window_mean_groups_dcc.py:29`), which loads, saves and
 plots. The computation is `src/analysis/decoding/window_mean_decoding.py`.
 
-1. **Groups** (`electrode_groups`, `window_mean_groups_dcc.py:19`). `all` is
+1. **Groups** (`electrode_groups`, `window_mean_groups_dcc.py:21`). `all` is
    every ROI electrode in the loaded epochs; `sig` is the task-significant ones
    among them (from `sig_chans_<subject>_<EPOCHS>.json`, HG above its
    pre-stimulus baseline); `nonsig` is `all` minus `sig`. The `ELECTRODES`
@@ -297,24 +301,28 @@ plots. The computation is `src/analysis/decoding/window_mean_decoding.py`.
 2. **Data, once per bootstrap.** One pseudo-trial draw over **all** electrodes
    (`make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel`),
    so every group is a subset of the same columns and sees the same trials.
-   `window_mean_dataset` (`window_mean_decoding.py:36`) balances the classes as
+   `window_mean_dataset` (`window_mean_decoding.py:41`) balances the classes as
    the time-resolved decode does and averages each electrode over the window:
    `X` is `(trials, electrodes)`.
 3. **Decode every group at the matched size** (`compare_electrode_groups`,
-   `:89`). In each bootstrap each group gets `n_match` electrodes drawn at random
-   without replacement, a fresh draw each time. `decode_accuracy` (`:58`) runs
-   5-fold CV × 5 repeats and returns one accuracy per repeat. The same columns
-   decoded with shuffled training labels give chance.
+   `:98`). In each bootstrap each group gets `n_match` electrodes drawn at random
+   without replacement, a fresh draw each time (`_group_columns`, `:74`).
+   Unmatched, each group is decoded on all its electrodes instead.
+   `decode_accuracy` (`:63`) runs 5-fold CV × 5 repeats and returns one accuracy
+   per repeat. The same columns decoded with shuffled training labels give
+   chance.
 4. **The observed difference** for a pair is mean accuracy of group 1 minus
    group 2, over bootstraps and repeats, from the draws in step 3.
 5. **The null** (`compare_electrode_groups`, the `for g1, g2 in pairs` loop). The
    two groups' electrodes are pooled and shuffled, and the shuffled pool is dealt
    back: its first `n1` electrodes become pseudo-group 1, its last `n2` become
-   pseudo-group 2. `_matched_diff` (`:74`) then repeats steps 3–4 on the
+   pseudo-group 2. `_group_diff` (`:82`) then repeats steps 3–4 on the
    pseudo-groups, with new electrode draws and new CV seeds. This is repeated
    `n_perm` times.
 6. **p and Holm.** p = (1 + #{|null| ≥ |observed|}) / (1 + n_perm), two-sided.
-   Holm's correction is applied across the pairs (three by default).
+   Unmatched, p = 2 × (1 + the smaller of #{null ≥ observed} and
+   #{null ≤ observed}) / (1 + n_perm), capped at 1 (§2.4). Holm's correction is
+   applied across the pairs (three by default).
 
 ### 2.4 The statistics, and why it is set up this way
 
@@ -323,6 +331,18 @@ of electrodes. `all` contains `sig` and `nonsig`, so it would win on size alone.
 Decoding every group with the same `n_match` electrodes compares what an
 electrode of each group carries, not how many there are. Drawing the `n_match`
 afresh in every bootstrap averages over which electrodes happen to be picked.
+
+**Without the matching** (`WINDOW_MEAN_MATCH_ELECTRODES=false`). Each group is
+decoded on all its electrodes, so the bars mix what an electrode carries with
+how many there are, and `all` is expected to come out on top. The test still
+accounts for size: each permutation deals pseudo-groups of the real groups'
+sizes and decodes them whole, so the null asks whether the real group does
+better or worse than a random group **of its own size** from the pool. That null
+is centred on the size difference, not on zero, so the p doubles the smaller
+tail instead of comparing absolute differences
+(`test_unmatched_null_carries_the_size_difference`). Its floor is
+2/(n_perm + 1). For `sig` vs `all` the pseudo-group 2 is `all` in every
+permutation, so the null is a random `n_sig` of all against all of it.
 
 **Why a membership permutation and not an ANOVA over bootstraps.** The 20
 bootstraps and the 5 CV repeats re-use the same trials. They measure the
@@ -379,7 +399,8 @@ group needs no held-out trials here.
 - a white dashed line across each bar: chance, from the shuffled-label decode
   of the same electrodes;
 - brackets: each tested pair with its Holm-adjusted permutation p;
-- x labels give each group's full size; the y label gives `n_match`.
+- x labels give each group's full size; the y label gives `n_match`, or "all
+  electrodes per group" unmatched.
 
 ---
 
@@ -774,7 +795,7 @@ Every analysis above has tests on synthetic data (no real data needed):
 |---|---|
 | `tests/analysis/decoding/test_decoder_feature_mode.py` | Channel mode decodes a spatial pattern, is at chance on noise, works without windows, and leaves the default mode unchanged |
 | `tests/analysis/decoding/test_channel_trajectories.py` | PC1 is the shared response unless the condition mean is removed; shapes and padding; the figure is written |
-| `tests/analysis/decoding/test_window_mean_decoding.py` | Window means; matched group sizes and a planted difference found; no difference when membership does not matter; the nested null keeps the superset whole |
+| `tests/analysis/decoding/test_window_mean_decoding.py` | Window means; matched group sizes and a planted difference found; no difference when membership does not matter; the nested null keeps the superset whole; unmatched groups decoded whole, the unmatched null centred on the size difference, the DCC run's `_unmatched` output |
 | `tests/analysis/decoding/test_score_electrode_selection.py` | `top_fraction` signs and rounding; the sets and pairs; held-out sets keep only decode trials; the split does not depend on Python's hash seed; `naive_sensitivities(main_effects=True)` |
 | `tests/analysis/utils/test_image_utils.py` | `trim_whitespace` keeps the ink and its padding |
 | `tests/analysis/stats/test_section19_anatomy.py` | Includes `test_height_partial_residuals_carry_the_coordinate_tests_slope` |
@@ -788,7 +809,7 @@ pytest tests/analysis/decoding/test_decoder_feature_mode.py \
        tests/analysis/stats/test_section19_anatomy.py
 ```
 
-All 54 passed on 2026-10-15 (about 3 minutes).
+All 58 passed on 2026-10-15 (about 3 minutes).
 
 ## References
 

@@ -444,6 +444,7 @@ explains the knobs; run `report_coupling_counts.py` first, and
 ```bash
 bash submit_window_mean_groups_dcc.sh                      # congruency and switch type
 ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
+WINDOW_MEAN_MATCH_ELECTRODES=false bash submit_window_mean_groups_dcc.sh   # no size matching
 ```
 
 Without `ROIS` the job uses `run_decoding_dcc.py`'s `ROIS_DICT`, which ships
@@ -465,6 +466,11 @@ time features?
 - Each group's `n_match` electrodes are drawn at random, afresh in each of
   `WINDOW_MEAN_BOOTSTRAPS` (20) pseudo-trial draws. Every group's draw comes from
   the same pseudo-trials.
+- `WINDOW_MEAN_MATCH_ELECTRODES=false` turns the matching off: each group is
+  decoded on all its electrodes (leave `WINDOW_MEAN_N_MATCH` empty). The bars
+  then favour the bigger groups, but the test below still deals pseudo-groups
+  of the real sizes, so it compares each group with random groups of its own
+  size. Results go to a tag ending in `_unmatched`.
 
 **How groups are compared.** By membership permutation, not by an ANOVA over
 bootstraps:
@@ -473,12 +479,13 @@ bootstraps:
 - Instead, the two groups' electrodes are pooled and dealt back into groups of
   the original sizes, keeping any overlap, and the matched decode is repeated
   `WINDOW_MEAN_N_PERM` (1000) times.
-- The p is two-sided, with a floor of 1/(n_perm+1). Holm-adjusted p is reported
-  across the three pairs.
+- The p is two-sided, with a floor of 1/(n_perm+1). Unmatched, the null is
+  centred on the size difference, so p doubles the smaller tail (floor
+  2/(n_perm+1)). Holm-adjusted p is reported across the three pairs.
 - The null is "which group an electrode belongs to does not matter".
 - For `sig` vs `all`, each permutation draws a pseudo-`sig` from `all`.
 
-**Output.** `figs/<EPOCHS>/window_mean_groups/<condition>_<window>_<n>bts_<n>perm_seed<seed>/<comparison>/<roi>/`:
+**Output.** `figs/<EPOCHS>/window_mean_groups/<condition>_<window>_<n>bts_<n>perm_seed<seed>[_unmatched]/<comparison>/<roi>/`:
 - `accuracies.csv` (group × bootstrap × repeat, true and shuffled-label);
 - `summary.csv`;
 - `tests.csv` (difference, p, Holm p, the null's 95 % range);

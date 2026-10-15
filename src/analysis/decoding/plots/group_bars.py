@@ -14,7 +14,8 @@ def _fmt_p(p):
 
 
 def plot_group_accuracy_bars(result, out_stem, title=None, base_fontsize=9.0):
-    """One bar per electrode group: mean accuracy at the matched size, whiskers
+    """One bar per electrode group: mean accuracy at the matched size (or on all
+    the group's electrodes when ``result['n_match']`` is None), whiskers
     the 2.5-97.5 percentiles over bootstraps and repeats, a dot per bootstrap
     mean, chance (shuffled labels) as a dashed line across each bar, and a
     bracket per tested pair with its Holm-adjusted permutation p. ``result`` is
@@ -46,7 +47,8 @@ def plot_group_accuracy_bars(result, out_stem, title=None, base_fontsize=9.0):
         ax.set_xticks(range(len(groups)))
         ax.set_xticklabels([f"{g}\n(n = {n})" for g, n in
                             zip(groups, summary['n_electrodes'])])
-        ax.set_ylabel(f"accuracy, {int(summary['n_match'].iloc[0])} electrodes per group")
+        ax.set_ylabel(f"accuracy, {result['n_match']} electrodes per group"
+                      if result['n_match'] is not None else "accuracy, all electrodes per group")
         lo = min(0.4, float(summary['chance'].min()) - 0.05)
         ax.set_ylim(lo, top + step * (len(tests) + 1.5))
         ax.axhline(0.5, color='#cfcfcf', lw=0.6, zorder=0)
