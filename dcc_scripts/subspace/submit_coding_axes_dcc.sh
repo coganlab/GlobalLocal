@@ -31,9 +31,9 @@ WINDOW_SIZE=${WINDOW_SIZE:-64}
 STEP_SIZE=${STEP_SIZE:-16}
 
 REMOVE_MEAN=${REMOVE_MEAN:-0}                 # 1 = A4's remove_mean control
-RT_CONTROL=${RT_CONTROL:-random}                # none | adjust | match | random
+RT_CONTROL=${RT_CONTROL:-none}                # none | adjust | match | random
 RT_MATCH_BINS=${RT_MATCH_BINS:-10}            # quantile RT bins (match / random)
-ELECTRODES=${ELECTRODES:-sig}                 # 'all' or 'sig'
+ELECTRODES=${ELECTRODES:-all}                 # 'all' or 'sig'
 # sbatch --export splits on commas, so a comma-containing ROIS reaches the job
 # through `export` + --export=ALL instead (as in the segregation submit script).
 export ROIS=${ROIS:-dlpfc,lpfc}

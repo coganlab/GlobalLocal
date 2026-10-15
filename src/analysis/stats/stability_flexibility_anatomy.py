@@ -2436,7 +2436,8 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
     on a sagittal projection of the electrodes when there is no render; b, LWPC
     against LWPS coloured by band, with the identity line and each band's
     centroid, beside a zoom on the centroids (each with its 95 % bootstrap
-    ellipse) that connector lines tie to its box in the scatter: the overlap
+    ellipse), framed by the same dashed outline as its box in the scatter and
+    tied to it by an arrow: the overlap
     runs along the identity line, the gradient is the centroids' spread across
     it; c, every electrode's balance against its height (``partials``,
     :func:`height_partial_residuals`) with the coordinate test's slope, and the
@@ -2448,7 +2449,9 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    from matplotlib import patheffects
     from matplotlib.lines import Line2D
+    from matplotlib.patches import ConnectionPatch, Rectangle
     from src.analysis.utils.image_utils import trim_whitespace
 
     x_name, y_name, title = (FIG5_PAIRS[pair][k] for k in ('x_name', 'y_name', 'title'))
@@ -2507,7 +2510,8 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         mid = float(np.mean(np.r_[centroids['x'], centroids['y']]))
         zlo, zhi = mid - 0.6 * span, mid + 0.6 * span
         ax_z.plot([zlo, zhi], [zlo, zhi], color=_MUTED, lw=0.7, zorder=1)
-        ax_z.text(zhi, zhi, f'{x_name} = {y_name} ', ha='right', va='top', fontsize=5.5,
+        tip = zhi - 0.06 * (zhi - zlo)    # clear of the dashed frame's corner
+        ax_z.text(tip, tip, f'{x_name} = {y_name} ', ha='right', va='top', fontsize=5.5,
                   color=_MUTED, rotation=45, rotation_mode='anchor')
         for c in centroids.itertuples():
             _ellipse(ax_z, c.x, c.y, [[c.cov_xx, c.cov_xy], [c.cov_xy, c.cov_yy]],
@@ -2517,7 +2521,24 @@ def plot_figure5_height(points, centroids, partials, stat, edges, out_stem, axis
         ax_z.set(xlim=(zlo, zhi), ylim=(zlo, zhi), aspect='equal',
                  xlabel=f'{x_name} (SD units)')
         ax_z.set_title('Band centroids', loc='left', fontsize=7, color=_INK)
-        ax_b.indicate_inset_zoom(ax_z, edgecolor=_INK, linewidth=0.6, alpha=1)
+        # The zoomed region: the same dashed outline around the box in the
+        # scatter and around the zoom, and one arrow from one to the other, so
+        # the link never looks like the identity line or an axis. The zoom's
+        # y ticks go right to leave its left edge clear for the arrow.
+        inset = dict(edgecolor=_MUTED, linewidth=0.8, linestyle=(0, (3, 2)))
+        ax_b.add_patch(Rectangle((zlo, zlo), zhi - zlo, zhi - zlo, fill=False, zorder=8,
+                                 **inset))
+        for spine in ax_z.spines.values():
+            spine.set(visible=True, color=inset['edgecolor'], lw=inset['linewidth'],
+                      ls=inset['linestyle'])
+        ax_z.tick_params(color=_INK)
+        ax_z.yaxis.tick_right()
+        arrow = ConnectionPatch(xyA=(zhi, mid), coordsA='data', axesA=ax_b,
+                                xyB=(0, 0.5), coordsB='axes fraction', axesB=ax_z,
+                                arrowstyle='-|>,head_length=0.35,head_width=0.18',
+                                color=_INK, lw=0.8, shrinkA=1, shrinkB=1, zorder=9)
+        arrow.set_path_effects([patheffects.withStroke(linewidth=2.4, foreground='white')])
+        fig.add_artist(arrow)
 
         # c: every electrode along the height axis, in the coordinate test's units
         for band in HEIGHT_BANDS:
