@@ -274,3 +274,128 @@ They pin:
 - **Mean differences only.** The job scores no other measure: only mean
   differences have the fast scorer the null needs. For per-window Cohen's d,
   use `compute_sensitivities_per_window`.
+
+## 10. Results (2026-10-15 run)
+
+*Drafted by Claude from the run outputs; not yet reviewed.*
+
+### 10.1 What was run
+
+Eleven `coding_axes_real` jobs (58726994, 58727006, 58727013, 58727094,
+58727099, 58727101, 58727134, 58727136, 58727140, 58727164, 58727165), all
+COMPLETED in 10–20 min, every one with the defaults of §4 (0–1.5 s, 64/16-sample
+windows, 21 windows, mean differences, 200 splits, 1000 × 20 null, 2000
+participant resamples, seed 0). Outputs are in
+`dcc_scripts/subspace/results/<EPOCHS>/coding_axes/windows_0.0to1.5s_w64s16_<run>_mean_diff_splits200_perm1000x20_seed0[_control]/`:
+
+| `<run>` (folder) | Electrodes / participants | Controls run |
+|---|---|---|
+| `all_lpfc` | 398 / 22 | main only |
+| `all_dlpfc-lpfc` | 398 / 22 (DLPFC ⊂ lPFC, so the union is the lPFC set: `all_lpfc` is its main run) | `remove_mean`, `rt_adjust`, `rt_match10` (397 electrodes), `rt_random10` |
+| `all_dlpfc` | 277 / 21 | main only |
+| `sig_dlpfc-lpfc` | 171 / 21 (task-significant lPFC) | main, `remove_mean`, `rt_adjust`, `rt_match10`, `rt_random10` |
+
+Not run: the occipital control (`ROIS=occ`), and `plot_coding_axes_controls.py`
+(no `coding_axes_controls.png`/`.csv` yet). The numbers below come from each
+run's `summary.json` and `coding_axis_cosines.csv`.
+
+### 10.2 Key numbers
+
+"Reliable" windows are those where both ceilings' 95 % CIs exclude 0;
+alignment is `alignment_reliable_mean` (cross / ceiling, averaged over reliable
+windows) with its participant-bootstrap 95 % CI; cross and ceiling are averaged
+over the same windows. Window times are window centres.
+
+| Run | Reliable windows | Cross | Ceiling | Alignment [95 % CI] | Shared (cluster-mass, both nulls) | Not one code (centres) |
+|---|---|---|---|---|---|---|
+| all lPFC, main | 15 / 21 (0.50–1.38 s) | 0.27 | 0.37 | **0.69 [0.57, 0.89]** | 0.56–1.38 s | 0.50, 0.81–1.00 s |
+| all lPFC, `remove_mean` | 16 | 0.24 | 0.35 | 0.67 [0.48, 0.89] | 0.56–1.38 s | 0.50, 0.75–1.19 s |
+| all lPFC, `rt_adjust` | 13 | 0.15 | 0.25 | 0.58 [0.37, 0.96] | 0.44–1.19 s | 0.50, 0.94–1.00 s |
+| all lPFC, `rt_random10` | 9 | 0.10 | 0.28 | 0.36 [0.06, 0.90] | 1.06–1.38 s | 0.75–1.13 s |
+| all lPFC, `rt_match10` | **1** | – | – | not interpretable (one window) | none | none |
+| DLPFC, main | 15 | 0.27 | 0.40 | 0.66 [0.52, 0.85] | 0.63–1.38 s | 0.50–0.56, 0.75–1.13 s |
+| sig lPFC, main | 16 | 0.32 | 0.50 | 0.61 [0.48, 0.78] | 0.56–1.38 s | 0.44–1.25 s (14 windows) |
+| sig lPFC, `remove_mean` | 16 | 0.24 | 0.37 | 0.62 [0.46, 0.92] | 0.63–1.38 s | 0.44–0.50, 0.75–1.13 s |
+| sig lPFC, `rt_adjust` | 13 | 0.16 | 0.36 | 0.45 [0.17, 0.83] | 0.44–1.13 s | 0.38–0.75, 1.00–1.06 s |
+| sig lPFC, `rt_random10` | 11 | 0.13 | 0.36 | 0.36 [−0.02, 0.80] | 1.13–1.38 s | 0.75–1.19 s |
+| sig lPFC, `rt_match10` | **0** | – | – | – | none | none |
+
+Main all-lPFC run, per window (`coding_axis_cosines.csv`): the ceiling rises
+from 0.19 at 0.50 s to 0.50 at 1.00 s and falls to 0.36 at 1.38 s; the cross
+cosine rises from 0.05 to 0.36 (1.13 s) and stays there. The Pearson cross is
+0.00–0.06 below the cosine. The main run has no reliable window before
+0.50 s (the congruency ceiling is 0.05 or less up to 0.38 s).
+
+RT matching did what it should (§7.2): the incongruent − congruent RT gap went
+from 163 ms to 0.2 ms and switch − repeat from 188 ms to 0.7 ms across
+participants (`rt_match_summary.csv`), while the random subset kept 166 and
+189 ms.
+
+### 10.3 How to read the figures
+
+`coding_axis_cosines.png` in each folder: x is the window centre (s from
+stimulus onset). Top panel, y is the cosine across electrodes: the solid blue
+line is the cross cosine (does half A's congruency axis point where half B's
+switch axis points?), orange the ceiling (how well each axis reproduces itself
+across halves), dashed blue the Pearson version. The grey band is the 5th–95th
+percentile of the label-shuffle null, so a cross cosine above its top edge
+beats the "no congruency code" or "no switch code" null in that window; the
+blue bar marks windows that do so against both nulls and survive cluster-mass
+correction over windows. Orange bars mark windows where the participant
+bootstrap CI of ceiling − cross excludes 0 ("not one code"). Grey background:
+unreliable windows, where nothing should be read. Bottom panel: alignment with
+its 95 % participant-bootstrap CI, 0 = separate, 1 = as shared as noise allows.
+
+### 10.4 Reading
+
+- **Partly shared, in the late part of the trial.** In all lPFC the cross
+  cosine beats both shuffle nulls from 0.56 s to the end of the window, and
+  sits at about 0.7 of the ceiling, with the CI excluding 1 in 5 windows
+  (0.50 s and 0.81–1.00 s). This is the "partly shared" outcome §6 calls
+  expected. It agrees in kind with A4 (transfer from +0.62 s, 26–47 % kept),
+  and the alignment is close to the plan's noise-corrected anatomy estimate
+  (~0.57, `analysis_plans.md` › Subspace plan §1). DLPFC and the
+  task-significant subset give the same picture (0.66, 0.61).
+- **Not a common shift.** `remove_mean` barely changes it (0.69 → 0.67, all
+  lPFC; 0.61 → 0.62, sig), and the Pearson cross is close to the cosine. As in
+  A4, the shared component is a pattern, not every electrode rising together.
+- **Early separation cannot be assessed here.** The plan expected separable
+  codes early, converging after ~0.6 s. With mean-difference axes there is no
+  reliable window before 0.50 s in the main run (0.375 s at the earliest, under
+  `rt_adjust`), so "separate early" is not testable
+  with this measure; A4's decoders found congruency from +0.12 s. Do not
+  report "no sharing early" from these runs.
+- **RT: the strongest and least settled result.** Regression (`rt_adjust`)
+  keeps the sharing (0.58 [0.37, 0.96], shared 0.44–1.19 s), with both cross and
+  ceiling lower late in the trial. RT matching removes the codes themselves:
+  the ceilings fall to ~0.1 and only 1 (all) or 0 (sig) windows stay reliable,
+  so the sharing cannot be measured at all. The random-subset control keeps
+  reliable ceilings (0.28–0.36) in 9–11 windows, so the loss under matching is
+  not the halved sample. Read literally, the congruency and switch mean
+  differences in lPFC HG largely go away when RT is equated across the four
+  cells. That is a stronger statement than A4's (matching cut the transfer, not
+  the decodability), and the two disagree in kind; I am not sure how to
+  reconcile them. Possibly a decoder can use differences that a mean
+  difference averaged over electrodes and blocks cannot, or the matched subset
+  leaves some block × condition cells too thin for the block-weighted axes
+  (§9). Checks that would settle it: (a) rerun `rt_match` and `rt_random` with
+  several `SEED`s (only one draw of each exists); (b) count trials per
+  participant × block × condition cell in the matched subset; (c) rerun with
+  `RT_MATCH_BINS=5`.
+- **The random-subset control also weakens the sharing** (alignment 0.36,
+  shared only from 1.06 s), against 0.69 in the full data. So the subsetting
+  alone moves the result a lot, and a single random draw is not a stable
+  reference. Seeds first (check (a) above) before any RT claim.
+
+### 10.5 Caveats
+
+- One seed for everything, including the single random RT subset.
+- 22 participants; the null treats trials within participant as exchangeable
+  and the bootstrap resamples participants, so the late sharing is a
+  participant-level claim, but with 22 participants the alignment CIs are
+  wide (0.57–0.89 main).
+- The occipital control and the controls figure are missing, so "lPFC-specific"
+  cannot be addressed yet.
+- The sharing is strongest at 0.9–1.4 s, near or after many responses (A4's
+  median RT 1.17 s). Stimulus-locked windows that late mix response-related
+  activity in; a response-locked version would separate the two.

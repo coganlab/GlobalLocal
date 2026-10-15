@@ -231,6 +231,27 @@ describe how the conditions differ.
   little of the variance. It also takes its time axis from `FIRST_TIME_POINT`
   (−1.5), which is 0.5 s off for the −1.0 s epochs.
 
+### 1.7 Run log (2026-10-15): first real runs failed; rerun outstanding
+
+*Drafted by Claude from the job logs; not yet reviewed. No results yet.*
+
+`submit_specific_conditions_decoding_dcc.sh` with `FEATURE_MODE=channels`, no
+ANOVA table (job names `dec_a0e0_<condition>_feat-channels`), all electrodes,
+six condition sets (congruency, switch type, LWPC and LWPS block-balanced,
+congruency by switch proportion, switch type by incongruent proportion). Three
+attempts, none finished:
+
+| Jobs | ROIs | Request | Outcome | Cause |
+|---|---|---|---|---|
+| 58724121–58724126 | dlpfc | 5 CPUs, 225 GB | 5 FAILED, 1 CANCELLED (58724121) after 17–35 min | `numpy.linalg.LinAlgError: SVD did not converge`, raised in a loky worker while fitting a window's decoder for the pooled label-shuffle null (`make_pooled_shuffle_distribution` → `Decoder._window_and_predict_minimal` → `fit`) |
+| 58725544–58725549 | dlpfc | 5 CPUs, 225 GB | all 6 OUT_OF_MEMORY after 15–35 min | OOM kill at 225 GB, right after loading (19–20 GB RSS) in the first PCA fit, or (58725549) while building the 2D-visualization debug arrays |
+| 58725697–58725702 | dlpfc, lpfc | 5 CPUs, 225 GB | all 6 OUT_OF_MEMORY after 15–32 min | OOM kill at 225 GB while building the first bootstrap's arrays or the visualization debug arrays |
+
+The same six conditions were resubmitted as 58738829–58738834 (dlpfc, lpfc;
+50 CPUs, 500 GB) and were running or pending on 2026-10-15. Whether the SVD
+failure of the first attempt recurs there is not known yet: the second and
+third attempts died of memory before reaching that step.
+
 ---
 
 ## 2. Window-mean decoding in sig, nonsig and all electrodes
@@ -380,6 +401,78 @@ group needs no held-out trials here.
   of the same electrodes;
 - brackets: each tested pair with its Holm-adjusted permutation p;
 - x labels give each group's full size; the y label gives `n_match`.
+
+### 2.6 Results (2026-10-15 run)
+
+*Drafted by Claude from the job logs and output tables; not yet reviewed.*
+
+**What was run.** `submit_window_mean_groups_dcc.sh` with `ROIS=lpfc,dlpfc`
+and the defaults (0–1.5 s window means, 20 bootstraps, 1000 membership
+permutations, `n_match` = smallest group, seed 42; LDA, PCA to 90 % variance,
+5 folds × 5 repeats). Two jobs, both COMPLETED:
+
+| Job | Condition set | Contrast | Output folder (under `dcc_scripts/decoding/figs/<EPOCHS>/window_mean_groups/`) |
+|---|---|---|---|
+| 58726163 | `stimulus_congruency_conditions` | incongruent vs congruent | `stimulus_congruency_conditions_0to1.5s_20bts_1000perm_seed42/congruency/{lpfc,dlpfc}/` |
+| 58726164 | `stimulus_switch_type_conditions` | switch vs repeat | `stimulus_switch_type_conditions_0to1.5s_20bts_1000perm_seed42/switchType/{lpfc,dlpfc}/` |
+
+`<EPOCHS>` is `Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20`.
+24 participants were listed; 22 contribute lPFC electrodes. Group sizes: lPFC
+sig 171, nonsig 227, all 398 (`n_match` = 171); DLPFC sig 121, nonsig 156, all
+277 (`n_match` = 121). Pseudo-trials per class after balancing: 105
+(congruency; the incongruent class loses 31 % of its pseudo-trials to the
+per-channel NaN filter) and 120 (switch type).
+
+**Key numbers** (`summary.csv`, `tests.csv`; mean accuracy over 20 bootstraps
+× 5 repeats, [2.5, 97.5] percentiles of the same; chance is the
+shuffled-label decode of the same electrodes, 0.50–0.51 everywhere):
+
+| Contrast | ROI | sig | nonsig | all | sig − nonsig | sig − all | nonsig − all |
+|---|---|---|---|---|---|---|---|
+| Congruency | lPFC | 0.859 [0.82, 0.90] | 0.667 [0.57, 0.75] | 0.786 [0.70, 0.86] | +0.192 (null ±0.08) | +0.074 (null −0.05/+0.04) | −0.119 (null ±0.04) |
+| Congruency | DLPFC | 0.819 [0.76, 0.87] | 0.637 [0.56, 0.72] | 0.735 [0.68, 0.78] | +0.182 (null ±0.09) | +0.084 (null ±0.05) | −0.098 (null ±0.04) |
+| Switch type | lPFC | 0.833 [0.78, 0.88] | 0.662 [0.55, 0.73] | 0.761 [0.69, 0.83] | +0.172 (null ±0.08) | +0.072 (null ±0.05) | −0.099 (null ±0.04) |
+| Switch type | DLPFC | 0.812 [0.75, 0.87] | 0.576 [0.51, 0.64] | 0.704 [0.64, 0.78] | +0.236 (null ±0.09) | +0.108 (null ±0.05) | −0.128 (null ±0.05) |
+
+Every one of the 12 pairwise differences has permutation p = 0.001 (the floor,
+1/1001) or 0.004, Holm p ≤ 0.004. The "null" columns give the 2.5–97.5 % range
+of the membership-permutation null for that difference.
+
+**How to read the figure** (`group_bars.png` in each `<roi>/` folder). y axis:
+decoding accuracy with `n_match` electrodes per group; x axis: the three groups,
+with their full sizes. Bars are means, whiskers the 2.5–97.5 % spread over
+bootstraps × repeats (the procedure's spread, not a CI for the population),
+dots one per bootstrap, white dashes chance. Brackets give the Holm-adjusted
+membership-permutation p: the null is "which group an electrode belongs to does
+not matter", so a significant bracket means electrodes of the two groups carry
+different amounts of the contrast at equal electrode count.
+
+**Reading.**
+- The answer to §2.1 is **no, not equally well**: in both ROIs and both
+  contrasts, sig electrodes decode clearly better than nonsig at matched count
+  (by 0.17–0.24 accuracy, two to three times the null's half-width), and
+  `all` sits in between. The equivalence reading ("nonsig decodes at least as
+  well as sig") is ruled out, not just unsupported.
+- Nonsig electrodes still decode well above chance (0.58–0.67), so they are
+  not empty: the "Reading it" case of §2.4 applies. All lPFC can stay the
+  primary anatomy set, but the text should say that the electrodes added by not
+  restricting to task-significant ones carry less of each base effect per
+  electrode.
+- The permutation conditions on these pseudo-trials and treats electrodes as
+  the unit (§2.4). It does not say the gap would replicate in new participants;
+  sig and nonsig electrodes are also not spread evenly over participants, which
+  the test does not model.
+
+**Caveats.**
+- Window-mean features, base effects only (congruency, switch type). Nothing
+  here speaks to LWPC or LWPS, which are the anatomy's main scores; a run with
+  `CONDITIONS="stimulus_lwpc_block_balanced_conditions ..."` would.
+- The 0.86 / 0.83 accuracies are pooled pseudo-population accuracies with 171
+  electrodes; they are not comparable to single-participant decoding.
+- The congruency decode lost 31 % of the incongruent pseudo-trials to NaN
+  filtering before balancing; both classes were then subsampled to 105, so
+  balance is intact, but the effective trial count is lower than for switch
+  type.
 
 ---
 
@@ -588,6 +681,74 @@ same `SEED` gave a different 30/70 split in every job, including the ANOVA
 electrode-selection route ([`decoding.md`](decoding.md) §3.3). It now uses
 `zlib.crc32`, and `test_trial_split_does_not_depend_on_the_python_hash_seed`
 checks it. ANOVA-route runs made before the fix cannot be reproduced exactly.
+
+### 3.5 Results (2026-10-15 run): step 1, the selections
+
+*Drafted by Claude from the job logs and `selection_scores.csv`; not yet
+reviewed. Steps 2 and 3 have not finished: the decoding jobs on these sets
+(`dec_scoresel_*`, 58739251–54) were still pending at the time of writing, and
+no power-trace job on them had been submitted.*
+
+**What was run.** `sbatch_score_electrode_selection_dcc.sh --rois lpfc,dlpfc`
+with `--electrodes all --frac-select 0.3 --top-frac 0.2 --tmin 0 --tmax 1.5
+--seed 0`, once per sign. All three COMPLETED in about 10 min:
+
+| Job | `--sign` | Folder (under `dcc_scripts/decoding/figs/<EPOCHS>/score_selections/`) |
+|---|---|---|
+| 58726651 | positive | `lpfc-dlpfc_all_sel0.3_top0.2_positive_0to1.5s_seed0/` |
+| 58726655 | negative | `lpfc-dlpfc_all_sel0.3_top0.2_negative_0to1.5s_seed0/` |
+| 58726659 | absolute | `lpfc-dlpfc_all_sel0.3_top0.2_absolute_0to1.5s_seed0/` |
+
+Candidates: 398 lPFC electrodes (22 participants) and 277 DLPFC electrodes (21
+participants; every DLPFC electrode is also an lPFC electrode). Selection used
+86–132 correct trials per participant, measurement keeps 197–307. The scores
+are identical across the three files (same split, seed 0); only the set
+membership differs.
+
+**Set sizes** (electrodes / participants). Each main set is ceil(0.2 × n): 80
+in lPFC, 56 in DLPFC.
+
+| Set | lPFC positive | lPFC negative | lPFC absolute | DLPFC positive | DLPFC negative | DLPFC absolute |
+|---|---|---|---|---|---|---|
+| `lwpc` | 80 / 19 | 80 / 14 | 80 / 18 | 56 / 11 | 56 / 12 | 56 / 13 |
+| `lwps` | 80 / 17 | 80 / 15 | 80 / 18 | 56 / 14 | 56 / 13 | 56 / 15 |
+| `congruency` | 80 / 14 | 80 / 19 | 80 / 14 | 56 / 11 | 56 / 14 | 56 / 11 |
+| `switch_type` | 80 / 18 | 80 / 18 | 80 / 20 | 56 / 16 | 56 / 13 | 56 / 15 |
+| `adaptation_overlap` | 13 / 3 | 18 / 7 | 13 / 6 | 11 / 4 | 8 / 4 | 11 / 6 |
+| `main_effects_overlap` | 23 / 9 | 19 / 11 | 15 / 8 | 18 / 8 | 14 / 8 | 10 / 5 |
+| `lwpc_only` = `lwps_only` | 67 | 62 | 67 | 45 | 48 | 45 |
+| `congruency_only` = `switch_type_only` | 57 | 61 | 65 | 38 | 42 | 46 |
+
+**Checks on the selection.**
+- **Participant concentration.** One participant supplies 14–41 % of a set
+  (largest: DLPFC negative `lwps`, 23 of 56 electrodes from D0133; lPFC
+  positive `congruency`, 20 of 80 from D0134). This is what ranking raw d
+  pooled over participants does (§3.4), and it means a set's decoding result
+  can rest on two or three participants. Report the per-set participant counts
+  with the step-2 results.
+- **Overlap.** Positive `adaptation_overlap` is 13 / 80 in lPFC (16 %) and
+  11 / 56 in DLPFC (20 %), against ~20 % expected by chance for two independent
+  top-20 % sets of the same electrodes (0.2 × 80 = 16). On these 30 % trials
+  the LWPC–LWPS correlation across electrodes is r = 0.05 (lPFC) and 0.00
+  (DLPFC), lower than the full-data r ≈ 0.10 quoted in §3.4.
+- **The adaptation scores are mostly noise at this trial count.** Across lPFC
+  electrodes the LWPC and LWPS scores have SD 0.48 and 0.47, and mean 0.07 and
+  0.04. With ~115 selection trials over the four cells of each 2 × 2, an
+  interaction d has a sampling SD of at least √(4/29) ≈ 0.37 from noise alone,
+  and about 0.43 with 25 % / 75 % cells (about 14 and 43 trials). So the
+  observed spread is close to what noise alone would give: very roughly a fifth
+  of the LWPC variance is signal. The main-effect scores (SD 0.27 and 0.25,
+  against a noise floor of about 0.22) have a larger signal share, roughly a
+  third. These are back-of-envelope figures, not computed from the actual cell
+  counts; they agree in order with the full-data shared-split reliabilities
+  of N4 §19.8 (LWPC 0.21, LWPS 0.04, congruency 0.46, switch 0.35).
+  Expect strong regression to the mean on the 70 % for `lwpc`/`lwps`, and
+  little separation between `lwpc_only` and `lwps_only`. To settle how much
+  signal the sets carry before step 2 is read: correlate each score on the 30 %
+  with the same score on the 70 % (the held-out reliability).
+- No electrode is in both the positive and the negative set of any score, and
+  the absolute sets are the union of the most extreme of each (e.g. lPFC
+  `lwpc`: 49 from the positive tail, 31 from the negative).
 
 ---
 

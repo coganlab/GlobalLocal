@@ -496,6 +496,11 @@ bootstraps:
   is about an hour per contrast and ROI on 5 cores.
 - The job refuses to run with any other electrode route (§3.2–3.5, §3.7).
 
+**Results (2026-10-15 run):** lPFC and DLPFC, congruency and switch type, in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §2.6. In short:
+sig decodes better than nonsig at matched count in all four cases (by
+0.17–0.24, p = 0.001), so the equivalence reading does not hold.
+
 #### 3.7 Top-fraction electrode sets on held-out trials
 
 **Step 1: select (minutes).** Split each subject's correct trials 30 / 70
@@ -579,6 +584,11 @@ significant and the other not is not a test of their difference, and the
 pipeline has no test across sets or contrasts yet; report the effects and their
 intervals side by side. The score formulas, the set algebra and the reading are
 in [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §3.
+
+**Results (2026-10-15 run):** the three step-1 selections (positive,
+negative, absolute; `--rois lpfc,dlpfc`) are described in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §3.5. Steps 2
+and 3 had not finished.
 
 > **Fixed alongside (2026-10-13):** `assign_trial_partitions` seeded each
 > subject with `hash(subject)`. Python salts string hashes per process, so the
