@@ -245,8 +245,20 @@ FEATURE_MODE=channels CONDITIONS="stimulus_congruency_conditions" \
 File names get `_feat-channels`. Needs a classifier with `decision_function`
 (LDA, linear SVC).
 
+`FEATURE_MODE` reaches the sliding-window decode and its pooled shuffle, so the
+accuracy traces, their cluster test and the LWPC/LWPS context comparisons all
+use channel features. The time-averaged confusion matrices still flatten
+channels × time over the epoch, though their file names also get
+`_feat-channels`. Jobs that build their own decoder (A4 cross-decoding, the
+TFR-cluster job, §3.6) ignore it. Because PCA and LDA are linear, averaging a
+trial's decision scores equals scoring its window-mean channel vector; the
+mode differs from window-mean decoding in training, which fits single time
+points. The code walk-through and the statistics are in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §1.
+
 **State-space trajectories in channel space.** With `FEATURE_MODE=channels` and
-`RUN_VISUALIZATION_DEBUG = True` (in `run_decoding_dcc.py`), the visualisation
+`RUN_VISUALIZATION_DEBUG = True` (a constant at line 138 of `run_decoding_dcc.py`,
+with no environment variable: edit it in your clone and push), the visualisation
 step also writes `channel_pca_3d_trajectory_<roi>` and
 `..._condition_mean_removed` (`plots/trajectories.py`,
 `channel_pca_trajectories`):
@@ -264,6 +276,13 @@ channel-space plot reads the times from the data. In high gamma, PC1 of the
 plain version is mostly the response all conditions share. The
 `condition_mean_removed` version subtracts that shared response first, so its
 PCs describe how the conditions differ.
+
+The trajectories are descriptive: the PCs and the projections come from the
+same trials, with no cross-validation, and nothing in them is tested. With two
+conditions the mean-removed paths are mirror images through the origin (the
+two states are ±half their difference). The held-out version is §4 of the
+[subspace trajectory plan](analysis_plans.md#subspace-trajectory-plan), which is
+not built.
 
 ---
 
@@ -425,6 +444,10 @@ bash submit_window_mean_groups_dcc.sh                      # congruency and swit
 ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
 ```
 
+Without `ROIS` the job uses `run_decoding_dcc.py`'s `ROIS_DICT`, which ships
+as `dlpfc`. The code walk-through and the statistics are in
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §2.
+
 **What it asks.** Do the task-significant electrodes (`sig`), the rest
 (`nonsig`) and all of them (`all`) decode the contrast equally well, with no
 time features?
@@ -479,10 +502,18 @@ switch type. Keep each score's top 20 % per ROI:
 
 ```bash
 cd dcc_scripts/decoding
+mkdir -p out    # the batch script logs to out/
 sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc                    # top 20 %, positive
 sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc --sign negative    # most negative 20 %
 sbatch sbatch_score_electrode_selection_dcc.sh --rois lpfc --sign absolute    # largest |score|
 ```
+
+**Select in every ROI the later jobs use.** The decoding and power jobs refuse a
+ROI the file did not select in. `run_decoding_dcc.py` and
+`run_power_traces_dcc.py` both ship with `ROIS_DICT = {'dlpfc': ...}`
+(2026-10-08). Decoding takes `ROIS=lpfc` from the environment; power traces
+has no override, so either select with `--rois lpfc,dlpfc` or edit its
+`ROIS_DICT`. Each ROI is ranked on its own.
 
 `--sign positive` keeps the largest scores. Those are the behavioural
 direction for LWPC and LWPS (the low-proportion block shows the larger effect),
@@ -505,23 +536,31 @@ sets of each pair, `adaptation_overlap` and `main_effects_overlap`.
 **Step 2: decode the other 70 %.**
 
 ```bash
-ELECTRODE_SETS_JSON=figs/$EPOCHS_ROOT_FILE/score_selections/<params>/score_selection.json \
-    bash submit_decoding_with_score_electrode_sets_dcc.sh
+SEL=$PWD/figs/$EPOCHS_ROOT_FILE/score_selections/<params>/score_selection.json
+ROIS=lpfc ELECTRODE_SETS_JSON=$SEL bash submit_decoding_with_score_electrode_sets_dcc.sh
 ```
 
 This runs one job per condition set (default: congruency, switch type, and the
 block-balanced LWPC and LWPS sets), with the battery run once per set into
-`elecset_<name>/`. Limit the sets with `ELECTRODE_SETS=lwpc_only,lwps_only`.
+`elecset_<name>/`. With all ten sets that is 4 jobs × 10 battery runs. Limit the
+sets with `ELECTRODE_SETS=lwpc_only,lwps_only`.
 
-**Step 3: power traces on the same 70 %.** One set per job:
+**Step 3: power traces on the same 70 %.** One set per call; each call submits
+the four block-balanced condition sets fixed in the submitter, so the loop below
+is 16 jobs:
 
 ```bash
 cd ../power
 for SET in lwpc lwps congruency switch_type; do
-  ELECTRODE_SETS_JSON=<same file> ELECTRODE_SET=$SET ELECTRODES=all \
+  ELECTRODE_SETS_JSON=$SEL ELECTRODE_SET=$SET ELECTRODES=all \
       bash submit_specific_conditions_power_traces_dcc.sh
 done
 ```
+
+Give `ELECTRODE_SETS_JSON` as an absolute path (`$SEL` above): this submitter
+passes it on as is, and the job reads a relative path from `dcc_scripts/power/`.
+`ELECTRODES=all` only sets the `all_elecs` label in the file names (the
+submitter's default is `sig`); the set decides the electrodes.
 
 The output goes to `.../anova_within_roi/score_selections/<params>/<set>/<condition>/`.
 
@@ -530,6 +569,12 @@ electrodes carry LWPC but not LWPS, in both decoding and power. Each set is 20 %
 of the ROI, so the sets match in size. Because selection and measurement use
 disjoint trials, a set's effect on its own contrast is not inflated by the
 selection. Electrodes in both top sets go to `*_overlap`, not `*_only`.
+
+"Carries LWPC but not LWPS" is a comparison between two effects. One being
+significant and the other not is not a test of their difference, and the
+pipeline has no test across sets or contrasts yet; report the effects and their
+intervals side by side. The score formulas, the set algebra and the reading are
+in [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §3.
 
 > **Fixed alongside (2026-10-13):** `assign_trial_partitions` seeded each
 > subject with `hash(subject)`. Python salts string hashes per process, so the

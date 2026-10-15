@@ -43,7 +43,9 @@ and [`a6_brain_behavior.md`](a6_brain_behavior.md).
 *A state-space figure for the base effects, consistent with the anatomy and
 the A4 cross-decoding*
 
-**Status:** plan, 2026-10-13. Nothing built or run. Companion to F5 in
+**Status:** plan, 2026-10-13. Nothing built or run, apart from a map-level
+cosine in `map_reliability(method='cosine')` (2026-10-14, the cosine of §3.1;
+[`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5). Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
 [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01).
 
