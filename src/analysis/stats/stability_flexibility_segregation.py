@@ -929,9 +929,101 @@ def compute_sensitivities_per_window(df, times, window_size, step_size, **kwargs
 # their weights: +1/2 (cond pos) or -1/2 (cond neg) in each `mod` block.
 _MAIN_CELLS = ((1.0, 1.0), (0.0, 1.0), (1.0, 0.0), (0.0, 0.0))
 _MAIN_WEIGHTS = np.array([W_MAIN[c] for c in _MAIN_CELLS])
+# The two main effects as cell systems for `half_cell_means`: congruency over
+# the congruency x incProp cells, switch type over switch type x switchProp.
+_MAIN_SYSTEMS = {'mx': (('_scond', '_smod'), _MAIN_CELLS),
+                 'my': (('_fcond', '_fmod'), _MAIN_CELLS)}
 
 
-def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=False):
+def _proportion_work(df):
+    """`df` with the canonical proportion-mode labels (`_canonical_labels`:
+    `_scond` 1 = incongruent, `_smod` 1 = low incProp, `_fcond` 1 = switch,
+    `_fmod` 1 = low switchProp) and a `_row` index into `df`, and the four
+    design columns the shared halves are stratified on."""
+    contrasts = finalize_contrasts(df, resolve_contrasts('proportion'))
+    work = _canonical_labels(df.drop(columns='hg', errors='ignore'), contrasts)
+    work['_row'] = np.arange(len(work))
+    return work, _strata_columns(contrasts)
+
+
+def shared_halves(df, n_splits=200, seed=0):
+    """The split halves `main_effect_mean_diffs(df, ..., n_splits, seed)` draws:
+    ``{subject: DataFrame(index=trial, columns=split) of 0 (half A) / 1 (B)}``,
+    one split per participant shared by all of its electrodes, stratified on
+    the four design factors. Pass them back as `halves=` to score other HG on
+    exactly the same trials."""
+    work, strata = _proportion_work(df)
+    return _shared_trial_halves(work, strata, n_splits, np.random.default_rng(seed))
+
+
+def _participant_hg(sub, trials, hg_windows, remove_mean):
+    """One participant's HG as (electrodes, trials, windows), NaN where an
+    electrode lacks a trial, and its sorted electrode names. `sub` is its rows
+    of the work table, `trials` its trial order."""
+    from src.analysis.decoding.activity_control import remove_subject_mean
+
+    elecs = np.sort(sub['electrode'].unique())
+    x = np.full((len(elecs), len(trials), hg_windows.shape[1]), np.nan)
+    x[np.searchsorted(elecs, sub['electrode'].to_numpy()),
+      pd.Index(trials).get_indexer(sub['trial'].to_numpy())] = \
+        hg_windows[sub['_row'].to_numpy()]
+    if remove_mean:
+        x = remove_subject_mean(x, [sub['subject'].iloc[0]] * len(elecs), chans_axis=0)
+    return elecs, x
+
+
+def _half_cell_means(work, hg_windows, systems, halves, remove_mean=False):
+    """`half_cell_means` on a table already through `_proportion_work`."""
+    hg_windows = np.asarray(hg_windows, float)
+    if hg_windows.ndim != 2 or len(hg_windows) != len(work):
+        raise ValueError(f"hg_windows must be (rows of df, windows) = ({len(work)}, ...); "
+                         f"got shape {hg_windows.shape}")
+    for subj, sub in work.groupby('subject'):
+        half = halves[subj]                                # trials x splits, 0 = A
+        trials = half.index.to_numpy()
+        elecs, x = _participant_hg(sub, trials, hg_windows, remove_mean)
+        finite = np.isfinite(x)
+        x = np.where(finite, x, 0.0)
+        labels = sub.drop_duplicates('trial').set_index('trial').loc[trials]
+        in_half = half.to_numpy()[:, :, None] == np.arange(2)       # trials x splits x 2
+        out = {}
+        for name, (cols, cells) in systems.items():
+            lab = labels[list(cols)].to_numpy()
+            in_cell = np.stack([(lab == np.asarray(c)).all(1) for c in cells], 1)
+            ind = (in_half[:, :, :, None] & in_cell[:, None, None, :]).astype(float)
+            ind = ind.reshape(len(trials), -1)                      # trials x (split, half, cell)
+            sums = np.tensordot(x, ind, axes=([1], [0]))            # elec x window x (...)
+            counts = np.tensordot(finite.astype(float), ind, axes=([1], [0]))
+            shape = (len(elecs), x.shape[2], half.shape[1], 2, len(cells))
+            with np.errstate(divide='ignore', invalid='ignore'):
+                out[name] = ((sums / counts).reshape(shape), counts.reshape(shape))
+        yield subj, elecs, out
+
+
+def half_cell_means(df, hg_windows, systems, halves, remove_mean=False):
+    """Each electrode's mean HG in every split, half and design cell.
+
+    A mean is linear in HG, so every cell mean of every (split, half) is one
+    sum over trials divided by a count: an indicator matrix (trials x [split,
+    half, cell]) per participant gives all of them in one product.
+
+    `df` and `hg_windows` are as for `main_effect_mean_diffs`; `halves` as from
+    `shared_halves`. `systems` maps a name to ``(columns, cells)``: canonical
+    label columns of `_proportion_work` and the level combinations to average
+    over, e.g. ``(('_scond', '_fcond'), ((1.0, 1.0), (1.0, 0.0), ...))``.
+    `remove_mean=True` first subtracts each participant's mean across its
+    electrodes per trial and window (A4's `remove_mean`).
+
+    Yields one ``(subject, electrodes, {name: (means, counts)})`` per
+    participant, with `means` and `counts` (electrodes, windows, splits, 2
+    halves, cells); a mean is NaN where its cell is empty.
+    """
+    work, _ = _proportion_work(df)
+    yield from _half_cell_means(work, hg_windows, systems, halves, remove_mean)
+
+
+def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=False,
+                           halves=None):
     """Congruency and switch-type main effects as mean differences, in many
     windows at once, on shared trial halves.
 
@@ -942,66 +1034,35 @@ def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=Fal
     products per participant instead of a loop over electrodes and splits:
     fast enough to rescore every permutation of a label-shuffle null.
 
-    A mean difference is linear in HG, so each effect is a weighted sum of cell
-    means, and each cell mean is a sum over the trials in that (split, half,
-    cell), divided by their count. One indicator matrix (trials x [split, half,
-    cell]) per participant gives all of them in one product.
+    A mean difference is linear in HG, so each effect is a weighted sum of the
+    cell means `half_cell_means` gives.
 
     `df` is the long table, one row per electrode x trial with a `trial` column;
     its `hg` is not used. `hg_windows` is (rows of `df`, windows), e.g. from
     `window_means`, in the row order of `df`. `remove_mean=True` first subtracts,
     per participant, trial and window, the mean across that participant's
     electrodes: A4's `remove_mean`, the overall-activity control of
-    docs/analysis_plans.md, subspace plan §3.3.
+    docs/analysis_plans.md, subspace plan §3.3. `halves` (from `shared_halves`)
+    replaces the draw from `n_splits` and `seed`, to score other HG on exactly
+    the same trials.
 
     Returns one row per electrode x split x window: subject, electrode, split,
     window, mxA, mxB, myA, myB, split_scheme. An effect is NaN where one of its
     cells has fewer than 2 trials in that half, as in the loop.
     """
-    from src.analysis.decoding.activity_control import remove_subject_mean
-
-    hg_windows = np.asarray(hg_windows, float)
-    if hg_windows.ndim != 2 or len(hg_windows) != len(df):
-        raise ValueError(f"hg_windows must be (rows of df, windows) = ({len(df)}, ...); "
-                         f"got shape {hg_windows.shape}")
-    n_win = hg_windows.shape[1]
-    contrasts = finalize_contrasts(df, resolve_contrasts('proportion'))
-    work = _canonical_labels(df.drop(columns='hg', errors='ignore'), contrasts)
-    work['_row'] = np.arange(len(work))
-    # The same draws as compute_sensitivities_per_split(shared_split=True).
-    halves = _shared_trial_halves(work, _strata_columns(contrasts), n_splits,
-                                  np.random.default_rng(seed))
+    work, strata = _proportion_work(df)
+    if halves is None:
+        # The same draws as compute_sensitivities_per_split(shared_split=True).
+        halves = _shared_trial_halves(work, strata, n_splits, np.random.default_rng(seed))
     frames = []
-    for subj, sub in work.groupby('subject'):
-        half = halves[subj]                               # trials x splits, 0 = A
-        trials = half.index.to_numpy()
-        elecs = np.sort(sub['electrode'].unique())
-        x = np.full((len(elecs), len(trials), n_win), np.nan)
-        x[np.searchsorted(elecs, sub['electrode'].to_numpy()),
-          pd.Index(trials).get_indexer(sub['trial'].to_numpy())] = \
-            hg_windows[sub['_row'].to_numpy()]
-        if remove_mean:
-            x = remove_subject_mean(x, [subj] * len(elecs), chans_axis=0)
-        finite = np.isfinite(x)
-        x = np.where(finite, x, 0.0)
-
-        labels = sub.drop_duplicates('trial').set_index('trial').loc[trials]
-        in_half = half.to_numpy()[:, :, None] == np.arange(2)       # trials x splits x 2
+    for subj, elecs, cells in _half_cell_means(work, hg_windows, _MAIN_SYSTEMS, halves,
+                                               remove_mean):
         effects = {}
-        for col, (condcol, modcol) in (('mx', ('_scond', '_smod')),
-                                       ('my', ('_fcond', '_fmod'))):
-            cond, mod = labels[condcol].to_numpy(), labels[modcol].to_numpy()
-            in_cell = np.stack([(cond == c) & (mod == m) for c, m in _MAIN_CELLS], 1)
-            ind = (in_half[:, :, :, None] & in_cell[:, None, None, :]).astype(float)
-            ind = ind.reshape(len(trials), -1)                      # trials x (split, half, cell)
-            sums = np.tensordot(x, ind, axes=([1], [0]))            # elec x window x (...)
-            counts = np.tensordot(finite.astype(float), ind, axes=([1], [0]))
-            shape = (len(elecs), n_win, n_splits, 2, len(_MAIN_CELLS))
-            with np.errstate(divide='ignore', invalid='ignore'):
-                means = (sums / counts).reshape(shape)
+        for col, (means, counts) in cells.items():
             eff = (means * _MAIN_WEIGHTS).sum(-1)
-            eff[(counts.reshape(shape) < 2).any(-1)] = np.nan
+            eff[(counts < 2).any(-1)] = np.nan
             effects[f'{col}A'], effects[f'{col}B'] = eff[..., 0], eff[..., 1]
+        _, n_win, n_splits, _ = eff.shape
         e, w, k = np.meshgrid(np.arange(len(elecs)), np.arange(n_win),
                               np.arange(n_splits), indexing='ij')
         frames.append(pd.DataFrame(dict(

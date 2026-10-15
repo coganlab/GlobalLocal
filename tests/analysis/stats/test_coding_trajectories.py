@@ -1,0 +1,184 @@
+"""The condition trajectories (docs/analysis_plans.md, subspace plan §4).
+
+What is pinned:
+
+  * the module matches a direct computation on one split: axes from one half,
+    block-balanced cell means from the other, Gram-Schmidt, projection, both
+    directions averaged;
+  * noise-free, the centred cells sit at half the planted effects, the shared
+    part of switch shows up along the congruency axis, `first='switch'` swaps
+    the roles, and centring removes an evoked response the uncentred cells keep;
+  * the four proportion blocks are weighted equally, so a block offset with
+    unequal trial counts does not move the cells;
+  * the plane fractions: an interaction outside the plane lowers both, and
+    with noise the noise-corrected one recovers the planted share while the
+    raw one falls below it.
+"""
+import warnings
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from src.analysis.stats import coding_trajectories as ct
+from src.analysis.stats import stability_flexibility_segregation as sfs
+from test_coding_axes import _trial_long          # same directory (pytest rootdir import)
+
+N_SUBJ, N_ELEC = 3, 8
+
+
+def _with_terms(df, terms):
+    """Add `terms(trials)` -> (trials, electrodes) per participant to every
+    sample of each row's hg; `trials` is the participant's trial table."""
+    df = df.copy()
+    out = []
+    for _, sub in df.groupby('subject', sort=False):
+        trials = sub.drop_duplicates('trial').set_index('trial')
+        add = terms(trials)                                       # (n_trials, n_elec)
+        e = sub['electrode'].str.split('-e').str[-1].astype(int).to_numpy()
+        t = trials.index.get_indexer(sub['trial'])
+        out.append(pd.Series([h + a for h, a in zip(sub['hg'], add[t, e])], index=sub.index))
+    df['hg'] = pd.concat(out)
+    return df
+
+
+def _run(df, times, n_splits=4, **kw):
+    hg, _ = sfs.window_means(df['hg'].to_numpy(), times, 1, 1)
+    axis = ct.axis_window_means(df['hg'].to_numpy(), times, [(times[0], times[-1])])
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        return ct.condition_trajectories(df.drop(columns='hg'), hg, axis, ['all'],
+                                         n_splits=n_splits, n_boot=kw.pop('n_boot', 50), **kw)
+
+
+def _centred(traj, cells='centred'):
+    return traj[traj['cells'] == cells].groupby('cell')[['x', 'y']].mean()
+
+
+def _norm(v):
+    return np.linalg.norm(np.tile(v, N_SUBJ))                    # pooled over participants
+
+
+# ---------------------------------------------------------------------------
+def test_matches_a_direct_computation_on_one_split():
+    rng = np.random.default_rng(0)
+    df, times = _trial_long(rng.normal(size=N_ELEC), rng.normal(size=N_ELEC),
+                            n_subj=N_SUBJ, n_elec=N_ELEC, n_time=3, seed=0)
+    traj, _, _ = _run(df, times, n_splits=1, seed=5)
+
+    labels = df.drop(columns='hg')
+    hg = np.vstack(df['hg'].to_numpy())                           # (rows, time)
+    halves = sfs.shared_halves(labels, n_splits=1, seed=5)
+    axes = sfs.main_effect_mean_diffs(labels, hg.mean(1, keepdims=True), halves=halves)
+    axes = axes.sort_values(['subject', 'electrode'])
+    d = labels.assign(half=[halves[s].loc[t, 0] for s, t in zip(labels['subject'], labels['trial'])])
+    cell_of = {'i': 'incongruent', 'c': 'congruent'}, {'s': 'switch', 'r': 'repeat'}
+    d['cell'] = [f'{cell_of[0][a]}-{cell_of[1][b]}' for a, b in zip(d['congruency'], d['switchType'])]
+    order = list(ct.CELLS)
+    blocks = ['incongruent_proportion', 'switch_proportion']
+    cells = {}                                                    # half -> (elec, time, cell)
+    for h in (0, 1):
+        sub = d[d['half'] == h]
+        rows = {c: sub.index[sub['cell'] == c] for c in order}
+        block_means = {c: pd.DataFrame(hg[r], index=r).groupby(
+            [sub.loc[r, 'subject'], sub.loc[r, 'electrode']] + [sub.loc[r, b] for b in blocks]
+        ).mean().groupby(level=[0, 1]).mean() for c, r in rows.items()}
+        cells[h] = np.stack([block_means[c].to_numpy() for c in order], -1)
+        cells[h] = cells[h] - cells[h].mean(-1, keepdims=True)
+
+    x_sum, y_sum = 0, 0
+    for axes_half, cells_half in ((0, 1), (1, 0)):
+        c = axes[f'mx{"AB"[axes_half]}'].to_numpy()
+        s = axes[f'my{"AB"[axes_half]}'].to_numpy()
+        x_hat = c / np.linalg.norm(c)
+        s_perp = s - (s @ x_hat) * x_hat
+        y_hat = s_perp / np.linalg.norm(s_perp)
+        x_sum = x_sum + np.einsum('etc,e->tc', cells[cells_half], x_hat)
+        y_sum = y_sum + np.einsum('etc,e->tc', cells[cells_half], y_hat)
+    got = traj[traj['cells'] == 'centred'].pivot(index='window', columns='cell')
+    assert np.allclose(got['x'][order].to_numpy(), x_sum / 2)
+    assert np.allclose(got['y'][order].to_numpy(), y_sum / 2)
+
+
+def test_noise_free_cells_sit_at_half_the_effects():
+    rng = np.random.default_rng(1)
+    c = rng.normal(size=N_ELEC)
+    s = 0.6 * c + rng.normal(size=N_ELEC)                         # partly shared with c
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+    evoked = _with_terms(df, lambda t: np.full((len(t), N_ELEC), 5.0))
+    traj, frac, summary = _run(evoked, times)
+    m = _centred(traj)
+
+    x_hat = np.tile(c, N_SUBJ) / _norm(c)
+    s_all = np.tile(s, N_SUBJ)
+    s_x = s_all @ x_hat
+    s_perp = np.linalg.norm(s_all - s_x * x_hat)
+    assert m.loc['incongruent-switch', 'x'] == pytest.approx(_norm(c) / 2 + s_x / 2)
+    assert m.loc['incongruent-repeat', 'x'] == pytest.approx(_norm(c) / 2 - s_x / 2)
+    assert m.loc['congruent-switch', 'y'] == pytest.approx(s_perp / 2)
+    assert m.loc['incongruent-repeat', 'y'] == pytest.approx(-s_perp / 2)
+    assert summary['axes']['all']['axis_cosine'] == pytest.approx(s_x / np.linalg.norm(s_all))
+    assert frac['plane_fraction'].to_numpy() == pytest.approx(1.0)
+
+    # the evoked response is in every cell: centring removes it, uncentred keeps it
+    u = _centred(traj, 'uncentred')
+    assert (u['x'] - m['x']).to_numpy() == pytest.approx(5.0 * x_hat.sum())
+
+    swapped = _centred(_run(evoked, times, first='switch')[0])
+    assert swapped.loc['incongruent-switch', 'x'] == pytest.approx(np.linalg.norm(s_all) / 2
+                                                                   + (s_all @ np.tile(c, N_SUBJ))
+                                                                   / np.linalg.norm(s_all) / 2)
+
+
+def test_blocks_are_weighted_equally():
+    """Incongruent trials 3x as common in the 75% blocks, plus a block offset:
+    pooled means would put the offset on the incongruent side."""
+    rng = np.random.default_rng(2)
+    c, s, offset = rng.normal(size=(3, N_ELEC))
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+    trial = df.drop_duplicates(['subject', 'trial']).copy()
+    rare = (((trial['incongruent_proportion'] == 25) & (trial['congruency'] == 'i'))
+            | ((trial['incongruent_proportion'] == 75) & (trial['congruency'] == 'c')))
+    cell = trial.groupby(['subject', 'congruency', 'switchType', 'incongruent_proportion',
+                          'switch_proportion'])
+    drop = trial[rare & (cell.cumcount() < 2 * cell['trial'].transform('size') // 3)]
+    keep = ~df.set_index(['subject', 'trial']).index.isin(
+        pd.MultiIndex.from_frame(drop[['subject', 'trial']]))
+    unbalanced = df[keep].reset_index(drop=True)
+    shifted = _with_terms(unbalanced, lambda t: np.outer(t['incongruent_proportion'] == 75, offset) * 3.0)
+
+    plain, shift = _centred(_run(unbalanced, times)[0]), _centred(_run(shifted, times)[0])
+    assert np.allclose(plain.to_numpy(), shift.to_numpy())
+    assert plain.loc['incongruent-repeat', 'x'] > 0
+
+
+def test_plane_fractions_with_an_interaction_outside_the_plane():
+    q = np.linalg.qr(np.random.default_rng(3).normal(size=(N_ELEC, 3)))[0] * 3
+    c, s, inter = q.T                                              # mutually orthogonal
+    expected = (c @ c + s @ s) / (c @ c + s @ s + inter @ inter / 4)
+
+    def with_interaction(noise, seed):
+        df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=noise,
+                                seed=seed)
+        xc = lambda t: np.where(t['congruency'] == 'i', 0.5, -0.5)
+        xs = lambda t: np.where(t['switchType'] == 's', 0.5, -0.5)
+        return _with_terms(df, lambda t: np.outer(xc(t) * xs(t), inter)), times
+
+    clean = _run(*with_interaction(0.0, 0))[2]['axes']['all']
+    assert clean['plane_fraction'] == pytest.approx(expected)
+    assert clean['plane_fraction_signal'] == pytest.approx(expected)
+
+    noisy = _run(*with_interaction(2.0, 1), n_splits=10)[2]['axes']['all']
+    assert noisy['plane_fraction'] < expected - 0.1                # noise in every direction
+    assert noisy['plane_fraction_signal'] == pytest.approx(expected, abs=0.1)
+    lo, hi = noisy['plane_fraction_signal_ci']
+    assert lo <= noisy['plane_fraction_signal'] <= hi
+
+
+def test_axis_window_means():
+    hg = [np.arange(5.0), np.arange(5.0) * 2]
+    times = np.array([0.0, 0.25, 0.5, 0.75, 1.0])
+    out = ct.axis_window_means(hg, times, [(0.0, 1.0), (0.25, 0.5)])
+    assert out.tolist() == [[2.0, 1.5], [4.0, 3.0]]
+    with pytest.raises(ValueError, match='no samples'):
+        ct.axis_window_means(hg, times, [(2.0, 3.0)])

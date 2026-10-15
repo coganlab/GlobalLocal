@@ -14,7 +14,7 @@ and §3.7, and [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)
 | [2](#2-window-mean-decoding-in-sig-nonsig-and-all-electrodes) | Window-mean decoding in sig, non-sig and all electrodes at a matched electrode count (the bar plot) | Built and tested | `submit_window_mean_groups_dcc.sh` | [`decoding.md`](decoding.md) §3.6 |
 | [3](#3-the-top-20--electrodes-by-each-score-on-held-out-trials) | The top 20 % of electrodes by LWPC, LWPS, congruency or switch type, chosen on 30 % of the trials; decoding and power traces on the other 70 % | Built and tested | `sbatch_score_electrode_selection_dcc.sh`, then `submit_decoding_with_score_electrode_sets_dcc.sh` and `submit_specific_conditions_power_traces_dcc.sh` | [`decoding.md`](decoding.md) §3.7 |
 | [4](#4-figure-5-the-brain-the-scatter-and-every-electrode-along-z) | Figure 5 redrawn: a, the brain; b, LWPC against LWPS with a zoom on the centroids; c, every electrode along MNI z | Built and tested; preview drawn 2026-10-10 | The anatomy job, or `n4_section19_followups.py --sections 1,4 --brain` | [N4 §19.4](n4_continuous_anatomy.md#194-the-combined-figure-5) |
-| [5](#5-the-state-space--subspace-figure-partly-built) | State-space (subspace) figure | **Partly built.** The coding axes and the cosine between them (§3.1-3.3) were built on 2026-10-15, after this doc; see [`coding_axes.md`](coding_axes.md). The subspace test, trajectories and dPCA are not built | – | [Subspace trajectory plan](analysis_plans.md#subspace-trajectory-plan) |
+| [5](#5-the-state-space--subspace-figure-partly-built) | State-space (subspace) figure | **Built except dPCA.** The coding axes and their cosine (§3.1-3.3), the subspace test (§3.4) and the trajectories (§4) were built on 2026-10-15, after this doc; see [`coding_axes.md`](coding_axes.md) and [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md). dPCA is not built | `submit_coding_axes_all.sh` | [Subspace trajectory plan](analysis_plans.md#subspace-trajectory-plan) |
 
 "Built and tested" means the code is in `main` and its tests pass
 ([§6](#6-tests)). It does not mean the analysis has been run on the real data;
@@ -924,9 +924,12 @@ The plan is the [subspace trajectory plan](analysis_plans.md#subspace-trajectory
 (2026-10-13). **Update, 2026-10-15:** its §3.1-3.3 now exist: the coding axes
 per A4 window, the coding cosine over time against a shuffle null and a
 split-half ceiling, and the `remove_mean`, RT and occipital controls. How to
-run and read them is in [`coding_axes.md`](coding_axes.md). Still not built:
-the principal angles and alignment index (the subspace test, §3.4), the
-held-out four-cell trajectories (§4) and dPCA.
+run and read them is in [`coding_axes.md`](coding_axes.md). **Update, later on
+2026-10-15:** the subspace test (§3.4: principal angles and the alignment
+index) and the held-out four-cell trajectories (§4) now run in the same job;
+the math is worked through in
+[`subspace_math_walkthrough.md`](subspace_math_walkthrough.md). Still not
+built: dPCA.
 
 What existed when this doc was written (2026-10-14):
 

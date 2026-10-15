@@ -21,7 +21,7 @@ placement" or weekly figure table, it wins.
 
 | Plan | Written | Last edited | What still holds | Was |
 |---|---|---|---|---|
-| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-15 | **Current; §3.1-3.3 built (2026-10-15), not yet run on real data.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
+| [Subspace trajectory plan](#subspace-trajectory-plan) | 2026-10-13 | 2026-10-15 | **Current; §3.1-3.4 and §4 built (2026-10-15); §3.1-3.3 run on real data, §3.4 and §4 not yet.** The state-space figure the advisors asked for: congruency and switch coding subspaces compared by principal angles and the alignment index (the main result), the per-window coding angle over time, all against a null and a split-half ceiling, and held-out trajectories of the four condition means. States that the geometry is the population-readout view of the same per-electrode effects as the anatomy, not independent evidence. Includes the reasoning behind each choice (cosine, SVD, principal angles, alignment index), its mapping onto Weber's steps, and a reading list. Adapts Weber et al. (2023) with its weaknesses fixed. Adds panels to F5; does not change the rest of [`paper_draft.md`](paper_draft.md) | – |
 | [Closing figure plan](#closing-figure-plan) | 2026-09-25 | 2026-10-01 | **Current.** Main effects as the reference for LWPC/LWPS, the all-lPFC vs task-significant electrode-set choice, the reasoning behind F5 and the supplement placement, open questions for the advisor. The panel-level F1–F5 plan, supplement table and to-do list moved to [`paper_draft.md`](paper_draft.md) on 2026-10-01. Its four-panel F5 is superseded there by a two-panel F5, with the tilt moved to the supplement | `closing_figure_plan.md` |
 | [Concurrent-regulation plan](#concurrent-regulation-plan) | 2026-09-16 | 2026-09-27 | **Current framework.** The N1–N4 narrative, the framing rules, and the specs the runbooks implement. The status columns (§0, §1) and the one-week schedule (§10) are out of date; the closing figure plan has the current status | `analysis_plan_concurrent_regulation.md` |
 | [Simplification plan](#simplification-plan) | 2026-09-10 | 2026-09-16 | The shared-vs-independent framing is retired. The estimator diagnoses (§1.1–§1.4) and bias fixes (§2.2–§2.2c) still hold, and the later plans rely on them | `analysis_simplification_plan.md` |
@@ -44,10 +44,14 @@ and [`a6_brain_behavior.md`](a6_brain_behavior.md).
 the A4 cross-decoding*
 
 **Status:** plan, 2026-10-13. §3.1-3.3 (coding axes, cosine, null, ceiling,
-bootstrap, `remove_mean`, RT and region controls) built 2026-10-15, not yet run
-on real data (§8; runbook [`coding_axes.md`](coding_axes.md)); §3.4 onwards not
-built. The single-window map-level cosine, `map_reliability(method='cosine')`
-(2026-10-14), is described in
+bootstrap, `remove_mean`, RT and region controls), the subspace test (§3.4)
+and the trajectories (§4, with the early-vs-late variant) built 2026-10-15, in
+one job (§8; runbook [`coding_axes.md`](coding_axes.md); the math worked
+through in [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md)).
+§3.1-3.3 ran on real data on 2026-10-15 ([`coding_axes.md`](coding_axes.md)
+§10); §3.4 and §4 were added after that run and have not run on real data.
+Not built: the lPFC-subsampled control, §5 and §6. The single-window map-level
+cosine, `map_reliability(method='cosine')` (2026-10-14), is described in
 [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5. Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
 [`decoding.md` › A4 §13.8](decoding.md#138-results-2026-10-01).
@@ -664,8 +668,31 @@ with loading, saving and plotting in the entry-point script.
 | RT control (§3.3): regression, RT matching and its random-subset control | `rt_control`, reusing `rt_adjust_hg`, `rt_match`, `count_matched_random` |
 | Jobs and figures | `dcc_scripts/subspace/submit_coding_axes_all.sh` (main run and every control), `plot_coding_axes_controls.py` (the comparison figure). How to run and read them: [`coding_axes.md`](coding_axes.md) |
 
-Not built: the lPFC-subsampled-to-occipital control of §3.3, the subspace test
-(§3.4), the trajectories (§4) and §5-6.
+**Built (2026-10-15): §3.4 and §4**, in the same job, so every §3.3 control
+covers them and each shuffle is scored once for both nulls.
+
+| Piece | Where |
+|---|---|
+| Subspace (uncentred SVD), principal angles, alignment index, held-out variance per dimension | `coding_subspace`, `principal_angle_cosines`, `alignment_index`, `heldout_variance` in `stats/coding_subspaces.py` |
+| Cross, ceilings, normalized values per k; choosing k; null; participant bootstrap; marks | `subspace_stats`, `dimension_test`, `subspace_null_stats` (on `coding_axes.null_draws`), `compare_subspaces` |
+| Held-out trajectories of the four block-balanced, centred cells; plane fractions; bootstrap; early-vs-late axes | `condition_trajectories` in `stats/coding_trajectories.py`, on the coding axes' own halves (`shared_halves`, `half_cell_means` in `stats/stability_flexibility_segregation.py`) |
+| Figures | `dcc_scripts/subspace/subspace_figures.py` |
+| The math, worked through | [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md) |
+
+Choices the plan left open, settled in the build (reasons in
+[`coding_axes.md`](coding_axes.md) §9):
+
+- The ceiling for a congruency–switch value is the geometric mean of the two
+  variables' ceilings, as in §3.2. That is exact at k = 1 and a heuristic for
+  k > 1.
+- A subspace row is "reliable" when each ceiling beats its own shuffle null.
+  The values are never negative, so §3.2's "CI excludes 0" does not apply.
+- The primary k is the smaller of the two variables' k, each dimension tested
+  in order on its held-out variance.
+- The plane fraction (§4 step 5) is reported raw and noise-corrected, because
+  noise in every electrode direction makes the raw one a lower bound.
+
+Not built: the lPFC-subsampled-to-occipital control of §3.3, and §5-6.
 
 ### 9. Placement
 

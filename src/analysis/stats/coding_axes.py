@@ -56,11 +56,13 @@ _PAIRS = {'cA_sB': ('mxA', 'myB'), 'cB_sA': ('mxB', 'myA'),
           'sA_sA': ('myA', 'myA'), 'sB_sB': ('myB', 'myB')}
 
 
-def _axis_arrays(per_split):
-    """``(subjects, {col: (windows, splits, electrodes)})`` for `AXIS_COLS`.
+def axis_arrays(per_split):
+    """``(subjects, {col: (windows, splits, electrodes)})`` for `AXIS_COLS`;
+    `subjects` names each electrode's participant, in electrode order.
 
     Keeps the electrodes defined on every split and window, so every cosine is
-    over the same electrodes (the rule `map_reliability` uses)."""
+    over the same electrodes (the rule `map_reliability` uses). The subspace
+    test (`coding_subspaces`) reads its effect matrices from here too."""
     d = per_split if 'window' in per_split else per_split.assign(window=0)
     n_cells = d.groupby(['window', 'split']).ngroups
     d = d.dropna(subset=list(AXIS_COLS))
@@ -112,7 +114,7 @@ def _ceiling(ceil_c, ceil_s):
 def coding_axis_cosines(per_split):
     """The point estimates of §3.2 per window: cross, the two ceilings, ceiling and
     alignment, as cosines and (``_pearson``) as correlations. One row per window."""
-    subjects, arrays = _axis_arrays(per_split)
+    subjects, arrays = axis_arrays(per_split)
     cross, cc, cs = _cosines(_pair_sums(arrays, subjects))
     cross_p, cc_p, cs_p = _cosines(_pair_sums(arrays, subjects, center=True))
     ceiling, ceiling_p = _ceiling(cc, cs), _ceiling(cc_p, cs_p)
@@ -211,32 +213,48 @@ def permute_within_cells(df, factor, rng):
     return out
 
 
+def null_draws(df, hg_windows, factor, n_perm=1000, n_splits=20, seed=0,
+               remove_mean=False):
+    """Yield `n_perm` per-split tables rescored with `factor` ('congruency' or
+    'switchType') shuffled: the draws of the "no code for `factor`" null (§3.2).
+
+    Each draw shuffles `factor` with `permute_within_cells` and rescores every
+    window with `main_effect_mean_diffs` on `n_splits` fresh halves; the other
+    factor's effects stay real. `df` and `hg_windows` are as for
+    `main_effect_mean_diffs`. Every draw is seeded from `seed`, so the null is
+    reproducible from it. Any statistic of the real per-split table can be
+    recomputed on each draw: `cross_cosine_null` takes the cross cosine, the
+    subspace test (`coding_subspaces.subspace_null_stats`) its own numbers, and
+    one pass of this generator can feed both."""
+    if factor not in NULL_FACTORS:
+        raise ValueError(f"factor must be one of {NULL_FACTORS}; got {factor!r}")
+    rng = np.random.default_rng(seed)
+    for _ in range(n_perm):
+        yield sfs.main_effect_mean_diffs(
+            permute_within_cells(df, factor, rng), hg_windows, n_splits=n_splits,
+            seed=int(rng.integers(2 ** 31)), remove_mean=remove_mean)
+
+
+def cross_cosine(per_split):
+    """The split-averaged raw cross cosine per window (the `cross` column of
+    `coding_axis_cosines`), without the rest of the table: what a null draw
+    records."""
+    subjects, arrays = axis_arrays(per_split)
+    return _cosines(_pair_sums(arrays, subjects))[0]
+
+
 def cross_cosine_null(df, hg_windows, factor, n_perm=1000, n_splits=20, seed=0,
                       remove_mean=False):
-    """The raw cross cosine per window with `factor` ('congruency' or
-    'switchType') shuffled: an (n_perm, windows) array, the "no code for
-    `factor`" null of §3.2.
-
-    Each permutation shuffles `factor` with `permute_within_cells`, rescores
-    every window with `main_effect_mean_diffs` (the other factor's effects stay
-    real) on `n_splits` fresh halves, and records the cross cosine. `df` and
-    `hg_windows` are as for `main_effect_mean_diffs`. Each permutation's halves
-    are seeded from `seed`, so the whole null is reproducible from it.
+    """The raw cross cosine per window with `factor` shuffled: an
+    (n_perm, windows) array, the "no code for `factor`" null of §3.2
+    (`null_draws`, scored with `cross_cosine`).
 
     The observed cross cosine averages more splits (200) than each null draw
     (`n_splits`); averaging fewer splits only widens the null, so the test is
     conservative."""
-    if factor not in NULL_FACTORS:
-        raise ValueError(f"factor must be one of {NULL_FACTORS}; got {factor!r}")
-    rng = np.random.default_rng(seed)
-    null = []
-    for _ in range(n_perm):
-        per = sfs.main_effect_mean_diffs(
-            permute_within_cells(df, factor, rng), hg_windows, n_splits=n_splits,
-            seed=int(rng.integers(2 ** 31)), remove_mean=remove_mean)
-        subjects, arrays = _axis_arrays(per)
-        null.append(_cosines(_pair_sums(arrays, subjects))[0])
-    return np.array(null)
+    return np.array([cross_cosine(per) for per in null_draws(
+        df, hg_windows, factor, n_perm=n_perm, n_splits=n_splits, seed=seed,
+        remove_mean=remove_mean)])
 
 
 def _cluster_masses(series, threshold):
@@ -315,7 +333,7 @@ def compare_coding_axes(per_split, null=None, n_boot=2000, seed=0, alpha=0.05):
     alignment averaged over the reliable windows with its bootstrap CI (the
     number for the text), the windows of each marked run, and the settings.
     """
-    subjects, arrays = _axis_arrays(per_split)
+    subjects, arrays = axis_arrays(per_split)
     sums = _pair_sums(arrays, subjects)
     table = coding_axis_cosines(per_split)
     grid_cols = [c for c in ('window_tmin', 'window_tmax', 'window_center') if c in per_split]

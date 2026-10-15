@@ -226,6 +226,16 @@ question; `docs/analysis_guide.md` Part III is the full treatment.
 A4 (cross-decoding) lives in `decoding/cross_decoding.py`; A7 is a self-check
 assignment in `docs/learning_assignments/`.
 
+The state-space figure of the
+[subspace trajectory plan](docs/analysis_plans.md#subspace-trajectory-plan) is
+three modules here: `coding_axes.py` (the per-window congruency and switch
+coding axes and the cosine between them, with null, ceiling and bootstrap),
+`coding_subspaces.py` (the subspace test: principal angles and the alignment
+index between the two codes' subspaces) and `coding_trajectories.py` (the
+held-out condition-mean trajectories). Runbook
+[`docs/coding_axes.md`](docs/coding_axes.md); the math worked through in
+[`docs/subspace_math_walkthrough.md`](docs/subspace_math_walkthrough.md).
+
 ## 1.11 `src/analysis/pac/` — envelope coupling and connectivity
 
 Written largely by a different contributor; it uses its own file conventions and
@@ -265,7 +275,7 @@ Organized by analysis area, each following the four-layer pattern from §1.2.
 | `preproc/` | `plot_clean_dcc.py` — the DCC copy of line-noise filtering; `submit_make_epoched_data.sh` / `sbatch_make_epoched_data.sh` fan `make_epoched_data.py` out over subjects |
 | `power/` | `power_traces_dcc.py` (479) + `run_power_traces_dcc.py` (340) — the power-trace and windowed-ANOVA job. Plus two diagnostics: `diagnose_block_effects.py` (block-confound cross-tab straight from epochs) and `diagnose_electrode_deviations.py` (attributes a trace excursion to specific electrodes by reading the saved evoked `.npz`s — no re-run needed) |
 | `decoding/` | `decoding_dcc.py` (616) + `run_decoding_dcc.py` (626) — the main decoding battery, including the optional electrode-definition split, ANOVA-defined electrode sets, and coupling-defined electrode sets. `stability_flexibility_cross_decoding_dcc.py` (960) is A4. `james_sun_cluster_decoding_dcc.py` is the TFR-cluster decoding job. `report_coupling_counts.py` counts coupled/eligible electrodes **before** you spend cluster time. `run_coupling_comparison_dcc.py` re-runs the coupled-vs-control comparison over saved results. `window_mean_groups_dcc.py` (105, launched by `submit_window_mean_groups_dcc.sh`) runs the sig / nonsig / all window-mean comparison; `score_electrode_selection_dcc.py` (138, `sbatch_score_electrode_selection_dcc.sh`) writes the top-fraction sets that `submit_decoding_with_score_electrode_sets_dcc.sh` and the power-traces job read |
-| `subspace/` | `subspace_notebook.ipynb`: a scratch notebook stepping through `map_reliability` (including its cosine option). The subspace analysis itself is not built ([`docs/analysis_plans.md`](docs/analysis_plans.md#subspace-trajectory-plan)) |
+| `subspace/` | `coding_axes_dcc.py` + `run_coding_axes_dcc.py` (`submit_coding_axes_dcc.sh`, `submit_coding_axes_all.sh` for the main run and every control): the subspace trajectory plan's coding axes and cosine, subspace test and condition trajectories in one job; `subspace_figures.py` draws the last two, `plot_coding_axes_controls.py` compares runs. Runbook [`docs/coding_axes.md`](docs/coding_axes.md). `subspace_notebook.ipynb` is a scratch notebook stepping through `map_reliability` (including its cosine option) |
 | `spec/` | `make_wavelets_dcc.py`, `plot_wavelets_dcc.py`, `wavelet_differences_dcc.py`, `get_sig_tfr_differences_dcc.py`, and `wavelet_functions_dcc.py` (a DCC copy of the library — see the consolidation doc) |
 | `stats/` | One core + entry point per battery step: `stability_flexibility_anova_conjunction_dcc.py` (A1/A2), `power_traces_conjunction_dcc.py` (A1/A2 via ANOVA-defined electrodes), `stability_flexibility_anatomy_dcc.py` (A3), `stability_flexibility_timing_dcc.py` (A5), `stability_flexibility_brain_behavior_dcc.py` (A6), `stability_flexibility_segregation_dcc.py`. Each assembles the long-form table from epochs, runs the library, and writes results + plots + a human-readable summary |
 | `vis/` | `plot_sig_electrodes_dcc.py` (533) — significant electrodes per condition on the fsaverage brain plus ROI histograms; `condition_plot_specs.py` (296) is the registry of *what to compare*, the one file you edit to define a new brain-plot comparison |
@@ -300,6 +310,8 @@ Run with `make test` (all), `make test-fast` (skip `slow`), `make test-cov`
 | `segregation_walkthrough.md` | The A1/A2 segregation statistics line by line: every step of `stability_flexibility_segregation.py` and why it is there; companion notebook `src/analysis/stats/stability_flexibility_segregation_tutorial.ipynb` runs each step on a planted demo electrode |
 | `n4_code_walkthrough.md` | The N4 code line by line (mostly §19), with comprehension questions; companion notebook `dcc_scripts/stats/n4_code_walkthrough.ipynb` |
 | `new_analyses_walkthrough.md` | The 2026-10-13 analyses (channels-as-features decoding, window-mean sig/nonsig/all decoding, top-20 % score sets, the redrawn Figure 5): how to run each, its code step by step, and its statistics |
+| `coding_axes.md` | Runbook for the subspace trajectory plan's job: coding axes and their cosine, the subspace test, the trajectories, the controls, every output and how to read it |
+| `subspace_math_walkthrough.md` | The math behind the subspace test and the trajectories (vectors, SVD, why not PCA, choosing k, principal angles, the alignment index, ceiling and null, Gram–Schmidt), each with a small worked example |
 | `a6_brain_behavior.md` | A6 runbook: the per-participant brain–behavior scores, the RT adjustment, the 2026-09-27 block-map fix, every output and how to read it |
 | `methods.md` | Manuscript-ready Methods text: N4 segregation and anatomy, and the segregation analysis in a `cluster` and a `cohens_d` version |
 | `stability_flexibility_battery.md` | One fake dataset followed through A1–A7 with every intermediate table printed (generated by `docs/examples/stability_flexibility_data_flow_demo.py`, which runs anywhere with no cluster or iEEG data), and what each output PNG/CSV/JSON/TXT means |

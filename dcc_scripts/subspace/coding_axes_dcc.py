@@ -3,7 +3,9 @@
 DCC core for the coding axes and the cosine between them (docs/analysis_plans.md,
 subspace plan §3.1-3.3): each electrode's congruency and switch-type effect in
 every A4 decoding window on shared split halves, compared across electrodes by
-the cosine, against a label-shuffle null and a split-half ceiling.
+the cosine, against a label-shuffle null and a split-half ceiling. On the same
+axes, halves and shuffles: the subspace test (§3.4) and the condition
+trajectories (§4).
 
 Writes to `args.save_dir`:
     per_split_windows.csv   the coding axes: congruency in `mxA`/`mxB`, switch type
@@ -21,6 +23,28 @@ Writes to `args.save_dir`:
     rt_*.csv                with an RT control: the HG-on-RT slopes ('adjust'), or
                             the per-participant RT differences before and after
                             and their summary ('match', 'random')
+
+  subspace test (§3.4, `coding_subspaces.compare_subspaces`):
+    subspace_test.csv       per (measure, k, component): principal-angle cosines
+                            and alignment indices, cross / ceilings / normalized,
+                            bootstrap CIs, null thresholds, p, the marks
+    subspace_dimensions.csv per variable and dimension: held-out variance against
+                            the null, which dimensions are kept (sets k)
+    subspace_summary.json   k per variable, the primary k, its θ₁ and alignment
+                            indices with CIs
+    null_subspace.npz       per factor: the cross values, the shuffled variable's
+                            ceilings and per-dimension held-out variance per shuffle
+    subspace_test.png       the §3.4 figure
+
+  trajectories (§4, `coding_trajectories.condition_trajectories`):
+    trajectories.csv        per axis window, centred / uncentred, cell and window:
+                            x, y (and bootstrap CIs for centred)
+    trajectory_fractions.csv  the share of the centred cells' variance in the plane,
+                            raw and noise-corrected, per window and overall
+    trajectory_summary.json electrodes used, per axis window the cosine of its axes
+                            and the overall fractions with CIs
+    trajectories_<axes>.png the §4 figure per axis window (centred cells), and
+                            trajectories_<axes>_uncentred.png
 
 Driven by `run_coding_axes_dcc.py` (wrapped by `sbatch_coding_axes_dcc.sh`);
 call `main(args)` with a populated argument namespace.
@@ -59,9 +83,12 @@ import matplotlib.pyplot as plt
 
 from src.analysis.stats import stability_flexibility_segregation as sfs
 from src.analysis.stats import coding_axes as ca
+from src.analysis.stats import coding_subspaces as cs
+from src.analysis.stats import coding_trajectories as ct
 from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
+from dcc_scripts.subspace.subspace_figures import plot_subspace_test, plot_trajectories
 
 # Reference-palette slots 1-2 (dataviz skill), and recessive neutrals.
 CROSS, CEILING = '#2a78d6', '#eb6834'
@@ -249,9 +276,12 @@ def main(args):
           f"{df.electrode.nunique()} electrodes | {len(times)} samples over "
           f"[{times[0]:.3f}, {times[-1]:.3f}] s")
 
-    # Each trial's window means; the time courses are not needed after this.
+    # Each trial's window means, and its mean over each trajectory axis window
+    # (§4); the time courses are not needed after this.
     hg_windows, grid = sfs.window_means(df['hg'].to_numpy(), times,
                                         args.window_size, args.step_size)
+    axis_hg = ct.axis_window_means(df['hg'].to_numpy(), times, args.traj_axes)
+    axis_labels = [f'{tmin}-{tmax}s' for tmin, tmax in args.traj_axes]
     labels = df.drop(columns='hg')
     del df
     print(f"{len(grid)} windows of {args.window_size} samples every {args.step_size}")
@@ -259,14 +289,20 @@ def main(args):
     # Seeds, all derived from one so a run is reproducible from `args.seed`.
     seeds = dict(halves=args.seed, null_congruency=args.seed + 1,
                  null_switchType=args.seed + 2, bootstrap=args.seed + 3,
-                 rt_match=args.seed + 4)
+                 rt_match=args.seed + 4, subspace_bootstrap=args.seed + 5,
+                 trajectory_bootstrap=args.seed + 6)
     os.makedirs(args.save_dir, exist_ok=True)
 
-    # 0. the RT control (§3.3), before anything is scored, so the real axes and
-    #    every null draw see the same trials and HG.
-    labels, hg_windows, rt_report = ca.rt_control(
-        labels, hg_windows, mode=args.rt_control, n_bins=args.rt_match_bins,
-        seed=seeds['rt_match'])
+    # 0. the RT control (§3.3), before anything is scored, so the real axes, every
+    #    null draw and the trajectories see the same trials and HG.
+    n_win = hg_windows.shape[1]
+    labels, controlled, rt_report = ca.rt_control(
+        labels, np.column_stack([hg_windows, axis_hg]), mode=args.rt_control,
+        n_bins=args.rt_match_bins, seed=seeds['rt_match'])
+    hg_windows, axis_hg = controlled[:, :n_win], controlled[:, n_win:]
+    if 'rt_adjust_slopes' in rt_report:                  # the analysis windows only
+        slopes = rt_report['rt_adjust_slopes']
+        rt_report['rt_adjust_slopes'] = slopes[slopes['window'] < n_win]
     for name, frame in rt_report.items():
         frame.to_csv(os.path.join(args.save_dir, f'{name}.csv'), index=False)
     if args.rt_control != 'none':
@@ -284,16 +320,24 @@ def main(args):
     per = per.merge(grid, on='window')
     per.to_csv(os.path.join(args.save_dir, 'per_split_windows.csv'), index=False)
 
-    # 2. the shuffle nulls (§3.2), one factor at a time
-    null = {}
+    # 2. the shuffle nulls (§3.2), one factor at a time; each shuffle is scored
+    #    once and feeds both the cosine null and the subspace null (§3.4)
+    null, sub_null = {}, {}
     for factor in ca.NULL_FACTORS:
         print(f"null: shuffling {factor} ({args.n_perm} permutations, "
               f"{args.n_null_splits} splits each)")
-        null[factor] = ca.cross_cosine_null(
-            labels, hg_windows, factor, n_perm=args.n_perm, n_splits=args.n_null_splits,
-            seed=seeds[f'null_{factor}'], remove_mean=args.remove_mean)
+        cross, records = [], []
+        for per_null in ca.null_draws(
+                labels, hg_windows, factor, n_perm=args.n_perm, n_splits=args.n_null_splits,
+                seed=seeds[f'null_{factor}'], remove_mean=args.remove_mean):
+            cross.append(ca.cross_cosine(per_null))
+            records.append(cs.subspace_null_stats(per_null, factor, k_max=args.k_max))
+        null[factor] = np.array(cross)
+        sub_null[factor] = cs.stack_null(records)
     np.savez(os.path.join(args.save_dir, 'null_cross.npz'),
              window=grid['window'].to_numpy(), **null)
+    np.savez(os.path.join(args.save_dir, 'null_subspace.npz'),
+             **{f'{f}_{key}': v for f, d in sub_null.items() for key, v in d.items()})
 
     # 3. cosines, ceilings, alignment, bootstrap, marks
     table, summary = ca.compare_coding_axes(
@@ -303,6 +347,34 @@ def main(args):
     with open(os.path.join(args.save_dir, 'summary.json'), 'w') as f:
         json.dump(summary, f, indent=2)
     plot_coding_axes(table, os.path.join(args.save_dir, 'coding_axis_cosines.png'))
+
+    # 4. the subspace test (§3.4): the windows' axes stacked into effect matrices
+    sub_table, sub_dims, sub_summary = cs.compare_subspaces(
+        per, null=sub_null, k_max=args.k_max, n_boot=args.n_boot,
+        seed=seeds['subspace_bootstrap'], alpha=args.alpha)
+    sub_table.to_csv(os.path.join(args.save_dir, 'subspace_test.csv'), index=False)
+    sub_dims.to_csv(os.path.join(args.save_dir, 'subspace_dimensions.csv'), index=False)
+    with open(os.path.join(args.save_dir, 'subspace_summary.json'), 'w') as f:
+        json.dump(sub_summary, f, indent=2)
+    plot_subspace_test(sub_table, sub_dims, os.path.join(args.save_dir, 'subspace_test.png'),
+                       k=sub_summary['k'])
+
+    # 5. the trajectories (§4): axes and cells on the coding axes' own halves
+    traj, fractions, traj_summary = ct.condition_trajectories(
+        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+        seed=seeds['halves'], remove_mean=args.remove_mean, first=args.traj_first,
+        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
+    traj = traj.merge(grid, on='window')
+    fractions = fractions.merge(grid, on='window', how='left')
+    traj.to_csv(os.path.join(args.save_dir, 'trajectories.csv'), index=False)
+    fractions.to_csv(os.path.join(args.save_dir, 'trajectory_fractions.csv'), index=False)
+    with open(os.path.join(args.save_dir, 'trajectory_summary.json'), 'w') as f:
+        json.dump(traj_summary, f, indent=2)
+    for label in axis_labels:
+        for cells, suffix in (('centred', ''), ('uncentred', '_uncentred')):
+            plot_trajectories(traj, fractions, traj_summary['axes'][label], label,
+                              os.path.join(args.save_dir, f'trajectories_{label}{suffix}.png'),
+                              cells=cells, first=args.traj_first)
 
     config = dict(
         timestamp=args.timestamp, data_source=args.data_source,
@@ -317,6 +389,8 @@ def main(args):
         rt_control=args.rt_control, rt_match_bins=args.rt_match_bins,
         n_splits=args.n_splits, n_perm=args.n_perm, n_null_splits=args.n_null_splits,
         n_boot=args.n_boot, alpha=args.alpha,
+        k_max=args.k_max, traj_axes=[list(w) for w in args.traj_axes],
+        traj_first=args.traj_first,
         seed=args.seed, seeds=seeds,
         n_subjects=int(labels.subject.nunique()),
         n_electrodes=int(labels.electrode.nunique()),
@@ -328,5 +402,15 @@ def main(args):
           f"{summary['alignment_reliable_mean']} (CI {summary['alignment_reliable_ci']})")
     print(f"shared windows: {summary['shared_windows']} | not one code: "
           f"{summary['not_one_code_windows']}")
+    print(f"subspace test: k = {sub_summary['k']}, primary k = {sub_summary['primary_k']}")
+    if sub_summary['theta_1']:
+        t1 = sub_summary['theta_1']
+        print(f"  theta_1 at the primary k: {t1['cross_deg']:.1f} deg (cosine {t1['cross']:.3f}), "
+              f"{t1['normalized']:.2f} of the ceiling | shared: {t1.get('shared')} | "
+              f"not one code: {t1['not_one_code']}")
+    for label, s in traj_summary['axes'].items():
+        print(f"trajectories, axes {label}: plane holds {s['plane_fraction']:.3f} of the "
+              f"centred cells' variance (chance {s['plane_fraction_chance']:.3f}), "
+              f"{s['plane_fraction_signal']:.2f} of the signal")
     print(f"wrote {args.save_dir}")
     return table, summary
