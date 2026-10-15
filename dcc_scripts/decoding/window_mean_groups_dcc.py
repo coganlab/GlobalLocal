@@ -1,5 +1,7 @@
 """Window-mean decoding in task-significant, non-significant and all electrodes,
-at a matched electrode count, with membership-permutation tests between them.
+at a matched electrode count (or each group whole, with
+``WINDOW_MEAN_MATCH_ELECTRODES=false``), with membership-permutation tests between
+them.
 
 Called by ``decoding_dcc.main`` when ``args.window_mean_groups`` is on
 (``WINDOW_MEAN_GROUPS=1`` through ``run_decoding_dcc.py``); the computation is
@@ -33,11 +35,17 @@ def run_window_mean_group_comparison(args, rois, condition_names, condition_comp
     ``accuracies.csv`` (group x bootstrap x repeat), ``summary.csv``,
     ``tests.csv`` (pairwise permutation p and Holm p), ``params.json`` and
     ``group_bars.png``/``.pdf``. ``all_electrodes`` must already be filtered to
-    the loaded epochs."""
+    the loaded epochs. Without electrode-count matching the tag ends in
+    ``_unmatched``."""
     tmin, tmax = args.window_mean_tmin, args.window_mean_tmax
     n_boot = int(args.window_mean_bootstraps)
+    match = getattr(args, 'window_mean_match_electrodes', True)
+    if not match and args.window_mean_n_match is not None:
+        raise ValueError("window_mean_n_match needs window_mean_match_electrodes; "
+                         "unmatched, every group is decoded on all its electrodes")
     tag = (f"{args.condition_label}_{tmin:g}to{tmax:g}s_{n_boot}bts_"
-           f"{args.window_mean_n_perm}perm_seed{args.random_state}")
+           f"{args.window_mean_n_perm}perm_seed{args.random_state}"
+           f"{'' if match else '_unmatched'}")
     out_root = os.path.join(save_dir, 'window_mean_groups', tag)
 
     # one pseudo-trial draw per bootstrap over ALL electrodes; each group is a
@@ -70,8 +78,8 @@ def run_window_mean_group_comparison(args, rois, condition_names, condition_comp
         groups = electrode_groups(all_electrodes, sig_electrodes, roi)
         res = compare_electrode_groups(
             data, channels[(comparison, roi)], groups, n_match=args.window_mean_n_match,
-            n_perm=args.window_mean_n_perm, seed=args.random_state, n_jobs=args.n_jobs,
-            clf=args.clf_model, explained_variance=args.explained_variance,
+            match_electrodes=match, n_perm=args.window_mean_n_perm, seed=args.random_state,
+            n_jobs=args.n_jobs, clf=args.clf_model, explained_variance=args.explained_variance,
             n_splits=args.n_splits, n_repeats=args.n_repeats)
         out = os.path.join(out_root, comparison, roi)
         os.makedirs(out, exist_ok=True)
@@ -81,7 +89,8 @@ def run_window_mean_group_comparison(args, rois, condition_names, condition_comp
         with open(os.path.join(out, 'params.json'), 'w') as f:
             json.dump(dict(condition_label=args.condition_label, comparison=comparison, roi=roi,
                            time_range_s=[tmin, tmax], bootstraps=n_boot,
-                           n_perm=args.window_mean_n_perm, n_match=res['n_match'],
+                           n_perm=args.window_mean_n_perm, match_electrodes=match,
+                           n_match=res['n_match'],
                            group_sizes=res['group_sizes'], seed=args.random_state,
                            classifier=args.clf_model_str,
                            explained_variance=args.explained_variance,
@@ -89,6 +98,8 @@ def run_window_mean_group_comparison(args, rois, condition_names, condition_comp
                            epochs_root_file=args.epochs_root_file, subjects=args.subjects),
                       f, indent=2)
         plot_group_accuracy_bars(res, os.path.join(out, 'group_bars'),
-                                 title=f"{roi}: {comparison}, {tmin:g}-{tmax:g} s means")
-        print(f"[window-mean groups] {comparison} / {roi}: n_match = {res['n_match']}\n"
+                                 title=f"{roi}: {comparison}, {tmin:g}-{tmax:g} s means"
+                                       f"{'' if match else ', unmatched'}")
+        print(f"[window-mean groups] {comparison} / {roi}: "
+              f"n_match = {res['n_match'] if match else 'off (each group whole)'}\n"
               f"{res['summary'].to_string(index=False)}\n{res['tests'].to_string(index=False)}")

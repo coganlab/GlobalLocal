@@ -18,6 +18,11 @@ things make a naive comparison misleading:
   have), and the whole matched decode is repeated. The null is "group
   membership does not matter", at the electrodes' level.
 
+``match_electrodes=False`` turns the size matching off: every group is decoded
+on all of its electrodes. The accuracies then mix what each electrode carries
+with how many there are, but the permutation test still compares each group
+with random groups of its own size.
+
 Computation only: callers load the data, save the results and plot them.
 """
 
@@ -66,31 +71,35 @@ def decode_accuracy(X, y, cats, columns, clf, explained_variance=0.9, n_splits=5
     return np.trace(cm, axis1=-2, axis2=-1) / cm.sum(axis=(-2, -1))   # (n_repeats,)
 
 
-def _matched_columns(members, n_match, rng):
-    """``n_match`` column indices drawn without replacement from ``members``."""
+def _group_columns(members, n_match, rng):
+    """The columns a group is decoded on, sorted: ``n_match`` drawn without
+    replacement from ``members``, or all of ``members`` when ``n_match`` is None."""
+    if n_match is None:
+        return np.sort(members)
     return np.sort(rng.choice(members, size=n_match, replace=False))
 
 
-def _matched_diff(datasets, cols1, cols2, n_match, seed, decode_kw):
+def _group_diff(datasets, cols1, cols2, n_match, seed, decode_kw):
     """Mean accuracy of group 1 minus group 2 over bootstraps and repeats, each
-    group decoded on its own ``n_match`` random members in every bootstrap: the
-    statistic of one membership permutation."""
+    group decoded on its own ``n_match`` random members in every bootstrap (all
+    of them when ``n_match`` is None): the statistic of one membership
+    permutation."""
     rng = np.random.default_rng(seed)
     diffs = []
     for b, (X, y, cats) in enumerate(datasets):
-        a1 = decode_accuracy(X, y, cats, _matched_columns(cols1, n_match, rng),
+        a1 = decode_accuracy(X, y, cats, _group_columns(cols1, n_match, rng),
                              random_state=seed + b, **decode_kw)
-        a2 = decode_accuracy(X, y, cats, _matched_columns(cols2, n_match, rng),
+        a2 = decode_accuracy(X, y, cats, _group_columns(cols2, n_match, rng),
                              random_state=seed + b, **decode_kw)
         diffs.append(a1.mean() - a2.mean())
     return float(np.mean(diffs))
 
 
 def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=None,
-                             n_perm=1000, seed=0, n_jobs=1, clf=None, explained_variance=0.9,
-                             n_splits=5, n_repeats=5):
-    """Decode every group at a matched size and test pairs of groups by
-    membership permutation.
+                             match_electrodes=True, n_perm=1000, seed=0, n_jobs=1, clf=None,
+                             explained_variance=0.9, n_splits=5, n_repeats=5):
+    """Decode every group at a matched size (or at its own size) and test pairs
+    of groups by membership permutation.
 
     Parameters
     ----------
@@ -103,10 +112,18 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
     pairs : list of (name, name), optional
         Which groups to test; default every pair.
     n_match : int, optional
-        Electrodes decoded per group; default the smallest group's size.
+        Electrodes decoded per group; default the smallest group's size. Only
+        with ``match_electrodes``.
+    match_electrodes : bool
+        True (default) decodes every group at ``n_match`` electrodes. False
+        decodes every group on all its electrodes; each permutation then deals
+        pseudo-groups of the real groups' sizes and decodes them whole, so the
+        null carries the size difference. That null is not centred on zero, so
+        p is two-sided by doubling the smaller tail rather than from absolute
+        differences (the matched null is symmetric about zero).
     n_perm : int
         Membership permutations per pair. The p-value cannot go below
-        1 / (n_perm + 1).
+        1 / (n_perm + 1) (2 / (n_perm + 1) unmatched).
     seed : int
         Seeds the electrode draws, the CV splits and the permutations.
 
@@ -117,8 +134,9 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
         shuffled-label accuracy); ``summary``: per group, mean accuracy, its
         2.5-97.5 percentiles over bootstraps and repeats, mean chance;
         ``tests``: per pair, the observed accuracy difference, permutation p,
-        Holm-adjusted p and the null's 2.5-97.5 percentiles; ``n_match``;
-        ``group_sizes``; ``null`` ({pair: null differences}).
+        Holm-adjusted p and the null's 2.5-97.5 percentiles; ``n_match``
+        (None unmatched); ``group_sizes``; ``null`` ({pair: null differences}).
+        The summary's ``n_decoded`` is the electrodes each group was decoded on.
     """
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     clf = LinearDiscriminantAnalysis() if clf is None else clf
@@ -130,19 +148,25 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
     sizes = {g: len(m) for g, m in members.items()}
     if min(sizes.values()) < 2:
         raise ValueError(f"every group needs at least 2 electrodes; sizes: {sizes}")
-    n_match = int(n_match or min(sizes.values()))
-    if n_match > min(sizes.values()):
-        raise ValueError(f"n_match={n_match} exceeds the smallest group ({sizes})")
+    if not match_electrodes:
+        if n_match is not None:
+            raise ValueError(f"n_match={n_match} needs match_electrodes=True; unmatched, "
+                             f"every group is decoded on all its electrodes")
+    else:
+        n_match = int(n_match or min(sizes.values()))
+        if n_match > min(sizes.values()):
+            raise ValueError(f"n_match={n_match} exceeds the smallest group ({sizes})")
     names = list(groups)
     pairs = list(pairs) if pairs is not None else [
         (a, b) for i, a in enumerate(names) for b in names[i + 1:]]
 
-    # every group at the matched size; the shuffled-label decode gives chance
+    # every group at the matched size (or whole); the shuffled-label decode
+    # gives chance
     rng = np.random.default_rng(seed)
     rows = []
     for b, (X, y, cats) in enumerate(datasets):
         for g in names:
-            cols = _matched_columns(members[g], n_match, rng)
+            cols = _group_columns(members[g], n_match, rng)
             true = decode_accuracy(X, y, cats, cols, random_state=seed + b, **decode_kw)
             null = decode_accuracy(X, y, cats, cols, random_state=seed + b, shuffle=True,
                                    **decode_kw)
@@ -157,6 +181,7 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
                .reindex(names).reset_index())
     summary['n_electrodes'] = summary['group'].map(sizes)
     summary['n_match'] = n_match
+    summary['n_decoded'] = n_match if match_electrodes else summary['n_electrodes']
 
     # pairs: the observed difference against membership permutations
     tests, nulls = [], {}
@@ -171,10 +196,15 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
         # size: disjoint groups split the pool, a group equal to the pool stays it
         deals = [perm_rng.permutation(pool) for _ in range(int(n_perm))]
         null = np.array(Parallel(n_jobs=n_jobs)(
-            delayed(_matched_diff)(datasets, d[:n1], d[len(pool) - n2:], n_match,
-                                   seed + 2 + k, decode_kw)
+            delayed(_group_diff)(datasets, d[:n1], d[len(pool) - n2:], n_match,
+                                 seed + 2 + k, decode_kw)
             for k, d in enumerate(deals)))
-        p = (1 + np.sum(np.abs(null) >= abs(observed))) / (1 + len(null))
+        if match_electrodes:
+            p = (1 + np.sum(np.abs(null) >= abs(observed))) / (1 + len(null))
+        else:
+            # unmatched, the null is centred on the size difference
+            tail = min(np.sum(null >= observed), np.sum(null <= observed))
+            p = min(1.0, 2 * (1 + tail) / (1 + len(null)))
         tests.append(dict(group_1=g1, group_2=g2, difference=observed, p=float(p),
                           null_lo=float(np.percentile(null, 2.5)),
                           null_hi=float(np.percentile(null, 97.5)), n_perm=int(n_perm)))
