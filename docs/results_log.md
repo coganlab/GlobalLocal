@@ -6,6 +6,175 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-16: coding axes, response-locked
+
+Drafted by Claude; not yet reviewed.
+
+Jobs: `coding_axes_real` 58783103–58783108 (6), all COMPLETED, exit 0, in
+17–58 min. Owning doc: [`coding_axes.md`](coding_axes.md) §11. The controls
+figure (`coding_axes_controls.png` / `.csv`) was made the same day from these
+six runs.
+
+### Short version
+
+1. **The codes and their shared part are present before the response,
+   strongest 0.4–0.75 s before it, fading toward it, and gone after it.** All
+   lPFC: shared from −0.875 to −0.06 s, alignment 0.59 [0.42, 0.83] (0.75–0.78
+   at its peak); θ₁ 61° at 0.76 [0.70, 0.93] of its ceiling, as
+   stimulus-locked.
+2. **RT matching removes the codes in this frame too** (3 reliable windows
+   against 8 in the random subset; neither variable has a reproducible
+   dimension). `rt_adjust` again keeps the sharing (0.52).
+3. **On the A4 response-locked reading table this is closest to the latency
+   signature, but not cleanly**: sharing lasts to the last pre-response window,
+   and the ramp's peak height differs by cell. Supports "tied to RT, present
+   before the response", not "a timing artifact".
+4. **Occipital: no reliable code at all** (83 electrodes, 14 participants), so
+   no answer on lPFC specificity.
+
+### coding_axes_real (response-locked): main, remove_mean, rt_adjust, rt_match10, rt_random10, occ
+
+- **Status:** all six COMPLETED. `Response_-1.0to1.5sec_…_zmax_20` epochs,
+  windows −1.0 to 1.5 s (37, 0 = response), trajectory axes −1.0–0, −1.0–−0.5
+  and −0.5–0 s, all lPFC (398 / 22) or all occipital (83 / 14), seed 0, 200
+  splits, 1000 × 20 shuffles, 2000 bootstraps, `K_MAX` 3. 58783106–08 started
+  after today's block-separation edits and also wrote `block_*` files;
+  58783103–05 did not. The cosine and subspace code was the same for all six
+  (coding_axes.md §11.1).
+- **Result:**
+  - Main: 16 reliable windows (−0.875 to +0.06 s), cross 0.25 against a
+    ceiling of 0.41, **alignment 0.59 [0.42, 0.83]**, shared −0.875 to
+    −0.06 s, not one code −0.81 to −0.125 s and 0.0–0.06 s. Nothing reliable
+    after +0.06 s. Subspace: k = 3 / 3 (capped), θ₁ 0.48 (61°) against 0.64,
+    **0.76 [0.70, 0.93]**, shared, not one code; alignment index 0.56
+    [0.50, 0.85] (C → S), 0.58 [0.47, 0.91] (S → C). At k = 1, θ₁ 0.735 against
+    0.72 stimulus-locked. Trajectories (−1.0–0 s axes): signal fraction 0.44
+    [0.33, 0.59]; cos(c, s) 0.37 for early-half axes vs 0.30 late; switch
+    moves along the congruency axis by 52–76 % as much as congruency does.
+  - `remove_mean`: 0.45 [0.25, 0.67], shared −0.875 to −0.06 s; θ₁ 0.74
+    [0.67, 0.89].
+  - `rt_adjust`: 0.52 [0.30, 0.80], shared −0.75 to −0.25 s, ceilings about
+    halved; θ₁ 0.79 [0.72, 1.00], shared.
+  - `rt_match10` / `rt_random10` (seed 0): RT gaps −0.35 / −0.38 ms after
+    matching (p = 0.86), 170 / 182 ms kept in the random subset; 47 % of
+    trials each. Matched: 3 reliable windows, ceiling 0.14, k = 0 / 0.
+    Random: 8 windows, ceiling 0.24, alignment 0.36 [−0.04, 0.93], shared
+    −0.75 to −0.375 s; θ₁ 0.51, not shared at the primary k = 2.
+  - Occipital: 0 reliable windows, k = 0 / 0.
+  - Descriptive, computed for this entry from existing outputs: where the codes
+    are shared, each code's electrode pattern has a cosine of 0.55–0.68 with
+    the within-cell HG-on-RT slope pattern, in both frames (no null).
+- **Interpretation:** Response locking does not make the codes vanish. It
+  makes them cleaner and puts them, with their sharing, in the second before
+  the response, fading as the response approaches. That is the latency
+  signature's shape (A4 table, [`decoding.md`](decoding.md) §13.4): at a fixed
+  time before the response the slow cells, above all incongruent-switch, sit
+  higher on a common ramp. Matching removing the codes again, and the
+  shared pattern resembling the within-cell RT pattern, point the same way.
+  Two things keep me from calling it a pure timing shift. The sharing
+  persists to the last pre-response window. And the ramp peaks highest in
+  the slowest cell, which a shifted fixed waveform would not do and activity
+  growing with time on task would. The regression/matching disagreement
+  survives response locking, so it more likely lies in how the two controls
+  work than in stimulus alignment. Random-subset seed 0 is again the weak
+  draw, so match vs random on the *sharing* can't be read from one seed.
+  Settling checks: response-locked RT seeds 1–4; a latency-only model run
+  through the same job; a split-half RT-axis test with a null
+  ([`coding_axes.md`](coding_axes.md) §11.7).
+- **Effect on the paper's story:** **Supports** the "tied to RT" clause of F5
+  d–e and **adds** "present before the response"
+  ([`paper_draft.md`](paper_draft.md) §1.1 last clause, §1.4 F5 "What would
+  change it", §3.4 last bracket, §4 "Base-effect codes" bracket). The geometry
+  numbers (θ₁ about 0.75 of its ceiling) are unchanged, so "partly aligned"
+  stands. Note that the two pre-written decision rules disagree: paper_draft
+  §1.4 reads codes that persist before the response as "present before the
+  response", while decoding.md §13.4 reads sharing that sits early and fades
+  as latency. The data meet both descriptions, so the wording below uses both.
+  No regional claim (occipital has no code).
+- **Recommendation:** **Supplement (S5)** for the response-locked figures:
+  `coding_axes_controls.png` plus the main run's `coding_axis_cosines.png`.
+  Add **one main-text sentence** in §3.4 beside d–e. Keep d–e
+  stimulus-locked. **Rerun first** before any sentence comparing matched with
+  random subsets in response time: seeds 1–4 (8 jobs, ~50 min each, 8 cores /
+  64 GB). The occipital result cannot be reported as a region control; a
+  stimulus-locked occipital run is still missing.
+
+### Oddities
+
+- `block_separations*` / `block_*` exist only in the `rt_match10`,
+  `rt_random10` and `occ` folders: their jobs started after the
+  block-separation code was saved (09:12–09:15). Not interpreted; those runs'
+  trajectories are unreadable (10–11 participants under the subsets).
+- Every log has "Mean of empty slice" warnings from
+  `stability_flexibility_segregation_dcc.py:181`, as in the stimulus-locked
+  runs (21–22 per log there). Not a failure.
+- In the `rt_match10` and `occ` runs the raw plane fraction sits below its own
+  bootstrap CI (0.035 vs [0.037, 0.116]; 0.070 vs [0.073, 0.208]). That is a
+  small-sample bias of the bootstrap in unreadable runs.
+- `subspace_summary.json` and `summary.json` report `seed` 3 / 5. These are
+  the derived bootstrap seeds; the run seed is 0 (`run_config.json`).
+
+### Not documented here
+
+- 58783375 (`coding_axes_real`, COMPLETED 09:54): a stimulus-locked all-lPFC
+  (`ROIS=lpfc`) `rt_adjust` rerun, not in this request.
+- Still running or pending: `dec_a0e0_*_feat-channels` 58738829–58738830
+  (running), 58738831–58738834 (pending, `AssocGrpMemLimit`).
+- Finished on 2026-10-15/16 but not written up yet: `pwr_a0e0_*`
+  58739128–58739143, `dec_scoresel_*` 58739251–58739254, `dec_wmgroups_*`
+  58739922–23, 58739928–29, 58757457–58, `sf_anatomy_a1_real` 58741204–07,
+  58741689, 58741692, 58741779, 58741783 (FAILED, not inspected).
+- Interactive and outside the repo: 58782513, 58752835 (Jupyter); 58739111
+  (`svd_debug`, `claude_debug/`).
+
+### Proposed `paper_draft.md` edits (not applied)
+
+1. **§1.1, the candidate sentence's bracket** "[, tied to RT: the
+   response-locked run decides this clause (§1.7)]" →
+   ", tied to RT and present before the response".
+2. **§1.2 "What changed", new row:** "**Response-locked coding axes**
+   (2026-10-16; [`coding_axes.md`](coding_axes.md) §11) | The codes and their
+   sharing sit in the second before the response (shared −0.875 to −0.06 s,
+   alignment 0.59 [0.42, 0.83]; θ₁ 0.76 [0.70, 0.93] of its ceiling), fade
+   toward it and are gone after it; RT matching again removes them (seed 0).
+   Closest to the latency signature, not cleanly. 'Tied to RT, present before
+   the response'; not 'response-related'. Occipital: no reliable code."
+3. **§3.4, replacing "[Response-locked result, once run (§1.7).]":** "> Aligned
+   to the response instead, both codes and their alignment were present
+   before the response, strongest 0.4–0.75 s before it (alignment 0.59
+   [0.42, 0.83] over the reliable windows; shared from 0.88 to 0.06 s before
+   the response), and absent after it; RT matching again removed the codes
+   (Supplementary **[S5]**)."
+4. **§4 "Base-effect codes", replacing "[After the response-locked run: whether
+   they persist before the response.]":** "> They were present in the second
+   before the response and faded as it approached, the pattern expected if
+   slower trials sit further along a common ramp of activity; whether that is
+   response timing or a process that takes longer on slow trials, these data
+   do not say."
+5. **§1.4 F5, "What would change it", response-locked bullet, append:** "Run
+   2026-10-16: the codes persist before the response and fade toward it, and
+   matching still removes them; the clause becomes 'tied to RT, present before
+   the response' ([`coding_axes.md`](coding_axes.md) §11.7)."
+6. **§1.5 S5 row, append:** "the response-locked controls figure and main
+   cosine panel (coding_axes.md §11)". Status cell: "response-locked run
+   2026-10-16 (seed 0); response-locked RT seeds 1–4 and a stimulus-locked
+   occipital run still to do".
+7. **§1.7 checklist:** tick "Response-locked coding-axes run" (the x labels
+   now read "s from response"). Under "Occipital coding axes", note that the
+   response-locked occipital run has no reliable code and a stimulus-locked
+   one is still missing. Add "[ ] Response-locked `rt_match10`/`rt_random10`,
+   `SEED=1..4`".
+
+### Downloads
+
+Manifest: `/hpc/home/jz421/download_manifests/2026-10-16.txt` (139 files,
+~46 MB: figures, csv, json and null npz files of the six folders, plus the
+controls figure and table). Left out: the six `per_split_windows.csv` tables (420–423 MB each for
+lPFC, 88 MB for occipital). They can be regenerated and are only needed to
+recompute the cosines.
+
+---
+
 ## 2026-10-15 (afternoon and evening): coding-axes RT seeds, subspace test, trajectories
 
 Drafted by Claude; not yet reviewed.

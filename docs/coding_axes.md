@@ -30,6 +30,7 @@ lPFC-subsampled-to-occipital control, dPCA (§5) and the block-split adaptation
 8. [Code map and tests](#8-code-map-and-tests)
 9. [Deviations from the plan, and limits](#9-deviations-from-the-plan-and-limits)
 10. [Results (2026-10-15 run)](#10-results-2026-10-15-run)
+11. [Results (2026-10-16 run): response-locked](#11-results-2026-10-16-run-response-locked)
 
 ## 1. What it computes
 
@@ -112,6 +113,19 @@ The job also reports how much of the centred cells' activity the plane holds:
 raw (a lower bound, since noise fills all ~400 directions) and noise-corrected
 (cross-half products, which remove independent noise). Axis windows 0.1–0.5 s
 and 0.6–1.4 s give the plan's early-vs-late variant.
+
+### 1.3 Adaptation as block-split separations (plan §6, supplement)
+
+On the same axes, halves and electrodes as the trajectories: within each of
+the four proportion blocks (incProp × switchProp), the held-out congruency
+separation, ĉ · [mean(IS, IR) − mean(CS, CR)], and the switch separation,
+ŝ · [mean(IS, CS) − mean(IR, CR)], each on its own unit axis from the other
+half, averaged over both directions and the 200 splits. From these: the change
+in each separation with incProp and with switchProp (low − high, the other
+proportion weighted equally), and own − other (congruency: incProp −
+switchProp; switch: switchProp − incProp). The double dissociation predicts
+each variable's own change away from 0 and the other at 0. Participant-bootstrap
+CIs only; no shuffle null.
 
 ## 2. Quick start
 
@@ -218,6 +232,10 @@ Each run writes to
 | `trajectories.csv` | one row per axis window (`axes`), `cells` (`centred` / `uncentred`), `cell` and window: `x`, `y`, and for centred cells the bootstrap CI (`x_lo` … `y_hi`), with the window grid |
 | `trajectory_fractions.csv` | per axis window and window: `plane_fraction` (raw) and `plane_fraction_signal` (noise-corrected); `window = -1` is all windows together, with bootstrap CIs |
 | `trajectory_summary.json` | electrodes and participants used, electrodes dropped (per participant), and per axis window: the cosine between its two axes before Gram–Schmidt, the overall fractions with CIs, and the raw fraction's chance level 2 / n_electrodes |
+| `block_separations_<axes>.png` | the §6 figure for each axis window (§6.3) |
+| `block_separations.csv` | one row per axis window, `variable` (`congruency`, `switchType`), block (`inc_prop`, `switch_prop`: `low` / `high`) and window: `separation` (HG along the variable's unit axis) with bootstrap CI (`lo`, `hi`); `window = -1` is the mean over windows |
+| `block_contrasts.csv` | one row per axis window, variable, `contrast` (`incProp`, `switchProp`: low − high; `own_minus_other`) and window: `estimate`, `lo`, `hi`, `excludes_0`; `window = -1` is the mean over windows |
+| `block_summary.json` | the overall (window −1) contrasts with CIs per axis window and variable, electrodes and participants used |
 
 `plot_coding_axes_controls.py` writes `coding_axes_controls.png` and
 `coding_axes_controls.csv` (one row per run: alignment over its reliable
@@ -314,6 +332,25 @@ Positions shrink toward 0 when the axes are noisy (held-out projections onto a
 noisy axis are attenuated), so compare shapes and timing, not absolute sizes
 across runs with different ceilings.
 
+### 6.3 The block-split separations
+
+`block_separations_0.0-1.5s.png`:
+
+- **a, c:** each variable's separation in the four proportion blocks. Colour =
+  its own proportion (blue low, orange high), line style = the other (solid
+  low, dashed high). The prediction: the colours apart, the line styles
+  together.
+- **b, d:** the change with the own proportion (black) and with the other
+  (grey dashed), low − high, with the participant-bootstrap CI. Positive = a
+  larger separation in the low-proportion blocks, the behavioural direction of
+  LWPC and LWPS.
+- The footer gives the means over windows with CIs; the number to quote is
+  `own_minus_other` at `window = -1` in `block_contrasts.csv`.
+
+Expect noise: mean single-electrode LWPC and LWPS are near zero (d = 0.01 and
+0.05), and each block × cell has a few trials per half. Keep it in the
+supplement unless the own change clearly beats the other.
+
 ## 7. Checks before trusting a run
 
 1. **Ceilings.** Most of 0.1–1.4 s should be reliable. If the ceilings are
@@ -362,7 +399,8 @@ across runs with different ceilings.
 | Subspace primitives | `coding_subspace`, `principal_angle_cosines`, `alignment_index`, `heldout_variance` in [`src/analysis/stats/coding_subspaces.py`](../src/analysis/stats/coding_subspaces.py) |
 | Subspace point estimates, k, null, bootstrap, marks | `subspace_stats`, `dimension_test`, `subspace_null`, `compare_subspaces` (same module) |
 | Shared halves and cell means | `shared_halves`, `half_cell_means`, and `main_effect_mean_diffs(halves=...)` in `stability_flexibility_segregation.py` |
-| Trajectories | `axis_window_means`, `balanced_cell_means`, `trajectory_sums`, `condition_trajectories` in [`src/analysis/stats/coding_trajectories.py`](../src/analysis/stats/coding_trajectories.py) |
+| Trajectories | `axis_window_means`, `cell_block_means`, `trajectory_sums`, `condition_trajectories` in [`src/analysis/stats/coding_trajectories.py`](../src/analysis/stats/coding_trajectories.py) |
+| Block-split separations (plan §6) | `block_separations` (same module) |
 | Job, per-run figure, controls figure | [`dcc_scripts/subspace/coding_axes_dcc.py`](../dcc_scripts/subspace/coding_axes_dcc.py), `run_coding_axes_dcc.py`, `plot_coding_axes_controls.py` |
 | Subspace and trajectory figures | [`dcc_scripts/subspace/subspace_figures.py`](../dcc_scripts/subspace/subspace_figures.py) |
 
@@ -400,6 +438,8 @@ They pin:
   and not one code; orthogonal codes not marked shared;
 - the trajectories against a direct one-split computation; cells at half the
   planted effects; equal block weights; the plane fractions;
+- the block separations against a direct one-split computation; a planted
+  adaptation of each code landing on its own proportion only;
 - the whole job end to end on synthetic data (marked `slow`).
 
 ## 9. Deviations from the plan, and limits
@@ -460,6 +500,12 @@ Subspace test and trajectories:
   that, but noise fills every electrode direction, so it is mostly a measure
   of signal-to-noise. The noise-corrected version (cross-half products) is the
   one to quote for "the 2-D view is not a thin slice".
+- **Block separations (§6) have bootstrap CIs, no shuffle null,** and use the
+  trajectories' electrodes (check 6). Each is projected on its own unit axis,
+  not on the Gram–Schmidt y, so the switch separation is the same whichever
+  axis comes first. `own_minus_other` compares the two proportions within the
+  same electrodes, which cancels overall responsiveness (both adaptations
+  scale with it).
 
 ## 10. Results (2026-10-15 runs)
 
@@ -773,3 +819,319 @@ its 95 % participant-bootstrap CI, 0 = separate, 1 = as shared as noise allows.
 - The ceiling normalization of the subspace rows is a heuristic for k > 1
   (§9). The primary k is 2 in all lPFC, so quote θ₁'s raw cosine and ceiling
   alongside the ratio.
+
+## 11. Results (2026-10-16 run): response-locked
+
+*Drafted by Claude from the run outputs; not yet reviewed.*
+
+The question from §10.7–10.8: the stimulus-locked sharing is strongest at
+0.9–1.4 s, near or after many responses (median RT 1.17 s; 35 % of trials
+answered by 1.0 s), RT matching removes the codes, and `rt_adjust` keeps the
+sharing. Aligning every trial to its response asks where the codes and their
+sharing sit relative to the button press.
+
+### 11.1 What was run
+
+Six `coding_axes_real` jobs from `bash submit_coding_axes_all.sh`, all
+COMPLETED, exit 0: 58783103 (main, 57 min), 58783104 (`REMOVE_MEAN=1`, 58 min),
+58783105 (`RT_CONTROL=adjust`, 57 min), 58783106 (`RT_CONTROL=match`, 10 bins,
+49 min), 58783107 (`RT_CONTROL=random`, 10 bins, 48 min), 58783108
+(`ROIS=occ`, 17 min). Settings as §4 except:
+
+- `EPOCHS_ROOT_FILE=Response_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20`:
+  0 s is the response.
+- `WINDOWS_TMIN=-1.0`, `WINDOWS_TMAX=1.5`: 37 windows of 250 ms every 62.5 ms,
+  centres −0.875 to +1.375 s. The window centred at −0.125 s ends at the
+  response. Windows after 0 s include feedback and the next trial's
+  preparation. On trials answered within 1.0 s, the first windows reach back
+  before the stimulus.
+- `TRAJ_AXES=-1.0:0.0,-1.0:-0.5,-0.5:0.0`: the main trajectory figure uses
+  axes from the second before the response; the other two are the early and
+  late halves of that second.
+- `ROIS=dlpfc,lpfc` (the all-lPFC set, 398 electrodes / 22 participants, as in
+  §10); the region control is all occipital electrodes (83 / 14).
+- Seed 0, 200 splits, 1000 × 20 shuffles, 2000 participant resamples,
+  `K_MAX=3`.
+
+Outputs are in
+`dcc_scripts/subspace/results/Response_…_zmax_20/coding_axes/windows_-1.0to1.5s_w64s16_all_<rois>_mean_diff_splits200_perm1000x20_seed0[_remove_mean|_rt_adjust|_rt_match10|_rt_random10]/`,
+with `<rois>` = `dlpfc-lpfc` or `occ`. The controls figure and table
+(`coding_axes_controls.png`, `coding_axes_controls.csv`) were made on
+2026-10-16 with `plot_coding_axes_controls.py` (main run first) and written to
+the `Response_…/coding_axes/` folder. Their x axis reads "s from response".
+
+Three differences from the stimulus-locked runs matter when comparing:
+
+1. **The subspace test spans the whole epoch** (all 37 windows, −1.0 to
+   1.5 s), not 0–1.5 s. No window after +0.125 s has a reliable code, so the
+   subspaces are dominated by the pre-response windows, but the rows mix
+   pre- and post-response time.
+2. **Code versions.** 58783103–05 started at 08:18. Edits to
+   `coding_trajectories.py` and `coding_axes_dcc.py` (block separations, §1.3)
+   were saved at 09:12–09:15, and 58783106–08 started at 09:15–09:17, so only
+   those three folders have `block_separations*` and `block_*` files.
+   `coding_axes.py` and `coding_subspaces.py` were last changed on 2026-10-15,
+   so the cosine and subspace numbers of all six runs come from the same code.
+   The trajectory electrode rule is the same in both versions (an electrode is
+   dropped if any cell of any block is empty in a half). The block separations
+   exist only for runs whose trajectories are unreadable (below) and are not
+   reported.
+3. **One seed.** The stimulus-locked RT runs have seeds 0–4 (§10.3). These have
+   seed 0 only, and seed 0 was the low random-subset draw there.
+
+### 11.2 Key numbers: the coding-axis cosines
+
+Columns as in §10.2. Times are window centres in s from the response. The
+stimulus-locked counterparts (§10.2) are in the last column.
+
+| Run | Electrodes / participants | Reliable windows | Cross | Ceiling | Alignment [95 % CI] | Shared | Not one code | Stimulus-locked alignment |
+|---|---|---|---|---|---|---|---|---|
+| all lPFC, main | 398 / 22 | 16 / 37 (−0.875 to +0.06) | 0.25 | 0.41 | **0.59 [0.42, 0.83]** | −0.875 to −0.06 | −0.81 to −0.125; 0.0–0.06 | 0.69 [0.57, 0.89] |
+| `remove_mean` | 398 / 22 | 20 (−0.875 to +0.125; 0.69–0.81) | 0.17 | 0.32 | 0.45 [0.25, 0.67] | −0.875 to −0.06 | −0.875 to +0.125; 0.75–0.81 | 0.67 [0.48, 0.89] |
+| `rt_adjust` | 398 / 22 | 13 (−0.75 to 0.0) | 0.14 | 0.26 | 0.52 [0.30, 0.80] | −0.75 to −0.25 | −0.375 to −0.125; 0.0 | 0.58 [0.37, 0.96] |
+| `rt_random10`, seed 0 | 398 / 22 | 8 (−0.56 to −0.125) | 0.09 | 0.24 | 0.36 [−0.04, 0.93] | −0.75 to −0.375 | −0.375 to −0.19 | 0.36 [0.06, 0.90] |
+| `rt_match10`, seed 0 | 397 / 22 | **3** (−0.5, −0.375, −0.31) | 0.10 | 0.14 | not interpretable (three windows) | none | none | one window |
+| occipital | 83 / 14 | **0** | – | – | – | none | none | not run |
+
+Main run, per window (`coding_axis_cosines.csv`): the ceiling is 0.42 at
+−0.875 s, 0.47–0.49 from −0.81 to −0.375 s, then falls to 0.26 at −0.06 s and
+0.23 at +0.06 s. From +0.125 s on no window is reliable (switch ceiling ≤ 0.15,
+congruency ceiling ≤ 0.30). The cross cosine peaks at 0.37 at −0.69 to
+−0.56 s and falls to 0.13 at −0.06 s and 0.08 at 0 s. The alignment is
+0.75–0.78 at −0.69 to −0.50 s, 0.65 at −0.31 s, 0.47 at −0.06 s and 0.32
+[−0.02, 0.78] at 0 s (not shared there; p = 0.06 and 0.05 against the two
+shuffles). The Pearson cross is 0.04–0.07 below the cosine before the
+response, a larger gap than stimulus-locked (0.00–0.06).
+
+**RT matching worked** (§7.2): incongruent − congruent went from 162.9 ms to
+−0.35 ms and switch − repeat from 187.6 ms to −0.38 ms across participants
+(`p_after` = 0.86 for both; `rt_match_summary.csv`). The random subset kept
+169.7 and 181.8 ms (p < 10⁻⁴; `rt_random_summary.csv`). Both kept 47 % of the
+electrode-trials (73,061 and 73,000 of 154,334).
+
+### 11.3 The subspace test
+
+From `subspace_summary.json`, `subspace_test.csv` and
+`subspace_dimensions.csv`. Rows are raw cross / ceiling = normalized [95 % CI],
+at the primary k; "sh" = beats both shuffle nulls.
+
+| Run | k (C / S) | Primary k | θ₁: cos (deg), ceiling, normalized | Alignment index C → S | S → C |
+|---|---|---|---|---|---|
+| all lPFC, main | 3 / 3 (capped) | 3 | 0.48 (61°), 0.64, **0.76 [0.70, 0.93]**, sh (p = 0.001), not one code | 0.143 / 0.253 = 0.56 [0.50, 0.85] sh | 0.148 / 0.253 = 0.58 [0.47, 0.91] sh |
+| `remove_mean` | 3 / 3 (capped) | 3 | 0.44 (64°), 0.59, 0.74 [0.67, 0.89], sh, not one code | 0.46 [0.41, 0.73] sh | 0.57 [0.50, 0.84] sh |
+| `rt_adjust` | 3 / 3 (capped) | 3 | 0.37 (68°), 0.46, 0.79 [0.72, 1.00], sh (p = 0.013, 0.002), not one code | 0.67 [0.56, 0.96] sh | 0.61 [0.53, 1.00] sh |
+| `rt_random10`, seed 0 | 3 / 2 | 2 | 0.22 (77°), 0.43, 0.51 [0.47, 0.94], **not shared** (p = 0.31, 0.16) | 0.39 [0.34, 0.94], not shared | 0.41 [0.35, 0.90], not shared |
+| `rt_match10`, seed 0 | **0 / 0** | – | no reproducible dimension for either variable | – | – |
+| occipital | **0 / 0** | – | – | – | – |
+
+- **θ₁ matches the stimulus-locked value.** At k = 1, for a like-for-like
+  comparison: θ₁ 0.42 (65°) against a ceiling of 0.57, normalized 0.735
+  [0.46, 1.00]; stimulus-locked, 0.42 (65°), 0.72 [0.55, 0.94] (§10.4).
+- **More reproducible dimensions.** Dimension 1 carries 14 % (congruency) and
+  10 % (switch) of a half's held-out sum of squares, 11 and 7 times the
+  shuffle threshold; dimensions 2–3 carry 1.3–2.4 % each and all pass
+  (p ≤ 0.003), so k is capped at 3 for both (raise `K_MAX` to see where it
+  stops). That is expected when the windows cover a time course with a rise,
+  a peak and a fall (§11.4), so the pattern is not one fixed pattern scaled
+  over time.
+- **θ₂ is measurable here** (unlike §10.4): at k = 3, θ₂ = 79° (0.18 against
+  a ceiling of 0.30), reliable and above both nulls (p = 0.040, 0.004), but its
+  normalized CI includes 1 and the normalization is a heuristic above k = 1
+  (§9). Descriptive only.
+- **Random subset, seed 0:** θ₁ is shared at k = 1 (p = 0.013 for both, 0.52
+  of its ceiling) but not at the primary k = 2. Stimulus-locked seed 0 failed
+  the same way (§10.3), so this is the same weak draw, not a new result.
+
+### 11.4 The trajectories
+
+From `trajectory_summary.json`; columns as in §10.5.
+
+| Run (electrodes / participants used) | Axis window | cos(c, s) | Raw fraction (chance) | Signal fraction [95 % CI] |
+|---|---|---|---|---|
+| all lPFC (391 / 21) | −1.0 to 0 s | 0.45 | 0.085 (0.005) | **0.44 [0.33, 0.59]** |
+| | −1.0 to −0.5 s | 0.37 | 0.075 | 0.38 [0.32, 0.51] |
+| | −0.5 to 0 s | 0.30 | 0.069 | 0.36 [0.24, 0.51] |
+| `remove_mean` (391 / 21) | −1.0 to 0 s | 0.41 | 0.062 | 0.39 [0.31, 0.49] |
+| | −1.0 to −0.5 s | 0.35 | 0.054 | 0.33 [0.26, 0.42] |
+| | −0.5 to 0 s | 0.23 | 0.050 | 0.31 [0.24, 0.40] |
+| `rt_adjust` (391 / 21) | −1.0 to 0 s | 0.25 | 0.036 | 0.22 [0.14, 0.38] |
+| | −1.0 to −0.5 s | 0.14 | 0.029 | 0.14 [0.07, 0.28] |
+| | −0.5 to 0 s | 0.14 | 0.032 | 0.20 [0.13, 0.36] |
+| `rt_match10` (182 / 11), `rt_random10` (201 / 10), occipital (77 / 13) | all | – | – | not readable: signal-fraction CIs about ±0.9 (match), [0.08, 0.99] (random), [−3.8, 9.9] (occipital) |
+
+All lPFC, axes from −1.0 to 0 s, centred cells (`trajectories.csv`;
+separations are differences of two-cell means):
+
+| Window centre | Congruency along x | Switch along x (share of congruency's) | Switch along y |
+|---|---|---|---|
+| −0.625 s | 1.45 | 0.93 (64 %) | 0.82 |
+| −0.31 s | 1.32 | 1.00 (76 %) | 0.93 |
+| −0.06 s | 0.69 | 0.36 (52 %) | 0.61 |
+| +0.25 s | 0.61 | 0.31 | 0.26 |
+
+Up to about −0.3 s the cells line up along x as incongruent-switch >
+incongruent-repeat > congruent-switch > congruent-repeat, as stimulus-locked.
+Incongruent-switch, the slowest cell, stays furthest out and collapses toward
+the others from −0.3 s to the response. The uncentred figure
+(`trajectories_-1.0-0.0s_uncentred.png`) shows all four cells on one ramp that
+peaks about 0.3 s before the response and is back at baseline by about
++0.4 s. The condition differences stay about the same size up to the peak
+(congruency along x 1.53 at −0.875 s, 1.32 at −0.31 s) and shrink over the
+0.3 s from the peak to the response. The peak heights are in the same order
+as the cells (incongruent-switch highest).
+
+The early-half axes are more aligned than the late-half axes (cos 0.37 vs
+0.30). Stimulus-locked it was the other way round (−0.03 early, 0.43 late).
+In response time the sharing is earliest, furthest from the response.
+
+### 11.5 Descriptive check: is the shared pattern the within-cell RT pattern?
+
+Not part of the job. It was computed for this write-up from existing outputs,
+in both frames: per window, the cosine across the 398 electrodes between each
+electrode's pooled within-cell HG-on-RT slope (`rt_adjust_slopes.csv` of the
+`rt_adjust` run) and the full-data congruency and switch axes (mean of both
+halves over the 200 splits, `per_split_windows.csv` of the main run). The
+slope is estimated within the congruency × switch cells, so it is not the
+condition difference itself. Raw cosines only: no null and no ceiling, and
+noise in either vector pulls them toward 0.
+
+| Frame | Windows (centres) | cos(c, RT slope) | cos(s, RT slope) | cos(c, s), same full-data axes |
+|---|---|---|---|---|
+| Response | −0.875 to −0.50 s | 0.58–0.66 | 0.55–0.62 | 0.26–0.51 |
+| Response | −0.25 to 0.0 s | 0.26–0.37 | 0.34–0.52 | 0.13–0.35 |
+| Response | +0.375 s on | −0.04 to 0.18 | −0.07 to 0.19 | −0.09 to 0.13 |
+| Stimulus | 0.125–0.56 s | −0.23 to 0.01 | −0.06 to 0.07 | −0.09 to 0.18 |
+| Stimulus | 0.94–1.375 s | 0.56–0.63 | 0.57–0.68 | 0.42–0.49 |
+
+In both frames, where the codes are shared, each code's electrode pattern
+points at least as much toward the "slow trial within a cell" pattern as
+toward the other code. That is what the shared direction would look like if
+it were the pattern by which slower trials differ from faster ones. Two
+caveats: an uncentred cosine is positive for any two patterns that both scale
+with each electrode's responsiveness, and this does not say *why* slow trials
+differ (timing or effort). A proper version would be a split-half RT axis
+(fast vs slow trials within each cell) tested against a shuffle null and its
+own ceiling, in both frames.
+
+### 11.6 How to read the figures
+
+- `coding_axis_cosines.png` (each run folder): as §10.6, but x is the window
+  centre in s from the response. The blue bar (shared) runs from −0.875 to
+  −0.06 s in the main run; the grey background starts at +0.125 s, where
+  neither ceiling is reliable any more.
+- `coding_axes_controls.png` (`Response_…/coding_axes/`): top, each run's
+  cross cosine; middle, each run's alignment with its participant-bootstrap
+  CI, on its reliable windows only; bottom strip, thin line = reliable
+  windows, thick line = shared (cluster-mass corrected, both nulls). Read
+  `rt_match10` against `rt_random10`, not against the main run. The occipital
+  row is empty because no window is reliable.
+- `subspace_test.png`: as §6.1. The grey band is at k = 3 because k was capped.
+- `trajectories_-1.0-0.0s.png`: as §6.2, with axes fit on the second before
+  the response and b, c in s from the response. Compare
+  `trajectories_-1.0--0.5s.png` and `trajectories_-0.5-0.0s.png` for early vs
+  late axes.
+
+### 11.7 Reading
+
+[`decoding.md` §13.4](decoding.md#134-reading-each-control) gives three
+outcomes for a response-locked run. In terms of the coding axes:
+
+| Where the response-locked sharing sits | Reading | Here |
+|---|---|---|
+| Far before the response, fading toward it, with the ceilings | The latency signature: at a fixed time before the response, slow trials are further past their stimulus | **Closest match** |
+| Around the response, with both ceilings there | Something shared in the response period that is not a timing shift | Not seen: at 0 s the alignment is 0.32 and not shared, and no code is reliable after +0.06 s |
+| Nowhere | The shared component is locked to the stimulus | Not seen |
+
+- **The codes are present before the response and gone after it.** Response
+  locking makes them clearer, not weaker: 16 reliable windows, all before
+  +0.125 s, mean ceiling 0.41 against 0.37 stimulus-locked, 0.47–0.49 from
+  −0.81 to −0.375 s. They do not continue into feedback or the next trial.
+- **The sharing has the latency signature's shape.** It is strongest 0.4–0.75 s
+  before the response (alignment 0.75–0.78), falls toward the response (0.47
+  at −0.06 s; not shared at 0 s), and the axes from the early half of the
+  second are more aligned than those from the late half. In that period the
+  slow cells, above all incongruent-switch, sit higher on a common ramp.
+  On the 35 % of trials answered within 1.0 s, the first windows also reach
+  before the stimulus. All of this is what a shift in timing produces.
+- **It is not a clean case.** The sharing lasts to the last pre-response window
+  (−0.06 s, ceilings 0.26). And the peak heights of the ramp differ by cell at
+  the same time before the response. A pure shift of one fixed waveform would
+  not change the peak height. If the slower cells also have more variable RTs
+  (usual, but not checked here), smearing would lower their averaged peak,
+  while here the slowest cell peaks highest. Activity that grows with time on
+  task fits that too. This run
+  cannot separate "timing" from "a process that takes longer on slow trials".
+- **RT matching again removes the codes** (3 reliable windows against 8 in the
+  random subset; ceilings 0.14 against 0.24; k = 0 / 0 against 3 / 2), with RT
+  equated to −0.4 ms. This is the stimulus-locked result (§10.3) in the other
+  frame. The random subset's *sharing* is weak at seed 0 (0.36, θ₁ not shared
+  at the primary k), exactly as stimulus-locked seed 0 was, while stimulus-locked
+  seeds 1–4 gave 0.63–0.88. So the codes going with RT holds in this frame too.
+  Whether matching removes the sharing beyond what the subsetting does can't
+  be read from seed 0.
+- **Regression and matching still disagree.** `rt_adjust` keeps the sharing
+  (0.52 [0.30, 0.80], −0.75 to −0.25 s; θ₁ 0.79 of its ceiling, shared) while
+  it removes the two earliest windows and roughly halves the ceilings. §10.7's
+  first explanation was late stimulus-locked HG lasting until the response.
+  Since the disagreement survives response locking, it more likely comes from
+  how the two controls work: a linear within-cell slope removes only part of a
+  nonlinear timing effect, while matching removes the condition RT difference
+  whatever its form. §10.7's third reason (thin block × condition cells after
+  matching) is still untested.
+- **The shared pattern resembles the within-cell RT pattern** (§11.5,
+  descriptive): cosines of 0.55–0.68 between each code and the HG-on-RT slope
+  wherever the codes are shared, in both frames.
+- **Not a common shift, but partly one near the response.** `remove_mean`
+  lowers the alignment from 0.59 to 0.45 [0.25, 0.67], more than
+  stimulus-locked (0.69 → 0.67), mostly from −0.4 s to the response (0.42–0.53
+  against 0.57–0.69). θ₁ barely moves (0.76 → 0.74). The pattern survives; a
+  shift common to a participant's electrodes adds to it near the response.
+- **Occipital: no measurable code.** In 83 occipital electrodes from 14
+  participants no window has both ceilings reliable, and neither variable has a
+  reproducible dimension. The raw cross cosine reaches 0.13–0.21 before the
+  response and beats the switch shuffle in several windows, but with
+  unreliable ceilings that is not readable. So this says "no code
+  measured", not "no sharing", and gives no answer on lPFC specificity. There
+  is no stimulus-locked occipital run, and this is all occipital, not A4's 54
+  task-significant electrodes.
+
+**Overall.** The congruency and switch codes in lPFC HG, and their shared part,
+are present before the response, strongest 0.4–0.75 s before it, fading as it
+approaches, and gone after it. They still disappear when RT is matched. On
+the §13.4 scheme this is closest to the latency signature, and the matching
+result and §11.5 point the same way. It does not establish a pure timing
+shift: sharing persists up to the response, and the ramp's peak heights
+differ by cell. The wording this supports is "tied to RT, present before the
+response", not "response-related" and not "a timing artifact".
+
+Three checks would settle it:
+
+1. `rt_match10` / `rt_random10` response-locked at seeds 1–4 (8 jobs, about
+   50 min each at 8 cores / 64 GB): whether matching removes the sharing beyond
+   the subsetting.
+2. A latency-only model: each participant's mean stimulus-locked HG shifted by
+   each trial's RT, re-epoched to the response, and run through the same job.
+   If it reproduces the ceilings, the sharing and their timing, timing is
+   enough. Not built.
+3. The split-half RT-axis test of §11.5, with a null and a ceiling, in both
+   frames.
+
+### 11.8 Caveats
+
+- Seed 0 only. The RT control pair has one draw, and seed 0 was the low
+  random draw stimulus-locked.
+- 22 participants, 398 electrodes, the same set as §10; CIs are wide
+  (alignment 0.42–0.83).
+- The subspace test spans the whole epoch, including post-response windows
+  with no reliable code. Primary k is capped at 3; quote θ₁ raw with its
+  ceiling, and treat θ₂ as descriptive (§9).
+- "Not one code" is pointwise over windows; "shared" is cluster-corrected.
+- The first windows mix in pre-stimulus time on fast trials. The windows after
+  0 s include feedback and the next trial.
+- Trajectories under matching, random subsets and in occipital cortex are
+  unreadable: halving the trials leaves 10–11 participants with every
+  block × cell in each half, and occipital cortex has no reliable code to
+  project on (77 electrodes). In those runs the raw plane fraction also falls
+  below its own bootstrap CI (match 0.035 vs [0.037, 0.116]; occipital 0.070
+  vs [0.073, 0.208]), a small-sample bias of the bootstrap. Not interpreted.
+- §11.5 is descriptive, computed outside the job, with no null.

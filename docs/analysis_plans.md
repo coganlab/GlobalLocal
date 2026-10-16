@@ -50,7 +50,8 @@ one job (§8; runbook [`coding_axes.md`](coding_axes.md); the math worked
 through in [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md)).
 §3.1-3.3 ran on real data on 2026-10-15 ([`coding_axes.md`](coding_axes.md)
 §10); §3.4 and §4 were added after that run and have not run on real data.
-Not built: the lPFC-subsampled control, §5 and §6. The single-window map-level
+§6 (block-split separations) built 2026-10-16 in the same job, not yet run on
+real data. Not built: the lPFC-subsampled control and §5. The single-window map-level
 cosine, `map_reliability(method='cosine')` (2026-10-14), is described in
 [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5. Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
@@ -692,7 +693,22 @@ Choices the plan left open, settled in the build (reasons in
 - The plane fraction (§4 step 5) is reported raw and noise-corrected, because
   noise in every electrode direction makes the raw one a lower bound.
 
-Not built: the lPFC-subsampled-to-occipital control of §3.3, and §5-6.
+**Built (2026-10-16): §6**, in the same job, on the trajectories' axes, halves
+and electrodes.
+
+| Piece | Where |
+|---|---|
+| Per-block held-out separations on each variable's own unit axis; the change with incProp and switchProp (low − high) and own − other; participant bootstrap | `block_separations` in `stats/coding_trajectories.py` (its sums come from `trajectory_sums`, through `cell_block_means`) |
+| Figure | `plot_block_separations` in `dcc_scripts/subspace/subspace_figures.py` |
+
+Choices the plan left open: each separation is projected on its own unit axis
+(ĉ, ŝ), not on the Gram-Schmidt y, so the switch separation does not depend on
+the axis order; positive = a larger separation in the low-proportion blocks;
+own − other is reported as the within-electrode test of specificity (the
+relative comparison the closing-figure plan asks for); there is no shuffle
+null, only participant-bootstrap CIs.
+
+Not built: the lPFC-subsampled-to-occipital control of §3.3, and §5.
 
 ### 9. Placement
 

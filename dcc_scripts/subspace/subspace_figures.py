@@ -1,8 +1,9 @@
-"""Figures for the subspace test (docs/analysis_plans.md, subspace plan §3.4)
-and the condition trajectories (§4). Plotting only: each function takes the
-tables `coding_subspaces.compare_subspaces` and
-`coding_trajectories.condition_trajectories` return (or their CSVs) and writes
-one PNG. Called by coding_axes_dcc.py; also usable on saved outputs.
+"""Figures for the subspace test (docs/analysis_plans.md, subspace plan §3.4),
+the condition trajectories (§4) and the block-split separations (§6). Plotting
+only: each function takes the tables `coding_subspaces.compare_subspaces`,
+`coding_trajectories.condition_trajectories` and
+`coding_trajectories.block_separations` return (or their CSVs) and writes one
+PNG. Called by coding_axes_dcc.py; also usable on saved outputs.
 """
 import numpy as np
 
@@ -169,5 +170,69 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
                  f"cos(c, s) of the plot's axes before Gram-Schmidt: "
                  f"{axes_summary['axis_cosine']:.2f}.",
                  fontsize=7.5, color=MUTED)
+    fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+
+
+# Block separations: colour = the variable's own proportion (slots 1-2), line
+# style = the other proportion; the own and other changes in ink and muted.
+PROP_COLOR = {'low': '#2a78d6', 'high': '#eb6834'}
+PROP_LS = {'low': '-', 'high': '--'}
+_VAR_NAMES = {'congruency': ('congruency', 'incProp', 'switchProp'),
+              'switchType': ('switch', 'switchProp', 'incProp')}
+
+
+def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_label()):
+    """The §6 figure for one axis window. Left: each variable's held-out
+    separation on its own axis in the four proportion blocks (colour = its own
+    proportion, line style = the other). Right: the change with the own and
+    with the other proportion (low - high) with the participant-bootstrap CI.
+    The double dissociation predicts the colours apart and the line styles
+    together, i.e. the own change away from 0 and the other at 0.
+
+    `seps`, `cons` are the `block_separations` tables with `window_center`
+    merged in (window -1, the overall mean, has none and is given in the
+    footer)."""
+    seps = seps[seps['axes'] == label]
+    cons = cons[cons['axes'] == label]
+    fig, axs = plt.subplots(2, 2, figsize=(12.0, 6.0), sharex=True,
+                            gridspec_kw=dict(hspace=0.25, wspace=0.6))
+    footer = []
+    for row, (var, (name, own, other)) in enumerate(_VAR_NAMES.items()):
+        left, right = axs[row]
+        own_col, other_col = (('inc_prop', 'switch_prop') if own == 'incProp'
+                              else ('switch_prop', 'inc_prop'))
+        s = seps[(seps['variable'] == var) & (seps['window'] >= 0)]
+        for (o, x), d in s.groupby([own_col, other_col]):
+            d = d.sort_values('window_center')
+            left.plot(d['window_center'], d['separation'], color=PROP_COLOR[o], ls=PROP_LS[x],
+                      lw=2, label=f'{o}, {x}')
+        c = cons[(cons['variable'] == var) & (cons['window'] >= 0)]
+        for con, color, ls, what in ((own, INK, '-', 'own'), (other, MUTED, '--', 'other')):
+            d = c[c['contrast'] == con].sort_values('window_center')
+            right.fill_between(d['window_center'], d['lo'], d['hi'], color=color, alpha=0.12, lw=0)
+            right.plot(d['window_center'], d['estimate'], color=color, ls=ls, lw=2,
+                       label=f'{what}: {con} (low − high)')
+        for ax in (left, right):
+            ax.axhline(0, color=MUTED, lw=0.8, zorder=0)
+            _style(ax)
+        left.set_ylabel(f'{name} separation\n(HG, on its own axis)', fontsize=9, color=INK)
+        right.set_ylabel('change in separation (HG)', fontsize=9, color=INK)
+        left.set_title(f"{'ac'[row]}  {name} separation per block", fontsize=9, color=INK,
+                       loc='left')
+        right.set_title(f"{'bd'[row]}  {name}: own vs other proportion", fontsize=9, color=INK,
+                        loc='left')
+        left.legend(frameon=False, fontsize=7, loc='upper left', bbox_to_anchor=(1.0, 1.0),
+                    title=f'{own}, {other}', title_fontsize=7)
+        right.legend(frameon=False, fontsize=7, loc='best')
+        overall = cons[(cons['variable'] == var) & (cons['window'] == -1)].set_index('contrast')
+        if not overall.empty:
+            footer.append(f"{name}: " + '; '.join(
+                f"{con} {overall.loc[con, 'estimate']:+.3f} [{overall.loc[con, 'lo']:+.3f}, "
+                f"{overall.loc[con, 'hi']:+.3f}]" for con in (own, other, 'own_minus_other')))
+    for ax in axs[1]:
+        ax.set_xlabel(time_label, fontsize=9, color=INK)
+    fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other. Mean over '
+             'windows (95% CI):\n' + '\n'.join(footer), fontsize=7.5, color=MUTED, va='top')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)

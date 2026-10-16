@@ -236,7 +236,8 @@ def test_job_writes_every_output_on_synthetic_data(tmp_path):
                  'null_subspace.npz', 'subspace_test.png', 'trajectories.csv',
                  'trajectory_fractions.csv', 'trajectory_summary.json',
                  'trajectories_0.0-1.5s.png', 'trajectories_0.1-0.5s_uncentred.png',
-                 'coding_axis_cosines.csv', 'null_cross.npz'):
+                 'coding_axis_cosines.csv', 'null_cross.npz', 'block_separations.csv',
+                 'block_contrasts.csv', 'block_summary.json', 'block_separations_0.0-1.5s.png'):
         assert (tmp_path / name).stat().st_size > 0, name
     config = json.loads((tmp_path / 'run_config.json').read_text())
     assert config['k_max'] == 3 and config['traj_axes'] == [[0.0, 1.5], [0.1, 0.5]]

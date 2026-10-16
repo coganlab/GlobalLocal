@@ -1,4 +1,5 @@
-"""The condition trajectories (docs/analysis_plans.md, subspace plan §4).
+"""The condition trajectories (docs/analysis_plans.md, subspace plan §4) and
+the block-split separations (§6).
 
 What is pinned:
 
@@ -12,7 +13,9 @@ What is pinned:
     unequal trial counts does not move the cells;
   * the plane fractions: an interaction outside the plane lowers both, and
     with noise the noise-corrected one recovers the planted share while the
-    raw one falls below it.
+    raw one falls below it;
+  * the block separations match a direct one-split computation, and a planted
+    adaptation of each code lands on its own proportion and not the other.
 """
 import warnings
 
@@ -173,6 +176,86 @@ def test_plane_fractions_with_an_interaction_outside_the_plane():
     assert noisy['plane_fraction_signal'] == pytest.approx(expected, abs=0.1)
     lo, hi = noisy['plane_fraction_signal_ci']
     assert lo <= noisy['plane_fraction_signal'] <= hi
+
+
+def _run_blocks(df, times, n_splits=4, **kw):
+    hg, _ = sfs.window_means(df['hg'].to_numpy(), times, 1, 1)
+    axis = ct.axis_window_means(df['hg'].to_numpy(), times, [(times[0], times[-1])])
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        return ct.block_separations(df.drop(columns='hg'), hg, axis, ['all'],
+                                    n_splits=n_splits, n_boot=kw.pop('n_boot', 50), **kw)
+
+
+def _level(prop):
+    return np.where(prop == 25, 'low', 'high')
+
+
+def test_block_separations_match_a_direct_computation_on_one_split():
+    rng = np.random.default_rng(4)
+    df, times = _trial_long(rng.normal(size=N_ELEC), rng.normal(size=N_ELEC),
+                            n_subj=N_SUBJ, n_elec=N_ELEC, n_time=3, seed=4)
+    seps, _, _ = _run_blocks(df, times, n_splits=1, seed=5)
+
+    labels = df.drop(columns='hg')
+    hg = pd.DataFrame(np.vstack(df['hg'].to_numpy()))            # (rows, time)
+    halves = sfs.shared_halves(labels, n_splits=1, seed=5)
+    axes = sfs.main_effect_mean_diffs(labels, hg.to_numpy().mean(1, keepdims=True), halves=halves)
+    axes = axes.sort_values(['subject', 'electrode'])
+    keys = [pd.Series([halves[s].loc[t, 0] for s, t in zip(labels['subject'], labels['trial'])],
+                      name='half'),
+            labels['subject'], labels['electrode'],
+            pd.Series(_level(labels['incongruent_proportion']), name='inc'),
+            pd.Series(_level(labels['switch_proportion']), name='sw'),
+            labels['congruency'], labels['switchType']]
+    cells = hg.groupby(keys).mean()
+    outer = ['half', 'subject', 'electrode', 'inc', 'sw']
+    sep = {'congruency': (cells.xs('i', level='congruency').groupby(level=outer).mean()
+                          - cells.xs('c', level='congruency').groupby(level=outer).mean()),
+           'switchType': (cells.xs('s', level='switchType').groupby(level=outer).mean()
+                          - cells.xs('r', level='switchType').groupby(level=outer).mean())}
+    for var, col in (('congruency', 'mx'), ('switchType', 'my')):
+        for inc, sw in ct.BLOCKS:
+            want = 0
+            for axes_half, cells_half in ((0, 1), (1, 0)):
+                a = axes[f'{col}{"AB"[axes_half]}'].to_numpy()
+                block = sep[var].loc[cells_half].xs((inc, sw), level=['inc', 'sw'])
+                want = want + (a / np.linalg.norm(a)) @ block.to_numpy()
+            got = seps[(seps['variable'] == var) & (seps['inc_prop'] == inc)
+                       & (seps['switch_prop'] == sw) & (seps['window'] >= 0)]
+            assert np.allclose(got.sort_values('window')['separation'], want / 2)
+
+
+def test_planted_adaptation_lands_on_its_own_proportion():
+    """Congruency code scaled by 1 +- g with incProp, switch code by 1 +- h with
+    switchProp (low = +): noise-free, each variable's separation changes with
+    its own proportion by 2g|c| (2h|s|) and not at all with the other."""
+    rng = np.random.default_rng(5)
+    c, s = rng.normal(size=(2, N_ELEC))
+    g, h = 0.3, 0.2
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+
+    def adaptation(t):
+        xc = np.where(t['congruency'] == 'i', 0.5, -0.5)
+        xs = np.where(t['switchType'] == 's', 0.5, -0.5)
+        low_inc = np.where(t['incongruent_proportion'] == 25, 1.0, -1.0)
+        low_sw = np.where(t['switch_proportion'] == 25, 1.0, -1.0)
+        return np.outer(xc * low_inc, g * c) + np.outer(xs * low_sw, h * s)
+
+    seps, cons, summary = _run_blocks(_with_terms(df, adaptation), times)
+    overall = cons[cons['window'] == -1].set_index(['variable', 'contrast'])['estimate']
+    assert overall['congruency', 'incProp'] == pytest.approx(2 * g * _norm(c))
+    assert overall['congruency', 'switchProp'] == pytest.approx(0, abs=1e-9)
+    assert overall['congruency', 'own_minus_other'] == pytest.approx(2 * g * _norm(c))
+    assert overall['switchType', 'switchProp'] == pytest.approx(2 * h * _norm(s))
+    assert overall['switchType', 'incProp'] == pytest.approx(0, abs=1e-9)
+    assert overall['switchType', 'own_minus_other'] == pytest.approx(2 * h * _norm(s))
+
+    low = seps[(seps['variable'] == 'congruency') & (seps['inc_prop'] == 'low')]
+    assert low['separation'].to_numpy() == pytest.approx(_norm(c) * (1 + g))
+    assert summary['axes']['all']['congruency']['incProp']['estimate'] == pytest.approx(
+        2 * g * _norm(c))
+    assert summary['n_electrodes'] == N_SUBJ * N_ELEC
 
 
 def test_axis_window_means():

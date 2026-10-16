@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
 Entrypoint for the coding-axes analysis (docs/analysis_plans.md, subspace plan
-§3.1-3.4 and §4: the coding axes and their cosine, the subspace test and the
-trajectories). Sets the parameters and calls coding_axes_dcc.main(). Wrapped by
+§3.1-3.4, §4 and §6: the coding axes and their cosine, the subspace test, the
+trajectories and the block-split separations). Sets the parameters and calls coding_axes_dcc.main(). Wrapped by
 sbatch_coding_axes_dcc.sh; the per-run choices come from submit_coding_axes_dcc.sh
 as environment variables (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOWS_TMIN,
 WINDOWS_TMAX, WINDOW_SIZE, STEP_SIZE, REMOVE_MEAN, RT_CONTROL, RT_MATCH_BINS,
