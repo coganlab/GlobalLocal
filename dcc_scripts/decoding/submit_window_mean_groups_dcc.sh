@@ -38,7 +38,7 @@ WINDOW_MEAN_N_PERM="${WINDOW_MEAN_N_PERM:-1000}"
 # true decodes every group at the same electrode count (WINDOW_MEAN_N_MATCH);
 # false decodes each group on all its electrodes. Results go to a tag ending in
 # _unmatched, so both versions can sit side by side.
-WINDOW_MEAN_MATCH_ELECTRODES="${WINDOW_MEAN_MATCH_ELECTRODES:-true}"
+WINDOW_MEAN_MATCH_ELECTRODES="${WINDOW_MEAN_MATCH_ELECTRODES:-false}"
 # Electrodes decoded per group. Empty uses the smallest group's size. Must be
 # empty when WINDOW_MEAN_MATCH_ELECTRODES is false.
 WINDOW_MEAN_N_MATCH="${WINDOW_MEAN_N_MATCH:-}"
