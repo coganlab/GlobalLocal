@@ -700,6 +700,10 @@ Not built: the lPFC-subsampled-to-occipital control of §3.3, and §5-6.
   fraction of the ceiling, with the null), the trajectory panel (§4) and the
   alignment-over-time panel (§3.2), with the A4 cross-decoding beside them. Whether they join
   or replace the current panel d is for the advisors.
+  *2026-10-16, after the real runs:* the paper draft proposes that they
+  replace it. The trajectories become F5 d and the alignment over time F5 e,
+  with θ₁ in the text, and A4 moves to S5
+  ([`paper_draft.md`](paper_draft.md) §1.4, F5). Still for the advisors.
 - **Supplement:** the `remove_mean`, RT and occipital versions; the
   early-vs-late axes variant; dPCA if run; the block-split adaptation (§6)
   unless it is clean.
