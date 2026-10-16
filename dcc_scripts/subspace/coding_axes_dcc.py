@@ -88,7 +88,8 @@ from src.analysis.stats import coding_trajectories as ct
 from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrodes_to_keep
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
-from dcc_scripts.subspace.subspace_figures import plot_subspace_test, plot_trajectories
+from dcc_scripts.subspace.subspace_figures import (
+    plot_subspace_test, plot_trajectories, time_axis_label)
 
 # Reference-palette slots 1-2 (dataviz skill), and recessive neutrals.
 CROSS, CEILING = '#2a78d6', '#eb6834'
@@ -127,7 +128,7 @@ def _runs(mask):
     return find_contiguous_clusters(np.asarray(mask, bool))
 
 
-def plot_coding_axes(table, out_path):
+def plot_coding_axes(table, out_path, time_label=time_axis_label()):
     """The §3.2 figure. (a) Cosines against time, A4's cross-decoding layout:
     the raw cross cosine (and its Pearson version), the ceiling, the shuffle
     null band (its top edge is the test's threshold under the stricter of the two
@@ -183,7 +184,7 @@ def plot_coding_axes(table, out_path):
     b.plot(t, align, color=CROSS, lw=2, zorder=3, label='alignment')
     b.axhline(1, color=MUTED, lw=0.8, ls=':', zorder=1)
     b.set_ylabel('alignment\n(cross / ceiling)', fontsize=9, color=INK)
-    b.set_xlabel('window centre (s from stimulus onset)', fontsize=9, color=INK)
+    b.set_xlabel(time_label, fontsize=9, color=INK)
     b.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
@@ -207,16 +208,17 @@ def run_label(config):
 
 
 def load_run(run_dir):
-    """``(label, table, summary)`` of one coding-axes output directory."""
+    """``(config, table, summary)`` of one coding-axes output directory: its
+    run_config.json, coding_axis_cosines.csv and summary.json."""
     with open(os.path.join(run_dir, 'run_config.json')) as f:
         config = json.load(f)
     with open(os.path.join(run_dir, 'summary.json')) as f:
         summary = json.load(f)
     table = pd.read_csv(os.path.join(run_dir, 'coding_axis_cosines.csv'))
-    return run_label(config), table, summary
+    return config, table, summary
 
 
-def plot_coding_axes_controls(runs, out_path):
+def plot_coding_axes_controls(runs, out_path, time_label=time_axis_label()):
     """The main result and its §3.3 controls in one figure; `runs` is a list of
     ``(label, table)`` with `table` a run's coding_axis_cosines.csv.
 
@@ -263,7 +265,7 @@ def plot_coding_axes_controls(runs, out_path):
     c.tick_params(axis='y', length=0)
     c.set_title('thin: reliable windows; thick: shared (cross > null)',
                 fontsize=8, color=MUTED, loc='left')
-    c.set_xlabel('window centre (s from stimulus onset)', fontsize=9, color=INK)
+    c.set_xlabel(time_label, fontsize=9, color=INK)
     a.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
@@ -346,7 +348,9 @@ def main(args):
     table.to_csv(os.path.join(args.save_dir, 'coding_axis_cosines.csv'), index=False)
     with open(os.path.join(args.save_dir, 'summary.json'), 'w') as f:
         json.dump(summary, f, indent=2)
-    plot_coding_axes(table, os.path.join(args.save_dir, 'coding_axis_cosines.png'))
+    time_label = time_axis_label(args.epochs_root_file)
+    plot_coding_axes(table, os.path.join(args.save_dir, 'coding_axis_cosines.png'),
+                     time_label=time_label)
 
     # 4. the subspace test (§3.4): the windows' axes stacked into effect matrices
     sub_table, sub_dims, sub_summary = cs.compare_subspaces(
@@ -374,7 +378,7 @@ def main(args):
         for cells, suffix in (('centred', ''), ('uncentred', '_uncentred')):
             plot_trajectories(traj, fractions, traj_summary['axes'][label], label,
                               os.path.join(args.save_dir, f'trajectories_{label}{suffix}.png'),
-                              cells=cells, first=args.traj_first)
+                              cells=cells, first=args.traj_first, time_label=time_label)
 
     config = dict(
         timestamp=args.timestamp, data_source=args.data_source,

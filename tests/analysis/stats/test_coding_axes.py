@@ -338,3 +338,11 @@ def test_controls_figure_and_table(tmp_path):
     table = pd.read_csv(tmp_path / 'coding_axes_controls.csv')
     assert table['run'].tolist() == ['lpfc', 'lpfc, RT matched']
     assert table['shared_from_s'].tolist() == [t[2], t[2]]
+
+
+def test_time_axis_label_follows_the_epochs_lock():
+    from dcc_scripts.subspace.subspace_figures import time_axis_label
+
+    assert time_axis_label('Response_-1.0to1.5sec_zmax_20').endswith('(s from response)')
+    assert time_axis_label('Stimulus_-1.0to1.5sec_zmax_20').endswith('(s from stimulus onset)')
+    assert time_axis_label(None) == time_axis_label('Stimulus_x')       # synthetic runs

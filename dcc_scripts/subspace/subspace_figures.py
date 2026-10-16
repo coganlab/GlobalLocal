@@ -25,6 +25,14 @@ def _style(ax):
     ax.tick_params(colors=MUTED, labelcolor=INK, labelsize=8)
 
 
+def time_axis_label(epochs_root_file=None):
+    """x-axis label for window centres. Epochs files are named for the event
+    they are locked to (`Stimulus_...` or `Response_...`); anything else
+    (synthetic runs: None) is stimulus-locked."""
+    event = 'response' if str(epochs_root_file).startswith('Response') else 'stimulus onset'
+    return f'window centre (s from {event})'
+
+
 def _row_label(r):
     if r['measure'] == 'angle':
         return f"k={r['k']}\nθ{r['component']}"
@@ -108,7 +116,7 @@ def plot_subspace_test(table, dims, out_path, k=None):
 
 
 def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='centred',
-                      first='congruency'):
+                      first='congruency', time_label=time_axis_label()):
     """The §4 figure for one axis window. (a) the four condition means in the
     plane, time as the path (open circle = first window, arrow = last);
     (b) x(t) and (c) y(t), with the participant-bootstrap CI for centred cells.
@@ -148,7 +156,7 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
     xt.set_ylabel('x (HG)', fontsize=9, color=INK)
     yt.set_ylabel('y (HG)', fontsize=9, color=INK)
     plt.setp(xt.get_xticklabels(), visible=False)
-    yt.set_xlabel('window centre (s from stimulus onset)', fontsize=9, color=INK)
+    yt.set_xlabel(time_label, fontsize=9, color=INK)
     xt.set_title('b, c  coordinates over time', fontsize=9, color=INK, loc='left')
     overall = fractions[(fractions['axes'] == label) & (fractions['window'] == -1)]
     if not overall.empty and axes_summary:

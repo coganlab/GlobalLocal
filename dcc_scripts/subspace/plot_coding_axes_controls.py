@@ -29,7 +29,8 @@ if project_root not in sys.path:
 import numpy as np
 import pandas as pd
 
-from dcc_scripts.subspace.coding_axes_dcc import load_run, plot_coding_axes_controls
+from dcc_scripts.subspace.coding_axes_dcc import (
+    load_run, run_label, plot_coding_axes_controls, time_axis_label)
 
 
 def _centres(table, column):
@@ -45,15 +46,17 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     loaded = [load_run(d) for d in args.run_dirs]
-    labels = [label for label, _, _ in loaded]
+    labels = [run_label(config) for config, _, _ in loaded]
     # Two runs with the same settings but e.g. another seed: tell them apart.
     labels = [f"{label} ({os.path.basename(os.path.normpath(d))})" if labels.count(label) > 1
               else label for label, d in zip(labels, args.run_dirs)]
 
     out = args.out or os.path.dirname(os.path.abspath(os.path.normpath(args.run_dirs[0])))
     os.makedirs(out, exist_ok=True)
+    # Compare runs locked to the same event; the first run's sets the time axis.
     plot_coding_axes_controls([(label, table) for label, (_, table, _) in zip(labels, loaded)],
-                              os.path.join(out, 'coding_axes_controls.png'))
+                              os.path.join(out, 'coding_axes_controls.png'),
+                              time_label=time_axis_label(loaded[0][0].get('epochs_root_file')))
 
     rows = []
     for label, d, (_, table, summary) in zip(labels, args.run_dirs, loaded):

@@ -609,11 +609,16 @@ just misses (p = 0.054). Compare it with the main run at the same k = 1:
 θ₁ 0.42 (65°), normalized 0.72 [0.55, 0.94]. Removing the mean activity
 leaves the shared direction essentially unchanged.
 
-- **Each code is essentially one pattern.** In all lPFC, dimension 1 carries
-  21 % (congruency) and 16 % (switch) of the held-out sum of squares, 18 and 12
-  times its shuffle threshold. Dimensions 2–3 carry about 1 % each and pass
-  only narrowly (p = 0.01–0.03). The rest of the held-out sum of squares is
-  noise.
+- **Each code is dominated by one pattern.** In all lPFC, dimension 1 carries
+  21 % (congruency) and 16 % (switch) of a half's total sum of squares, 18 and
+  12 times its shuffle threshold. Dimensions 2–3 carry about 1 % each and pass
+  only narrowly (p = 0.01–0.03). The total is mostly noise. The signal,
+  estimated as ⟨M_A, M_B⟩ (independent noise averages out), is 35 % and
+  30 % of it. So dimension 1 carries roughly 60 % (congruency) and 52 %
+  (switch) of the reproducible signal. That is a lower bound, since half A's
+  direction is itself noisy, and it assumes isotropic noise in the held-out
+  projection. The rest is spread over directions that each replicate weakly
+  or not at all.
 - **The second principal angle is not interpretable.** At k = 2 (all lPFC),
   θ₂ fails the reliability check: congruency's own θ₂ ceiling (0.06) is not
   above its shuffle null. So do θ₂ and θ₃ at k = 3. All the evidence for

@@ -12,11 +12,15 @@
 #   RT_CONTROL=match bash submit_coding_axes_dcc.sh        # RT control (§3.3): adjust | match | random
 #   bash submit_coding_axes_all.sh                         # the main run and every control
 #   DATA_SOURCE=synthetic N_SPLITS=20 N_PERM=50 N_BOOT=200 bash submit_coding_axes_dcc.sh  # dry run
+#
+# Response-locked (0 s = the response; windows and trajectory axes must move too):
+#   EPOCHS_ROOT_FILE=Response_-1.0to1.5sec_decFactor_8_..._zmax_20 WINDOWS_TMIN=-1.0 \
+#       TRAJ_AXES=-1.0:0.0,-1.0:-0.5,-0.5:0.0 bash submit_coding_axes_all.sh
 
 # ---------------------------------------------------------------------------
 # Epochs file (high-gamma, rescaled). Match one you actually have on disk.
 # ---------------------------------------------------------------------------
-EPOCHS_ROOT_FILE="Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"
+EPOCHS_ROOT_FILE=${EPOCHS_ROOT_FILE:-"Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20"}
 
 # Data source: 'real' loads epoched data; 'synthetic' validates the pipeline.
 DATA_SOURCE=${DATA_SOURCE:-real}

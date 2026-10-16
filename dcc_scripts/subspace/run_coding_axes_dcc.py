@@ -62,7 +62,8 @@ if DATA_SOURCE == 'real' and EPOCHS_ROOT_FILE is None:
                      "(or run with DATA_SOURCE=synthetic to skip data loading).")
 
 # --- the window grid -----------------------------------------------------------
-# Sliding windows tile [WINDOWS_TMIN, WINDOWS_TMAX] s (stimulus-locked). The A4
+# Sliding windows tile [WINDOWS_TMIN, WINDOWS_TMAX] s, relative to the event the
+# epochs file is locked to (Stimulus_ or Response_). The A4
 # cross-decoding uses 64-sample windows every 16 samples at 256 Hz (250 ms every
 # 62.5 ms) starting from -1 s; WINDOWS_TMIN on that grid (a multiple of 62.5 ms)
 # gives the same windows.
