@@ -6,6 +6,77 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-15 (afternoon and evening): coding-axes RT seeds, subspace test, trajectories
+
+Drafted by Claude; not yet reviewed.
+
+Jobs: `coding_axes_real` 58740222–58740241 (20), 58741497–58741498 (2),
+58758317–58758318 (2), 58759949 (1), all COMPLETED in 14–39 min. Owning doc:
+[`coding_axes.md`](coding_axes.md) §10.3–10.8.
+
+### For the PI meeting (2026-10-16): what changed since the morning entry
+
+1. **The subspace test confirms "partly shared" over the whole trial.** In all
+   lPFC the first principal angle between the congruency and switch subspaces
+   is 63°, at 0.74 [0.66, 0.93] of its ceiling. It is shared (p = 0.001 against
+   both shuffles) and not one code. Each code is essentially one electrode
+   pattern, and the shared part is a single direction.
+2. **The trajectories show it directly.** On held-out trials, switch moves
+   along the congruency axis by about 60 % as much as congruency does. The c–s
+   plane holds about half the reproducible condition-dependent signal (0.52;
+   0.69 in sig lPFC).
+3. **RT matching removing the codes holds over five seeds, and it is not the
+   halved sample.** Matched: 1–6 reliable windows, ceilings 0.10–0.16. Random
+   subsets of the same size: 9–12 windows, ceilings 0.22–0.28, sharing kept
+   (median alignment 0.79). The morning's weak random subset (0.36) was the
+   seed-0 draw. This replaces item 3 of the morning entry.
+
+Question to raise: given item 3, should the late shared component (and the
+late codes generally) be framed as RT/response-related, with a response-locked
+run as the next step?
+
+### coding_axes_real: RT seeds, subspace test, trajectories
+
+- **Status:** RT matching and random subsets at seeds 1–4 and at 5 bins, for
+  all and sig lPFC (58740222–41). Main all and sig reruns with the subspace
+  test and trajectories (58741497–98). Seed-0 `rt_match10`/`rt_random10` all
+  lPFC rerun with the current code (58758317–18; cosine numbers identical to
+  the morning runs). `remove_mean` all lPFC rerun the same way (58759949).
+- **Result:**
+  - Subspace test. All lPFC: k = 3 (congruency) / 2 (switch), primary k = 2,
+    θ₁ 0.45 (63°) against ceiling 0.61, normalized 0.74 [0.66, 0.93];
+    alignment index 0.58 [0.46, 0.89] (C → S) and 0.54 (S → C). Sig lPFC:
+    primary k = 1, θ₁ 59°, 0.69 [0.57, 0.86]. Dimension 1 carries 16–21 % of
+    the held-out sum of squares; dimensions 2–3 about 1 % each. `remove_mean`
+    (all lPFC): θ₁ 66°, 0.69 [0.51, 0.87] at k = 1, against 0.72 without it.
+  - Trajectories: plane signal fraction 0.52 [0.40, 0.63] (all), 0.69 (sig).
+    Axes from 0.1–0.5 s carry ≈1 %.
+  - RT, all lPFC, 10 bins, five seeds: matched 1–6 reliable windows, one
+    variable with k = 0 in every seed. Random 9–12 windows, alignment
+    0.36–0.88 (median 0.79), θ₁ shared in 4 of 5 seeds (not seed 0). Sig lPFC is the same picture. Matching removed the RT gaps in
+    every seed (≤ 2 ms left).
+- **Interpretation:** The geometry claim is now solid in the unmatched data:
+  one shared direction at about 0.7–0.75 of the noise ceiling, and the rest
+  separate. The RT result is no longer a sampling worry. With RT equated
+  across the four cells, the late congruency and switch mean-difference codes
+  themselves mostly disappear, not only their shared part. It still disagrees
+  with `rt_adjust` (sharing kept, 0.58) and with A4's matched decoders.
+  Late stimulus-locked HG that lasts until the response would explain the
+  pattern, but that is untested.
+- **Effect on the paper's story:** **Supports** F5 d "partly shared, not a
+  uniform rise", now with a trial-wide test and a picture
+  ([`paper_draft.md`](paper_draft.md) §1.4 F5 d; §3.6). **Weakens** any
+  process-specific reading of the late codes: the RT result now looks real.
+  Plan §7's first row ("what they share is a common slowing component") is
+  the closest wording, but the data say more than that.
+- **Recommendation:** **Main text for the geometry** (F5 d: cosine panel plus
+  the trajectory plane; subspace numbers in the text), **supplement for the
+  RT seeds table**. Before writing the RT sentence: (1) a response-locked run;
+  (2) trial counts per participant × block × condition in the matched
+  subsets; (3) the occipital control and the controls figure, still not run.
+
+---
+
 ## 2026-10-15
 
 Drafted by Claude; not yet reviewed.
@@ -32,7 +103,9 @@ are listed under "Still outstanding".
    sharing: after matching, almost no window has a reliable congruency or
    switch axis, while the random-subset control keeps them. This is stronger
    than A4's RT result and the two disagree in kind. It needs seeds and a
-   cell-count check before anyone draws a conclusion from it.
+   cell-count check before anyone draws a conclusion from it. *(Updated in the
+   afternoon/evening entry above: five seeds confirm it, and the weak random
+   subset was the seed-0 draw.)*
 4. **Top-20 % score sets are built** (positive, negative, absolute; lPFC and
    DLPFC). The decoding on them is still queued. The LWPC/LWPS scores on 30 %
    of trials are close to noise level, so expect weak separation between sets.

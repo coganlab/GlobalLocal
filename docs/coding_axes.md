@@ -461,31 +461,50 @@ Subspace test and trajectories:
   of signal-to-noise. The noise-corrected version (cross-half products) is the
   one to quote for "the 2-D view is not a thin slice".
 
-## 10. Results (2026-10-15 run)
+## 10. Results (2026-10-15 runs)
 
 *Drafted by Claude from the run outputs; not yet reviewed.*
 
 ### 10.1 What was run
 
-Eleven `coding_axes_real` jobs (58726994, 58727006, 58727013, 58727094,
-58727099, 58727101, 58727134, 58727136, 58727140, 58727164, 58727165), all
-COMPLETED in 10–20 min, every one with the defaults of §4 (0–1.5 s, 64/16-sample
+Every `coding_axes_real` job used the defaults of §4 (0–1.5 s, 64/16-sample
 windows, 21 windows, mean differences, 200 splits, 1000 × 20 null, 2000
-participant resamples, seed 0). Outputs are in
-`dcc_scripts/subspace/results/<EPOCHS>/coding_axes/windows_0.0to1.5s_w64s16_<run>_mean_diff_splits200_perm1000x20_seed0[_control]/`:
+participant resamples, seed 0) unless a seed or bin count is named. Three
+batches, all COMPLETED:
 
-| `<run>` (folder) | Electrodes / participants | Controls run |
+1. **Morning**, 11 jobs, 10–20 min each (58726994, 58727006, 58727013,
+   58727094, 58727099, 58727101, 58727134, 58727136, 58727140, 58727164,
+   58727165). These ran before the subspace test and the trajectories were
+   added to the job, so their folders hold the cosine outputs only.
+2. **Afternoon**, 20 jobs, 14–25 min (58740222–58740241): RT matching and its
+   random-subset control with `SEED` 1–4 (`rt_match10`, `rt_random10`), and
+   with `RT_MATCH_BINS=5` at seed 0 (`rt_match5`, `rt_random5`), for all and
+   task-significant lPFC. Then 58741497–58741498 reran the two main runs with
+   the subspace test and the trajectories.
+3. **Evening**: 58758317–58758318 reran the seed-0 `rt_match10` and
+   `rt_random10` for all lPFC with the current code, so they also have the
+   subspace and trajectory outputs. Their cosine numbers came out identical to
+   the morning runs. 58759949 (29 min) did the same for `remove_mean` (all
+   lPFC), again with identical cosine numbers.
+
+Outputs are in
+`dcc_scripts/subspace/results/<EPOCHS>/coding_axes/windows_0.0to1.5s_w64s16_<run>_mean_diff_splits200_perm1000x20_seed<SEED>[_control]/`.
+† marks folders that have the subspace test and the trajectories:
+
+| `<run>` (folder) | Electrodes / participants | Runs |
 |---|---|---|
 | `all_lpfc` | 398 / 22 | main only |
-| `all_dlpfc-lpfc` | 398 / 22 (DLPFC ⊂ lPFC, so the union is the lPFC set: `all_lpfc` is its main run) | `remove_mean`, `rt_adjust`, `rt_match10` (397 electrodes), `rt_random10` |
+| `all_dlpfc-lpfc` | 398 / 22 (DLPFC ⊂ lPFC, so the union is the lPFC set: `all_lpfc` is the same main run) | main†, `remove_mean`†, `rt_adjust`, `rt_match10`† and `rt_random10`† at seeds 0–4, `rt_match5`†, `rt_random5`† |
 | `all_dlpfc` | 277 / 21 | main only |
-| `sig_dlpfc-lpfc` | 171 / 21 (task-significant lPFC) | main, `remove_mean`, `rt_adjust`, `rt_match10`, `rt_random10` |
+| `sig_dlpfc-lpfc` | 171 / 21 (task-significant lPFC) | main†, `remove_mean`, `rt_adjust`, `rt_match10` and `rt_random10` at seeds 0–4 (seeds 1–4†), `rt_match5`†, `rt_random5`† |
 
 Not run: the occipital control (`ROIS=occ`), and `plot_coding_axes_controls.py`
 (no `coding_axes_controls.png`/`.csv` yet). The numbers below come from each
-run's `summary.json` and `coding_axis_cosines.csv`.
+run's `summary.json`, `coding_axis_cosines.csv`, `subspace_summary.json`,
+`subspace_dimensions.csv`, `trajectory_summary.json`, `trajectories.csv` and
+`rt_*_summary.csv`.
 
-### 10.2 Key numbers
+### 10.2 Key numbers: the coding-axis cosines
 
 "Reliable" windows are those where both ceilings' 95 % CIs exclude 0;
 alignment is `alignment_reliable_mean` (cross / ceiling, averaged over reliable
@@ -497,14 +516,14 @@ over the same windows. Window times are window centres.
 | all lPFC, main | 15 / 21 (0.50–1.38 s) | 0.27 | 0.37 | **0.69 [0.57, 0.89]** | 0.56–1.38 s | 0.50, 0.81–1.00 s |
 | all lPFC, `remove_mean` | 16 | 0.24 | 0.35 | 0.67 [0.48, 0.89] | 0.56–1.38 s | 0.50, 0.75–1.19 s |
 | all lPFC, `rt_adjust` | 13 | 0.15 | 0.25 | 0.58 [0.37, 0.96] | 0.44–1.19 s | 0.50, 0.94–1.00 s |
-| all lPFC, `rt_random10` | 9 | 0.10 | 0.28 | 0.36 [0.06, 0.90] | 1.06–1.38 s | 0.75–1.13 s |
-| all lPFC, `rt_match10` | **1** | – | – | not interpretable (one window) | none | none |
+| all lPFC, `rt_random10`, seed 0 (seeds 1–4: §10.3) | 9 | 0.10 | 0.28 | 0.36 [0.06, 0.90] | 1.06–1.38 s | 0.75–1.13 s |
+| all lPFC, `rt_match10`, seed 0 (seeds 1–4: §10.3) | **1** | – | – | not interpretable (one window) | none | none |
 | DLPFC, main | 15 | 0.27 | 0.40 | 0.66 [0.52, 0.85] | 0.63–1.38 s | 0.50–0.56, 0.75–1.13 s |
 | sig lPFC, main | 16 | 0.32 | 0.50 | 0.61 [0.48, 0.78] | 0.56–1.38 s | 0.44–1.25 s (14 windows) |
 | sig lPFC, `remove_mean` | 16 | 0.24 | 0.37 | 0.62 [0.46, 0.92] | 0.63–1.38 s | 0.44–0.50, 0.75–1.13 s |
 | sig lPFC, `rt_adjust` | 13 | 0.16 | 0.36 | 0.45 [0.17, 0.83] | 0.44–1.13 s | 0.38–0.75, 1.00–1.06 s |
-| sig lPFC, `rt_random10` | 11 | 0.13 | 0.36 | 0.36 [−0.02, 0.80] | 1.13–1.38 s | 0.75–1.19 s |
-| sig lPFC, `rt_match10` | **0** | – | – | – | none | none |
+| sig lPFC, `rt_random10`, seed 0 | 11 | 0.13 | 0.36 | 0.36 [−0.02, 0.80] | 1.13–1.38 s | 0.75–1.19 s |
+| sig lPFC, `rt_match10`, seed 0 | **0** | – | – | – | none | none |
 
 Main all-lPFC run, per window (`coding_axis_cosines.csv`): the ceiling rises
 from 0.19 at 0.50 s to 0.50 at 1.00 s and falls to 0.36 at 1.38 s; the cross
@@ -515,9 +534,132 @@ cosine rises from 0.05 to 0.36 (1.13 s) and stays there. The Pearson cross is
 RT matching did what it should (§7.2): the incongruent − congruent RT gap went
 from 163 ms to 0.2 ms and switch − repeat from 188 ms to 0.7 ms across
 participants (`rt_match_summary.csv`), while the random subset kept 166 and
-189 ms.
+189 ms. The same holds at every seed: −1.4 to 1.9 ms after matching with 10
+bins. With 5 bins, 6–8 ms are left (t = 1.8–2.4 across participants), so
+10 bins is the setting to use.
 
-### 10.3 How to read the figures
+### 10.3 RT matching over five seeds
+
+One random draw of each subset was not enough to read (morning batch, §10.7).
+These are seeds 0–4. Ceiling and alignment are averaged over each run's
+reliable windows. "θ₁" is the subspace test at the primary k (§10.4), given as
+normalized [CI] with "sh" when it beats both shuffle nulls; "k = 0" means a
+variable had no reproducible dimension, so there was no subspace to compare.
+
+All lPFC (368–398 electrodes, 21–22 participants):
+
+| Seed | Matched: reliable windows | Ceiling | Alignment [95 % CI] | Shared | k (C/S) | Random: reliable windows | Ceiling | Alignment [95 % CI] | Shared | θ₁ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | 1 | 0.10 | (one window) | none | 1/0 | 9 | 0.28 | 0.36 [0.06, 0.90] | 1.06–1.38 s | 0.31 [0.24, 0.70] |
+| 1 | 3 | 0.16 | 0.52 [−0.01, 1.01] | 0.75–1.06 s | 1/0 | 11 | 0.24 | 0.88 [0.73, 1.48] | 0.56–1.38 s | 0.78 [0.69, 0.97] sh |
+| 2 | 3 | 0.13 | −0.04 [−1.42, 0.66] | none | 0/1 | 11 | 0.26 | 0.63 [0.47, 1.21] | 0.94–1.38 s | 0.60 [0.36, 0.90] sh |
+| 3 | 6 | 0.13 | 0.50 [−0.21, 1.26] | 0.75–1.00 s | 1/0 | 12 | 0.28 | 0.79 [0.66, 1.24] | 0.62–1.38 s | 0.76 [0.68, 0.96] sh |
+| 4 | 3 | 0.15 | 0.72 [0.02, 1.38] | none | 1/0 | 10 | 0.22 | 0.87 [0.69, 1.47] | 0.69–1.38 s | 0.76 [0.51, 1.18] sh |
+| 0, 5 bins | 0 | – | – | none | 1/1 | 11 | 0.27 | 0.64 [0.37, 1.08] | 0.56–1.38 s | 0.67 [0.60, 0.96] sh |
+
+Task-significant lPFC (152–171 electrodes, 20–21 participants; the seed-0
+folders are from the morning batch and have no subspace output):
+
+| Seed | Matched: reliable windows | Ceiling | Alignment [95 % CI] | Shared | θ₁ (k = 1 for both) | Random: reliable windows | Ceiling | Alignment [95 % CI] | Shared | θ₁ |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | 0 | – | – | none | – | 11 | 0.36 | 0.36 [−0.02, 0.80] | 1.13–1.38 s | – |
+| 1 | 3 | 0.22 | 0.49 [−0.11, 0.94] | 0.75–0.94 s | 0.76 [0.45, 1.07] sh | 8 | 0.35 | 0.81 [0.69, 1.28] | 0.56–1.38 s | 0.74 [0.62, 0.93] sh |
+| 2 | 0 | – | – | none | 0.66 [0.47, 1.24] | 11 | 0.36 | 0.58 [0.43, 1.08] | 0.88–1.38 s | 0.63 [0.49, 0.94] sh |
+| 3 | 2 | 0.18 | 0.38 [−0.35, 1.92] | none | 0.36 [0.29, 0.93] | 12 | 0.38 | 0.66 [0.45, 1.14] | 0.75–1.38 s | 0.71 [0.55, 0.96] sh |
+| 4 | 4 | 0.19 | 0.74 [0.09, 1.55] | none | 0.54 [0.38, 1.12] | 9 | 0.33 | 0.64 [0.49, 1.00] | 0.75–1.38 s | 0.68 [0.49, 0.90] sh |
+| 0, 5 bins | 7 | 0.16 | 0.31 [−0.23, 1.09] | none | 0.51 [0.35, 1.18] | 11 | 0.42 | 0.59 [0.45, 0.94] | 0.50–1.38 s | 0.54 [0.42, 0.84] sh |
+
+Summary across the five 10-bin seeds:
+
+- **Random subsets keep the codes and the sharing.** All lPFC: 9–12 reliable
+  windows, ceilings 0.22–0.28, shared in every seed, alignment 0.36–0.88
+  (median 0.79), θ₁ shared in 4 of 5 seeds (seed 0 fails, at 0.31 of its
+  ceiling). Sig lPFC: 8–12 reliable windows,
+  alignment 0.36–0.81 (median 0.64), θ₁ shared in all 4 seeds with a subspace
+  output. **Seed 0 was the low draw in both electrode sets**, so the morning
+  note that the random subset "weakens the sharing" was one draw (§10.7).
+- **Matched subsets lose the codes.** All lPFC: 1–6 reliable windows (median
+  3), ceilings 0.10–0.16, about half the random subsets'. In every seed one
+  variable has k = 0, switch type in 4 of 5, so there is no subspace test. Sig
+  lPFC: 0–4 reliable windows. Both variables keep one reproducible trial-wide
+  dimension (k = 1 in seeds 1–4), but θ₁ beats the nulls in only 1 of 4 seeds,
+  at θ₁ ceilings of 0.24–0.34 against 0.51–0.60 for the random subsets.
+- **Trajectories under either subset are not readable.** The block-balanced
+  cells need a trial in all 16 congruency × switch × block cells in each half
+  (§7.6). Halving the trials drops between a quarter and three quarters of
+  the electrodes (all lPFC: 175–221 of 398 kept under matching, 109–282 under
+  random). Under matching the noise-corrected plane fractions have CIs as wide
+  as ±6.
+
+### 10.4 The subspace test (main runs)
+
+From `subspace_summary.json` and `subspace_dimensions.csv`. Angle and
+alignment-index rows are cross / ceiling = normalized [95 % CI]. All
+primary-k rows are shared (p = 0.001 against both shuffles) and "not one
+code" (CI of ceiling − cross excludes 0).
+
+| Run | k (congruency / switch) | Primary k | θ₁: cos (deg), ceiling, normalized | Alignment index C → S | S → C |
+|---|---|---|---|---|---|
+| all lPFC | 3 / 2 | 2 | 0.45 (63°), 0.61, **0.74 [0.66, 0.93]** | 0.165 / 0.284 = 0.58 [0.46, 0.89] | 0.154 / 0.284 = 0.54 [0.45, 0.86] |
+| all lPFC, `remove_mean` | 3 / 1 | 1 | 0.41 (66°), 0.59, **0.69 [0.51, 0.87]** | 0.174 / 0.355 = 0.49 [0.31, 0.76] | 0.177 / 0.355 = 0.50 [0.32, 0.77] |
+| sig lPFC | 1 / 2 | 1 | 0.51 (59°), 0.74, **0.69 [0.57, 0.86]** | 0.270 / 0.558 = 0.48 [0.36, 0.75] | 0.271 / 0.558 = 0.49 [0.36, 0.75] |
+
+`remove_mean` lowers the primary k to 1 because switch's second dimension
+just misses (p = 0.054). Compare it with the main run at the same k = 1:
+θ₁ 0.42 (65°), normalized 0.72 [0.55, 0.94]. Removing the mean activity
+leaves the shared direction essentially unchanged.
+
+- **Each code is essentially one pattern.** In all lPFC, dimension 1 carries
+  21 % (congruency) and 16 % (switch) of the held-out sum of squares, 18 and 12
+  times its shuffle threshold. Dimensions 2–3 carry about 1 % each and pass
+  only narrowly (p = 0.01–0.03). The rest of the held-out sum of squares is
+  noise.
+- **The second principal angle is not interpretable.** At k = 2 (all lPFC),
+  θ₂ fails the reliability check: congruency's own θ₂ ceiling (0.06) is not
+  above its shuffle null. So do θ₂ and θ₃ at k = 3. All the evidence for
+  sharing is in θ₁.
+- The alignment index is on a variance scale: 0.58 normalized corresponds to
+  about √0.58 ≈ 0.76 on the cosine scale, the same picture as θ₁.
+
+### 10.5 The trajectories (main runs)
+
+From `trajectory_summary.json`. The raw fraction is the share of the centred
+cells' variance in the plane, with chance at 2 / electrodes. The signal
+fraction is the noise-corrected version (§9).
+
+| Run (electrodes / participants used) | Axis window | cos(c, s) | Raw fraction (chance) | Signal fraction [95 % CI] |
+|---|---|---|---|---|
+| all lPFC (389 / 21) | 0–1.5 s | 0.38 | 0.110 (0.005) | **0.52 [0.40, 0.63]** |
+| | 0.1–0.5 s | −0.03 | 0.017 | 0.01 [−0.01, 0.07] |
+| | 0.6–1.4 s | 0.43 | 0.126 | 0.61 [0.51, 0.70] |
+| all lPFC, `remove_mean` (389 / 21) | 0–1.5 s | 0.37 | 0.102 (0.005) | 0.54 [0.45, 0.62] |
+| | 0.1–0.5 s | −0.04 | 0.014 | 0.03 [−0.00, 0.07] |
+| | 0.6–1.4 s | 0.41 | 0.112 | 0.60 [0.50, 0.66] |
+| sig lPFC (165 / 20) | 0–1.5 s | 0.48 | 0.216 (0.012) | **0.69 [0.58, 0.77]** |
+| | 0.1–0.5 s | −0.12 | 0.031 | 0.03 [−0.02, 0.12] |
+| | 0.6–1.4 s | 0.51 | 0.230 | 0.74 [0.63, 0.81] |
+
+All lPFC, 0–1.5 s axes, centred cells at 1.0 s (`trajectories.csv`, x = the
+congruency axis, y = switch beyond it):
+
+| Cell | x | y |
+|---|---|---|
+| incongruent-switch | 1.22 | 0.68 |
+| incongruent-repeat | 0.37 | −0.30 |
+| congruent-switch | −0.26 | 0.20 |
+| congruent-repeat | −1.33 | −0.57 |
+
+Along x the four cells line up incongruent-switch > incongruent-repeat >
+congruent-switch > congruent-repeat. Switch moves along the congruency axis as
+well, by about 0.96 against congruency's 1.60 (differences of the two-cell
+means). Along y, switch separates from repeat by 0.88. Congruency also
+separates by 0.38 on y, because one time-averaged congruency axis does not
+capture the congruency pattern at every time. Sig lPFC gives the same order
+and similar values. The uncentred figures show all four cells riding the
+evoked response up and to the right (both axes load positively on it) and
+back. Incongruent-switch reaches furthest and stays up longest.
+
+### 10.6 How to read the figures
 
 `coding_axis_cosines.png` in each folder: x is the window centre (s from
 stimulus onset). Top panel, y is the cosine across electrodes: the solid blue
@@ -532,56 +674,97 @@ bootstrap CI of ceiling − cross excludes 0 ("not one code"). Grey background:
 unreliable windows, where nothing should be read. Bottom panel: alignment with
 its 95 % participant-bootstrap CI, 0 = separate, 1 = as shared as noise allows.
 
-### 10.4 Reading
+`subspace_test.png` and `trajectories_*.png`: see §6.1 and §6.2.
+
+### 10.7 Reading
 
 - **Partly shared, in the late part of the trial.** In all lPFC the cross
   cosine beats both shuffle nulls from 0.56 s to the end of the window, and
   sits at about 0.7 of the ceiling, with the CI excluding 1 in 5 windows
-  (0.50 s and 0.81–1.00 s). This is the "partly shared" outcome §6 calls
-  expected. It agrees in kind with A4 (transfer from +0.62 s, 26–47 % kept),
-  and the alignment is close to the plan's noise-corrected anatomy estimate
-  (~0.57, `analysis_plans.md` › Subspace plan §1). DLPFC and the
-  task-significant subset give the same picture (0.66, 0.61).
+  (0.50 s and 0.81–1.00 s; pointwise, not corrected across windows). This is
+  the "partly shared" outcome §6 calls expected. It agrees in kind with A4
+  (transfer from +0.62 s, 26–47 % kept), and the alignment is close to the
+  plan's noise-corrected anatomy estimate (~0.57, `analysis_plans.md` ›
+  Subspace plan §1). DLPFC and the task-significant subset give the same
+  picture (0.66, 0.61).
+- **One shared direction, carried by each code's dominant pattern** (§10.4).
+  Over the whole trial the subspace test gives θ₁ = 63° at 0.74 [0.66, 0.93] of
+  its ceiling: shared, and not one code. Each code is essentially one electrode
+  pattern whose strength changes over time, and θ₂ cannot be measured. So
+  "partly shared" means the dominant congruency pattern and the dominant switch
+  pattern overlap at about 0.7–0.75 of what noise allows. Nothing points to a
+  second shared direction. This is plan §7's first or second row, depending on
+  the controls.
+- **The trajectories show the same thing** (§10.5). On held-out cells, switch
+  moves along the congruency axis by about 60 % as much as congruency does,
+  and the c–s plane holds about half of the reproducible condition-dependent
+  signal (0.52 [0.40, 0.63]; 0.61 with late axes; 0.69–0.74 in sig lPFC). Axes
+  from 0.1–0.5 s carry no signal (≈1 %), which agrees with there being no
+  reliable code before 0.5 s.
 - **Not a common shift.** `remove_mean` barely changes it (0.69 → 0.67, all
-  lPFC; 0.61 → 0.62, sig), and the Pearson cross is close to the cosine. As in
+  lPFC; 0.61 → 0.62, sig), and the Pearson cross is close to the cosine. The
+  subspace test agrees: θ₁ is 0.72 of its ceiling without the control and 0.69
+  with it (both at k = 1), and the plane still holds 0.54 of the signal. As in
   A4, the shared component is a pattern, not every electrode rising together.
+  `remove_mean` subtracts each trial's mean across electrodes, so it does not
+  rule out a gain on the evoked pattern. The uncentred trajectories show both
+  axes loading on the evoked response (§10.5).
 - **Early separation cannot be assessed here.** The plan expected separable
   codes early, converging after ~0.6 s. With mean-difference axes there is no
   reliable window before 0.50 s in the main run (0.375 s at the earliest, under
   `rt_adjust`), so "separate early" is not testable
   with this measure; A4's decoders found congruency from +0.12 s. Do not
   report "no sharing early" from these runs.
-- **RT: the strongest and least settled result.** Regression (`rt_adjust`)
-  keeps the sharing (0.58 [0.37, 0.96], shared 0.44–1.19 s), with both cross and
-  ceiling lower late in the trial. RT matching removes the codes themselves:
-  the ceilings fall to ~0.1 and only 1 (all) or 0 (sig) windows stay reliable,
-  so the sharing cannot be measured at all. The random-subset control keeps
-  reliable ceilings (0.28–0.36) in 9–11 windows, so the loss under matching is
-  not the halved sample. Read literally, the congruency and switch mean
-  differences in lPFC HG largely go away when RT is equated across the four
-  cells. That is a stronger statement than A4's (matching cut the transfer, not
-  the decodability), and the two disagree in kind; I am not sure how to
-  reconcile them. Possibly a decoder can use differences that a mean
-  difference averaged over electrodes and blocks cannot, or the matched subset
-  leaves some block × condition cells too thin for the block-weighted axes
-  (§9). Checks that would settle it: (a) rerun `rt_match` and `rt_random` with
-  several `SEED`s (only one draw of each exists); (b) count trials per
-  participant × block × condition cell in the matched subset; (c) rerun with
-  `RT_MATCH_BINS=5`.
-- **The random-subset control also weakens the sharing** (alignment 0.36,
-  shared only from 1.06 s), against 0.69 in the full data. So the subsetting
-  alone moves the result a lot, and a single random draw is not a stable
-  reference. Seeds first (check (a) above) before any RT claim.
+- **RT matching removes the codes, and five seeds confirm it is not the
+  smaller sample** (§10.3). Matched subsets keep 1–6 reliable windows (all
+  lPFC) with ceilings of 0.10–0.16, and one variable has no reproducible
+  dimension in every seed. Random subsets of the same size keep 9–12
+  reliable windows, ceilings of 0.22–0.28 and the sharing (alignment median
+  0.79). Read literally: when RT is equated across the four congruency ×
+  switch-type cells, the congruency and switch mean differences in lPFC HG
+  mostly disappear, and with them anything to share. That is stronger than
+  plan §7's first row ("what they share is a common slowing component"): it is
+  the late codes themselves, not only their shared part, that go with RT.
+- **What is left after matching is too weak to call shared or separate.** In
+  sig lPFC each variable keeps one reproducible trial-wide dimension under
+  matching, but θ₁ beats the nulls in 1 of 4 seeds, at ceilings about half the
+  random subsets'. At that ceiling the test has little power, so this is not
+  evidence that an RT-independent part is separate.
+- **The morning reading of the random subset was one draw.** Seed 0 gave 0.36
+  in both electrode sets; seeds 1–4 give 0.63–0.88 (all) and 0.58–0.81 (sig).
+  The subsetting itself does not weaken the sharing.
+- **Still unreconciled: regression and A4.** `rt_adjust` keeps the sharing
+  (0.58 [0.37, 0.96], shared 0.44–1.19 s), and A4's matched decoders still
+  decoded. Three possible reasons, none tested:
+  1. Regression removes only a linear within-cell HG–RT slope, while matching
+     removes the condition differences in RT whatever their shape. If late HG
+     lasts until the response, the condition effect in late stimulus-locked
+     windows partly *is* the RT difference, and the slope removes only part of
+     it.
+  2. A decoder can use differences that a block-weighted mean difference
+     cannot.
+  3. Matching leaves some block × condition cells thin (§9; under matching
+     the block-balanced trajectory cells lose about half the electrodes).
 
-### 10.5 Caveats
+  A response-locked run would address the first; a trial count per
+  participant × block × condition cell in the matched subset, the third.
 
-- One seed for everything, including the single random RT subset.
-- 22 participants; the null treats trials within participant as exchangeable
+### 10.8 Caveats
+
+- RT matching and its random control have five seeds. Everything else is seed
+  0 only.
+- 22 participants. The null treats trials within participant as exchangeable
   and the bootstrap resamples participants, so the late sharing is a
-  participant-level claim, but with 22 participants the alignment CIs are
-  wide (0.57–0.89 main).
-- The occipital control and the controls figure are missing, so "lPFC-specific"
-  cannot be addressed yet.
+  participant-level claim, but with 22 participants the CIs are wide
+  (alignment 0.57–0.89, θ₁ 0.66–0.93).
+- "Not one code" is a pointwise test over windows. "Shared" is
+  cluster-corrected.
+- The occipital control and the controls figure are missing, so
+  "lPFC-specific" cannot be addressed yet.
 - The sharing is strongest at 0.9–1.4 s, near or after many responses (A4's
-  median RT 1.17 s). Stimulus-locked windows that late mix response-related
-  activity in; a response-locked version would separate the two.
+  median RT 1.17 s). Stimulus-locked windows that late mix in response-related
+  activity. Given §10.3, a response-locked version is now the most useful next
+  run.
+- The ceiling normalization of the subspace rows is a heuristic for k > 1
+  (§9). The primary k is 2 in all lPFC, so quote θ₁'s raw cosine and ceiling
+  alongside the ratio.
