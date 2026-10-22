@@ -1,9 +1,10 @@
 """Figures for the subspace test (docs/analysis_plans.md, subspace plan §3.4),
-the condition trajectories (§4) and the block-split separations (§6). Plotting
-only: each function takes the tables `coding_subspaces.compare_subspaces`,
-`coding_trajectories.condition_trajectories` and
-`coding_trajectories.block_separations` return (or their CSVs) and writes one
-PNG. Called by coding_axes_dcc.py; also usable on saved outputs.
+the condition trajectories (§4), the block-split separations and the
+proportion trajectories (§6). Plotting only: each function takes the tables
+`coding_subspaces.compare_subspaces`, `coding_trajectories.condition_trajectories`,
+`coding_trajectories.block_separations` and
+`coding_trajectories.proportion_trajectories` return (or their CSVs) and writes
+one PNG. Called by coding_axes_dcc.py; also usable on saved outputs.
 """
 import numpy as np
 
@@ -234,5 +235,65 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
         ax.set_xlabel(time_label, fontsize=9, color=INK)
     fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other. Mean over '
              'windows (95% CI):\n' + '\n'.join(footer), fontsize=7.5, color=MUTED, va='top')
+    fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
+    plt.close(fig)
+
+
+# Proportion trajectories: colour = the variable's level (blue = incongruent /
+# switch, orange = congruent / repeat, as CELL_STYLE), line style = the
+# proportion (solid 25 %, dashed 75 %).
+_LEVEL_COLOR = {'i': '#2a78d6', 's': '#2a78d6', 'c': '#eb6834', 'r': '#eb6834'}
+_PCT_LS = {'25': '-', '75': '--'}
+_PROP_NAMES = {'incProp': 'incongruent', 'switchProp': 'switch'}
+
+
+def plot_proportion_trajectories(traj, changes, label, out_path):
+    """The §6 trajectory figure for one axis window: rows = variable,
+    columns = proportion, own sets on the diagonal. Each panel draws the
+    variable's two levels in the 25 % and 75 % blocks on the congruency (x)
+    and switch (y) axes, time as the path (open circle = first window, arrow =
+    last). Oblique coordinates: a change along the congruency axis moves only
+    x, one along the switch axis only y. The prediction: on the diagonal the
+    two levels' separation differs between 25 % and 75 % along the panel's own
+    axis only; off the diagonal it does not differ.
+
+    `traj`, `changes`: the `proportion_trajectories` tables."""
+    traj, changes = traj[traj['axes'] == label], changes[changes['axes'] == label]
+    fig, axs = plt.subplots(2, 2, figsize=(10.0, 9.0), sharex=True, sharey=True,
+                            gridspec_kw=dict(hspace=0.22, wspace=0.12))
+    footer = []
+    for r, (var, var_name) in enumerate((('congruency', 'congruency'), ('switchType', 'switch'))):
+        for col, prop in enumerate(_PROP_NAMES):
+            ax, key, letter = axs[r, col], f'{var} x {prop}', 'abcd'[2 * r + col]
+            d = traj[traj['set'] == key]
+            for cond, dc in d.groupby('condition', sort=False):
+                dc = dc.sort_values('window')
+                x, y = dc['congruency'].to_numpy(), dc['switch'].to_numpy()
+                color, ls = _LEVEL_COLOR[cond[0]], _PCT_LS[cond[1:]]
+                ax.plot(x, y, color=color, ls=ls, lw=2,
+                        label=f'{cond[0]}, {cond[1:]} % {_PROP_NAMES[prop]}')
+                ax.plot(x[0], y[0], 'o', ms=6, mfc='white', mec=color, mew=1.5, zorder=3)
+                if len(x) > 1:
+                    ax.annotate('', xy=(x[-1], y[-1]), xytext=(x[-2], y[-2]),
+                                arrowprops=dict(arrowstyle='-|>', color=color, lw=1.5))
+            ax.axhline(0, color=MUTED, lw=0.8, zorder=0)
+            ax.axvline(0, color=MUTED, lw=0.8, zorder=0)
+            _style(ax)
+            kind = 'own' if d['own'].iloc[0] else 'cross'
+            ax.set_title(f'{letter}  {var_name} × {_PROP_NAMES[prop]} proportion ({kind})',
+                         fontsize=9, color=INK, loc='left')
+            ax.legend(frameon=False, fontsize=7, loc='best')
+            o = changes[(changes['set'] == key) & (changes['window'] == -1)].set_index('axis')
+            footer.append(f'{letter}: ' + '; '.join(
+                f"along {a} {o.loc[a, 'estimate']:+.2f} [{o.loc[a, 'lo']:+.2f}, "
+                f"{o.loc[a, 'hi']:+.2f}]" for a in ('congruency', 'switch')))
+    for ax in axs[1]:
+        ax.set_xlabel('congruency axis (HG)', fontsize=9, color=INK)
+    for ax in axs[:, 0]:
+        ax.set_ylabel('switch axis (HG)', fontsize=9, color=INK)
+    fig.text(0.01, 0.06, f'Axes from {label} on one half, conditions on the other, centred on '
+             'the mean of all conditions; oblique coordinates on the two axes. Change in '
+             'separation (25 % − 75 %), mean over windows (95% CI):\n' + '\n'.join(footer),
+             fontsize=7.5, color=MUTED, va='top')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)

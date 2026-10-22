@@ -13,14 +13,20 @@ main_effects=True)`` on the selection trials: LWPC and LWPS (low- minus
 high-proportion block, positive = the behavioural adaptation direction) and
 the congruency and switch-type main effects (incongruent minus congruent,
 switch minus repeat), each a Cohen's d on window-mean HG.
+
+A selection made on every trial (``frac_select`` = 1) leaves the jobs every
+trial too: selection and measurement then share their trial noise, so each
+set's effects are inflated by having been picked for them (circular). Use it
+only to describe the sets, never to test them.
 """
 
 from __future__ import annotations
 
 import json
-import math
 
 import numpy as np
+
+from src.analysis.utils.ranking import top_fraction
 
 from .anova_electrode_selection import combine_electrode_sets
 
@@ -28,22 +34,6 @@ from .anova_electrode_selection import combine_electrode_sets
 SCORE_SETS = {'x': 'lwpc', 'y': 'lwps', 'mx': 'congruency', 'my': 'switch_type'}
 # pairs whose unique and shared electrodes are compared: <a>_only, <b>_only, <pair>_overlap
 SCORE_PAIRS = {'adaptation': ('lwpc', 'lwps'), 'main_effects': ('congruency', 'switch_type')}
-SIGNS = ('positive', 'negative', 'absolute')
-
-
-def top_fraction(values, frac=0.2, sign='positive'):
-    """Boolean mask of the top ``frac`` of ``values``: ceil(frac x n) of the n
-    finite values, ranked largest first ('positive'), most negative first
-    ('negative') or by magnitude ('absolute'). Ties at the cut go to the
-    earlier value. Non-finite values are never selected."""
-    if sign not in SIGNS:
-        raise ValueError(f"sign must be one of {SIGNS}, got {sign!r}")
-    v = np.asarray(values, float)
-    key = {'positive': v, 'negative': -v, 'absolute': np.abs(v)}[sign]
-    ok = np.flatnonzero(np.isfinite(key))
-    keep = np.zeros(len(v), bool)
-    keep[ok[np.argsort(-key[ok], kind='stable')[:math.ceil(frac * len(ok))]]] = True
-    return keep
 
 
 def score_electrode_sets(scores, frac=0.2, sign='positive'):
@@ -106,7 +96,8 @@ def load_score_selection(path):
 def held_out_electrode_sets(path, rois, structure, names=None):
     """What a decoding or power-traces job needs from a selection file: the
     requested sets restricted to the electrodes ``structure`` holds, and
-    ``structure`` cut to the trials selection did not use.
+    ``structure`` cut to the trials selection did not use (every trial, for a
+    selection made on all of them).
 
     ``structure`` is ``[subject][condition][key] -> Epochs`` with
     ``trial_count`` metadata (``create_subjects_mne_objects_dict``). ``names``

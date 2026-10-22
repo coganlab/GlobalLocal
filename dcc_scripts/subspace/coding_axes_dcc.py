@@ -56,6 +56,15 @@ Writes to `args.save_dir`:
     block_summary.json      the overall (window -1) contrasts with CIs
     block_separations_<axes>.png  the §6 figure per axis window
 
+  adaptation as trajectories (§6, `coding_trajectories.proportion_trajectories`):
+    proportion_trajectories.csv  per axis window, set (variable x proportion),
+                            condition (e.g. i25) and window: the held-out mean on
+                            the congruency and switch axes (oblique), with CIs
+    proportion_changes.csv  per axis window, set, axis and window: the change in
+                            separation (25 % - 75 %) along that axis, with CIs
+    proportion_summary.json the overall (window -1) changes with CIs
+    proportion_trajectories_<axes>.png  the 2 x 2 figure per axis window
+
 Driven by `run_coding_axes_dcc.py` (wrapped by `sbatch_coding_axes_dcc.sh`);
 call `main(args)` with a populated argument namespace.
 """
@@ -99,7 +108,8 @@ from src.analysis.utils.general_utils import resolve_lab_root, resolve_electrode
 from dcc_scripts.stats.stability_flexibility_segregation_dcc import (
     assemble_long_df, make_synthetic_df, _window_indices)
 from dcc_scripts.subspace.subspace_figures import (
-    plot_subspace_test, plot_trajectories, plot_block_separations, time_axis_label)
+    plot_subspace_test, plot_trajectories, plot_block_separations,
+    plot_proportion_trajectories, time_axis_label)
 
 # Reference-palette slots 1-2 (dataviz skill), and recessive neutrals.
 CROSS, CEILING = '#2a78d6', '#eb6834'
@@ -302,7 +312,8 @@ def main(args):
     seeds = dict(halves=args.seed, null_congruency=args.seed + 1,
                  null_switchType=args.seed + 2, bootstrap=args.seed + 3,
                  rt_match=args.seed + 4, subspace_bootstrap=args.seed + 5,
-                 trajectory_bootstrap=args.seed + 6, block_bootstrap=args.seed + 7)
+                 trajectory_bootstrap=args.seed + 6, block_bootstrap=args.seed + 7,
+                 proportion_bootstrap=args.seed + 8)
     os.makedirs(args.save_dir, exist_ok=True)
 
     # 0. the RT control (§3.3), before anything is scored, so the real axes, every
@@ -407,6 +418,23 @@ def main(args):
                                os.path.join(args.save_dir, f'block_separations_{label}.png'),
                                time_label=time_label)
 
+    # 7. adaptation as trajectories (§6): each variable's two levels in the 25 %
+    #    and 75 % blocks of each proportion, on the trajectories' axes and halves
+    ptraj, pchanges, prop_summary = ct.proportion_trajectories(
+        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+        seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
+        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'])
+    ptraj = ptraj.merge(grid, on='window')
+    pchanges = pchanges.merge(grid, on='window', how='left')
+    ptraj.to_csv(os.path.join(args.save_dir, 'proportion_trajectories.csv'), index=False)
+    pchanges.to_csv(os.path.join(args.save_dir, 'proportion_changes.csv'), index=False)
+    with open(os.path.join(args.save_dir, 'proportion_summary.json'), 'w') as f:
+        json.dump(prop_summary, f, indent=2)
+    for label in axis_labels:
+        plot_proportion_trajectories(
+            ptraj, pchanges, label,
+            os.path.join(args.save_dir, f'proportion_trajectories_{label}.png'))
+
     config = dict(
         timestamp=args.timestamp, data_source=args.data_source,
         epochs_root_file=args.epochs_root_file, task=args.task,
@@ -451,5 +479,11 @@ def main(args):
                   + ' | '.join(f"{con} {s[con]['estimate']:+.3f} "
                                f"[{s[con]['ci'][0]:+.3f}, {s[con]['ci'][1]:+.3f}]"
                                for con in (own, other, 'own_minus_other')))
+    for label, s in prop_summary['axes'].items():
+        for name, v in s['sets'].items():
+            print(f"proportion trajectories, axes {label}, {name} ({'own' if v['own'] else 'cross'}): "
+                  + ' | '.join(f"along {a} {v[a]['estimate']:+.3f} "
+                               f"[{v[a]['ci'][0]:+.3f}, {v[a]['ci'][1]:+.3f}]"
+                               for a in ('congruency', 'switch')))
     print(f"wrote {args.save_dir}")
     return table, summary

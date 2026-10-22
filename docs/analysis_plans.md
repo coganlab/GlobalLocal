@@ -51,7 +51,10 @@ through in [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md)).
 §3.1-3.3 ran on real data on 2026-10-15 ([`coding_axes.md`](coding_axes.md)
 §10); §3.4 and §4 were added after that run and have not run on real data.
 §6 (block-split separations) built 2026-10-16 in the same job, not yet run on
-real data. Not built: the lPFC-subsampled control and §5. The single-window map-level
+real data. Not built: the lPFC-subsampled control and §5.
+*2026-10-22:* §6 ran stimulus- and response-locked
+([`coding_axes.md`](coding_axes.md) §12). The switch half of the prediction
+holds; the congruency half does not. The single-window map-level
 cosine, `map_reliability(method='cosine')` (2026-10-14), is described in
 [`new_analyses_walkthrough.md`](new_analyses_walkthrough.md) §5. Companion to F5 in
 [`paper_draft.md`](paper_draft.md) and the A4 results in
@@ -700,6 +703,7 @@ and electrodes.
 |---|---|
 | Per-block held-out separations on each variable's own unit axis; the change with incProp and switchProp (low − high) and own − other; participant bootstrap | `block_separations` in `stats/coding_trajectories.py` (its sums come from `trajectory_sums`, through `cell_block_means`) |
 | Figure | `plot_block_separations` in `dcc_scripts/subspace/subspace_figures.py` |
+| *2026-10-22:* the same as trajectories, each variable's two levels in the 25 % and 75 % blocks of each proportion (own and cross sets) on the congruency and switch axes, oblique coordinates | `proportion_trajectories` in `stats/coding_trajectories.py`; `plot_proportion_trajectories` |
 
 Choices the plan left open: each separation is projected on its own unit axis
 (ĉ, ŝ), not on the Gram-Schmidt y, so the switch separation does not depend on

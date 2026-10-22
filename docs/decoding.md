@@ -492,7 +492,24 @@ bootstraps:
 - `params.json`;
 - `group_bars.png`/`.pdf`: bars are means, whiskers are 2.5–97.5 % over
   bootstraps × repeats, dots are bootstrap means, white dashes are chance, and
-  brackets give the Holm p.
+  brackets give the Holm p (matched runs only; unmatched, the p compares each
+  group with random groups of its own size, not the bars shown, so it stays in
+  `tests.csv`).
+- `curve_accuracies.csv`, `curve_summary.csv`, `electrode_curve.png`/`.pdf`:
+  the accuracy-by-electrode-count curve (below).
+
+**The electrode-count curve.** Each group is decoded on random subsets of 1,
+2, 4, … electrodes (left panel, log axis) and of every 20 electrodes (right
+panel, linear axis), up to its full size. `WINDOW_MEAN_CURVE_SUBSETS` (10)
+independent random subsets are drawn per count and bootstrap; 0 skips the
+curve. Lines are means, bands the 2.5–97.5 % over bootstraps × subsets. A
+group's last point is its unmatched bar, and the `all` line at `n_sig`
+electrodes is the "random electrodes of the same size" that the sig-vs-all
+test compares against. Descriptive only: no test runs on the curve. To add it
+to a finished run without redoing the permutations,
+`WINDOW_MEAN_N_PERM=0 bash submit_window_mean_groups_dcc.sh` (the tag then says
+`0perm`). Cost: about 12,000 decodes per contrast and ROI, roughly 10 min on
+5 cores.
 
 **Reading it.**
 - To use non-sig or all electrodes for the anatomy, the claim is "they decode

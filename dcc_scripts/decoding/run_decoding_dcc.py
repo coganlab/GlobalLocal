@@ -384,6 +384,9 @@ FEATURE_MODE = os.environ.get('FEATURE_MODE', 'channels_x_time')
 # all its electrodes instead), and each pair of groups gets a membership-permutation
 # test (WINDOW_MEAN_N_PERM permutations, Holm across pairs). WINDOW_MEAN_BOOTSTRAPS
 # pseudo-trial draws; they are cheap here, so more than BOOTSTRAPS.
+# WINDOW_MEAN_CURVE_SUBSETS random subsets per electrode count and bootstrap for
+# the accuracy-by-electrode-count curve (0 skips it). WINDOW_MEAN_N_PERM=0 skips
+# the tests, e.g. to add the curve to a finished run.
 WINDOW_MEAN_GROUPS = _env_bool('WINDOW_MEAN_GROUPS', False)
 WINDOW_MEAN_TMIN = float(os.environ.get('WINDOW_MEAN_TMIN', 0.0))
 WINDOW_MEAN_TMAX = float(os.environ.get('WINDOW_MEAN_TMAX', 1.5))
@@ -392,6 +395,7 @@ WINDOW_MEAN_N_PERM = int(os.environ.get('WINDOW_MEAN_N_PERM', 1000))
 WINDOW_MEAN_N_MATCH = (int(os.environ['WINDOW_MEAN_N_MATCH'])
                        if os.environ.get('WINDOW_MEAN_N_MATCH') else None)
 WINDOW_MEAN_MATCH_ELECTRODES = _env_bool('WINDOW_MEAN_MATCH_ELECTRODES', True)
+WINDOW_MEAN_CURVE_SUBSETS = int(os.environ.get('WINDOW_MEAN_CURVE_SUBSETS', 10))
 
 # --- Electrode sets from a score-selection file (docs/decoding.md §3.7) ---------
 # score_electrode_selection_dcc.py's score_selection.json: the battery runs once
@@ -521,6 +525,7 @@ def run_analysis():
         window_mean_n_perm=WINDOW_MEAN_N_PERM,
         window_mean_n_match=WINDOW_MEAN_N_MATCH,
         window_mean_match_electrodes=WINDOW_MEAN_MATCH_ELECTRODES,
+        window_mean_curve_subsets=WINDOW_MEAN_CURVE_SUBSETS,
         electrode_sets_json=ELECTRODE_SETS_JSON,
         electrode_sets=ELECTRODE_SETS,
         # cluster_tails=CLUSTER_TAILS,
@@ -575,6 +580,8 @@ def run_analysis():
              f"{WINDOW_MEAN_N_PERM} permutations, "
              + (f"n_match={WINDOW_MEAN_N_MATCH or 'smallest group'})" if WINDOW_MEAN_MATCH_ELECTRODES
                 else "unmatched: each group on all its electrodes)")
+             + f"; curve: {WINDOW_MEAN_CURVE_SUBSETS or 'off'}"
+             + (" subsets per count" if WINDOW_MEAN_CURVE_SUBSETS else "")
              if WINDOW_MEAN_GROUPS else ""))
     print(f"Score-selected electrode sets: {ELECTRODE_SETS_JSON or 'off'}"
           + (f" (sets: {ELECTRODE_SETS or 'all'})" if ELECTRODE_SETS_JSON else ""))

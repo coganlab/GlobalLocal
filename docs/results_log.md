@@ -6,6 +6,116 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-22: block-split adaptation in the coding axes (subspace plan §6)
+
+Drafted by Claude; not yet reviewed.
+
+Jobs: `coding_axes_real` 59283148–59283153 (stimulus-locked) and
+59283438–59283443 (response-locked), 12, all COMPLETED, exit 0, in 16–62 min.
+Owning doc: [`coding_axes.md`](coding_axes.md) §12 (method §1.3, figure
+§6.3); plan: [`analysis_plans.md`](analysis_plans.md) subspace plan §6.
+
+### Short version
+
+1. **Switch: the predicted pattern holds.** Projected on the switch axis, the
+   switch separation is larger in low- than high-switch-proportion blocks and
+   does not change with incongruent proportion: own − other +0.80
+   [0.31, 1.47] stimulus-locked, +0.69 [0.10, 1.33] response-locked. It
+   survives `remove_mean`, and survives RT adjustment stimulus-locked (+0.52
+   [0.13, 1.04]).
+2. **Congruency: no clean specificity.** The congruency separation is larger
+   in low-incProp blocks (+0.33 [0.08, 0.57]), but not reliably more than it
+   changes with switchProp (own − other +0.21 [−0.17, 0.62]), and the two are
+   equal under RT adjustment. The response-locked own − other (+0.61) comes
+   from post-response windows with no reliable code.
+3. **Two reasons for caution on switch**: one block (low incProp, high
+   switchProp) has almost no switch separation and carries much of the effect,
+   and occipital cortex shows the same switch pattern (+0.39 [0.03, 0.68]).
+4. **Reruns reproduce §10–11 byte for byte.** New besides §6: stimulus-locked
+   occipital (no reliable window) and the stimulus-locked `rt_adjust` subspace
+   test and trajectories.
+
+### coding_axes_real: §6 block separations, stimulus- and response-locked, main and five controls
+
+- **Status:** all twelve COMPLETED. Same settings and seeds as the 2026-10-15
+  and 2026-10-16 runs (stimulus-locked 0–1.5 s; response-locked −1.0 to 1.5 s
+  with −1.0–0 s axes; all lPFC or occipital; seed 0). Submitted with
+  `RT_CONTROL=none` explicitly, because commit ff91524 changed the submit
+  script's default to `adjust`. They overwrote the seed-0 folders. Every
+  pre-existing output is byte-identical except `run_config.json` (timestamp,
+  new `block_bootstrap` seed).
+- **Result:** see the short version. Full table, per-block separations and
+  timing in `coding_axes.md` §12.2. Stimulus-locked, the switch effect starts
+  at about 0.625 s. The congruency effect appears only in the last one or two
+  windows, past the median RT.
+- **Interpretation:** at the population level, the switch code's adaptation is
+  specific to switch proportion. This is the trajectory form of Test 1, and it
+  agrees for switch. The congruency code changes with incongruent proportion,
+  but the data do not show that this change is specific. Neither half is
+  lPFC-specific: occipital shows the switch pattern, with weak codes.
+- **Effect on the paper's story:** adds a supplementary population-level
+  version of Test 1 (`paper_draft.md` §1.4 F5 panel b, §3.4) for switch only.
+  It does not support a "double dissociation in the population geometry"
+  claim, because the congruency half is missing.
+- **Recommendation: supplement, switch half only, after two checks.**
+  (1) Trial counts per cell in the low-incProp, high-switchProp block, and
+  whether behavioural switch costs are smallest there. (2) A label-shuffle
+  null for own − other (shuffle switchProp within participant, cell and
+  incProp). Today only bootstrap CIs exist, and the per-window marks are
+  uncorrected. Do not put it in the main text.
+
+### Oddities
+
+- The low-incProp, high-switchProp block has a near-zero switch separation in
+  both frames (0.12 against 0.32–1.10), which implies an incProp × switchProp
+  interaction on the switch separation. Unexplained.
+- Stimulus-locked occipital has no reliable window in the per-window cosine
+  test, yet the time-pooled subspace test finds one reproducible dimension per
+  variable (θ₁ 77°, shared). Pooling 21 windows gives the subspace test more
+  power than any single window.
+- `rt_match10` / `rt_random10` (10–11 participants) and response-locked
+  occipital disagree with each other on the block contrasts; not interpreted
+  (trajectory signal fractions unreadable; `coding_axes.md` §11.8).
+
+### Not documented here
+
+- `dec_a0e0_*` 58738829–58738834: TIMEOUT (2026-10-15 to 10-19 starts), not
+  inspected.
+- Submitted 2026-10-22 13:15–13:23, outside this batch: `fig5_top_*` 59288971–59288974 FAILED
+  (13:15), not inspected. `scoresel_sel1` 59288978 COMPLETED. `pwr_a0e0_*`
+  59288979–59289022 CANCELLED, resubmitted as 59289276–59289287 (running /
+  pending). `dec_wmgroups_*` 59289268–59289269 running.
+- Interactive: 58782513, 59145395, 59279561 (Jupyter).
+
+### Proposed `paper_draft.md` edits (not applied)
+
+1. **§1.5 Supplement, new row:** "Block-split adaptation along the coding
+   axes ([`coding_axes.md`](coding_axes.md) §12) | The switch separation
+   changes with switch proportion and not incongruent proportion (own − other
+   +0.80 [0.31, 1.47]; survives `remove_mean` and RT adjustment); congruency
+   shows no specific change; also in occipital | Pending the
+   low-incProp/high-switchProp check and a shuffle null."
+2. **§3.4, after the Test 1 sentence (only if the checks pass):** "> Projected
+   onto the population switch axis, the switch separation was larger in
+   mostly-repeat than mostly-switch blocks and did not depend on incongruent
+   proportion (Supplementary **[S?]**); the corresponding effect for
+   congruency was not specific."
+
+### Downloads
+
+Manifest: `/hpc/home/jz421/download_manifests/2026-10-22.txt` (310 files,
+53 MB: figures, csv, json and null npz files of the twelve folders). Left out:
+the twelve `per_split_windows.csv` tables (1.8 GB together), which are
+unchanged from the earlier runs and can be regenerated.
+
+```bash
+rsync -avz --files-from=:/hpc/home/jz421/download_manifests/2026-10-22.txt \
+  jz421@dcc-login.oit.duke.edu:/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/ \
+  ~/GlobalLocal_results/
+```
+
+---
+
 ## 2026-10-16: coding axes, response-locked
 
 Drafted by Claude; not yet reviewed.

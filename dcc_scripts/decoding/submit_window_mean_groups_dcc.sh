@@ -8,6 +8,7 @@
 #   ROIS=lpfc,dlpfc WINDOW_MEAN_N_PERM=2000 bash submit_window_mean_groups_dcc.sh
 #   CONDITIONS="stimulus_lwpc_block_balanced_conditions" bash submit_window_mean_groups_dcc.sh
 #   WINDOW_MEAN_MATCH_ELECTRODES=false bash submit_window_mean_groups_dcc.sh   # no size matching
+#   WINDOW_MEAN_N_PERM=0 bash submit_window_mean_groups_dcc.sh   # bars and curve, no tests
 #
 # Set the parameters below; the same names in the environment override them.
 # Docs: docs/decoding.md §3.6.
@@ -42,6 +43,9 @@ WINDOW_MEAN_MATCH_ELECTRODES="${WINDOW_MEAN_MATCH_ELECTRODES:-false}"
 # Electrodes decoded per group. Empty uses the smallest group's size. Must be
 # empty when WINDOW_MEAN_MATCH_ELECTRODES is false.
 WINDOW_MEAN_N_MATCH="${WINDOW_MEAN_N_MATCH:-}"
+# Accuracy-by-electrode-count curve: random subsets per count and bootstrap
+# (counts 1, 2, 4, ... and every 20 up to each group's size). 0 skips it.
+WINDOW_MEAN_CURVE_SUBSETS="${WINDOW_MEAN_CURVE_SUBSETS:-10}"
 
 # Same truthy values as run_decoding_dcc.py's _env_bool.
 case "${WINDOW_MEAN_MATCH_ELECTRODES,,}" in
@@ -57,13 +61,14 @@ esac
 # Exported rather than listed in --export, which splits on commas (ROIS has
 # them); --export=ALL passes them to the job.
 export EPOCHS_ROOT_FILE ROIS WINDOW_MEAN_TMIN WINDOW_MEAN_TMAX \
-    WINDOW_MEAN_BOOTSTRAPS WINDOW_MEAN_N_PERM WINDOW_MEAN_MATCH_ELECTRODES WINDOW_MEAN_N_MATCH
+    WINDOW_MEAN_BOOTSTRAPS WINDOW_MEAN_N_PERM WINDOW_MEAN_MATCH_ELECTRODES WINDOW_MEAN_N_MATCH \
+    WINDOW_MEAN_CURVE_SUBSETS
 
 echo "Window-mean groups: epochs=$EPOCHS_ROOT_FILE"
 echo "  rois=${ROIS:-run script default}" \
      "window=${WINDOW_MEAN_TMIN}-${WINDOW_MEAN_TMAX}s" \
      "bootstraps=$WINDOW_MEAN_BOOTSTRAPS n_perm=$WINDOW_MEAN_N_PERM" \
-     "$MATCH_DESC"
+     "$MATCH_DESC curve_subsets=$WINDOW_MEAN_CURVE_SUBSETS"
 
 mkdir -p out
 for COND in "${CONDITION_LIST[@]}"; do

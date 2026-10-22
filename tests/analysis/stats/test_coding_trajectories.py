@@ -15,7 +15,9 @@ What is pinned:
     with noise the noise-corrected one recovers the planted share while the
     raw one falls below it;
   * the block separations match a direct one-split computation, and a planted
-    adaptation of each code lands on its own proportion and not the other.
+    adaptation of each code lands on its own proportion and not the other;
+  * the proportion trajectories put each planted change on its own axis in
+    oblique coordinates, with partly shared axes.
 """
 import warnings
 
@@ -256,6 +258,54 @@ def test_planted_adaptation_lands_on_its_own_proportion():
     assert summary['axes']['all']['congruency']['incProp']['estimate'] == pytest.approx(
         2 * g * _norm(c))
     assert summary['n_electrodes'] == N_SUBJ * N_ELEC
+
+
+def _run_props(df, times, n_splits=4, **kw):
+    hg, _ = sfs.window_means(df['hg'].to_numpy(), times, 1, 1)
+    axis = ct.axis_window_means(df['hg'].to_numpy(), times, [(times[0], times[-1])])
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        return ct.proportion_trajectories(df.drop(columns='hg'), hg, axis, ['all'],
+                                          n_splits=n_splits, n_boot=kw.pop('n_boot', 50), **kw)
+
+
+def test_proportion_trajectories_put_each_planted_change_on_its_axis():
+    """Noise-free, with partly shared axes: congruency changes with incProp
+    along c and with switchProp along s, and switch type changes with
+    switchProp along s. In oblique coordinates each change lands on its axis
+    only (a projection would leak cos(c, s) of it onto the other), and
+    switch type x incProp stays at 0."""
+    rng = np.random.default_rng(6)
+    c = rng.normal(size=N_ELEC)
+    s = 0.6 * c + rng.normal(size=N_ELEC)
+    g, k, h = 0.3, 0.25, 0.2
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+
+    def adaptation(t):
+        xc = np.where(t['congruency'] == 'i', 0.5, -0.5)
+        xs = np.where(t['switchType'] == 's', 0.5, -0.5)
+        low_inc = np.where(t['incongruent_proportion'] == 25, 1.0, -1.0)
+        low_sw = np.where(t['switch_proportion'] == 25, 1.0, -1.0)
+        return (np.outer(xc * low_inc, g * c) + np.outer(xc * low_sw, k * s)
+                + np.outer(xs * low_sw, h * s))
+
+    traj, changes, summary = _run_props(_with_terms(df, adaptation), times)
+    overall = changes[changes['window'] == -1].set_index(['set', 'axis'])['estimate']
+    want = {('congruency x incProp', 'congruency'): 2 * g * _norm(c),
+            ('congruency x incProp', 'switch'): 0.0,
+            ('congruency x switchProp', 'congruency'): 0.0,
+            ('congruency x switchProp', 'switch'): 2 * k * _norm(s),
+            ('switchType x switchProp', 'congruency'): 0.0,
+            ('switchType x switchProp', 'switch'): 2 * h * _norm(s),
+            ('switchType x incProp', 'congruency'): 0.0,
+            ('switchType x incProp', 'switch'): 0.0}
+    for key, value in want.items():
+        assert overall[key] == pytest.approx(value, abs=1e-9), key
+    i25 = traj[(traj['set'] == 'congruency x incProp') & (traj['condition'] == 'i25')]
+    assert i25['congruency'].to_numpy() == pytest.approx(_norm(c) * (1 + g) / 2)
+    assert i25['switch'].to_numpy() == pytest.approx(0, abs=1e-9)
+    sets = summary['axes']['all']['sets']
+    assert sets['congruency x incProp']['own'] and not sets['switchType x incProp']['own']
 
 
 def test_axis_window_means():

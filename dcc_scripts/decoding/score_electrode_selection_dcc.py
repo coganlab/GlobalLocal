@@ -11,7 +11,8 @@ Writes into ``--out-dir``:
   it to the decoding job (``ELECTRODE_SETS_JSON``,
   ``submit_decoding_with_score_electrode_sets_dcc.sh``) and the power-traces
   job (``ELECTRODE_SETS_JSON`` + ``ELECTRODE_SET``); both then use only the
-  other trials.
+  other trials. ``--frac-select 1`` selects on every trial and leaves the jobs
+  every trial too: circular, so the sets' effects are inflated by selection.
 * ``selection_scores.csv``: every candidate's scores and set membership.
 
 Docs: ``docs/decoding.md`` §3.7.
@@ -35,8 +36,9 @@ from src.analysis.config.rois import select_rois  # noqa: E402
 from src.analysis.decoding.anova_electrode_selection import (  # noqa: E402
     DEFAULT_STRATA_COLS, assign_trial_partitions, collect_subject_trial_strata)
 from src.analysis.decoding.score_electrode_selection import (  # noqa: E402
-    SIGNS, save_score_selection, score_electrode_sets)
+    save_score_selection, score_electrode_sets)
 from src.analysis.stats.stability_flexibility_segregation import naive_sensitivities  # noqa: E402
+from src.analysis.utils.ranking import SIGNS  # noqa: E402
 from src.analysis.utils.general_utils import (  # noqa: E402
     get_default_LAB_root, get_sig_chans_per_subject, load_HG_ev1_rescaled_per_subject,
     load_subjects_electrodes_to_ROIs_dict, make_sig_electrodes_per_subject_and_roi_dict)
@@ -56,7 +58,8 @@ def parse_args(argv=None):
     ap.add_argument('--electrodes', default='all', choices=('all', 'sig'),
                     help='candidates: every ROI electrode, or the task-significant ones')
     ap.add_argument('--frac-select', type=float, default=0.3,
-                    help='share of each subject\'s trials used to select')
+                    help='share of each subject\'s trials used to select; 1 = every trial, '
+                         'which the later jobs then also measure on (circular)')
     ap.add_argument('--top-frac', type=float, default=0.2,
                     help='share of each ROI\'s electrodes kept per score')
     ap.add_argument('--sign', default='positive', choices=SIGNS)
@@ -100,6 +103,10 @@ def main(args):
         [{s: {'all': {'HG_ev1_power_rescaled': ep}} for s, ep in epochs.items()}],
         strata_cols=tuple(args.strata.split(',')))
     partitions = assign_trial_partitions(trials, frac_select=args.frac_select, seed=args.seed)
+    if args.frac_select >= 1:
+        print("NOTE: --frac-select 1: the sets are selected on every trial and the decoding and "
+              "power jobs measure them on the same trials, so their effects are inflated by "
+              "selection (circular).")
     selection = {s: ep[np.isin(ep.metadata['trial_count'].to_numpy(), list(partitions[s]['select']))]
                  for s, ep in epochs.items() if s in partitions}
 

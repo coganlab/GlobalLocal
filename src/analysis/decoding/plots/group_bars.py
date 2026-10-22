@@ -17,11 +17,16 @@ def plot_group_accuracy_bars(result, out_stem, title=None, base_fontsize=9.0):
     """One bar per electrode group: mean accuracy at the matched size (or on all
     the group's electrodes when ``result['n_match']`` is None), whiskers
     the 2.5-97.5 percentiles over bootstraps and repeats, a dot per bootstrap
-    mean, chance (shuffled labels) as a dashed line across each bar, and a
-    bracket per tested pair with its Holm-adjusted permutation p. ``result`` is
-    what ``compare_electrode_groups`` returns. Writes ``<out_stem>.png``/``.pdf``.
+    mean, chance (shuffled labels) as a dashed line across each bar, and, for
+    matched runs only, a bracket per tested pair with its Holm-adjusted
+    permutation p. ``result`` is what ``compare_electrode_groups`` returns.
+    Writes ``<out_stem>.png``/``.pdf``.
     """
     summary, tests, acc = result['summary'], result['tests'], result['accuracies']
+    # unmatched, a pair's p compares each group with random groups of its own
+    # size, not the two bars drawn, so it stays in tests.csv and gets no bracket
+    if result['n_match'] is None:
+        tests = tests.iloc[:0]
     groups = list(summary['group'])
     x = {g: i for i, g in enumerate(groups)}
     with plt.rc_context(nature_style(base_fontsize)):
@@ -54,7 +59,8 @@ def plot_group_accuracy_bars(result, out_stem, title=None, base_fontsize=9.0):
         ax.axhline(0.5, color='#cfcfcf', lw=0.6, zorder=0)
         if title:
             ax.set_title(title, loc='left')
-        ax.text(1.0, -0.28, 'white dashes: chance (shuffled labels); p: membership permutation, Holm',
+        ax.text(1.0, -0.28, 'white dashes: chance (shuffled labels)'
+                + ('; p: membership permutation, Holm' if len(tests) else ''),
                 transform=ax.transAxes, ha='right', va='top', fontsize=base_fontsize - 2.5,
                 color=_MUTED)
         paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]

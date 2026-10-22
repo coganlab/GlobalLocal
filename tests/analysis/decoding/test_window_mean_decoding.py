@@ -9,7 +9,8 @@ import mne
 
 from dcc_scripts.decoding.window_mean_groups_dcc import run_window_mean_group_comparison
 from src.analysis.decoding.window_mean_decoding import (
-    compare_electrode_groups, window_mean_dataset)
+    accuracy_by_electrode_count, compare_electrode_groups, electrode_counts, window_mean_dataset)
+from src.analysis.decoding.plots.electrode_curve import plot_accuracy_by_electrode_count
 from src.analysis.decoding.plots.group_bars import plot_group_accuracy_bars
 from src.analysis.utils.labeled_array_utils import (
     make_bootstrapped_roi_labeled_arrays_with_nan_trials_removed_for_each_channel)
@@ -135,7 +136,8 @@ def test_dcc_run_unmatched_writes_its_own_tag(tmp_path):
     args = SimpleNamespace(
         condition_label='congruency', window_mean_tmin=0.0, window_mean_tmax=0.19,
         window_mean_bootstraps=2, window_mean_n_perm=4, window_mean_n_match=None,
-        window_mean_match_electrodes=False, random_state=0, subjects=['sub1'], chans_axs=1,
+        window_mean_match_electrodes=False, window_mean_curve_subsets=2, random_state=0,
+        subjects=['sub1'], chans_axs=1,
         time_axs=-1, balance_method='subsample', balance_strata=True, n_jobs=1,
         clf_model=None, clf_model_str='lda', explained_variance=0.9, n_splits=3, n_repeats=1,
         epochs_root_file='synthetic')
@@ -149,3 +151,35 @@ def test_dcc_run_unmatched_writes_its_own_tag(tmp_path):
     assert params['match_electrodes'] is False and params['n_match'] is None
     assert params['group_sizes'] == {'sig': 3, 'nonsig': 2, 'all': 5}
     assert (out / 'group_bars.png').exists()
+    assert (out / 'electrode_curve.png').exists() and (out / 'curve_summary.csv').exists()
+
+
+def test_electrode_counts_end_at_the_group_size():
+    assert electrode_counts(171, 'log') == [1, 2, 4, 8, 16, 32, 64, 128, 171]
+    assert electrode_counts(128, 'log') == [1, 2, 4, 8, 16, 32, 64, 128]
+    assert electrode_counts(65, 'linear', step=20) == [20, 40, 60, 65]
+    assert electrode_counts(1, 'log') == electrode_counts(1, 'linear') == [1]
+    with pytest.raises(ValueError, match='spacing'):
+        electrode_counts(10, 'sqrt')
+
+
+def test_curve_rises_and_ends_at_the_unmatched_bars(tmp_path):
+    data, channels, groups = _datasets()
+    kw = dict(n_splits=3, n_repeats=2, seed=7)
+    curve = accuracy_by_electrode_count(data, channels, groups, step=4, n_subsets=3, **kw)
+    acc, s = curve['accuracies'], curve['summary'].set_index(['group', 'n_electrodes'])
+    # sig: log grid 1, 2, 4, 6 and linear grid 4, 6
+    assert sorted(acc.loc[acc['group'] == 'sig', 'n_electrodes'].unique()) == [1, 2, 4, 6]
+    assert s.loc[('sig', 2), 'log_grid'] and not s.loc[('sig', 2), 'linear_grid']
+    # 3 subsets per bootstrap below the full size, 1 at it
+    per = acc.groupby(['group', 'n_electrodes']).size()
+    assert per[('sig', 4)] == 3 * len(data) and per[('sig', 6)] == len(data)
+    assert s.loc[('sig', 6), 'mean'] > s.loc[('sig', 1), 'mean'] + 0.05
+    bars = compare_electrode_groups(data, channels, groups, match_electrodes=False, n_perm=0,
+                                    **kw)
+    assert bars['tests'].empty
+    for g, size in bars['group_sizes'].items():
+        assert s.loc[(g, size), 'mean'] == pytest.approx(
+            bars['summary'].set_index('group').loc[g, 'mean'])
+    paths = plot_accuracy_by_electrode_count(curve, str(tmp_path / 'curve'), title='congruency')
+    assert all(os.path.exists(p) for p in paths)

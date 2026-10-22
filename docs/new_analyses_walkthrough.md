@@ -12,8 +12,8 @@ and §3.7, and [`n4_continuous_anatomy.md`](n4_continuous_anatomy.md)
 |---|---|---|---|---|
 | [1](#1-decoding-with-channels-as-the-features) | Decoding with the channels as the features (one sample = one trial at one time point), and PCA trajectories in channel space | Built and tested | `FEATURE_MODE=channels` on any decoding submitter | [`decoding.md`](decoding.md) §2.4 |
 | [2](#2-window-mean-decoding-in-sig-nonsig-and-all-electrodes) | Window-mean decoding in sig, non-sig and all electrodes at a matched electrode count (the bar plot) | Built and tested | `submit_window_mean_groups_dcc.sh` | [`decoding.md`](decoding.md) §3.6 |
-| [3](#3-the-top-20--electrodes-by-each-score-on-held-out-trials) | The top 20 % of electrodes by LWPC, LWPS, congruency or switch type, chosen on 30 % of the trials; decoding and power traces on the other 70 % | Built and tested | `sbatch_score_electrode_selection_dcc.sh`, then `submit_decoding_with_score_electrode_sets_dcc.sh` and `submit_specific_conditions_power_traces_dcc.sh` | [`decoding.md`](decoding.md) §3.7 |
-| [4](#4-figure-5-the-brain-the-scatter-and-every-electrode-along-z) | Figure 5 redrawn: a, the brain; b, LWPC against LWPS with a zoom on the centroids; c, every electrode along MNI z | Built and tested; preview drawn 2026-10-10 | The anatomy job, or `n4_section19_followups.py --sections 1,4 --brain` | [N4 §19.4](n4_continuous_anatomy.md#194-the-combined-figure-5) |
+| [3](#3-the-top-20--electrodes-by-each-score-on-held-out-trials) | The top 20 % of electrodes by LWPC, LWPS, congruency or switch type, chosen on 30 % of the trials; decoding and power traces on the other 70 % (§3.6: on every trial, circular) | Built and tested | `sbatch_score_electrode_selection_dcc.sh`, then `submit_decoding_with_score_electrode_sets_dcc.sh` and `submit_specific_conditions_power_traces_dcc.sh` | [`decoding.md`](decoding.md) §3.7 |
+| [4](#4-figure-5-the-brain-the-scatter-and-every-electrode-along-z) | Figure 5 redrawn: a, the brain; b, LWPC against LWPS with a zoom on the centroids; c, every electrode along MNI z. §4.5: the same with the top 20 % LWPC and LWPS electrodes picked out and the slope refit on them | Built and tested; preview drawn 2026-10-10; §4.5 built 2026-10-22 | The anatomy job, or `n4_section19_followups.py --sections 1,4 --brain`; §4.5: `submit_fig5_top_sets_dcc.sh` | [N4 §19.4](n4_continuous_anatomy.md#194-the-combined-figure-5) |
 | [5](#5-the-state-space--subspace-figure-partly-built) | State-space (subspace) figure | **Built except dPCA.** The coding axes and their cosine (§3.1-3.3), the subspace test (§3.4) and the trajectories (§4) were built on 2026-10-15, after this doc; see [`coding_axes.md`](coding_axes.md) and [`subspace_math_walkthrough.md`](subspace_math_walkthrough.md). dPCA is not built | `submit_coding_axes_all.sh` | [Subspace trajectory plan](analysis_plans.md#subspace-trajectory-plan) |
 
 "Built and tested" means the code is in `main` and its tests pass
@@ -286,6 +286,7 @@ coupling sets, `ELECTRODE_SETS_JSON`).
 | `WINDOW_MEAN_N_PERM` | 1000 | Membership permutations per pair of groups. The smallest possible p is 1/(n_perm + 1) |
 | `WINDOW_MEAN_N_MATCH` | smallest group | Electrodes decoded per group |
 | `WINDOW_MEAN_MATCH_ELECTRODES` | true | `false` decodes each group on all its electrodes, with no size matching (§2.4). `WINDOW_MEAN_N_MATCH` must then be empty |
+| `WINDOW_MEAN_CURVE_SUBSETS` | 10 | Random subsets per electrode count and bootstrap for the electrode-count curve (§2.5); 0 skips it. With `WINDOW_MEAN_N_PERM=0` the job draws the bars and the curve and runs no tests |
 
 The classifier, `EXPLAINED_VARIANCE`, `N_SPLITS` and `N_REPEATS` are the
 decoding job's (LDA, 0.90, 5, 5).
@@ -306,6 +307,9 @@ are the same in number but larger (`all` uses every electrode), so slower.
 | `tests.csv` | Per pair: the accuracy difference, permutation p, Holm-adjusted p, the null's 2.5–97.5 percentiles |
 | `params.json` | Every setting, including group sizes and subjects |
 | `group_bars.png`/`.pdf` | The bar plot (§2.5) |
+| `curve_accuracies.csv` | One row per group, electrode count, bootstrap and random subset: accuracy (mean over CV repeats), and whether the count is on the log or linear grid |
+| `curve_summary.csv` | Per group and count: mean accuracy and its 2.5–97.5 percentiles over bootstraps × subsets |
+| `electrode_curve.png`/`.pdf` | The electrode-count curve (§2.5) |
 
 ### 2.3 The code, step by step
 
@@ -419,9 +423,34 @@ group needs no held-out trials here.
 - dots: one per bootstrap (the mean over its CV repeats);
 - a white dashed line across each bar: chance, from the shuffled-label decode
   of the same electrodes;
-- brackets: each tested pair with its Holm-adjusted permutation p;
+- brackets (matched runs only): each tested pair with its Holm-adjusted
+  permutation p. Unmatched plots draw none: there a pair's p compares each
+  group with random groups of its own size, not the two bars shown, so it
+  stays in `tests.csv`;
 - x labels give each group's full size; the y label gives `n_match`, or "all
   electrodes per group" unmatched.
+
+**The electrode-count curve** (`accuracy_by_electrode_count` in
+`window_mean_decoding.py`, `plot_accuracy_by_electrode_count` in
+`src/analysis/decoding/plots/electrode_curve.py`). Accuracy as electrodes are
+added, one line per group:
+
+- at each count N, `WINDOW_MEAN_CURVE_SUBSETS` random N-electrode subsets of
+  the group are decoded in every bootstrap, each drawn independently of the
+  other counts' subsets. At the group's full size there is only one subset,
+  decoded once per bootstrap with the bars' CV seeds, so the line ends exactly
+  at the group's unmatched bar;
+- left panel: N = 1, 2, 4, 8, … on a log axis; right panel: N = 20, 40, 60, …
+  on a linear axis. Both end at the group's size;
+- bands: 2.5–97.5 % over bootstraps × subsets. They show how much accuracy
+  depends on which electrodes are picked and on the pseudo-trials, not a
+  confidence interval; they narrow at the last point, where only the
+  pseudo-trials vary;
+- reading it: the `all` line at N electrodes is what a random N electrodes of
+  the ROI decode. Where the `sig` line sits above it at N = `n_sig` is the
+  matched sig-vs-all comparison, and the gap between the `sig` and `nonsig`
+  lines at a shared N is the matched sig-vs-nonsig comparison. No test runs on
+  the curve.
 
 ### 2.6 Results (2026-10-15 run)
 
@@ -771,6 +800,37 @@ in lPFC, 56 in DLPFC.
   the absolute sets are the union of the most extreme of each (e.g. lPFC
   `lwpc`: 49 from the positive tail, 31 from the negative).
 
+### 3.6 Variant: every trial selects and measures (2026-10-22)
+
+Asked for at the advisor meeting: the power traces of the score sets with every
+trial used both to pick the electrodes and to draw the traces. This is
+circular. The trial noise that put an electrode in the `lwpc` set is in its
+LWPC trace too, so each set's own effect is inflated, and so is any contrast
+that shares those trials. Use the traces to describe what the selected
+electrodes look like, not to test anything; the held-out route above is the
+test.
+
+`--frac-select 1` makes it: `assign_trial_partitions` then puts every trial on
+both sides of the split, so the decoding and power jobs read the file
+unchanged and measure on every trial. The folder name says `sel1`.
+`run_power_traces_dcc.py` now takes `ROIS` from the environment (it was
+hard-coded to DLPFC), so the lPFC sets can be measured in lPFC.
+
+```bash
+cd dcc_scripts/decoding
+JID=$(sbatch --parsable sbatch_score_electrode_selection_dcc.sh --rois lpfc --frac-select 1)
+SEL=$PWD/figs/<EPOCHS>/score_selections/lpfc_all_sel1_top0.2_positive_0to1.5s_seed0/score_selection.json
+cd ../power
+for SET in lwpc lwps lwpc_only lwps_only adaptation_overlap congruency switch_type; do
+  SBATCH_DEPENDENCY=afterok:$JID ROIS=lpfc ELECTRODE_SETS_JSON=$SEL ELECTRODE_SET=$SET \
+      ELECTRODES=all bash submit_specific_conditions_power_traces_dcc.sh
+done
+```
+
+That is 1 selection job and 7 × 4 = 28 power jobs (8 CPUs, 100 GB, up to
+10 h each). `SBATCH_DEPENDENCY` holds the power jobs until the selection file
+exists.
+
 ---
 
 ## 4. Figure 5: the brain, the scatter, and every electrode along z
@@ -915,6 +975,42 @@ shows that honestly, which the old tertile means ± SEM did not.
 not on an abstract y–z projection. The brain shows the same tertiles in the
 same colours, with each tertile's centroid per hemisphere (N4 §19.4 has the
 centroid conventions).
+
+### 4.5 Variant: the top LWPC and LWPS electrodes picked out (2026-10-22)
+
+Asked for at the advisor meeting: the same figure with only the most LWPC and
+most LWPS electrodes highlighted, and the height slope refit on them.
+`sfa.figure5_top` draws it as `fig5_height_top20.png` beside `fig5_height.png`:
+
+- **The sets.** The top 20 % of the figure's own LWPC scores and, separately,
+  of its LWPS scores (responsiveness regressed out, participant-centred,
+  positive tail), with the electrodes pooled. That gives three groups: LWPC
+  only (blue), LWPS only (orange) and both (green). Everything else is grey.
+- **a** puts the groups on the brain with the tertile cuts. **b** is the
+  scatter, over the points' full range so no extreme is cropped, with each
+  score's 20 % cut as a dashed line. There is no centroid zoom.
+- **c** fits the coordinate test (participant, responsiveness, MNI x and y
+  removed; 10,000 swaps) twice: on every electrode (dashed, F5's slope) and on
+  the union of the three groups (solid). A participant with one top electrode
+  only moves its own intercept; the summary counts those that inform the slope.
+- **Selection bias.** Picking the extremes of LWPC and of LWPS also picks the
+  extremes of LWPC − LWPS, the balance that c fits. Selecting on the outcome
+  pushes a slope away from zero by itself, so a steeper top slope would not by
+  itself mean a stronger gradient. The p is still valid as a test of whether
+  these electrodes have a gradient at all.
+
+Run it from a finished anatomy run's tables, for all four runs, with
+`bash submit_fig5_top_sets_dcc.sh` in `dcc_scripts/stats` (one job each,
+under `xvfb-run` for the brain), or for one run:
+
+```bash
+python dcc_scripts/stats/fig5_top_sets.py --anatomy-dir <run>/continuous \
+    --seg-dir <segregation run> [--frac 0.2] [--brain]
+```
+
+It writes `fig5_height_top20.png`/`.pdf`, `_points.csv`, `_partials.csv`,
+`_brain.png`, `summary_fig5_height_top20.txt` and `fig5_height_top20.json`
+(numbers and parameters) into the run's `continuous/` folder.
 
 ---
 

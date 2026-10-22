@@ -162,19 +162,24 @@ def assign_trial_partitions(sub_trials, frac_select=0.3, seed=0):
         Output of :func:`collect_subject_trial_strata`.
     frac_select : float
         Fraction of each stratum assigned to **electrode selection**; the rest
-        goes to decoding (e.g. 0.3 → 30% select / 70% decode).
+        goes to decoding (e.g. 0.3 → 30% select / 70% decode). 1 puts every
+        trial on both sides, so selection and decoding share their trial noise
+        (circular; for describing a selection, not testing it).
     seed : int
         Base RNG seed. Offset per subject so subjects do not share a shuffle.
 
     Returns
     -------
     dict
-        ``{subject: {'select': set_of_ids, 'decode': set_of_ids}}`` — disjoint,
-        and together covering every id.
+        ``{subject: {'select': set_of_ids, 'decode': set_of_ids}}`` — disjoint
+        (identical when ``frac_select`` is 1), and together covering every id.
     """
     partitions = {}
     for sub in sorted(sub_trials):
         ids, strata = sub_trials[sub]
+        if frac_select >= 1:
+            partitions[sub] = {'select': set(ids.tolist()), 'decode': set(ids.tolist())}
+            continue
         # crc32, not hash(): Python salts str hashes per process, so hash(sub)
         # gave every job a different split for the same seed
         sub_seed = seed + (zlib.crc32(str(sub).encode()) % 100_000)

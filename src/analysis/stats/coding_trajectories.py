@@ -57,6 +57,16 @@ mean(IR, CR)]. Each is projected on its own axis, not on the Gram-Schmidt y,
 so the switch separation does not depend on which axis came first. The double
 dissociation predicts that the congruency separation changes with incProp but
 not switchProp, and the switch separation with switchProp but not incProp.
+
+**Adaptation as trajectories** (plan §6, `proportion_trajectories`): each
+variable crossed with each proportion gives four conditions, the variable's two
+levels in the 25 % and 75 % blocks of that proportion (e.g. i25, c25, i75,
+c75), every other factor weighted equally. Their held-out means are drawn on
+the congruency and switch axes themselves, in oblique coordinates: a
+condition's activity in the plane written as a c_hat + b s_hat. The axes are
+not perpendicular, so this is not the projection; it makes a change along
+c_hat move only a, and one along s_hat only b, which is what the prediction is
+about.
 """
 
 import warnings
@@ -85,8 +95,14 @@ _PROPORTION = {'incProp': np.array([0.5, 0.5, -0.5, -0.5]),
                'switchProp': np.array([0.5, -0.5, 0.5, -0.5])}
 # The proportion each variable's own adaptation runs over (LWPC, LWPS).
 OWN_PROPORTION = {'congruency': 'incProp', 'switchType': 'switchProp'}
-_TRAJECTORY_SUMS = ('cc', 'ss', 'cs', 'cP', 'sP', 'cU', 'sU', 'PP', 'PAPB')
-_BLOCK_SUMS = ('cc', 'ss', 'cB', 'sB')
+_TRAJECTORY_SUMS = ('cc', 'ss', 'cs', 'cQ', 'sQ', 'PP', 'PAPB')
+_PROJECTION_SUMS = ('cc', 'ss', 'cs', 'cQ', 'sQ')
+# The block-balanced cells as weights over (cell, block): cell n, blocks equal.
+_CELL_WEIGHTS = np.repeat(np.eye(len(CELLS))[:, :, None], len(BLOCKS), -1) / len(BLOCKS)
+# Each variable's index into the CELLS levels and the names of its levels 1 and
+# 0, and each proportion's index into the BLOCKS levels (level 1 = low = 25 %).
+_LEVELS = {'congruency': (0, ('i', 'c')), 'switchType': (1, ('s', 'r'))}
+_PROPS = {'incProp': 0, 'switchProp': 1}
 
 
 def axis_window_means(hg, times, windows):
@@ -143,13 +159,15 @@ def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=F
     (participants, ...) array,
 
         cc, ss, cs      c.c, s.s, c.s                 (n_axes, splits, 2)
-        cP, sP          c.p, s.p per cell, centred    (n_axes, splits, 2, time, 4)
-        cU, sU          the same, cells uncentred
+        cQ, sQ          c.p, s.p of every cell in every proportion block,
+                        uncentred      (n_axes, splits, 2, time, 4 cells, 4 blocks)
         PP              |p|^2 summed over the cells   (splits, 2, time)
         PAPB            p_A . p_B summed over cells   (splits, time)
-        cB              c . (congruency separation)   (n_axes, splits, 2, time, 4)
-                        within each proportion block (`BLOCKS` order)
-        sB              s . (switch separation), the same
+
+    with p a centred block-balanced cell mean in PP and PAPB. A projection is
+    linear, so the projection of any combination of cell means (a
+    block-balanced cell, a separation, a proportion condition) is the same
+    combination of cQ (sQ); `_projections` forms it.
 
     over each participant's electrodes defined everywhere (axes on every split
     and axis window; every cell of every block on every split, half and time
@@ -161,45 +179,50 @@ def trajectory_sums(df, hg_windows, axis_hg, n_splits=200, seed=0, remove_mean=F
         axis_hg = axis_hg[:, None]
     halves = sfs.shared_halves(df, n_splits=n_splits, seed=seed)
     axes = sfs.main_effect_mean_diffs(df, axis_hg, remove_mean=remove_mean, halves=halves)
-    parts = {k: [] for k in _TRAJECTORY_SUMS + ('cB', 'sB')}
+    parts = {k: [] for k in _TRAJECTORY_SUMS}
     info = dict(subjects=[], n_kept=[], n_dropped=[])
     for subj, elecs, blocks in cell_block_means(df, hg_windows, halves, remove_mean):
         ax = _participant_axes(axes, subj, elecs)
         c = np.stack([ax['mxA'], ax['mxB']], -1)        # (e, axes, splits, d): d=0 -> A
         s = np.stack([ax['myA'], ax['myB']], -1)
         blocks = blocks[:, :, :, ::-1]                  # (e, t, splits, d, 4, 4): d=0 -> B
-        uncentred = blocks.mean(-1)                     # block-balanced cells
-        centred = uncentred - uncentred.mean(-1, keepdims=True)
+        centred = blocks.mean(-1)                       # block-balanced cells, centred
+        centred = centred - centred.mean(-1, keepdims=True)
         ok = (np.isfinite(c).all((1, 2, 3)) & np.isfinite(s).all((1, 2, 3))
               & np.isfinite(blocks).all((1, 2, 3, 4, 5)))
         info['subjects'].append(subj)
         info['n_kept'].append(int(ok.sum()))
         info['n_dropped'].append(int((~ok).sum()))
-        c, s, centred, uncentred, blocks = c[ok], s[ok], centred[ok], uncentred[ok], blocks[ok]
+        c, s, centred, blocks = c[ok], s[ok], centred[ok], blocks[ok]
         parts['cc'].append(np.einsum('eakd,eakd->akd', c, c))
         parts['ss'].append(np.einsum('eakd,eakd->akd', s, s))
         parts['cs'].append(np.einsum('eakd,eakd->akd', c, s))
         for name, axis in (('c', c), ('s', s)):
-            parts[f'{name}P'].append(np.einsum('eakd,etkdx->akdtx', axis, centred))
-            parts[f'{name}U'].append(np.einsum('eakd,etkdx->akdtx', axis, uncentred))
+            parts[f'{name}Q'].append(np.einsum('eakd,etkdxb->akdtxb', axis, blocks))
         parts['PP'].append(np.einsum('etkdx,etkdx->kdt', centred, centred))
         parts['PAPB'].append(np.einsum('etkx,etkx->kt', centred[:, :, :, 1], centred[:, :, :, 0]))
-        for name, axis, var in (('c', c, 'congruency'), ('s', s, 'switchType')):
-            separation = np.einsum('etkdxb,x->etkdb', blocks, _SEPARATION[var])
-            parts[f'{name}B'].append(np.einsum('eakd,etkdb->akdtb', axis, separation))
     if not sum(info['n_kept']):
         raise ValueError("no electrode has every cell in every half; the trajectories need "
                          "at least one trial per cell and proportion block in each half")
     return {k: np.stack(v) for k, v in parts.items()}, info
 
 
+def _projections(sums, weights):
+    """(c.p, s.p) of the conditions `weights` (n, 4 cells, 4 blocks) defines
+    as combinations of cell means, each (..., n_axes, splits, 2, time, n).
+    `sums` combined over participants, possibly with leading (draw) axes."""
+    return tuple(np.einsum('...xb,nxb->...n', sums[k], weights) for k in ('cQ', 'sQ'))
+
+
 def _coordinates(sums, first='congruency', cells='centred'):
-    """(x, y), each (n_axes, splits, 2, time, 4), from sums already combined
-    over participants (leading participant axis removed)."""
+    """(x, y), each (n_axes, splits, 2, time, 4), of the block-balanced cells
+    in the Gram-Schmidt plane, from sums combined over participants."""
     if first not in FIRST_AXES:
         raise ValueError(f"first must be one of {FIRST_AXES}; got {first!r}")
-    p = 'P' if cells == 'centred' else 'U'
-    (aa, bb), (ap, bp) = ((sums['cc'], sums['ss']), (sums[f'c{p}'], sums[f's{p}']))
+    ap, bp = _projections(sums, _CELL_WEIGHTS)
+    if cells == 'centred':                               # centring commutes with projecting
+        ap, bp = ap - ap.mean(-1, keepdims=True), bp - bp.mean(-1, keepdims=True)
+    aa, bb = sums['cc'], sums['ss']
     if first == 'switch':
         aa, bb, ap, bp = bb, aa, bp, ap
     ab = sums['cs']
@@ -349,8 +372,11 @@ def _separations(sums):
     averaged over splits and directions: (..., variables, n_axes, time,
     blocks), in `VARIABLES` and `BLOCKS` order. `sums` may carry leading (draw)
     axes. The unit axis is per split and direction, from the pooled |c| (|s|)."""
-    out = [sums[sep] / np.sqrt(sums[sq])[..., None, None] for sep, sq in (('cB', 'cc'), ('sB', 'ss'))]
-    return np.stack([o.mean((-4, -3)) for o in out], -4)
+    out = []
+    for var, (q, sq) in zip(VARIABLES, (('cQ', 'cc'), ('sQ', 'ss'))):
+        proj = np.einsum('...xb,x->...b', sums[q], _SEPARATION[var])
+        out.append((proj / np.sqrt(sums[sq])[..., None, None]).mean((-4, -3)))
+    return np.stack(out, -4)
 
 
 def _contrasts(seps):
@@ -363,9 +389,9 @@ def _contrasts(seps):
     return np.stack([change['incProp'], change['switchProp'], own - other], -1)
 
 
-def _with_overall(a):
-    """Append the mean over time bins (axis -2) as a last bin, read as window -1."""
-    return np.concatenate([a, a.mean(-2, keepdims=True)], -2)
+def _with_overall(a, axis=-2):
+    """Append the mean over time bins (`axis`) as a last bin, read as window -1."""
+    return np.concatenate([a, a.mean(axis, keepdims=True)], axis)
 
 
 def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
@@ -402,7 +428,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
                  contrasts with CIs; electrodes and participants used; settings.
     """
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
-                                            seed, remove_mean, _BLOCK_SUMS)
+                                            seed, remove_mean, _PROJECTION_SUMS)
     n_part = len(sums['cc'])
     total = _separations(_weighted(sums, np.ones(n_part)))
     seps, cons = _with_overall(total), _with_overall(_contrasts(total))
@@ -447,3 +473,140 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
                    alpha=alpha, remove_mean=bool(remove_mean))
     return pd.DataFrame(sep_rows), pd.DataFrame(con_rows), summary
+
+
+PROPORTION_SETS = tuple((v, p) for v in _LEVELS for p in _PROPS)
+_CHANGE = np.array([1.0, -1.0, -1.0, 1.0])      # (level 1 - level 0) at 25 % minus at 75 %
+_AXIS_NAMES = ('congruency', 'switch')
+
+
+def _set_weights(variable, proportion):
+    """The four conditions of `variable` x `proportion`: names (e.g. 'i25') and
+    weights (4, 4 cells, 4 blocks), in the order level 1 at 25 %, level 0 at
+    25 %, level 1 at 75 %, level 0 at 75 %. Each is the equal-weight mean of
+    its cells over the other variable and its blocks over the other
+    proportion."""
+    v, level_names = _LEVELS[variable]
+    p = _PROPS[proportion]
+    names, weights = [], []
+    for block_level, pct in ((1.0, '25'), (0.0, '75')):
+        for level, name in zip((1.0, 0.0), level_names):
+            cell = np.array([c[v] == level for c in CELLS.values()], float)
+            block = np.array([b[p] == block_level for b in BLOCKS.values()], float)
+            names.append(name + pct)
+            weights.append(np.outer(cell, block) / (cell.sum() * block.sum()))
+    return names, np.stack(weights)
+
+
+def _oblique(sums, cp, sp):
+    """(a, b): the in-plane part of each condition written as a c_hat + b s_hat,
+    from its projections `cp`, `sp` (..., n_axes, splits, 2, time, n). Solves
+    p.c_hat = a + b k and p.s_hat = a k + b, with k = cos(c, s)."""
+    nc = np.sqrt(sums['cc'])[..., None, None]
+    ns = np.sqrt(sums['ss'])[..., None, None]
+    k = sums['cs'][..., None, None] / (nc * ns)
+    pc, ps = cp / nc, sp / ns
+    return (pc - k * ps) / (1 - k ** 2), (ps - k * pc) / (1 - k ** 2)
+
+
+def _proportion_coordinates(sums, weights):
+    """(a, b) of every condition in `weights`, centred on the grand mean of the
+    sixteen cell-block means and averaged over splits and directions:
+    (..., n_axes, time, n, 2)."""
+    cp, sp = _projections(sums, np.concatenate([weights, np.full((1, 4, 4), 1 / 16)]))
+    a, b = _oblique(sums, cp[..., :-1] - cp[..., -1:], sp[..., :-1] - sp[..., -1:])
+    return np.stack([a, b], -1).mean((-5, -4))
+
+
+def proportion_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
+                            remove_mean=False, n_boot=1000, alpha=0.05, boot_seed=None,
+                            chunk=25):
+    """Adaptation as trajectories (plan §6): for each variable crossed with each
+    proportion, the held-out means of the variable's two levels in the 25 % and
+    75 % blocks, on the congruency and switch axes (oblique coordinates, module
+    docstring). Centred on the mean of all conditions at each time bin, the
+    same centre as `condition_trajectories`.
+
+    Arguments as for `condition_trajectories`; with the same `n_splits` and
+    `seed` the axes, halves and electrodes are the trajectories' own.
+
+    The prediction: in the own sets (congruency x incProp, switchType x
+    switchProp) the separation between the two levels differs between the 25 %
+    and 75 % blocks along the variable's own axis only; in the cross sets it
+    does not differ.
+
+    Returns ``(trajectories, changes, summary)``:
+
+    trajectories  one row per axis window (`axes`), set ('congruency x
+                  incProp', ...), condition ('i25', 'c25', 'i75', 'c75'; 's',
+                  'r' for switch type; the number is the set's proportion) and
+                  time bin: `congruency` and `switch` coordinates (HG), with
+                  participant-bootstrap CIs (`*_lo`, `*_hi`); `own` marks the
+                  own sets.
+    changes       one row per axis window, set, `axis` ('congruency',
+                  'switch') and time bin (-1 = mean over bins): the change in
+                  separation, (level 1 - level 0) at 25 % minus at 75 %, along
+                  that axis: estimate, lo, hi, excludes_0. Positive = a larger
+                  separation in the 25 % blocks (the sign of
+                  `block_separations`).
+    summary       per axis window: the axes' cosine and, per set, `own` and
+                  the overall change along each axis with its CI; electrodes
+                  and participants used; settings.
+    """
+    sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
+                                            seed, remove_mean, _PROJECTION_SUMS)
+    n_part = len(sums['cc'])
+    sets = [_set_weights(v, p) for v, p in PROPORTION_SETS]
+    weights = np.concatenate([w for _, w in sets])                # (16, 4 cells, 4 blocks)
+
+    def coordinates_and_changes(s):
+        coords = _proportion_coordinates(s, weights)              # (..., axes, time, 16, 2)
+        by_set = coords.reshape(*coords.shape[:-2], len(sets), 4, 2)
+        return coords, _with_overall(np.einsum('...sxc,x->...sc', by_set, _CHANGE), -3)
+
+    total = _weighted(sums, np.ones(n_part))
+    coords, changes = coordinates_and_changes(total)
+    cos_axes = (total['cs'] / np.sqrt(total['cc'] * total['ss'])).mean((1, 2))
+
+    # participant bootstrap; a draw only re-weights the participant sums
+    rng = np.random.default_rng(seed if boot_seed is None else boot_seed)
+    b_coords, b_changes = [], []
+    for start in range(0, n_boot, chunk):
+        w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
+                            size=min(chunk, n_boot - start)).T.astype(float)
+        bc, bch = coordinates_and_changes(_weighted(sums, w))
+        b_coords.append(bc)
+        b_changes.append(bch)
+    q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
+    co_lo, co_hi = np.percentile(np.concatenate(b_coords), q, axis=0)
+    ch_lo, ch_hi = np.percentile(np.concatenate(b_changes), q, axis=0)
+
+    n_t = coords.shape[1]
+    traj_rows, change_rows, summary = [], [], {}
+    for a, label in enumerate(axis_labels):
+        summary[label] = dict(axis_cosine=float(cos_axes[a]), sets={})
+        for s, ((var, prop), (names, _)) in enumerate(zip(PROPORTION_SETS, sets)):
+            name, own = f'{var} x {prop}', OWN_PROPORTION[var] == prop
+            for t in range(n_t):
+                for n, cond in enumerate(names):
+                    i = 4 * s + n
+                    traj_rows.append(dict(
+                        axes=label, set=name, own=own, condition=cond, window=t,
+                        **{f'{ax}{suffix}': v[a, t, i, j]
+                           for j, ax in enumerate(_AXIS_NAMES)
+                           for suffix, v in (('', coords), ('_lo', co_lo), ('_hi', co_hi))}))
+            for t, window in enumerate([*range(n_t), -1]):
+                for j, ax in enumerate(_AXIS_NAMES):
+                    lo, hi = ch_lo[a, t, s, j], ch_hi[a, t, s, j]
+                    change_rows.append(dict(axes=label, set=name, own=own, axis=ax, window=window,
+                                            estimate=changes[a, t, s, j], lo=lo, hi=hi,
+                                            excludes_0=bool(lo > 0 or hi < 0)))
+            summary[label]['sets'][name] = dict(own=own, **{
+                ax: dict(estimate=float(changes[a, -1, s, j]),
+                         ci=[float(ch_lo[a, -1, s, j]), float(ch_hi[a, -1, s, j])])
+                for j, ax in enumerate(_AXIS_NAMES)})
+    summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
+                   n_electrodes_dropped=int(sum(info['n_dropped'])),
+                   n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
+                   alpha=alpha, remove_mean=bool(remove_mean))
+    return pd.DataFrame(traj_rows), pd.DataFrame(change_rows), summary

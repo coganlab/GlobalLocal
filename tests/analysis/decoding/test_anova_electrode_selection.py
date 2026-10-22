@@ -75,6 +75,13 @@ def test_partition_is_disjoint_and_covers_every_trial():
     assert sel | dec == set(float(i) for i in range(40))
 
 
+def test_partition_with_frac_select_one_puts_every_trial_on_both_sides():
+    structure = _structure({'A': list(range(0, 20)), 'B': list(range(20, 40))})
+    parts = assign_trial_partitions(collect_subject_trial_strata([structure]), frac_select=1.0)
+    every = set(float(i) for i in range(40))
+    assert parts['D0001']['select'] == parts['D0001']['decode'] == every
+
+
 def test_partition_respects_frac_select():
     structure = _structure({'A': list(range(100))})
     parts = assign_trial_partitions(

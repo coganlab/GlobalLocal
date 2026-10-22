@@ -573,6 +573,75 @@ def test_brain_figure_falls_back_to_sagittal_projections(monkeypatch, tmp_path):
     assert sum(line.startswith('  brain ') for line in fig['lines']) == 6
 
 
+# ---------------------------------------------------------------------------
+# Figure 5 on the extremes (2026-10-22)
+# ---------------------------------------------------------------------------
+def test_top_sets_are_each_scores_top_fraction_and_their_overlap():
+    pts = pd.DataFrame(dict(x_plot=[5., 4, 0, 0, 0, 0, 0, 0, 0, 0],
+                            y_plot=[0., 4, 0, 0, 0, 0, 0, 0, 0, 5]))
+    assert sfa.top_sets(pts, frac=0.2).tolist() == \
+        ['LWPC only', 'both'] + [None] * 7 + ['LWPS only']
+
+
+def test_figure5_top_refits_the_coordinate_test_on_the_top_electrodes(tmp_path):
+    import math
+    tab, ps = _gradient_world(slope=0.02)
+    fig = sfa.figure5_top(tab, str(tmp_path), per_split=ps, n_perm=200)
+    pts = fig['points']
+    k = math.ceil(0.2 * len(pts))
+    assert pts['top'].isin(['LWPC only', 'both']).sum() == k
+    assert pts['top'].isin(['LWPS only', 'both']).sum() == k
+
+    def z_slope(d):
+        return sfa.relative_score_coordinate_test(d, n_perm=20)['all']['slopes'] \
+            .set_index('axis').loc['mni_z', 'slope_per_mm']
+    # the dashed line is figure 5's slope, the solid one the same test on the top sets
+    top = tab[tab['electrode'].isin(pts.loc[pts['top'].notna(), 'electrode'])]
+    assert fig['fits']['all']['slope'] == pytest.approx(z_slope(tab), rel=1e-6)
+    assert fig['fits']['top']['slope'] == pytest.approx(z_slope(top), rel=1e-6)
+    assert fig['fits']['top']['n_electrodes'] == len(top)
+    # the top fit's points carry their set; the all fit's carry theirs or None
+    part = fig['fits']['top']['partials']
+    assert part['top'].notna().all() and len(part) == len(top)
+    # picking the balance's two ends steepens a planted gradient: the caveat's bias
+    assert abs(fig['fits']['top']['slope']) > abs(fig['fits']['all']['slope'])
+    for name in ('fig5_height_top20.png', 'fig5_height_top20.pdf',
+                 'fig5_height_top20_points.csv', 'fig5_height_top20_partials.csv'):
+        assert (tmp_path / name).exists()
+    assert fig['brain'] is None and any('away from zero' in line for line in fig['lines'])
+
+
+def test_top_sets_brain_draws_the_rest_in_grey_then_each_set_opaque(monkeypatch, tmp_path):
+    import matplotlib.colors as mcolors
+    calls, _, lines = _fake_surface_stack(monkeypatch, tmp_path)
+    tab, _ = _gradient_world()
+    pts, edges = sfa.figure5_height_points(tab)
+    pts['top'] = sfa.top_sets(pts)
+    out = sfa.plot_top_sets_on_brain(pts, str(tmp_path / 'top.png'), edges=edges)
+
+    assert not out['fallback'] and (tmp_path / 'top_legend.png').exists()
+    n = pts['top'].value_counts()
+    assert [c['color'] for c in calls] == [mcolors.to_rgb(c) for c in
+                                           (sfa.TOP_OTHER_COLOR,
+                                            *(sfa.TOP_COLORS[s] for s in sfa.TOP_SETS))]
+    assert [c['n'] for c in calls] == [pts['top'].isna().sum(), *(n[s] for s in sfa.TOP_SETS)]
+    assert [c['alpha'] for c in calls] == [0.3, 1., 1., 1.]
+    assert len(lines) == 4                  # the two cuts on each hemisphere
+
+
+def test_figure5_top_falls_back_to_a_sagittal_projection(monkeypatch, tmp_path):
+    def no_surface(*args, **kwargs):
+        raise RuntimeError('no recon files')
+    monkeypatch.setattr(sfa, '_cuts_on_lateral_surface', no_surface)
+    tab, ps = _gradient_world(n_subj=8)
+    fig = sfa.figure5_top(tab, str(tmp_path), per_split=ps, n_perm=50, make_brain=True)
+
+    assert fig['brain']['fallback']
+    assert (tmp_path / 'fig5_height_top20_brain_sagittal.png').exists()
+    assert (tmp_path / 'fig5_height_top20.png').exists()
+    assert any('FALLBACK' in line and 'no recon files' in line for line in fig['lines'])
+
+
 def test_section19_runs_every_part_and_skips_without_a_per_split_table(tmp_path):
     tab, ps = _local_world('intermixed', n_subj=8)
     lines, out = sfa.section19(tab, ps, str(tmp_path), n_perm=100, n_boot=50)

@@ -9,20 +9,10 @@ import pandas as pd
 import pytest
 
 from src.analysis.decoding.score_electrode_selection import (
-    held_out_electrode_sets, save_score_selection, score_electrode_sets, top_fraction)
+    held_out_electrode_sets, save_score_selection, score_electrode_sets)
 from src.analysis.stats.stability_flexibility_segregation import naive_sensitivities
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
-
-def test_top_fraction_signs_and_rounding():
-    v = np.array([3.0, -5.0, 1.0, np.nan, -0.5, 4.0])
-    assert list(np.flatnonzero(top_fraction(v, 0.4, 'positive'))) == [0, 5]     # ceil(0.4*5)=2
-    assert list(np.flatnonzero(top_fraction(v, 0.4, 'negative'))) == [1, 4]
-    assert list(np.flatnonzero(top_fraction(v, 0.4, 'absolute'))) == [1, 5]
-    assert not top_fraction(v, 1.0)[3]                                          # NaN never
-    with pytest.raises(ValueError, match='sign'):
-        top_fraction(v, 0.2, 'both')
 
 
 def _scores():

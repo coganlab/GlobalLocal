@@ -40,6 +40,7 @@ if project_root not in sys.path:
 # Import after path is set up
 from dcc_scripts.power.power_traces_dcc import main
 from src.analysis.config import experiment_conditions
+from src.analysis.config.rois import select_rois
 from src.analysis.utils.anova_label_selection import anova_label_run_slug
 
 # ============================================================================
@@ -190,6 +191,11 @@ ROIS_DICT = {
 ROIS_DICT = {
       'dlpfc': ["G_front_middle", "G_front_sup", "S_front_inf", "S_front_middle", "S_front_sup"],
 }
+
+# ROIS in the environment (comma-separated names from config/rois.py) replaces
+# the dict above, e.g. ROIS=lpfc to measure a score selection made in lPFC.
+if os.environ.get('ROIS'):
+    ROIS_DICT = select_rois(os.environ['ROIS'])
 
 
 # ROIS_DICT = {

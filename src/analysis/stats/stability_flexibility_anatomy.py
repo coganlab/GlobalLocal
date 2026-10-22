@@ -118,6 +118,8 @@ import warnings
 import numpy as np
 import pandas as pd
 
+from src.analysis.utils.ranking import top_fraction
+
 GROUPS = ["both", "S_only", "F_only", "neither"]
 # colour-blind-safe, matched to the segregation summary figure (STAB / FLEX)
 GROUP_COLORS = {
@@ -670,7 +672,9 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
                            foci=None, lines=None, **vis_kwargs):
     """Render colour-coded electrode sets on the fsaverage brain. Raises on failure.
 
-    ``sets`` is a list of ``(name, {subject: [channels]}, colour)``. Each set is
+    ``sets`` is a list of ``(name, {subject: [channels]}, colour)``, with an
+    optional fourth item, the set's opacity (default: ``vis_kwargs``'
+    ``elec_alpha``, else opaque). Each set is
     drawn in one ``plot_on_average`` call onto the SAME ``Brain``, which is the
     only thing the renderer supports (one colour per call) and is why both the
     discrete group figure and the continuous score map are expressed as a list of
@@ -739,17 +743,18 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
     base, _ = os.path.splitext(out_path)
 
     picks = [(name, sorted(electrodes_to_global_indices(by_subject, offsets)),
-              mcolors.to_rgb(color)) for name, by_subject, color in sets]
+              mcolors.to_rgb(color), dict(vis_kwargs, elec_alpha=alpha[0]) if alpha else vis_kwargs)
+             for name, by_subject, color, *alpha in sets]
 
     fig = None
-    for name, idx, rgb in picks:
+    for name, idx, rgb, kw in picks:
         if not idx:
             print(f"[A3] {name}: no electrodes to plot.")
             continue
         fig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
                               hemi=hemi, color=rgb, size=size,
                               transparency=transparency, fig=fig, show=show,
-                              **vis_kwargs)
+                              **kw)
     if fig is None:
         raise RuntimeError("no electrodes in any set to plot")
     # ``add_foci`` takes positions in the Brain's units, which ``plot_on_average``
@@ -784,13 +789,13 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
 
     per_set = {}
     if per_set_figures:
-        for name, idx, rgb in picks:
+        for name, idx, rgb, kw in picks:
             if not idx:
                 continue
             sfig = plot_on_average(subjects_no_zeros, picks=idx, rm_wm=rm_wm,
                                    hemi=hemi, color=rgb, size=size,
                                    transparency=transparency, show=show,
-                                   **vis_kwargs)
+                                   **kw)
             path = f"{base}_{name}.png"
             saved = save_brain_image(sfig, path)
             sfig.close()
@@ -803,7 +808,7 @@ def _render_electrode_sets(sets, out_path, subjects, hemi='both', size=0.45,
             print(f"[A3] brain figure ({name}) -> {path}")
 
     return dict(combined=out_path, per_set=per_set,
-                counts={name: len(idx) for name, idx, _ in picks})
+                counts={name: len(idx) for name, idx, *_ in picks})
 
 
 def plot_selectivity_groups_on_brain(labels_with_roi, out_path, coverage=None,
@@ -2404,6 +2409,15 @@ _FIG5_RC = {'font.size': 6.5, 'axes.labelsize': 6.5, 'axes.labelcolor': _INK,
             'axes.spines.right': False, 'pdf.fonttype': 42, 'ps.fonttype': 42}
 
 
+def _sagittal_cuts(ax, edges):
+    """The inner band cuts across a sagittal projection, each labelled with its height."""
+    for e in edges[1:-1]:
+        ax.axhline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)))
+        ax.text(0.99, e, f'z = {e:.0f} mm', transform=ax.get_yaxis_transform(),
+                va='bottom', ha='right', fontsize=5.5, color=_INK,
+                bbox=dict(boxstyle='square,pad=0.1', fc='white', ec='none', alpha=0.85))
+
+
 def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
                                 electrode_alpha=1.):
     """The electrodes on a sagittal projection (MNI y against ``axis``) in their
@@ -2414,11 +2428,7 @@ def _draw_height_bands_sagittal(ax, points, edges, axis='mni_z', centroids=None,
         g = points[points['band'] == band]
         ax.scatter(g['mni_y'], g[axis], s=4, color=HEIGHT_COLORS[band], alpha=electrode_alpha,
                    linewidths=0, rasterized=True)
-    for e in edges[1:-1]:
-        ax.axhline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)))
-        ax.text(0.99, e, f'z = {e:.0f} mm', transform=ax.get_yaxis_transform(),
-                va='bottom', ha='right', fontsize=5.5, color=_INK,
-                bbox=dict(boxstyle='square,pad=0.1', fc='white', ec='none', alpha=0.85))
+    _sagittal_cuts(ax, edges)
     if centroids is not None:
         for c in centroids.itertuples():
             ax.scatter([c.mni_y], [getattr(c, axis)], s=12,
@@ -2956,6 +2966,328 @@ def figure5_height(scores, out_dir, per_split=None, seg_dir=None, coord_res=None
     return dict(points=pts, centroids=cents, balance=balance, stat=stat, edges=edges,
                 files=paths, lines=lines, check_slope=chk_slope, brain_centroids=brain_cents,
                 brain=brain, partials=partials)
+
+
+# ---------------------------------------------------------------------------
+# Figure 5 on the extremes: the top LWPC and top LWPS electrodes
+# (advisor request, 2026-10-22)
+# ---------------------------------------------------------------------------
+# The same three panels with only the electrodes furthest along each score in
+# colour, and panel c's height slope refit on them alone. Picking the extremes
+# of LWPC and of LWPS also picks the extremes of their difference, the balance
+# panel c fits, and selecting on the outcome pushes a slope away from zero by
+# itself. So a steeper slope here would not by itself mean a stronger gradient;
+# the permutation p still tests whether these electrodes have a gradient at all.
+# Colours as the A1 groups: blue the LWPC side, orange the LWPS side, green both.
+TOP_SETS = ('LWPC only', 'LWPS only', 'both')
+TOP_COLORS = {'LWPC only': GROUP_COLORS['S_only'], 'LWPS only': GROUP_COLORS['F_only'],
+              'both': GROUP_COLORS['both']}
+TOP_OTHER_COLOR = GROUP_COLORS['neither']
+
+
+def top_sets(points, frac=0.2):
+    """Each electrode's place among the extremes: 'LWPC only', 'LWPS only' or
+    'both' when it is in the top ``frac`` of LWPC, of LWPS or of both (largest
+    positive, :func:`~src.analysis.utils.ranking.top_fraction`), else None.
+
+    Ranked on :func:`figure5_height_points`' plotted scores (responsiveness
+    regressed out, participant-centred) with all its electrodes pooled, so the
+    sets are the points furthest right and furthest up on panel b.
+    """
+    in_x = top_fraction(points['x_plot'], frac)
+    in_y = top_fraction(points['y_plot'], frac)
+    label = np.full(len(points), None, dtype=object)
+    label[in_y] = 'LWPS only'
+    label[in_x] = 'LWPC only'
+    label[in_x & in_y] = 'both'
+    return pd.Series(label, index=points.index)
+
+
+def _draw_top_sets(ax, points, x, y, size=5):
+    """``points`` (with a ``top`` column) at columns ``x`` and ``y``: the other
+    electrodes in grey, then each top set in its colour on top of them."""
+    rest = points[points['top'].isna()]
+    ax.scatter(rest[x], rest[y], s=size, color=TOP_OTHER_COLOR, alpha=0.6, linewidths=0,
+               rasterized=True, zorder=2)
+    for name in TOP_SETS:
+        g = points[points['top'] == name]
+        ax.scatter(g[x], g[y], s=1.6 * size, color=TOP_COLORS[name], alpha=0.9, linewidths=0,
+                   rasterized=True, zorder=3)
+
+
+def _draw_top_sets_sagittal(ax, points, edges, axis='mni_z'):
+    """The top sets on a sagittal projection (MNI y against ``axis``) with the
+    band cuts: panel a, and the brain figure, when the surface cannot render."""
+    _draw_top_sets(ax, points.dropna(subset=['mni_y', axis]), 'mni_y', axis)
+    if edges is not None:
+        _sagittal_cuts(ax, edges)
+    ax.set(xlabel='MNI y (mm), posterior → anterior', ylabel=f'MNI {axis[-1]} (mm)')
+    ax.set_aspect('equal', adjustable='datalim')
+
+
+def plot_top_sets_on_brain(points, out_path, edges=None, axis='mni_z', subjects=None,
+                           hemi='both', size=0.45, other_alpha=0.3, transparency=0.4,
+                           rm_wm=False, **vis_kwargs):
+    """The top sets on the fsaverage brain: each set opaque in its colour
+    (``TOP_COLORS``) over the other electrodes in grey at ``other_alpha``, and
+    with ``edges`` the height cuts as dark lines across each hemisphere.
+
+    Same renderer and arguments as :func:`plot_height_bands_on_brain`.
+    ``points``: :func:`figure5_top`'s table (a ``top`` column, MNI
+    coordinates). Writes ``<out>_legend.png`` beside the figure; without the
+    surface stack or the recon files it falls back to one sagittal projection
+    (``<out>_sagittal.png``).
+
+    Returns dict with ``combined`` (the path written), ``legend``, ``counts``
+    and ``fallback`` (plus ``error`` when it fell back).
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+
+    base, _ = os.path.splitext(out_path)
+    out_path = base + '.png'
+    d = points.dropna(subset=['mni_x', 'mni_y', axis])
+    if not subjects:
+        subjects = sorted(d['subject'].astype(str).unique())
+
+    with plt.rc_context(_FIG5_RC):
+        fig = plt.figure(figsize=(4.2, 0.4))
+        fig.legend(handles=[Line2D([], [], marker='o', ls='', color=TOP_COLORS[n], markersize=4,
+                                   label=n) for n in TOP_SETS]
+                   + [Line2D([], [], marker='o', ls='', color=TOP_OTHER_COLOR, markersize=4,
+                             alpha=other_alpha, label='other electrodes')],
+                   loc='center', ncol=4, frameon=False, fontsize=5.5, handletextpad=0.2,
+                   columnspacing=0.9)
+        legend = f'{base}_legend.png'
+        fig.savefig(legend, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+
+    # grey first, so the sets are drawn over it
+    sets = ([('other', electrodes_by_subject(d[d['top'].isna()]), TOP_OTHER_COLOR, other_alpha)]
+            + [(n, electrodes_by_subject(d[d['top'] == n]), TOP_COLORS[n], 1.) for n in TOP_SETS])
+    try:
+        cuts = ([(start, end, h, _INK, 0.5) for start, end, h in _cuts_on_lateral_surface(
+                    edges[1:-1], subjects_dir=vis_kwargs.get('subj_dir'), axis=axis)]
+                if edges is not None else [])
+        rendered = _render_electrode_sets(sets, out_path, subjects=subjects, hemi=hemi,
+                                          size=size, transparency=transparency, rm_wm=rm_wm,
+                                          lines=cuts, **vis_kwargs)
+        return dict(combined=rendered['combined'], legend=legend, counts=rendered['counts'],
+                    fallback=False)
+    except Exception as exc:
+        print(f"[F5 top] brain-surface render unavailable ({type(exc).__name__}: {exc}); "
+              f"falling back to a sagittal projection.")
+        fallback = f'{base}_sagittal.png'
+        with plt.rc_context(_FIG5_RC):
+            fig, ax = plt.subplots(figsize=(3.2, 2.6))
+            _draw_top_sets_sagittal(ax, d, edges, axis=axis)
+            fig.savefig(fallback, dpi=300, bbox_inches='tight', pad_inches=0.03)
+            plt.close(fig)
+        return dict(combined=fallback, legend=legend, counts=None, fallback=True,
+                    error=f"{type(exc).__name__}: {exc}")
+
+
+def plot_figure5_top(points, fits, stat, edges, out_stem, frac, axis='mni_z', slope=None,
+                     brain_png=None):
+    """Draw Figure 5 on the extremes and write ``<out_stem>.png``/``.pdf``.
+
+    a, the top sets on the brain (``brain_png``, white margins trimmed), or on
+    a sagittal projection when there is no render; b, LWPC against LWPS with
+    the top sets in colour, the identity line, each score's top-``frac`` cut
+    and the pre-specified r, over the full range of the points (the extremes
+    are the point, so none is cropped); c, the balance against height: the
+    other electrodes in grey from the fit on every electrode, the top sets in
+    colour from the fit on them alone, each fit's line through its own points
+    (dashed: every electrode; solid: the top sets), and the slope tests in
+    ``slope`` (a list of text lines). Inputs as :func:`figure5_top` builds them.
+    """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.lines import Line2D
+    from src.analysis.utils.image_utils import trim_whitespace
+
+    pct = f'{100 * frac:g} %'
+    every, top = fits['all']['partials'], fits['top']['partials']
+    with plt.rc_context(_FIG5_RC):
+        fig = plt.figure(figsize=(7.2, 5.0))
+        rows = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.15], hspace=0.4,
+                                left=0.07, right=0.98, top=0.95, bottom=0.18)
+        ax_a = fig.add_subplot(rows[0])
+        bottom = rows[1].subgridspec(1, 2, width_ratios=[1.0, 1.3], wspace=0.35)
+        ax_b, ax_c = (fig.add_subplot(bottom[0, i]) for i in range(2))
+
+        # a: where the top electrodes are
+        if brain_png and os.path.exists(brain_png):
+            ax_a.imshow(trim_whitespace(plt.imread(brain_png)))
+            ax_a.set_axis_off()
+        else:
+            _draw_top_sets_sagittal(ax_a, points, edges, axis=axis)
+        ax_a.set_title(f'Top {pct} of electrodes by LWPC and by LWPS (height cuts at MNI '
+                       f'{axis[-1]} = {edges[1]:.0f} and {edges[2]:.0f} mm)', loc='left',
+                       fontsize=7, color=_INK)
+
+        # b: the extremes are the points furthest right and furthest up
+        _draw_top_sets(ax_b, points, 'x_plot', 'y_plot')
+        vals = points[['x_plot', 'y_plot']].to_numpy(float)
+        lo, hi = np.nanmin(vals), np.nanmax(vals)
+        pad = 0.06 * (hi - lo)
+        lo, hi = lo - pad, hi + pad
+        ax_b.plot([lo, hi], [lo, hi], color=_MUTED, lw=0.7, zorder=1)
+        cut = dict(color=_MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
+        ax_b.axvline(points.loc[points['top'].isin(['LWPC only', 'both']), 'x_plot'].min(), **cut)
+        ax_b.axhline(points.loc[points['top'].isin(['LWPS only', 'both']), 'y_plot'].min(), **cut)
+        ax_b.set(xlim=(lo, hi), ylim=(lo, hi), aspect='equal',
+                 xlabel='LWPC (SD units)', ylabel='LWPS (SD units)')
+        ax_b.set_title('Adaptation by electrode', loc='left', fontsize=7, color=_INK)
+        if stat is not None:
+            # bottom left: low on both scores, the one corner no top set reaches
+            ax_b.text(0.03, 0.03,
+                      f"r = {_fmt_r(stat['corr'])}, p = {_fmt_p(stat['p'])}\n"
+                      f"{stat['n_electrodes']} electrodes, {stat['n_subjects']} participants",
+                      transform=ax_b.transAxes, ha='left', va='bottom', fontsize=5.5,
+                      color=_INK, linespacing=1.3,
+                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
+
+        # c: the balance along height, refit on the top electrodes
+        _draw_top_sets(ax_c, pd.concat([every[every['top'].isna()], top]), axis, 'partial')
+        for fit, ls in ((every, (0, (4, 2))), (top, '-')):
+            b1, b0 = np.polyfit(fit[axis].to_numpy(float), fit['partial'].to_numpy(float), 1)
+            zs = np.array([fit[axis].min(), fit[axis].max()])
+            ax_c.plot(zs, b0 + b1 * zs, color=_INK, lw=0.9, ls=ls, zorder=4)
+        ax_c.axhline(0, color=_RULE, lw=0.6, zorder=0)
+        for e in edges[1:-1]:
+            ax_c.axvline(e, color=_MUTED, lw=0.6, ls=(0, (3, 2)), zorder=1)
+        ax_c.set(xlabel=f'height, MNI {axis[-1]} (mm)', ylabel='LWPC − LWPS (SD units)')
+        ax_c.set_title('Balance by height', loc='left', fontsize=7, color=_INK)
+        if slope:
+            # the bottom corner the top line leaves free: falling -> left, rising -> right
+            ax_c.text(0.03 if b1 < 0 else 0.97, 0.03, '\n'.join(slope),
+                      transform=ax_c.transAxes, ha='left' if b1 < 0 else 'right', va='bottom',
+                      fontsize=5.5, color=_INK, linespacing=1.3,
+                      bbox=dict(boxstyle='square,pad=0.2', fc='white', ec='none', alpha=0.85))
+
+        box_b, box_c = ax_b.get_position(), ax_c.get_position()
+        fig.legend(handles=[Line2D([], [], marker='o', ls='', color=TOP_COLORS[n], markersize=4,
+                                   label=n) for n in TOP_SETS]
+                   + [Line2D([], [], marker='o', ls='', color=TOP_OTHER_COLOR, markersize=4,
+                             label='other electrodes'),
+                      Line2D([], [], color=_INK, lw=0.9, label=f'c: fit, top {pct}'),
+                      Line2D([], [], color=_INK, lw=0.9, ls=(0, (4, 2)),
+                             label='c: fit, all electrodes')],
+                   loc='upper center', bbox_to_anchor=((box_b.x0 + box_c.x1) / 2, 0.08),
+                   ncol=6, frameon=False, fontsize=5.5, handletextpad=0.2, columnspacing=0.9,
+                   title=f'top {pct} by LWPC, by LWPS, or by both; c: each fit with participant, '
+                         'responsiveness and the other two coordinates removed\nPicking the '
+                         'extremes of LWPC and LWPS also picks the extremes of LWPC − LWPS, '
+                         'which pushes the top fit\'s slope away from zero by itself',
+                   title_fontsize=5.5)
+
+        for ax, letter, x, y in ((ax_a, 'a', -0.02, 1.02), (ax_b, 'b', -0.3, 1.1),
+                                 (ax_c, 'c', -0.17, 1.1)):
+            ax.text(x, y, letter, transform=ax.transAxes, fontsize=9,
+                    fontweight='bold', va='bottom', ha='left', color=_INK)
+        paths = [f'{out_stem}.{ext}' for ext in ('png', 'pdf')]
+        for p in paths:
+            fig.savefig(p, dpi=300, bbox_inches='tight', pad_inches=0.03)
+        plt.close(fig)
+    return paths
+
+
+def figure5_top(scores, out_dir, frac=0.2, per_split=None, seg_dir=None, axis='mni_z',
+                coord_cols=('mni_y', 'mni_z', 'mni_x'), min_elec=3, n_perm=10000, seed=1,
+                make_brain=False, brain_kwargs=None):
+    """Figure 5 with the top ``frac`` of electrodes by LWPC and by LWPS picked
+    out and panel c's height slope refit on them, with its tables, in
+    ``out_dir``.
+
+    The sets are :func:`top_sets` of :func:`figure5_height_points`' scores.
+    Both of panel c's fits are the coordinate test
+    (:func:`relative_score_coordinate_test`: ``delta ~ y + z + x +
+    responsiveness + participant``, ``n_perm`` within-electrode swaps), once on
+    every electrode and once on the union of the top sets. A participant with
+    one top electrode is absorbed by its own intercept and does not inform the
+    top fit; the summary counts the participants that do. Panel b's r is the
+    pre-specified test, taken as in :func:`figure5_height`. ``scores``:
+    :func:`attach_scores`' table with coordinates.
+
+    Writes, with ``prefix`` = ``fig5_height_top<100 frac>`` (``fig5_height_top20``
+    by default): ``<prefix>.png``/``.pdf``; ``<prefix>_points.csv`` (the points
+    with their ``top`` set); ``<prefix>_partials.csv`` (both fits' points,
+    ``fit`` = 'all' or 'top'); and with ``make_brain`` ``<prefix>_brain.png``
+    (:func:`plot_top_sets_on_brain`, which takes ``brain_kwargs``; it needs the
+    recon files and a display). Without it panel a reuses a render already in
+    ``out_dir``, else draws the sagittal projection.
+
+    Returns dict with ``prefix``, ``points``, ``edges``, ``stat``, ``fits`` (per
+    fit: ``partials``, ``slope`` in SD/mm, ``p``, ``n_electrodes``,
+    ``n_participants``, ``n_informative``), ``brain``, ``files`` and ``lines``.
+    """
+    prefix = f'fig5_height_top{100 * frac:g}'
+    pct = f'{100 * frac:g} %'
+    pts, edges = figure5_height_points(scores, axis, min_elec)
+    pts['top'] = top_sets(pts, frac)
+    stat = None
+    try:
+        stat = _figure5_test(pts, scores, os.path.join(seg_dir, 'correlation.json')
+                             if seg_dir else None, lambda ps: ps, per_split, seg_dir,
+                             min_elec, n_perm, seed)
+    except ValueError as exc:
+        print(f"[F5 top] panel b without its test: {exc}")
+
+    top_of = pts.set_index('electrode')['top']
+    fits = {}
+    for name, d in (('all', scores), ('top', scores[scores['electrode'].map(top_of).notna()])):
+        sl = relative_score_coordinate_test(d, n_perm=n_perm, seed=seed, coord_cols=coord_cols,
+                                            by_hemisphere=False)['all']['slopes'].set_index('axis')
+        partials, slope = height_partial_residuals(d, edges, axis=axis, coord_cols=coord_cols)
+        partials['top'] = partials['electrode'].map(top_of)
+        per_participant = partials.groupby('subject').size()
+        fits[name] = dict(partials=partials, slope=slope,
+                          p=float(sl.loc[axis, 'p']) if axis in sl.index else np.nan,
+                          n_electrodes=len(partials), n_participants=len(per_participant),
+                          n_informative=int((per_participant >= 2).sum()))
+    slope_lines = [f"{label}: {axis[-1]} slope {f['slope']:+.4f} SD/mm, "
+                   f"p = {_fmt_p(f['p'])}".replace('-', '−')
+                   for label, f in ((f'top {pct}', fits['top']), ('all', fits['all']))]
+
+    os.makedirs(out_dir, exist_ok=True)
+    brain, brain_png = None, os.path.join(out_dir, f'{prefix}_brain.png')
+    if make_brain:
+        brain = plot_top_sets_on_brain(pts, brain_png, edges=edges, axis=axis,
+                                       **(brain_kwargs or {}))
+        if brain['fallback']:
+            brain_png = None            # panel a draws its own sagittal view
+    pts.to_csv(os.path.join(out_dir, f'{prefix}_points.csv'), index=False)
+    pd.concat([f['partials'].assign(fit=name) for name, f in fits.items()]).to_csv(
+        os.path.join(out_dir, f'{prefix}_partials.csv'), index=False)
+    paths = plot_figure5_top(pts, fits, stat, edges, os.path.join(out_dir, prefix), frac,
+                             axis=axis, slope=slope_lines, brain_png=brain_png)
+
+    counts = pts['top'].value_counts()
+    lines = [f"  FIGURE 5, TOP {pct} OF LWPC AND OF LWPS — "
+             f"{', '.join(os.path.basename(p) for p in paths)}, {prefix}_points.csv, "
+             f"{prefix}_partials.csv",
+             f"  sets, of {len(pts)} electrodes: "
+             + ', '.join(f"{n} {int(counts.get(n, 0))}" for n in TOP_SETS)]
+    if brain is not None:
+        lines.append(f"  brain: {os.path.basename(brain['combined'])}"
+                     + (f"  (FALLBACK, the surface did not render: {brain['error']})"
+                        if brain['fallback'] else ''))
+    if stat is not None:
+        lines.append(f"  b  LWPC vs LWPS r = {stat['corr']:+.3f}  p = {_fmt_p(stat['p'])}  "
+                     f"[{stat['source']}]")
+    for label, f in ((f'top {pct}', fits['top']), ('all', fits['all'])):
+        lines.append(f"  c  {label}: {axis} slope {f['slope']:+.5f}/mm (p = {_fmt_p(f['p'])}); "
+                     f"{f['n_electrodes']} electrodes, {f['n_participants']} participants "
+                     f"({f['n_informative']} with two or more, the ones that inform the slope)")
+    lines.append("  c  picking the extremes of LWPC and LWPS picks the extremes of LWPC − LWPS, "
+                 "which pushes the top slope away from zero by itself: a steeper slope would "
+                 "not by itself mean a stronger gradient")
+    return dict(prefix=prefix, points=pts, edges=edges, stat=stat, fits=fits, brain=brain,
+                files=paths, lines=lines)
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,7 @@
+  FIGURE 5, TOP 20 % OF LWPC AND OF LWPS — fig5_height_top20.png, fig5_height_top20.pdf, fig5_height_top20_points.csv, fig5_height_top20_partials.csv
+  sets, of 275 electrodes: LWPC only 39, LWPS only 39, both 16
+  brain: fig5_height_top20_brain.png
+  b  LWPC vs LWPS r = +0.094  p = 0.0015  [/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/stats/results/Stimulus_-1.0to1.5sec_decFactor_8_outliers_10_drop_and_nan_thresh_perc_5.0_70.0-150.0_Hz_padLength_1.5s_filterbank_hilbert_stat_func_ttest_zmax_20/segregation_results/window_0.0to1.5s_all_dlpfc_proportion_cohens_d_fdr_bh_main_effects/correlation.json]
+  c  top 20 %: mni_z slope +0.00869/mm (p = 0.52); 94 electrodes, 19 participants (13 with two or more, the ones that inform the slope)
+  c  all: mni_z slope -0.01012/mm (p = 0.032); 277 electrodes, 21 participants (19 with two or more, the ones that inform the slope)
+  c  picking the extremes of LWPC and LWPS picks the extremes of LWPC − LWPS, which pushes the top slope away from zero by itself: a steeper slope would not by itself mean a stronger gradient

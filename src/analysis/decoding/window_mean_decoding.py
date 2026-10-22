@@ -23,6 +23,10 @@ on all of its electrodes. The accuracies then mix what each electrode carries
 with how many there are, but the permutation test still compares each group
 with random groups of its own size.
 
+:func:`accuracy_by_electrode_count` shows the size effect itself: each group
+decoded on random subsets of 1, 2, 4, ... electrodes up to its whole size, so
+the groups can be compared at any count.
+
 Computation only: callers load the data, save the results and plot them.
 """
 
@@ -123,7 +127,8 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
         differences (the matched null is symmetric about zero).
     n_perm : int
         Membership permutations per pair. The p-value cannot go below
-        1 / (n_perm + 1) (2 / (n_perm + 1) unmatched).
+        1 / (n_perm + 1) (2 / (n_perm + 1) unmatched). 0 decodes the groups
+        and tests nothing (``tests`` is empty).
     seed : int
         Seeds the electrode draws, the CV splits and the permutations.
 
@@ -159,6 +164,8 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
     names = list(groups)
     pairs = list(pairs) if pairs is not None else [
         (a, b) for i, a in enumerate(names) for b in names[i + 1:]]
+    if not n_perm:
+        pairs = []
 
     # every group at the matched size (or whole); the shuffled-label decode
     # gives chance
@@ -214,3 +221,73 @@ def compare_electrode_groups(datasets, channels, groups, pairs=None, n_match=Non
         tests['p_holm'] = multipletests(tests['p'], method='holm')[1]
     return dict(accuracies=acc, summary=summary, tests=tests, n_match=n_match,
                 group_sizes=sizes, null=nulls)
+
+
+def electrode_counts(size, spacing='log', step=20):
+    """Electrode counts for an accuracy-by-count curve up to ``size``: powers of
+    two from 1 (``'log'``) or multiples of ``step`` (``'linear'``), always ending
+    at ``size`` itself."""
+    if spacing == 'log':
+        counts = 2 ** np.arange(int(np.log2(size)) + 1)
+    elif spacing == 'linear':
+        counts = np.arange(step, size, step)
+    else:
+        raise ValueError(f"spacing must be 'log' or 'linear', not {spacing!r}")
+    return sorted({int(c) for c in counts} | {int(size)})
+
+
+def accuracy_by_electrode_count(datasets, channels, groups, step=20, n_subsets=10, seed=0,
+                                n_jobs=1, clf=None, explained_variance=0.9, n_splits=5,
+                                n_repeats=5):
+    """Accuracy of each group decoded on random subsets of its electrodes, at
+    every count on the log and linear grids of :func:`electrode_counts`.
+
+    In every bootstrap, ``n_subsets`` independent random subsets of each count
+    are decoded, so the spread at a count shows how much accuracy depends on
+    which electrodes are picked as well as on the pseudo-trials. A group's full
+    size has only one subset; it is decoded once per bootstrap with
+    :func:`compare_electrode_groups`' CV seeds, so it equals that group's
+    unmatched bar. ``datasets``, ``channels``, ``groups`` and the decoder
+    arguments are as in :func:`compare_electrode_groups`; ``seed`` seeds the
+    subsets (per group and count, so changing the grid leaves the other points
+    alone) and the CV splits.
+
+    Returns
+    -------
+    dict
+        ``accuracies``: one row per group, count, bootstrap and subset, with the
+        accuracy (mean over CV repeats) and whether the count is on the log and
+        on the linear grid; ``summary``: per group and count, mean accuracy and
+        its 2.5-97.5 percentiles over bootstraps x subsets.
+    """
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    clf = LinearDiscriminantAnalysis() if clf is None else clf
+    decode_kw = dict(clf=clf, explained_variance=explained_variance, n_splits=n_splits,
+                     n_repeats=n_repeats)
+    index = {c: i for i, c in enumerate(channels)}
+    jobs = []   # (row of the accuracy table, columns to decode)
+    for gi, (g, chans) in enumerate(groups.items()):
+        members = np.array(sorted(index[c] for c in chans if c in index))
+        if len(members) == 0:
+            continue
+        log_grid, linear_grid = (electrode_counts(len(members), s, step)
+                                 for s in ('log', 'linear'))
+        for n in sorted(set(log_grid) | set(linear_grid)):
+            rng = np.random.default_rng([seed, gi, n])
+            for b in range(len(datasets)):
+                for k in range(1 if n == len(members) else n_subsets):
+                    row = dict(group=g, n_electrodes=n, bootstrap=b, subset=k,
+                               log_grid=n in log_grid, linear_grid=n in linear_grid)
+                    jobs.append((row, _group_columns(members, n, rng)))
+    accs = Parallel(n_jobs=n_jobs)(
+        delayed(decode_accuracy)(*datasets[row['bootstrap']], cols,
+                                 random_state=seed + row['bootstrap'], **decode_kw)
+        for row, cols in jobs)
+    acc = pd.DataFrame([dict(row, accuracy=a.mean()) for (row, _), a in zip(jobs, accs)])
+    summary = (acc.groupby(['group', 'n_electrodes'], sort=False)
+               .agg(mean=('accuracy', 'mean'),
+                    lo=('accuracy', lambda a: np.percentile(a, 2.5)),
+                    hi=('accuracy', lambda a: np.percentile(a, 97.5)),
+                    log_grid=('log_grid', 'first'), linear_grid=('linear_grid', 'first'))
+               .reset_index())
+    return dict(accuracies=acc, summary=summary)
