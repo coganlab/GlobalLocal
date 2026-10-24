@@ -17,7 +17,10 @@ What is pinned:
   * the block separations match a direct one-split computation, and a planted
     adaptation of each code lands on its own proportion and not the other;
   * the proportion trajectories put each planted change on its own axis in
-    oblique coordinates, with partly shared axes.
+    oblique coordinates, with partly shared axes;
+  * raw-axis trajectories (`first=None`) are the projections on the unit c and
+    s axes, with unchanged plane fractions; unique-axis block separations
+    drop an adaptation along the shared direction.
 """
 import warnings
 
@@ -128,6 +131,14 @@ def test_noise_free_cells_sit_at_half_the_effects():
     # the evoked response is in every cell: centring removes it, uncentred keeps it
     u = _centred(traj, 'uncentred')
     assert (u['x'] - m['x']).to_numpy() == pytest.approx(5.0 * x_hat.sum())
+
+    raw_traj, raw_frac, _ = _run(evoked, times, first=None)
+    raw = _centred(raw_traj)
+    c_s = np.tile(c, N_SUBJ) @ (s_all / np.linalg.norm(s_all))
+    assert np.allclose(raw['x'], m['x'])
+    assert raw.loc['incongruent-switch', 'y'] == pytest.approx((np.linalg.norm(s_all) + c_s) / 2)
+    assert raw.loc['congruent-switch', 'y'] == pytest.approx((np.linalg.norm(s_all) - c_s) / 2)
+    assert np.allclose(raw_frac['plane_fraction'], frac['plane_fraction'])
 
     swapped = _centred(_run(evoked, times, first='switch')[0])
     assert swapped.loc['incongruent-switch', 'x'] == pytest.approx(np.linalg.norm(s_all) / 2
@@ -258,6 +269,38 @@ def test_planted_adaptation_lands_on_its_own_proportion():
     assert summary['axes']['all']['congruency']['incProp']['estimate'] == pytest.approx(
         2 * g * _norm(c))
     assert summary['n_electrodes'] == N_SUBJ * N_ELEC
+
+    cons_u = _run_blocks(_with_terms(df, adaptation), times, unique=True)[1]
+    u = cons_u[cons_u['window'] == -1].set_index(['variable', 'contrast'])['estimate']
+    c_all, s_all = np.tile(c, N_SUBJ), np.tile(s, N_SUBJ)
+    c_perp = c_all - (c_all @ s_all) / (s_all @ s_all) * s_all
+    s_perp = s_all - (c_all @ s_all) / (c_all @ c_all) * c_all
+    assert u['congruency', 'incProp'] == pytest.approx(2 * g * np.linalg.norm(c_perp))
+    assert u['congruency', 'switchProp'] == pytest.approx(0, abs=1e-9)
+    assert u['switchType', 'switchProp'] == pytest.approx(2 * h * np.linalg.norm(s_perp))
+
+
+def test_unique_axes_ignore_an_adaptation_along_the_shared_direction():
+    """A switch-separation change with switchProp planted along c only (the
+    switch axis stays s, since blocks are weighted equally): on the raw switch
+    axis it shows as 2h (c . s_hat); on the unique axis, orthogonal to c, as 0."""
+    rng = np.random.default_rng(7)
+    c, s = rng.normal(size=(2, N_ELEC))
+    h = 0.3
+    df, times = _trial_long(c, s, n_subj=N_SUBJ, n_elec=N_ELEC, n_time=2, noise=0.0)
+
+    def along_c(t):
+        xs = np.where(t['switchType'] == 's', 0.5, -0.5)
+        low_sw = np.where(t['switch_proportion'] == 25, 1.0, -1.0)
+        return np.outer(xs * low_sw, h * c)
+
+    planted = _with_terms(df, along_c)
+    c_all, s_all = np.tile(c, N_SUBJ), np.tile(s, N_SUBJ)
+    for unique, want in ((False, 2 * h * c_all @ s_all / np.linalg.norm(s_all)), (True, 0.0)):
+        cons = _run_blocks(planted, times, unique=unique)[1]
+        got = cons[(cons['window'] == -1) & (cons['variable'] == 'switchType')
+                   & (cons['contrast'] == 'switchProp')]['estimate'].item()
+        assert got == pytest.approx(want, abs=1e-9), unique
 
 
 def _run_props(df, times, n_splits=4, **kw):

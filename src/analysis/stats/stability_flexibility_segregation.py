@@ -929,6 +929,11 @@ def compute_sensitivities_per_window(df, times, window_size, step_size, **kwargs
 # their weights: +1/2 (cond pos) or -1/2 (cond neg) in each `mod` block.
 _MAIN_CELLS = ((1.0, 1.0), (0.0, 1.0), (1.0, 0.0), (0.0, 0.0))
 _MAIN_WEIGHTS = np.array([W_MAIN[c] for c in _MAIN_CELLS])
+# The same four cells scored as the main effect (W_MAIN) or as the interaction
+# with the proportion (W_INTERACTION: the effect at low minus at high
+# proportion, i.e. LWPC for congruency and LWPS for switch type).
+_EFFECT_WEIGHTS = {'main': _MAIN_WEIGHTS,
+                   'interaction': np.array([W_INTERACTION[c] for c in _MAIN_CELLS])}
 # The two main effects as cell systems for `half_cell_means`: congruency over
 # the congruency x incProp cells, switch type over switch type x switchProp.
 _MAIN_SYSTEMS = {'mx': (('_scond', '_smod'), _MAIN_CELLS),
@@ -1023,7 +1028,7 @@ def half_cell_means(df, hg_windows, systems, halves, remove_mean=False):
 
 
 def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=False,
-                           halves=None):
+                           halves=None, effect='main'):
     """Congruency and switch-type main effects as mean differences, in many
     windows at once, on shared trial halves.
 
@@ -1044,12 +1049,19 @@ def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=Fal
     electrodes: A4's `remove_mean`, the overall-activity control of
     docs/analysis_plans.md, subspace plan §3.3. `halves` (from `shared_halves`)
     replaces the draw from `n_splits` and `seed`, to score other HG on exactly
-    the same trials.
+    the same trials. `effect='interaction'` scores the same cells as the
+    interaction with the proportion instead: congruency's effect at low minus
+    at high incProp (LWPC) in `mx`, switch type's at low minus at high
+    switchProp (LWPS) in `my`, as `compute_sensitivities_per_split(...,
+    main_effects=False, effect_measure='mean_diff')` scores them.
 
     Returns one row per electrode x split x window: subject, electrode, split,
     window, mxA, mxB, myA, myB, split_scheme. An effect is NaN where one of its
     cells has fewer than 2 trials in that half, as in the loop.
     """
+    if effect not in _EFFECT_WEIGHTS:
+        raise ValueError(f"effect must be one of {tuple(_EFFECT_WEIGHTS)}; got {effect!r}")
+    weights = _EFFECT_WEIGHTS[effect]
     work, strata = _proportion_work(df)
     if halves is None:
         # The same draws as compute_sensitivities_per_split(shared_split=True).
@@ -1059,7 +1071,7 @@ def main_effect_mean_diffs(df, hg_windows, n_splits=200, seed=0, remove_mean=Fal
                                                remove_mean):
         effects = {}
         for col, (means, counts) in cells.items():
-            eff = (means * _MAIN_WEIGHTS).sum(-1)
+            eff = (means * weights).sum(-1)
             eff[(counts < 2).any(-1)] = np.nan
             effects[f'{col}A'], effects[f'{col}B'] = eff[..., 0], eff[..., 1]
         _, n_win, n_splits, _ = eff.shape

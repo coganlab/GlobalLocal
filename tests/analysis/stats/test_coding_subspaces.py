@@ -239,9 +239,40 @@ def test_job_writes_every_output_on_synthetic_data(tmp_path):
                  'coding_axis_cosines.csv', 'null_cross.npz', 'block_separations.csv',
                  'block_contrasts.csv', 'block_summary.json', 'block_separations_0.0-1.5s.png',
                  'proportion_trajectories.csv', 'proportion_changes.csv',
-                 'proportion_summary.json', 'proportion_trajectories_0.0-1.5s.png'):
+                 'proportion_summary.json', 'proportion_trajectories_0.0-1.5s.png',
+                 'trajectories_raw.csv', 'trajectories_0.0-1.5s_raw.png',
+                 'trajectories_0.1-0.5s_uncentred_raw.png', 'block_separations_unique.csv',
+                 'block_contrasts_unique.csv', 'block_summary_unique.json',
+                 'block_separations_0.0-1.5s_unique.png'):
         assert (tmp_path / name).stat().st_size > 0, name
     config = json.loads((tmp_path / 'run_config.json').read_text())
     assert config['k_max'] == 3 and config['traj_axes'] == [[0.0, 1.5], [0.1, 0.5]]
     null = np.load(tmp_path / 'null_subspace.npz')
     assert null['congruency_cross'].shape == (5, len(cs._rows(3)))
+
+
+@pytest.mark.slow
+def test_job_scores_the_interactions_and_skips_the_main_effect_steps(tmp_path):
+    from types import SimpleNamespace
+    from dcc_scripts.subspace.coding_axes_dcc import main
+
+    args = SimpleNamespace(
+        timestamp='test', LAB_root=None, subjects=None, task='GlobalLocal',
+        acc_trials_only=True, data_source='synthetic', synthetic_rho=0.4,
+        synthetic_sfreq=256.0, epochs_root_file=None, windows_tmin=0.0, windows_tmax=1.5,
+        window_size=64, step_size=16, remove_mean=False, rt_control='none',
+        rt_match_bins=10, electrodes='all', rois_dict=None, n_splits=4, n_perm=5,
+        n_null_splits=2, n_boot=20, alpha=0.05, seed=0, k_max=2,
+        traj_axes=[(0.0, 1.5)], traj_first='congruency', effect='interaction',
+        save_dir=str(tmp_path))
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        table, _ = main(args)
+    for name in ('coding_axis_cosines.csv', 'coding_axis_cosines.png', 'subspace_test.csv',
+                 'subspace_test.png', 'null_cross.npz', 'null_subspace.npz'):
+        assert (tmp_path / name).stat().st_size > 0, name
+    for name in ('trajectories.csv', 'block_separations.csv', 'proportion_trajectories.csv'):
+        assert not (tmp_path / name).exists(), name
+    assert 'cross' in table                                       # main returns the cosine table
+    config = json.loads((tmp_path / 'run_config.json').read_text())
+    assert config['effect'] == 'interaction'

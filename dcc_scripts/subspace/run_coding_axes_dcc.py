@@ -7,7 +7,7 @@ sbatch_coding_axes_dcc.sh; the per-run choices come from submit_coding_axes_dcc.
 as environment variables (EPOCHS_ROOT_FILE, DATA_SOURCE, WINDOWS_TMIN,
 WINDOWS_TMAX, WINDOW_SIZE, STEP_SIZE, REMOVE_MEAN, RT_CONTROL, RT_MATCH_BINS,
 ELECTRODES, ROIS, N_SPLITS,
-N_PERM, N_NULL_SPLITS, N_BOOT, ALPHA, SEED, K_MAX, TRAJ_AXES, TRAJ_FIRST).
+N_PERM, N_NULL_SPLITS, N_BOOT, ALPHA, SEED, K_MAX, TRAJ_AXES, TRAJ_FIRST, EFFECT).
 """
 import sys
 import os
@@ -90,6 +90,16 @@ RT_MATCH_BINS = int(os.environ.get('RT_MATCH_BINS', '10'))
 if RT_CONTROL not in ('none', 'adjust', 'match', 'random'):
     raise ValueError(f"RT_CONTROL must be none, adjust, match or random; got {RT_CONTROL!r}")
 
+# EFFECT: which per-electrode scores the coding axes are built from.
+#   main        -- congruency and switch-type main effects [default]
+#   interaction -- their interactions with the proportions: LWPC (congruency x
+#                  incProp, low - high) and LWPS (switch type x switchProp).
+#                  Runs the cosines and the subspace test only; the trajectory
+#                  and block steps are defined on the main-effect axes.
+EFFECT = os.environ.get('EFFECT', 'main').strip().lower()
+if EFFECT not in ('main', 'interaction'):
+    raise ValueError(f"EFFECT must be main or interaction; got {EFFECT!r}")
+
 # --- electrode selection ---
 ELECTRODES = os.environ.get('ELECTRODES', 'all')            # 'all' or 'sig'
 ROIS = os.environ.get('ROIS', 'lpfc')                       # config ROI names, or 'all'
@@ -128,6 +138,7 @@ SAVE_DIR = os.path.join(current_script_dir, 'results', _tag, 'coding_axes',
                         f'windows_{WINDOWS_TMIN}to{WINDOWS_TMAX}s_w{WINDOW_SIZE}s{STEP_SIZE}'
                         f'_{ELECTRODES}_{_roi_tag}_mean_diff'
                         f'_splits{N_SPLITS}_perm{N_PERM}x{N_NULL_SPLITS}_seed{SEED}'
+                        + ('' if EFFECT == 'main' else f'_{EFFECT}')
                         + ('_remove_mean' if REMOVE_MEAN else '')
                         + {'none': '', 'adjust': '_rt_adjust'}.get(
                             RT_CONTROL, f'_rt_{RT_CONTROL}{RT_MATCH_BINS}'))
@@ -162,6 +173,7 @@ def run_analysis():
         k_max=K_MAX,
         traj_axes=TRAJ_AXES,
         traj_first=TRAJ_FIRST,
+        effect=EFFECT,
         save_dir=SAVE_DIR,
     )
 
@@ -172,6 +184,7 @@ def run_analysis():
     print(f"Subjects:         {SUBJECTS}")
     print(f"Epochs file:      {EPOCHS_ROOT_FILE}")
     print(f"Windows:          {WINDOW_SIZE} samples every {STEP_SIZE} over [{WINDOWS_TMIN}, {WINDOWS_TMAX}] s")
+    print(f"Effect:           {EFFECT}")
     print(f"Remove mean:      {REMOVE_MEAN}")
     print(f"RT control:       {RT_CONTROL}" + (f" ({RT_MATCH_BINS} bins)" if RT_CONTROL in ('match', 'random') else ""))
     print(f"Electrodes:       {ELECTRODES} | ROIs: {list(ROIS_DICT.keys()) if ROIS_DICT else 'all'}")

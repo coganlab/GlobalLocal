@@ -214,7 +214,7 @@ def permute_within_cells(df, factor, rng):
 
 
 def null_draws(df, hg_windows, factor, n_perm=1000, n_splits=20, seed=0,
-               remove_mean=False):
+               remove_mean=False, effect='main'):
     """Yield `n_perm` per-split tables rescored with `factor` ('congruency' or
     'switchType') shuffled: the draws of the "no code for `factor`" null (§3.2).
 
@@ -225,14 +225,17 @@ def null_draws(df, hg_windows, factor, n_perm=1000, n_splits=20, seed=0,
     reproducible from it. Any statistic of the real per-split table can be
     recomputed on each draw: `cross_cosine_null` takes the cross cosine, the
     subspace test (`coding_subspaces.subspace_null_stats`) its own numbers, and
-    one pass of this generator can feed both."""
+    one pass of this generator can feed both. `effect` is passed to
+    `main_effect_mean_diffs`; shuffling `factor` within the cells of the other
+    three factors destroys its interaction with the proportion too, so the
+    same shuffle is the null for `effect='interaction'`."""
     if factor not in NULL_FACTORS:
         raise ValueError(f"factor must be one of {NULL_FACTORS}; got {factor!r}")
     rng = np.random.default_rng(seed)
     for _ in range(n_perm):
         yield sfs.main_effect_mean_diffs(
             permute_within_cells(df, factor, rng), hg_windows, n_splits=n_splits,
-            seed=int(rng.integers(2 ** 31)), remove_mean=remove_mean)
+            seed=int(rng.integers(2 ** 31)), remove_mean=remove_mean, effect=effect)
 
 
 def cross_cosine(per_split):

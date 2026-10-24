@@ -37,6 +37,7 @@ Still not built: the lPFC-subsampled control and dPCA.
 10. [Results (2026-10-15 run)](#10-results-2026-10-15-run)
 11. [Results (2026-10-16 run): response-locked](#11-results-2026-10-16-run-response-locked)
 12. [Results (2026-10-22 runs): block-split adaptation](#12-results-2026-10-22-runs-block-split-adaptation)
+13. [Results (2026-10-22 evening runs): proportion trajectories, raw and unique axes](#13-results-2026-10-22-evening-runs-proportion-trajectories-raw-and-unique-axes)
 
 ## 1. What it computes
 
@@ -120,6 +121,12 @@ raw (a lower bound, since noise fills all ~400 directions) and noise-corrected
 (cross-half products, which remove independent noise). Axis windows 0.1–0.5 s
 and 0.6–1.4 s give the plan's early-vs-late variant.
 
+The job also draws the same cells on the **raw axes** (`first=None`, the
+`_raw` outputs): x = ĉ·p and y = ŝ·p, with no Gram–Schmidt. The axes are drawn
+perpendicular but are not (cos(c, s) is in the footer), so the part the codes
+share counts on both axes. The plane fractions are the same as for the main
+figure.
+
 ### 1.3 Adaptation as block-split separations (plan §6, supplement)
 
 On the same axes, halves and electrodes as the trajectories: within each of
@@ -132,6 +139,13 @@ proportion weighted equally), and own − other (congruency: incProp −
 switchProp; switch: switchProp − incProp). The double dissociation predicts
 each variable's own change away from 0 and the other at 0. Participant-bootstrap
 CIs only; no shuffle null.
+
+The job runs it twice: on the raw axes (the main analysis) and on **unique
+axes** (the `_unique` outputs), each separation projected on its own axis's
+part orthogonal to the other, c⊥ = c − (c·s / s·s) s and s⊥ likewise. That
+asks whether the adaptation sits in what each code does not share: an
+adaptation along the shared direction counts on the raw axes but not on the
+unique ones. A robustness check, not the main analysis.
 
 **The same as trajectories** (`proportion_trajectories`). Each variable crossed
 with each proportion gives four conditions: the variable's two levels in the
@@ -201,6 +215,17 @@ act on the trials before anything is scored.
 
 Not built yet: the plan's lPFC-subsampled-to-occipital's-54-electrodes control.
 
+**The same on LWPC and LWPS scores** (`EFFECT=interaction`, added 2026-10-23):
+`EFFECT=interaction bash submit_coding_axes_all.sh` runs all six with each
+electrode's congruency × incProp interaction (LWPC: the congruency effect at
+25 % minus at 75 % incongruent) in place of the congruency main effect, and
+switch type × switchProp (LWPS) in place of the switch main effect. Same
+cells, halves, shuffles (shuffling congruency within the cells of the other
+three factors destroys LWPC too) and bootstrap. It writes the cosine and
+subspace outputs only; the trajectory and block steps need the main-effect
+axes and are skipped. Folders get `_interaction` after `_seed<SEED>`, so the
+main-effect folders are untouched.
+
 ## 4. Settings
 
 Environment variables read by `run_coding_axes_dcc.py`; defaults in brackets.
@@ -228,6 +253,7 @@ trajectory outputs, and are recorded in `run_config.json` only.
 | `K_MAX` | `3` | subspace dimensions compared (k = 1 … `K_MAX`) and tested for reproducibility |
 | `TRAJ_AXES` | `0.0:1.5,0.1:0.5,0.6:1.4` | trajectory axis windows (s), `tmin:tmax`, comma-separated; one figure each. The first is the main figure |
 | `TRAJ_FIRST` | `congruency` | the axis Gram–Schmidt keeps whole (x); `switch` swaps the roles |
+| `EFFECT` | `main` | `main`: congruency and switch main effects; `interaction`: LWPC and LWPS (§3); folder tag `_interaction` |
 
 ## 5. Outputs
 
@@ -257,6 +283,8 @@ Each run writes to
 | `block_separations.csv` | one row per axis window, `variable` (`congruency`, `switchType`), block (`inc_prop`, `switch_prop`: `low` / `high`) and window: `separation` (HG along the variable's unit axis) with bootstrap CI (`lo`, `hi`); `window = -1` is the mean over windows |
 | `block_contrasts.csv` | one row per axis window, variable, `contrast` (`incProp`, `switchProp`: low − high; `own_minus_other`) and window: `estimate`, `lo`, `hi`, `excludes_0`; `window = -1` is the mean over windows |
 | `block_summary.json` | the overall (window −1) contrasts with CIs per axis window and variable, electrodes and participants used |
+| `trajectories_raw.csv`, `trajectories_<axes>[_uncentred]_raw.png` | the four cells on the raw (not orthogonalized) unit c and s axes (§1.2); columns as `trajectories.csv` |
+| `block_separations_unique.csv`, `block_contrasts_unique.csv`, `block_summary_unique.json`, `block_separations_<axes>_unique.png` | the block separations on the unique axes (§1.3); columns as the raw versions, and `unique: true` in the summary |
 | `proportion_trajectories_<axes>.png` | the 2 × 2 proportion-trajectory figure for each axis window (§6.3) |
 | `proportion_trajectories.csv` | one row per axis window, `set` (`congruency x incProp`, `congruency x switchProp`, `switchType x incProp`, `switchType x switchProp`), `own`, `condition` (e.g. `i25`; the number is the set's proportion) and window: `congruency`, `switch` (oblique coordinates, HG) with bootstrap CIs |
 | `proportion_changes.csv` | one row per axis window, set, `axis` (`congruency`, `switch`) and window: the change in separation (25 % − 75 %) along that axis, `estimate`, `lo`, `hi`, `excludes_0`; `window = -1` is the mean over windows |
@@ -549,6 +577,15 @@ Subspace test and trajectories:
   plot are not Euclidean distances in electrode space; the coordinates answer
   "how far along the congruency axis and how far along the switch axis".
   Bootstrap CIs only, no shuffle null. They use the trajectories' electrodes.
+- **Three coordinate systems, one plane.** The main trajectories use
+  Gram–Schmidt (x = congruency, y = switch beyond it), the `_raw` trajectories
+  the plain projections on ĉ and ŝ, and the proportion trajectories oblique
+  coordinates (activity = a·ĉ + b·ŝ). All three describe the same plane
+  span{c, s}; they differ in how the shared part is drawn. State which in
+  every caption.
+- **Unique-axis separations are a robustness check.** With cos(c, s) ≈ 0.4 the
+  unique axes keep about 92 % of each axis's length (√(1 − 0.4²)), so the main
+  difference is what they leave out, not noise.
 
 ## 10. Results (2026-10-15 runs)
 
@@ -1326,3 +1363,162 @@ Response-locked main gives the same pattern (switch: 0.87, **0.12**, 0.81,
   empty cell.
 - Positions along a noisy held-out axis shrink toward 0 (§6.2), so compare the
   own and other changes within a run, not absolute sizes across runs.
+
+## 13. Results (2026-10-22 evening runs): proportion trajectories, raw and unique axes
+
+*Drafted by Claude from the run outputs; not yet reviewed.*
+
+Three additions to the same job, run on the same twelve folders as §12:
+
+- the **proportion trajectories** (§1.3, §6.3): each variable's two levels in
+  the 25 % and 75 % blocks of each proportion, on the congruency and switch
+  axes in oblique coordinates;
+- the four-cell trajectories on the **raw axes** (§1.2, `_raw` outputs);
+- the block separations on **unique axes** (§1.3, `_unique` outputs).
+
+### 13.1 What was run
+
+`coding_axes_real` 59312137–59312148, all COMPLETED, exit 0, 15–64 min:
+stimulus-locked 59312137 (main), 59312138 (`remove_mean`), 59312139
+(`rt_adjust`, the RT regression), 59312140 (`match`), 59312141 (`random`),
+59312142 (occipital); response-locked 59312143–59312148 in the same order.
+Settings as §12.1 (`ROIS=dlpfc,lpfc` or `occ`, `RT_CONTROL=none` set
+explicitly, seed 0). An earlier batch the same evening (59305401–59305413,
+all COMPLETED) had the proportion trajectories only; this batch overwrote it.
+
+Reproducibility against the §12 outputs: the cosine and subspace files are
+byte-identical. The trajectory and block-separation CSVs agree to < 10⁻⁹,
+because the code now sums projections in a different order (`cQ`/`sQ`). Every
+JSON number agrees to 10⁻⁹. The only additions are `unique` in
+`block_summary.json` and the `proportion_bootstrap` seed (8) in
+`run_config.json`.
+
+### 13.2 Proportion trajectories: key numbers
+
+From `proportion_summary.json`: the change in separation, (level 1 − level 0)
+at 25 % minus at 75 %, along each axis (oblique coordinates, HG). Mean over
+all windows of the run, main axis window, 95 % participant-bootstrap CI.
+Positive = a larger separation in the 25 % blocks. **Bold**: CI excludes 0.
+
+**Own sets** (prediction: along the own axis only)
+
+| Run (electrodes / participants) | Congruency × incProp, along congruency | along switch | Switch × switchProp, along congruency | along switch |
+|---|---|---|---|---|
+| Stimulus main (389 / 21) | +0.21 [−0.02, 0.41] | **+0.32 [0.16, 0.47]** | +0.02 [−0.26, 0.32] | **+0.70 [0.23, 1.30]** |
+| Stimulus `remove_mean` | +0.22 [−0.04, 0.41] | **+0.22 [0.01, 0.41]** | +0.03 [−0.16, 0.24] | **+0.45 [0.16, 0.75]** |
+| Stimulus `rt_adjust` | +0.14 [−0.04, 0.28] | **+0.23 [0.09, 0.37]** | +0.05 [−0.22, 0.35] | **+0.46 [0.12, 0.86]** |
+| Stimulus occipital (80 / 13) | +0.10 [−0.02, 0.16] | +0.13 [−0.04, 0.28] | **+0.09 [0.0001, 0.20]** (borderline) | +0.28 [−0.03, 0.53] |
+| Response main (391 / 21) | **+0.52 [0.20, 0.85]** | +0.09 [−0.04, 0.24] | +0.20 [−0.22, 0.60] | **+0.53 [0.12, 1.06]** |
+| Response `remove_mean` | **+0.41 [0.10, 0.72]** | +0.08 [−0.06, 0.24] | +0.23 [−0.01, 0.47] | **+0.30 [0.12, 0.49]** |
+| Response `rt_adjust` | **+0.27 [0.11, 0.42]** | +0.00 [−0.13, 0.16] | +0.22 [−0.13, 0.58] | **+0.26 [0.06, 0.46]** |
+
+**Cross sets** (prediction: no change)
+
+| Run | Congruency × switchProp, along congruency | along switch | Switch × incProp, along congruency | along switch |
+|---|---|---|---|---|
+| Stimulus main | +0.11 [−0.11, 0.32] | +0.02 [−0.16, 0.23] | −0.09 [−0.30, 0.18] | −0.06 [−0.23, 0.06] |
+| Stimulus `remove_mean` | +0.01 [−0.16, 0.20] | **+0.15 [0.04, 0.28]** | −0.12 [−0.28, 0.07] | −0.08 [−0.28, 0.09] |
+| Stimulus `rt_adjust` | +0.14 [−0.03, 0.32] | +0.09 [−0.09, 0.25] | +0.04 [−0.18, 0.31] | −0.06 [−0.25, 0.08] |
+| Response main | −0.00 [−0.31, 0.29] | −0.10 [−0.37, 0.19] | +0.09 [−0.05, 0.24] | −0.11 [−0.47, 0.24] |
+| Response `remove_mean` | +0.00 [−0.14, 0.17] | +0.03 [−0.10, 0.18] | +0.07 [−0.03, 0.16] | −0.04 [−0.19, 0.10] |
+| Response `rt_adjust` | −0.03 [−0.28, 0.19] | +0.01 [−0.14, 0.16] | +0.08 [−0.05, 0.20] | −0.07 [−0.37, 0.23] |
+
+`rt_match10`, `rt_random10` (10–11 participants) and response-locked
+occipital are not interpreted (§11.8). Their numbers are in the CSVs.
+
+**Where in time** (`proportion_changes.csv`, pointwise CIs, uncorrected):
+
+- Stimulus main: switch × switchProp along switch excludes 0 in 12 windows
+  from 0.62 s to the end; along congruency in none. Congruency × incProp along
+  switch excludes 0 at 0.50–1.06 s (9 windows); along congruency in none.
+  `rt_adjust` keeps both patterns (7 windows each, 0.50–0.88 and 0.62–1.0 s).
+- Response main, before the response (14 windows) vs after (23):
+  - Switch × switchProp along switch: mean +0.92 before (CI excludes 0 in 5
+    windows), +0.29 after (6).
+  - Congruency × incProp along congruency: +0.35 before (1 window), +0.63
+    after (13). Along switch: +0.34 before (5), −0.07 after (0).
+  - Congruency × switchProp along switch, a cross set: +0.40 before (6), −0.41
+    after (2).
+  - Under `rt_adjust`, congruency × incProp along congruency is −0.09 before
+    the response and +0.49 after (13 windows).
+
+So the response-locked "congruency along its own axis" is a post-response
+effect, as in §12.2. Before the response, congruency's proportion changes
+show up along the switch axis, as stimulus-locked.
+
+### 13.3 Unique-axis block separations
+
+From `block_summary_unique.json` (each separation on its own axis's part
+orthogonal to the other; compare §12.2):
+
+| Run | Congruency: own (incProp) | other | own − other | Switch: own (switchProp) | other | own − other |
+|---|---|---|---|---|---|---|
+| Stimulus main | +0.20 [−0.02, 0.38] | +0.11 [−0.12, 0.31] | +0.09 [−0.27, 0.44] | **+0.65 [0.22, 1.18]** | −0.05 [−0.23, 0.07] | **+0.70 [0.28, 1.27]** |
+| Stimulus `remove_mean` | +0.20 [−0.03, 0.38] | +0.01 | +0.20 [−0.16, 0.49] | **+0.42 [0.15, 0.67]** | −0.07 | **+0.49 [0.16, 0.84]** |
+| Stimulus `rt_adjust` | +0.13 [−0.04, 0.27] | +0.14 | −0.01 [−0.30, 0.25] | **+0.45 [0.12, 0.83]** | −0.06 | **+0.51 [0.16, 0.95]** |
+| Stimulus occipital | +0.10 [−0.02, 0.16] | −0.06 | +0.16 [−0.02, 0.25] | +0.27 [−0.05, 0.50] | −0.07 | **+0.35 [0.01, 0.61]** |
+| Response main | **+0.47 [0.17, 0.80]** | −0.00 | **+0.47 [0.09, 0.99]** | **+0.47 [0.09, 0.89]** | −0.10 | **+0.57 [0.07, 1.06]** |
+| Response `remove_mean` | **+0.37 [0.09, 0.68]** | +0.00 | **+0.37 [0.03, 0.75]** | **+0.27 [0.11, 0.42]** | −0.04 | **+0.31 [0.12, 0.48]** |
+| Response `rt_adjust` | **+0.26 [0.10, 0.40]** | −0.03 | **+0.30 [0.08, 0.56]** | **+0.25 [0.05, 0.45]** | −0.07 | +0.32 [−0.02, 0.66] |
+
+The switch numbers barely change from the raw axes (stimulus own − other
++0.80 raw, +0.70 unique): switch's adaptation is not in the part it shares
+with congruency. The stimulus-locked congruency own change drops from +0.33
+(raw, CI excluding 0) to +0.20 (CI including 0): part of what the raw
+congruency axis picked up was the shared direction. Response-locked numbers
+average over post-response windows (§12.4).
+
+### 13.4 Raw-axis trajectories
+
+`trajectories_<axes>_raw.png`: the four cells of §10.5 / §11.4 drawn on the
+plain projections ĉ·p and ŝ·p. Nothing new is tested. The plane fractions are
+identical to the main figure's, and the x coordinates are the same. Only y
+changes: it is the full projection on ŝ rather than the part beyond
+congruency, so incongruent and congruent cells also separate along y, by
+cos(c, s) of their congruency separation (0.38 stimulus-locked, 0.45
+response-locked).
+
+### 13.5 Reading
+
+- **Switch: specific in both senses.** The switch separation changes with
+  switch proportion and not incongruent proportion, and the change lies along
+  the switch axis, not the congruency axis. It holds in both frames, under
+  `remove_mean` and RT regression, and on the unique switch axis. In
+  `proportion_trajectories_0.0-1.5s.png` (d), the 25 % switch pair spreads far
+  along the switch axis from about 0.6 s while the 75 % pair stays near the
+  centre. This is the clearest form of the predicted dissociation so far. The
+  §12.3 caveat stands: one block (25 % incongruent, 75 % switch) has almost no
+  switch separation and contributes much of the switchProp change.
+- **Congruency: the incProp change is not along the congruency axis.**
+  Stimulus-locked, the congruency separation is larger in 25 % incongruent
+  blocks, but in oblique coordinates that extra separation lies along the
+  switch axis (+0.32 [0.16, 0.47]), not the congruency axis (+0.21
+  [−0.02, 0.41]). In the figure (a), incongruent trials in 25 % incongruent
+  blocks move up the switch axis as well as along congruency. The same holds
+  before the response in the response-locked frame, and under RT regression.
+  The prediction was the opposite (along congruency only).
+- **The switch axis also carries some congruency × switchProp change** (a cross
+  set): +0.15 [0.04, 0.28] stimulus-locked under `remove_mean`, and +0.40
+  before the response. So the switch axis picks up changes in the congruency
+  separation with both proportions, not only the own one.
+- **What that could mean, unresolved.** The switch axis may carry a direction
+  that tracks how hard or how surprising the incongruent trials are in a
+  block, for either proportion. Or the oblique split may be assigning to ŝ a
+  component that neither axis captures well (the plane holds about half the
+  condition-dependent signal, §10.5). These data do not separate the two.
+  A shuffle null for the along-switch component, and the same plot with axes
+  from the early window (where cos(c, s) ≈ 0), would help.
+- **Occipital:** weak and mostly not significant, but the switch pattern is
+  there on the unique axis (own − other +0.35 [0.01, 0.61]). As in §12, not
+  lPFC-specific.
+
+### 13.6 Caveats
+
+- Bootstrap CIs only; no shuffle null; no correction across windows, sets,
+  axis windows or frames. The main-axis, mean-over-windows numbers are the
+  pre-specified ones.
+- Oblique coordinates make a change along ŝ show only on the switch axis.
+  But with noisy axes they can also move part of a change between the two
+  axes; the split is only as good as the two axes are.
+- Response-locked means over windows include 23 post-response windows.
+- Seed 0 only; each condition averages about a quarter of the held-out half.

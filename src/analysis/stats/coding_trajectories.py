@@ -15,6 +15,9 @@ For every split of each participant's trials into halves A and B:
        y = s_perp / |s_perp|,  s_perp = s - (s . x) x
                                             switch beyond what it shares with c
 
+   `first=None` skips this: x = c_hat . p and y = s_hat . p, on axes that are
+   not perpendicular (cos(c, s) is in the summary).
+
 3. **Cells on half B.** Each electrode's mean HG in the four congruency x
    switch-type cells at every time bin, each the equal-weight mean of its four
    proportion blocks (incProp x switchProp), so no block difference leaks in.
@@ -57,6 +60,11 @@ mean(IR, CR)]. Each is projected on its own axis, not on the Gram-Schmidt y,
 so the switch separation does not depend on which axis came first. The double
 dissociation predicts that the congruency separation changes with incProp but
 not switchProp, and the switch separation with switchProp but not incProp.
+With `unique=True` each separation is instead projected on its own axis's part
+orthogonal to the other axis (c_perp = c - (c.s / s.s) s, s_perp likewise;
+symmetric, so the order does not matter): a robustness check of whether the
+adaptation sits in what each code does not share. A shared direction that
+adapts counts on the raw axes (the default) but not on the unique ones.
 
 **Adaptation as trajectories** (plan §6, `proportion_trajectories`): each
 variable crossed with each proportion gives four conditions, the variable's two
@@ -216,9 +224,11 @@ def _projections(sums, weights):
 
 def _coordinates(sums, first='congruency', cells='centred'):
     """(x, y), each (n_axes, splits, 2, time, 4), of the block-balanced cells
-    in the Gram-Schmidt plane, from sums combined over participants."""
-    if first not in FIRST_AXES:
-        raise ValueError(f"first must be one of {FIRST_AXES}; got {first!r}")
+    in the Gram-Schmidt plane, from sums combined over participants.
+    `first=None`: no Gram-Schmidt, x and y the projections on the unit c and
+    unit s axes."""
+    if first not in FIRST_AXES + (None,):
+        raise ValueError(f"first must be one of {FIRST_AXES} or None; got {first!r}")
     ap, bp = _projections(sums, _CELL_WEIGHTS)
     if cells == 'centred':                               # centring commutes with projecting
         ap, bp = ap - ap.mean(-1, keepdims=True), bp - bp.mean(-1, keepdims=True)
@@ -229,6 +239,8 @@ def _coordinates(sums, first='congruency', cells='centred'):
     expand = (Ellipsis, None, None)
     with np.errstate(divide='ignore', invalid='ignore'):
         x = ap / np.sqrt(aa)[expand]
+        if first is None:
+            return x, bp / np.sqrt(bb)[expand]
         perp = bb - ab ** 2 / aa                         # |s_perp|^2
         y = (bp - (ab / aa)[expand] * ap) / np.sqrt(perp)[expand]
     return x, y
@@ -276,7 +288,11 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
     `seed` the halves are theirs. `axis_labels` names each column of `axis_hg`
     (default '0', '1', ...); `first` is the axis kept whole by Gram-Schmidt
     ('congruency': x = congruency, y = switch beyond it). State the order in the
-    caption. `boot_seed` seeds the bootstrap (default `seed`).
+    caption. `first=None` skips Gram-Schmidt: x and y are the projections on
+    the unit c and unit s axes. Those axes are oblique (`axis_cosine`), so
+    distances in a perpendicular plot are not distances in electrode space. The
+    fractions are always those of the plane, whatever `first` is. `boot_seed`
+    seeds the bootstrap (default `seed`).
 
     Returns ``(trajectories, fractions, summary)``:
 
@@ -298,6 +314,7 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
     n_part = len(sums['cc'])
     total = _weighted(sums, np.ones(n_part))
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
+    plane = first or 'congruency'
 
     # participant bootstrap of the centred coordinates and the fractions
     rng = np.random.default_rng(seed if boot_seed is None else boot_seed)
@@ -311,7 +328,8 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
             x, y = _coordinates(one, first)
             b_x.append(np.nanmean(x, (1, 2)))
             b_y.append(np.nanmean(y, (1, 2)))
-            _, _, raw, sig = _fractions(x, y, one)
+            fx, fy = (x, y) if first else _coordinates(one, plane)
+            _, _, raw, sig = _fractions(fx, fy, one)
             b_raw.append(raw)
             b_sig.append(sig)
 
@@ -332,8 +350,7 @@ def condition_trajectories(df, hg_windows, axis_hg, axis_labels=None, n_splits=2
                             r.update(x_lo=ci['x'][0][a, t, ci_cell], x_hi=ci['x'][1][a, t, ci_cell],
                                      y_lo=ci['y'][0][a, t, ci_cell], y_hi=ci['y'][1][a, t, ci_cell])
                         rows.append(r)
-        x, y = _coordinates(total, first)
-        raw_t, sig_t, raw, sig = _fractions(x, y, total)
+        raw_t, sig_t, raw, sig = _fractions(*_coordinates(total, plane), total)
         cos_axes = np.nanmean(total['cs'] / np.sqrt(total['cc'] * total['ss']), (1, 2))
     n_e = int(sum(info['n_kept']))
     summary = {}
@@ -367,16 +384,24 @@ VARIABLES = tuple(_SEPARATION)                               # ('congruency', 's
 CONTRASTS = ('incProp', 'switchProp', 'own_minus_other')
 
 
-def _separations(sums):
-    """Each variable's held-out separation per block on its own unit axis,
-    averaged over splits and directions: (..., variables, n_axes, time,
-    blocks), in `VARIABLES` and `BLOCKS` order. `sums` may carry leading (draw)
-    axes. The unit axis is per split and direction, from the pooled |c| (|s|)."""
-    out = []
-    for var, (q, sq) in zip(VARIABLES, (('cQ', 'cc'), ('sQ', 'ss'))):
-        proj = np.einsum('...xb,x->...b', sums[q], _SEPARATION[var])
-        out.append((proj / np.sqrt(sums[sq])[..., None, None]).mean((-4, -3)))
-    return np.stack(out, -4)
+def _separations(sums, unique=False):
+    """Each variable's held-out separation per block on its own unit axis
+    (`unique`: on its own axis's part orthogonal to the other axis), averaged
+    over splits and directions: (..., variables, n_axes, time, blocks), in
+    `VARIABLES` and `BLOCKS` order. `sums` may carry leading (draw) axes. The
+    axes are per split and direction, from the pooled c and s."""
+    def sep(q, var):                                 # axis . separation, per block
+        return np.einsum('...xb,x->...b', sums[q], _SEPARATION[var])
+    cc, ss, cs = sums['cc'], sums['ss'], sums['cs']
+    cd, sd = sep('cQ', 'congruency'), sep('sQ', 'congruency')     # c.d_c, s.d_c
+    cw, sw = sep('cQ', 'switchType'), sep('sQ', 'switchType')     # c.d_s, s.d_s
+    e = (Ellipsis, None, None)
+    if unique:   # c_perp.d = c.d - (c.s/s.s) s.d;  |c_perp|^2 = c.c - (c.s)^2/s.s;  same for s
+        proj = [cd - (cs / ss)[e] * sd, sw - (cs / cc)[e] * cw]
+        norm2 = [cc - cs ** 2 / ss, ss - cs ** 2 / cc]
+    else:
+        proj, norm2 = [cd, sw], [cc, ss]
+    return np.stack([(p / np.sqrt(n)[e]).mean((-4, -3)) for p, n in zip(proj, norm2)], -4)
 
 
 def _contrasts(seps):
@@ -395,13 +420,19 @@ def _with_overall(a, axis=-2):
 
 
 def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, seed=0,
-                      remove_mean=False, n_boot=1000, alpha=0.05, boot_seed=None, chunk=25):
+                      remove_mean=False, unique=False, n_boot=1000, alpha=0.05, boot_seed=None,
+                      chunk=25):
     """Adaptation in the trajectories (plan §6): the held-out congruency and
     switch separations within each proportion block, each projected on its own
     unit axis (module docstring).
 
     Arguments as for `condition_trajectories`; with the same `n_splits` and
     `seed` the axes, halves and electrodes are the trajectories' own.
+    `unique=True` projects each separation on its own axis's part orthogonal
+    to the other axis (c_perp = c - (c.s / s.s) s, s_perp likewise; symmetric,
+    so the order does not matter): does the adaptation sit in what each code
+    does not share? A shared direction that adapts counts on the raw axes (the
+    default, the main analysis) but not here.
 
     Returns ``(separations, contrasts, summary)``:
 
@@ -430,7 +461,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     sums, info, axis_labels = _present_sums(df, hg_windows, axis_hg, axis_labels, n_splits,
                                             seed, remove_mean, _PROJECTION_SUMS)
     n_part = len(sums['cc'])
-    total = _separations(_weighted(sums, np.ones(n_part)))
+    total = _separations(_weighted(sums, np.ones(n_part)), unique)
     seps, cons = _with_overall(total), _with_overall(_contrasts(total))
 
     # participant bootstrap; everything is a ratio of participant sums, so a
@@ -440,7 +471,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     for start in range(0, n_boot, chunk):
         w = rng.multinomial(n_part, np.full(n_part, 1 / n_part),
                             size=min(chunk, n_boot - start)).T.astype(float)
-        draws = _separations(_weighted(sums, w))           # (draws, variables, axes, time, blocks)
+        draws = _separations(_weighted(sums, w), unique)   # (draws, variables, axes, time, blocks)
         b_seps.append(_with_overall(draws))
         b_cons.append(_with_overall(_contrasts(draws)))
     q = [100 * alpha / 2, 100 * (1 - alpha / 2)]
@@ -471,7 +502,7 @@ def block_separations(df, hg_windows, axis_hg, axis_labels=None, n_splits=200, s
     summary = dict(axes=summary, n_electrodes=int(sum(info['n_kept'])), n_subjects=n_part,
                    n_electrodes_dropped=int(sum(info['n_dropped'])),
                    n_splits=n_splits, n_boot=n_boot, seed=seed, boot_seed=boot_seed,
-                   alpha=alpha, remove_mean=bool(remove_mean))
+                   alpha=alpha, remove_mean=bool(remove_mean), unique=bool(unique))
     return pd.DataFrame(sep_rows), pd.DataFrame(con_rows), summary
 
 

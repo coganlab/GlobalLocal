@@ -89,23 +89,26 @@ def _dims_panel(ax, d, variable, k):
     _style(ax)
 
 
-def plot_subspace_test(table, dims, out_path, k=None):
+def plot_subspace_test(table, dims, out_path, k=None, names=('congruency', 'switch type')):
     """The §3.4 figure. (a) principal angles, (b) alignment index, each
     congruency vs switch per k, against ceiling and null; (c, d) how many
     dimensions of each variable are reproducible (filled), which sets k.
-    `k` is `summary['k']` (variable -> k), for the panel titles."""
+    `k` is `summary['k']` (variable -> k), for the panel titles. `names` are
+    the two scores' display names (e.g. ('LWPC', 'LWPS') when the job scores
+    the interactions); the table's variables stay 'congruency', 'switchType'."""
     fig = plt.figure(figsize=(10.5, 7.0))
     gs = fig.add_gridspec(2, 2, height_ratios=[3, 2], hspace=0.45, wspace=0.25)
     a, b = fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])
     _comparison_panel(a, table[table['measure'] == 'angle'], 'cosine of principal angle')
     _comparison_panel(b, table[table['measure'] == 'alignment'], 'alignment index')
-    a.set_title('a  principal angles (congruency vs switch)', fontsize=9, color=INK, loc='left')
+    a.set_title(f'a  principal angles ({names[0]} vs {names[1]})', fontsize=9, color=INK,
+                loc='left')
     b.set_title('b  alignment index', fontsize=9, color=INK, loc='left')
     fig.legend(*a.get_legend_handles_labels(), frameon=False, fontsize=7.5, ncol=3,
                loc='lower center', bbox_to_anchor=(0.5, 0.94))
     k = k or {}
-    for col, (var, name) in enumerate((('congruency', 'c  congruency'),
-                                       ('switchType', 'd  switch type'))):
+    for col, (var, name) in enumerate((('congruency', f'c  {names[0]}'),
+                                       ('switchType', f'd  {names[1]}'))):
         ax = fig.add_subplot(gs[1, col])
         _dims_panel(ax, dims[dims['variable'] == var], name, k.get(var))
         if col == 0:
@@ -126,8 +129,9 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
     `traj` is the trajectories table with `window_center` merged in; `fractions`
     the fractions table; `axes_summary` that axis window's summary entry."""
     t_all = traj[(traj['axes'] == label) & (traj['cells'] == cells)]
-    x_name, y_name = (('congruency', 'switch beyond congruency') if first == 'congruency'
-                      else ('switch', 'congruency beyond switch'))
+    x_name, y_name = {'congruency': ('congruency', 'switch beyond congruency'),
+                      'switch': ('switch', 'congruency beyond switch'),
+                      None: ('congruency', 'switch')}[first]
     fig = plt.figure(figsize=(10.5, 5.0))
     gs = fig.add_gridspec(2, 2, width_ratios=[1.1, 1], hspace=0.15, wspace=0.28)
     plane = fig.add_subplot(gs[:, 0])
@@ -168,8 +172,10 @@ def plot_trajectories(traj, fractions, axes_summary, label, out_path, cells='cen
                  f"{o['plane_fraction']:.1%} of the centred cells' variance "
                  f"(chance {axes_summary['plane_fraction_chance']:.1%}) and "
                  f"{o['plane_fraction_signal']:.0%} of its noise-corrected signal. "
-                 f"cos(c, s) of the plot's axes before Gram-Schmidt: "
-                 f"{axes_summary['axis_cosine']:.2f}.",
+                 + (f"Raw axes, not orthogonalized: drawn perpendicular, but cos(c, s) = "
+                    f"{axes_summary['axis_cosine']:.2f}." if first is None else
+                    f"cos(c, s) of the plot's axes before Gram-Schmidt: "
+                    f"{axes_summary['axis_cosine']:.2f}."),
                  fontsize=7.5, color=MUTED)
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
@@ -183,7 +189,8 @@ _VAR_NAMES = {'congruency': ('congruency', 'incProp', 'switchProp'),
               'switchType': ('switch', 'switchProp', 'incProp')}
 
 
-def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_label()):
+def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_label(),
+                           unique=False):
     """The §6 figure for one axis window. Left: each variable's held-out
     separation on its own axis in the four proportion blocks (colour = its own
     proportion, line style = the other). Right: the change with the own and
@@ -217,7 +224,8 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
         for ax in (left, right):
             ax.axhline(0, color=MUTED, lw=0.8, zorder=0)
             _style(ax)
-        left.set_ylabel(f'{name} separation\n(HG, on its own axis)', fontsize=9, color=INK)
+        left.set_ylabel(f'{name} separation\n(HG, on its own axis'
+                        f'{" ⊥ the other" if unique else ""})', fontsize=9, color=INK)
         right.set_ylabel('change in separation (HG)', fontsize=9, color=INK)
         left.set_title(f"{'ac'[row]}  {name} separation per block", fontsize=9, color=INK,
                        loc='left')
@@ -233,8 +241,11 @@ def plot_block_separations(seps, cons, label, out_path, time_label=time_axis_lab
                 f"{overall.loc[con, 'hi']:+.3f}]" for con in (own, other, 'own_minus_other')))
     for ax in axs[1]:
         ax.set_xlabel(time_label, fontsize=9, color=INK)
-    fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other. Mean over '
-             'windows (95% CI):\n' + '\n'.join(footer), fontsize=7.5, color=MUTED, va='top')
+    fig.text(0.01, -0.03, f'Axes from {label} on one half, separations on the other.'
+             + (" Unique axes: each separation on its own axis's part orthogonal to the "
+                "other (what the two codes do not share)." if unique else '')
+             + ' Mean over windows (95% CI):\n' + '\n'.join(footer),
+             fontsize=7.5, color=MUTED, va='top')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 

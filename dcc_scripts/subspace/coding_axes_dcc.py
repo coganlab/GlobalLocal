@@ -45,6 +45,8 @@ Writes to `args.save_dir`:
                             and the overall fractions with CIs
     trajectories_<axes>.png the §4 figure per axis window (centred cells), and
                             trajectories_<axes>_uncentred.png
+    trajectories_raw.csv    the same cells on the raw (not orthogonalized) unit c
+                            and s axes; figures trajectories_<axes>[_uncentred]_raw.png
 
   adaptation (§6, `coding_trajectories.block_separations`), on the same axes:
     block_separations.csv   per axis window, variable, proportion block and
@@ -55,6 +57,8 @@ Writes to `args.save_dir`:
                             and own - other, with bootstrap CIs
     block_summary.json      the overall (window -1) contrasts with CIs
     block_separations_<axes>.png  the §6 figure per axis window
+    block_*_unique.*, block_separations_<axes>_unique.png  the same on each
+                            axis's part orthogonal to the other (robustness check)
 
   adaptation as trajectories (§6, `coding_trajectories.proportion_trajectories`):
     proportion_trajectories.csv  per axis window, set (variable x proportion),
@@ -111,6 +115,9 @@ from dcc_scripts.subspace.subspace_figures import (
     plot_subspace_test, plot_trajectories, plot_block_separations,
     plot_proportion_trajectories, time_axis_label)
 
+# The two scores' names per `effect`, for the figures.
+VARIABLE_NAMES = {'main': ('congruency', 'switch type'), 'interaction': ('LWPC', 'LWPS')}
+
 # Reference-palette slots 1-2 (dataviz skill), and recessive neutrals.
 CROSS, CEILING = '#2a78d6', '#eb6834'
 INK, MUTED, NULL_FILL, UNRELIABLE = '#0b0b0b', '#52514e', '#d9d8d4', '#f0efec'
@@ -148,14 +155,14 @@ def _runs(mask):
     return find_contiguous_clusters(np.asarray(mask, bool))
 
 
-def plot_coding_axes(table, out_path, time_label=time_axis_label()):
+def plot_coding_axes(table, out_path, time_label=time_axis_label(), title=None):
     """The §3.2 figure. (a) Cosines against time, A4's cross-decoding layout:
     the raw cross cosine (and its Pearson version), the ceiling, the shuffle
     null band (its top edge is the test's threshold under the stricter of the two
     shuffles), and bars where something is shared (cluster-corrected) and where
     it is not one code. (b) Alignment = cross / ceiling with its participant-
     bootstrap CI. Windows whose ceilings are not reliable are greyed out in both
-    panels, and (b) leaves them blank."""
+    panels, and (b) leaves them blank. `title`, if given, heads panel (a)."""
     t = table['window_center'].to_numpy()
     half = np.median(np.diff(t)) / 2 if len(t) > 1 else 0.05
     fig, (a, b) = plt.subplots(2, 1, figsize=(9.0, 6.2), sharex=True,
@@ -206,6 +213,8 @@ def plot_coding_axes(table, out_path, time_label=time_axis_label()):
     b.set_ylabel('alignment\n(cross / ceiling)', fontsize=9, color=INK)
     b.set_xlabel(time_label, fontsize=9, color=INK)
     b.legend(frameon=False, fontsize=7.5, loc='upper left', bbox_to_anchor=(1.01, 1))
+    if title:
+        a.set_title(title, fontsize=10, color=INK, loc='left')
     fig.savefig(out_path, dpi=200, bbox_inches='tight', facecolor='white')
     plt.close(fig)
 
@@ -291,7 +300,98 @@ def plot_coding_axes_controls(runs, out_path, time_label=time_axis_label()):
     plt.close(fig)
 
 
+def main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, seeds,
+                       time_label):
+    """Steps 5-7, defined on the congruency and switch main-effect axes only:
+    the condition trajectories (§4, Gram-Schmidt and raw axes), the
+    block-split separations (§6, raw and unique axes) and the proportion
+    trajectories (§6). Writes their tables and figures to `args.save_dir` and
+    prints their summaries."""
+    # 5. the trajectories (§4): axes and cells on the coding axes' own halves
+    traj, fractions, traj_summary = ct.condition_trajectories(
+        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+        seed=seeds['halves'], remove_mean=args.remove_mean, first=args.traj_first,
+        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
+    traj = traj.merge(grid, on='window')
+    fractions = fractions.merge(grid, on='window', how='left')
+    traj.to_csv(os.path.join(args.save_dir, 'trajectories.csv'), index=False)
+    fractions.to_csv(os.path.join(args.save_dir, 'trajectory_fractions.csv'), index=False)
+    with open(os.path.join(args.save_dir, 'trajectory_summary.json'), 'w') as f:
+        json.dump(traj_summary, f, indent=2)
+    traj_raw, _, _ = ct.condition_trajectories(
+        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+        seed=seeds['halves'], remove_mean=args.remove_mean, first=None,
+        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
+    traj_raw = traj_raw.merge(grid, on='window')
+    traj_raw.to_csv(os.path.join(args.save_dir, 'trajectories_raw.csv'), index=False)
+    for label in axis_labels:
+        for tab, first, tag in ((traj, args.traj_first, ''), (traj_raw, None, '_raw')):
+            for cells, suffix in (('centred', ''), ('uncentred', '_uncentred')):
+                plot_trajectories(tab, fractions, traj_summary['axes'][label], label,
+                                  os.path.join(args.save_dir,
+                                               f'trajectories_{label}{suffix}{tag}.png'),
+                                  cells=cells, first=first, time_label=time_label)
+
+    # 6. adaptation as block-split separations (§6, supplement): the
+    #    trajectories' axes, halves and electrodes
+    block_summaries = {}
+    for unique, tag in ((False, ''), (True, '_unique')):
+        seps, cons, block_summaries[tag] = ct.block_separations(
+            labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+            seed=seeds['halves'], remove_mean=args.remove_mean, unique=unique,
+            n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['block_bootstrap'])
+        seps = seps.merge(grid, on='window', how='left')
+        cons = cons.merge(grid, on='window', how='left')
+        seps.to_csv(os.path.join(args.save_dir, f'block_separations{tag}.csv'), index=False)
+        cons.to_csv(os.path.join(args.save_dir, f'block_contrasts{tag}.csv'), index=False)
+        with open(os.path.join(args.save_dir, f'block_summary{tag}.json'), 'w') as f:
+            json.dump(block_summaries[tag], f, indent=2)
+        for label in axis_labels:
+            plot_block_separations(seps, cons, label,
+                                   os.path.join(args.save_dir,
+                                                f'block_separations_{label}{tag}.png'),
+                                   time_label=time_label, unique=unique)
+
+    # 7. adaptation as trajectories (§6): each variable's two levels in the 25 %
+    #    and 75 % blocks of each proportion, on the trajectories' axes and halves
+    ptraj, pchanges, prop_summary = ct.proportion_trajectories(
+        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
+        seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
+        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'])
+    ptraj = ptraj.merge(grid, on='window')
+    pchanges = pchanges.merge(grid, on='window', how='left')
+    ptraj.to_csv(os.path.join(args.save_dir, 'proportion_trajectories.csv'), index=False)
+    pchanges.to_csv(os.path.join(args.save_dir, 'proportion_changes.csv'), index=False)
+    with open(os.path.join(args.save_dir, 'proportion_summary.json'), 'w') as f:
+        json.dump(prop_summary, f, indent=2)
+    for label in axis_labels:
+        plot_proportion_trajectories(
+            ptraj, pchanges, label,
+            os.path.join(args.save_dir, f'proportion_trajectories_{label}.png'))
+
+    for label, s in traj_summary['axes'].items():
+        print(f"trajectories, axes {label}: plane holds {s['plane_fraction']:.3f} of the "
+              f"centred cells' variance (chance {s['plane_fraction_chance']:.3f}), "
+              f"{s['plane_fraction_signal']:.2f} of the signal")
+    for tag, block_summary in block_summaries.items():
+        for label, by_var in block_summary['axes'].items():
+            for var, s in by_var.items():
+                own = s['own_proportion']
+                other = 'switchProp' if own == 'incProp' else 'incProp'
+                print(f"block separations{' (unique axes)' if tag else ''}, axes {label}, {var}: "
+                      + ' | '.join(f"{con} {s[con]['estimate']:+.3f} "
+                                   f"[{s[con]['ci'][0]:+.3f}, {s[con]['ci'][1]:+.3f}]"
+                                   for con in (own, other, 'own_minus_other')))
+    for label, s in prop_summary['axes'].items():
+        for name, v in s['sets'].items():
+            print(f"proportion trajectories, axes {label}, {name} ({'own' if v['own'] else 'cross'}): "
+                  + ' | '.join(f"along {a} {v[a]['estimate']:+.3f} "
+                               f"[{v[a]['ci'][0]:+.3f}, {v[a]['ci'][1]:+.3f}]"
+                               for a in ('congruency', 'switch')))
+
+
 def main(args):
+    effect = getattr(args, 'effect', 'main')
     LAB_root = resolve_lab_root(args.LAB_root)
     df, times = load_time_courses(args, LAB_root)
     print(f"assembled df: {len(df)} rows | {df.subject.nunique()} subjects | "
@@ -339,7 +439,8 @@ def main(args):
     #    in the main-effect anatomy; one split per participant shared by all of its
     #    electrodes, which the cross-electrode cosines need.
     per = sfs.main_effect_mean_diffs(labels, hg_windows, n_splits=args.n_splits,
-                                     seed=seeds['halves'], remove_mean=args.remove_mean)
+                                     seed=seeds['halves'], remove_mean=args.remove_mean,
+                                     effect=effect)
     per = per.merge(grid, on='window')
     per.to_csv(os.path.join(args.save_dir, 'per_split_windows.csv'), index=False)
 
@@ -352,7 +453,7 @@ def main(args):
         cross, records = [], []
         for per_null in ca.null_draws(
                 labels, hg_windows, factor, n_perm=args.n_perm, n_splits=args.n_null_splits,
-                seed=seeds[f'null_{factor}'], remove_mean=args.remove_mean):
+                seed=seeds[f'null_{factor}'], remove_mean=args.remove_mean, effect=effect):
             cross.append(ca.cross_cosine(per_null))
             records.append(cs.subspace_null_stats(per_null, factor, k_max=args.k_max))
         null[factor] = np.array(cross)
@@ -371,7 +472,8 @@ def main(args):
         json.dump(summary, f, indent=2)
     time_label = time_axis_label(args.epochs_root_file)
     plot_coding_axes(table, os.path.join(args.save_dir, 'coding_axis_cosines.png'),
-                     time_label=time_label)
+                     time_label=time_label,
+                     title=None if effect == 'main' else 'LWPC vs LWPS coding axes')
 
     # 4. the subspace test (§3.4): the windows' axes stacked into effect matrices
     sub_table, sub_dims, sub_summary = cs.compare_subspaces(
@@ -382,58 +484,14 @@ def main(args):
     with open(os.path.join(args.save_dir, 'subspace_summary.json'), 'w') as f:
         json.dump(sub_summary, f, indent=2)
     plot_subspace_test(sub_table, sub_dims, os.path.join(args.save_dir, 'subspace_test.png'),
-                       k=sub_summary['k'])
+                       k=sub_summary['k'],
+                       names=VARIABLE_NAMES[effect])
 
-    # 5. the trajectories (§4): axes and cells on the coding axes' own halves
-    traj, fractions, traj_summary = ct.condition_trajectories(
-        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
-        seed=seeds['halves'], remove_mean=args.remove_mean, first=args.traj_first,
-        n_boot=args.n_boot, alpha=args.alpha, boot_seed=seeds['trajectory_bootstrap'])
-    traj = traj.merge(grid, on='window')
-    fractions = fractions.merge(grid, on='window', how='left')
-    traj.to_csv(os.path.join(args.save_dir, 'trajectories.csv'), index=False)
-    fractions.to_csv(os.path.join(args.save_dir, 'trajectory_fractions.csv'), index=False)
-    with open(os.path.join(args.save_dir, 'trajectory_summary.json'), 'w') as f:
-        json.dump(traj_summary, f, indent=2)
-    for label in axis_labels:
-        for cells, suffix in (('centred', ''), ('uncentred', '_uncentred')):
-            plot_trajectories(traj, fractions, traj_summary['axes'][label], label,
-                              os.path.join(args.save_dir, f'trajectories_{label}{suffix}.png'),
-                              cells=cells, first=args.traj_first, time_label=time_label)
-
-    # 6. adaptation as block-split separations (§6, supplement): the
-    #    trajectories' axes, halves and electrodes
-    seps, cons, block_summary = ct.block_separations(
-        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
-        seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
-        alpha=args.alpha, boot_seed=seeds['block_bootstrap'])
-    seps = seps.merge(grid, on='window', how='left')
-    cons = cons.merge(grid, on='window', how='left')
-    seps.to_csv(os.path.join(args.save_dir, 'block_separations.csv'), index=False)
-    cons.to_csv(os.path.join(args.save_dir, 'block_contrasts.csv'), index=False)
-    with open(os.path.join(args.save_dir, 'block_summary.json'), 'w') as f:
-        json.dump(block_summary, f, indent=2)
-    for label in axis_labels:
-        plot_block_separations(seps, cons, label,
-                               os.path.join(args.save_dir, f'block_separations_{label}.png'),
-                               time_label=time_label)
-
-    # 7. adaptation as trajectories (§6): each variable's two levels in the 25 %
-    #    and 75 % blocks of each proportion, on the trajectories' axes and halves
-    ptraj, pchanges, prop_summary = ct.proportion_trajectories(
-        labels, hg_windows, axis_hg, axis_labels=axis_labels, n_splits=args.n_splits,
-        seed=seeds['halves'], remove_mean=args.remove_mean, n_boot=args.n_boot,
-        alpha=args.alpha, boot_seed=seeds['proportion_bootstrap'])
-    ptraj = ptraj.merge(grid, on='window')
-    pchanges = pchanges.merge(grid, on='window', how='left')
-    ptraj.to_csv(os.path.join(args.save_dir, 'proportion_trajectories.csv'), index=False)
-    pchanges.to_csv(os.path.join(args.save_dir, 'proportion_changes.csv'), index=False)
-    with open(os.path.join(args.save_dir, 'proportion_summary.json'), 'w') as f:
-        json.dump(prop_summary, f, indent=2)
-    for label in axis_labels:
-        plot_proportion_trajectories(
-            ptraj, pchanges, label,
-            os.path.join(args.save_dir, f'proportion_trajectories_{label}.png'))
+    # 5-7. trajectories, block separations, proportion trajectories: built on the
+    #      main-effect axes, so skipped when scoring the interactions
+    if effect == 'main':
+        main_effect_extras(args, labels, hg_windows, axis_hg, axis_labels, grid, seeds,
+                           time_label)
 
     config = dict(
         timestamp=args.timestamp, data_source=args.data_source,
@@ -443,7 +501,7 @@ def main(args):
         rois=(list(args.rois_dict) if args.rois_dict else 'all'),
         windows_tmin=args.windows_tmin, windows_tmax=args.windows_tmax,
         window_size=args.window_size, step_size=args.step_size,
-        effect_measure='mean_diff', contrast_mode='proportion', main_effects=True,
+        effect_measure='mean_diff', contrast_mode='proportion', effect=effect,
         shared_split=True, remove_mean=args.remove_mean,
         rt_control=args.rt_control, rt_match_bins=args.rt_match_bins,
         n_splits=args.n_splits, n_perm=args.n_perm, n_null_splits=args.n_null_splits,
@@ -467,23 +525,5 @@ def main(args):
         print(f"  theta_1 at the primary k: {t1['cross_deg']:.1f} deg (cosine {t1['cross']:.3f}), "
               f"{t1['normalized']:.2f} of the ceiling | shared: {t1.get('shared')} | "
               f"not one code: {t1['not_one_code']}")
-    for label, s in traj_summary['axes'].items():
-        print(f"trajectories, axes {label}: plane holds {s['plane_fraction']:.3f} of the "
-              f"centred cells' variance (chance {s['plane_fraction_chance']:.3f}), "
-              f"{s['plane_fraction_signal']:.2f} of the signal")
-    for label, by_var in block_summary['axes'].items():
-        for var, s in by_var.items():
-            own = s['own_proportion']
-            other = 'switchProp' if own == 'incProp' else 'incProp'
-            print(f"block separations, axes {label}, {var}: "
-                  + ' | '.join(f"{con} {s[con]['estimate']:+.3f} "
-                               f"[{s[con]['ci'][0]:+.3f}, {s[con]['ci'][1]:+.3f}]"
-                               for con in (own, other, 'own_minus_other')))
-    for label, s in prop_summary['axes'].items():
-        for name, v in s['sets'].items():
-            print(f"proportion trajectories, axes {label}, {name} ({'own' if v['own'] else 'cross'}): "
-                  + ' | '.join(f"along {a} {v[a]['estimate']:+.3f} "
-                               f"[{v[a]['ci'][0]:+.3f}, {v[a]['ci'][1]:+.3f}]"
-                               for a in ('congruency', 'switch')))
     print(f"wrote {args.save_dir}")
     return table, summary

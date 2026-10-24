@@ -6,6 +6,105 @@ the owning docs linked from each block.
 
 ---
 
+## 2026-10-22 (evening): proportion trajectories, raw-axis trajectories, unique-axis separations
+
+Drafted by Claude; not yet reviewed.
+
+Jobs: `coding_axes_real` 59312137–59312142 (stimulus-locked) and
+59312143–59312148 (response-locked), 12, all COMPLETED, exit 0, in 15–64 min.
+An earlier batch, 59305401–59305413 (12, all COMPLETED), had only the proportion
+trajectories and was overwritten by this one. Owning doc:
+[`coding_axes.md`](coding_axes.md) §13 (method §1.2–1.3, figures §6.3).
+
+### Short version
+
+1. **Switch adaptation is specific in both senses.** The switch separation
+   changes with switch proportion and not incongruent proportion, and the
+   change lies along the switch axis, not the congruency axis: +0.70
+   [0.23, 1.30] along switch, +0.02 along congruency, stimulus-locked. It holds
+   under `remove_mean`, RT regression (+0.46 [0.12, 0.86]) and on the unique
+   switch axis, and before the response.
+2. **Congruency adaptation is not along the congruency axis.** The extra
+   congruency separation in 25 % incongruent blocks lies along the switch axis
+   (+0.32 [0.16, 0.47]), not the congruency axis (+0.21 [−0.02, 0.41]). The
+   same holds under RT regression and before the response. The prediction was
+   the reverse.
+3. **The response-locked frame looks like a clean double dissociation**
+   (congruency × incProp along congruency +0.52 [0.20, 0.85]), **but that part
+   is after the response**: −0.09 before the response under RT regression.
+4. **Reruns reproduce §12:** cosines and subspace byte-identical; trajectories
+   and block separations to < 10⁻⁹.
+
+### coding_axes_real: proportion trajectories, raw axes, unique axes (both frames, main and five controls)
+
+- **Status:** all twelve COMPLETED; settings as 2026-10-22 (afternoon),
+  `RT_CONTROL=none` explicit, the RT regression run included (59312139,
+  59312145). New outputs per folder: `proportion_trajectories.csv`,
+  `proportion_changes.csv`, `proportion_summary.json`,
+  `proportion_trajectories_<axes>.png`, `trajectories_raw.csv`,
+  `trajectories_<axes>[_uncentred]_raw.png`, `block_*_unique.*`.
+- **Result:** see the short version; tables in `coding_axes.md` §13.2–13.3.
+  The cross sets are near 0, except congruency × switchProp along the switch
+  axis under `remove_mean` (+0.15 [0.04, 0.28]) and before the response (+0.40).
+- **Interpretation:** the switch half of the predicted dissociation holds in
+  its strongest form so far: right proportion, right axis, robust to the
+  controls. The congruency half does not hold as stated. Congruency's
+  incProp-related change is real (raw-axis +0.33), but in the population it
+  rides along the switch direction, and the switch axis also picks up some
+  congruency × switchProp change. Two readings remain open: a shared direction
+  tracking block-level difficulty or surprise, or an artifact of splitting a
+  partly out-of-plane change between two oblique axes.
+- **Effect on the paper's story:** strengthens the switch-specific claim of
+  the §6 supplement (`paper_draft.md` §1.5, §3.4). Argues against claiming a
+  population-level double dissociation for congruency. Adds a possible finding
+  (congruency adaptation on the switch axis) that needs a null before it can be
+  mentioned.
+- **Recommendation: supplement.** Panel d of `proportion_trajectories` (switch ×
+  switchProp) with its cross panel c is the figure to show. Hold the
+  congruency panels until (1) a shuffle null exists for the along-axis
+  components (shuffle the proportion labels within participant and cell), and
+  (2) the plot is redrawn with early-window axes (0.1–0.5 s, cos(c, s) ≈ 0),
+  where the oblique split is not needed. Not main text.
+
+### Oddities
+
+- Response-locked, congruency × incProp along congruency flips sign around the
+  response under RT regression (−0.09 before, +0.49 after). The post-response
+  windows include feedback and the next trial (§11.1).
+- Stimulus-locked occipital: switch × switchProp along the congruency axis is
+  +0.09 [0.0001, 0.20], borderline, in a region with no reliable per-window
+  code.
+- `rt_match10` / `rt_random10` disagree with each other again (e.g. congruency
+  × switchProp along congruency −0.42 match vs +0.21 random); not interpreted.
+
+### Proposed `paper_draft.md` edits (not applied)
+
+1. **§1.5 Supplement row from the 2026-10-22 (afternoon) entry, replace the
+   result cell with:** "The switch separation changes with switch proportion,
+   not incongruent proportion, and along the switch axis only (+0.70
+   [0.23, 1.30]; survives `remove_mean`, RT regression and unique axes);
+   congruency's incProp change lies along the switch axis, not its own; also
+   weakly in occipital | Pending a shuffle null."
+2. **§3.4 sentence (only if the null holds):** "> At the population level, the
+   switch separation was larger in mostly-repeat than mostly-switch blocks,
+   and the difference lay along the switch coding axis, not the congruency
+   axis (Supplementary **[S?]**)."
+
+### Downloads
+
+Manifest: `/hpc/home/jz421/download_manifests/2026-10-22_evening.txt` (538
+files, 110 MB: every figure, csv, json and null npz written by this batch in the
+twelve folders; it supersedes `2026-10-22.txt`). Left out: the
+`per_split_windows.csv` tables (1.8 GB, unchanged).
+
+```bash
+rsync -avz --files-from=:/hpc/home/jz421/download_manifests/2026-10-22_evening.txt \
+  jz421@dcc-login.oit.duke.edu:/hpc/group/coganlab/jz421/GlobalLocal/dcc_scripts/ \
+  ~/GlobalLocal_results/
+```
+
+---
+
 ## 2026-10-22: block-split adaptation in the coding axes (subspace plan §6)
 
 Drafted by Claude; not yet reviewed.

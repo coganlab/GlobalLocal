@@ -98,6 +98,17 @@ def test_fast_main_effects_match_the_loop():
     for col in ca.AXIS_COLS:
         assert np.allclose(m[f'{col}_ref'], m[col], equal_nan=True)
 
+    # effect='interaction': the loop's x / y (LWPC, LWPS) on the same halves
+    means, _ = sfs.window_means(df['hg'].to_numpy(), times, 16, 8)
+    inter = sfs.main_effect_mean_diffs(df.drop(columns='hg'), means, n_splits=4, seed=7,
+                                       effect='interaction')
+    m = ref.merge(inter, on=['electrode', 'split', 'window'], suffixes=('_ref', ''))
+    assert len(m) == len(ref)
+    for col in ca.AXIS_COLS:                                  # mxA vs xA, ..., myB vs yB
+        assert np.allclose(m[col[1:]], m[col], equal_nan=True), col
+    with pytest.raises(ValueError, match='effect must be'):
+        sfs.main_effect_mean_diffs(df.drop(columns='hg'), means, effect='lwpc')
+
 
 def test_shared_halves_reproduce_the_scorer_and_its_cell_means():
     """`halves=` scores on exactly the trials the seed draws, and the cell means
