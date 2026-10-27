@@ -13,6 +13,7 @@
 # export PLOT_SETS="all_lpfc,task_relevant_lpfc,congruency_only_labels,switch_type_only_labels,both_labels"
 export PLOT_SETS="congruency_only_labels,switch_type_only_labels,both_labels"
 # export PLOT_SETS="task_relevant_lpfc"
+# export PLOT_SETS="congruency_only_labels"
 
 export PLOT_SET_LABEL="lpfc_power_trace_sets"
 
